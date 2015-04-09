@@ -18,6 +18,8 @@ require("shellscript").globalize()
 module.exports = (activeDir) ->
 
   fs.readdir path.join(__dirname, "..", "public", "plots"), (err, files) ->
+    if err
+      return
     files.forEach (f) ->
       f = path.join(__dirname, "..", "public", "plots", f)
       fs.unlinkSync f
