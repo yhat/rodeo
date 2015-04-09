@@ -1,0 +1,41 @@
+/* The console container element */
+#console {
+  position: absolute;
+  width: 90%;
+  height: 250px;
+  background-color: black;
+}
+/* The inner console element. */
+.jqconsole {
+    padding: 10px;
+}
+/* The cursor. */
+.jqconsole-cursor {
+    background-color: gray;
+}
+/* The cursor color when the console looses focus. */
+.jqconsole-blurred .jqconsole-cursor {
+    background-color: #666;
+}
+/* The current prompt text color */
+.jqconsole-prompt {
+    color: black;
+}
+/* The command history */
+.jqconsole-old-prompt {
+    color: black;
+    font-weight: normal;
+}
+/* The text color when in input mode. */
+.jqconsole-input {
+    color: black;
+}
+/* Previously entered input. */
+.jqconsole-old-input {
+    color: black;
+    font-weight: normal;
+}
+/* The text color of the output. */
+.jqconsole-output {
+    color: black;
+}

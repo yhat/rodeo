@@ -1,0 +1,447 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>snakeoil</title>
+    <style type="text/css" media="screen">
+        .editor {
+            height: 325px;
+        }
+        .history {
+          height: 325px;
+          padding: 0px;
+          margin: 0px;
+          overflow: scroll;
+        }
+    </style>
+    <link href="/css/console.css" rel="stylesheet">
+    <link href="/css/bootstrap.yeti.css" rel="stylesheet">
+    <style>
+        .modal-backdrop.in {
+          opacity: 0;
+        }
+    </style>
+    <!-- <link rel="stylesheet" href="//code.jquery.com/ui/1.11.4/themes/smoothness/jquery-ui.css"> -->
+    <!-- <link href="/css/terminal.css" rel="stylesheet"> -->
+</head>
+<body>
+
+  <!-- start nav -->
+  <nav class="navbar navbar-inverse">
+    <div class="container-fluid">
+      <div class="navbar-header">
+        <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1">
+          <span class="sr-only">Toggle navigation</span>
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+        </button>
+        <a class="navbar-brand" href="/"><span class="glyphicon glyphicon-flash" aria-hidden="true"></span></a>
+      </div>
+      <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-2">
+        <ul class="nav navbar-nav">
+          <li class="dropdown">
+            <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">snakeoil</a>
+            <ul class="dropdown-menu" role="menu">
+              <li><a href="/about">About</a></li>
+              <!-- <li><a href="#">Preferences</a></li> -->
+              <li class="divider"></li>
+              <li><a href="#">Quit</a></li>
+            </ul>
+          </li>
+          <li class="dropdown">
+            <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">File</a>
+            <ul class="dropdown-menu" role="menu">
+              <li><a onclick="addTab()" href="#">New Script</a></li>
+              <li><a id="openfilewidget" href="#">Open File</a></li>
+              <li><a onclick='saveEditor($("#editors .active .editor").attr("id"));' href="#">Save</a></li>
+              <li><a onclick='saveEditor($("#editors .active .editor").attr("id"), true);' href="#">Save As</a></li>
+              <li class="divider"></li>
+              <li><a onclick='$("#editorsTab .active .closeTab").click();' href="#">Close</a></li>
+              <li><a onclick='$("#editorsTab .closeTab").click();' href="#">Close All</a></li>
+            </ul>
+          </li>
+          <li class="dropdown">
+            <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">Help</a>
+            <ul class="dropdown-menu" role="menu">
+              <li><a href="http://foo.readme.io" target=_blank >Docs</a></li>
+              <li><a href="#" data-toggle="modal" data-target="#myModal">Shortcuts</a></li>
+            </ul>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </nav>
+  <!-- end nav -->
+  <div class="container">
+  <div class="row">
+    <!-- scripts -->
+
+
+    <div class="col-sm-7 resizable">
+      <!-- tab headers -->
+      <ul id="editorsTab" class="nav nav-tabs">
+        <li class="active">
+          <a class="editor1-tab" href="#tab1" data-toggle="tab" aria-expanded="false"><span class="name">Untitled.py</span>&nbsp;
+            <button class="close closeTab" type="button" style="color: red;"><span class="glyphicon glyphicon-remove" aria-hidden="true"></span></button>
+            <button class="close runTab" type="button" style="color: steelblue;"><span class="glyphicon glyphicon-arrow-right" aria-hidden="true"></span></button>
+          </a>
+        </li>
+        <li><a href="#" id="add-tab"><span class="glyphicon glyphicon-plus" aria-hidden="true"></span></a></li>
+      </ul>
+      <!-- end tab headers -->
+
+      <div id="editors" class="tab-content">
+        <div class="tab-pane active" id="tab1">
+          <div class="editor" id="editor1"></div>
+        </div>
+      </div>
+    </div>
+  <!-- end scripts -->
+  <input type="file" id="upload_file" class="hide"> 
+
+
+  <div class="col-sm-5 resizable">
+    <ul class="nav nav-tabs">
+      <li class="active"><a href="#environment" data-toggle="tab">Environment</a></li>
+      <li><a href="#history" data-toggle="tab">History</a></li>
+    </ul>
+    <div id="myTabContent" class="tab-content">
+      <div class="tab-pane active in" id="environment" style="height: 325px; overflow: scroll;">
+        <table class="table table-bordered">
+          <thead>
+            <tr>
+              <th>variable</th>
+              <th>type</th>
+            </tr>
+          </thead>
+          <tbody id="vars">
+          </tbody>
+        </table>
+      </div>
+      <div class="tab-pane" id="history">
+        <pre style="font-size: 10px; background-color: white;" class="history" id="history-trail"></pre>
+        </div>
+      </div>
+    </div>
+  </div>
+  <hr>
+  <div class="row">
+    <div class="col-sm-7 resizable">
+      <div class="panel panel-default">
+        <div class="panel-heading">
+          <h3 class="panel-title"><span class="glyphicon glyphicon-console" aria-hidden="true"></span></h3>
+        </div>
+        <div class="panel-body">
+          <div id="console"></div>
+        </div>
+      </div>
+    </div>
+    <div class="col-sm-5 resizable">
+      <ul class="nav nav-tabs">
+        <li class="active"><a href="#files" data-toggle="tab">Files</a></li>
+        <li><a href="#plots" data-toggle="tab">Plots</a></li>
+        <li><a href="#packages" data-toggle="tab">Packages</a></li>
+        <li><a href="#help" data-toggle="tab">Help</a></li>
+      </ul>
+      <div id="myTabContent" class="tab-content">
+        <div class="tab-pane active in" id="files">
+          <div class="list-group">
+            {{#files}}
+              <a id="file-{{ . }}" href="#" class="list-group-item openfile">{{ . }}</a>
+            {{/files}}
+          </div>
+        </div>
+        <div class="tab-pane" id="plots" style="height: 257px;">
+          <a id="prev-plot" class="label label-primary" title="Prevous Plot"><span class="glyphicon glyphicon-circle-arrow-left" aria-hidden="true"></span></a>
+          <a id="next-plot" class="label label-primary" title="Next Plot"><span class="glyphicon glyphicon-circle-arrow-right" aria-hidden="true"></span></a>
+          <a id="zoom-plot" onclick="zoomImage();" class="label label-default" title="Zoom In"><span class="glyphicon glyphicon-zoom-in" aria-hidden="true"></span></a>
+          <a id="export-plot" class="label label-default" title="Export Plot"><span class="glyphicon glyphicon-picture" aria-hidden="true"></span></a>
+          <a id="trash-plot" class="label label-default" title="Delete Plot"><span class="glyphicon glyphicon-trash" aria-hidden="true"></span></a>
+          <br>
+          <img id="current-plot" style="max-width: 100%; max-height: 100%;" />
+        </div>
+        <div class="tab-pane" id="packages" style="max-height: 250px; overflow: scroll;">
+          <table class="table table-striped table-hover">
+            <thead>
+              <tr>
+                <th>package</th>
+                <th>version</th>
+              </tr>
+            </thead>
+            <tbody>
+              {{#packages}}
+              <tr><td>{{ name }}</td><td>{{ version }}</td></tr>
+              {{/packages}}
+            </tbody>
+          </table>
+        </div>
+        <div class="tab-pane" id="help">
+          <pre style="font-size: 10px; background-color: white; height: 257px; overflow: scroll;" id="help-content"><i>run help(...) for more info</i></pre>
+        </div>
+      </div>
+    </div>
+  </div>
+
+
+{{>shortcuts}}
+
+<script src="/js/lib/jquery.min.js"></script>
+<!-- <script src="//code.jquery.com/ui/1.11.4/jquery-ui.js"></script> -->
+<script src="/js/bootstrap.min.js"></script>
+<!-- <script src="/js/lib/jquery.terminal-0.8.8.min.js"></script> -->
+<script src="/js/lib/jqconsole.min.js"></script>
+<script src="/ace/ace.js"></script>
+<script type="text/javascript">
+  var terminal;
+  var plots = [];
+
+  function createEditor(id) {
+    var editor = ace.edit(id);
+    editor.setTheme("ace/theme/monokai");
+    editor.getSession().setMode("ace/mode/python");
+
+    editor.commands.addCommand({
+      name: "sendCommand",
+      bindKey: {win: "ctrl-Enter", mac: "Command-Enter"},
+      exec: function(editor) {
+        var text = editor.getCopyText();
+        if (text=="") {
+          var currline = editor.getSelectionRange().start.row;
+          text = editor.session.getLine(currline);
+        }
+        terminal.exec(text);
+      }
+    });
+
+    editor.commands.addCommand({
+      name: "saveFile",
+      bindKey: {win: "ctrl-s", mac: "Command-s"},
+      exec: function(editor) {
+        var filename = $("." + id + "-tab .name").text();
+        if (/Untitled/.test(filename)) {
+          filename = prompt("Save as: ");
+          $("." + id + "-tab .name").text(filename);
+        }
+        $.post("/file", { source: editor.getSession().getValue(), filename: filename }, function(d) {
+          $("." + id + "-tab").append('<span style="color: coral;" class="saved glyphicon glyphicon-floppy-saved" aria-hidden="true"></span>');
+          setTimeout(function() {
+            $(".saved").remove();
+          }, 500);
+        });
+      }
+    });
+    return editor;
+  }
+  createEditor("editor1");
+
+
+  function addTab(filename) {
+    var n = $(".editor").length+1;
+    filename = filename || "Untitled-" + n + ".py"
+    var newTabHeader = '<li class=""><a class="editor' + n + '-tab" href="#tab' + n + '" data-toggle="tab" aria-expanded="true"><span class="name">' + filename + '</span> &nbsp;<button class="close closeTab" type="button" style="color: red;"><span class="glyphicon glyphicon-remove" aria-hidden="true"></span></button><button class="close runTab" type="button" style="color: steelblue;"><span class="glyphicon glyphicon-arrow-right" aria-hidden="true"></span></button></a></li>';
+    var newTabEditor = '<div class="tab-pane" id="tab' + n + '"><div class="editor" id="editor' + n + '"></div></div>';
+    $(newTabHeader).insertBefore($("#add-tab").parent());
+    $("#editors").append(newTabEditor);
+    var e = createEditor("editor" + n);
+    registerCloseEvent();
+    registerRunEvent();
+    $('a[href="#tab' + n + '"]').tab("show");
+    return e;
+  }
+
+  $("#add-tab").click(function(e) {
+    e.preventDefault();
+    addTab();
+    return false;
+  });
+
+  var jqconsole = $('#console').jqconsole('Welcome to IPython!\n', '>>> ');
+  var startPrompt = function () {
+    // Start the prompt with history enabled.
+    jqconsole.Prompt(true, function (input) {
+      // Output input with the class jqconsole-output.
+        $.post("/", { code: input }, function(d) {
+          jqconsole.Write(d.output + '\n', 'jqconsole-output');
+          if (/help[(].+[)]/.test(input)) {
+            $('a[href="#' + "help" + '"]').tab("show");
+            $("#help-content").text(d.output);
+          }
+          code = "getvars"
+          $.post("/", { code: code }, function(d) {
+            var vars = JSON.parse(d.output);
+            $("#vars").children().remove();
+            for(var i=0; i < vars.length; i++) {
+              $("#vars").append("<tr><td>" +vars[i].name + "</td><td>" + vars[i].dtype + "</td></tr>");
+            }
+            $.get("/plots", function(data) {
+              for (var i=0; i < data.plots.length; i++) {
+                var plotFile = data.plots[i];
+                if (plots.indexOf(plotFile)==-1) {
+                  $("#current-plot").attr("src", plotFile);
+                  $('a[href="#plots"]').tab("show");
+                  plots.push(plotFile);
+                }
+              }
+            });
+          });
+        });
+      // Restart the prompt.
+      startPrompt();
+    });
+  };
+  startPrompt();
+
+  // $('#terminal').terminal(function(command, term) {
+  //   terminal = term;
+  //   $("#history-trail").append(command + '\n');
+  //   $.post("/", { code: command }, function(d) {
+  //     term.echo(d.output);
+  //     if (/help[(].+[)]/.test(command)) {
+  //       $('a[href="#' + "help" + '"]').tab("show");
+  //       $("#help-content").text(d.output);
+  //     }
+  //     code = "getvars"
+  //     $.post("/", { code: code }, function(d) {
+  //       var vars = JSON.parse(d.output);
+  //       $("#vars").children().remove();
+  //       for(var i=0; i < vars.length; i++) {
+  //         $("#vars").append("<tr><td>" +vars[i].name + "</td><td>" + vars[i].dtype + "</td></tr>");
+  //       }
+  //       $.get("/plots", function(data) {
+  //         for (var i=0; i < data.plots.length; i++) {
+  //           var plotFile = data.plots[i];
+  //           if (plots.indexOf(plotFile)==-1) {
+  //             $("#current-plot").attr("src", plotFile);
+  //             $('a[href="#plots"]').tab("show");
+  //             plots.push(plotFile);
+  //           }
+  //         }
+  //       });
+  //     });
+  //   });
+  // }, {
+  //   greetings: 'Welcome to IPython!',
+  //   name: 'python',
+  //   height: 200,
+  //   prompt: '>>> '
+  // });
+
+//this method will register event on close icon on the tab..
+function registerCloseEvent() {
+  $(".closeTab").click(function () {
+      //there are multiple elements which has .closeTab icon so close the tab whose close icon is clicked
+      var tabContentId = $(this).parent().attr("href");
+      $(this).parent().parent().remove(); //remove li of tab
+      $('#myTab a:last').tab('show'); // Select first tab
+      $(tabContentId).remove(); //remove respective tab content
+      var name = $("span", $(this).parent()).text();
+      $("#file-" + name.replace(".", "\\.")).removeClass("active");
+  });
+}
+registerCloseEvent();
+
+function registerRunEvent() {
+  $(".runTab").click(function () {
+    var id = $(".runTab").parent().attr("class").slice(0, -4);
+    var editor = ace.edit(id);
+    var text = editor.getCopyText();
+    if (text=="") {
+      var currline = editor.getSelectionRange().start.row;
+      text = editor.session.getLine(currline);
+    }
+    terminal.exec(text);
+  });
+}
+registerRunEvent();
+
+
+$(".openfile").click(function(e) {
+  e.preventDefault();
+  $(this).addClass("active");
+  var editor = addTab($(this).text());
+  $.get("/file/" + $(this).text(), function(d) {
+    editor.setValue(d);
+    // show in window
+  });
+  return false;
+});
+$("#openfilewidget").click(function(e) {
+  $('#upload_file').trigger('click');
+  return false;
+});
+$("#upload_file").change(function(e){
+  var filename = $(this).val().slice(12);
+  var input = document.getElementById('upload_file')
+  var reader = new FileReader();
+  reader.readAsText(input.files[0], "UTF-8");
+  reader.onload = function (evt) {
+    var editor = addTab(filename)
+    editor.setValue(evt.target.result);
+  }
+});
+
+function saveEditor(id, saveas) {
+  var editor = ace.edit(id);
+  var filename = $("." + id + "-tab .name").text();
+  if (/Untitled/.test(filename) || saveas==true) {
+    filename = prompt("Save as: ");
+    $("." + id + "-tab .name").text(filename);
+  }
+  $.post("/file", { source: editor.getSession().getValue(), filename: filename }, function(d) {
+    console.log(d);
+    $("." + id + "-tab").append('<span style="color: green;" class="saved glyphicon glyphicon-floppy-saved" aria-hidden="true"></span>');
+    setTimeout(function() {
+      $(".saved").remove();
+    }, 500);
+  });
+}
+
+$("#prev-plot").click(function(e) {
+  e.preventDefault();
+  var plt = $("#current-plot").attr("src");
+  var idx = plots.indexOf(plt);
+  if (idx > 0) {
+    $("#current-plot").attr("src", plots[idx-1]);
+  }
+  return false;
+});
+
+$("#next-plot").click(function(e) {
+  e.preventDefault();
+  var plt = $("#current-plot").attr("src");
+  var idx = plots.indexOf(plt);
+  if (idx > -1 && idx < (plots.length-1)) {
+    $("#current-plot").attr("src", plots[idx+1]);
+  }
+  return false;
+});
+
+$("#export-plot").click(function(e) {
+  e.preventDefault();
+  var currentPlot = document.getElementById('current-plot');
+  var url = currentPlot.getAttribute('src');
+  window.open(url,'Image','width=currentPlot.stylewidth,height=currentPlot.style.height,resizable=1');
+  return false;
+});
+
+$("#trash-plot").click(function(e) {
+  e.preventDefault();
+  var plt = $("#current-plot").attr("src");
+  var idx = plots.indexOf(plt);
+  if (idx > -1) {
+    plots.splice(idx, 1);
+  }
+
+  $("#current-plot").attr("src", "");
+  return false;
+});
+
+function zoomImage() {
+  var currentPlot = document.getElementById('current-plot');
+  var url = currentPlot.getAttribute('src');
+  window.open(url,'Image','width=currentPlot.stylewidth,height=currentPlot.style.height,resizable=1');
+}
+
+</script>
+</body>
+</html>

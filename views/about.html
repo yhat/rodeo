@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>snakeoil</title>
+    <style type="text/css" media="screen">
+        .editor {
+            height: 325px;
+        }
+        .history {
+          height: 325px;
+          overflow: scroll;
+        }
+    </style>
+    <link href="/css/bootstrap.yeti.css" rel="stylesheet">
+    <link rel="stylesheet" href="//code.jquery.com/ui/1.11.4/themes/smoothness/jquery-ui.css">
+    <link href="/css/terminal.css" rel="stylesheet">
+</head>
+<body>
+
+  <!-- start nav -->
+  <nav class="navbar navbar-inverse">
+    <div class="container-fluid">
+      <div class="navbar-header">
+        <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1">
+          <span class="sr-only">Toggle navigation</span>
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+        </button>
+        <a class="navbar-brand" href="/"><span class="glyphicon glyphicon-flash" aria-hidden="true"></span></a>
+      </div>
+      <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-2">
+        <ul class="nav navbar-nav">
+          <li class="dropdown">
+            <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">snakeoil</a>
+            <ul class="dropdown-menu" role="menu">
+              <li><a href="#">About</a></li>
+              <li class="divider"></li>
+              <li><a href="#">Quit</a></li>
+            </ul>
+          </li>
+          <li class="dropdown">
+            <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">File</a>
+            <ul class="dropdown-menu" role="menu">
+              <li><a onclick="addTab()" href="#">New Script</a></li>
+              <li><a id="openfilewidget" href="#">Open File</a></li>
+              <li><a onclick='saveEditor($("#editors .active .editor").attr("id"));' href="#">Save</a></li>
+              <li><a onclick='saveEditor($("#editors .active .editor").attr("id"), true);' href="#">Save As</a></li>
+              <li class="divider"></li>
+              <li><a onclick='$("#editorsTab .active .closeTab").click();' href="#">Close</a></li>
+              <li><a onclick='$("#editorsTab .closeTab").click();' href="#">Close All</a></li>
+            </ul>
+          </li>
+          <li class="dropdown">
+            <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">Help</a>
+            <ul class="dropdown-menu" role="menu">
+              <li><a href="#">Search</a></li>
+              <li><a href="#" data-toggle="modal" data-target="#myModal">Shortcuts</a></li>
+            </ul>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </nav>
+  <!-- end nav -->
+  <div class="container">
+  <div class="row">
+    <div class="jumbotron">
+    <h1>snakeoil</h1>
+    <p>snakeoil is an IDE for Python that's built for doing data analysis.</p>
+  </div>
+  </div>
+</div>
+
+
+<script src="/js/lib/jquery.min.js"></script>
+<script src="//code.jquery.com/ui/1.11.4/jquery-ui.js"></script>
+<script src="/js/bootstrap.min.js"></script>
+
+</body>
+</html>

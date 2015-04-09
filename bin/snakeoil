@@ -1,0 +1,32 @@
+#!/usr/bin/env coffee
+fs = require 'fs'
+path = require 'path'
+package_json = JSON.parse fs.readFileSync path.join(__dirname, '../package.json')
+server = require '../src/server'
+doc = """
+
+Usage:
+    snakeoil [options] [<directory>]
+
+Options:
+    --help
+    --version
+
+Description:
+    #{package_json.description}
+
+Example:
+    snakeoil .
+    snakeoil 
+    snakeoil /path/to/my/directory
+    snakeoil /path/to/my/file.py
+
+"""
+{docopt} = require 'docopt', version: package_json.version
+options = docopt doc
+
+# handle arguments
+directory = options['<directory>'] || "."
+directory = path.resolve directory
+
+server directory
