@@ -28,6 +28,7 @@ variables.add("out")
 variables.add("myvars")
 variables.add("e")
 variables.add("delim")
+variables.add("error")
 
 if __name__=="__main__":
     delim = sys.argv[1]
@@ -42,6 +43,7 @@ if __name__=="__main__":
         line = sys.stdin.readline()
         data = json.loads(line)
         codeOut = StringIO.StringIO()
+        error = None
         sys.stdout = codeOut
         try:
             code = data["code"]
@@ -53,20 +55,26 @@ if __name__=="__main__":
                 _, completions = shell.complete(code)
                 print json.dumps(completions)
             elif code.startswith("print"):
+                sys.stderr.write("[INFO]: executing `%s`\n" % code)
                 exec(code)
                 # doesn't work w/ print; needs print()
                 # shell.ex(code)
             else:
                 try:
+                    sys.stderr.write("[INFO]: executing `%s`\n" % code)
                     print repr(eval(code))
                     # print repr(shell.ev(code))
-                except:
+                except Exception, e:
+                    error = str(e)
+                    sys.stderr.write("[ERROR-1]: %s\n" % str(e))
                     exec(code)
                     # shell.ex(code)
         except Exception, e:
-            pass
+            error = str(e)
+            sys.stderr.write("[ERROR-2]: %s\n" % str(e))
 
         sys.stdout = sys.__stdout__
         data["output"] = codeOut.getvalue().strip()
+        data["error"] = error
         sys.stdout.write(json.dumps(data) + delim)
         sys.stdout.flush()

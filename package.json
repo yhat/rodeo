@@ -1,6 +1,6 @@
 {
   "name": "snakeoil",
-  "description": "A data science centric ide for python.",
+  "description": "A data centric ide for python.",
   "version": "0.0.1",
   "author": "Greg Lamp <greg@yhathq.com>",
   "homepage": "http://yhat.github.io/snakeoil/",
@@ -28,8 +28,8 @@
     "morgan": "~1.0.0",
     "shellscript": "^0.1.1",
     "static-favicon": "~1.0.1",
-    "uuid": "^2.0.1"
+    "uuid": "^2.0.1",
+    "colors": "~1.0.3"
   },
-  "devDependencies": {
-  }
+  "devDependencies": {}
 }

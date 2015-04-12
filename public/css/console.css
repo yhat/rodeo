@@ -1,9 +1,12 @@
 /* The console container element */
 #console {
   position: absolute;
-  width: 90%;
+  width: 95.5%;
   height: 250px;
-  background-color: black;
+  background-color: white;
+}
+.jqconsole {
+    background-color: white;
 }
 /* The inner console element. */
 .jqconsole {
@@ -38,4 +41,16 @@
 /* The text color of the output. */
 .jqconsole-output {
     color: black;
+}
+
+.jqconsole-error {
+    color: red;
+}
+
+.panel-console {
+  border-color: black;
+}
+ .panel-console > .panel-heading {
+    background-color: black;
+  }
 }

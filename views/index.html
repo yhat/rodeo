@@ -13,15 +13,16 @@
           overflow: scroll;
         }
     </style>
-    <link href="/css/console.css" rel="stylesheet">
     <link href="/css/bootstrap.yeti.css" rel="stylesheet">
+    <link href="/css/console.css" rel="stylesheet">
     <style>
+/*
         .modal-backdrop.in {
           opacity: 0;
         }
+        */
     </style>
     <!-- <link rel="stylesheet" href="//code.jquery.com/ui/1.11.4/themes/smoothness/jquery-ui.css"> -->
-    <!-- <link href="/css/terminal.css" rel="stylesheet"> -->
 </head>
 <body>
 
@@ -51,7 +52,7 @@
           <li class="dropdown">
             <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">File</a>
             <ul class="dropdown-menu" role="menu">
-              <li><a onclick="addTab()" href="#">New Script</a></li>
+              <li><a onclick="addTab();" href="#">New Script</a></li>
               <li><a id="openfilewidget" href="#">Open File</a></li>
               <li><a onclick='saveEditor($("#editors .active .editor").attr("id"));' href="#">Save</a></li>
               <li><a onclick='saveEditor($("#editors .active .editor").attr("id"), true);' href="#">Save As</a></li>
@@ -97,8 +98,9 @@
       </div>
     </div>
   <!-- end scripts -->
-  <input type="file" id="upload_file" class="hide"> 
 
+  <!-- this is the hidden file input for the `File > Open File` menu item -->
+  <input type="file" id="upload_file" class="hide"> 
 
   <div class="col-sm-5 resizable">
     <ul class="nav nav-tabs">
@@ -112,6 +114,7 @@
             <tr>
               <th>variable</th>
               <th>type</th>
+              <th></th>
             </tr>
           </thead>
           <tbody id="vars">
@@ -127,12 +130,11 @@
   <hr>
   <div class="row">
     <div class="col-sm-7 resizable">
-      <div class="panel panel-default">
+      <div class="panel panel-console">
         <div class="panel-heading">
-          <h3 class="panel-title"><span class="glyphicon glyphicon-console" aria-hidden="true"></span></h3>
+          <h3 class="panel-title"><span style="color: white;" class="glyphicon glyphicon-console" aria-hidden="true"></span></h3>
         </div>
-        <div class="panel-body">
-          <div id="console"></div>
+        <div id="console" class="panel-body">
         </div>
       </div>
     </div>
@@ -181,14 +183,15 @@
       </div>
     </div>
   </div>
+</div>
 
-
+<!-- modals -->
 {{>shortcuts}}
+{{>df}}
 
 <script src="/js/lib/jquery.min.js"></script>
 <!-- <script src="//code.jquery.com/ui/1.11.4/jquery-ui.js"></script> -->
-<script src="/js/bootstrap.min.js"></script>
-<!-- <script src="/js/lib/jquery.terminal-0.8.8.min.js"></script> -->
+<script src="/js/lib/bootstrap.min.js"></script>
 <script src="/js/lib/jqconsole.min.js"></script>
 <script src="/ace/ace.js"></script>
 <script type="text/javascript">
@@ -209,7 +212,9 @@
           var currline = editor.getSelectionRange().start.row;
           text = editor.session.getLine(currline);
         }
-        terminal.exec(text);
+        // jqconsole.SetPromptText(text);
+        jqconsole.Write(">>> " + text + '\n', 'jqconsole-input');
+        sendCommand(text);
       }
     });
 
@@ -249,6 +254,20 @@
     return e;
   }
 
+  function showDataFrame(varname) {
+    var cmd = "print " + varname + ".ix[:5000].to_html()";
+    $("#data-table-title").text(varname);
+    $("#data-table").children().remove();
+    $("#data-table").append("<p>fetching data...</p>");
+    $("#dfModal").modal('show');
+    $.post("/", { code: cmd }, function(d) {
+      $("#data-table").children().remove();
+      $("#data-table").append(d.output);
+      $("#data-table table").addClass("table");
+      $("#data-table table").addClass("table-striped");
+    });
+  }
+
   $("#add-tab").click(function(e) {
     e.preventDefault();
     addTab();
@@ -256,75 +275,107 @@
   });
 
   var jqconsole = $('#console').jqconsole('Welcome to IPython!\n', '>>> ');
+
+  // 4 spaces for python
+  jqconsole.SetIndentWidth(4);
+
+  // ctrl + l to clear
+  jqconsole.RegisterShortcut('l', function() {
+    jqconsole.Clear();
+  });
+
+  // ctrl + a to skip to beginning of line
+  jqconsole.RegisterShortcut('a', function() {
+    jqconsole.MoveToStart();
+  });
+
+  // ctrl + e to skip to end of line
+  jqconsole.RegisterShortcut('e', function() {
+    jqconsole.MoveToEnd();
+  });
+  
+  // ctrl + c to cancel input
+  jqconsole.RegisterShortcut('c', function() {
+    jqconsole.ClearPromptText();
+  });
+  
+  // ctrl + <space> to make new line bridge
+  jqconsole.RegisterShortcut('32', function() {
+    jqconsole.SetPromptText(jqconsole.GetPromptText() + " + \\\n    ");
+  });
+  
+  // ctrl + <enter> to make new line 
+  jqconsole.RegisterShortcut('13', function() {
+    jqconsole.SetPromptText(jqconsole.GetPromptText() + "\n    ");
+  });
+
+  // TODO
+  // ctrl + <left arrow> to jump word
+  // jqconsole.RegisterShortcut('37', function() {
+  // });
+
+  // TODO
+  // ctrl + <right arrow> to jump word
+  // jqconsole.RegisterShortcut('39', function() {
+  // });
+
+  function getSessionVariables(fn) {
+    $.post("/", { code: "getvars" }, function(d) {
+      var vars = JSON.parse(d.output);
+      $("#vars").children().remove();
+      for(var i=0; i < vars.length; i++) {
+        var html;
+        if (vars[i].dtype=="DataFrame") {
+          html = "<tr><td>" +vars[i].name + "</td><td>" + vars[i].dtype + "</td><td style='td-align: center;'><a onclick=\"showDataFrame('" + vars[i].name + "');\">show <span class='glyphicon glyphicon-th' aria-hidden='true'></span></a></td></tr>";
+        } else {
+           html = "<tr><td>" +vars[i].name + "</td><td>" + vars[i].dtype + "</td><td></td></tr>";
+        }
+        $("#vars").append(html);
+      }
+      if (fn!=null) {
+        fn();
+      }
+    });
+  }
+  // start w/ env vars setup
+  getSessionVariables();
+
+  function sendCommand(cmd) {
+    $.post("/", { code: cmd }, function(d) {
+      jqconsole.Write(d.output + '\n', 'jqconsole-output');
+      if (/help[(].+[)]/.test(cmd)) {
+        $('a[href="#' + "help" + '"]').tab("show");
+        $("#help-content").text(d.output);
+      }
+      if (d.error) {
+        jqconsole.Write(d.error + '\n', 'jqconsole-error');
+      }
+      getSessionVariables(function() {
+        $.get("/plots", function(data) {
+          if (data.plots) {
+            for (var i=0; i < data.plots.length; i++) {
+              var plotFile = data.plots[i];
+              if (plots.indexOf(plotFile)==-1) {
+                $("#current-plot").attr("src", plotFile);
+                $('a[href="#plots"]').tab("show");
+                plots.push(plotFile);
+              }
+            }
+          }
+        });
+      });
+    });
+  }
+
   var startPrompt = function () {
     // Start the prompt with history enabled.
     jqconsole.Prompt(true, function (input) {
-      // Output input with the class jqconsole-output.
-        $.post("/", { code: input }, function(d) {
-          jqconsole.Write(d.output + '\n', 'jqconsole-output');
-          if (/help[(].+[)]/.test(input)) {
-            $('a[href="#' + "help" + '"]').tab("show");
-            $("#help-content").text(d.output);
-          }
-          code = "getvars"
-          $.post("/", { code: code }, function(d) {
-            var vars = JSON.parse(d.output);
-            $("#vars").children().remove();
-            for(var i=0; i < vars.length; i++) {
-              $("#vars").append("<tr><td>" +vars[i].name + "</td><td>" + vars[i].dtype + "</td></tr>");
-            }
-            $.get("/plots", function(data) {
-              for (var i=0; i < data.plots.length; i++) {
-                var plotFile = data.plots[i];
-                if (plots.indexOf(plotFile)==-1) {
-                  $("#current-plot").attr("src", plotFile);
-                  $('a[href="#plots"]').tab("show");
-                  plots.push(plotFile);
-                }
-              }
-            });
-          });
-        });
+      sendCommand(input);
       // Restart the prompt.
       startPrompt();
     });
   };
   startPrompt();
-
-  // $('#terminal').terminal(function(command, term) {
-  //   terminal = term;
-  //   $("#history-trail").append(command + '\n');
-  //   $.post("/", { code: command }, function(d) {
-  //     term.echo(d.output);
-  //     if (/help[(].+[)]/.test(command)) {
-  //       $('a[href="#' + "help" + '"]').tab("show");
-  //       $("#help-content").text(d.output);
-  //     }
-  //     code = "getvars"
-  //     $.post("/", { code: code }, function(d) {
-  //       var vars = JSON.parse(d.output);
-  //       $("#vars").children().remove();
-  //       for(var i=0; i < vars.length; i++) {
-  //         $("#vars").append("<tr><td>" +vars[i].name + "</td><td>" + vars[i].dtype + "</td></tr>");
-  //       }
-  //       $.get("/plots", function(data) {
-  //         for (var i=0; i < data.plots.length; i++) {
-  //           var plotFile = data.plots[i];
-  //           if (plots.indexOf(plotFile)==-1) {
-  //             $("#current-plot").attr("src", plotFile);
-  //             $('a[href="#plots"]').tab("show");
-  //             plots.push(plotFile);
-  //           }
-  //         }
-  //       });
-  //     });
-  //   });
-  // }, {
-  //   greetings: 'Welcome to IPython!',
-  //   name: 'python',
-  //   height: 200,
-  //   prompt: '>>> '
-  // });
 
 //this method will register event on close icon on the tab..
 function registerCloseEvent() {
@@ -342,14 +393,15 @@ registerCloseEvent();
 
 function registerRunEvent() {
   $(".runTab").click(function () {
-    var id = $(".runTab").parent().attr("class").slice(0, -4);
+    var id = $(this).parent().attr("class").slice(0, -4);
     var editor = ace.edit(id);
     var text = editor.getCopyText();
     if (text=="") {
-      var currline = editor.getSelectionRange().start.row;
-      text = editor.session.getLine(currline);
+      text =  editor.getSession().getValue();
     }
-    terminal.exec(text);
+    // jqconsole.SetPromptText(text);
+    jqconsole.Write(">>> " + text + '\n', 'jqconsole-input');
+    sendCommand(text);
   });
 }
 registerRunEvent();

@@ -6,7 +6,7 @@ server = require '../src/server'
 doc = """
 
 Usage:
-    snakeoil [options] [<directory>]
+    snakeoil [options] [<directory>] [<port>]
 
 Options:
     --help
@@ -17,8 +17,9 @@ Description:
 
 Example:
     snakeoil .
+    snakeoil . 4567
     snakeoil 
-    snakeoil /path/to/my/directory
+    snakeoil /path/to/my/directory 5000
     snakeoil /path/to/my/file.py
 
 """
@@ -27,6 +28,9 @@ options = docopt doc
 
 # handle arguments
 directory = options['<directory>'] || "."
-directory = path.resolve directory
+# easier if we use a fully path to the working directory
+directory = path.resolve(directory)
+port = options['<port>'] || 3000
 
-server directory
+# start up the server
+server directory, port
