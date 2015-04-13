@@ -9,6 +9,8 @@ from IPython.kernel import BlockingKernelClient
 
 class Kernel(object):
     def __init__(self):
+        # TODO: fix this
+        # should start kernel as subprocess that dies on app dying (?)
         cfpath = os.path.join('.', 'mykernel.json')
         self.client = BlockingKernelClient(connection_file=cfpath)
         self.client.load_connection_file()
@@ -61,3 +63,4 @@ class Kernel(object):
             msg_id = self.client.execute(code)
             outputs = self.collect_outputs()
             print outputs[msg_id]
+
