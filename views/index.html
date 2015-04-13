@@ -36,7 +36,7 @@
           <span class="icon-bar"></span>
           <span class="icon-bar"></span>
         </button>
-        <a class="navbar-brand" href="/"><span class="glyphicon glyphicon-flash" aria-hidden="true"></span></a>
+        <a class="navbar-brand" href="//yhathq.com/"><span style="color: #ee5311;">&ycirc;</span><span class="color: #898989">hat</span></a>
       </div>
       <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-2">
         <ul class="nav navbar-nav">
@@ -134,7 +134,8 @@
         <div class="panel-heading">
           <h3 class="panel-title"><span style="color: white;" class="glyphicon glyphicon-console" aria-hidden="true"></span></h3>
         </div>
-        <div id="console" class="panel-body">
+        <div class="panel-body">
+          <div id="console"></div>
         </div>
       </div>
     </div>
@@ -201,6 +202,7 @@
   function createEditor(id) {
     var editor = ace.edit(id);
     editor.setTheme("ace/theme/monokai");
+    editor.setTheme("ace/theme/chrome");
     editor.getSession().setMode("ace/mode/python");
 
     editor.commands.addCommand({
@@ -326,11 +328,11 @@
       for(var i=0; i < vars.length; i++) {
         var html;
         if (vars[i].dtype=="DataFrame") {
-          html = "<tr><td>" +vars[i].name + "</td><td>" + vars[i].dtype + "</td><td style='td-align: center;'><a onclick=\"showDataFrame('" + vars[i].name + "');\">show <span class='glyphicon glyphicon-th' aria-hidden='true'></span></a></td></tr>";
+          html = "<tr><td>" +vars[i].name + "</td><td>" + vars[i].dtype + "</td><td style='td-align: center;'><a onclick=\"showDataFrame('" + vars[i].name + "');\">view <span class='glyphicon glyphicon-th' aria-hidden='true'></span></a></td></tr>";
+          $("#vars").append(html);
         } else {
            html = "<tr><td>" +vars[i].name + "</td><td>" + vars[i].dtype + "</td><td></td></tr>";
         }
-        $("#vars").append(html);
       }
       if (fn!=null) {
         fn();
@@ -341,6 +343,7 @@
   getSessionVariables();
 
   function sendCommand(cmd) {
+    $("#history-trail").append(cmd + "\n");
     $.post("/", { code: cmd }, function(d) {
       jqconsole.Write(d.output + '\n', 'jqconsole-output');
       if (/help[(].+[)]/.test(cmd)) {

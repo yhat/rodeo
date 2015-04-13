@@ -19,6 +19,7 @@
   "dependencies": {
     "body-parser": "~1.0.0",
     "coffee-script": "~1.7.1",
+    "colors": "~1.0.3",
     "compression": "1.0.1",
     "docopt": "^0.6.1",
     "errorhandler": "~1.0.0",
@@ -26,10 +27,9 @@
     "express-hbs": "^0.8.4",
     "method-override": "~1.0.0",
     "morgan": "~1.0.0",
+    "serve-favicon": "^2.2.0",
     "shellscript": "^0.1.1",
-    "static-favicon": "~1.0.1",
-    "uuid": "^2.0.1",
-    "colors": "~1.0.3"
+    "uuid": "^2.0.1"
   },
   "devDependencies": {}
 }
