@@ -65,6 +65,9 @@ module.exports = (activeDir, port) ->
   app.get "/", (req, res) ->
     fs.readdir activeDir, (err, files) ->
       res.render "index", { layout: false, packages: packages, files: files }
+  # routes
+  app.get "/test", (req, res) ->
+    res.render "drag", { layout: false }
 
   app.get "/plots", (req, res) ->
     fs.readdir path.join(__dirname, "..", "public", "plots"), (err, files) ->

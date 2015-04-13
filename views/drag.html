@@ -1,33 +1,64 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-    <link href="/css/bootstrap.yeti.css" rel="stylesheet">
-    <link rel="stylesheet" href="//code.jquery.com/ui/1.11.4/themes/smoothness/jquery-ui.css">
+    <title>Simple Layout Demo</title>
+
+    <link rel="stylesheet" href="http://layout.jquery-dev.com/lib/css/layout-default-latest.css">
+
+    <script src="/js/lib/jquery.min.js"></script>
+    <script src="//code.jquery.com/ui/1.11.4/jquery-ui.js"></script>
+    <script src="http://layout.jquery-dev.com/lib/js/jquery.layout-latest.js"></script>
+
+    <script type="text/javascript">
+    var outerLayout, middleLayout, innerLayout;
+    $(document).ready(function(){
+        outerLayout = $('body').layout({
+            center__paneSelector:   ".outer-center"
+        ,   west__paneSelector:     ".outer-west"
+        ,   east__paneSelector:     ".outer-east"
+        ,   west__size:             125 
+        ,   east__size:             125 
+        ,   spacing_open:           8 // ALL panes
+        ,   spacing_closed:         12 // ALL panes
+        ,   north__spacing_open:    0
+        ,   south__spacing_open:    0
+        ,   center__onresize:       "middleLayout.resizeAll"
+        }); 
+        middleLayout = $('div.outer-center').layout({
+            center__paneSelector:   ".middle-center"
+        ,   west__paneSelector:     ".middle-west"
+        ,   east__paneSelector:     ".middle-east"
+        ,   west__size:             100
+        ,   east__size:             100
+        ,   spacing_open:           8  // ALL panes
+        ,   spacing_closed:         12 // ALL panes
+        ,   center__onresize:       "innerLayout.resizeAll"
+        });
+        somethingLayout = $('div.outer-west').layout({
+            center__paneSelector:   ".something-center"
+        ,   west__paneSelector:     ".something-west"
+        ,   east__paneSelector:     ".something-east"
+        ,   west__size:             100
+        ,   east__size:             100
+        ,   spacing_open:           8  // ALL panes
+        ,   spacing_closed:         12 // ALL panes
+        ,   center__onresize:       "innerLayout.resizeAll"
+        });
+    }); 
+    </script>
+
 </head>
-
-
 <body>
 
-    <div class="row">
-        <div class="col-sm-6 resizable" style="height: 250px; background-color: red;">
-        </div>
-        <div class="col-sm-6 resizable" style="height: 250px; background-color: blue;">
-        </div>
-    </div>
-    <div class="row">
-        <div class="col-sm-6 resizable" style="height: 250px; background-color: green;">
-        </div>
-        <div class="col-sm-6 resizable" style="height: 250px; background-color: grey;">
-        </div>
-    </div>
+<div class="outer-center">
+    <div class="middle-center">Middle center</div> 
+    <div class="middle-south">Middle south</div>
+</div> 
 
+<div class="outer-west">
+    <div class="something-center">something center</div> 
+    <div class="something-south">something south</div>
+</div>
 
-<script src="/js/lib/jquery.min.js"></script>
-<script src="//code.jquery.com/ui/1.11.4/jquery-ui.js"></script>
-<script type="text/javascript">
-$(document).ready(function() {
-    $(".resizable").resizable();
-});
-</script>
 </body>
 </html>
