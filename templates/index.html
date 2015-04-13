@@ -21,9 +21,8 @@
           margin-left: 0px;
         }
     </style>
-    <link rel="stylesheet" href="http://layout.jquery-dev.com/lib/css/layout-default-latest.css">
-    <link href="/css/bootstrap.yeti.css" rel="stylesheet">
-    <link href="/css/console.css" rel="stylesheet">
+    <link href="{{ url_for('static', filename='css/bootstrap.yeti.css') }}" rel="stylesheet">
+    <link href="{{ url_for('static', filename='css/console.css') }}" rel="stylesheet">
     <style>
 /*
         .modal-backdrop.in {
@@ -154,9 +153,9 @@
     <div id="myTabContent" class="tab-content">
       <div class="tab-pane active in" id="files">
         <div class="list-group">
-          {{#files}}
-            <a id="file-{{ . }}" href="#" class="list-group-item openfile">{{ . }}</a>
-          {{/files}}
+          {% for f in files %}
+            <a id="file-{{ f }}" href="#" class="list-group-item openfile">{{ f }}</a>
+          {% endfor %}
         </div>
       </div>
       <div class="tab-pane" id="plots" style="height: 257px;">
@@ -177,9 +176,9 @@
             </tr>
           </thead>
           <tbody>
-            {{#packages}}
-            <tr><td>{{ name }}</td><td>{{ version }}</td></tr>
-            {{/packages}}
+            {% for pkg in packages %}
+            <tr><td>{{ pkg.name }}</td><td>{{ pkg.version }}</td></tr>
+            {% endfor %}
           </tbody>
         </table>
       </div>
@@ -200,15 +199,13 @@
 </div>
 
 <!-- modals -->
-{{>shortcuts}}
-{{>df}}
+{% include 'partials/df.html' %}
+{% include 'partials/shortcuts.html' %}
 
-
-<script src="/js/lib/jquery.min.js"></script>
-<script src="http://layout.jquery-dev.com/lib/js/jquery.layout-latest.js"></script>
-<script src="/js/lib/bootstrap.min.js"></script>
-<script src="/js/lib/jqconsole.min.js"></script>
-<script src="/ace/ace.js"></script>
+<script src="{{ url_for('static', filename='js/lib/jquery.min.js') }}"></script>
+<script src="{{ url_for('static', filename='js/lib/bootstrap.min.js') }}"></script>
+<script src="{{ url_for('static', filename='js/lib/jqconsole.min.js') }}"></script>
+<script src="{{ url_for('static', filename='ace/ace.js') }}"></script>
 <script type="text/javascript">
 
   var terminal;
