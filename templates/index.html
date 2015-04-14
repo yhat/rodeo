@@ -357,7 +357,7 @@
 
   function sendCommand(cmd) {
     $("#history-trail").append(cmd + "\n");
-    $.post("/", { code: cmd }, function(d) {
+    $.post("/", { code: cmd, complete: true }, function(d) {
       jqconsole.Write(d.output + '\n', 'jqconsole-output');
       if (/help[(].+[)]/.test(cmd)) {
         $('a[href="#' + "help" + '"]').tab("show");

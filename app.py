@@ -20,7 +20,11 @@ def home():
             if code=="getvars":
                 kernel.execute("import json")
                 code = 'print json.dumps([{ "name": v, "dtype": type(vars()[v]).__name__ } for v in list(set(vars()))])'
-            result = kernel.execute(code)
+            if request.form.get('complete'):
+                result = kernel.complete(code)
+            else:
+                result = kernel.execute(code)
+
             result['output'] = result.get("stdout")
             if not result['output']:
                 result['output'] = result.get("repr", '')
@@ -30,9 +34,12 @@ def home():
 
 @app.route("/plots", methods=["GET"])
 def plots():
-    files = os.listdir(os.path.join(__dirname, "static", "plots"))
-    files = ["/plots/%s" % f for f in files if f.endswith(".png")]
-    return jsonify({ "plots": files })
+    plot_dir = os.path.join(__dirname, "static", "plots")
+    plots = []
+    for plot in os.listdir(plot_dir):
+        if plot.endswith(".png"):
+            plots.append(url_for("static", filename="plots/%s" % plot))
+    return jsonify({ "plots": plots })
 
 @app.route("/file/<filename>", methods=["GET"])
 def get_file(filename):
@@ -48,6 +55,12 @@ def save_file():
 
 
 if __name__=="__main__":
+    # get rid of plots
+    for f in os.listdir(os.path.join(__dirname, "static", "plots")):
+        f = os.path.join(__dirname, "static", "plots", f)
+        if f.endswith(".png"):
+            os.remove(f)
+
     active_dir = "files"
     kernel = Kernel()
     app.run(debug=False, port=5000)
