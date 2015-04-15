@@ -10,13 +10,14 @@ Options:
   --version     Show version.
 
 """
-from docopt import docopt
-import re
 from app import main
+from __init__ import __version__
+from docopt import docopt
+import sys
+import re
 
-if __name__ == '__main__':
-    arguments = docopt(__doc__, version='pecos 0.1')
-    print arguments
+def cmd():
+    arguments = docopt(__doc__, version="pecos %s" % __version__)
     if arguments.get("<directory>"):
         active_dir = arguments.get("<directory>", ".")
         port = arguments.get("--port")
@@ -24,3 +25,8 @@ if __name__ == '__main__':
             main(active_dir, int(port))
         else:
             main(active_dir)
+    else:
+        sys.stdout.write(__doc__)
+
+if __name__=="__main__":
+    cmd()

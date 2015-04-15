@@ -62,7 +62,7 @@ setup(
     zip_safe=False,
     entry_points={
         'console_scripts': [
-            'pecos = pecos.cli:main',
+            'pecos = pecos.cli:cmd',
         ]
     }
 )
