@@ -9,6 +9,19 @@ Options:
   -h --help     Show this screen.
   --version     Show version.
 
+Help:
+Pecos is a data centric IDE for python. It leverages the IPython
+Kernel but presents a different user experience than the notebook. 
+Those of you who use products like SublimeText or RStudio will
+probably find pecos familiar.
+
+To run a pecos server, just execute the `pecos` command like so:
+    $ pecos # basic usage, run in this directory
+    $ pecos . # slightly more explicit
+    $ pecos . --port=4567 # run in this directory, but on port 4567
+    $ pecos /path/to/a/folder # run in a different directory
+    $ pecos /path/to/a/folder --port=4567 # new directory, new port
+
 """
 from app import main
 from __init__ import __version__
