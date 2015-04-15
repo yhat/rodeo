@@ -63,10 +63,10 @@ def save_file():
         f.write(request.form['source'])
     return "OK"
 
-def main():
+def main(directory, port=5000):
     global kernel
     global active_dir
-    port = 5000
+    active_dir = os.path.realpath(directory)
     # get rid of plots
     for f in os.listdir(os.path.join(__dirname, "static", "plots")):
         f = os.path.join(__dirname, "static", "plots", f)
@@ -89,7 +89,7 @@ def main():
 
 if __name__=="__main__":
     if len(sys.argv)==1:
-        active_dir = os.path.realpath(".")
+        directory = "."
     else:
-        active_dir = sys.argv[1]
-    main()
+        directory = sys.argv[1]
+    main(directory)
