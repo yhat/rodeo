@@ -39,6 +39,10 @@ def home():
         else:
             return "BAD"
 
+@app.route("/about", methods=["GET"])
+def about():
+    return render_template("about")
+
 @app.route("/plots", methods=["GET"])
 def plots():
     plot_dir = os.path.join(__dirname, "static", "plots")
