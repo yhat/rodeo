@@ -6,7 +6,7 @@ def extract_version():
     Extracts version values from the main matplotlib __init__.py and
     returns them as a dictionary.
     """
-    with open('pecos/__init__.py') as fd:
+    with open('rodeo/__init__.py') as fd:
         for line in fd.readlines():
             if (line.startswith('__version__')):
                 exec(line.strip())
@@ -14,17 +14,17 @@ def extract_version():
 
 
 setup(
-    name="pecos",
+    name="rodeo",
     # Increase the version in ggplot/__init__.py
     version=extract_version(),
     author="Greg Lamp",
     author_email="greg@yhathq.com",
-    url="https://github.com/yhat/pecos/",
+    url="https://github.com/yhat/rodeo/",
     license="BSD",
     packages=find_packages(),
-    package_dir={"pecos": "pecos"},
+    package_dir={"rodeo": "rodeo"},
     package_data={
-        "pecos": [
+        "rodeo": [
             "static/ace/snippets/*.js",
             "static/ace/*.js",
             "static/css/*",
@@ -62,7 +62,7 @@ setup(
     zip_safe=False,
     entry_points={
         'console_scripts': [
-            'pecos = pecos.cli:cmd',
+            'rodeo = rodeo.cli:cmd',
         ]
     }
 )

@@ -1,4 +1,4 @@
-pecos
+rodeo
 =====
 
 Quickstart
@@ -6,8 +6,8 @@ Quickstart
 
 .. code:: bash
 
-    $ pip install pecos 
-    $ pecos /path/to/working/directory --port=3000
+    $ pip install rodeo 
+    $ rodeo /path/to/working/directory --port=3000
     # open http://localhost:3000
 
 TODO

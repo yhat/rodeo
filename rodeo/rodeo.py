@@ -69,7 +69,7 @@ def main(directory, port=5000):
         if f.endswith(".png"):
             os.remove(f)
     kernel = Kernel()
-    sys.stderr.write("pecos is running\n\turl: http://localhost:%d/\n\tdirectory: %s\n" % (port, active_dir))
+    sys.stderr.write("rodeo is running\n\turl: http://localhost:%d/\n\tdirectory: %s\n" % (port, active_dir))
     app.run(debug=False, port=port)
 
 if __name__=="__main__":
