@@ -1,10 +1,5 @@
 from kernel import Kernel
 from flask import Flask, request, session, g, redirect, url_for, abort, render_template, jsonify
-import subprocess
-
-import atexit
-import time
-import uuid
 import os
 import sys
 
@@ -27,10 +22,11 @@ def home():
             if code=="getvars":
                 kernel.execute("import json")
                 code = 'print json.dumps([{ "name": v, "dtype": type(vars()[v]).__name__ } for v in list(set(vars()))])'
-            if request.form.get('complete'):
-                result = kernel.complete(code)
-            else:
-                result = kernel.execute(code)
+            result = kernel.execute(code)
+            # if request.form.get('complete'):
+            #     result = kernel.complete(code)
+            # else:
+            #     result = kernel.execute(code)
 
             print "*"*40 + "START RESULT" + "*"*40
             print result
@@ -72,19 +68,8 @@ def main(directory, port=5000):
         f = os.path.join(__dirname, "static", "plots", f)
         if f.endswith(".png"):
             os.remove(f)
-
-    # setup the subprocess
-    config = os.path.join(__dirname, "kernel-%s.json" % str(uuid.uuid4()))
-    args = [sys.executable, '-m', 'IPython', 'kernel', '-f', config]
-    p = subprocess.Popen(args, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-    atexit.register(p.terminate)
-    def remove_config():
-        os.remove(config)
-    atexit.register(remove_config)
-
-    time.sleep(1.5)
-    kernel = Kernel(config)
-    sys.stderr.write("pecos is running\n\tport: %d\n\tdirectory: %s\n" % (port, active_dir))
+    kernel = Kernel()
+    sys.stderr.write("pecos is running\n\turl: http://localhost:%d/\n\tdirectory: %s\n" % (port, active_dir))
     app.run(debug=False, port=port)
 
 if __name__=="__main__":
