@@ -12,6 +12,7 @@ Options:
 """
 from app import main
 from __init__ import __version__
+
 from docopt import docopt
 import sys
 import re

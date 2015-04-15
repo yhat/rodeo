@@ -1,13 +1,11 @@
+from IPython.kernel import BlockingKernelClient
+from Queue import Empty
+import atexit
+import subprocess
+import uuid
+import time
 import os
 import sys
-import time
-from subprocess import Popen
-import pprint as pp
-from Queue import Empty
-from IPython.kernel import BlockingKernelClient
-import uuid
-import subprocess
-import atexit
 
 __dirname = os.path.dirname(os.path.abspath(__file__))
 
@@ -69,7 +67,7 @@ class Kernel(object):
             msg_type = header['msg_type']
             content = msg['content']
 
-            print msg_type, content
+            print(msg_type, content)
             # TODO: this isn't working properly
             if msg_type == 'stream':
                 outputs[content['name']] += content.get('text')
@@ -79,8 +77,6 @@ class Kernel(object):
                 outputs['error'] = "\n".join(content['traceback'])
             elif msg_type in ('display_data'):
                 outputs[msg_type].append(content)
-            else:
-                print "didn't know what to do with %s" % msg_type
         
         return all_outputs
 
@@ -99,5 +95,5 @@ class Kernel(object):
             code = sys.stdin.readline()
             msg_id = self.client.execute(code)
             outputs = self.collect_outputs()
-            print outputs[msg_id]
+            print(outputs[msg_id])
 

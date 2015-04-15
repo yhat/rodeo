@@ -1,4 +1,5 @@
 from kernel import Kernel
+
 from flask import Flask, request, session, g, redirect, url_for, abort, render_template, jsonify
 import os
 import sys
@@ -6,9 +7,8 @@ import sys
 
 app = Flask(__name__)
 __dirname = os.path.dirname(os.path.abspath(__file__))
-active_dir = "files"
+active_dir = "."
 kernel = None
-
 
 @app.route("/", methods=["GET", "POST"])
 def home():
@@ -21,16 +21,16 @@ def home():
         if code:
             if code=="getvars":
                 kernel.execute("import json")
-                code = 'print json.dumps([{ "name": v, "dtype": type(vars()[v]).__name__ } for v in list(set(vars()))])'
+                code = 'print(json.dumps([{ "name": v, "dtype": type(vars()[v]).__name__ } for v in list(set(vars()))]))'
             result = kernel.execute(code)
             # if request.form.get('complete'):
             #     result = kernel.complete(code)
             # else:
             #     result = kernel.execute(code)
 
-            print "*"*40 + "START RESULT" + "*"*40
-            print result
-            print "*"*40 + "END RESULT" + "*"*40
+            print("*"*40 + "START RESULT" + "*"*40)
+            print(result)
+            print("*"*40 + "END RESULT" + "*"*40)
             result['output'] = result.get("stdout")
             if not result['output']:
                 result['output'] = result.get("repr", '')
