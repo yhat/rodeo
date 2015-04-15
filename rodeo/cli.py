@@ -16,8 +16,7 @@ Those of you who use products like SublimeText or RStudio will
 probably find rodeo familiar.
 
 To run a rodeo server, just execute the `rodeo` command like so:
-    $ rodeo # basic usage, run in this directory
-    $ rodeo . # slightly more explicit
+    $ rodeo . # basic usage
     $ rodeo . --port=4567 # run in this directory, but on port 4567
     $ rodeo /path/to/a/folder # run in a different directory
     $ rodeo /path/to/a/folder --port=4567 # new directory, new port

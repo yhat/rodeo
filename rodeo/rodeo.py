@@ -1,6 +1,7 @@
 from kernel import Kernel
 
 from flask import Flask, request, session, g, redirect, url_for, abort, render_template, jsonify
+import webbrowser
 import os
 import sys
 
@@ -70,6 +71,7 @@ def main(directory, port=5000):
             os.remove(f)
     kernel = Kernel()
     sys.stderr.write("rodeo is running\n\turl: http://localhost:%d/\n\tdirectory: %s\n" % (port, active_dir))
+    webbrowser.open("http://localhost:%d/" % port, new=2)
     app.run(debug=False, port=port)
 
 if __name__=="__main__":
