@@ -1,10 +1,10 @@
 # rodeo
+Rodeo is a data centric IDE for Python. You can think of it as an alternative UI to the notebook for the IPython Kernel.
 
 ## Quickstart
 ```bash
 $ pip install rodeo 
-$ rodeo /path/to/working/directory --port=3000
-# open http://localhost:3000
+$ rodeo .
 ```
 
 ## TODO
