@@ -12,6 +12,7 @@ def extract_version():
                 exec(line.strip())
     return locals()["__version__"]
 
+
 setup(
     name="pecos",
     # Increase the version in ggplot/__init__.py
@@ -22,7 +23,20 @@ setup(
     license="BSD",
     packages=find_packages(),
     package_dir={"pecos": "pecos"},
-    package_data={},
+    package_data={
+        "pecos": [
+            "static/ace/snippets/*.js",
+            "static/ace/*.js",
+            "static/css/*",
+            "static/fonts/*",
+            "static/js/*.js",
+            "static/js/lib/*.js",
+            "static/js/lib/*.map",
+            "static/plots/*",
+            "templates/*.html",
+            "templates/partials/*.html"
+        ]
+    },
     description="an ide for data analysis in python",
     # run pandoc --from=markdown --to=rst --output=README.rst README.md
     long_description=open("README.rst").read(),
@@ -45,6 +59,11 @@ setup(
                  'Programming Language :: Python :: 2.7',
                  'Programming Language :: Python :: 3',
                  'Programming Language :: Python :: 3.3'],
-    zip_safe=False
+    zip_safe=False,
+    entry_points={
+        'console_scripts': [
+            'pecos = pecos.app:main',
+        ]
+    }
 )
 

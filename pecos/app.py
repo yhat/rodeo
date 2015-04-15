@@ -1,11 +1,18 @@
 from kernel import Kernel
 from flask import Flask, request, session, g, redirect, url_for, abort, render_template, jsonify
-import sys
+import subprocess
+
+import atexit
+import time
+import uuid
 import os
+import sys
 
 
 app = Flask(__name__)
 __dirname = os.path.dirname(os.path.abspath(__file__))
+active_dir = "files"
+kernel = None
 
 
 @app.route("/", methods=["GET", "POST"])
@@ -25,6 +32,9 @@ def home():
             else:
                 result = kernel.execute(code)
 
+            print "*"*40 + "START RESULT" + "*"*40
+            print result
+            print "*"*40 + "END RESULT" + "*"*40
             result['output'] = result.get("stdout")
             if not result['output']:
                 result['output'] = result.get("repr", '')
@@ -53,14 +63,33 @@ def save_file():
         f.write(request.form['source'])
     return "OK"
 
-
-if __name__=="__main__":
+def main():
+    global kernel
+    global active_dir
+    port = 5000
     # get rid of plots
     for f in os.listdir(os.path.join(__dirname, "static", "plots")):
         f = os.path.join(__dirname, "static", "plots", f)
         if f.endswith(".png"):
             os.remove(f)
 
-    active_dir = "files"
-    kernel = Kernel()
-    app.run(debug=False, port=5000)
+    # setup the subprocess
+    config = os.path.join(__dirname, "kernel-%s.json" % str(uuid.uuid4()))
+    args = [sys.executable, '-m', 'IPython', 'kernel', '-f', config]
+    p = subprocess.Popen(args, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+    atexit.register(p.terminate)
+    def remove_config():
+        os.remove(config)
+    atexit.register(remove_config)
+
+    time.sleep(1.5)
+    kernel = Kernel(config)
+    sys.stderr.write("pecos is running\n\tport: %d\n\tdirectory: %s\n" % (port, active_dir))
+    app.run(debug=False, port=port)
+
+if __name__=="__main__":
+    if len(sys.argv)==1:
+        active_dir = os.path.realpath(".")
+    else:
+        active_dir = sys.argv[1]
+    main()

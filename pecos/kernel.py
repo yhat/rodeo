@@ -24,11 +24,10 @@ plt.show = hijack_plots
 
 
 class Kernel(object):
-    def __init__(self):
+    def __init__(self, kernel_config):
         # TODO: fix this
         # should start kernel as subprocess that dies on app dying (?)
-        cfpath = os.path.join('.', 'mykernel.json')
-        self.client = BlockingKernelClient(connection_file=cfpath)
+        self.client = BlockingKernelClient(connection_file=kernel_config)
         self.client.load_connection_file()
         self.client.start_channels()
         self.client.execute(matplotlib_patch)
@@ -50,7 +49,6 @@ class Kernel(object):
                 continue
             if parent_id not in all_outputs:
                 all_outputs[parent_id] = dict(stdout='', stderr='', display_data=[])
-            print msg
             outputs = all_outputs[parent_id]
 
             header = msg['header']
@@ -75,7 +73,6 @@ class Kernel(object):
 
     def complete(self, code):
         msg_id = self.client.complete(code, len(code)-1)
-        print "looking for " + msg_id
         outputs = self.collect_outputs()
         return outputs.get(msg_id)
 
