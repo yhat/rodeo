@@ -25,6 +25,23 @@ def hijack_plots():
 plt.show = hijack_plots
 """.format(__dirname=__dirname)
 
+autocomplete_patch = """
+import jedi
+
+def __autocomplete(code):
+    script = jedi.Interpreter(code, [globals()])
+    print json.dumps([cmp.name for cmp in script.completions()])
+"""
+
+vars_patch = """
+import json
+
+def __get_variables():
+    user_variables = globals().keys()
+    results = [{"name": v, "dtype": type(globals()[v]).__name__} for v in user_variables]
+    print json.dumps(results)
+
+"""
 
 class Kernel(object):
     def __init__(self):
@@ -43,6 +60,8 @@ class Kernel(object):
         self.client.load_connection_file()
         self.client.start_channels()
         self.client.execute(matplotlib_patch)
+        self.client.execute(autocomplete_patch)
+        self.client.execute(vars_patch)
 
     def _run_code(self, code, timeout=0.1):
         # now we can run code.  This is done on the shell channel
@@ -70,9 +89,7 @@ class Kernel(object):
         return self._run_code(code)
 
     def complete(self, code):
-        msg_id = self.client.complete(code, len(code)-1)
-        outputs = self.collect_outputs()
-        return outputs.get(msg_id)
+        return self.execute("__autocomplete('%s')" % code)
 
     def run_kernel(self):
         while True:

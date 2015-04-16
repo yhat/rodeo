@@ -23,13 +23,11 @@ def home():
         code = request.form.get('code')
         if code:
             if code=="getvars":
-                kernel.execute("import json")
-                code = 'print(json.dumps([{ "name": v, "dtype": type(vars()[v]).__name__ } for v in list(set(vars()))]))'
-            result = kernel.execute(code)
-            # if request.form.get('complete'):
-            #     result = kernel.complete(code)
-            # else:
-            #     result = kernel.execute(code)
+                code = "__get_variables()"
+            if request.form.get('complete'):
+                result = kernel.complete(code)
+            else:
+                result = kernel.execute(code)
 
             if not result['output']:
                 result['output'] = result.get("repr", '')
