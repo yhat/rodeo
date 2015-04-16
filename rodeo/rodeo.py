@@ -1,6 +1,6 @@
 from kernel import Kernel
 
-from flask import Flask, request, session, g, redirect, url_for, abort, render_template, jsonify
+from flask import Flask, request, url_for, render_template, jsonify
 import pip
 import webbrowser
 import os

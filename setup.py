@@ -43,8 +43,10 @@ setup(
     # numpy is here to make installing easier... Needs to be at the last position,
     # as that's the first installed with "python setup.py install"
     install_requires=[
-        "ipython",
-        "Flask"
+        "ipython>=3.0.0",
+        "Flask>=0.10.1",
+        "jedi",
+        "docopt"
     ],
     classifiers=['Intended Audience :: Science/Research',
                  'Intended Audience :: Developers',

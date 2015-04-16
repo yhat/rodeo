@@ -23,6 +23,7 @@ $ rodeo .
 - [x] deleting plot screws stuff up
 - [-] code completion
 - [?] detect open port to run in
+- [ ] folders w/ nested files in file window
 - [ ] icon to click to run
 - [ ] make panes more elastic-ish
 - [ ] make boxes resizable (?)
