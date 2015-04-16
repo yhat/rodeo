@@ -31,10 +31,6 @@ def home():
             # else:
             #     result = kernel.execute(code)
 
-            print("*"*40 + "START RESULT" + "*"*40)
-            print(result)
-            print("*"*40 + "END RESULT" + "*"*40)
-            result['output'] = result.get("stdout")
             if not result['output']:
                 result['output'] = result.get("repr", '')
             return jsonify(result)
