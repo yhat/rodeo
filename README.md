@@ -1,5 +1,6 @@
 # rodeo
-Rodeo is a data centric IDE for Python. You can think of it as an alternative UI to the notebook for the IPython Kernel.
+Rodeo is a data centric IDE for Python. You can think of it as an alternative 
+UI to the notebook for the IPython Kernel.
 
 ## Quickstart
 ```bash
@@ -20,7 +21,7 @@ $ rodeo .
 - [x] switch to python so it can be pip installable since users are 
 - [x] save for plot not (really) working
 - [x] deleting plot screws stuff up
-- [ ] code completion
+- [-] code completion
 - [?] detect open port to run in
 - [ ] icon to click to run
 - [ ] make panes more elastic-ish
