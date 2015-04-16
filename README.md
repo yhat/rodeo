@@ -11,15 +11,15 @@ $ rodeo .
 - [x] fix up terminal
 - [x] change name
 - [x] fix errors in kernel
-- [ ] make new files show up in Files tab
-- [ ] fix Packages tab
-- [ ] change right arrow in tab to play button
-- [ ] make it so there's only 1 arrow
+- [x] make new files show up in Files tab
+- [x] fix Packages tab
+- [x] change right arrow in tab to play button
+- [x] make it so there's only 1 arrow
 - [ ] problems with kernel needing to execute things twice (?)
 - [x] about page doesn't work
 - [x] switch to python so it can be pip installable since users are 
-- [ ] save for plot not (really) working
-- [ ] deleting plot screws stuff up
+- [x] save for plot not (really) working
+- [x] deleting plot screws stuff up
 - [ ] detect open port to run in
 - [ ] icon to click to run
 - [ ] code completion

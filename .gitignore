@@ -43,3 +43,5 @@ nosetests.xml
 .idea/
 
 *.swp
+rodeo/static/plots/*.png
+rodeo/kernel-*.json

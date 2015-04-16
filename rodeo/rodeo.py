@@ -1,6 +1,7 @@
 from kernel import Kernel
 
 from flask import Flask, request, session, g, redirect, url_for, abort, render_template, jsonify
+import pip
 import webbrowser
 import os
 import sys
@@ -14,8 +15,9 @@ kernel = None
 @app.route("/", methods=["GET", "POST"])
 def home():
     if request.method=="GET":
-        packages = []
-        files = os.listdir(active_dir)
+        packages = pip.get_installed_distributions()
+        packages = sorted(packages, key=lambda k: k.key)
+        files = [f for f in os.listdir(active_dir) if f.endswith(".py")]
         return render_template("index.html", packages=packages, files=files)
     else:
         code = request.form.get('code')
