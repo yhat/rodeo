@@ -252,8 +252,26 @@
         });
       }
     });
+  // TODO: this doesn't work AT ALL
+  editor.commands.addCommand({
+    name: "autocomplete",
+    bindKey: {win: "tab", mac: "tab"},
+    exec: function(editor) {
+        if (double tab OR last character is ".") {
+          $.post("/", { code: "ra", complete: true }, function(d) {
+              d.output = JSON.parse(d.output);
+              jqconsole.Write(d.output.join('\t') + '\n', 'jqconsole-output');
+          });
+        } else {
+            // just write a tab
+            editor.write("    ");
+        }
+      }
+  });
+
     return editor;
   }
+
   createEditor("editor1");
 
 
@@ -506,52 +524,6 @@ function zoomImage() {
   var url = currentPlot.getAttribute('src');
   window.open(url,'Image','width=currentPlot.stylewidth,height=currentPlot.style.height,resizable=1');
 }
-
-var lastKey = null;
-$(document).keypress(function (e) {
-  console.log(e.which);
-  if (e.which==9 && lastKey==9) {
-    var id = $("#editors .active .editor").attr("id");
-    var editor = ace.edit(id);
-    var rng = editor.selection.getWordRange(editor.getCursorPosition());
-    var code = editor.session.getTextRange(rng);
-    $.post("/", { code: code, complete: true }, function(d) {
-      console.log(d);
-    });
-  }
-  lastKey = e.which;
-    // var element = $("#log");
-    // var timeDifference = 0;
-
-    // if (e.which == 13) {
-    //     if (flag) {
-    //         console.log('second');
-    //         clearTimeout(timer);
-    //         flag = false;
-    //     } else {
-    //         console.log('first');
-    //         flag = true;
-    //         timer = setTimeout(function () {
-    //             flag = false;
-    //             console.log('timeout')
-    //         }, 5000);
-    //     }
-
-
-    //     //Log the timestamp after pressing Enter
-    //     $("#enteredTime").text(new Date().getTime());
-
-    //     if ($("#enteredTime").text() !== "0") {
-    //         var now = new Date().getTime();
-    //         var previous = $("#enteredTime").text();
-    //         difference = now - previous;
-    //     }
-
-    // }
-
-});
-
-
 </script>
 </body>
 </html>
