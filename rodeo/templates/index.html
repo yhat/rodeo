@@ -121,7 +121,7 @@
 
   <div class="col-sm-5 resizable">
     <ul class="nav nav-tabs">
-      <li class="active"><a href="#environment" data-toggle="tab">Environment</a></li>
+      <li class="active"><a href="#environment" data-toggle="tab">Data Frames</a></li>
       <li><a href="#history" data-toggle="tab">History</a></li>
     </ul>
     <div id="myTabContent" class="tab-content">
@@ -205,17 +205,49 @@
 <script src="{{ url_for('static', filename='js/lib/jquery.min.js') }}"></script>
 <script src="{{ url_for('static', filename='js/lib/bootstrap.min.js') }}"></script>
 <script src="{{ url_for('static', filename='js/lib/jqconsole.min.js') }}"></script>
+<script src="{{ url_for('static', filename='js/lib/ascii-table.min.js') }}"></script>
 <script src="{{ url_for('static', filename='ace/ace.js') }}"></script>
+<script src="{{ url_for('static', filename='ace/ext-language_tools.js') }}"></script>
 <script type="text/javascript">
 
   var terminal;
   var plots = [];
 
+  function getLastWord(editor) {
+    var pos = editor.getCursorPosition();
+    var column = pos.column - 1;
+    return editor.session.getTextRange(editor.session.getAWordRange(pos.row, column));
+  }
+
   function createEditor(id) {
+    var langTools = ace.require("ace/ext/language_tools");
     var editor = ace.edit(id);
     editor.setTheme("ace/theme/monokai");
     editor.setTheme("ace/theme/chrome");
-    editor.setOption("showPrintMargin", false);
+    editor.setOptions({
+      showPrintMargin: false,
+      enableBasicAutocompletion: true,
+      enableSnippets: true,
+      enableLiveAutocompletion: false
+    });
+    var pythonCompleter = {
+      getCompletions: function(editor, session, pos, prefix, fn) {
+        var code;
+        if (prefix.length==0) {
+          code = getLastWord(editor) + ".";
+        } else {
+          code = prefix;
+        }
+        $.post("/", { code: code, complete: true }, function(d) {
+          d.output = JSON.parse(d.output);
+          var predictions = d.output.map(function(p) {
+            return { name: p.text, value: p.text, score: 100, meta:  p.dtype };
+          });
+          fn(null, predictions)
+        });
+      }
+    };
+    langTools.addCompleter(pythonCompleter);
     editor.getSession().setMode("ace/mode/python");
 
     editor.commands.addCommand({
@@ -252,22 +284,6 @@
         });
       }
     });
-  // TODO: this doesn't work AT ALL
-  editor.commands.addCommand({
-    name: "autocomplete",
-    bindKey: {win: "tab", mac: "tab"},
-    exec: function(editor) {
-        if (double tab OR last character is ".") {
-          $.post("/", { code: "ra", complete: true }, function(d) {
-              d.output = JSON.parse(d.output);
-              jqconsole.Write(d.output.join('\t') + '\n', 'jqconsole-output');
-          });
-        } else {
-            // just write a tab
-            editor.write("    ");
-        }
-      }
-  });
 
     return editor;
   }
@@ -333,8 +349,39 @@
     jqconsole.ClearPromptText();
   });
   
+  String.prototype.padRight = function(l,c) {
+    return this+Array(l-this.length+1).join(c||" ");
+  }
   // ctrl + <space> to make new line bridge
   jqconsole.RegisterShortcut('32', function() {
+    // autocomplete
+    var code = jqconsole.GetPromptText().split(' ').slice(-1)[0];
+    console.log("sending completion: " + code);
+    $.post("/", { code: code, complete: true }, function(d) {
+      var predictions = JSON.parse(d.output);
+      var table = new AsciiTable();
+      var row = []
+      for(var i=0; i < predictions.length; i++) {
+        var text;
+        if (code.slice(-1)==".") {
+          text = code + predictions[i].text;
+        } else {
+          text = predictions[i].text;
+        }
+        row.push(text);
+        if (row.length==5) {
+          table.addRow(row);
+          row = [];
+        }
+      }
+      table.removeBorder();
+      jqconsole.Write(table.render() + '\n', 'jqconsole-output');
+    });
+  });
+  
+  
+  // ctrl + <n> to make new line bridge
+  jqconsole.RegisterShortcut('n', function() {
     jqconsole.SetPromptText(jqconsole.GetPromptText() + " + \\\n    ");
   });
   

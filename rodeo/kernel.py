@@ -30,7 +30,18 @@ import jedi
 
 def __autocomplete(code):
     script = jedi.Interpreter(code, [globals()])
-    print json.dumps([cmp.name for cmp in script.completions()])
+    results = []
+    for completion in script.completions():
+        result = {
+            "text": completion.name,
+            "dtype": "---"
+        }
+        if code.endswith("."):
+            result["dtype"] = "function"
+        else:
+            result["dtype"] = "session variable" # type(globals().get(code)).__name__
+        results.append(result)
+    print(json.dumps(results))
 """
 
 vars_patch = """
@@ -38,8 +49,8 @@ import json
 
 def __get_variables():
     user_variables = globals().keys()
-    results = [{"name": v, "dtype": type(globals()[v]).__name__} for v in user_variables]
-    print json.dumps(results)
+    results = [{"name": v, "dtype": type(globals()[v]).__name__ } for v in user_variables]
+    print(json.dumps(results))
 
 """
 
