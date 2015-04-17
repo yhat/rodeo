@@ -423,6 +423,11 @@
 
   function sendCommand(cmd) {
     $("#history-trail").append(cmd + "\n");
+
+    if (cmd.slice(0, 1)=="?") {
+      cmd = "help(" + cmd.slice(1) + ")";
+    }
+
     $.post("/", { code: cmd }, function(d) {
       jqconsole.Write(d.output + '\n', 'jqconsole-output');
       if (/help[(].+[)]/.test(cmd)) {
