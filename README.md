@@ -1,5 +1,5 @@
 # Rodeo
-     rodeo .
+     $ rodeo .
      
       _______      ___   ______   ________    ___
      |_   __ \   .'   `.|_   _ `.|_   __  | .'   `.
@@ -35,7 +35,6 @@ $ rodeo .
 ![](./rodeo/static/img/screenshot-ggplot.png)
 #### Documentation and Help
 ![](./rodeo/static/img/screenshot-help.png)
-
 
 ## TODO
 - [x] fix up terminal
