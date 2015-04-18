@@ -9,8 +9,8 @@
      |____| |___|`.___.'|______.'|________| `.___.'
      
      ''''''''''''''''''''''''''''''''''''''''''''''''''
-     ' URL: http://localhost:5000
-     ' DIRECTORY: /Users/glamp/repos/yhat/big-data/kung-foo
+       URL: http://localhost:5000
+       DIRECTORY: /Users/glamp/repos/yhat/big-data/kung-foo
      ''''''''''''''''''''''''''''''''''''''''''''''''''
 
 Rodeo is a data centric IDE for Python. You can think of it as an alternative 
