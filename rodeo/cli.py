@@ -15,6 +15,7 @@ Kernel but presents a different user experience than the notebook.
 Those of you who use products like SublimeText or RStudio will
 probably find rodeo familiar.
 
+Examples:
 To run a rodeo server, just execute the `rodeo` command like so:
     $ rodeo . # basic usage
     $ rodeo . --port=4567 # run in this directory, but on port 4567

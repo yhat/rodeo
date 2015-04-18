@@ -70,7 +70,15 @@ def main(directory, port=5000):
         if f.endswith(".png"):
             os.remove(f)
     kernel = Kernel()
-    sys.stderr.write("rodeo is running\n\turl: http://localhost:%d/\n\tdirectory: %s\n" % (port, active_dir))
+    art = open(os.path.join(__dirname, "rodeo-ascii.txt"), 'r').read()
+    display = """
+{ART}
+''''''''''''''''''''''''''''''''''''''''''''''''''
+' URL: http://localhost:{PORT}
+' DIRECTORY: {DIR}
+''''''''''''''''''''''''''''''''''''''''''''''''''
+""".format(ART=art, PORT=port, DIR=active_dir)
+    sys.stderr.write(display)
     webbrowser.open("http://localhost:%d/" % port, new=2)
     app.run(debug=False, port=port)
 

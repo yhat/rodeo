@@ -25,6 +25,7 @@ setup(
     package_dir={"rodeo": "rodeo"},
     package_data={
         "rodeo": [
+            "rodeo-ascii.txt",
             "static/ace/snippets/*.js",
             "static/ace/*.js",
             "static/css/*",
