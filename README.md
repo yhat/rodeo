@@ -24,8 +24,8 @@ $ rodeo .
 ```
 
 ## Important shortcuts
-- CTRL + <space> is autocomplete
-- ⌘ + <enter> is send code to terminal
+- CTRL + *space* is autocomplete
+- ⌘ + *enter* is send code to terminal
 
 ## Features
 
