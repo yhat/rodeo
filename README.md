@@ -22,6 +22,22 @@ $ pip install rodeo
 $ rodeo .
 ```
 
+## Features
+
+#### Execute scripts
+![](./rodeo/static/img/screenshot-files-with-output.png)
+#### Run analysis
+![](./rodeo/static/img/screenshot-mpl-complex.png)
+#### Inspect your data
+![](./rodeo/static/img/screenshot-view-data.png)
+#### Plots
+![](./rodeo/static/img/screenshot-ggplot.png)
+#### Help
+![](./rodeo/static/img/screenshot-help.png)
+
+
+
+
 ## TODO
 - [x] fix up terminal
 - [x] change name
