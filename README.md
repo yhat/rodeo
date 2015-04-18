@@ -21,8 +21,8 @@ $ rodeo .
 - [x] switch to python so it can be pip installable since users are 
 - [x] save for plot not (really) working
 - [x] deleting plot screws stuff up
-- [-] code completion
-- [?] detect open port to run in
+- [x] code completion
+- [ ] ~~detect open port to run in~~
 - [ ] folders w/ nested files in file window
 - [ ] icon to click to run
 - [ ] make panes more elastic-ish

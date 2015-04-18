@@ -48,9 +48,16 @@ vars_patch = """
 import json
 
 def __get_variables():
-    user_variables = globals().keys()
-    results = [{"name": v, "dtype": type(globals()[v]).__name__ } for v in user_variables]
-    print(json.dumps(results))
+    variable_names = globals().keys()
+    user_variables = []
+    for v in variable_names:
+        if v.startswith("_"):
+            continue
+        user_variables.append({
+            "name": v,
+            "dtype": type(globals()[v]).__name__
+        })
+    print(json.dumps(user_variables))
 
 """
 

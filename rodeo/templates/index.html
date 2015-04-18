@@ -209,7 +209,16 @@
   function getLastWord(editor) {
     var pos = editor.getCursorPosition();
     var column = pos.column - 1;
-    return editor.session.getTextRange(editor.session.getAWordRange(pos.row, column));
+    var wordRange = editor.session.getAWordRange(pos.row, column);
+    var text = editor.session.getTextRange(wordRange);
+
+    var newPos = { row: wordRange.start.row, column: wordRange.start.column-1 };
+    if (editor.session.getTextRange({start: newPos, end: wordRange.start })==".") {
+      var variable = editor.session.getTextRange(editor.session.getAWordRange(newPos.row, newPos.column));
+      text = variable + "." + text;
+    }
+    console.log(text);
+    return text;
   }
 
   function createEditor(id) {
@@ -229,7 +238,7 @@
         if (prefix.length==0) {
           code = getLastWord(editor) + ".";
         } else {
-          code = prefix;
+          code = getLastWord(editor);
         }
         $.post("/", { code: code, complete: true }, function(d) {
           d.output = JSON.parse(d.output);
