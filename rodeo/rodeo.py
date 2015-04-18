@@ -74,8 +74,8 @@ def main(directory, port=5000):
     display = """
 {ART}
 ''''''''''''''''''''''''''''''''''''''''''''''''''
-' URL: http://localhost:{PORT}
-' DIRECTORY: {DIR}
+  URL: http://localhost:{PORT}
+  DIRECTORY: {DIR}
 ''''''''''''''''''''''''''''''''''''''''''''''''''
 """.format(ART=art, PORT=port, DIR=active_dir)
     sys.stderr.write(display)
