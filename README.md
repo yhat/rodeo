@@ -1,4 +1,5 @@
 # Rodeo
+     $ pip install -U rodeo
      $ rodeo .
      
       _______      ___   ______   ________    ___
