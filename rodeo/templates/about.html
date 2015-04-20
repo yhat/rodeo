@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <title>rodeo</title>
+    <title>Rodeo</title>
     <link href="{{ url_for('static', filename='css/bootstrap.yeti.css') }}" rel="stylesheet">
     <link href="{{ url_for('static', filename='css/terminal.css') }}" rel="stylesheet">
 </head>
@@ -17,18 +17,12 @@
           <span class="icon-bar"></span>
           <span class="icon-bar"></span>
         </button>
-        <a class="navbar-brand" href="/"><span class="glyphicon glyphicon-flash" aria-hidden="true"></span></a>
+        <a class="navbar-brand" href="//yhathq.com/"><span style="color: #ee5311;">&ycirc;</span><span class="color: #898989">hat</span></a>
       </div>
       <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-2">
         <ul class="nav navbar-nav">
-          <li class="dropdown">
-            <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">rodeo</a>
-            <ul class="dropdown-menu" role="menu">
-              <li><a href="/">Editor</a></li>
-              <li><a href="#">About</a></li>
-              <li class="divider"></li>
-              <li><a href="#">Quit</a></li>
-            </ul>
+          <li>
+            <a href="/" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">rodeo</a>
           </li>
         </ul>
       </div>
@@ -45,41 +39,61 @@
     </div>
     <div class="row">
       <div class="col-sm-6">
-        <img src="http://placehold.it/500x300">
+        <img src="{{ url_for('static', filename='img/screenshot-files-with-output.png') }}" style="max-width: 500px;">
       </div>
       <div class="col-sm-6">
-        <h1>something exciting</h1>
+        <h1>Edit Files</h1>
         <h3>it let's you do this</h3>
       </div>
     </div>
     <hr>
     <div class="row">
       <div class="col-sm-6">
-        <h1>something exciting</h1>
+        <h1>Autocomplete</h1>
         <h3>and this</h3>
       </div>
       <div class="col-sm-6">
-        <img src="http://placehold.it/500x300">
+        <img src="{{ url_for('static', filename='img/screenshot-autocomplete-small.png') }}" style="max-width: 500px;">
       </div>
     </div>
     <hr>
     <div class="row">
       <div class="col-sm-6">
-        <img src="http://placehold.it/500x300">
+        <img src="{{ url_for('static', filename='img/screenshot-ggplot.png') }}" style="max-width: 500px;">
       </div>
       <div class="col-sm-6">
-        <h1>something exciting</h1>
+        <h1>Plot and Visualize</h1>
         <h3>and this</h3>
       </div>
     </div>
     <hr>
     <div class="row">
       <div class="col-sm-6">
-        <h1>something exciting</h1>
+        <h1>View Your Data</h1>
         <h3>and this</h3>
       </div>
       <div class="col-sm-6">
-        <img src="http://placehold.it/500x300">
+        <img src="{{ url_for('static', filename='img/screenshot-view-data.png') }}" style="max-width: 500px;">
+      </div>
+    </div>
+    <hr>
+    <div class="row">
+      <div class="col-sm-6">
+        <img src="{{ url_for('static', filename='img/screenshot-mpl-complex.png') }}" style="max-width: 500px;">
+      </div>
+      <div class="col-sm-6">
+        <h1>Run Scripts</h1>
+        <h3>and this</h3>
+      </div>
+    </div>
+    <hr>
+    <div class="row">
+      <div class="col-sm-6">
+        <h1>Help and Documentation</h1>
+        <h3>and this</h3>
+      </div>
+      <div class="col-sm-6">
+        <img src="{{ url_for('static', filename='img/screenshot-help.png') }}" style="max-width: 500px;">
       </div>
     </div>
   </div>
