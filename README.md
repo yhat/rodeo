@@ -34,6 +34,8 @@ $ rodeo .
 ![](./rodeo/static/img/screenshot-files-with-output.png)
 #### Run analysis
 ![](./rodeo/static/img/screenshot-mpl-complex.png)
+#### Autocomplete
+![](./rodeo/static/img/screenshot-autocomplete.png)
 #### Inspect your data
 ![](./rodeo/static/img/screenshot-view-data.png)
 #### Plots
