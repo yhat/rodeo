@@ -29,15 +29,13 @@ def home():
             else:
                 result = kernel.execute(code)
 
-            if not result['output']:
-                result['output'] = result.get("repr", '')
             return jsonify(result)
         else:
             return "BAD"
 
 @app.route("/about", methods=["GET"])
 def about():
-    return render_template("about")
+    return render_template("about.html")
 
 @app.route("/plots", methods=["GET"])
 def plots():
@@ -74,7 +72,7 @@ def main(directory, port=5000):
     display = """
 {ART}
 ''''''''''''''''''''''''''''''''''''''''''''''''''
-  URL: http://localhost:{PORT}
+  URL: http://localhost:{PORT}/
   DIRECTORY: {DIR}
 ''''''''''''''''''''''''''''''''''''''''''''''''''
 """.format(ART=art, PORT=port, DIR=active_dir)
@@ -88,3 +86,4 @@ if __name__=="__main__":
     else:
         directory = sys.argv[1]
     main(directory)
+
