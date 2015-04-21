@@ -3,6 +3,7 @@ from Queue import Empty
 import atexit
 import subprocess
 import uuid
+import tempfile
 import time
 import os
 import sys
@@ -63,10 +64,8 @@ def __get_variables():
 
 class Kernel(object):
     def __init__(self):
-        __dirname = os.path.dirname(os.path.abspath(__file__))
-        # TODO: this should probably go to a temp file somewhere but for now it's just
-        # being written to the same directory as this package
-        config = os.path.join(__dirname, "kernel-%s.json" % str(uuid.uuid4()))
+        # kernel config is stored in a temp file 
+        config = os.path.join(tempfile.gettempdir(), "kernel-%s.json" % str(uuid.uuid4()))
         args = [sys.executable, '-m', 'IPython', 'kernel', '-f', config]
         p = subprocess.Popen(args, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         
