@@ -30,6 +30,7 @@ setup(
             "static/ace/*.js",
             "static/css/*",
             "static/fonts/*",
+            "static/img/*",
             "static/js/*.js",
             "static/js/lib/*.js",
             "static/js/lib/*.map",
