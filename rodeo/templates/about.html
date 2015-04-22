@@ -4,6 +4,22 @@
     <title>Rodeo</title>
     <link href="{{ url_for('static', filename='css/bootstrap.yeti.css') }}" rel="stylesheet">
     <link href="{{ url_for('static', filename='css/terminal.css') }}" rel="stylesheet">
+    <style>
+        .hat {
+          position: absolute;
+          left: -5px;
+          top: 8px;
+          width: 50px;
+          height: auto;
+        }
+        .big-hat {
+          position: relative;
+          left: 295px;
+          top: 165px;
+          width: 200px;
+          height: auto;
+        }
+    </style>
 </head>
 <body>
 
@@ -17,6 +33,7 @@
           <span class="icon-bar"></span>
           <span class="icon-bar"></span>
         </button>
+        <img class="hat" src="{{ url_for('static', filename='img/cowboy-hat.svg') }}" title="Yee Haw!"/ >
         <a class="navbar-brand" href="//yhathq.com/"><span style="color: #ee5311;">&ycirc;</span><span class="color: #898989">hat</span></a>
       </div>
       <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-2">
@@ -36,7 +53,8 @@
   <div class="container">
     <div class="row">
       <div class="jumbotron">
-        <h1>Rodeo</h1>
+        <img class="big-hat" src="{{ url_for('static', filename='img/cowboy-hat.svg') }}" title="Yee Haw!"/ >
+        <h1>Rodeo from <span style="color: #ee5311;">&ycirc;</span><span class="color: #898989;">hat</span></h1>
         <p>Rodeo is an IDE for Python that's built for doing data analysis.</p>
       </div>
     </div>
@@ -46,14 +64,14 @@
       </div>
       <div class="col-sm-6">
         <h1>Edit Files</h1>
-        <h3>it let's you do this</h3>
+        <!-- <h3>it let's you do this</h3> -->
       </div>
     </div>
     <hr>
     <div class="row">
       <div class="col-sm-6">
         <h1>Use scripts or the IPython shell</h1>
-        <h3>and this</h3>
+        <!-- <h3>and this</h3> -->
       </div>
       <div class="col-sm-6">
         <img src="{{ url_for('static', filename='img/screenshot-files-with-output-small.png') }}" style="max-width: 500px;">
@@ -66,14 +84,14 @@
       </div>
       <div class="col-sm-6">
         <h1>Plot and Visualize</h1>
-        <h3>and this</h3>
+        <!-- <h3>and this</h3> -->
       </div>
     </div>
     <hr>
     <div class="row">
       <div class="col-sm-6">
         <h1>View Your Data</h1>
-        <h3>and this</h3>
+        <!-- <h3>and this</h3> -->
       </div>
       <div class="col-sm-6">
         <img src="{{ url_for('static', filename='img/screenshot-view-data-small.png') }}" style="max-width: 500px;">
@@ -86,14 +104,14 @@
       </div>
       <div class="col-sm-6">
         <h1>Autocomplete</h1>
-        <h3>and this</h3>
+        <!-- <h3>and this</h3> -->
       </div>
     </div>
     <hr>
     <div class="row">
       <div class="col-sm-6">
         <h1>Help and Documentation</h1>
-        <h3>and this</h3>
+        <!-- <h3>and this</h3> -->
       </div>
       <div class="col-sm-6">
         <img src="{{ url_for('static', filename='img/screenshot-help.png') }}" style="max-width: 500px;">

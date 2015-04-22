@@ -20,6 +20,13 @@
           margin-right: 0px;
           margin-left: 0px;
         }
+        .hat {
+          position: absolute;
+          left: -5px;
+          top: 8px;
+          width: 50px;
+          height: auto;
+        }
     </style>
     <link href="{{ url_for('static', filename='css/bootstrap.yeti.css') }}" rel="stylesheet">
     <link href="{{ url_for('static', filename='css/console.css') }}" rel="stylesheet">
@@ -36,6 +43,7 @@
           <span class="icon-bar"></span>
           <span class="icon-bar"></span>
         </button>
+        <img class="hat" src="{{ url_for('static', filename='img/cowboy-hat.svg') }}" title="Yee Haw!"/ >
         <a class="navbar-brand" href="//yhathq.com/"><span style="color: #ee5311;">&ycirc;</span><span class="color: #898989">hat</span></a>
       </div>
       <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-2">
