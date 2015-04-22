@@ -15,8 +15,8 @@
      ''''''''''''''''''''''''''''''''''''''''''''''''''
 
 Rodeo is a data centric IDE for Python. You can think of it as an alternative 
-UI to the notebook for the IPython Kernel. It's heavily inspired by great projects 
-like RStudio and Eclipse.
+UI to the notebook for the IPython Kernel. It's heavily inspired by great 
+projects like Sublime Text and Eclipse.
 
 ## Quickstart
 ```bash

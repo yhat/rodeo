@@ -12,7 +12,7 @@ Options:
 Help:
 Rodeo is a data centric IDE for python. It leverages the IPython
 Kernel but presents a different user experience than the notebook. 
-Those of you who use products like SublimeText or RStudio will
+Those of you who use products like SublimeText or Eclipse will
 probably find rodeo familiar.
 
 Examples:
