@@ -261,9 +261,10 @@
           var currline = editor.getSelectionRange().start.row;
           text = editor.session.getLine(currline);
         }
-        // jqconsole.SetPromptText(text);
         jqconsole.Write(">>> " + text + '\n', 'jqconsole-input');
         sendCommand(text);
+        editor.scrollToLine(currline + 1, true, true, function () {});
+        editor.gotoLine(currline + 2, 10, true);
       }
     });
 
