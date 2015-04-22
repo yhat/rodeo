@@ -332,6 +332,11 @@
   // 4 spaces for python
   jqconsole.SetIndentWidth(4);
 
+  // tab to ... tab
+  jqconsole.RegisterShortcut('9', function() {
+    console.log("tab");
+  });
+
   // ctrl + l to clear
   jqconsole.RegisterShortcut('l', function() {
     jqconsole.Clear();
@@ -352,6 +357,57 @@
     jqconsole.ClearPromptText();
   });
   
+  // ctrl + u to clear to beginning
+  jqconsole.RegisterShortcut('u', function() {
+    var idx = jqconsole.GetColumn() - 4;
+    var text = jqconsole.GetPromptText();
+    jqconsole.SetPromptText(text.slice(0, idx));
+  });
+  
+  // ctrl + w to clear to beginning
+  jqconsole.RegisterShortcut('z', function() {
+    var idx = jqconsole.GetColumn() - 4;
+    var text = jqconsole.GetPromptText();
+    jqconsole.SetPromptText(text.slice(0, idx));
+  });
+  
+  // ctrl + k to clear to beginning
+  jqconsole.RegisterShortcut('k', function() {
+    var idx = jqconsole.GetColumn() - 4;
+    var text = jqconsole.GetPromptText();
+    jqconsole.SetPromptText(text.slice(idx));
+  });
+
+  // ctrl + w to clear one word backwards 
+  jqconsole.RegisterShortcut('w', function() {
+    var idx = jqconsole.GetColumn() - 4;
+    var text = jqconsole.GetPromptText().trim();
+    var lidx = text.slice(0, idx).lastIndexOf(" ");
+    if (lidx==-1) {
+        lidx = 0;
+    }
+    text = text.slice(0, lidx) + " " + text.slice(idx+1);
+    text = text.trim();
+    jqconsole.SetPromptText(text);
+  });
+
+  jqconsole._IndentOld = jqconsole._Indent;
+  // TODO: doesn't work quite yet
+  // jqconsole._Indent = function() {
+  //   console.log("hi");
+  //   console.log(jqconsole.GetPromptText().trim());
+  //   if (jqconsole.GetPromptText().trim()==">>>") {
+  //     jqconsole._IndentOld();
+  //     jqconsole.SetPromptText(jqconsole.GetPromptText() + "    ");
+  //   } else {
+  //     jqconsole.Write(jqconsole.GetPromptText() + "    ", 'jqconsole-input');
+  //   }
+  // };
+
+  // jqconsole._MoveLeft()
+  // jqconsole._MoveRight()
+
+
   String.prototype.padRight = function(l,c) {
     return this+Array(l-this.length+1).join(c||" ");
   }
@@ -435,7 +491,7 @@
       jqconsole.Write(d.output + '\n', 'jqconsole-output');
       if (/help[(].+[)]/.test(cmd)) {
         $('a[href="#' + "help" + '"]').tab("show");
-        $("#help-content").text(d.output);
+        $("#help-content").text(d.output || "");
       }
       if (d.error) {
         jqconsole.Write(d.error + '\n', 'jqconsole-error');
