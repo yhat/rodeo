@@ -1,4 +1,5 @@
 from kernel import Kernel
+from __init__ import __version__
 
 from flask import Flask, request, url_for, render_template, jsonify
 import pip
@@ -18,7 +19,8 @@ def home():
         packages = pip.get_installed_distributions()
         packages = sorted(packages, key=lambda k: k.key)
         files = [f for f in os.listdir(active_dir) if f.endswith(".py")]
-        return render_template("index.html", packages=packages, files=files)
+        return render_template("index.html", packages=packages, files=files,
+                version=__version__)
     else:
         code = request.form.get('code')
         if code:
@@ -35,7 +37,7 @@ def home():
 
 @app.route("/about", methods=["GET"])
 def about():
-    return render_template("about.html")
+    return render_template("about.html", version=__version__)
 
 @app.route("/plots", methods=["GET"])
 def plots():
