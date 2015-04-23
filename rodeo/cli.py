@@ -1,13 +1,14 @@
 """rodeo
 
 Usage:
-  rodeo [--port=<int>] [<directory>]
+  rodeo [--port=<int>] [--no-browser] [<directory>]
   rodeo (-h | --help)
   rodeo --version
 
 Options:
   -h --help     Show this screen.
   --version     Show version.
+  --no-browser  Don't launch a web browser.
 
 Help:
 Rodeo is a data centric IDE for python. It leverages the IPython
@@ -35,10 +36,11 @@ def cmd():
     if arguments.get("<directory>"):
         active_dir = arguments.get("<directory>", ".")
         port = arguments.get("--port")
+        browser = False if arguments.get("--no-browser") else True
         if port and re.match("^[0-9]+$", port):
-            main(active_dir, int(port))
+            main(active_dir, port=int(port), browser=browser)
         else:
-            main(active_dir)
+            main(active_dir, browser=browser)
     else:
         sys.stdout.write(__doc__)
 
