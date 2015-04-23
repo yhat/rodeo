@@ -1,4 +1,9 @@
-from IPython.kernel import BlockingKernelClient
+# start compatibility with IPython Jupyter 4.0+
+try:
+    from jupyter_client import BlockingKernelClient
+except ImportError:
+    from IPython.kernel import BlockingKernelClient
+
 # python3 sucks
 try:
     from Queue import Empty
