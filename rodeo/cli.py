@@ -38,17 +38,20 @@ def cmd():
     arguments = docopt(__doc__, version="rodeo %s" % __version__)
     if arguments.get("<directory>"):
         active_dir = arguments.get("<directory>", ".")
+
+        browser = True
+        if arguments.get("--no-browser"):
+            browser = False
+
         port = arguments.get("--port")
-        browser = False if arguments.get("--no-browser") else True
-        host = arguments.get("--host", None)
-        kwargs = {"browser": browser}
-
         if port and re.match("^[0-9]+$", port):
-            kwargs["port"] = int(port)
-        if host and re.match("^\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}$", host):
-            kwargs["host"] = host
+            port = = int(port)
+        
+        host = arguments.get("--host", None)
+        if not re.match("^\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}$", host):
+            host = None
 
-        main(active_dir, **kwargs)
+        main(active_dir, port=port, host=host, browser=browser)
 
     else:
         sys.stdout.write(__doc__)

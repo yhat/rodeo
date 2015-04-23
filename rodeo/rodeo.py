@@ -80,13 +80,10 @@ def rc():
             f.write(json.dumps(rc))
         return "OK"
 
-def main(directory, **kwargs):
+def main(directory, port=5000, host=None, browser=True):
     global kernel
     global active_dir
     active_dir = os.path.realpath(directory)
-    port = kwargs.get("port", 5000)
-    browser = kwargs.get("browser", True)
-    host = kwargs.get("host", None)
     # get rid of plots
     for f in os.listdir(os.path.join(__dirname, "static", "plots")):
         f = os.path.join(__dirname, "static", "plots", f)
