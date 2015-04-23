@@ -50,7 +50,7 @@ def cmd():
             port = None
         
         host = arguments.get("--host", None)
-        if not re.match("^\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}$", host):
+        if host and not re.match("^\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}$", host):
             host = None
 
         main(active_dir, port=port, host=host, browser=browser)

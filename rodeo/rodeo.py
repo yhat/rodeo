@@ -84,6 +84,10 @@ def main(directory, port=5000, host=None, browser=True):
     global kernel
     global active_dir
     active_dir = os.path.realpath(directory)
+
+    if not port:
+        port = 5000
+
     # get rid of plots
     for f in os.listdir(os.path.join(__dirname, "static", "plots")):
         f = os.path.join(__dirname, "static", "plots", f)
