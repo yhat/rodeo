@@ -18,6 +18,8 @@ Rodeo is a data centric IDE for Python. You can think of it as an alternative
 UI to the notebook for the IPython Kernel. It's heavily inspired by great 
 projects like Sublime Text and Eclipse.
 
+![](./rodeo/static/img/Rodeo-Demo.gif)
+
 ## Quickstart
 ```bash
 $ pip install rodeo 
