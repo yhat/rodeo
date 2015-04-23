@@ -60,7 +60,7 @@ def save_file():
         f.write(request.form['source'])
     return "OK"
 
-def main(directory, port=5000):
+def main(directory, port=5000, browser=True):
     global kernel
     global active_dir
     active_dir = os.path.realpath(directory)
@@ -79,7 +79,8 @@ def main(directory, port=5000):
 ''''''''''''''''''''''''''''''''''''''''''''''''''
 """.format(ART=art, PORT=port, DIR=active_dir)
     sys.stderr.write(display)
-    webbrowser.open("http://localhost:%d/" % port, new=2)
+    if browser:
+        webbrowser.open("http://localhost:%d/" % port, new=2)
     app.run(debug=False, port=port)
 
 if __name__=="__main__":
