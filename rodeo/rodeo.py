@@ -4,6 +4,7 @@ from .__init__ import __version__
 from flask import Flask, request, url_for, render_template, jsonify
 import pip
 import webbrowser
+import json
 import os
 import sys
 
@@ -59,6 +60,25 @@ def save_file():
     with open(filename, 'wb') as f:
         f.write(request.form['source'])
     return "OK"
+
+@app.route("/rc", methods=["GET", "POST"])
+def rc():
+    home = os.path.expanduser("~")
+    filename = os.path.join(home, ".rodeorc")
+    # give it the good ole college try
+    try:
+        rc = json.load(open(filename, 'rb'))
+    except:
+        rc = {}
+
+    if request.method=="GET":
+        return jsonify({ "status": "OK", "rc": rc })
+    else:
+        for field, value in request.form.items():
+            rc[field] = value
+        with open(filename, "wb") as f:
+            f.write(json.dumps(rc))
+        return "OK"
 
 def main(directory, **kwargs):
     global kernel

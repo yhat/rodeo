@@ -8,6 +8,7 @@ Usage:
 Options:
   -h --help     Show this screen.
   --version     Show version.
+  --port=<int>  Port you want to run the server on.
   --no-browser  Don't launch a web browser.
   --host=<IP>   The IP to listen on.
 
