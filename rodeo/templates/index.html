@@ -181,7 +181,10 @@
           </thead>
           <tbody>
             {% for pkg in packages %}
-            <tr><td>{{ pkg.key }}</td><td>{{ pkg.version }}</td></tr>
+              <tr>
+                <td>{{ pkg.key }}</td>
+                <td>{{ pkg.version }}</td>
+              </tr>
             {% endfor %}
           </tbody>
         </table>
@@ -192,13 +195,6 @@
     </div>
     <!-- end bottom right section -->
   </div>
-  </div>
-
-  <div class="row">
-    <div class="col-sm-7 resizable">
-    </div>
-    <div class="col-sm-5 resizable">
-    </div>
   </div>
 </div>
 
@@ -216,6 +212,8 @@
 
   var terminal;
   var plots = [];
+
+  var windowHeight = $(document).height();
 
   function getLastWord(editor) {
     var pos = editor.getCursorPosition();
@@ -682,6 +680,7 @@ function zoomImage() {
   var url = currentPlot.getAttribute('src');
   window.open(url,'Image','width=currentPlot.stylewidth,height=currentPlot.style.height,resizable=1');
 }
+
 </script>
 </body>
 </html>
