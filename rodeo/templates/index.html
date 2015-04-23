@@ -92,7 +92,12 @@
     <div class="col-sm-7 resizable" style="border-right: 1px solid #dddddd;">
       <!-- tab headers -->
       <ul id="editorsTab" class="nav nav-tabs">
-        <button id="run-btn" title="Run script" class="close" type="button" style="color: steelblue;"><span class="glyphicon glyphicon-play-circle" aria-hidden="true"></span></button>
+        <button id="run-btn" title="Run script" class="close" type="button" style="color: steelblue;">
+            <span class="glyphicon glyphicon-play-circle" aria-hidden="true"></span>
+        </button>
+        <button id="reset-btn" title="Run script" class="close" type="button" style="color: red;">
+            <span class="glyphicon glyphicon-refresh" aria-hidden="true"></span>
+        </button>
         <li class="active">
           <a class="editor1-tab" href="#tab1" data-toggle="tab" aria-expanded="false"><span class="name">Untitled.py</span>&nbsp;
             <button class="close closeTab" type="button" style="color: red;"><span class="glyphicon glyphicon-remove" aria-hidden="true"></span></button>
@@ -533,7 +538,7 @@
     }
 
     $.post("/", { code: cmd }, function(d) {
-      jqconsole.Write(d.output + '\n', 'jqconsole-output');
+      jqconsole.Write((d.output || "") + '\n', 'jqconsole-output');
       if (/help[(].+[)]/.test(cmd)) {
         $('a[href="#' + "help" + '"]').tab("show");
         $("#help-content").text(d.output || "");
@@ -637,7 +642,15 @@ $("#run-btn").click(function(e) {
     jqconsole.Write(">>> " + text + '\n', 'jqconsole-input');
     sendCommand(text);
   return false;
-})
+});
+
+$("#reset-btn").click(function(e) {
+    e.preventDefault();
+    if (confirm("Are you sure you want to reset your session?")) {
+      sendCommand("%reset -f");
+    }
+  return false;
+});
 
 $("#prev-plot").click(function(e) {
   e.preventDefault();
