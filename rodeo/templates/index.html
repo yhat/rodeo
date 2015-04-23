@@ -681,6 +681,20 @@ function zoomImage() {
   window.open(url,'Image','width=currentPlot.stylewidth,height=currentPlot.style.height,resizable=1');
 }
 
+$(document).keydown(function (e) {
+  if (event.ctrlKey == true) {
+    if (e.which=='49') {
+      // focus on editor
+      var id = $("#editors .active .editor").attr("id");
+      var editor = ace.edit(id);
+      editor.focus();
+    } else if (e.which=='50') {
+      // focus on console
+      jqconsole.Focus();
+    }
+  }
+});
+
 </script>
 </body>
 </html>
