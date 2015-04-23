@@ -181,7 +181,10 @@
           </thead>
           <tbody>
             {% for pkg in packages %}
-            <tr><td>{{ pkg.key }}</td><td>{{ pkg.version }}</td></tr>
+              <tr>
+                <td>{{ pkg.key }}</td>
+                <td>{{ pkg.version }}</td>
+              </tr>
             {% endfor %}
           </tbody>
         </table>
@@ -192,13 +195,6 @@
     </div>
     <!-- end bottom right section -->
   </div>
-  </div>
-
-  <div class="row">
-    <div class="col-sm-7 resizable">
-    </div>
-    <div class="col-sm-5 resizable">
-    </div>
   </div>
 </div>
 
@@ -217,6 +213,8 @@
   var terminal;
   var plots = [];
 
+  var windowHeight = $(document).height();
+
   function getLastWord(editor) {
     var pos = editor.getCursorPosition();
     var column = pos.column - 1;
@@ -228,13 +226,14 @@
       var variable = editor.session.getTextRange(editor.session.getAWordRange(newPos.row, newPos.column));
       text = variable + "." + text;
     }
-    console.log(text);
     return text;
   }
 
   function createEditor(id) {
     var langTools = ace.require("ace/ext/language_tools");
+    var Autocomplete = ace.require("ace/autocomplete").Autocomplete;
     var editor = ace.edit(id);
+    editor.completer = new Autocomplete(editor);
     editor.setTheme("ace/theme/monokai");
     editor.setTheme("ace/theme/chrome");
     editor.setOptions({
@@ -288,7 +287,6 @@
           filename = prompt("Save as: ");
           $("." + id + "-tab .name").text(filename);
           $("#file-list").append('<a id="file-' + filename + '" href="#" class="list-group-item openfile">' + filename + '</a>');
-
         }
         $.post("/file", { source: editor.getSession().getValue(), filename: filename }, function(d) {
           $("." + id + "-tab").append('<span style="color: coral;" class="saved glyphicon glyphicon-floppy-saved" aria-hidden="true"></span>');
@@ -299,6 +297,22 @@
       }
     });
 
+    editor.commands.addCommand({
+      name: "autocomplete",
+      bindKey: {win: "tab", mac: "tab"},
+      exec: function(editor) {
+        var pos = editor.getCursorPosition();
+        var text = editor.session.getTextRange({
+          start: { row: pos.row, column: pos.column - 1 },
+          end: { row: pos.row, column: pos.column }
+        });
+        if (text==".") {
+          editor.completer.showPopup(editor)
+        } else {
+          editor.insert("    ");
+        }
+      }
+    });
     return editor;
   }
 
@@ -342,11 +356,6 @@
 
   // 4 spaces for python
   jqconsole.SetIndentWidth(4);
-
-  // tab to ... tab
-  jqconsole.RegisterShortcut('9', function() {
-    console.log("tab");
-  });
 
   // ctrl + l to clear
   jqconsole.RegisterShortcut('l', function() {
@@ -403,17 +412,40 @@
   });
 
   jqconsole._IndentOld = jqconsole._Indent;
-  // TODO: doesn't work quite yet
-  // jqconsole._Indent = function() {
-  //   console.log("hi");
-  //   console.log(jqconsole.GetPromptText().trim());
-  //   if (jqconsole.GetPromptText().trim()==">>>") {
-  //     jqconsole._IndentOld();
-  //     jqconsole.SetPromptText(jqconsole.GetPromptText() + "    ");
-  //   } else {
-  //     jqconsole.Write(jqconsole.GetPromptText() + "    ", 'jqconsole-input');
-  //   }
-  // };
+  jqconsole._Indent = function() {
+    if (jqconsole.GetPromptText().trim()=="") {
+      jqconsole._IndentOld();
+    } else {
+      var originalPrompt= jqconsole.GetPromptText();
+      var code = jqconsole.GetPromptText().split(' ').slice(-1)[0];
+      jqconsole.ClearPromptText(true);
+      $.post("/", { code: code, complete: true }, function(d) {
+        var predictions = JSON.parse(d.output);
+        var table = new AsciiTable();
+        var row = []
+        for(var i=0; i < predictions.length; i++) {
+          var text;
+          if (code.slice(-1)==".") {
+            text = code + predictions[i].text;
+          } else {
+            text = predictions[i].text;
+          }
+          row.push(text);
+          if (row.length==5) {
+            table.addRow(row);
+            row = [];
+          }
+        }
+        if (row.length > 0) {
+          table.addRow(row);
+        }
+        table.removeBorder();
+        jqconsole.Write(table.render() + '\n', 'jqconsole-output');
+        startPrompt();
+        jqconsole.SetPromptText(originalPrompt);
+      });
+    }
+  };
 
   // jqconsole._MoveLeft()
   // jqconsole._MoveRight()
@@ -426,7 +458,6 @@
   jqconsole.RegisterShortcut('32', function() {
     // autocomplete
     var code = jqconsole.GetPromptText().split(' ').slice(-1)[0];
-    console.log("sending completion: " + code);
     $.post("/", { code: code, complete: true }, function(d) {
       var predictions = JSON.parse(d.output);
       var table = new AsciiTable();
@@ -443,6 +474,9 @@
           table.addRow(row);
           row = [];
         }
+      }
+      if (row.length > 0) {
+        table.addRow(row);
       }
       table.removeBorder();
       jqconsole.Write(table.render() + '\n', 'jqconsole-output');
@@ -646,6 +680,7 @@ function zoomImage() {
   var url = currentPlot.getAttribute('src');
   window.open(url,'Image','width=currentPlot.stylewidth,height=currentPlot.style.height,resizable=1');
 }
+
 $(document).keydown(function (e) {
   if (event.ctrlKey == true) {
     if (e.which=='49') {
@@ -659,6 +694,7 @@ $(document).keydown(function (e) {
     }
   }
 });
+
 </script>
 </body>
 </html>
