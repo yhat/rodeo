@@ -23,7 +23,7 @@ To run a rodeo server, just execute the `rodeo` command like so:
     $ rodeo /path/to/a/folder --port=4567 # new directory, new port
 
 """
-from rodeo import main
+from .rodeo import main
 from __init__ import __version__
 
 from docopt import docopt
