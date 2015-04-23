@@ -24,7 +24,7 @@ To run a rodeo server, just execute the `rodeo` command like so:
 
 """
 from .rodeo import main
-from __init__ import __version__
+from .__init__ import __version__
 
 from docopt import docopt
 import sys

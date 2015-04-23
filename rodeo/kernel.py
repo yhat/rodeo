@@ -1,5 +1,11 @@
 from IPython.kernel import BlockingKernelClient
-from Queue import Empty
+# python3 sucks
+try:
+    from Queue import Empty
+except:
+    from queue import Empty
+    pass
+
 import atexit
 import subprocess
 import uuid

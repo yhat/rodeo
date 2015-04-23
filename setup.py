@@ -46,7 +46,8 @@ setup(
         "ipython>=3.0.0",
         "Flask>=0.10.1",
         "jedi",
-        "docopt"
+        "docopt",
+        "pyzmq>=13"
     ],
     classifiers=['Intended Audience :: Science/Research',
                  'Intended Audience :: Developers',

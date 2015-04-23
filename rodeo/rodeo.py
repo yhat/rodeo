@@ -1,5 +1,5 @@
 from .kernel import Kernel
-from __init__ import __version__
+from .__init__ import __version__
 
 from flask import Flask, request, url_for, render_template, jsonify
 import pip
