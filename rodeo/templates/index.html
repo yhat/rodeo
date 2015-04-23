@@ -52,7 +52,7 @@
             <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">Rodeo</a>
             <ul class="dropdown-menu" role="menu">
               <li><a href="/about">About</a></li>
-              <!-- <li><a href="#">Preferences</a></li> -->
+              <li><a href="#" data-toggle="modal" data-target="#prefsModal">Preferences</a></li>
               <li class="divider"></li>
               <li><a href="#">Quit</a></li>
             </ul>
@@ -95,7 +95,7 @@
         <button id="run-btn" title="Run script" class="close" type="button" style="color: steelblue;">
             <span class="glyphicon glyphicon-play-circle" aria-hidden="true"></span>
         </button>
-        <button id="reset-btn" title="Run script" class="close" type="button" style="color: red;">
+        <button id="reset-btn" title="Reset environment" class="close" type="button" style="color: red;">
             <span class="glyphicon glyphicon-refresh" aria-hidden="true"></span>
         </button>
         <li class="active">
@@ -206,6 +206,7 @@
 <!-- modals -->
 {% include 'partials/df.html' %}
 {% include 'partials/shortcuts.html' %}
+{% include 'partials/preferences.html' %}
 
 <script src="{{ url_for('static', filename='js/lib/jquery.min.js') }}"></script>
 <script src="{{ url_for('static', filename='js/lib/bootstrap.min.js') }}"></script>
@@ -220,6 +221,33 @@
 
   var windowHeight = $(document).height();
 
+  $("#keyBindings").change(function() {
+    var newBinding = $(this).val();
+    setKeyBindings(newBinding);
+  });
+
+  function setKeyBindings(binding) {
+    $(".editor").each(function(i, item) {
+      var editor = ace.edit(item.id);
+      if (binding=="default") {
+        binding = null;
+      }
+      editor.setKeyboardHandler(binding);
+    });
+  }
+  
+  $("#editorTheme").change(function() {
+    var newTheme= $(this).val();
+    setTheme(newTheme);
+  });
+
+  function setTheme(theme) {
+    $(".editor").each(function(i, item) {
+      var editor = ace.edit(item.id);
+      editor.setTheme(theme);
+    });
+  }
+  
   function getLastWord(editor) {
     var pos = editor.getCursorPosition();
     var column = pos.column - 1;
@@ -239,8 +267,10 @@
     var Autocomplete = ace.require("ace/autocomplete").Autocomplete;
     var editor = ace.edit(id);
     editor.completer = new Autocomplete(editor);
-    editor.setTheme("ace/theme/monokai");
-    editor.setTheme("ace/theme/chrome");
+    $.get("/rc", function(d) {
+      setKeyBindings(d.rc.keyBindings || null);
+      setTheme(d.rc.editorTheme || "ace/theme/chrome");
+    });
     editor.setOptions({
       showPrintMargin: false,
       enableBasicAutocompletion: true,
@@ -685,6 +715,20 @@ $("#trash-plot").click(function(e) {
     plots.splice(idx, 1);
   }
 
+  return false;
+});
+
+$("#prefs").submit(function(e) {
+  e.preventDefault();
+  $("#prefsModal").modal("hide");
+  $.ajax({
+    url: "/rc",
+    type: 'POST',
+    data: $(this).serialize(),
+    success: function(data) {
+      // do nothing
+    }
+  });
   return false;
 });
 
