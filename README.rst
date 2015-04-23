@@ -1,5 +1,5 @@
-Rodeo
-=====
+`Rodeo <http://blog.yhathq.com/posts/introducing-rodeo.html>`__
+===============================================================
 
 ::
 
@@ -21,6 +21,9 @@ Rodeo
 Rodeo is a data centric IDE for Python. You can think of it as an
 alternative UI to the notebook for the IPython Kernel. It's heavily
 inspired by great projects like Sublime Text and Eclipse.
+
+.. figure:: ./rodeo/static/img/Rodeo-Demo.gif
+   :alt: 
 
 Quickstart
 ----------

@@ -45,7 +45,9 @@ def cmd():
 
         port = arguments.get("--port")
         if port and re.match("^[0-9]+$", port):
-            port = = int(port)
+            port = int(port)
+        else:
+            port = None
         
         host = arguments.get("--host", None)
         if not re.match("^\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}$", host):
