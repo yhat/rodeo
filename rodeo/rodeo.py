@@ -60,10 +60,13 @@ def save_file():
         f.write(request.form['source'])
     return "OK"
 
-def main(directory, port=5000, browser=True):
+def main(directory, **kwargs):
     global kernel
     global active_dir
     active_dir = os.path.realpath(directory)
+    port = kwargs.get("port", 5000)
+    browser = kwargs.get("browser", True)
+    host = kwargs.get("host", None)
     # get rid of plots
     for f in os.listdir(os.path.join(__dirname, "static", "plots")):
         f = os.path.join(__dirname, "static", "plots", f)
@@ -81,7 +84,7 @@ def main(directory, port=5000, browser=True):
     sys.stderr.write(display)
     if browser:
         webbrowser.open("http://localhost:%d/" % port, new=2)
-    app.run(debug=False, port=port)
+    app.run(debug=False, host=host, port=port)
 
 if __name__=="__main__":
     if len(sys.argv)==1:
