@@ -1,4 +1,4 @@
-# Rodeo
+# [Rodeo](http://blog.yhathq.com/posts/introducing-rodeo.html)
      $ pip install -U rodeo
      $ rodeo .
      
