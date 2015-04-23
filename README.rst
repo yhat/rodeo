@@ -33,8 +33,10 @@ Quickstart
 Important shortcuts
 -------------------
 
--  CTRL + *space* is autocomplete
+-  Tab is autocomplete
 -  ⌘ + *enter* is send code to terminal
+-  ctrl + 1 jumps the cursor to the editor
+-  ctrl + 2 jumps the cursor to the console
 
 Features
 --------
