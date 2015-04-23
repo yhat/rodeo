@@ -58,18 +58,20 @@ def __autocomplete(code):
 
 vars_patch = """
 import json
+import pandas as pd
 
 def __get_variables():
     variable_names = globals().keys()
-    user_variables = []
+    data_frames = []
     for v in variable_names:
         if v.startswith("_"):
             continue
-        user_variables.append({
-            "name": v,
-            "dtype": type(globals()[v]).__name__
-        })
-    print(json.dumps(user_variables))
+        if isinstance(globals()[v], pd.DataFrame):
+            data_frames.append({
+                "name": v,
+                "dtype": "DataFrame"
+            })
+    print(json.dumps(data_frames))
 
 """
 
