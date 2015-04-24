@@ -4,12 +4,11 @@ try:
 except ImportError:
     from IPython.kernel import BlockingKernelClient
 
-# python3 sucks
+# python3/python2 nonsense
 try:
     from Queue import Empty
 except:
     from queue import Empty
-    pass
 
 import atexit
 import subprocess
@@ -21,21 +20,6 @@ import sys
 
 __dirname = os.path.dirname(os.path.abspath(__file__))
 
-matplotlib_patch = """
-# monkey patching matplotlib
-import time
-import uuid
-import matplotlib
-import matplotlib.pyplot as plt
-matplotlib.use('Agg')
-
-
-def __hijack_plots():
-    fname = "{plot_dir}/%d-%s.png" % (int(time.time()), str(uuid.uuid4()))
-    plt.savefig(fname)
-
-plt.show = __hijack_plots
-"""
 
 autocomplete_patch = """
 import jedi
@@ -99,7 +83,7 @@ class Kernel(object):
         self.client.load_connection_file()
         self.client.start_channels()
         # load our monkeypatches...
-        self.client.execute(matplotlib_patch.format(plot_dir=plot_dir))
+        self.client.execute("%matplotlib inline")
         self.client.execute(autocomplete_patch)
         self.client.execute(vars_patch)
 
@@ -119,6 +103,7 @@ class Kernel(object):
         # our executing code. if this is the case, we'll return the data and the msg_id and exit
         msg_id = self.client.execute(code)
         data = None
+        image = None
         while True:
             try:
                 reply = self.client.get_iopub_msg(timeout=timeout)
@@ -128,9 +113,11 @@ class Kernel(object):
             if "execution_state" in reply['content']:
                 if reply['content']['execution_state']=="idle" and reply['parent_header']['msg_id']==msg_id:
                     if reply['parent_header']['msg_type']=="execute_request":
-                        return { "output": data, "msg_id": msg_id }
+                        return { "msg_id": msg_id, "output": data, "image": image }
             elif reply['header']['msg_type']=="execute_result":
                 data = reply['content']['data'].get('text/plain', '')
+            elif reply['header']['msg_type']=="display_data":
+                image = reply['content']['data'].get('image/png', '')
             elif reply['header']['msg_type']=="stream":
                 data = reply['content'].get('text', '')
             elif reply['header']['msg_type']=="error":

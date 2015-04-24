@@ -1,7 +1,7 @@
 from .kernel import Kernel
 from .__init__ import __version__
 
-from flask import Flask, request, url_for, render_template, jsonify, send_from_directory
+from flask import Flask, request, render_template, jsonify
 import pip
 import webbrowser
 import tempfile
@@ -12,17 +12,6 @@ import sys
 
 app = Flask(__name__)
 __dirname = os.path.dirname(os.path.abspath(__file__))
-
-# setup plotting directory
-plot_dir = os.path.join(tempfile.gettempdir(), "rodeo-plots")
-if not os.path.exists(plot_dir):
-    os.mkdir(plot_dir)
-else:
-    # get rid of any pre-existing plots
-    for f in os.listdir(plot_dir):
-        if f.endswith(".png"):
-            os.remove(os.path.join(plot_dir, f))
-
 active_dir = "."
 kernel = None
 
@@ -51,14 +40,6 @@ def home():
 @app.route("/about", methods=["GET"])
 def about():
     return render_template("about.html", version=__version__)
-
-@app.route("/plots", methods=["GET"])
-def plots():
-    plots = []
-    for plot in os.listdir(plot_dir):
-        if plot.endswith(".png"):
-            plots.append(url_for("serve_plot", filename=plot))
-    return jsonify({ "plots": plots })
 
 @app.route("/file/<filename>", methods=["GET"])
 def get_file(filename):
@@ -93,10 +74,6 @@ def rc():
         with open(filename, "wb") as f:
             f.write(json.dumps(rc))
         return "OK"
-
-@app.route("/plots/<filename>")
-def serve_plot(filename):
-    return send_from_directory(plot_dir, filename)
 
 def main(directory, port=5000, host=None, browser=True):
     global kernel
