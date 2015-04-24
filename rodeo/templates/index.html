@@ -580,6 +580,13 @@
 
     $.post("/", { code: cmd }, function(d) {
       jqconsole.Write((d.output || "") + '\n', 'jqconsole-output');
+      if (d.image) {
+        var plt = "data:image/png;charset=utf-8;base64," + d.image;
+        $("#current-plot").attr("src", plt);
+        $("#export-plot").attr("href", plt);
+        plots.push(plt);
+        $('a[href="#plots"]').tab("show");
+      }
       if (/help[(].+[)]/.test(cmd)) {
         $('a[href="#' + "help" + '"]').tab("show");
         $("#help-content").text(d.output || "");
@@ -587,21 +594,7 @@
       if (d.error) {
         jqconsole.Write(d.error + '\n', 'jqconsole-error');
       }
-      getSessionVariables(function() {
-        $.get("/plots", function(data) {
-          if (data.plots) {
-            for (var i=0; i < data.plots.length; i++) {
-              var plotFile = data.plots[i];
-              if (plots.indexOf(plotFile)==-1) {
-                $("#current-plot").attr("src", plotFile);
-                $("#export-plot").attr("href", plotFile);
-                $('a[href="#plots"]').tab("show");
-                plots.push(plotFile);
-              }
-            }
-          }
-        });
-      });
+      getSessionVariables(function() { });
     });
   }
 
