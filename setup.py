@@ -41,7 +41,7 @@ setup(
     },
     description="an ide for data analysis in python",
     # run pandoc --from=markdown --to=rst --output=README.rst README.md
-    long_description=open("README.rst").read(),
+    long_description=open("README.rst", encoding='utf8').read(),
     install_requires=[
         "ipython>=3.0.0",
         "Flask>=0.10.1",
