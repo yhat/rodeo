@@ -63,7 +63,10 @@ def plots():
 @app.route("/file/<filename>", methods=["GET"])
 def get_file(filename):
     filename = os.path.join(active_dir, filename)
-    return open(filename).read()
+    if os.path.exists(filename):
+        return open(filename).read()
+    else:
+        return "FILE DOES NOT EXIST: %s" % filename
 
 @app.route("/file", methods=["POST"])
 def save_file():
