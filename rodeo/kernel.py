@@ -129,9 +129,9 @@ class Kernel(object):
                     if reply['parent_header']['msg_type']=="execute_request":
                         return { "output": data, "msg_id": msg_id }
             elif reply['header']['msg_type']=="execute_result":
-                data = reply['content']['data']['text/plain']
+                data = reply['content']['data'].get('text/plain', '')
             elif reply['header']['msg_type']=="stream":
-                data = reply['content']['text']
+                data = reply['content'].get('text', '')
             elif reply['header']['msg_type']=="error":
                 data = "\n".join(reply['content']['traceback'])
 
