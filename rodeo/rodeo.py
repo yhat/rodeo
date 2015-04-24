@@ -12,10 +12,17 @@ import sys
 
 app = Flask(__name__)
 __dirname = os.path.dirname(os.path.abspath(__file__))
+
+# setup plotting directory
 plot_dir = os.path.join(tempfile.gettempdir(), "rodeo-plots")
 if not os.path.exists(plot_dir):
     os.mkdir(plot_dir)
-print "plot dir is: ", plot_dir
+else:
+    # get rid of any pre-existing plots
+    for f in os.listdir(plot_dir):
+        if f.endswith(".png"):
+            os.remove(os.path.join(plot_dir, f))
+
 active_dir = "."
 kernel = None
 
@@ -95,11 +102,6 @@ def main(directory, port=5000, host=None, browser=True):
 
     if not port:
         port = 5000
-
-    # get rid of any pre-existing plots
-    for f in os.listdir(plot_dir):
-        if f.endswith(".png"):
-            os.remove(os.path.join(plot_dir, f))
 
     kernel = Kernel(plot_dir)
     art = open(os.path.join(__dirname, "rodeo-ascii.txt"), 'r').read()
