@@ -1,9 +1,10 @@
 from .kernel import Kernel
 from .__init__ import __version__
 
-from flask import Flask, request, url_for, render_template, jsonify
+from flask import Flask, request, url_for, render_template, jsonify, send_from_directory
 import pip
 import webbrowser
+import tempfile
 import json
 import os
 import sys
@@ -11,6 +12,10 @@ import sys
 
 app = Flask(__name__)
 __dirname = os.path.dirname(os.path.abspath(__file__))
+plot_dir = os.path.join(tempfile.gettempdir(), "rodeo-plots")
+if not os.path.exists(plot_dir):
+    os.mkdir(plot_dir)
+print "plot dir is: ", plot_dir
 active_dir = "."
 kernel = None
 
@@ -42,11 +47,10 @@ def about():
 
 @app.route("/plots", methods=["GET"])
 def plots():
-    plot_dir = os.path.join(__dirname, "static", "plots")
     plots = []
     for plot in os.listdir(plot_dir):
         if plot.endswith(".png"):
-            plots.append(url_for("static", filename="plots/%s" % plot))
+            plots.append(url_for("serve_plot", filename=plot))
     return jsonify({ "plots": plots })
 
 @app.route("/file/<filename>", methods=["GET"])
@@ -80,6 +84,10 @@ def rc():
             f.write(json.dumps(rc))
         return "OK"
 
+@app.route("/plots/<filename>")
+def serve_plot(filename):
+    return send_from_directory(plot_dir, filename)
+
 def main(directory, port=5000, host=None, browser=True):
     global kernel
     global active_dir
@@ -88,12 +96,12 @@ def main(directory, port=5000, host=None, browser=True):
     if not port:
         port = 5000
 
-    # get rid of plots
-    for f in os.listdir(os.path.join(__dirname, "static", "plots")):
-        f = os.path.join(__dirname, "static", "plots", f)
+    # get rid of any pre-existing plots
+    for f in os.listdir(plot_dir):
         if f.endswith(".png"):
-            os.remove(f)
-    kernel = Kernel()
+            os.remove(os.path.join(plot_dir, f))
+
+    kernel = Kernel(plot_dir)
     art = open(os.path.join(__dirname, "rodeo-ascii.txt"), 'r').read()
     display = """
 {ART}

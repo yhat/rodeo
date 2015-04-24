@@ -35,7 +35,6 @@ setup(
             "static/js/*.js",
             "static/js/lib/*.js",
             "static/js/lib/*.map",
-            "static/plots/*",
             "templates/*.html",
             "templates/partials/*.html"
         ]

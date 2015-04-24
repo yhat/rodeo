@@ -31,11 +31,11 @@ matplotlib.use('Agg')
 
 
 def __hijack_plots():
-    fname = "{__dirname}/static/plots/%d-%s.png" % (int(time.time()), str(uuid.uuid4()))
+    fname = "{plot_dir}/%d-%s.png" % (int(time.time()), str(uuid.uuid4()))
     plt.savefig(fname)
 
 plt.show = __hijack_plots
-""".format(__dirname=__dirname)
+"""
 
 autocomplete_patch = """
 import jedi
@@ -76,7 +76,8 @@ def __get_variables():
 """
 
 class Kernel(object):
-    def __init__(self):
+    def __init__(self, plot_dir):
+        self.plot_dir = plot_dir
         # kernel config is stored in a temp file 
         config = os.path.join(tempfile.gettempdir(), "kernel-%s.json" % str(uuid.uuid4()))
         args = [sys.executable, '-m', 'IPython', 'kernel', '-f', config]
@@ -98,7 +99,7 @@ class Kernel(object):
         self.client.load_connection_file()
         self.client.start_channels()
         # load our monkeypatches...
-        self.client.execute(matplotlib_patch)
+        self.client.execute(matplotlib_patch.format(plot_dir=plot_dir))
         self.client.execute(autocomplete_patch)
         self.client.execute(vars_patch)
 
