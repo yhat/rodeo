@@ -13,7 +13,6 @@ except:
 import atexit
 import subprocess
 import uuid
-import tempfile
 import time
 import os
 import sys
@@ -60,10 +59,9 @@ def __get_variables():
 """
 
 class Kernel(object):
-    def __init__(self, plot_dir):
-        self.plot_dir = plot_dir
+    def __init__(self, active_dir):
         # kernel config is stored in a temp file 
-        config = os.path.join(tempfile.gettempdir(), "kernel-%s.json" % str(uuid.uuid4()))
+        config = os.path.join(active_dir, ".kernel-%s.json" % str(uuid.uuid4()))
         args = [sys.executable, '-m', 'IPython', 'kernel', '-f', config]
         p = subprocess.Popen(args, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         

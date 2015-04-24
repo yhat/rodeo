@@ -4,7 +4,6 @@ from .__init__ import __version__
 from flask import Flask, request, render_template, jsonify
 import pip
 import webbrowser
-import tempfile
 import json
 import os
 import sys
@@ -83,7 +82,7 @@ def main(directory, port=5000, host=None, browser=True):
     if not port:
         port = 5000
 
-    kernel = Kernel(plot_dir)
+    kernel = Kernel(active_dir)
     art = open(os.path.join(__dirname, "rodeo-ascii.txt"), 'r').read()
     display = """
 {ART}
