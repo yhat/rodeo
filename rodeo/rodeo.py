@@ -88,6 +88,15 @@ def markdownify():
     else:
         return "no markdown supplied"
 
+@app.route("/upload", methods=["POST"])
+def upload_data():
+    if "data" in request.files:
+        f = request.files['data']
+        f.save(os.path.join(active_dir, f.filename))
+        return "OK"
+    else:
+        return "No file specified"
+
 def main(directory, port=5000, host=None, browser=True, verbose=False):
     global kernel
     global active_dir
