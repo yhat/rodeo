@@ -47,7 +47,8 @@ setup(
         "Flask>=0.10.1",
         "jedi",
         "docopt",
-        "pyzmq>=13"
+        "pyzmq>=13",
+        "markdown2"
     ],
     classifiers=['Intended Audience :: Science/Research',
                  'Intended Audience :: Developers',
