@@ -2,6 +2,7 @@ from .kernel import Kernel
 from .__init__ import __version__
 
 from flask import Flask, request, render_template, jsonify
+import logging
 import pip
 import webbrowser
 import json
@@ -26,8 +27,8 @@ def home():
         code = request.form.get('code')
         if code:
             if code=="getvars":
-                code = "__get_variables()"
-            if request.form.get('complete'):
+                result = kernel.get_dataframes()
+            elif request.form.get('complete'):
                 result = kernel.complete(code)
             else:
                 result = kernel.execute(code)
@@ -42,10 +43,13 @@ def about():
 
 @app.route("/file/<filename>", methods=["GET"])
 def get_file(filename):
+    logging.info("getting file: %s" % filename)
     filename = os.path.join(active_dir, filename)
+    logging.info("expanded filepath: %s" % filename)
     if os.path.exists(filename):
         return open(filename).read()
     else:
+        logging.info("file does not exist: %s" % filename)
         return "FILE DOES NOT EXIST: %s" % filename
 
 @app.route("/file", methods=["POST"])
@@ -74,13 +78,19 @@ def rc():
             f.write(json.dumps(rc))
         return "OK"
 
-def main(directory, port=5000, host=None, browser=True):
+def main(directory, port=5000, host=None, browser=True, verbose=False):
     global kernel
     global active_dir
     active_dir = os.path.realpath(directory)
 
     if not port:
         port = 5000
+
+    if verbose==True:
+        logging.basicConfig(format='[%(levelname)s]: %(message)s', level=logging.DEBUG)
+    else:
+        logging.basicConfig(format='[%(levelname)s]: %(message)s', level=logging.WARNING)
+
 
     kernel = Kernel(active_dir)
     art = open(os.path.join(__dirname, "rodeo-ascii.txt"), 'r').read()

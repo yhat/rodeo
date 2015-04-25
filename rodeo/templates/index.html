@@ -278,9 +278,20 @@
     editor.completer = new Autocomplete(editor);
     $.get("/rc", function(d) {
       setKeyBindings(d.rc.keyBindings || null);
+      if (d.rc.keyBindings) {
+        $("#keyBindings").val(d.rc.keyBindings);
+      }
+
       setTheme(d.rc.editorTheme || "ace/theme/chrome");
+      if (d.rc.editorTheme) {
+        $("#editorTheme").val(d.rc.editorTheme);
+      }
+
       editor.setFontSize(parseFloat(d.rc.fontSize || "10"));
       $(".jqconsole").css("font-size", (d.rc.fontSize || "10") + "px");
+      if (d.rc.fontSize) {
+        $("#fontSize").val(d.rc.fontSize);
+      }
     });
     editor.setOptions({
       showPrintMargin: false,
@@ -352,7 +363,7 @@
           start: { row: pos.row, column: pos.column - 1 },
           end: { row: pos.row, column: pos.column }
         });
-        if (text==".") {
+        if (text!=" " && text!="") {
           editor.completer.showPopup(editor)
         } else {
           editor.insert("    ");
@@ -477,7 +488,7 @@
             text = predictions[i].text;
           }
           row.push(text);
-          if (row.length==5) {
+          if (row.length==4) {
             table.addRow(row);
             row = [];
           }
@@ -486,7 +497,7 @@
           table.addRow(row);
         }
         table.removeBorder();
-        jqconsole.Write(table.render() + '\n', 'jqconsole-output');
+        jqconsole.Write(table.render() + '\n\n', 'jqconsole-output');
         startPrompt();
         jqconsole.SetPromptText(originalPrompt);
       });
@@ -516,7 +527,7 @@
           text = predictions[i].text;
         }
         row.push(text);
-        if (row.length==5) {
+        if (row.length==4) {
           table.addRow(row);
           row = [];
         }
@@ -525,7 +536,7 @@
         table.addRow(row);
       }
       table.removeBorder();
-      jqconsole.Write(table.render() + '\n', 'jqconsole-output');
+      jqconsole.Write(table.render() + '\n\n', 'jqconsole-output');
     });
   });
   
@@ -618,6 +629,7 @@ function registerCloseEvent() {
       $(tabContentId).remove(); //remove respective tab content
       var name = $("span", $(this).parent()).text();
       $("#file-" + name.replace(".", "\\.")).removeClass("active");
+      $("#file-" + name.replace(".", "\\.")).addClass("openfile");
   });
 }
 registerCloseEvent();
@@ -625,11 +637,13 @@ registerCloseEvent();
 
 $(".openfile").click(function(e) {
   e.preventDefault();
+  if ($(this).hasClass("active")) {
+    return;
+  }
   $(this).addClass("active");
   var editor = addTab($(this).text());
   $.get("/file/" + $(this).text(), function(d) {
     editor.setValue(d);
-    // show in window
   });
   return false;
 });

@@ -1,13 +1,14 @@
 """rodeo
 
 Usage:
-  rodeo [--port=<int>] [--no-browser] [--host=<IP>] [<directory>]
+  rodeo [--verbose] [--no-browser] [--host=<IP>] [--port=<int>] [<directory>]
   rodeo (-h | --help)
   rodeo --version
 
 Options:
   -h --help     Show this screen.
   --version     Show version.
+  --verbose     Log info for debugging.
   --port=<int>  Port you want to run the server on.
   --no-browser  Don't launch a web browser.
   --host=<IP>   The IP to listen on.
@@ -22,6 +23,7 @@ Examples:
 To run a rodeo server, just execute the `rodeo` command like so:
     $ rodeo . # basic usage
     $ rodeo . --port=4567 # run in this directory, but on port 4567
+    $ rodeo . --verbose # run with excessive logging
     $ rodeo . --host=0.0.0.0 --no-browser # externally visible
     $ rodeo /path/to/a/folder # run in a different directory
     $ rodeo /path/to/a/folder --port=4567 # new directory, new port
@@ -53,7 +55,9 @@ def cmd():
         if host and not re.match("^\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}$", host):
             host = None
 
-        main(active_dir, port=port, host=host, browser=browser)
+        verbose = arguments.get("--verbose", False)
+
+        main(active_dir, port=port, host=host, browser=browser, verbose=verbose)
 
     else:
         sys.stdout.write(__doc__)
