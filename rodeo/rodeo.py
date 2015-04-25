@@ -2,6 +2,7 @@ from .kernel import Kernel
 from .__init__ import __version__
 
 from flask import Flask, request, render_template, jsonify
+import markdown2
 import logging
 import pip
 import webbrowser
@@ -77,6 +78,15 @@ def rc():
         with open(filename, "wb") as f:
             f.write(json.dumps(rc))
         return "OK"
+
+@app.route("/md", methods=["POST"])
+def markdownify():
+    md = request.form.get("markdown")
+    if md:
+        html = markdown2.markdown(md)
+        return html
+    else:
+        return "no markdown supplied"
 
 def main(directory, port=5000, host=None, browser=True, verbose=False):
     global kernel
