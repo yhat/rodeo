@@ -62,6 +62,7 @@
             <ul class="dropdown-menu" role="menu">
               <li><a onclick="addTab();" href="#">New Script</a></li>
               <li><a id="openfilewidget" href="#">Open File</a></li>
+              <!-- <li><a id="data-upload" href="#">Upload Data</a></li> -->
               <li><a onclick='saveEditor($("#editors .active .editor").attr("id"));' href="#">Save</a></li>
               <li><a onclick='saveEditor($("#editors .active .editor").attr("id"), true);' href="#">Save As</a></li>
               <li class="divider"></li>
@@ -130,6 +131,9 @@
 
   <!-- this is the hidden file input for the `File > Open File` menu item -->
   <input type="file" id="upload_file" class="hide"> 
+  <form id="upload_form" class="hide" action="/upload" method="POST" enctype="multipart/form-data">
+    <input type="file" name="data" id="upload_data" class="hide">
+  </form>
 
   <div class="col-sm-5 resizable">
     <ul class="nav nav-tabs">
@@ -650,10 +654,29 @@ $(".openfile").click(function(e) {
   });
   return false;
 });
+
 $("#openfilewidget").click(function(e) {
   $('#upload_file').trigger('click');
   return false;
 });
+
+$("#data-upload").click(function(e) {
+  $("#upload_data").trigger('click');
+  return false;
+});
+
+$("#upload_data").change(function(e){
+  $.ajax({
+    url: "/upload",
+    type: 'POST',
+    data: new FormData($("#upload_form")),
+    success: function(data) {
+      console.log(data);
+    }
+  });
+});
+
+// TODO: this doesn't work :(
 $("#upload_file").change(function(e){
   var filename = $(this).val().slice(12);
   var input = document.getElementById('upload_file')

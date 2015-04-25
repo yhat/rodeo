@@ -42,9 +42,14 @@ def __autocomplete(code):
 
 vars_patch = """
 import json
-import pandas as pd
+try:
+    import pandas as pd
+except:
+    pd = None
 
 def __get_variables():
+    if not pd:
+        print('[]')
     variable_names = globals().keys()
     data_frames = []
     for v in variable_names:
