@@ -397,7 +397,7 @@
   }
 
   function showDataFrame(varname) {
-    var cmd = "print " + varname + ".ix[:5000].to_html()";
+    var cmd = "print(" + varname + ".ix[:5000].to_html())"
     $("#data-table-title").text(varname);
     $("#data-table").children().remove();
     $("#data-table").append("<p>fetching data...</p>");
