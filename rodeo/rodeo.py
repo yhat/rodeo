@@ -3,7 +3,6 @@ from .__init__ import __version__
 
 from flask import Flask, request, render_template, jsonify
 import markdown2
-import urllib2
 import logging
 import pip
 import webbrowser
@@ -127,10 +126,6 @@ def main(directory, port=5000, host=None, browser=True, verbose=False):
     app.run(debug=False, host=host, port=port)
 
 if __name__=="__main__":
-    version_file = "https://raw.githubusercontent.com/yhat/rodeo/master/rodeo/__init__.py"
-    if __version__ not in urllib2.urlopen(version_file).read():
-        sys.stderr.write("***A newer version of rodeo is available.***\n")
-        sys.stderr.write("Run `pip install -U rodeo` to update.\n")
     if len(sys.argv)==1:
         directory = "."
     else:
