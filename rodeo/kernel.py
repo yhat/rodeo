@@ -113,8 +113,7 @@ class Kernel(object):
         # ID (msg_id) that's associated with our executing code. if this is the 
         # case, we'll return the data and the msg_id and exit
         msg_id = self.client.execute(code)
-        data = None
-        image = None
+        output = { "msg_id": msg_id, "output": None, "image": None, "error": None }
         while True:
             try:
                 reply = self.client.get_iopub_msg(timeout=timeout)
@@ -124,15 +123,15 @@ class Kernel(object):
             if "execution_state" in reply['content']:
                 if reply['content']['execution_state']=="idle" and reply['parent_header']['msg_id']==msg_id:
                     if reply['parent_header']['msg_type']=="execute_request":
-                        return { "msg_id": msg_id, "output": data, "image": image }
+                        return output
             elif reply['header']['msg_type']=="execute_result":
-                data = reply['content']['data'].get('text/plain', '')
+                output['output'] = reply['content']['data'].get('text/plain', '')
             elif reply['header']['msg_type']=="display_data":
-                image = reply['content']['data'].get('image/png', '')
+                output['image'] = reply['content']['data'].get('image/png', '')
             elif reply['header']['msg_type']=="stream":
-                data = reply['content'].get('text', '')
+                output['output'] = reply['content'].get('text', '')
             elif reply['header']['msg_type']=="error":
-                data = "\n".join(reply['content']['traceback'])
+                output['error'] = "\n".join(reply['content']['traceback'])
 
     def execute(self, code):
         return self._run_code(code)
