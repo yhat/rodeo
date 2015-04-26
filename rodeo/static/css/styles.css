@@ -1,0 +1,78 @@
+
+* {
+    box-sizing: border-box;
+}
+
+html, body {
+    height: 100%;
+    min-height: 100%;
+    margin: 0;
+}
+
+.small-container, .row {
+    display: flex;
+    flex-direction: row;
+    height: 100%;
+    width: 100%;
+    height: calc(100% - 100px);
+    margin: 0 0;
+}
+
+
+.column-1, .column-2 {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+}
+.tab1 {
+    flex: 2 1 0;
+    width: 100%;
+    position: relative;
+}
+
+.tab2 {
+    flex: 1 1 0;
+    position: relative;
+}
+
+.tab3 {
+    flex: 1 1 0;
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    margin-bottom: 0;
+}
+
+.tab4 {
+    flex: 2 1 0;
+    position: relative;
+    display: flex;
+    flex-direction: column;
+}
+
+.navbar {
+    margin-bottom: 25px;
+}
+
+#console {
+    position: absolute;
+    height: 100%;
+}
+
+.panel-body {
+    padding: 0;
+}
+
+#plots {
+    height: 100%;
+}
+
+#myTabContent {
+    overflow: auto;
+    flex: 1;
+}
+
+// overrides default height: 200px 
+.top-right {
+    height: 100%;
+}
