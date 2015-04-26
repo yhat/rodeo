@@ -38,6 +38,9 @@ html, body {
 .tab3 {
     flex: 1 1 0;
     position: relative;
+    display: flex;
+    flex-direction: column;
+    margin-bottom: 0;
 }
 
 .tab4 {
@@ -69,3 +72,7 @@ html, body {
     flex: 1;
 }
 
+// overrides default height: 200px 
+.top-right {
+    height: 100%;
+}
