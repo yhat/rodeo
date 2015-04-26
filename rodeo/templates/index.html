@@ -30,6 +30,9 @@
     </style>
     <link href="{{ url_for('static', filename='css/bootstrap.yeti.css') }}" rel="stylesheet">
     <link href="{{ url_for('static', filename='css/console.css') }}" rel="stylesheet">
+    <style type="text/css" media="screen">
+      
+    </style>
 </head>
 <body>
 
@@ -43,8 +46,10 @@
           <span class="icon-bar"></span>
           <span class="icon-bar"></span>
         </button>
-        <img class="hat" src="{{ url_for('static', filename='img/cowboy-hat.svg') }}" title="Yee Haw!" href="https://www.yhathq.com/">
-        <a class="navbar-brand" href="https://www.yhathq.com/"><span style="color: #ee5311;">&ycirc;</span><span class="color: #898989">hat</span></a>
+        <a href="https://www.yhathq.com/">
+          <img class="hat" src="{{ url_for('static', filename='img/cowboy-hat.svg') }}" title="Yee Haw!" href="https://www.yhathq.com/">
+          <a class="navbar-brand" href="https://www.yhathq.com/"><span style="color: #ee5311;">&ycirc;</span><span class="color: #898989">hat</span></a>
+        </a>
       </div>
       <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-2">
         <ul class="nav navbar-nav">
@@ -155,7 +160,7 @@
         </table>
       </div>
       <div class="tab-pane" id="history">
-        <pre style="font-size: 10px; background-color: white;" class="top-right history" id="history-trail"></pre>
+        <pre style="font-size: 10px; background-color: #fdfdfd;" class="top-right history" id="history-trail"></pre>
       </div>
     </div>
     <hr>
@@ -202,7 +207,7 @@
         </table>
       </div>
       <div class="tab-pane" id="help">
-        <pre style="font-size: 10px; background-color: white; height: 380px; overflow: auto;" id="help-content"><i>run help(...) for more info</i></pre>
+        <pre style="font-size: 10px; background-color: #fdfdfd; height: 380px; overflow: auto;" id="help-content"><i>run help(...) for more info</i></pre>
       </div>
     </div>
     <!-- end bottom right section -->
@@ -597,22 +602,24 @@
     }
 
     $.post("/", { code: cmd }, function(d) {
-      jqconsole.Write((d.output || "") + '\n', 'jqconsole-output');
-      if (d.image) {
-        var plt = "data:image/png;charset=utf-8;base64," + d.image;
-        $("#current-plot").attr("src", plt);
-        $("#export-plot").attr("href", plt);
-        plots.push(plt);
-        $('a[href="#plots"]').tab("show");
-      }
+      // only show help to the Help tab
       if (/help[(].+[)]/.test(cmd)) {
         $('a[href="#' + "help" + '"]').tab("show");
         $("#help-content").text(d.output || "");
+      } else {
+        jqconsole.Write((d.output || "") + '\n', 'jqconsole-output');
+        if (d.image) {
+          var plt = "data:image/png;charset=utf-8;base64," + d.image;
+          $("#current-plot").attr("src", plt);
+          $("#export-plot").attr("href", plt);
+          plots.push(plt);
+          $('a[href="#plots"]').tab("show");
+        }
       }
       if (d.error) {
         jqconsole.Write(d.error + '\n', 'jqconsole-error');
       }
-      getSessionVariables(function() { });
+      getSessionVariables();
     });
   }
 
