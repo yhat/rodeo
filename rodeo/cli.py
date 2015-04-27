@@ -1,7 +1,7 @@
 """rodeo
 
 Usage:
-  rodeo [--verbose] [--no-browser] [--host=<IP>] [--port=<int>] [<directory>]
+  rodeo [--verbose] [--no-browser] [--host=<IP>] [--port=<int>] [--pyspark] [<directory>]
   rodeo (-h | --help)
   rodeo --version
 
@@ -12,6 +12,7 @@ Options:
   --port=<int>  Port you want to run the server on.
   --no-browser  Don't launch a web browser.
   --host=<IP>   The IP to listen on.
+  --pyspark     Use the pyspark kernel
 
 Help:
 Rodeo is a data centric IDE for python. It leverages the IPython
@@ -35,6 +36,7 @@ from .__init__ import __version__
 from docopt import docopt
 import sys
 import re
+import os
 
 def cmd():
     arguments = docopt(__doc__, version="rodeo %s" % __version__)
@@ -57,7 +59,14 @@ def cmd():
 
         verbose = arguments.get("--verbose", False)
 
-        main(active_dir, port=port, host=host, browser=browser, verbose=verbose)
+        pyspark = arguments.get("--pyspark", False)
+        if pyspark:
+            SPARK_HOME = os.environ.get("SPARK_HOME", None)
+            assert SPARK_HOME, "You must set SPARK_HOME to use the pyspark kernel"
+            assert os.path.isdir(SPARK_HOME), "SPARK_HOME must be a valid directory"
+
+        main(active_dir, port=port, host=host, browser=browser,
+             verbose=verbose, pyspark=pyspark)
 
     else:
         sys.stdout.write(__doc__)
