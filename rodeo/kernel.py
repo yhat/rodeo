@@ -71,14 +71,13 @@ class Kernel(object):
         # right now we're spawning a child process for IPython. we can 
         # probably work directly with the IPython kernel API, but the docs
         # don't really explain how to do it.
+        log_file = None
         if pyspark:
             os.environ["IPYTHON_OPTS"] = "kernel -f %s" % config
             pyspark = os.path.join(os.environ.get("SPARK_HOME"), "bin/pyspark")
             spark_log = os.environ.get("SPARK_LOG", None)
             if spark_log:
                 log_file = open(spark_log, "w")
-            else:
-                log_file = None
             spark_opts = os.environ.get("SPARK_OPTS", "")
             args = [pyspark] + spark_opts.split()  # $SPARK_HOME/bin/pyspark <SPARK_OPTS>
             p = subprocess.Popen(args, stdout=log_file, stderr=log_file)
