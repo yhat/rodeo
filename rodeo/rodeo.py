@@ -21,7 +21,8 @@ def home():
     if request.method=="GET":
         packages = pip.get_installed_distributions()
         packages = sorted(packages, key=lambda k: k.key)
-        files = [f for f in os.listdir(active_dir) if f.endswith(".py")]
+        # TODO: maybe follow .gitignore
+        files = [f for f in os.listdir(active_dir)]
         return render_template("index.html", packages=packages, files=files,
                 version=__version__)
     else:

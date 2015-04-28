@@ -67,7 +67,8 @@
             <ul class="dropdown-menu" role="menu">
               <li><a onclick="addTab();" href="#">New Script</a></li>
               <li><a id="openfilewidget" href="#">Open File</a></li>
-              <!-- <li><a id="data-upload" href="#">Upload Data</a></li> -->
+              <li><a id="data-upload" href="#">Upload Data</a></li>
+              <li class="divider"></li>
               <li><a onclick='saveEditor($("#editors .active .editor").attr("id"));' href="#">Save</a></li>
               <li><a onclick='saveEditor($("#editors .active .editor").attr("id"), true);' href="#">Save As</a></li>
               <li class="divider"></li>
@@ -673,12 +674,20 @@ $("#data-upload").click(function(e) {
 });
 
 $("#upload_data").change(function(e){
+  var fd = new FormData();
+  fd.append("data", $("#upload_data")[0].files[0]);
+
   $.ajax({
     url: "/upload",
     type: 'POST',
-    data: new FormData($("#upload_form")),
+    data: fd,
+    processData: false,
+    contentType: false,
     success: function(data) {
       console.log(data);
+    },
+    error: function(jqXHR, textStatus, errorMessage) {
+      console.log("ERROR" + errorMessage);
     }
   });
 });
