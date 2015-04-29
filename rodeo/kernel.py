@@ -79,12 +79,14 @@ class Kernel(object):
         atexit.register(p.terminate)
 
         def remove_config():
-            os.remove(config)
+            if (os.path.isfile(config)):
+                os.remove(config)
         atexit.register(remove_config)
 
         # i found that if i tried to connect to the kernel immediately, it wasn't
         # up and running. 1.5 seconds was arbitrarily chosen (but seems to work)
-        time.sleep(1.5)
+        while not os.path.isfile(config):
+            time.sleep(1.5)
         # fire up the kernel with the appropriate config
         self.client = BlockingKernelClient(connection_file=config)
         self.client.load_connection_file()
