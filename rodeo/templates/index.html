@@ -175,8 +175,27 @@
     <div id="myTabContent" class="tab-content">
       <div class="tab-pane active in" id="files">
         <div id="file-list" class="list-group">
-          {% for f in files %}
-            <a id="file-{{ f }}" href="#" class="list-group-item openfile">{{ f }}</a>
+            <a id="file-up_dir" data-parnet-slug="" data-dirname="top_dir" href="#" class="list-group-item showdir" >
+                <span class="glyphicon glyphicon-folder-open" aria-hidden="true"></span>&nbsp;..
+            </a>
+          <!-- directories -->
+          {% for dir in file_tree %}
+            {% for f in dir %}
+                {% if f.isFile==False %}
+                    <a id="file-{{ f.dirname }}" data-parnet-slug="{{ f.parentslug }}" data-dirname="{{ f.dirslug }}" href="#" class="list-group-item {{ f.parentslug }} showdir">
+                        <span class="glyphicon glyphicon-folder-open" aria-hidden="true"></span>&nbsp;
+                        {{ f.dirname }}
+                    </a>
+                {% endif %}
+            {% endfor %}
+          {% endfor %}
+          <!-- files -->
+          {% for dir in file_tree %}
+            {% for f in dir %}
+                {% if f.filename %}
+                <a id="file-{{ f.filename }}" data-filename="{{ f.dirname }}/{{f.filename }}" href="#" class="list-group-item openfile {{ f.dirslug }} file">{{ f.filename }}</a>
+                {% endif %}
+            {% endfor %}
           {% endfor %}
         </div>
       </div>
@@ -637,7 +656,6 @@
 //this method will register event on close icon on the tab..
 function registerCloseEvent() {
   $(".closeTab").click(function () {
-      //there are multiple elements which has .closeTab icon so close the tab whose close icon is clicked
       var tabContentId = $(this).parent().attr("href");
       $(this).parent().parent().remove(); //remove li of tab
       $('#myTab a:last').tab('show'); // Select first tab
@@ -650,6 +668,19 @@ function registerCloseEvent() {
 registerCloseEvent();
 
 
+$(".showdir").click(function(e) {
+  e.preventDefault();
+  $(".file").addClass("hide");
+  $(".showdir").addClass("hide");
+  var dirname = $(this).attr('data-dirname');
+  $("#file-up_dir").attr("data-dirname", $(this).attr("data-parent-slug"));
+  $("#file-up_dir").removeClass('hide');
+  $("." + dirname).removeClass("hide");
+  return false;
+});
+
+$("#file-up_dir").click()
+
 $(".openfile").click(function(e) {
   e.preventDefault();
   if ($(this).hasClass("active")) {
@@ -657,7 +688,9 @@ $(".openfile").click(function(e) {
   }
   $(this).addClass("active");
   var editor = addTab($(this).text());
-  $.get("/file/" + $(this).text(), function(d) {
+  var filename = $(this).attr("data-filename");
+  
+  $.get("/file?" + $.param({"filename": filename }) , function(d) {
     editor.setValue(d);
   });
   return false;
