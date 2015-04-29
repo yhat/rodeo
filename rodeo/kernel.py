@@ -79,7 +79,8 @@ class Kernel(object):
         atexit.register(p.terminate)
 
         def remove_config():
-            os.remove(config)
+            if (os.exist(config)):
+                os.remove(config)
         atexit.register(remove_config)
 
         # i found that if i tried to connect to the kernel immediately, it wasn't
