@@ -79,12 +79,14 @@ class Kernel(object):
         atexit.register(p.terminate)
 
         def remove_config():
-            os.remove(config)
+            if os.path.isfile(config):
+                os.remove(config)
         atexit.register(remove_config)
 
-        # i found that if i tried to connect to the kernel immediately, it wasn't
-        # up and running. 1.5 seconds was arbitrarily chosen (but seems to work)
-        time.sleep(1.5)
+        # i found that if i tried to connect to the kernel immediately, so we'll
+        # wait until the config file exists before moving on
+        while os.path.isfile(config)==False:
+            time.sleep(0.1)
         # fire up the kernel with the appropriate config
         self.client = BlockingKernelClient(connection_file=config)
         self.client.load_connection_file()
@@ -145,4 +147,3 @@ class Kernel(object):
     
     def get_dataframes(self):
         return self.execute("__get_variables()")
-
