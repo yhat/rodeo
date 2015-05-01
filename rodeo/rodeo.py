@@ -10,6 +10,7 @@ import json
 import os
 import sys
 
+import io  # for Python2.7/3.3 compatibility
 
 app = Flask(__name__)
 __dirname = os.path.dirname(os.path.abspath(__file__))
@@ -56,7 +57,7 @@ def get_file(filename):
 @app.route("/file", methods=["POST"])
 def save_file():
     filename = os.path.join(active_dir, request.form['filename'])
-    with open(filename, 'wb') as f:
+    with io.open(filename, 'w', encoding='utf-8') as f:
         f.write(request.form['source'])
     return "OK"
 
