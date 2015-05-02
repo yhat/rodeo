@@ -112,7 +112,8 @@ def main(directory, port=5000, host=None, browser=True, verbose=False):
 
 
     kernel = Kernel(active_dir)
-    art = open(os.path.join(__dirname, "rodeo-ascii.txt"), 'r').read()
+    with open(os.path.join(__dirname, "rodeo-ascii.txt"), 'r') as f:
+        art = f.read()
     display = """
 {ART}
 ''''''''''''''''''''''''''''''''''''''''''''''''''
