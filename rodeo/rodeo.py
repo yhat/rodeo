@@ -4,7 +4,7 @@ from .__init__ import __version__
 from flask import Flask, request, render_template, jsonify
 import markdown2
 import logging
-import pip
+import imp, pip
 import webbrowser
 import json
 import os
@@ -19,6 +19,7 @@ kernel = None
 @app.route("/", methods=["GET", "POST"])
 def home():
     if request.method=="GET":
+        pip.utils.pkg_resources = imp.reload(pip.utils.pkg_resources)
         packages = pip.get_installed_distributions()
         packages = sorted(packages, key=lambda k: k.key)
         files = [f for f in os.listdir(active_dir) if f.endswith(".py")]
