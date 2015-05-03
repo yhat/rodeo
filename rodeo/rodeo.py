@@ -1,8 +1,9 @@
-from .kernel import Kernel
-from .__init__ import __version__
+from kernel import Kernel
+from __init__ import __version__
 
 from flask import Flask, request, render_template, jsonify
 import markdown2
+import slugify
 import logging
 import pip
 import webbrowser
@@ -10,6 +11,7 @@ import json
 import os
 import sys
 
+import pprint as pp
 
 app = Flask(__name__)
 __dirname = os.path.dirname(os.path.abspath(__file__))
@@ -22,9 +24,30 @@ def home():
         packages = pip.get_installed_distributions()
         packages = sorted(packages, key=lambda k: k.key)
         # TODO: maybe follow .gitignore
-        files = [f for f in os.listdir(active_dir)]
-        return render_template("index.html", packages=packages, files=files,
-                version=__version__)
+        file_tree = []
+        for root, dirnames, filenames in os.walk(active_dir):
+            for dirname in dirnames:
+                dirname = os.path.join(root, dirname)
+                dirname = dirname.replace(active_dir, "").lstrip("/")
+                dirslug = slugify.slugify(dirname)
+                parent_dir = os.path.relpath(os.path.join(dirname, os.pardir))
+                parent_dirslug = slugify.slugify(parent_dir)
+                if parent_dirslug=="":
+                    parent_dirslug = "top_dir"
+            for filename in filenames:
+                # skip dotfiles
+                if filename.startswith("."):
+                    continue
+                filename = os.path.join(root, filename)
+                filename = filename.replace(active_dir, "").lstrip("/")
+                dirname = os.path.dirname(filename)
+                dirslug = slugify.slugify(dirname)
+                if dirslug=="":
+                    dirslug = "top_dir"
+                    dirname = "."
+            file_tree.append(files)
+        return render_template("index.html", packages=packages,
+                file_tree=file_tree, version=__version__)
     else:
         code = request.form.get('code')
         if code:
@@ -54,12 +77,15 @@ def get_file(filename):
         logging.info("file does not exist: %s" % filename)
         return "FILE DOES NOT EXIST: %s" % filename
 
-@app.route("/file", methods=["POST"])
+@app.route("/file", methods=["GET", "POST"])
 def save_file():
-    filename = os.path.join(active_dir, request.form['filename'])
-    with open(filename, 'wb') as f:
-        f.write(request.form['source'])
-    return "OK"
+    if request.method=="GET":
+        return get_file(request.args["filename"])
+    else:
+        filename = os.path.join(active_dir, request.form['filename'])
+        with open(filename, 'wb') as f:
+            f.write(request.form['source'])
+        return "OK"
 
 @app.route("/rc", methods=["GET", "POST"])
 def rc():
