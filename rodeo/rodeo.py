@@ -26,6 +26,7 @@ def home():
         # TODO: maybe follow .gitignore
         file_tree = []
         for root, dirnames, filenames in os.walk(active_dir):
+            files = []
             for dirname in dirnames:
                 dirname = os.path.join(root, dirname)
                 dirname = dirname.replace(active_dir, "").lstrip("/")
@@ -34,6 +35,12 @@ def home():
                 parent_dirslug = slugify.slugify(parent_dir)
                 if parent_dirslug=="":
                     parent_dirslug = "top_dir"
+                files.append({
+                    "isFile": False,
+                    "parentslug": parent_dirslug,
+                    "dirname": os.path.basename(dirname),
+                    "dirslug": dirslug
+                })
             for filename in filenames:
                 # skip dotfiles
                 if filename.startswith("."):
@@ -45,6 +52,11 @@ def home():
                 if dirslug=="":
                     dirslug = "top_dir"
                     dirname = "."
+                files.append({
+                    "dirname": dirname,
+                    "filename": os.path.basename(filename),
+                    "dirslug": dirslug
+                })
             file_tree.append(files)
         return render_template("index.html", packages=packages,
                 file_tree=file_tree, version=__version__)

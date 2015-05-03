@@ -30,9 +30,6 @@
     </style>
     <link href="{{ url_for('static', filename='css/bootstrap.yeti.css') }}" rel="stylesheet">
     <link href="{{ url_for('static', filename='css/console.css') }}" rel="stylesheet">
-    <style type="text/css" media="screen">
-      
-    </style>
 </head>
 <body>
 
@@ -248,7 +245,6 @@
 <script src="{{ url_for('static', filename='ace/ext-language_tools.js') }}"></script>
 <script type="text/javascript">
 
-  var terminal;
   var plots = [];
 
   var windowHeight = $(document).height();
@@ -308,6 +304,7 @@
     var Autocomplete = ace.require("ace/autocomplete").Autocomplete;
     var editor = ace.edit(id);
     editor.completer = new Autocomplete(editor);
+    editor.$blockScrolling = Infinity;
     $.get("/rc", function(d) {
       setKeyBindings(d.rc.keyBindings || null);
       if (d.rc.keyBindings) {
@@ -371,18 +368,7 @@
       name: "saveFile",
       bindKey: {win: "ctrl-s", mac: "Command-s"},
       exec: function(editor) {
-        var filename = $("." + id + "-tab .name").attr("data-filename");
-        if (/Untitled/.test(filename)) {
-          filename = prompt("Save as: ");
-          $("." + id + "-tab .name").text(filename);
-          $("#file-list").append('<a id="file-' + filename + '" href="#" class="list-group-item openfile">' + filename + '</a>');
-        }
-        $.post("/file", { source: editor.getSession().getValue(), filename: filename }, function(d) {
-          $("." + id + "-tab").append('<span style="color: coral;" class="saved glyphicon glyphicon-floppy-saved" aria-hidden="true"></span>');
-          setTimeout(function() {
-            $(".saved").remove();
-          }, 500);
-        });
+        saveEditor(id, false);
       }
     });
 
@@ -409,7 +395,7 @@
 
 
   function addTab(fullFilename) {
-    var filename = (fullFilename).split('/').slice(-1)[0]
+    var filename = (fullFilename || "").split('/').slice(-1)[0]
     var n = $(".editor").length+1;
     filename = filename || "Untitled-" + n + ".py"
     var newTabHeader = '<li class=""><a class="editor' + n + '-tab" href="#tab' + n + '" data-toggle="tab" aria-expanded="true"><span data-filename="' + fullFilename + '" class="name">' + filename + '</span> &nbsp;<button class="close closeTab" type="button" style="color: red;"><span class="glyphicon glyphicon-remove" aria-hidden="true"></span></button></a></li>';
