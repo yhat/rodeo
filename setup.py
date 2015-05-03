@@ -48,7 +48,7 @@ setup(
         "jedi",
         "docopt",
         "pyzmq>=13",
-        "markdown2"
+        "mistune"
     ],
     classifiers=['Intended Audience :: Science/Research',
                  'Intended Audience :: Developers',
