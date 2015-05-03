@@ -30,7 +30,10 @@
     </style>
     <link href="{{ url_for('static', filename='css/bootstrap.yeti.css') }}" rel="stylesheet">
     <link href="{{ url_for('static', filename='css/console.css') }}" rel="stylesheet">
+    <link href="{{ url_for('static', filename='css/jquery.dataTables.css') }}" rel="stylesheet">
+    <link href="{{ url_for('static', filename='css/dataTables.bootstrap.css') }}" rel="stylesheet">
 </head>
+
 <body>
 
   <!-- start nav -->
@@ -238,6 +241,7 @@
 {% include 'partials/preferences.html' %}
 
 <script src="{{ url_for('static', filename='js/lib/jquery.min.js') }}"></script>
+<script src="{{ url_for('static', filename='js/lib/jquery.dataTables.min.js') }}"></script>
 <script src="{{ url_for('static', filename='js/lib/bootstrap.min.js') }}"></script>
 <script src="{{ url_for('static', filename='js/lib/jqconsole.min.js') }}"></script>
 <script src="{{ url_for('static', filename='js/lib/ascii-table.min.js') }}"></script>
@@ -419,6 +423,11 @@
       $("#data-table").append(d.output);
       $("#data-table table").addClass("table");
       $("#data-table table").addClass("table-striped");
+      $("#data-table table").addClass("display");
+      $("#data-table table").attr("id", "show-df-table");
+      $("#show-df-table").DataTable({
+        paginate: false
+      });
     });
   }
 
