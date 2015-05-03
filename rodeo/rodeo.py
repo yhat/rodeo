@@ -8,10 +8,9 @@ import logging
 import imp, pip
 import webbrowser
 import json
+import io
 import os
 import sys
-
-import pprint as pp
 
 app = Flask(__name__)
 __dirname = os.path.dirname(os.path.abspath(__file__))
@@ -96,7 +95,7 @@ def save_file():
         return get_file(request.args["filename"])
     else:
         filename = os.path.join(active_dir, request.form['filename'])
-        with open(filename, 'wb') as f:
+        with io.open(filename, 'w', encoding='utf-8') as f:
             f.write(request.form['source'])
         return "OK"
 
