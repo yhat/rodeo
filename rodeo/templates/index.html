@@ -305,7 +305,7 @@
     var editor = ace.edit(id);
     editor.completer = new Autocomplete(editor);
     editor.$blockScrolling = Infinity;
-    $.get("/rc", function(d) {
+    $.get("{{ url_for('rc') }}", function(d) {
       setKeyBindings(d.rc.keyBindings || null);
       if (d.rc.keyBindings) {
         $("#keyBindings").val(d.rc.keyBindings);
@@ -336,7 +336,7 @@
         } else {
           code = getLastWord(editor);
         }
-        $.post("/", { code: code, complete: true }, function(d) {
+        $.post("{{ url_for('home') }}", { code: code, complete: true }, function(d) {
           d.output = JSON.parse(d.output);
           var predictions = d.output.map(function(p) {
             return { name: p.text, value: p.text, score: 100, meta:  p.dtype };
@@ -414,7 +414,7 @@
     $("#data-table").children().remove();
     $("#data-table").append("<p>fetching data...</p>");
     $("#dfModal").modal('show');
-    $.post("/", { code: cmd }, function(d) {
+    $.post("{{ url_for('home') }}", { code: cmd }, function(d) {
       $("#data-table").children().remove();
       $("#data-table").append(d.output);
       $("#data-table table").addClass("table");
@@ -495,7 +495,7 @@
       var originalPrompt = jqconsole.GetPromptText();
       var code = jqconsole.GetPromptText().split(' ').slice(-1)[0];
       jqconsole.ClearPromptText(true);
-      $.post("/", { code: code, complete: true }, function(d) {
+      $.post("{{ url_for('home') }}", { code: code, complete: true }, function(d) {
         var predictions = JSON.parse(d.output);
         var table = new AsciiTable();
         var row = []
@@ -534,7 +534,7 @@
   jqconsole.RegisterShortcut('32', function() {
     // autocomplete
     var code = jqconsole.GetPromptText().split(' ').slice(-1)[0];
-    $.post("/", { code: code, complete: true }, function(d) {
+    $.post("{{ url_for('home') }}", { code: code, complete: true }, function(d) {
       var predictions = JSON.parse(d.output);
       var table = new AsciiTable();
       var row = []
@@ -581,7 +581,7 @@
   // });
 
   function getSessionVariables(fn) {
-    $.post("/", { code: "getvars" }, function(d) {
+    $.post("{{ url_for('home') }}", { code: "getvars" }, function(d) {
       var vars = JSON.parse(d.output);
       $("#vars").children().remove();
       for(var i=0; i < vars.length; i++) {
@@ -608,7 +608,7 @@
       cmd = "help(" + cmd.slice(1) + ")";
     }
 
-    $.post("/", { code: cmd }, function(d) {
+    $.post("{{ url_for('home') }}", { code: cmd }, function(d) {
       // only show help to the Help tab
       if (/help[(].+[)]/.test(cmd)) {
         $('a[href="#' + "help" + '"]').tab("show");
@@ -677,7 +677,7 @@ $(".openfile").click(function(e) {
   var filename = $(this).attr("data-filename");
   var editor = addTab(filename);
   
-  $.get("/file?" + $.param({"filename": filename }) , function(d) {
+  $.get("{{ url_for('save_file') }}?" + $.param({"filename": filename }) , function(d) {
     editor.setValue(d);
   });
   return false;
@@ -698,7 +698,7 @@ $("#upload_data").change(function(e){
   fd.append("data", $("#upload_data")[0].files[0]);
 
   $.ajax({
-    url: "/upload",
+    url: "{{ url_for('upload_data') }}",
     type: 'POST',
     data: fd,
     processData: false,
@@ -730,7 +730,7 @@ function saveEditor(id, saveas) {
     filename = prompt("Save as: ");
     $("." + id + "-tab .name").text(filename);
   }
-  $.post("/file", { source: editor.getSession().getValue(), filename: filename }, function(d) {
+  $.post("{{ url_for('save_file') }}", { source: editor.getSession().getValue(), filename: filename }, function(d) {
     console.log(d);
     $("." + id + "-tab").append('<span style="color: green;" class="saved glyphicon glyphicon-floppy-saved" aria-hidden="true"></span>');
     setTimeout(function() {
@@ -766,7 +766,7 @@ $("#knit-btn").click(function(e) {
   var id = $("#editors .active .editor").attr("id");
   var editor = ace.edit(id);
   var markdown = editor.getSession().getValue();
-  $.post("/md", { markdown: markdown }, function(html) {
+  $.post("{{ url_for('markdownify') }}", { markdown: markdown }, function(html) {
     html = '<article class="markdown-body" style="padding: 70px;">' + html + "</article>";
     html = '<html><head><link href="/static/css/github-markdown.css" rel="stylesheet"></head><body>' + html + "</body></html>";
     var win = window.open('','Rodeo | Markdown');
@@ -815,7 +815,7 @@ $("#prefs").submit(function(e) {
   e.preventDefault();
   $("#prefsModal").modal("hide");
   $.ajax({
-    url: "/rc",
+    url: "{{ url_for('rc') }}",
     type: 'POST',
     data: $(this).serialize(),
     success: function(data) {
