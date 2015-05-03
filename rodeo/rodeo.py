@@ -105,8 +105,9 @@ def rc():
     filename = os.path.join(home, ".rodeorc")
     # give it the good ole college try
     try:
-        rc = json.load(open(filename, 'rb'))
-    except:
+        with open(filename, 'r') as f:
+            rc = json.load(f)
+    except FileNotFoundError:
         rc = {}
 
     if request.method=="GET":
@@ -114,8 +115,8 @@ def rc():
     else:
         for field, value in request.form.items():
             rc[field] = value
-        with open(filename, "wb") as f:
-            f.write(json.dumps(rc))
+        with open(filename, "w") as f:
+            json.dump(rc, f)
         return "OK"
 
 @app.route("/md", methods=["POST"])
