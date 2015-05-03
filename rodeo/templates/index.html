@@ -371,7 +371,7 @@
       name: "saveFile",
       bindKey: {win: "ctrl-s", mac: "Command-s"},
       exec: function(editor) {
-        var filename = $("." + id + "-tab .name").text();
+        var filename = $("." + id + "-tab .name").attr("data-filename");
         if (/Untitled/.test(filename)) {
           filename = prompt("Save as: ");
           $("." + id + "-tab .name").text(filename);
@@ -408,10 +408,11 @@
   createEditor("editor1");
 
 
-  function addTab(filename) {
+  function addTab(fullFilename) {
+    var filename = (fullFilename).split('/').slice(-1)[0]
     var n = $(".editor").length+1;
     filename = filename || "Untitled-" + n + ".py"
-    var newTabHeader = '<li class=""><a class="editor' + n + '-tab" href="#tab' + n + '" data-toggle="tab" aria-expanded="true"><span class="name">' + filename + '</span> &nbsp;<button class="close closeTab" type="button" style="color: red;"><span class="glyphicon glyphicon-remove" aria-hidden="true"></span></button></a></li>';
+    var newTabHeader = '<li class=""><a class="editor' + n + '-tab" href="#tab' + n + '" data-toggle="tab" aria-expanded="true"><span data-filename="' + fullFilename + '" class="name">' + filename + '</span> &nbsp;<button class="close closeTab" type="button" style="color: red;"><span class="glyphicon glyphicon-remove" aria-hidden="true"></span></button></a></li>';
     var newTabEditor = '<div class="tab-pane" id="tab' + n + '"><div class="editor" id="editor' + n + '"></div></div>';
     $(newTabHeader).insertBefore($("#add-tab").parent());
     $("#editors").append(newTabEditor);
@@ -505,7 +506,7 @@
     if (jqconsole.GetPromptText().trim()=="") {
       jqconsole._IndentOld();
     } else {
-      var originalPrompt= jqconsole.GetPromptText();
+      var originalPrompt = jqconsole.GetPromptText();
       var code = jqconsole.GetPromptText().split(' ').slice(-1)[0];
       jqconsole.ClearPromptText(true);
       $.post("/", { code: code, complete: true }, function(d) {
@@ -687,8 +688,8 @@ $(".openfile").click(function(e) {
     return;
   }
   $(this).addClass("active");
-  var editor = addTab($(this).text());
   var filename = $(this).attr("data-filename");
+  var editor = addTab(filename);
   
   $.get("/file?" + $.param({"filename": filename }) , function(d) {
     editor.setValue(d);
@@ -725,7 +726,6 @@ $("#upload_data").change(function(e){
   });
 });
 
-// TODO: this doesn't work :(
 $("#upload_file").change(function(e){
   var filename = $(this).val().slice(12);
   var input = document.getElementById('upload_file')
