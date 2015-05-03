@@ -16,7 +16,6 @@ var
 sdist
 develop-eggs
 .installed.cfg
-lib
 lib64
 
 # generated docs
@@ -43,5 +42,4 @@ nosetests.xml
 .idea/
 
 *.swp
-rodeo/static/plots/*.png
 rodeo/kernel-*.json
