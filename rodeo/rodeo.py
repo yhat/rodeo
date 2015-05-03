@@ -1,5 +1,5 @@
-from kernel import Kernel
-from __init__ import __version__
+from .kernel import Kernel
+from .__init__ import __version__
 
 from flask import Flask, request, render_template, jsonify
 import markdown2
@@ -136,7 +136,7 @@ def upload_data():
     else:
         return "No file specified"
 
-def main(directory, port=5000, host=None, browser=True, verbose=False):
+def main(directory, port=5000, host=None, browser=True, verbose=False, pyspark=False):
     global kernel
     global active_dir
     active_dir = os.path.realpath(directory)
@@ -150,7 +150,7 @@ def main(directory, port=5000, host=None, browser=True, verbose=False):
         logging.basicConfig(format='[%(levelname)s]: %(message)s', level=logging.WARNING)
 
 
-    kernel = Kernel(active_dir)
+    kernel = Kernel(active_dir, pyspark)
     art = open(os.path.join(__dirname, "rodeo-ascii.txt"), 'r').read()
     display = """
 {ART}

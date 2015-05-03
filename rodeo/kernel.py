@@ -65,14 +65,25 @@ def __get_variables():
 """
 
 class Kernel(object):
-    def __init__(self, active_dir):
+    def __init__(self, active_dir, pyspark):
         # kernel config is stored in a dot file with the active directory
         config = os.path.join(active_dir, ".kernel-%s.json" % str(uuid.uuid4()))
         # right now we're spawning a child process for IPython. we can 
         # probably work directly with the IPython kernel API, but the docs
         # don't really explain how to do it.
-        args = [sys.executable, '-m', 'IPython', 'kernel', '-f', config]
-        p = subprocess.Popen(args, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        log_file = None
+        if pyspark:
+            os.environ["IPYTHON_OPTS"] = "kernel -f %s" % config
+            pyspark = os.path.join(os.environ.get("SPARK_HOME"), "bin/pyspark")
+            spark_log = os.environ.get("SPARK_LOG", None)
+            if spark_log:
+                log_file = open(spark_log, "w")
+            spark_opts = os.environ.get("SPARK_OPTS", "")
+            args = [pyspark] + spark_opts.split()  # $SPARK_HOME/bin/pyspark <SPARK_OPTS>
+            p = subprocess.Popen(args, stdout=log_file, stderr=log_file)
+        else:
+            args = [sys.executable, '-m', 'IPython', 'kernel', '-f', config]
+            p = subprocess.Popen(args, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         
         # when __this__ process exits, we're going to remove the ipython config
         # file and kill the ipython subprocess
@@ -87,6 +98,12 @@ class Kernel(object):
         # wait until the config file exists before moving on
         while os.path.isfile(config)==False:
             time.sleep(0.1)
+
+        def close_file():
+            if log_file:
+                log_file.close()
+        atexit.register(close_file)
+
         # fire up the kernel with the appropriate config
         self.client = BlockingKernelClient(connection_file=config)
         self.client.load_connection_file()
