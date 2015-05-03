@@ -114,7 +114,7 @@ class Kernel(object):
         self.client.execute(vars_patch)
 
     def _run_code(self, code, timeout=0.1):
-        # this function executes some code and waits for it to completely finish 
+        # this function executes some code and waits for it to completely finish
         # before returning. i don't think that this is neccessarily the best 
         # way to do this, but the IPython documentation isn't very helpful for 
         # this particular topic.

@@ -12,7 +12,7 @@ Options:
   --port=<int>  Port you want to run the server on.
   --no-browser  Don't launch a web browser.
   --host=<IP>   The IP to listen on.
-  --pyspark     Use the pyspark kernel
+  --pyspark     Use the pyspark kernel.
 
 Help:
 Rodeo is a data centric IDE for python. It leverages the IPython
