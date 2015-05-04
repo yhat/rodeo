@@ -25,7 +25,10 @@ def home():
         packages = sorted(packages, key=lambda k: k.key)
         # TODO: maybe follow .gitignore
         file_tree = []
-        for root, dirnames, filenames in os.walk(active_dir):
+        for root, dirnames, filenames in os.walk(active_dir, topdown=True):
+            # yes, arbitrary
+            if len(file_tree) > 200:
+                break
             files = []
             for dirname in dirnames:
                 dirname = os.path.join(root, dirname)

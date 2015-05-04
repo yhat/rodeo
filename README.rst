@@ -22,7 +22,7 @@ Rodeo is a data centric IDE for Python. You can think of it as an
 alternative UI to the notebook for the IPython Kernel. It's heavily
 inspired by great projects like Sublime Text and Eclipse.
 
-.. figure:: ./rodeo/static/img/Rodeo-Demo.gif
+.. figure:: https://raw.githubusercontent.com/yhat/rodeo/master/rodeo/static/img/Rodeo-Demo.gif
    :alt: 
 
 Quickstart
@@ -51,9 +51,9 @@ Execute scripts
 Inspect your data |image3| #### Plots |image4| #### Documentation and
 Help |image5|
 
-.. |image0| image:: ./rodeo/static/img/screenshot-files-with-output.png
-.. |image1| image:: ./rodeo/static/img/screenshot-mpl-complex.png
-.. |image2| image:: ./rodeo/static/img/screenshot-autocomplete.png
-.. |image3| image:: ./rodeo/static/img/screenshot-view-data.png
-.. |image4| image:: ./rodeo/static/img/screenshot-ggplot.png
-.. |image5| image:: ./rodeo/static/img/screenshot-help.png
+.. |image0| image:: https://raw.githubusercontent.com/yhat/rodeo/master/rodeo/static/img/screenshot-files-with-output.png
+.. |image1| image:: https://raw.githubusercontent.com/yhat/rodeo/master/rodeo/static/img/screenshot-mpl-complex.png
+.. |image2| image:: https://raw.githubusercontent.com/yhat/rodeo/master/rodeo/static/img/screenshot-autocomplete.png
+.. |image3| image:: https://raw.githubusercontent.com/yhat/rodeo/master/rodeo/static/img/screenshot-view-data.png
+.. |image4| image:: https://raw.githubusercontent.com/yhat/rodeo/master/rodeo/static/img/screenshot-ggplot.png
+.. |image5| image:: https://raw.githubusercontent.com/yhat/rodeo/master/rodeo/static/img/screenshot-help.png
