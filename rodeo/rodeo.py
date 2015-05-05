@@ -40,7 +40,7 @@ def home():
                 dirname = dirname.replace(active_dir, "").lstrip("/")
                 dirslug = slugify(dirname)
                 parent_dir = os.path.relpath(os.path.join(dirname, os.pardir))
-                parent_dirslug = slugify.slugify(parent_dir)
+                parent_dirslug = slugify(parent_dir)
                 if parent_dirslug=="":
                     parent_dirslug = "top_dir"
                 files.append({
