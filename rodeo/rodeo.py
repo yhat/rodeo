@@ -1,9 +1,9 @@
 from .kernel import Kernel
+from .utils import slugify
 from .__init__ import __version__
 
 from flask import Flask, request, render_template, jsonify
 import mistune
-import slugify
 import logging
 import imp, pip
 import webbrowser
@@ -33,7 +33,7 @@ def home():
             for dirname in dirnames:
                 dirname = os.path.join(root, dirname)
                 dirname = dirname.replace(active_dir, "").lstrip("/")
-                dirslug = slugify.slugify(dirname)
+                dirslug = slugify(dirname)
                 parent_dir = os.path.relpath(os.path.join(dirname, os.pardir))
                 parent_dirslug = slugify.slugify(parent_dir)
                 if parent_dirslug=="":
@@ -51,7 +51,7 @@ def home():
                 filename = os.path.join(root, filename)
                 filename = filename.replace(active_dir, "").lstrip("/")
                 dirname = os.path.dirname(filename)
-                dirslug = slugify.slugify(dirname)
+                dirslug = slugify(dirname)
                 if dirslug=="":
                     dirslug = "top_dir"
                     dirname = "."
