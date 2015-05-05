@@ -20,7 +20,12 @@ kernel = None
 @app.route("/", methods=["GET", "POST"])
 def home():
     if request.method=="GET":
-        pip.utils.pkg_resources = imp.reload(pip.utils.pkg_resources)
+        try:
+            pip.utils.pkg_resources = imp.reload(pip.utils.pkg_resources)
+        except:
+            sys.stderr.write("Could not dynamically load packages. You are ")
+            sys.stderr.write("probably running an old version of pip. Try ")
+            sys.stderr.write("upgrading your version of pip.\n")
         packages = pip.get_installed_distributions()
         packages = sorted(packages, key=lambda k: k.key)
         # TODO: maybe follow .gitignore
