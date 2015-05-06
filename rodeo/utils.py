@@ -7,7 +7,7 @@ def slugify(string):
     Slugify a unicode string.
 
     Example:
-    >>> slugify(u"Héllø Wörld")
+    >>> slugify(u"Hello World")
     u"hello-world"
     """
 
