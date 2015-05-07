@@ -116,7 +116,7 @@ def rc():
     try:
         with open(filename, 'r') as f:
             rc = json.load(f)
-    except FileNotFoundError:
+    except:
         rc = {}
 
     if request.method=="GET":
