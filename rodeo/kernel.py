@@ -173,10 +173,11 @@ class Kernel(object):
                         "dtype": "---"
                     }
                     if code.endswith("."):
+                        result['text'] = result['text'].replace(code, '', 1)
                         result["dtype"] = "function"
                     else:
                         result["dtype"] = "session variable" # type(globals().get(code)).__name__
-                        results.append(result)
+                    results.append(result)
                 jsonresults = json.dumps(results)
                 output['output'] = jsonresults
                 return output
