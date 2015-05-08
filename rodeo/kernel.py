@@ -166,16 +166,17 @@ class Kernel(object):
 
             if "matches" in reply['content'] and reply['msg_type']=="complete_reply" and reply['parent_header']['msg_id']==msg_id:
                 results = [{"text":"", "dtype":"---"}] #for when we have no completion results
-                #do what was being done in the jedi case
                 for completion in reply['content']['matches']:
                     result = {
-                        "text": completion,
+                        "value": completion,
                         "dtype": "---"
                     }
-                    if code.endswith("."):
-                        result['text'] = result['text'].replace(code, '', 1)
+                    if "." in code:
+                        result['text'] = ".".join(result['value'].split(".")[1:])
                         result["dtype"] = "function"
                     else:
+                        # result['text'] = result['value'].replace(code, '', 1)
+                        result['text'] = result['value']
                         result["dtype"] = "session variable" # type(globals().get(code)).__name__
                     results.append(result)
                 jsonresults = json.dumps(results)

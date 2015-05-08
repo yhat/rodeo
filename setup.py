@@ -45,7 +45,6 @@ setup(
     install_requires=[
         "ipython>=3.0.0",
         "Flask>=0.10.1",
-        "jedi",
         "docopt",
         "pyzmq>=13",
         "mistune"

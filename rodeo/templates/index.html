@@ -329,11 +329,12 @@
     editor.setOptions({
       showPrintMargin: false,
       enableBasicAutocompletion: true,
-      enableSnippets: true,
+      enableSnippets: false,
       enableLiveAutocompletion: false
     });
     var pythonCompleter = {
       getCompletions: function(editor, session, pos, prefix, fn) {
+        session.$mode.$keywordList = [];
         var code;
         if (prefix.length==0) {
           code = getLastWord(editor) + ".";
@@ -343,7 +344,7 @@
         $.post("{{ url_for('home') }}", { code: code, complete: true }, function(d) {
           d.output = JSON.parse(d.output);
           var predictions = d.output.map(function(p) {
-            return { name: p.text, value: p.text, score: 100, meta:  p.dtype };
+            return { name: p.text, value: p.text, score: 100, meta: p.dtype };
           });
           fn(null, predictions)
         });
