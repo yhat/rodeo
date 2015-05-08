@@ -165,7 +165,7 @@ class Kernel(object):
                 continue
 
             if "matches" in reply['content'] and reply['msg_type']=="complete_reply" and reply['parent_header']['msg_id']==msg_id:
-                results = [{"text":"", "dtype":"---"}] #for when we have no completion results
+                results = []
                 for completion in reply['content']['matches']:
                     result = {
                         "value": completion,

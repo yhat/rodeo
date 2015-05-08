@@ -507,8 +507,14 @@
       jqconsole.ClearPromptText(true);
       $.post("{{ url_for('home') }}", { code: code, complete: true }, function(d) {
         var predictions = JSON.parse(d.output);
+        
+        if (predictions.length==1) {
+          jqconsole.SetPromptText(predictions[0].value);
+          return;
+        }
+
         var table = new AsciiTable();
-        var row = []
+        var row = [];
         for(var i=0; i < predictions.length; i++) {
           var text;
           if (code.slice(-1)==".") {
@@ -546,6 +552,12 @@
     var code = jqconsole.GetPromptText().split(' ').slice(-1)[0];
     $.post("{{ url_for('home') }}", { code: code, complete: true }, function(d) {
       var predictions = JSON.parse(d.output);
+      
+      if (predictions.length==1) {
+        jqconsole.SetPromptText(predictions[0].value);
+        return;
+      }
+
       var table = new AsciiTable();
       var row = []
       for(var i=0; i < predictions.length; i++) {
