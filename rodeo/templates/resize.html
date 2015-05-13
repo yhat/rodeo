@@ -1,21 +1,18 @@
-<!DOCTYPE html>
-<html lang="en">
+<!DOCTYPE HTML>
+<html xmlns="http://www.w3.org/1999/xhtml">
 <head>
+    <meta charset="utf-8" />
     <title>Rodeo</title>
-    <style type="text/css" media="screen">
+    <meta name="Description" content="Rodeo | Data Science IDE"/>
+        <style type="text/css" media="screen">
         .editor {
-            height: 325px;
+            height:   325px;
         }
         .history {
           padding: 0px;
           margin: 0px;
           overflow: auto;
         }
-
-        .top-right {
-          height: 200px;
-        }
-
         .small-container > .row {
           margin-right: 0px;
           margin-left: 0px;
@@ -28,162 +25,38 @@
           height: auto;
         }
     </style>
+    <link rel="shortcut icon" href=""/>
     <link href="{{ url_for('static', filename='css/bootstrap.yeti.css') }}" rel="stylesheet">
     <link href="{{ url_for('static', filename='css/console.css') }}" rel="stylesheet">
     <link href="{{ url_for('static', filename='css/jquery.dataTables.css') }}" rel="stylesheet">
     <link href="{{ url_for('static', filename='css/dataTables.bootstrap.css') }}" rel="stylesheet">
     <link href="{{ url_for('static', filename='css/jquery.splitter.css') }}" rel="stylesheet"/>
 </head>
-
 <body>
 
-
-  <div id="pane-container" class="small-container">
-    <div id="left-column">
-      <!-- scripts -->
-      <div id="top-right" class="" style="border-right: 1px solid #dddddd;">
-        <!-- tab headers -->
-        <ul id="editorsTab" class="nav nav-tabs">
-          <button id="run-btn" title="Run script" class="close" type="button" style="color: steelblue; padding-right; 8px;">
-            <span class="glyphicon glyphicon-play-circle" aria-hidden="true"></span>
-          </button>
-          <button id="reset-btn" title="Reset environment" class="close" type="button" style="color: red; padding-right: 8px;">
-            <span class="glyphicon glyphicon-refresh" aria-hidden="true"></span>
-          </button>
-          <button id="knit-btn" title="Knit Markdown" class="close" type="button" style="color: coral; padding-right: 8px;">
-            <span class="glyphicon glyphicon-paperclip" aria-hidden="true"></span>
-          </button>
-          <li class="active">
-            <a class="editor1-tab" href="#tab1" data-toggle="tab" aria-expanded="false"><span class="name">Untitled.py</span>&nbsp;
-              <button class="close closeTab" type="button" style="color: red;"><span class="glyphicon glyphicon-remove" aria-hidden="true"></span></button>
-            </a>
-          </li>
-          <li><a href="#" id="add-tab"><span class="glyphicon glyphicon-plus" aria-hidden="true"></span></a></li>
-        </ul>
-        <!-- end tab headers -->
-
-        <div id="editors" class="tab-content">
-          <div class="tab-pane active" id="tab1">
-            <div class="editor" id="editor1"></div>
-          </div>
-        </div>
-      </div>
-
-      <div id="bottom-right">
-        <div class="panel panel-default">
-          <div class="panel-heading">
-            <h3 class="panel-title"><span class="glyphicon glyphicon-console" aria-hidden="true"></span></h3>
-          </div>
-          <div class="panel-body">
-            <div id="console"></div>
-          </div>
-        </div>
-      </div>
+<!-- start nav -->
+{% include 'partials/panes/nav.html' %}
+<!-- end nav -->
+<!-- main section -->
+<div id="pane-container" style="width: 100%;">
+  <div id="left-column">
+    <div id="top-left">
+      {% include 'partials/panes/top-left.html' %}
     </div>
-  <!-- end scripts -->
-
-  <!-- this is the hidden file input for the `File > Open File` menu item -->
-  <input type="file" id="upload_file" class="hide"> 
-  <form id="upload_form" class="hide" action="/upload" method="POST" enctype="multipart/form-data">
-    <input type="file" name="data" id="upload_data" class="hide">
-  </form>
-
+    <div id="bottom-left">
+      {% include 'partials/panes/bottom-left.html' %}
+    </div>
+  </div>
   <div id="right-column">
     <div id="top-right">
-      <ul class="nav nav-tabs">
-        <li class="active"><a href="#environment" data-toggle="tab">Data Frames</a></li>
-        <li><a href="#history" data-toggle="tab">History</a></li>
-      </ul>
-      <div id="myTabContent" class="tab-content">
-        <div class="tab-pane active in top-right" id="environment" style="overflow: auto;">
-          <table class="table table-bordered">
-            <thead>
-              <tr>
-                <th>variable</th>
-                <th>type</th>
-                <th></th>
-              </tr>
-            </thead>
-            <tbody id="vars">
-            </tbody>
-          </table>
-        </div>
-        <div class="tab-pane" id="history">
-          <pre style="font-size: 10px; background-color: #fdfdfd;" class="top-right history" id="history-trail"></pre>
-        </div>
-      </div>
+      {% include 'partials/panes/top-right.html' %}
     </div>
     <div id="bottom-right">
-    <!-- bottom right section -->
-    <ul class="nav nav-tabs">
-      <li class="active"><a href="#files" data-toggle="tab">Files</a></li>
-      <li><a href="#plots" data-toggle="tab">Plots</a></li>
-      <li><a href="#packages" data-toggle="tab">Packages</a></li>
-      <li><a href="#help" data-toggle="tab">Help</a></li>
-    </ul>
-    <div id="myTabContent" class="tab-content">
-      <div class="tab-pane active in" id="files">
-        <div id="file-list" class="list-group">
-            <a id="file-up_dir" data-parnet-slug="" data-dirname="top_dir" href="#" class="list-group-item showdir" >
-                <span class="glyphicon glyphicon-folder-open" aria-hidden="true"></span>&nbsp;..
-            </a>
-          <!-- directories -->
-          {% for dir in file_tree %}
-            {% for f in dir %}
-                {% if f.isFile==False %}
-                    <a id="file-{{ f.dirname }}" data-parnet-slug="{{ f.parentslug }}" data-dirname="{{ f.dirslug }}" href="#" class="list-group-item {{ f.parentslug }} showdir">
-                        <span class="glyphicon glyphicon-folder-open" aria-hidden="true"></span>&nbsp;
-                        {{ f.dirname }}
-                    </a>
-                {% endif %}
-            {% endfor %}
-          {% endfor %}
-          <!-- files -->
-          {% for dir in file_tree %}
-            {% for f in dir %}
-                {% if f.filename %}
-                <a id="file-{{ f.filename }}" data-filename="{{ f.dirname }}/{{f.filename }}" href="#" class="list-group-item openfile {{ f.dirslug }} file">{{ f.filename }}</a>
-                {% endif %}
-            {% endfor %}
-          {% endfor %}
-        </div>
-      </div>
-      <div class="tab-pane" id="plots" style="height: 380px;">
-        <a id="prev-plot" class="label label-primary" title="Prevous Plot"><span class="glyphicon glyphicon-circle-arrow-left" aria-hidden="true"></span></a>
-        <a id="next-plot" class="label label-primary" title="Next Plot"><span class="glyphicon glyphicon-circle-arrow-right" aria-hidden="true"></span></a>
-        <a id="zoom-plot" onclick="zoomImage();" class="label label-default" title="Zoom In"><span class="glyphicon glyphicon-zoom-in" aria-hidden="true"></span></a>
-        <a id="export-plot" href="" class="label label-default" title="Export Plot" download><span class="glyphicon glyphicon-picture" aria-hidden="true"></span></a>
-        <a id="trash-plot" class="label label-default" title="Delete Plot"><span class="glyphicon glyphicon-trash" aria-hidden="true"></span></a>
-        <br>
-        <img id="current-plot" style="max-width: 100%; max-height: 380px;" />
-      </div>
-      <div class="tab-pane" id="packages" style="max-height: 380px; overflow: auto;">
-        <table class="table table-striped table-hover">
-          <thead>
-            <tr>
-              <th>package</th>
-              <th>version</th>
-            </tr>
-          </thead>
-          <tbody>
-            {% for pkg in packages %}
-              <tr>
-                <td>{{ pkg.key }}</td>
-                <td>{{ pkg.version }}</td>
-              </tr>
-            {% endfor %}
-          </tbody>
-        </table>
-      </div>
-      <div class="tab-pane" id="help">
-        <pre style="font-size: 10px; background-color: #fdfdfd; height: 380px; overflow: auto;" id="help-content"><i>run help(...) for more info</i></pre>
-      </div>
+      {% include 'partials/panes/bottom-right.html' %}
     </div>
-    </div>
-    <!-- end bottom right section -->
-  </div>
   </div>
 </div>
+<!-- end main section -->
 
 <!-- modals -->
 {% include 'partials/df.html' %}
@@ -198,14 +71,15 @@
 <script src="{{ url_for('static', filename='js/lib/ascii-table.min.js') }}"></script>
 <script src="{{ url_for('static', filename='ace/ace.js') }}"></script>
 <script src="{{ url_for('static', filename='ace/ext-language_tools.js') }}"></script>
+
 <script type="text/javascript">
+// $(function($) {
+  $("#pane-container").height($(window).height()-20);
+  $('#pane-container').split({orientation:'vertical', limit:100, position:'50%'});
 
-   $("#pane-container").height($(window).height()-20);
-   $('#pane-container').split({orientation:'vertical', limit:100, position:'60%'});
-
-   $("pane-container").split({orientation: 'vertical', limit:100, position:'60%'});
-   $("#right-column").split({ orientation: 'horizontal', limit: 10 });
-   $("#left-column").split({ orientation: 'horizontal', limit: 10 });
+  $("pane-container").split({orientation: 'vertical', limit:100, position:'50%'});
+  $("#right-column").split({ orientation: 'horizontal', limit: 10 });
+  $("#left-column").split({ orientation: 'horizontal', limit: 10 });
 
   var plots = [];
 
@@ -824,7 +698,7 @@ $(document).keydown(function (e) {
     }
   }
 });
-
+// });
 </script>
 </body>
 </html>
