@@ -83,58 +83,6 @@ def home():
         else:
             return "BAD"
 
-@app.route("/resize", methods=["GET"])
-def resize():
-    if request.method=="GET":
-        try:
-            pip.utils.pkg_resources = imp.reload(pip.utils.pkg_resources)
-        except:
-            sys.stderr.write("Could not dynamically load packages. You are ")
-            sys.stderr.write("probably running an old version of pip. Try ")
-            sys.stderr.write("upgrading your version of pip.\n")
-        packages = pip.get_installed_distributions()
-        packages = sorted(packages, key=lambda k: k.key)
-        # TODO: maybe follow .gitignore
-        file_tree = []
-        for root, dirnames, filenames in os.walk(active_dir, topdown=True):
-            # yes, arbitrary
-            if len(file_tree) > 200:
-                break
-            files = []
-            for dirname in dirnames:
-                dirname = os.path.join(root, dirname)
-                dirname = dirname.replace(active_dir, "").lstrip("/")
-                dirslug = slugify(dirname)
-                parent_dir = os.path.relpath(os.path.join(dirname, os.pardir))
-                parent_dirslug = slugify(parent_dir)
-                if parent_dirslug=="":
-                    parent_dirslug = "top_dir"
-                files.append({
-                    "isFile": False,
-                    "parentslug": parent_dirslug,
-                    "dirname": os.path.basename(dirname),
-                    "dirslug": dirslug
-                })
-            for filename in filenames:
-                # skip dotfiles
-                if filename.startswith("."):
-                    continue
-                filename = os.path.join(root, filename)
-                filename = filename.replace(active_dir, "").lstrip("/")
-                dirname = os.path.dirname(filename)
-                dirslug = slugify(dirname)
-                if dirslug=="":
-                    dirslug = "top_dir"
-                    dirname = "."
-                files.append({
-                    "dirname": dirname,
-                    "filename": os.path.basename(filename),
-                    "dirslug": dirslug
-                })
-            file_tree.append(files)
-        return render_template("resize.html", packages=packages,
-                file_tree=file_tree, version=__version__)
-
 @app.route("/about", methods=["GET"])
 def about():
     return render_template("about.html", version=__version__)
