@@ -81,14 +81,22 @@
   });
 
   function calibratePanes() {
-    var id = $("#editors .active .editor").attr("id");
-    $("#" + id).height($("#top-left").height());
-    $(".editors").height($("#top-left").height());
-    $("#console").height($("#bottom-left").height()*.7);
-    $("#environment").height($("#top-right").height()*.7);
-    $("#history").height($("#top-right").height()*.9);
+    var offset = $("#top-left ul").height() - 1;
+    $(".editor").parent().height($("#top-left").height() - offset);
+    $(".editor").height($("#top-left").height() - offset);
+
+    var offset = $("#bottom-left .panel-heading").height() - 1;
+    $("#console").height(($("#bottom-left").height() - offset) * .7);
+
+    var offset = $("#top-right ul").height() - 1;
+    $("#environment").height($("#top-right").height() - offset);
+    $("#history").height($("#top-right").height() - offset);
     $("#vars").height($("#top-right").height()*.7);
-    $("#packages").height($("#bottom-right").height());
+
+    var offset = $("#bottom-right ul").height() - 1;
+    $("#packages").height($("#bottom-right").height() - offset);
+    $("#plots").height($("#bottom-right").height() - offset);
+    $("#current-plot").css("max-height", $("#bottom-right").height() - offset - 25);
   }
   calibratePanes();
 
