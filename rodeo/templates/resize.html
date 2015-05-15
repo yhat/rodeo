@@ -1,36 +1,15 @@
-<!DOCTYPE HTML>
-<html xmlns="http://www.w3.org/1999/xhtml">
+<!DOCTYPE HTML> <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
     <meta charset="utf-8" />
     <title>Rodeo</title>
     <meta name="Description" content="Rodeo | Data Science IDE"/>
-        <style type="text/css" media="screen">
-        .editor {
-            height:   325px;
-        }
-        .history {
-          padding: 0px;
-          margin: 0px;
-          overflow: auto;
-        }
-        .small-container > .row {
-          margin-right: 0px;
-          margin-left: 0px;
-        }
-        .hat {
-          position: absolute;
-          left: -5px;
-          top: 8px;
-          width: 50px;
-          height: auto;
-        }
-    </style>
     <link rel="shortcut icon" href=""/>
     <link href="{{ url_for('static', filename='css/bootstrap.yeti.css') }}" rel="stylesheet">
     <link href="{{ url_for('static', filename='css/console.css') }}" rel="stylesheet">
     <link href="{{ url_for('static', filename='css/jquery.dataTables.css') }}" rel="stylesheet">
     <link href="{{ url_for('static', filename='css/dataTables.bootstrap.css') }}" rel="stylesheet">
     <link href="{{ url_for('static', filename='css/jquery.splitter.css') }}" rel="stylesheet"/>
+    <link href="{{ url_for('static', filename='css/styles.css') }}" rel="stylesheet"/>
 </head>
 <body>
 
@@ -74,12 +53,43 @@
 
 <script type="text/javascript">
 // $(function($) {
-  $("#pane-container").height($(window).height()-20);
-  $('#pane-container').split({orientation:'vertical', limit:100, position:'50%'});
+  $("#pane-container").height($(window).height()*.9);
+  $('#pane-container').split({
+    orientation: 'vertical',
+    limit: 100,
+    position: '50%'
+  });
 
-  $("pane-container").split({orientation: 'vertical', limit:100, position:'50%'});
-  $("#right-column").split({ orientation: 'horizontal', limit: 10 });
-  $("#left-column").split({ orientation: 'horizontal', limit: 10 });
+  $("pane-container").split({
+    orientation: 'vertical',
+    limit:100,
+    position:'50%'
+  });
+
+  $("#right-column").split({
+    orientation: 'horizontal',
+    limit: 10
+  });
+
+  $("#left-column").split({
+    orientation: 'horizontal',
+    limit: 10
+  });
+
+  $(document.documentElement).bind('mouseup.splitter touchend.splitter touchleave.splitter touchcancel.spliter', function(e) {
+      calibratePanes();
+  });
+
+  function calibratePanes() {
+    var id = $("#editors .active .editor").attr("id");
+    $("#" + id).height($("#top-left").height());
+    $(".editors").height($("#top-left").height());
+    $("#console").height($("#bottom-left").height()*.7);
+    $("#environment").height($("#top-right").height()-10);
+    $("#history").height($("#top-right").height()-10);
+    $("#vars").height($("#top-right").height()-30);
+  }
+  calibratePanes();
 
   var plots = [];
 
@@ -225,6 +235,7 @@
         }
       }
     });
+    calibratePanes();
     return editor;
   }
 

@@ -12,22 +12,22 @@
       </a>
       <!-- directories -->
       {% for dir in file_tree %}
-      {% for f in dir %}
-      {% if f.isFile==False %}
-      <a id="file-{{ f.dirname }}" data-parnet-slug="{{ f.parentslug }}" data-dirname="{{ f.dirslug }}" href="#" class="list-group-item {{ f.parentslug }} showdir">
-        <span class="glyphicon glyphicon-folder-open" aria-hidden="true"></span>&nbsp;
-        {{ f.dirname }}
-      </a>
-      {% endif %}
-      {% endfor %}
+        {% for f in dir %}
+          {% if f.isFile==False %}
+            <a id="file-{{ f.dirname }}" data-parnet-slug="{{ f.parentslug }}" data-dirname="{{ f.dirslug }}" href="#" class="list-group-item {{ f.parentslug }} showdir">
+              <span class="glyphicon glyphicon-folder-open" aria-hidden="true"></span>&nbsp;
+              {{ f.dirname }}
+            </a>
+          {% endif %}
+        {% endfor %}
       {% endfor %}
       <!-- files -->
       {% for dir in file_tree %}
-      {% for f in dir %}
-      {% if f.filename %}
-      <a id="file-{{ f.filename }}" data-filename="{{ f.dirname }}/{{f.filename }}" href="#" class="list-group-item openfile {{ f.dirslug }} file">{{ f.filename }}</a>
-      {% endif %}
-      {% endfor %}
+        {% for f in dir %}
+          {% if f.filename %}
+            <a id="file-{{ f.filename }}" data-filename="{{ f.dirname }}/{{f.filename }}" href="#" class="list-group-item openfile {{ f.dirslug }} file">{{ f.filename }}</a>
+          {% endif %}
+        {% endfor %}
       {% endfor %}
     </div>
   </div>
