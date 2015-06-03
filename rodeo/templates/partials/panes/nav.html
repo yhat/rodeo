@@ -1,0 +1,53 @@
+<nav class="navbar navbar-inverse">
+  <div class="container-fluid">
+    <div class="navbar-header">
+      <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1">
+        <span class="sr-only">Toggle navigation</span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
+      <a href="yhathq.com/?utm_source=rodeo&utm_medium=rodeo-app&utm_campaign=rodeo">
+        <img class="hat" src="{{ url_for('static', filename='img/cowboy-hat.svg') }}" title="Yee Haw!" href="https://www.yhathq.com/">
+        <a class="navbar-brand" href="https://www.yhathq.com/"><span style="color: #ee5311;">&ycirc;</span><span class="color: #898989">hat</span></a>
+      </a>
+    </div>
+    <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-2">
+      <ul class="nav navbar-nav">
+        <li class="dropdown">
+          <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">Rodeo</a>
+          <ul class="dropdown-menu" role="menu">
+            <li><a href="/about">About</a></li>
+            <li><a href="#" data-toggle="modal" data-target="#prefsModal">Preferences</a></li>
+            <li class="divider"></li>
+            <li><a href="#">Quit</a></li>
+          </ul>
+        </li>
+        <li class="dropdown">
+          <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">File</a>
+          <ul class="dropdown-menu" role="menu">
+            <li><a onclick="addTab();" href="#">New Script</a></li>
+            <li><a id="openfilewidget" href="#">Open File</a></li>
+            <li><a id="data-upload" href="#">Upload Data</a></li>
+            <li class="divider"></li>
+            <li><a onclick='saveEditor($("#editors .active .editor").attr("id"));' href="#">Save</a></li>
+            <li><a onclick='saveEditor($("#editors .active .editor").attr("id"), true);' href="#">Save As</a></li>
+            <li class="divider"></li>
+            <li><a onclick='$("#editorsTab .active .closeTab").click();' href="#">Close</a></li>
+            <li><a onclick='$("#editorsTab .closeTab").click();' href="#">Close All</a></li>
+          </ul>
+        </li>
+        <li class="dropdown">
+          <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">Help</a>
+          <ul class="dropdown-menu" role="menu">
+            <li><a href="https://github.com/yhat/rodeo" target=_blank >Docs</a></li>
+            <li><a href="#" data-toggle="modal" data-target="#myModal">Shortcuts</a></li>
+          </ul>
+        </li>
+      </ul>
+      <ul class="nav navbar-nav navbar-right">
+        <li><a>Rodeo {{ version }}</a></li>
+      </ul>
+    </div>
+  </div>
+</nav>

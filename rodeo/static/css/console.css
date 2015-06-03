@@ -2,7 +2,6 @@
 #console {
   position: relative;
   width: 100%;
-  height: 230px;
   background-color: white;
 }
 .jqconsole {
@@ -52,6 +51,6 @@
   border-color: black;
 }
  .panel-console > .panel-heading {
-    background-color: black;
+  background-color: black;
 }
 
