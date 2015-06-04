@@ -14,33 +14,33 @@
 <body>
 
 <!-- start nav -->
-{% include 'partials/panes/nav.html' %}
+{% include 'nav.html' %}
 <!-- end nav -->
 <!-- main section -->
 <div id="pane-container" style="width: 100%;">
   <div id="left-column">
     <div id="top-left">
-      {% include 'partials/panes/top-left.html' %}
+      {% include 'top-left.html' %}
     </div>
     <div id="bottom-left">
-      {% include 'partials/panes/bottom-left.html' %}
+      {% include 'bottom-left.html' %}
     </div>
   </div>
   <div id="right-column">
     <div id="top-right">
-      {% include 'partials/panes/top-right.html' %}
+      {% include 'top-right.html' %}
     </div>
     <div id="bottom-right">
-      {% include 'partials/panes/bottom-right.html' %}
+      {% include 'bottom-right.html' %}
     </div>
   </div>
 </div>
 <!-- end main section -->
 
 <!-- modals -->
-{% include 'partials/df.html' %}
-{% include 'partials/shortcuts.html' %}
-{% include 'partials/preferences.html' %}
+{% include 'df.html' %}
+{% include 'shortcuts.html' %}
+{% include 'preferences.html' %}
 
 <script src="{{ url_for('static', filename='js/lib/jquery.min.js') }}"></script>
 <script src="{{ url_for('static', filename='js/lib/jquery.dataTables.min.js') }}"></script>
