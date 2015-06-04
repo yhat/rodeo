@@ -23,7 +23,9 @@ setup(
     url="https://github.com/yhat/rodeo/",
     license="BSD",
     packages=find_packages(),
-    package_dir={"rodeo": "rodeo"},
+    package_dir={
+        "rodeo": "rodeo"
+    },
     package_data={
         "rodeo": [
             "rodeo-ascii.txt",
