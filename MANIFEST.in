@@ -1,4 +1,2 @@
 recursive-include rodeo/static *
 recursive-include rodeo/templates *
-recursive-include rodeo/templates/partials *.html
-recursive-include rodeo/templates/partials/panes *.html

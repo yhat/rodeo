@@ -35,9 +35,9 @@ setup(
             "static/js/*.js",
             "static/js/lib/*.js",
             "static/js/lib/*.map",
-            "templates/partials/panes/*.html"
-            "templates/partials/*.html"
             "templates/*.html",
+            "templates/partials/*.html"
+            "templates/partials/panes/*.html"
         ]
     },
     description="an ide for data analysis in python",
