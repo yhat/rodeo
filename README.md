@@ -46,3 +46,6 @@ $ rodeo .
 ![](https://raw.githubusercontent.com/yhat/rodeo/master/rodeo/static/img/screenshot-ggplot.png)
 #### Documentation and Help
 ![](https://raw.githubusercontent.com/yhat/rodeo/master/rodeo/static/img/screenshot-help.png)
+
+
+[![image](https://ga-beacon.appspot.com/UA-46996803-1/rodeo/README.md)](https://github.com/yhat/rodeo)
