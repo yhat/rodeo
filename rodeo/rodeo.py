@@ -56,6 +56,14 @@ def home():
                     continue
                 filename = os.path.join(root, filename)
                 filename = filename.replace(active_dir, "").lstrip("/")
+                try:
+                    if sys.version_info < (3,):
+                        filename = unicode(filename)
+                    else:
+                        filename = str(filename)
+                except:
+                    sys.stderr.write("Can't display file: %s. It has non-ascii characters in the filename.\n" % filename)
+                    continue
                 dirname = os.path.dirname(filename)
                 dirslug = slugify(dirname)
                 if dirslug=="":
