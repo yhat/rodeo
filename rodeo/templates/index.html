@@ -42,6 +42,13 @@
 {% include 'shortcuts.html' %}
 {% include 'preferences.html' %}
 
+<!-- hidden forms -->
+<!-- this is the hidden file input for the `File > Open File` menu item -->
+<input type="file" id="upload_file" class="hide">
+<form id="upload_form" class="hide" action="/upload" method="POST" enctype="multipart/form-data">
+  <input type="file" name="data" id="upload_data" class="hide">
+</form>
+
 <script src="{{ url_for('static', filename='js/lib/jquery.min.js') }}"></script>
 <script src="{{ url_for('static', filename='js/lib/jquery.dataTables.min.js') }}"></script>
 <script src="{{ url_for('static', filename='js/lib/jquery.splitter-0.15.0.js') }}"></script>
