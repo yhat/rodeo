@@ -21,6 +21,7 @@
     overflow-y: scroll;
 }
 
+/*
 thead, tbody, tr, td, th {
     display: block;
 }
@@ -40,11 +41,9 @@ tbody {
     overflow-y: auto;
 }
 
-thead {
-    /* fallback */
-}
 
 tbody td, thead th {
     width: 33%;
     float: left;
 }
+*/

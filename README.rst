@@ -51,9 +51,13 @@ Execute scripts
 Inspect your data |image3| #### Plots |image4| #### Documentation and
 Help |image5|
 
+|image|
+
 .. |image0| image:: https://raw.githubusercontent.com/yhat/rodeo/master/rodeo/static/img/screenshot-files-with-output.png
 .. |image1| image:: https://raw.githubusercontent.com/yhat/rodeo/master/rodeo/static/img/screenshot-mpl-complex.png
 .. |image2| image:: https://raw.githubusercontent.com/yhat/rodeo/master/rodeo/static/img/screenshot-autocomplete.png
 .. |image3| image:: https://raw.githubusercontent.com/yhat/rodeo/master/rodeo/static/img/screenshot-view-data.png
 .. |image4| image:: https://raw.githubusercontent.com/yhat/rodeo/master/rodeo/static/img/screenshot-ggplot.png
 .. |image5| image:: https://raw.githubusercontent.com/yhat/rodeo/master/rodeo/static/img/screenshot-help.png
+.. |image| image:: https://ga-beacon.appspot.com/UA-46996803-1/rodeo/README.md
+   :target: https://github.com/yhat/rodeo
