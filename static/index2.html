@@ -2,13 +2,13 @@
 <html lang="en">
 <head>
     <title>Rodeo</title>
-    <link href="static/css/bootstrap.paper.css" rel="stylesheet">
-    <link href="static/css/console.css" rel="stylesheet">
-    <link href="static/css/jquery.dataTables.css" rel="stylesheet">
-    <link href="static/css/dataTables.bootstrap.css" rel="stylesheet">
-    <link href="static/css/font-awesome.min.css" rel="stylesheet">
-    <link href="static/css/jquery.splitter.css" rel="stylesheet"/>
-    <link href="static/css/styles.css" rel="stylesheet"/>
+    <link href="css/bootstrap.paper.css" rel="stylesheet">
+    <link href="css/console.css" rel="stylesheet">
+    <link href="css/jquery.dataTables.css" rel="stylesheet">
+    <link href="css/dataTables.bootstrap.css" rel="stylesheet">
+    <link href="css/font-awesome.min.css" rel="stylesheet">
+    <link href="css/jquery.splitter.css" rel="stylesheet"/>
+    <link href="css/styles.css" rel="stylesheet"/>
 
     <style>
       .navbar {
@@ -58,13 +58,13 @@
 
     });
     </script>
-    <script src="static/js/lib/jquery.dataTables.min.js"></script>
-    <script src="static/js/lib/jquery.splitter-0.15.0.js"></script>
-    <script src="static/js/lib/bootstrap.min.js"></script>
-    <script src="static/js/lib/jqconsole.min.js"></script>
-    <script src="static/js/lib/ascii-table.min.js"></script>
-    <script src="static/ace/ace.js"></script>
-    <script src="static/ace/ext-language_tools.js"></script>
+    <script src="js/lib/jquery.dataTables.min.js"></script>
+    <script src="js/lib/jquery.splitter-0.15.0.js"></script>
+    <script src="js/lib/bootstrap.min.js"></script>
+    <script src="js/lib/jqconsole.min.js"></script>
+    <script src="js/lib/ascii-table.min.js"></script>
+    <script src="ace/ace.js"></script>
+    <script src="ace/ext-language_tools.js"></script>
 
     <script id="editor-template" type="text/x-handlebars-template">
       <div class="tab-pane active" id="editor-tab-pane-{{n}}">
@@ -172,7 +172,7 @@
             <span class="icon-bar"></span>
           </button>
           <a href="https://yhathq.com/?utm_source=rodeo&utm_medium=rodeo-app&utm_campaign=rodeo">
-            <img class="hat" src="static/img/cowboy-hat.svg" title="Yee Haw!" href="https://www.yhathq.com/">
+            <img class="hat" src="img/cowboy-hat.svg" title="Yee Haw!" href="https://www.yhathq.com/">
             <a class="navbar-brand" href="https://www.yhathq.com/"><span style="color: #ee5311;">&ycirc;</span><span class="color: #898989">hat</span></a>
           </a>
         </div>
@@ -196,7 +196,7 @@
           <!-- editors -->
           <ul id="editorsTab" class="nav nav-tabs">
             <li>
-              <img class="hat" src="static/img/cowboy-hat.svg" title="Yee Haw!" href="https://www.yhathq.com/">
+              <img class="hat" src="img/cowboy-hat.svg" title="Yee Haw!" href="https://www.yhathq.com/">
               <a href="#"><span style="color: #ee5311;">&ycirc;</span><span class="color: #898989">hat</span></a>
             </li>
             <!-- editor tabs go here -->
@@ -276,8 +276,6 @@
               <a onclick="deletePlot();" class="label label-primary" title="Delete Plot"><i class="fa fa-trash-o"></i></a>
               <br />
               <div id="plots">
-                <img class="active" style="max-width: 100%;" src="http://cdn-static.denofgeek.com/sites/denofgeek/files/6/52//point-break-main.jpg"/>
-                <img class="hide" style="max-width: 100%;" src="http://static1.squarespace.com/static/53b452cce4b0ff6d440d9bf6/t/53c00a6de4b06e125c380f09/1439477530051/?format=750w"/>
               </div>
             </div>
             <!-- End Plot viewer -->
@@ -325,8 +323,8 @@
         <!-- END BOTTOM RIGHT -->
     </div>
   </div>
-  <script type="text/javascript" src="editors.js"></script>
-  <script type="text/javascript" src="console.js"></script>
+  <script type="text/javascript" src="../src/editors.js"></script>
+  <script type="text/javascript" src="../src/console.js"></script>
   <!-- end main section -->
   <script type="text/javascript">
     // resizeable panes
@@ -467,7 +465,7 @@
 
   </script>
 
-  <script type="text/javascript" src="script2.js"></script>
-  <script type="text/javascript" src="menu.js"></script>
+  <script type="text/javascript" src="../src/script2.js"></script>
+  <script type="text/javascript" src="../src/menu.js"></script>
 </body>
 </html>

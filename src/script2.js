@@ -16,9 +16,10 @@ var folder_view = require('folder_view');
 var watch = require("watch");
 
 // watch the plots directory for changes
-watch.createMonitor("static/plots", function (monitor) {
+var plot_dir = path.join(__dirname, "./plots");
+watch.createMonitor(plot_dir, function (monitor) {
   monitor.on("created", function (f, stat) {
-    var filename = 'file://' + __dirname + '/' + f;
+    var filename = 'file://' + __dirname + '/../static/' + f;
     $("#plots .active").removeClass("active").addClass("hide");
     $("#plots").append('<img class="active" style="max-width: 100%;" src="' + filename + '" />');
     $('a[href="#plot-window"]').tab("show");
@@ -112,19 +113,19 @@ function sendCommand(input) {
 function showAbout(varname) {
   var params = {toolbar: false, resizable: false, show: true, height: 150, width: 400};
   var aboutWindow = new BrowserWindow(params);
-  aboutWindow.loadUrl('file://' + __dirname + '/about.html');
+  aboutWindow.loadUrl('file://' + __dirname + '/../static/about.html');
 }
 
 function showPreferences() {
   var params = {toolbar: false, resizable: true, show: true, height: 800, width: 450};
   var prefsWindow = new BrowserWindow(params);
-  prefsWindow.loadUrl('file://' + __dirname + '/preferences.html');
+  prefsWindow.loadUrl('file://' + __dirname + '/../static/preferences.html');
 }
 
 function showVariable(varname, type) {
   var params = {toolbar: false, resizable: true, show: true, height: 800, width: 1000};
   var variableWindow = new BrowserWindow(params);
-  variableWindow.loadUrl('file://' + __dirname + '/display-variable.html');
+  variableWindow.loadUrl('file://' + __dirname + '/../static/display-variable.html');
 
   var show_var_statements = {
     DataFrame: "print(" + varname + "[:1000].to_html())",
@@ -271,4 +272,3 @@ function setFiles(dir) {
   }.bind(this));
 }
 setFiles(process.env[(process.platform == 'win32') ? 'USERPROFILE' : 'HOME']);
-setFiles("/Users/glamp/repos/yhat/prototypes/rodeo");

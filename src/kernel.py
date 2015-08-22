@@ -12,7 +12,7 @@ matplotlib.use('Agg')
 
 
 def hijack_plots():
-    fname = "static/plots/%d-%s.png" % (int(time.time()), str(uuid.uuid4()))
+    fname = "../static/plots/%d-%s.png" % (int(time.time()), str(uuid.uuid4()))
     plt.savefig(fname)
 
 plt.show = hijack_plots

@@ -6,7 +6,7 @@
   "helperBundleId": "io.rodeo.app.helper",
   "description": "An IDE for data science.",
   "author": "The Yhat Team",
-  "main": "main.js",
+  "main": "src/main.js",
   "devDependencies": {
     "electron-packager": "^5.0.1",
     "electron-prebuilt": "^0.30.4"
