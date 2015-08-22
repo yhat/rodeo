@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>Rodeo</title>
+    <link href="static/css/bootstrap.paper.css" rel="stylesheet">
+
+    <script type="text/javascript">
+      window.$ = window.jQuery = require('jquery');
+    </script>
+</head>
+<body>
+  <!-- header -->
+  <table id="header" class="table table-bordered" style="margin-bottom: 0px;">
+  </table>
+
+  <!-- rows -->
+  <div style="max-height: 900px; overflow: auto;">
+    <table id="rows" class="table table-bordered">
+    </table>
+  </div>
+
+
+<script type="text/javascript">
+$(document).ready(function() {
+  require('ipc').on('ping', function(data) {
+    if (data.type=="DataFrame") {
+      $("#data").text()
+      var header = $("thead", data.html);
+      $("#header").append(header);
+      var rows = $("tbody", data.html);
+      $("#rows").append(rows);
+      // configure column widths
+      $("#rows tr").first().children().each(function(i, el) {
+        $($("#header th")[i]).css("width", $(el).css("width"));
+      });
+    }
+  });
+});
+</script>
+
+</body>
+</html>

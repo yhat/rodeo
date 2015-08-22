@@ -1,0 +1,473 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>Rodeo</title>
+    <link href="static/css/bootstrap.paper.css" rel="stylesheet">
+    <link href="static/css/console.css" rel="stylesheet">
+    <link href="static/css/jquery.dataTables.css" rel="stylesheet">
+    <link href="static/css/dataTables.bootstrap.css" rel="stylesheet">
+    <link href="static/css/font-awesome.min.css" rel="stylesheet">
+    <link href="static/css/jquery.splitter.css" rel="stylesheet"/>
+    <link href="static/css/styles.css" rel="stylesheet"/>
+
+    <style>
+      .navbar {
+        margin-bottom: 0px;
+      }
+    </style>
+    <script type="text/javascript">
+      window.$ = window.jQuery = require('jquery');
+      Handlebars = require("handlebars");
+      Handlebars.registerHelper('compare', function (lvalue, operator, rvalue, options) {
+
+        var operators, result;
+
+        if (arguments.length < 3) {
+            throw new Error("Handlerbars Helper 'compare' needs 2 parameters");
+        }
+
+        if (options === undefined) {
+            options = rvalue;
+            rvalue = operator;
+            operator = "===";
+        }
+
+        operators = {
+            '==': function (l, r) { return l == r; },
+            '===': function (l, r) { return l === r; },
+            '!=': function (l, r) { return l != r; },
+            '!==': function (l, r) { return l !== r; },
+            '<': function (l, r) { return l < r; },
+            '>': function (l, r) { return l > r; },
+            '<=': function (l, r) { return l <= r; },
+            '>=': function (l, r) { return l >= r; },
+            'typeof': function (l, r) { return typeof l == r; }
+        };
+
+        if (!operators[operator]) {
+            throw new Error("Handlerbars Helper 'compare' doesn't know the operator " + operator);
+        }
+
+        result = operators[operator](lvalue, rvalue);
+
+        if (result) {
+            return options.fn(this);
+        } else {
+            return options.inverse(this);
+        }
+
+    });
+    </script>
+    <script src="static/js/lib/jquery.dataTables.min.js"></script>
+    <script src="static/js/lib/jquery.splitter-0.15.0.js"></script>
+    <script src="static/js/lib/bootstrap.min.js"></script>
+    <script src="static/js/lib/jqconsole.min.js"></script>
+    <script src="static/js/lib/ascii-table.min.js"></script>
+    <script src="static/ace/ace.js"></script>
+    <script src="static/ace/ext-language_tools.js"></script>
+
+    <script id="editor-template" type="text/x-handlebars-template">
+      <div class="tab-pane active" id="editor-tab-pane-{{n}}">
+        <div class="editor" id="editor-{{n}}" style="height: 100%;"></div>
+      </div>
+    </script>
+
+    <script id="editor-tab-template" type="text/x-handlebars-template">
+      <li id="editor-tab-{{n}}" class="{{#isFirst}}active{{/isFirst}}">
+        <a class="editor-tab-a" href="#editor-tab-pane-{{n}}" data-toggle="tab" aria-expanded="false">
+          <span class="name">{{ name }}</span><span class="unsaved hide">*</span>&nbsp;<span style="color: red;" onclick="closeActiveTab('{{n}}');">&times;</span>
+        </a>
+      </li>
+    </script>
+
+    <script id="active-variables-row-template" type="text/x-handlebars-template">
+      <tr>
+        <td>{{name}}</td>
+        <td>{{type}}</td>
+        <td style="td-align: center;">
+        {{#compare type "DataFrame"}}
+          <a href="#" onclick="showVariable('{{name}}', '{{type}}');"><span class='fa fa-table' aria-hidden='true'></span></a>
+        {{/compare}}
+        {{#compare type "list-no"}}
+          <a href="#" onclick="showVariable('{{name}}', '{{type}}');"><span class='fa fa-list-alt' aria-hidden='true'></span></a>
+        {{/compare}}        
+        </td>
+      </tr>
+    </script>
+
+    <script id="history-row-template" type="text/x-handlebars-template">
+{{command}}</script>
+
+
+    <script id="package-row-template" type="text/x-handlebars-template">
+      <tr>
+        <td>{{name}}</td>
+        <td>{{version}}</td>
+      </tr>
+    </script>
+
+    <script id="file-template" type="text/x-handlebars-template">
+      <a onclick="openFile('{{filename}}');" data-parnet-slug="" data-dirname="top_dir" href="#" class="list-group-item showdir" style="padding: 5px 10px;">
+        {{#isDir}}
+          <i class="fa fa fa-folder" style="color: grey;"></i>
+        {{else}}
+          <i class="fa fa fa-file-o"></i>
+        {{/isDir}}
+        &nbsp;&nbsp;{{basename}}
+      </a>
+    </script>
+                
+
+    <script type="text/javascript">
+    var source   = $("#editor-template").html();
+    var editor_template = Handlebars.compile(source);
+    
+    var source   = $("#editor-tab-template").html();
+    var editor_tab_template = Handlebars.compile(source);
+    
+    var source   = $("#active-variables-row-template").html();
+    var active_variables_row_template = Handlebars.compile(source);
+    
+    var source   = $("#history-row-template").html();
+    var history_row_template = Handlebars.compile(source);
+
+    var source   = $("#package-row-template").html();
+    var package_row_template = Handlebars.compile(source);
+
+    
+    var source   = $("#file-template").html();
+    var file_template = Handlebars.compile(source);
+
+    </script>
+
+
+    <style>
+        .hat {
+          position: absolute;
+          left: 2px;
+          top: 12px;
+          width: 35px;
+          height: auto;
+          z-index: 100000;
+        }
+        .big-hat {
+          position: relative;
+          left: 295px;
+          top: 165px;
+          width: 200px;
+          height: auto;
+        }
+    </style>
+</head>
+<body>
+
+  <!-- start nav -->
+<!--     <nav class="navbar navbar-inverse">
+      <div class="container-fluid">
+        <div class="navbar-header">
+          <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1">
+            <span class="sr-only">Toggle navigation</span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+          </button>
+          <a href="https://yhathq.com/?utm_source=rodeo&utm_medium=rodeo-app&utm_campaign=rodeo">
+            <img class="hat" src="static/img/cowboy-hat.svg" title="Yee Haw!" href="https://www.yhathq.com/">
+            <a class="navbar-brand" href="https://www.yhathq.com/"><span style="color: #ee5311;">&ycirc;</span><span class="color: #898989">hat</span></a>
+          </a>
+        </div>
+        <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-2">
+          <ul class="nav navbar-nav">
+          </ul>
+          <ul class="nav navbar-nav navbar-right">
+            <li><a>Rodeo 1.0.0</a></li>
+          </ul>
+        </div>
+      </div>
+    </nav>
+ -->  <!-- end nav -->
+
+  <!-- main section -->
+
+  <div id="pane-container" class="">
+      <div id="left-column">
+        <!-- TOP LEFT -->
+        <div id="top-left">
+          <!-- editors -->
+          <ul id="editorsTab" class="nav nav-tabs">
+            <li>
+              <img class="hat" src="static/img/cowboy-hat.svg" title="Yee Haw!" href="https://www.yhathq.com/">
+              <a href="#"><span style="color: #ee5311;">&ycirc;</span><span class="color: #898989">hat</span></a>
+            </li>
+            <!-- editor tabs go here -->
+            <li><a href="#" id="add-tab"><i class="fa fa-plus-square-o"></i></a></li>
+          </ul>
+          <div id="editors" class="tab-content">
+          </div>
+          <!-- end editors -->
+        </div>
+        <!-- END TOP LEFT -->
+
+        <!-- BOTTOM LEFT -->
+        <div id="bottom-left">
+          <div class="panel panel-default">
+            <div class="panel-heading">
+              <h3 class="panel-title"><i class="fa fa-terminal"></i></h3>
+            </div>
+            <div class="panel-body">
+              <div id="console"></div>
+            </div>
+          </div>
+        </div>
+        <!-- END BOTTOM LEFT -->
+    </div>
+    <div id="right-column">
+        <!-- TOP RIGHT -->
+        <div id="top-right">
+          <ul class="nav nav-tabs">
+            <li class="active"><a href="#environment" data-toggle="tab">Data Frames</a></li>
+            <li><a href="#history" data-toggle="tab">History</a></li>
+          </ul>
+          <div id="myTabContent" class="tab-content">
+            <div class="tab-pane active in top-right" id="environment">
+              <table class="table table-bordered">
+                <thead>
+                  <tr>
+                    <th>variable</th>
+                    <th>type</th>
+                    <th></th>
+                  </tr>
+                </thead>
+                <tbody id="vars">
+                </tbody>
+              </table>
+            </div>
+            <div class="tab-pane" id="history">
+              <pre style="font-size: 10px; background-color: #fdfdfd;" class="top-right history" id="history-trail"></pre>
+            </div>
+          </div>
+        </div>
+        <!-- END TOP RIGHT -->
+        <!-- BOTTOM RIGHT -->
+        <div id="bottom-right">
+          <ul class="nav nav-tabs">
+            <li class="active"><a href="#files" data-toggle="tab">Files</a></li>
+            <li><a href="#plot-window" data-toggle="tab">Plots</a></li>
+            <li><a href="#packages" data-toggle="tab">Packages</a></li>
+            <li><a href="#help" data-toggle="tab">Help</a></li>
+          </ul>
+          <div id="bottomRightTabContent" class="tab-content">
+            <!-- File Nav -->
+            <div class="tab-pane active in" id="files">
+              <div id="file-list" class="list-group">
+                <a id="file-up_dir" data-parnet-slug="" data-dirname="top_dir" href="#" class="list-group-item showdir" >
+                  <i class="fa fa-folder-open-o"></i>&nbsp;&nbsp;..
+                </a>
+
+              </div>
+            </div>
+            <!-- End File Nav -->
+            <!-- Plot viewer -->
+            <div class="tab-pane" id="plot-window">
+              <a onclick="previousPlot();" class="label label-primary" title="Prevous Plot"><i class="fa fa-caret-left"></i></a>
+              <a onclick="nextPlot()" class="label label-primary" title="Next Plot"><i class="fa fa-caret-right"></i></a>
+              <a onclick="showPlot();" class="label label-primary" title="Zoom In"><i class="fa fa-arrows-alt"></i></a>
+              <a onclick="savePlot();" class="label label-primary" title="Export Plot" download><i class="fa fa-floppy-o"></i></a>
+              <a onclick="deletePlot();" class="label label-primary" title="Delete Plot"><i class="fa fa-trash-o"></i></a>
+              <br />
+              <div id="plots">
+                <img class="active" style="max-width: 100%;" src="http://cdn-static.denofgeek.com/sites/denofgeek/files/6/52//point-break-main.jpg"/>
+                <img class="hide" style="max-width: 100%;" src="http://static1.squarespace.com/static/53b452cce4b0ff6d440d9bf6/t/53c00a6de4b06e125c380f09/1439477530051/?format=750w"/>
+              </div>
+            </div>
+            <!-- End Plot viewer -->
+            <!-- Packages Viewer -->
+            <div class="tab-pane" id="packages">
+              <div class="row">
+                <div class="col-sm-4">
+                  <!-- 
+                  <a class="label label-primary" title=""><i class="fa fa-download"></i>&nbsp;&nbsp;Install Packages</a>
+                  <a class="label label-warning" title=""><i class="fa fa-refresh"></i>&nbsp;&nbsp;Update Packages</a>
+                  -->
+                </div>
+                <div class="col-sm-5 col-sm-offset-3">
+                  <div class="input-group">
+                    <div class="input-group-addon"><i class="fa fa-search"></i></div>
+                    <input type="text" class="form-control input-sm" id="pkg-search" placeholder="(i.e. pandas, Flask)" />
+                  </div>
+                </div>
+              </div>
+              <table class="table table-striped table-hover" style="table-layout: fixed; margin-bottom: 0px;">
+                <thead>
+                  <tr>
+                    <th>package</th>
+                    <th>version</th>
+                  </tr>
+                </thead>
+              </table>
+              <div id="packages-container" style="max-height: 400px; overflow: auto;">
+                <table class="table table-bordered table table-striped table-hover" style="table-layout: fixed;">
+                  <tbody id="packages-rows">
+                  </tbody>
+              </table>
+              </div>
+            </div>
+            <!-- Packages Viewer -->
+            <!-- Help -->
+            <div class="tab-pane" id="help">
+              <pre style="font-size: 10px; background-color: #fdfdfd; overflow: auto;" id="help-content"><i>run help(...) for more info</i></pre>
+            </div>
+            <!-- End Help -->
+
+          </div>
+          </div>
+        </div>
+        <!-- END BOTTOM RIGHT -->
+    </div>
+  </div>
+  <script type="text/javascript" src="editors.js"></script>
+  <script type="text/javascript" src="console.js"></script>
+  <!-- end main section -->
+  <script type="text/javascript">
+    // resizeable panes
+    $("#pane-container").height($(window).height()*.9);
+
+    $("#pane-container").split({
+      orientation: 'vertical',
+      limit: 100,
+      position:'50%'
+    });
+
+    $("#right-column").split({
+      orientation: 'horizontal',
+      limit: 100
+    });
+
+    $("#left-column").split({
+      orientation: 'horizontal',
+      limit: 100
+    });
+    $(document.documentElement).bind('mouseup.splitter touchend.splitter touchleave.splitter touchcancel.spliter', function(e) {
+        calibratePanes();
+    });
+
+    function calibratePanes() {
+      var offset = $("#top-left ul").height() - 1;
+      $(".editor").parent().height($("#top-left").height() - offset);
+      $(".editor").height($("#top-left").height() - offset);
+
+      var offset = $("#bottom-left .panel-heading").height() - 1;
+      $("#console").height(($("#bottom-left").height() - offset) * .85);
+
+      var offset = $("#top-right ul").height() - 1;
+      $("#environment").height($("#top-right").height() - offset);
+      $("#history").height($("#top-right").height() - offset);
+      $("#vars").height($("#top-right").height()*.7);
+
+      var offset = $("#bottom-right ul").height() - 1;
+      $("#packages").height($("#bottom-right").height() - offset);
+      $("#packages-container").height($("#bottom-right").height() - offset);
+      $("#plot-window").height($("#bottom-right").height() - offset);
+      $("#current-plot").css("max-height", $("#bottom-right").height() - offset - 25);
+    }
+    calibratePanes();
+
+
+    // Tab stuff
+
+    $("#add-tab").click(function(e) {
+      e.preventDefault();
+      var nEditors = $("#editors").children().length;
+      var editor_tab_html = editor_tab_template({ n: nEditors, name: "Untitled-" + nEditors + ".py", isFirst: nEditors==0});
+      var editor_html = editor_template({ n: nEditors });
+
+      $(editor_tab_html).insertBefore($("#add-tab").parent());
+      $("#editors").append(editor_html);
+      createEditor("editor-" + nEditors);
+      return false;
+    });
+    // should always be a first tab
+    $("#add-tab").click();
+
+    function closeActiveTab(n) {
+      if (! $("#editor-tab-" + n + " .unsaved").hasClass("hide")) {
+        remote.require('dialog').showMessageBox({
+          type: "warning",
+          buttons: ["Save", "Don't Save", "Cancel"],
+          message: "Do you want to save the changes you've made to this file?",
+          detail: "Your changes will be discarded otherwise."
+        }, function(reply) {
+          if (reply==0) {
+            // save
+            saveEditor(ace.edit("editor-" + n), null, function() {
+              $("#editorsTab .editor-tab-a").first().click();
+              $("#editor-tab-" + n).remove();
+              $("#editor-tab-pane-" + n).remove();
+            });
+          } else if (reply==1) {
+            // don't save
+            $("#editorsTab .editor-tab-a").first().click();
+            console.log("#editor-tab-" + n)
+            $("#editor-tab-" + n).remove();
+            $("#editor-tab-pane-" + n).remove();
+          } else {
+            // do nothing
+            return;
+          }
+        });
+      } else {
+        $("#editorsTab .editor-tab-a").first().click();
+        $("#editor-tab-" + n).remove();
+        $("#editor-tab-pane-" + n).remove();
+      }
+    }
+
+    // Plots
+    function previousPlot() {
+      var currentPlot = $("#plots .active");
+      if ($("#plots .active").prev().length) {
+        $("#plots .active").prev().addClass("active").removeClass("hide");
+        $(currentPlot).removeClass("active").addClass("hide");
+      }
+    }
+
+    function nextPlot() {
+      var currentPlot = $("#plots .active");
+      if ($("#plots .active").next().length) {
+        $("#plots .active").next().addClass("active").removeClass("hide");
+        $(currentPlot).removeClass("active").addClass("hide");
+      }
+    }
+
+    function deletePlot() {
+      var currentPlot = $("#plots .active")
+      if ($("#plots .active").next().length) {
+        $("#plots .active").next().addClass("active").removeClass("hide");
+      } else if ($("#plots .active").prev().length) {
+        $("#plots .active").prev().addClass("active").removeClass("hide");
+      }
+      $(currentPlot).remove();
+    }
+
+    $('#pkg-search').on('input', function() { 
+      var query = $(this).val().toLowerCase();
+      if (query=="") {
+        $("#packages-rows tr").removeClass("hide");
+      } else {
+        $("#packages-rows tr").each(function(i, pkg) {
+          var packageName = $("td", pkg).first().text().toLowerCase();
+          if (packageName.indexOf(query) >= 0) {
+            $(this).removeClass("hide");
+          } else {
+            $(this).addClass("hide");
+          }
+        });
+      }
+    });
+
+  </script>
+
+  <script type="text/javascript" src="script2.js"></script>
+  <script type="text/javascript" src="menu.js"></script>
+</body>
+</html>

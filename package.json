@@ -1,0 +1,29 @@
+{
+  "name": "rodeo",
+  "productName": "Rodeo",
+  "version": "0.1.0",
+  "appBundleId": "io.rodeo.app",
+  "helperBundleId": "io.rodeo.app.helper",
+  "description": "An IDE for data science.",
+  "author": "The Yhat Team",
+  "main": "main.js",
+  "devDependencies": {
+    "electron-packager": "^5.0.1",
+    "electron-prebuilt": "^0.30.4"
+  },
+  "dependencies": {
+    "ace": "0.0.2",
+    "colors": "^1.1.2",
+    "fs-extra": "^0.23.1",
+    "handlebars": "^3.0.3",
+    "jade": "^1.11.0",
+    "jquery": "^2.1.4",
+    "uuid": "^2.0.1",
+    "watch": "^0.16.0"
+  },
+  "scripts": {
+    "start": "electron .",
+    "test": "echo 0",
+    "build": "electron-compile --target ./cache src/ static/ --verbose"
+  }
+}

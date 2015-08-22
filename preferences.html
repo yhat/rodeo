@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>Rodeo</title>
+    <link href="static/css/bootstrap.paper.css" rel="stylesheet">
+</head>
+<body>
+  <h4 class="modal-title">Preferences</h4>
+  <form id="prefs" class="col-sm-6 col-sm-offset-3" action="/rc" method="POST">
+    <div class="form-group">
+      <label for="editorTheme">Color Scheme</label>
+      <select class="form-control" name="editorTheme" id="editorTheme">
+        <option value="ace/theme/chrome" selected>light</option>
+        <option value="ace/theme/monokai">dark</option>
+      </select>
+    </div>
+    <div class="form-group">
+      <label for="keyBindings">Key Bindings</label>
+      <select class="form-control" name="keyBindings" id="keyBindings">
+        <option value="default" selected>default</option>
+        <option value="ace/keyboard/vim">vim</option>
+        <option value="ace/keyboard/emacs">emacs</option>
+      </select>
+    </div>
+    <div class="form-group">
+      <label for="fontSize">Font Size</label>
+      <input class="form-control" id="fontSize" name="fontSize" type="number" step="1" value="12" min="8" max="20">
+    </div>
+
+    <!-- 
+    <div class="checkbox">
+      <label><input type="checkbox"> Check me out</label>
+    </div>
+    -->
+    <button type="submit" class="btn btn-default">Save</button>
+  </form>
+
+</body>
+</html>

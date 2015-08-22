@@ -1,0 +1,82 @@
+{
+  "menu": [
+    {
+      "label": "<%= productName %>",
+      "submenu": [
+        {
+          "label": "About <%= productName %>",
+          "command": "application:about"
+        },
+        {
+          "type": "separator"
+        },
+        {
+          "label": "Preferences...",
+          "command": "application:show-settings",
+          "accelerator": "Command+,"
+        },
+        {
+          "type": "separator"
+        },
+        {
+          "label": "Quit",
+          "command": "application:quit",
+          "accelerator": "Command+Q"
+        }
+      ]
+    },
+    {
+      "label": "View",
+      "submenu": [
+        {
+          "label": "Reload",
+          "command": "window:reload",
+          "accelerator": "Command+R"
+        },
+        {
+          "label": "Toggle Full Screen",
+          "command": "window:toggle-full-screen",
+          "accelerator": "Command+Control+F"
+        },
+        {
+          "label": "Developer",
+          "submenu": [
+            {
+              "label": "Run Tests...",
+              "command": "application:run-specs",
+              "accelerator": "Alt+Command+T"
+            },
+            {
+              "label": "Toggle Developer Tools",
+              "command": "window:toggle-dev-tools",
+              "accelerator": "Alt+Command+I"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "label": "Window",
+      "submenu": [
+        {
+          "label": "Minimize",
+          "selector": "performMiniaturize:",
+          "accelerator": "Command+M"
+        },
+        {
+          "label": "Zoom",
+          "selector": "performZoom:"
+        }
+      ]
+    },
+    {
+      "label": "Help",
+      "submenu": [
+        {
+          "label": "Report Issue",
+          "command": "application:report-issue"
+        }
+      ]
+    }
+  ]
+}
