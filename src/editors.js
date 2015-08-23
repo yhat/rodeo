@@ -6,12 +6,14 @@ function createEditor(id) {
   var editor = ace.edit(id);
   editor.setTheme("ace/theme/chrome");
   editor.getSession().setMode("ace/mode/python");
+  // editor.getSession().setValue("import toyplot\nimport numpy as np\nx = numpy.linspace(0, 10)\ny = x ** 2\ncanvas = toyplot.Canvas(width=300, height=300)\naxes = canvas.axes()\nmark = axes.plot(x, y)")
   editor.setOptions({
     showPrintMargin: false,
     enableBasicAutocompletion: true,
     enableSnippets: false,
     enableLiveAutocompletion: false
   });
+  editor.$blockScrolling = Infinity;
   // initialize shortcuts
   editor.commands.addCommand({
     name: "sendCommand",

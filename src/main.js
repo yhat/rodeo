@@ -26,6 +26,10 @@ app.on('ready', function() {
   // and load the index.html of the app.
   mainWindow.loadUrl('file://' + __dirname + '/../static/index2.html');
 
+  mainWindow.webContents.on('did-finish-load', function() {
+    var wd = process.argv[1];
+  });
+
   // Open the devtools.
   // mainWindow.openDevTools();
 

@@ -65,8 +65,8 @@
     <script src="ace/ext-language_tools.js"></script>
 
     <script id="editor-template" type="text/x-handlebars-template">
-      <div class="tab-pane active" id="editor-tab-pane-{{n}}">
-        <div class="editor" id="editor-{{n}}" style="height: 100%;"></div>
+      <div class="tab-pane active" id="editor-tab-pane-{{n}}" style="height: 100%;">
+        <div class="editor" id="editor-{{n}}"></div>
       </div>
     </script>
 
@@ -89,7 +89,8 @@
     </script>
 
     <script id="history-row-template" type="text/x-handlebars-template">
-{{command}}</script>
+      <p><span>{{command}}</span></p>
+    </script>
 
 
     <script id="package-row-template" type="text/x-handlebars-template">
@@ -199,14 +200,8 @@
 
         <!-- BOTTOM LEFT -->
         <div id="bottom-left">
-          <div class="panel panel-default">
-            <div class="panel-heading">
-              <h3 class="panel-title"><i class="fa fa-terminal"></i></h3>
-            </div>
-            <div class="panel-body">
-              <div id="console"></div>
-            </div>
-          </div>
+          <!-- <h3 class="panel-title"><i class="fa fa-terminal"></i></h3> -->
+          <div id="console"></div>
         </div>
         <!-- END BOTTOM LEFT -->
     </div>
@@ -219,7 +214,7 @@
           </ul>
           <div id="myTabContent" class="tab-content">
             <div class="tab-pane active in top-right" id="environment">
-              <table class="table table-bordered">
+              <table class="table table-bordered" style="margin-bottom: 0px;">
                 <thead>
                   <tr>
                     <th>variable</th>
@@ -227,12 +222,22 @@
                     <th></th>
                   </tr>
                 </thead>
+              </table>
+              <table class="table table-bordered">
                 <tbody id="vars">
                 </tbody>
               </table>
             </div>
             <div class="tab-pane" id="history">
-              <pre style="font-size: 10px; background-color: #fdfdfd;" class="top-right history" id="history-trail"></pre>
+              <div class="row">
+                <div class="col-sm-5 col-sm-offset-7">
+                  <div class="input-group">
+                    <div class="input-group-addon"><i class="fa fa-search"></i></div>
+                    <input type="text" class="form-control input-sm" id="history-search" placeholder="filter..." />
+                  </div>
+                </div>
+              </div>
+              <div style="background-color: #fdfdfd;" class="top-right history container" id="history-trail"></div>
             </div>
           </div>
         </div>
@@ -247,12 +252,9 @@
           </ul>
           <div id="bottomRightTabContent" class="tab-content">
             <!-- File Nav -->
-            <div class="tab-pane active in" id="files">
-              <div id="file-list" class="list-group">
-                <a id="file-up_dir" data-parnet-slug="" data-dirname="top_dir" href="#" class="list-group-item showdir" >
-                  <i class="fa fa-folder-open-o"></i>&nbsp;&nbsp;..
-                </a>
-
+            <div id="files" class="tab-pane active in" style="height: 100%;">
+              <div id="working-directory" class="list-group" style="margin-bottom: 0px;"></div>
+              <div id="file-list" class="list-group" style="max-height: 100%; overflow: scroll; margin-bottom: 0px;">
               </div>
             </div>
             <!-- End File Nav -->
@@ -263,7 +265,6 @@
               <a onclick="showPlot();" class="label label-primary" title="Zoom In"><i class="fa fa-arrows-alt"></i></a>
               <a onclick="savePlot();" class="label label-primary" title="Export Plot" download><i class="fa fa-floppy-o"></i></a>
               <a onclick="deletePlot();" class="label label-primary" title="Delete Plot"><i class="fa fa-trash-o"></i></a>
-              <br />
               <div id="plots">
               </div>
             </div>
@@ -284,7 +285,7 @@
                   </div>
                 </div>
               </div>
-              <table class="table table-striped table-hover" style="table-layout: fixed; margin-bottom: 0px;">
+              <table class="table table-bordered" style="table-layout: fixed; margin-bottom: 0px;">
                 <thead>
                   <tr>
                     <th>package</th>
@@ -293,7 +294,7 @@
                 </thead>
               </table>
               <div id="packages-container" style="max-height: 400px; overflow: auto;">
-                <table class="table table-bordered table table-striped table-hover" style="table-layout: fixed;">
+                <table class="table table-bordered" style="table-layout: fixed;">
                   <tbody id="packages-rows">
                   </tbody>
               </table>
@@ -317,7 +318,7 @@
   <!-- end main section -->
   <script type="text/javascript">
     // resizeable panes
-    $("#pane-container").height($(window).height()*.9);
+    $("#pane-container").height($(window).height());
 
     $("#pane-container").split({
       orientation: 'vertical',
@@ -334,34 +335,51 @@
       orientation: 'horizontal',
       limit: 100
     });
+
+    // on resize w/ gray bars, recalibrate
     $(document.documentElement).bind('mouseup.splitter touchend.splitter touchleave.splitter touchcancel.spliter', function(e) {
-        calibratePanes();
+      calibratePanes();
     });
 
+    window.onresize = function(evt) {
+      calibratePanes();
+    };
+
     function calibratePanes() {
-      var offset = $("#top-left ul").height() - 1;
-      $(".editor").parent().height($("#top-left").height() - offset);
-      $(".editor").height($("#top-left").height() - offset);
+      $("#pane-container").height($(window).height());
+      // Top Left
+      var topLeftHeight = $("#top-left").height();
+      var offset = $("#top-left #editorsTab").height() + 2;
+      $("#top-left #editors").height(topLeftHeight - offset);
 
-      var offset = $("#bottom-left .panel-heading").height() - 1;
-      $("#console").height(($("#bottom-left").height() - offset) * .85);
+      // Bottom Left
+      var bottomLeftHeight = $("#bottom-left").height();
+      // var offset = $("#bottom-left .panel-heading").height() + 1;
+      $("#console").height(bottomLeftHeight);
 
-      var offset = $("#top-right ul").height() - 1;
+      // Top Right
+      var offset = $("#top-right ul").height() + 1;
       $("#environment").height($("#top-right").height() - offset);
       $("#history").height($("#top-right").height() - offset);
       $("#vars").height($("#top-right").height()*.7);
 
-      var offset = $("#bottom-right ul").height() - 1;
-      $("#packages").height($("#bottom-right").height() - offset);
-      $("#packages-container").height($("#bottom-right").height() - offset);
-      $("#plot-window").height($("#bottom-right").height() - offset);
-      $("#current-plot").css("max-height", $("#bottom-right").height() - offset - 25);
+      // Bottom Right
+      var tabOffset = $("#bottom-right .nav-tabs").height() + 1;
+      $("#bottomRightTabContent").height($("#bottom-right").height() - tabOffset);
+      // files
+      $("#file-list").height($("#bottomRightTabContent").height() - $("#working-directory").height());
+      // packages
+      $("#packages").height($("#bottom-right").height() - tabOffset);
+      var offset = 42 + 30 + 1; // $("#packages table").first().height() + $("#packages .row").first().height() + 1;
+      $("#packages-container").height($("#packages").height() - offset);
+
+      $("#plot-window").height($("#bottom-right").height() - tabOffset);
+      var offset = offset + 25; //13;
+      $("#plots img").css("max-height", $("#bottom-right").height() - offset);
     }
-    calibratePanes();
 
 
     // Tab stuff
-
     $("#add-tab").click(function(e) {
       e.preventDefault();
       var nEditors = $("#editors").children().length;
@@ -394,7 +412,6 @@
           } else if (reply==1) {
             // don't save
             $("#editorsTab .editor-tab-a").first().click();
-            console.log("#editor-tab-" + n)
             $("#editor-tab-" + n).remove();
             $("#editor-tab-pane-" + n).remove();
           } else {
@@ -452,9 +469,29 @@
       }
     });
 
+    $('#history-search').on('input', function() { 
+      var query = $(this).val().toLowerCase();
+      if (query=="") {
+        $("#history-trail p").removeClass("hide");
+      } else {
+        $("#history-trail p").each(function(i, cmd) {
+          var cmdText = $(cmd).text().toLowerCase();
+          if (cmdText.indexOf(query) >= 0) {
+            $(this).removeClass("hide");
+          } else {
+            $(this).addClass("hide");
+          }
+        });
+      }
+    });
+
   </script>
 
   <script type="text/javascript" src="../src/script2.js"></script>
   <script type="text/javascript" src="../src/menu.js"></script>
+  <script type="text/javascript">
+    // not sure why but this needs to happen last
+    calibratePanes();
+  </script
 </body>
 </html>

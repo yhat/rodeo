@@ -1,0 +1,3 @@
+#!/bin/bash
+
+../build/darwin/x64/Rodeo-darwin-x64/Rodeo.app/Contents/MacOS/Electron $1

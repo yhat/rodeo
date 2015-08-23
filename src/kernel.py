@@ -4,15 +4,20 @@ import StringIO
 import time
 import uuid
 import pip
+import os
 
 # monkey patching matplotlib
 import matplotlib
 import matplotlib.pyplot as plt
 matplotlib.use('Agg')
 
+plot_dir = ""
+
 
 def hijack_plots():
-    fname = "../static/plots/%d-%s.png" % (int(time.time()), str(uuid.uuid4()))
+    t = int(time.time())
+    _id = str(uuid.uuid4())
+    fname = os.path.join(plot_dir, "%d-%s.png" % (t, _id))
     plt.savefig(fname)
 
 plt.show = hijack_plots
@@ -32,7 +37,9 @@ variables.add("delim")
 variables.add("error")
 
 if __name__=="__main__":
-    delim = '\n' #sys.argv[1]
+    delim = sys.argv[1]
+    global plot_dir
+    plot_dir = sys.argv[2]
     mode = "ipython"
     line = sys.stdin.readline()
     while line:

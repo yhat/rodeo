@@ -11,19 +11,21 @@ var fs = require('fs');
 var fse = require('fs-extra');
 var uuid = require('uuid');
 var tmp = require('tmp');
-
 var abar = require('address_bar');
 var folder_view = require('folder_view');
 var watch = require("watch");
 
+// global vars
+var USER_HOME = process.env[(process.platform == 'win32') ? 'USERPROFILE' : 'HOME'];
+var plot_dir = tmp.dirSync();
+
 // watch the plots directory for changes
-var plot_dir = path.join(__dirname, "./plots");
-watch.createMonitor(plot_dir, function (monitor) {
+watch.createMonitor(plot_dir.name, function (monitor) {
   monitor.on("created", function (f, stat) {
-    var filename = 'file://' + __dirname + '/../static/' + f;
     $("#plots .active").removeClass("active").addClass("hide");
-    $("#plots").append('<img class="active" style="max-width: 100%;" src="' + filename + '" />');
+    $("#plots").append('<img class="active" style="max-height: 100%; max-width: 100%;" src="' + f + '" />');
     $('a[href="#plot-window"]').tab("show");
+    calibratePanes();
   });
 });
 
@@ -34,12 +36,12 @@ var delim = "\n";
 var callbacks = {};
 var pythonKernel = path.join(__dirname, "../src", "kernel.py");
 var kernelFile = tmp.fileSync();
-fs.writeFileSync(kernelFile.name, fs.readFileSync(pythonKernel).toString());
-var python = spawn("python", ["-u", kernelFile.name, delim]);
+fse.copySync(pythonKernel, kernelFile.name);
+var python = spawn("python", ["-u", kernelFile.name, delim, plot_dir.name]);
 
 // we'll print any feedback from the kernel as yellow text
 python.stderr.on("data", function(data) {
-  console.log(data.toString());
+  console.log(data.toString().yellow);
   // process.stderr.write(data.toString().yellow);
 });
 
@@ -48,6 +50,12 @@ python.on("error", function(err) {
 });
 
 python.on("exit", function(code) {
+  fs.unlink(kernelFile.name, function(err) {
+    if (err) {
+      console.log("failed to remove temporary kernel file: " + err);
+    }
+    // remove plot_dir (?)
+  });
   console.log("exited with code: " + code);
 });
 
@@ -117,6 +125,10 @@ refreshPackages();
 function sendCommand(input) {
   var html = history_row_template({ command: input });
   $("#history-trail").append(html);
+  // auto scroll down
+  $cont = $("#history-trail").parent();
+  $cont[0].scrollTop = $cont[0].scrollHeight;
+
   var payload = { id: uuid.v4(), code: input }
   callbacks[payload.id] = function(result) {
     if (/^help[(]/.test(result.code)) {
@@ -169,19 +181,19 @@ function showPlot() {
   var filename = $("img.active").attr("src");
   var params = {toolbar: false, resizable: false, show: true, height: 1000, width: 1000};
   var plotWindow = new BrowserWindow(params);
-  plotWindow.loadUrl(filename);
+  plotWindow.loadUrl("file://" + filename);
 }
 
 function savePlot() {
   remote.require('dialog').showSaveDialog({
     title:'Export Plot',
-    default_path: process.env[(process.platform == 'win32') ? 'USERPROFILE' : 'HOME'],
+    default_path: USER_HOME,
   }, function(destfile) {
     if (! destfile) {
       return
     }
     // get rid of 'file://'
-    var srcfile = $("img.active").attr("src").slice(7);
+    var srcfile = $("img.active").attr("src");
     fse.copy(srcfile, destfile, function (err) {
       if (err) {
         return console.error(err);
@@ -202,7 +214,7 @@ function saveEditor(editor, saveas, fn) {
   if (! $("#editorsTab .active a").attr("data-filename") || saveas==true) {
     remote.require('dialog').showSaveDialog({
       title: "Save File",
-      default_path: process.env[(process.platform == 'win32') ? 'USERPROFILE' : 'HOME'],
+      default_path: USER_HOME,
       }, function(destfile) {
         if (! destfile) {
           if (fn) {
@@ -230,7 +242,6 @@ function saveEditor(editor, saveas, fn) {
 function openFile(pathname) {
   if (fs.lstatSync(pathname).isDirectory()) {
     var directory = pathname;
-    console.log("CWD: " + directory)
     setFiles(pathname);
   } else {
     // then it's a file
@@ -249,7 +260,7 @@ function openFile(pathname) {
 function openDialog() {
   remote.require('dialog').showOpenDialog({
     title: "Open File",
-    default_path: process.env[(process.platform == 'win32') ? 'USERPROFILE' : 'HOME'],
+    default_path: USER_HOME,
   }, function(files) {
     if (files) {
       files.forEach(function(filename) {
@@ -263,6 +274,8 @@ function openDialog() {
 function setFiles(dir) {
   var files = fs.readdirSync(dir);
   $("#file-list").children().remove();
+  $("#working-directory").children().remove();
+  $("#working-directory").append("<a class='list-group-item' style='padding: 5px 10px;'><i class='fa fa-sitemap' style='color: grey;'></i>&nbsp;&nbsp;" + dir.replace(USER_HOME, "~") + "/</a>");
   $("#file-list").append(file_template({
     isDir: true,
     filename: path.join(dir, '..'),
@@ -292,4 +305,5 @@ function setFiles(dir) {
     }));
   }.bind(this));
 }
-setFiles(process.env[(process.platform == 'win32') ? 'USERPROFILE' : 'HOME']);
+
+setFiles("/Users/glamp/repos/yhat/prototypes/rodeo-osx/ui")
