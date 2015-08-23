@@ -28,7 +28,8 @@
     "jquery": "^2.1.4",
     "tmp": "0.0.27",
     "uuid": "^2.0.1",
-    "watch": "^0.16.0"
+    "watch": "^0.16.0",
+    "zmq": "^2.12.0"
   },
   "scripts": {
     "start": "electron .",

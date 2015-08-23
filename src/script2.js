@@ -17,18 +17,6 @@ var watch = require("watch");
 
 // global vars
 var USER_HOME = process.env[(process.platform == 'win32') ? 'USERPROFILE' : 'HOME'];
-var plot_dir = tmp.dirSync();
-
-// watch the plots directory for changes
-watch.createMonitor(plot_dir.name, function (monitor) {
-  monitor.on("created", function (f, stat) {
-    $("#plots .active").removeClass("active").addClass("hide");
-    $("#plots").append('<img class="active" style="max-height: 100%; max-width: 100%;" src="' + f + '" />');
-    $('a[href="#plot-window"]').tab("show");
-    calibratePanes();
-  });
-});
-
 
 // Python Kernel
 var spawn = require('child_process').spawn;
@@ -37,7 +25,8 @@ var callbacks = {};
 var pythonKernel = path.join(__dirname, "../src", "kernel.py");
 var kernelFile = tmp.fileSync();
 fse.copySync(pythonKernel, kernelFile.name);
-var python = spawn("python", ["-u", kernelFile.name, delim, plot_dir.name]);
+var configFile = tmp.fileSync();
+var python = spawn("python", ["-u",  kernelFile.name, configFile.name + ".json", delim]);
 
 // we'll print any feedback from the kernel as yellow text
 python.stderr.on("data", function(data) {
@@ -54,7 +43,7 @@ python.on("exit", function(code) {
     if (err) {
       console.log("failed to remove temporary kernel file: " + err);
     }
-    // remove plot_dir (?)
+    // remove var_dir (?)
   });
   console.log("exited with code: " + code);
 });
@@ -85,12 +74,11 @@ python.stdout.on("data", function(data) {
   }
 });
 
-python.stdin.write(JSON.stringify({ code: ""}) + delim);
-
+// End Python Kernel
 
 
 function refreshVariables() {
-  var payload = { id: uuid.v4(), code: "getvars" }
+  var payload = { id: uuid.v4(), code: "__get_variables()" }
   callbacks[payload.id] = function(result) {
     var variables = JSON.parse(result.output);
     $("#vars").children().remove();
@@ -107,7 +95,7 @@ refreshVariables();
 
 
 function refreshPackages() {
-  var payload = { id: uuid.v4(), code: "packages" }
+  var payload = { id: uuid.v4(), code: "__get_packages()" }
   callbacks[payload.id] = function(result) {
     var packages = JSON.parse(result.output);
     $("#packages-rows").children().remove();
@@ -123,6 +111,9 @@ refreshPackages();
 
 
 function sendCommand(input) {
+  if (/^\?/.test(input)) {
+    input = "help(" + input.slice(1) + ")"
+  }
   var html = history_row_template({ command: input });
   $("#history-trail").append(html);
   // auto scroll down
@@ -131,12 +122,23 @@ function sendCommand(input) {
 
   var payload = { id: uuid.v4(), code: input }
   callbacks[payload.id] = function(result) {
-    if (/^help[(]/.test(result.code)) {
+    if (/^help[(]/.test(input)) {
       $("#help-content").text(result.output);
       $('a[href="#help"]').tab("show");
       return;
+    } else {
+      if (result.image) {
+        var plotImage = "data:image/png;charset=utf-8;base64," + result.image;
+        $("#plots .active").removeClass("active").addClass("hide");
+        $("#plots").append('<img class="active" style="max-height: 100%; max-width: 100%;" src="' + plotImage + '" />');
+        $('a[href="#plot-window"]').tab("show");
+        calibratePanes();
+      }
+      jqconsole.Write(result.output + "\n");
     }
-    jqconsole.Write(result.output + "\n");
+    if (result.error) {
+      jqconsole.Write(result.error + '\n', 'jqconsole-error');
+    }
     refreshVariables();
   }
   python.stdin.write(JSON.stringify(payload) + delim);
