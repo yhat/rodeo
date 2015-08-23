@@ -13,7 +13,6 @@ var uuid = require('uuid');
 var tmp = require('tmp');
 var abar = require('address_bar');
 var folder_view = require('folder_view');
-var watch = require("watch");
 
 // global vars
 var USER_HOME = process.env[(process.platform == 'win32') ? 'USERPROFILE' : 'HOME'];
