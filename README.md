@@ -1,5 +1,9 @@
-TODOs
-- [ ] node.js to ipython kernel module
+# Rodeo Native
+
+## TODOs
+- [x] node.js to ipython kernel module
+    - [x] plots
+    - [ ] "null" displayed when there is nothing to display
     - [ ] autocomplete
 - [ ] preferences
 - [ ] convert to LESS
