@@ -25,7 +25,7 @@ var pythonKernel = path.join(__dirname, "../src", "kernel.py");
 var kernelFile = tmp.fileSync();
 fse.copySync(pythonKernel, kernelFile.name);
 var configFile = tmp.fileSync();
-var python = spawn("python", ["-u",  kernelFile.name, configFile.name + ".json", delim]);
+var python = spawn("/usr/local/bin/python", ["-u",  kernelFile.name, configFile.name + ".json", delim]);
 
 // we'll print any feedback from the kernel as yellow text
 python.stderr.on("data", function(data) {
@@ -86,7 +86,12 @@ function refreshVariables() {
           name: v.name, type: v.dtype
         })
       );
+    }.bind(this));
+    // configure column widths
+    $("#vars tr").first().children().each(function(i, el) {
+      $($("#vars-header th")[i]).css("width", $(el).css("width"));
     });
+
   }
   python.stdin.write(JSON.stringify(payload) + delim);
 }
@@ -133,7 +138,7 @@ function sendCommand(input) {
         $('a[href="#plot-window"]').tab("show");
         calibratePanes();
       }
-      jqconsole.Write(result.output + "\n");
+      jqconsole.Write(result.output || "" + "\n");
     }
     if (result.error) {
       jqconsole.Write(result.error + '\n', 'jqconsole-error');

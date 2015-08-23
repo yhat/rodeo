@@ -3,10 +3,10 @@
 ## TODOs
 - [x] node.js to ipython kernel module
     - [x] plots
-    - [ ] "null" displayed when there is nothing to display
+    - [x] "null" displayed when there is nothing to display
     - [ ] autocomplete
 - [ ] add "Set Working Directory" button on files UI
-- [ ] make headers and rows in all tables have the same width
+- [x] make headers and rows in all tables have the same width
 - [ ] code history not showing new lines
 - [ ] editors sometimes behave strangely. i think it's something to do with the IDs not being unique (think this is b/c you can have multiple `editor-1` if you open, close, then open again).
 - [ ] preferences
