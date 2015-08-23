@@ -1,6 +1,9 @@
 TODOs
 - [ ] node.js to ipython kernel module
     - [ ] autocomplete
+- [ ] preferences
+- [ ] convert to LESS
+- [ ] uglify/minify JS?
 - [x] better responsive window sizing
 - [x] build package
 - [x] logo
