@@ -58,11 +58,9 @@
 
     });
     </script>
-    <script src="js/lib/jquery.dataTables.min.js"></script>
     <script src="js/lib/jquery.splitter-0.15.0.js"></script>
     <script src="js/lib/bootstrap.min.js"></script>
     <script src="js/lib/jqconsole.min.js"></script>
-    <script src="js/lib/ascii-table.min.js"></script>
     <script src="ace/ace.js"></script>
     <script src="ace/ext-language_tools.js"></script>
 
@@ -85,12 +83,7 @@
         <td>{{name}}</td>
         <td>{{type}}</td>
         <td style="td-align: center;">
-        {{#compare type "DataFrame"}}
-          <a href="#" onclick="showVariable('{{name}}', '{{type}}');"><span class='fa fa-table' aria-hidden='true'></span></a>
-        {{/compare}}
-        {{#compare type "list-no"}}
-          <a href="#" onclick="showVariable('{{name}}', '{{type}}');"><span class='fa fa-list-alt' aria-hidden='true'></span></a>
-        {{/compare}}        
+          <a href="#" onclick="showVariable('{{name}}', '{{type}}');"><span class='fa {{#compare type "DataFrame"}}fa-table{{/compare}}{{#compare type "list"}}fa-list-alt{{/compare}}' aria-hidden='true'></span></a>
         </td>
       </tr>
     </script>
@@ -108,11 +101,7 @@
 
     <script id="file-template" type="text/x-handlebars-template">
       <a onclick="openFile('{{filename}}');" data-parnet-slug="" data-dirname="top_dir" href="#" class="list-group-item showdir" style="padding: 5px 10px;">
-        {{#isDir}}
-          <i class="fa fa fa-folder" style="color: grey;"></i>
-        {{else}}
-          <i class="fa fa fa-file-o"></i>
-        {{/isDir}}
+          <i class="fa fa {{#isDir}}fa-folder{{else}}fa-file-o{{/isDir}}" style="{{#isDir}}color: grey;{{/isDir}}"></i>
         &nbsp;&nbsp;{{basename}}
       </a>
     </script>

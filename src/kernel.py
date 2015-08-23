@@ -32,7 +32,7 @@ variables.add("delim")
 variables.add("error")
 
 if __name__=="__main__":
-    delim = sys.argv[1]
+    delim = '\n' #sys.argv[1]
     mode = "ipython"
     line = sys.stdin.readline()
     while line:

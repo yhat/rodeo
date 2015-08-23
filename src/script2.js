@@ -10,6 +10,7 @@ var colors = require('colors');
 var fs = require('fs');
 var fse = require('fs-extra');
 var uuid = require('uuid');
+var tmp = require('tmp');
 
 var abar = require('address_bar');
 var folder_view = require('folder_view');
@@ -31,11 +32,31 @@ watch.createMonitor(plot_dir, function (monitor) {
 var spawn = require('child_process').spawn;
 var delim = "\n";
 var callbacks = {};
-var python = spawn("python", ["-u", path.join(__dirname, "src", "kernel.py"), delim]);
+var pythonKernel = path.join(__dirname, "../src", "kernel.py");
+var kernelFile = tmp.fileSync();
+fs.writeFileSync(kernelFile.name, fs.readFileSync(pythonKernel).toString());
+var python = spawn("python", ["-u", kernelFile.name, delim]);
 
 // we'll print any feedback from the kernel as yellow text
 python.stderr.on("data", function(data) {
-  process.stderr.write(data.toString().yellow);
+  console.log(data.toString());
+  // process.stderr.write(data.toString().yellow);
+});
+
+python.on("error", function(err) {
+  console.log(err.toString());
+});
+
+python.on("exit", function(code) {
+  console.log("exited with code: " + code);
+});
+
+python.on("close", function(code) {
+  console.log("closed with code: " + code);
+});
+
+python.on("disconnect", function() {
+  console.log("disconnected");
 });
 
 var chunk = "";
