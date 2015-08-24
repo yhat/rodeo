@@ -11,13 +11,13 @@ var template = [
       {
         type: 'separator'
       },
-      {
-        label: 'Preferences',
-        accelerator: 'CmdOrCtrl+,',
-        click: function() {
-          showPreferences();
-        }
-      },
+      // {
+      //   label: 'Preferences',
+      //   accelerator: 'CmdOrCtrl+,',
+      //   click: function() {
+      //     showPreferences();
+      //   }
+      // },
       {
         type: 'separator'
       },
@@ -194,7 +194,22 @@ var template = [
     label: 'Session',
     submenu: [
       {
-        label: 'Restart Session'
+        label: 'Restart Session',
+        click: function() {
+          remote.require('dialog').showMessageBox({
+            type: "warning",
+            buttons: ["Yes", "Cancel"],
+            message: "Are you sure you want to restart your Python session?",
+            detail: "Your data and variables will be deleted permanently."
+          }, function(reply) {
+            if (reply==0) {
+              // yes, nuke it
+              sendCommand("%reset -f");
+            } else
+              // do nothing
+              return;
+            });
+        }
       },
       {
         label: 'Set Working Directory',

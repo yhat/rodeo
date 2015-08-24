@@ -20,9 +20,9 @@ $ electron .
     - [x] autocomplete
 - [x] add "Set Working Directory" button on files UI
 - [x] make headers and rows in all tables have the same width
-- [ ] implement "restart session"
-- [ ] fix "*" for unsaved files
-- [ ] code history not showing new lines
+- [x] implement "restart session"
+- [x] fix "*" for unsaved files
+- [x] code history not showing new lines
 - [x] editors sometimes behave strangely. i think it's something to do with the IDs not being unique (think this is b/c you can have multiple `editor-1` if you open, close, then open again).
 - [ ] preferences
 - [ ] convert to LESS

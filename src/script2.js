@@ -81,6 +81,10 @@ python.stdout.on("data", function(data) {
 function refreshVariables() {
   var payload = { id: uuid.v4(), code: "__get_variables()" }
   callbacks[payload.id] = function(result) {
+    if (! result.output) {
+      console.error("[ERROR]: Result from code execution was null.");
+      return;
+    }
     var variables = JSON.parse(result.output);
     $("#vars").children().remove();
     variables.forEach(function(v) {
@@ -258,9 +262,14 @@ function openFile(pathname) {
     $("#add-tab").click();
     $("#editorsTab li:nth-last-child(2) .name").text(basename);
     $("#editorsTab li:nth-last-child(2) a").attr("data-filename", filename);
-    var editor = ace.edit($("#editors .editor").last().attr("id"));
+    var id = $("#editors .editor").last().attr("id");
+    var editor = ace.edit(id);
     editor.getSession().setValue(fs.readFileSync(filename).toString());
     $("#editorsTab li:nth-last-child(2) a").click();
+    // set to not modified -- NOT IDEAL but it works :)
+    setTimeout(function() {
+      $("#" + id.replace("editor", "editor-tab") + " .unsaved").addClass("hide");
+    }, 50);
   }
 }
 

@@ -89,7 +89,7 @@
     </script>
 
     <script id="history-row-template" type="text/x-handlebars-template">
-      <p><span>{{command}}</span></p>
+      <p><span style="white-space: pre-wrap;">{{command}}</span></p>
     </script>
 
 
@@ -404,6 +404,8 @@
       $(editor_tab_html).insertBefore($("#add-tab").parent());
       $("#editors").append(editor_html);
       createEditor("editor-" + id);
+      // set to the active tab
+      $("#editor-tab-" + id + " .editor-tab-a").click();
       return false;
     });
 
