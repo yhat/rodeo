@@ -11,13 +11,13 @@ var template = [
       {
         type: 'separator'
       },
-      // {
-      //   label: 'Preferences',
-      //   accelerator: 'CmdOrCtrl+,',
-      //   click: function() {
-      //     showPreferences();
-      //   }
-      // },
+      {
+        label: 'Preferences',
+        accelerator: 'CmdOrCtrl+,',
+        click: function() {
+          showPreferences();
+        }
+      },
       {
         type: 'separator'
       },
@@ -146,8 +146,9 @@ var template = [
             label: 'Editor',
             accelerator: 'CmdOrCtrl+1',
             click: function() {
-              // TODO: for some reason this has a horrible bug in it that changes your editor text to "XXXXXXXXXXXXXXXXX" :(
-              // ace.edit($("#editors .active").attr("id")).focus();
+              var id = $("#editors .active .editor").attr("id");
+              var editor = ace.edit(id);
+              editor.focus();
             }
           },
           {
@@ -207,7 +208,7 @@ var template = [
           }, function(reply) {
             if (reply==0) {
               // yes, nuke it
-              sendCommand("%reset -f");
+              sendCommand("%reset -f", false);
             } else
               // do nothing
               return;

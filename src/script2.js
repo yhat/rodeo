@@ -120,7 +120,7 @@ function refreshPackages() {
 refreshPackages();
 
 
-function sendCommand(input) {
+function sendCommand(input, hideResult) {
   if (/^\?/.test(input)) {
     input = "help(" + input.slice(1) + ")"
   }
@@ -137,6 +137,10 @@ function sendCommand(input) {
       $('a[href="#help"]').tab("show");
       return;
     } else {
+      if (hideResult==true) {
+        return;
+      }
+
       if (result.image) {
         var plotImage = "data:image/png;charset=utf-8;base64," + result.image;
         $("#plots .active").removeClass("active").addClass("hide");
@@ -144,6 +148,7 @@ function sendCommand(input) {
         $('a[href="#plot-window"]').tab("show");
         calibratePanes();
       }
+
       jqconsole.Write((result.output || "") + "\n");
     }
     if (result.error) {
@@ -162,7 +167,7 @@ function showAbout(varname) {
 }
 
 function showPreferences() {
-  var params = {toolbar: false, resizable: true, show: true, height: 800, width: 450};
+  var params = {toolbar: false, resizable: true, show: true, height: 450, width: 450};
   var prefsWindow = new BrowserWindow(params);
   prefsWindow.loadUrl('file://' + __dirname + '/../static/preferences.html');
 }
@@ -193,7 +198,7 @@ function showPlot() {
   var filename = $("img.active").attr("src");
   var params = {toolbar: false, resizable: false, show: true, height: 1000, width: 1000};
   var plotWindow = new BrowserWindow(params);
-  plotWindow.loadUrl("file://" + filename);
+  plotWindow.loadUrl(filename);
 }
 
 function savePlot() {
@@ -204,9 +209,9 @@ function savePlot() {
     if (! destfile) {
       return
     }
-    // get rid of 'file://'
-    var srcfile = $("img.active").attr("src");
-    fse.copy(srcfile, destfile, function (err) {
+    // get rid of inline business
+    var img = $("img.active").attr("src").replace("data:image/png;charset=utf-8;base64,", "");
+    fs.writeFile(destfile, img, 'base64', function(err) {
       if (err) {
         return console.error(err);
       }
@@ -289,6 +294,16 @@ function openDialog() {
 
 
 function setFiles(dir) {
+  // set ipython working directory
+  var payload = {
+    id: uuid.v4(),
+    code: "cd " + dir
+  }
+  callbacks[payload.id] = function(result) {
+    // do nothing
+  }
+  python.stdin.write(JSON.stringify(payload) + '\n');
+
   var files = fs.readdirSync(dir);
   $("#file-list").children().remove();
   $("#working-directory").children().remove();
@@ -338,5 +353,11 @@ function pickWorkingDirectory() {
     setFiles(wd);
   });
 }
+
+function setConsoleWidth(w) {
+  var code = "pd.set_option('display.width', " + w + ")";
+  sendCommand(code, true);
+}
+
 setFiles(USER_HOME)
 // setFiles("/Users/glamp/repos/yhat/prototypes/rodeo-osx/ui")

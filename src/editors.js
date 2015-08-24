@@ -67,9 +67,11 @@ function createEditor(id) {
         var currline = editor.getSelectionRange().start.row;
         text = editor.session.getLine(currline);
       }
-      jqconsole.Write(">>> " + text + '\n', 'jqconsole-input');
+      jqconsole.Write(">>> " + text + '\n', 'jqconsole-old-input');
+      jqconsole.SetHistory(jqconsole.GetHistory().concat([text]));
       sendCommand(text);
-      editor.scrollToLine(currline + 1, true, true, function () {});
+      // this seems to behave better without the scroll getting in th way...
+      // editor.scrollToLine(currline + 1, true, true, function () {});
       editor.gotoLine(currline + 2, 10, true);
     }
   });

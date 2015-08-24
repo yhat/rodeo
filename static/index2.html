@@ -109,23 +109,21 @@
 
     <script id="wd-template" type="text/x-handlebars-template">
       <a class="list-group-item" style="padding: 5px 10px;">
+        <i onclick="pickWorkingDirectory();" class="fa fa-wrench" style="color: grey;"></i>&nbsp;|
         <i class="fa fa-sitemap" style="color: grey;"></i>&nbsp;&nbsp;{{dir}}
-        <i onclick="pickWorkingDirectory();" class="fa fa-wrench pull-right" style="color: grey;"></i>
       </a>
     </script>
-
-                
 
     <script type="text/javascript">
     var source   = $("#editor-template").html();
     var editor_template = Handlebars.compile(source);
-    
+
     var source   = $("#editor-tab-template").html();
     var editor_tab_template = Handlebars.compile(source);
-    
+
     var source   = $("#active-variables-row-template").html();
     var active_variables_row_template = Handlebars.compile(source);
-    
+
     var source   = $("#history-row-template").html();
     var history_row_template = Handlebars.compile(source);
 
@@ -202,6 +200,7 @@
             <!-- editor tabs go here -->
             <li><a href="#" id="add-tab"><i class="fa fa-plus-square-o"></i></a></li>
           </ul>
+          </ul>
           <div id="editors" class="tab-content">
           </div>
           <!-- end editors -->
@@ -219,8 +218,8 @@
         <!-- TOP RIGHT -->
         <div id="top-right">
           <ul class="nav nav-tabs">
-            <li class="active"><a href="#environment" data-toggle="tab">Data Frames</a></li>
-            <li><a href="#history" data-toggle="tab">History</a></li>
+            <li class="active"><a href="#environment" data-toggle="tab"><i class="fa fa-table"></i>&nbsp;Data Frames</a></li>
+            <li><a href="#history" data-toggle="tab"><i class="fa fa-history"></i>&nbsp;History</a></li>
           </ul>
           <div id="myTabContent" class="tab-content">
             <div class="tab-pane active in top-right" id="environment">
@@ -255,10 +254,10 @@
         <!-- BOTTOM RIGHT -->
         <div id="bottom-right">
           <ul class="nav nav-tabs">
-            <li class="active"><a href="#files" data-toggle="tab">Files</a></li>
-            <li><a href="#plot-window" data-toggle="tab">Plots</a></li>
-            <li><a href="#packages" data-toggle="tab">Packages</a></li>
-            <li><a href="#help" data-toggle="tab">Help</a></li>
+            <li class="active"><a href="#files" data-toggle="tab"><i class="fa fa-file-text-o"></i>&nbsp;Files</a></li>
+            <li><a href="#plot-window" data-toggle="tab"><i class="fa fa-bar-chart"></i>&nbsp;Plots</a></li>
+            <li><a href="#packages" data-toggle="tab"><i class="fa fa-archive"></i>&nbsp;Packages</a></li>
+            <li><a href="#help" data-toggle="tab"><i class="fa fa-life-ring"></i>&nbsp;Help</a></li>
           </ul>
           <div id="bottomRightTabContent" class="tab-content">
             <!-- File Nav -->
@@ -283,7 +282,7 @@
             <div class="tab-pane" id="packages">
               <div class="row">
                 <div class="col-sm-4">
-                  <!-- 
+                  <!--
                   <a class="label label-primary" title=""><i class="fa fa-download"></i>&nbsp;&nbsp;Install Packages</a>
                   <a class="label label-warning" title=""><i class="fa fa-refresh"></i>&nbsp;&nbsp;Update Packages</a>
                   -->
@@ -366,6 +365,8 @@
       var bottomLeftHeight = $("#bottom-left").height();
       // var offset = $("#bottom-left .panel-heading").height() + 1;
       $("#console").height(bottomLeftHeight);
+      // TODO: this is getting called constantly
+      // setConsoleWidth($("#console").width());
 
       // Top Right
       var offset = $("#top-right ul").height() + 1;
@@ -383,9 +384,14 @@
       var offset = 42 + 30 + 1; // $("#packages table").first().height() + $("#packages .row").first().height() + 1;
       $("#packages-container").height($("#packages").height() - offset);
 
+      // plots
       $("#plot-window").height($("#bottom-right").height() - tabOffset);
       var offset = offset + 25; //13;
       $("#plots img").css("max-height", $("#bottom-right").height() - offset);
+      // help
+      $("#help-content").parent().height($("#bottom-right").height() - tabOffset);
+      $("#help-content").height($("#bottom-right").height() - tabOffset);
+
     }
 
 
@@ -468,7 +474,7 @@
       $(currentPlot).remove();
     }
 
-    $('#pkg-search').on('input', function() { 
+    $('#pkg-search').on('input', function() {
       var query = $(this).val().toLowerCase();
       if (query=="") {
         $("#packages-rows tr").removeClass("hide");
@@ -484,7 +490,7 @@
       }
     });
 
-    $('#history-search').on('input', function() { 
+    $('#history-search').on('input', function() {
       var query = $(this).val().toLowerCase();
       if (query=="") {
         $("#history-trail p").removeClass("hide");
