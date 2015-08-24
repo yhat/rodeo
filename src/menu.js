@@ -51,7 +51,9 @@ var template = [
       {
         label: 'New',
         accelerator: 'CmdOrCtrl+N',
-        selector: 'new:'
+        click: function() {
+          $("#add-tab").click();
+        }
       },
       {
         label: 'Open',
@@ -144,7 +146,8 @@ var template = [
             label: 'Editor',
             accelerator: 'CmdOrCtrl+1',
             click: function() {
-              ace.edit($("#editors .active").attr("id")).focus();
+              // TODO: for some reason this has a horrible bug in it that changes your editor text to "XXXXXXXXXXXXXXXXX" :(
+              // ace.edit($("#editors .active").attr("id")).focus();
             }
           },
           {

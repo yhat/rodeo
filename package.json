@@ -32,6 +32,6 @@
   "scripts": {
     "start": "electron .",
     "test": "echo 0",
-    "build": "electron-compile --target ./cache src/ static/ --verbose"
+    "build": "electron-compile --target ./cache src/ static/ --verbose && node scripts/build.js"
   }
 }
