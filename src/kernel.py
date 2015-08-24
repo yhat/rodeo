@@ -138,10 +138,7 @@ class Kernel(object):
             elif reply['header']['msg_type']=="error":
                 output['error'] = "\n".join(reply['content']['traceback'])
 
-    def execute(self, code):
-        return self._run_code(code)
-
-    def complete(self, code, timeout=0.1):
+    def _complete(self, code, timeout=0.1):
         # Call ipython kernel complete, wait for response with the correct msg_id,
         # and construct appropriate UI payload.
         # See below for an example response from ipython kernel completion for 'el'
@@ -194,6 +191,12 @@ class Kernel(object):
                 #I've observed parent_header msg_types: kernel_info_request, execute_request
                 #Just discard for now
 
+    def execute(self, code, complete=False):
+        if complete==True:
+            return self._complete(data)
+        else:
+            return self._run_code(code)
+
     def get_dataframes(self):
         return self.execute("__get_variables()")
 
@@ -207,6 +210,7 @@ if __name__=="__main__":
     while True:
         line = sys.stdin.readline()
         data = json.loads(line)
-        output = k.execute(data['code'])
+        output = k.execute(data['code'], data.get('complete', False))
+        sys.stderr.write(json.dumps(output) + "\n")
         output['id'] = data['id']
         sys.stdout.write(json.dumps(output) + '\n')
