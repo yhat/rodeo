@@ -106,6 +106,14 @@
         &nbsp;&nbsp;{{basename}}
       </a>
     </script>
+
+    <script id="wd-template" type="text/x-handlebars-template">
+      <a class="list-group-item" style="padding: 5px 10px;">
+        <i class="fa fa-sitemap" style="color: grey;"></i>&nbsp;&nbsp;{{dir}}
+        <i onclick="pickWorkingDirectory();" class="fa fa-wrench pull-right" style="color: grey;"></i>
+      </a>
+    </script>
+
                 
 
     <script type="text/javascript">
@@ -124,9 +132,11 @@
     var source   = $("#package-row-template").html();
     var package_row_template = Handlebars.compile(source);
 
-    
     var source   = $("#file-template").html();
     var file_template = Handlebars.compile(source);
+
+    var source   = $("#wd-template").html();
+    var wd_template = Handlebars.compile(source);
 
     </script>
 
@@ -382,17 +392,20 @@
     // Tab stuff
     $("#add-tab").click(function(e) {
       e.preventDefault();
-      var nEditors = $("#editors").children().length;
-      var editor_tab_html = editor_tab_template({ n: nEditors, name: "Untitled-" + nEditors + ".py", isFirst: nEditors==0});
-      var editor_html = editor_template({ n: nEditors });
+      var id;
+      if ($("#editors").children().length) {
+        id = parseInt($("#editors").children().last().attr("id").split("-pane-")[1]) + 1;
+      } else {
+        id = 1;
+      }
+      var editor_tab_html = editor_tab_template({ n: id, name: "Untitled-" + id + ".py", isFirst: id==0});
+      var editor_html = editor_template({ n: id });
 
       $(editor_tab_html).insertBefore($("#add-tab").parent());
       $("#editors").append(editor_html);
-      createEditor("editor-" + nEditors);
+      createEditor("editor-" + id);
       return false;
     });
-    // should always be a first tab
-    $("#add-tab").click();
 
     function closeActiveTab(n) {
       if (! $("#editor-tab-" + n + " .unsaved").hasClass("hide")) {
@@ -492,6 +505,8 @@
   <script type="text/javascript">
     // not sure why but this needs to happen last
     calibratePanes();
+    // should always be a first tab
+    $("#add-tab").click();
   </script
 </body>
 </html>

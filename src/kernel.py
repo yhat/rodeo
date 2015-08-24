@@ -138,7 +138,7 @@ class Kernel(object):
             elif reply['header']['msg_type']=="error":
                 output['error'] = "\n".join(reply['content']['traceback'])
 
-    def _complete(self, code, timeout=0.1):
+    def _complete(self, code, timeout=0.5):
         # Call ipython kernel complete, wait for response with the correct msg_id,
         # and construct appropriate UI payload.
         # See below for an example response from ipython kernel completion for 'el'
@@ -183,8 +183,7 @@ class Kernel(object):
                         result['text'] = result['value']
                         result["dtype"] = "session variable" # type(globals().get(code)).__name__
                     results.append(result)
-                jsonresults = json.dumps(results)
-                output['output'] = jsonresults
+                output['output'] = results
                 return output
             #else:
                 #Don't know what to do with the rest.
@@ -193,7 +192,7 @@ class Kernel(object):
 
     def execute(self, code, complete=False):
         if complete==True:
-            return self._complete(data)
+            return self._complete(code)
         else:
             return self._run_code(code)
 
@@ -211,6 +210,5 @@ if __name__=="__main__":
         line = sys.stdin.readline()
         data = json.loads(line)
         output = k.execute(data['code'], data.get('complete', False))
-        sys.stderr.write(json.dumps(output) + "\n")
         output['id'] = data['id']
         sys.stdout.write(json.dumps(output) + '\n')

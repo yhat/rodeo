@@ -199,14 +199,7 @@ var template = [
       {
         label: 'Set Working Directory',
         click: function() {
-          remote.require('dialog').showOpenDialog({
-            title: 'Select a Working Directory',
-            properties: ['openDirectory'],
-            defaultPath: process.env[(process.platform == 'win32') ? 'USERPROFILE' : 'HOME']
-          }, function(wd) {
-            var wd = wd[0];
-            setFiles(wd);
-          });
+          pickWorkingDirectory();
         }
       }
     ]

@@ -20,7 +20,7 @@ var USER_HOME = process.env[(process.platform == 'win32') ? 'USERPROFILE' : 'HOM
 // Python Kernel
 var spawn = require('child_process').spawn;
 var delim = "\n";
-var callbacks = {};
+global.callbacks = {};
 var pythonKernel = path.join(__dirname, "../src", "kernel.py");
 var kernelFile = tmp.fileSync();
 fse.copySync(pythonKernel, kernelFile.name);
@@ -68,6 +68,8 @@ python.stdout.on("data", function(data) {
     if (result.id in callbacks) {
       callbacks[result.id](result);
       delete callbacks[result.id];
+    } else {
+      console.log("[ERROR]: " + "callback not found for: " + result.id + " --> " + JSON.stringify(result));
     }
     chunk = chunk.slice(idx + 1);
   }
@@ -138,7 +140,7 @@ function sendCommand(input) {
         $('a[href="#plot-window"]').tab("show");
         calibratePanes();
       }
-      jqconsole.Write(result.output || "" + "\n");
+      jqconsole.Write((result.output || "") + "\n");
     }
     if (result.error) {
       jqconsole.Write(result.error + '\n', 'jqconsole-error');
@@ -281,7 +283,9 @@ function setFiles(dir) {
   var files = fs.readdirSync(dir);
   $("#file-list").children().remove();
   $("#working-directory").children().remove();
-  $("#working-directory").append("<a class='list-group-item' style='padding: 5px 10px;'><i class='fa fa-sitemap' style='color: grey;'></i>&nbsp;&nbsp;" + dir.replace(USER_HOME, "~") + "/</a>");
+  $("#working-directory").append(wd_template({
+    dir: dir.replace(USER_HOME, "~")
+  }));
   $("#file-list").append(file_template({
     isDir: true,
     filename: path.join(dir, '..'),
@@ -312,4 +316,18 @@ function setFiles(dir) {
   }.bind(this));
 }
 
-setFiles("/Users/glamp/repos/yhat/prototypes/rodeo-osx/ui")
+function pickWorkingDirectory() {
+  remote.require('dialog').showOpenDialog({
+    title: 'Select a Working Directory',
+    properties: ['openDirectory'],
+    defaultPath: USER_HOME
+  }, function(wd) {
+    if (! wd) {
+      return;
+    }
+    var wd = wd[0];
+    setFiles(wd);
+  });
+}
+setFiles(USER_HOME)
+// setFiles("/Users/glamp/repos/yhat/prototypes/rodeo-osx/ui")
