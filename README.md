@@ -18,17 +18,26 @@ $ electron .
     - [x] plots
     - [x] "null" displayed when there is nothing to display
     - [x] autocomplete
+      - [x] editor
+      - [x] console
+    - [ ] autocomplete for packages names
+- [-] Uncaught TypeError: path must be a string
+      Uncaught TypeError: Cannot read property 'text' of undefined console.js:101
 - [x] add "Set Working Directory" button on files UI
 - [x] make headers and rows in all tables have the same width
 - [x] implement "restart session"
 - [x] shortcut for new editor
-- [-] column width same as the console in the editor
-- [ ] autocomplete for packages names
+- [?] column width same as the console in the editor
 - [x] automatic go to next line is jumping all over the place
 - [x] search!!!
+- [x] preferences
+- [x] convert to LESS
+- [?] bug on open files
+- [x] shortcuts for running commands in your history
 - [ ] run button
-- [ ] autosave option
-- [ ] ctrl + w for variable window (can't quite figure this one out)
+- [x] zoom in/out
+- [x] autosave option
+- [x] ctrl + w for variable window (can't quite figure this one out)
 - [x] help "table" size
 - [x] package table size
 - [x] focus bug w/ XXXXXXX
@@ -37,9 +46,8 @@ $ electron .
 - [x] `setwd` in python instance
 - [?] setwd icon looks bad
 - [x] code history not showing new lines
-- [-] preferences
-- [ ] convert to LESS
 - [ ] uglify/minify JS?
+- [x] dialogs should open in current working directory
 - [x] better responsive window sizing
 - [x] build package
 - [x] add in logo

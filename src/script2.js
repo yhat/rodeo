@@ -16,6 +16,8 @@ var folder_view = require('folder_view');
 
 // global vars
 var USER_HOME = process.env[(process.platform == 'win32') ? 'USERPROFILE' : 'HOME'];
+var USER_WD = USER_HOME;
+var variableWindow;
 
 // Python Kernel
 var spawn = require('child_process').spawn;
@@ -124,7 +126,7 @@ function sendCommand(input, hideResult) {
   if (/^\?/.test(input)) {
     input = "help(" + input.slice(1) + ")"
   }
-  var html = history_row_template({ command: input });
+  var html = history_row_template({ n: $("#history-trail").children().length, command: input });
   $("#history-trail").append(html);
   // auto scroll down
   $cont = $("#history-trail").parent();
@@ -167,14 +169,30 @@ function showAbout(varname) {
 }
 
 function showPreferences() {
-  var params = {toolbar: false, resizable: true, show: true, height: 450, width: 450};
-  var prefsWindow = new BrowserWindow(params);
-  prefsWindow.loadUrl('file://' + __dirname + '/../static/preferences.html');
+  var rodeorc = path.join(USER_HOME, ".rodeorc");
+  var rc;
+  if (fs.existsSync(rodeorc)) {
+    rc = JSON.parse(fs.readFileSync(rodeorc).toString())
+  } else {
+    rc = {};
+  }
+  rc.keyBindings = rc.keyBindings || "default";
+  if ($("#editor-tab-preferences").length) {
+    $("#editor-tab-" + "preferences" + " .editor-tab-a").click();
+    return;
+  }
+  $("#editor-tab-" + "preferences" + " .editor-tab-a").click();
+  var editor_tab_html = editor_tab_template({ n: "preferences", name: "Preferences" });
+  var preferences_html = preferences_template(rc);
+
+  $(editor_tab_html).insertBefore($("#add-tab").parent());
+  $("#editors").append(preferences_html);
+  $("#editor-tab-" + "preferences" + " .editor-tab-a").click();
 }
 
 function showVariable(varname, type) {
   var params = {toolbar: false, resizable: true, show: true, height: 800, width: 1000};
-  var variableWindow = new BrowserWindow(params);
+  variableWindow = new BrowserWindow(params);
   variableWindow.loadUrl('file://' + __dirname + '/../static/display-variable.html');
 
   var show_var_statements = {
@@ -192,6 +210,10 @@ function showVariable(varname, type) {
     }
     python.stdin.write(JSON.stringify(payload) + delim);
   });
+
+  variableWindow.on('close', function() {
+    variableWindow = null;
+  });
 }
 
 function showPlot() {
@@ -204,7 +226,7 @@ function showPlot() {
 function savePlot() {
   remote.require('dialog').showSaveDialog({
     title:'Export Plot',
-    default_path: USER_HOME,
+    default_path: USER_WD,
   }, function(destfile) {
     if (! destfile) {
       return
@@ -231,12 +253,13 @@ function saveEditor(editor, saveas, fn) {
   if (! $("#editorsTab .active a").attr("data-filename") || saveas==true) {
     remote.require('dialog').showSaveDialog({
       title: "Save File",
-      default_path: USER_HOME,
+      default_path: USER_WD,
       }, function(destfile) {
         if (! destfile) {
           if (fn) {
             return fn();
           }
+          return;
         }
         $("#editorsTab .active a").text(path.basename(destfile));
         $("#editorsTab .active a").attr("data-filename", destfile);
@@ -282,7 +305,7 @@ function openFile(pathname) {
 function openDialog() {
   remote.require('dialog').showOpenDialog({
     title: "Open File",
-    default_path: USER_HOME,
+    default_path: USER_WD,
   }, function(files) {
     if (files) {
       files.forEach(function(filename) {
@@ -294,6 +317,7 @@ function openDialog() {
 
 
 function setFiles(dir) {
+  USER_WD = dir;
   // set ipython working directory
   var payload = {
     id: uuid.v4(),
@@ -344,7 +368,7 @@ function pickWorkingDirectory() {
   remote.require('dialog').showOpenDialog({
     title: 'Select a Working Directory',
     properties: ['openDirectory'],
-    defaultPath: USER_HOME
+    defaultPath: USER_WD
   }, function(wd) {
     if (! wd) {
       return;
@@ -354,10 +378,21 @@ function pickWorkingDirectory() {
   });
 }
 
+function addFolderToWorkingDirectory(newdir) {
+  var dirpath = path.join(USER_WD, newdir);
+  fs.mkdir(dirpath, function(err) {
+    if (err) {
+      console.error("[ERROR]: could not create directory: " + dirpath);
+    } else {
+      setFiles(USER_WD);
+    }
+  });
+}
+
 function setConsoleWidth(w) {
   var code = "pd.set_option('display.width', " + w + ")";
   sendCommand(code, true);
 }
 
 setFiles(USER_HOME)
-// setFiles("/Users/glamp/repos/yhat/prototypes/rodeo-osx/ui")
+setFiles("/Users/glamp/repos/yhat/prototypes/rodeo-native/")

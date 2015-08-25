@@ -1,0 +1,27 @@
+(function() {
+  var template = Handlebars.template, templates = Handlebars.templates = Handlebars.templates || {};
+templates['preferences.hbs'] = template({"1":function(depth0,helpers,partials,data) {
+    return "selected";
+},"3":function(depth0,helpers,partials,data) {
+    return "checked";
+},"compiler":[6,">= 2.0.0-beta.1"],"main":function(depth0,helpers,partials,data) {
+    var stack1, helper, options, alias1=helpers.helperMissing, alias2="function", buffer = 
+  "<div class=\"tab-pane active\" id=\"editor-tab-pane-preferences\" style=\"height: 100%;\">\n  <div class=\"panel-body\">\n    <ul class=\"nav nav-tabs\">\n      <li class=\"active\"><a href=\"#editor\" data-toggle=\"tab\">Editor</a></li>\n      <li><a href=\"#theme\" data-toggle=\"tab\">Theme</a></li>\n    </ul>\n    <div id=\"myTabContent\" class=\"tab-content\">\n      <div class=\"tab-pane active in\" id=\"editor\">\n        <br>\n        <div class=\"form-group\">\n          <label for=\"editorTheme\">Color Scheme</label>\n          <select onchange=\"setEditorTheme($(this).val());\" class=\"form-control\" name=\"editorTheme\" id=\"editorTheme\">\n            <option value=\"ace/theme/chrome\" "
+    + ((stack1 = (helpers.compare || (depth0 && depth0.compare) || alias1).call(depth0,(depth0 != null ? depth0.editorTheme : depth0),"ace/theme/chrome",{"name":"compare","hash":{},"fn":this.program(1, data, 0),"inverse":this.noop,"data":data})) != null ? stack1 : "")
+    + ">light</option>\n            <option value=\"ace/theme/idle_fingers\" "
+    + ((stack1 = (helpers.compare || (depth0 && depth0.compare) || alias1).call(depth0,(depth0 != null ? depth0.editorTheme : depth0),"ace/theme/idle_fingers",{"name":"compare","hash":{},"fn":this.program(1, data, 0),"inverse":this.noop,"data":data})) != null ? stack1 : "")
+    + ">dark</option>\n          </select>\n        </div>\n        <div class=\"form-group\">\n          <label for=\"keyBindings\">Key Bindings:</label>\n          <select onchange=\"setKeyBindings($(this).val());\" class=\"form-control\" name=\"keyBindings\" id=\"keyBindings\">\n            <option value=\"default\" "
+    + ((stack1 = (helpers.compare || (depth0 && depth0.compare) || alias1).call(depth0,(depth0 != null ? depth0.keyBindings : depth0),"default",{"name":"compare","hash":{},"fn":this.program(1, data, 0),"inverse":this.noop,"data":data})) != null ? stack1 : "")
+    + ">default</option>\n            <option value=\"ace/keybindings/vim\" "
+    + ((stack1 = (helpers.compare || (depth0 && depth0.compare) || alias1).call(depth0,(depth0 != null ? depth0.keyBindings : depth0),"ace/keybindings/vim",{"name":"compare","hash":{},"fn":this.program(1, data, 0),"inverse":this.noop,"data":data})) != null ? stack1 : "")
+    + ">vim</option>\n            <option value=\"ace/keybindings/emacs\" "
+    + ((stack1 = (helpers.compare || (depth0 && depth0.compare) || alias1).call(depth0,(depth0 != null ? depth0.keyBindings : depth0),"ace/keybindings/emacs",{"name":"compare","hash":{},"fn":this.program(1, data, 0),"inverse":this.noop,"data":data})) != null ? stack1 : "")
+    + ">emacs</option>\n          </select>\n        </div>\n        <div class=\"form-group\">\n          <label for=\"fontSize\">Font Size</label>\n          <input onchange=\"setFontSize($(this).val());\" class=\"form-control\" id=\"fontSize\" name=\"fontSize\" type=\"number\" step=\"1\" value=\""
+    + this.escapeExpression(((helper = (helper = helpers.fontSize || (depth0 != null ? depth0.fontSize : depth0)) != null ? helper : alias1),(typeof helper === alias2 ? helper.call(depth0,{"name":"fontSize","hash":{},"data":data}) : helper)))
+    + "\" min=\"8\" max=\"20\" />\n        </div>\n        <div class=\"checkbox\">\n          <label>\n            <input onchange=\"setAutoSave($(this).prop('checked'));\" type=\"checkbox\" ";
+  stack1 = ((helper = (helper = helpers.autoSave || (depth0 != null ? depth0.autoSave : depth0)) != null ? helper : alias1),(options={"name":"autoSave","hash":{},"fn":this.program(3, data, 0),"inverse":this.noop,"data":data}),(typeof helper === alias2 ? helper.call(depth0,options) : helper));
+  if (!helpers.autoSave) { stack1 = helpers.blockHelperMissing.call(depth0,stack1,options)}
+  if (stack1 != null) { buffer += stack1; }
+  return buffer + "> AutoSave Files\n          </label>\n        </div>\n      </div>\n      <div class=\"tab-pane\" id=\"theme\">\n        <br>\n        <div class=\"form-group\">\n          <label for=\"theme\">Theme</label>\n          <select onchange=\"setTheme($(this).val());\" class=\"form-control\" name=\"theme\" id=\"theme\">\n            <option value=\"light\" selected>light</option>\n            <option value=\"presentation\">presentation</option>\n            <option value=\"dark\">dark</option>\n          </select>\n        </div>\n      </div>\n      <div class=\"tab-pane\" id=\"layout\">\n        <div class=\"row\" style=\"height: 100px;\">\n          <div class=\"col-sm-2\" style=\"height: 100px; background-color: skyblue;\">\n          </div>\n          <div class=\"col-sm-2\" style=\"height: 100px; background-color: grey;\">\n          </div>\n        </div>\n        <div class=\"row\" style=\"height: 100px;\">\n          <div class=\"col-sm-2\" style=\"height: 100px; background-color: grey;\">\n          </div>\n          <div class=\"col-sm-2\" style=\"height: 100px; background-color: skyblue;\">\n          </div>\n        </div>\n      </div>\n    </div>\n  </div>\n</div>\n";
+},"useData":true});
+})();

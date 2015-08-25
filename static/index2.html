@@ -2,19 +2,8 @@
 <html lang="en">
 <head>
     <title>Rodeo</title>
-    <link href="css/bootstrap.paper.css" rel="stylesheet">
-    <link href="css/console.css" rel="stylesheet">
-    <link href="css/jquery.dataTables.css" rel="stylesheet">
-    <link href="css/dataTables.bootstrap.css" rel="stylesheet">
-    <link href="css/font-awesome.min.css" rel="stylesheet">
-    <link href="css/jquery.splitter.css" rel="stylesheet"/>
     <link href="css/styles.css" rel="stylesheet"/>
 
-    <style>
-      .navbar {
-        margin-bottom: 0px;
-      }
-    </style>
     <script type="text/javascript">
       window.$ = window.jQuery = require('jquery');
       Handlebars = require("handlebars");
@@ -58,9 +47,11 @@
 
     });
     </script>
+    <script src="js/templates/preferences.js"></script>
     <script src="js/lib/jquery.splitter-0.15.0.js"></script>
     <script src="js/lib/bootstrap.min.js"></script>
     <script src="js/lib/jqconsole.min.js"></script>
+    <script src="js/lib/ascii-table.min.js"></script>
     <script src="ace/ace.js"></script>
     <script src="ace/ext-language_tools.js"></script>
 
@@ -101,7 +92,7 @@
     </script>
 
     <script id="file-template" type="text/x-handlebars-template">
-      <a onclick="openFile('{{filename}}');" data-parnet-slug="" data-dirname="top_dir" href="#" class="list-group-item showdir" style="padding: 5px 10px;">
+      <a oncontextmenu="folderMenu.filename = '{{filename}}'; folderMenu.popup(remote.getCurrentWindow());" onclick="openFile('{{filename}}');" data-parnet-slug="" data-dirname="top_dir" href="#" class="list-group-item showdir" style="padding: 5px 10px;">
           <i class="fa fa {{#isDir}}fa-folder{{else}}fa-file-o{{/isDir}}" style="{{#isDir}}color: grey;{{/isDir}}"></i>
         &nbsp;&nbsp;{{basename}}
       </a>
@@ -109,12 +100,14 @@
 
     <script id="wd-template" type="text/x-handlebars-template">
       <a class="list-group-item" style="padding: 5px 10px;">
-        <i onclick="pickWorkingDirectory();" class="fa fa-wrench" style="color: grey;"></i>&nbsp;|
-        <i class="fa fa-sitemap" style="color: grey;"></i>&nbsp;&nbsp;{{dir}}
+        <i onclick="fileMenu.popup(remote.getCurrentWindow());" class="fa fa-cogs" style="color: grey;"></i>&nbsp;
+        &nbsp;&nbsp;{{dir}}
       </a>
     </script>
 
     <script type="text/javascript">
+    var preferences_template = Handlebars.templates["preferences.hbs"];
+
     var source   = $("#editor-template").html();
     var editor_template = Handlebars.compile(source);
 
@@ -324,6 +317,7 @@
   </div>
   <script type="text/javascript" src="../src/editors.js"></script>
   <script type="text/javascript" src="../src/console.js"></script>
+  <script type="text/javascript" src="../src/preferences.js"></script>
   <!-- end main section -->
   <script type="text/javascript">
     // resizeable panes
@@ -399,8 +393,8 @@
     $("#add-tab").click(function(e) {
       e.preventDefault();
       var id;
-      if ($("#editors").children().length) {
-        id = parseInt($("#editors").children().last().attr("id").split("-pane-")[1]) + 1;
+      if ($("#editors .editor").length) {
+        id = parseInt($("#editors .editor").last().attr("id").split("-")[1]) + 1;
       } else {
         id = 1;
       }
@@ -412,6 +406,9 @@
       createEditor("editor-" + id);
       // set to the active tab
       $("#editor-tab-" + id + " .editor-tab-a").click();
+      if (id!="preferences") {
+        ace.edit("editor-" + id).focus();
+      }
       return false;
     });
 
@@ -441,9 +438,9 @@
           }
         });
       } else {
-        $("#editorsTab .editor-tab-a").first().click();
         $("#editor-tab-" + n).remove();
         $("#editor-tab-pane-" + n).remove();
+        $("#editorsTab .editor-tab-a").first().click();
       }
     }
 

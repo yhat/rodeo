@@ -1,4 +1,6 @@
 // Editors and tabs
+var path = require('path');
+var fs = require('fs');
 
 function getLastWord(editor) {
   var pos = editor.getCursorPosition();
@@ -12,6 +14,25 @@ function getLastWord(editor) {
     text = variable + "." + text;
   }
   return text;
+}
+
+function setDefaultPreferences(editor) {
+  var rodeorc = path.join(USER_HOME, ".rodeorc");
+  if (fs.existsSync(rodeorc)) {
+    var rc = JSON.parse(fs.readFileSync(rodeorc).toString());
+    if (rc.keyBindings=="default") {
+      rc.keyBindings = null;
+    }
+    editor.setKeyboardHandler(rc.keyBindings || null); // null is the "default"
+    editor.setTheme(rc.editorTheme || "ace/theme/chrome");
+    editor.setFontSize(rc.fontSize || 12);
+
+    if (rc.autoSave) {
+      editor.on('input', function() {
+        saveEditor();
+      });
+    }
+  }
 }
 
 function createEditor(id) {
@@ -58,6 +79,16 @@ function createEditor(id) {
 
 
   // initialize shortcuts
+
+  // override the settings menu
+  editor.commands.addCommand({
+    name: "showPreferences",
+    bindKey: {win: "ctrl-,", mac: "Command-,"},
+    exec: function(editor) {
+      showPreferences();
+    }
+  });
+
   editor.commands.addCommand({
     name: "sendCommand",
     bindKey: {win: "ctrl-Enter", mac: "Command-Enter"},
@@ -103,4 +134,5 @@ function createEditor(id) {
   editor.on('input', function() {
     $("#" + id.replace("editor", "editor-tab") + " .unsaved").removeClass("hide");
   });
+  setDefaultPreferences(editor);
 }

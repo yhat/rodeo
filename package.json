@@ -22,10 +22,12 @@
   "dependencies": {
     "ace": "0.0.2",
     "colors": "^1.1.2",
+    "dialogs": "^1.1.2",
     "fs-extra": "^0.23.1",
     "handlebars": "^3.0.3",
     "jade": "^1.11.0",
     "jquery": "^2.1.4",
+    "rimraf": "^2.4.2",
     "tmp": "0.0.27",
     "uuid": "^2.0.1"
   },

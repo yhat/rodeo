@@ -1,5 +1,11 @@
 var remote = require('remote');
+var fs = require('fs');
+var path = require('path');
+var rimraf = require('rimraf');
+var webFrame = require('web-frame');
+var dialogs = require("dialogs")({ url: "../static/img/cowboy-hat.svg" });
 var Menu = remote.require('menu');
+
 var template = [
   {
     label: 'Rodeo',
@@ -86,8 +92,12 @@ var template = [
         label: 'Close File',
         accelerator: 'CmdOrCtrl+w',
         click: function() {
-          var n = $("#editorsTab .active").attr("id").replace("editor-tab-", "");
-          closeActiveTab(n);
+          if (variableWindow && variableWindow.isFocused()) {
+            variableWindow.close();
+          } else {
+            var n = $("#editorsTab .active").attr("id").replace("editor-tab-", "");
+            closeActiveTab(n);
+          }
         }
       },
       {
@@ -157,6 +167,28 @@ var template = [
             click: function() {
               jqconsole.Focus();
             }
+          },
+          {
+            label: 'Variables/History',
+            accelerator: 'CmdOrCtrl+3',
+            click: function() {
+              var next = $("#top-right .nav .active").next();
+              if (! $(next).length) {
+                next = $("#top-right .nav li").first();
+              }
+              $("a", next).click()
+            }
+          },
+          {
+            label: 'Files/Plots/Packages/Help',
+            accelerator: 'CmdOrCtrl+4',
+            click: function() {
+              var next = $("#bottom-right .nav .active").next();
+              if (! $(next).length) {
+                next = $("#bottom-right .nav li").first();
+              }
+              $("a", next).click()
+            }
           }
         ]
       },
@@ -181,9 +213,28 @@ var template = [
         selector: 'performMiniaturize:'
       },
       {
-        label: 'Close',
-        // accelerator: 'CmdOrCtrl+W',
-        selector: 'performClose:'
+        label: 'Zoom to Default',
+        accelerator: 'CmdOrCtrl+0',
+        click: function() {
+          webFrame.setZoomLevel(0);
+          calibratePanes();
+        }
+      },
+      {
+        label: 'Zoom In',
+        accelerator: 'CmdOrCtrl+=',
+        click: function() {
+          webFrame.setZoomLevel(webFrame.getZoomLevel() + 1);
+          calibratePanes();
+        }
+      },
+      {
+        label: 'Zoom Out',
+        accelerator: 'CmdOrCtrl+-',
+        click: function() {
+          webFrame.setZoomLevel(webFrame.getZoomLevel() - 1);
+          calibratePanes();
+        }
       },
       {
         type: 'separator'
@@ -220,6 +271,25 @@ var template = [
         click: function() {
           pickWorkingDirectory();
         }
+      },
+      {
+        label: 'Run Previous Command',
+        submenu: [
+          {
+            label: '2nd to Last',
+            accelerator: 'CmdOrCtrl+Shift+2',
+            click: function() {
+              sendCommand($("#history-trail").children().slice(-2, -1).text());
+            }
+          },
+          {
+            label: 'Last',
+            accelerator: 'CmdOrCtrl+Shift+1',
+            click: function() {
+              sendCommand($("#history-trail").children().slice(-1).text());
+            }
+          }
+        ]
       }
     ]
   },
@@ -232,3 +302,48 @@ var template = [
 menu = Menu.buildFromTemplate(template);
 
 Menu.setApplicationMenu(menu);
+
+// context menu for file nav
+var template = [
+  {
+    label: 'Change Working Directory',
+    click: function() {
+      pickWorkingDirectory();
+    }
+  },
+  {
+    label: 'Add Folder',
+    click: function() {
+      dialogs.prompt("Enter a name for your new folder: ", function(dirname) {
+        if (dirname) {
+          addFolderToWorkingDirectory(dirname);
+        }
+      });
+    }
+  }
+];
+
+fileMenu = Menu.buildFromTemplate(template);
+
+
+// context menu for file nav
+var template = [
+  {
+    label: 'Delete',
+    click: function() {
+      dialogs.confirm("Are you sure you want to delete " + path.basename(folderMenu.filename) +"? This will remove all files and directories within this folder.", function(ok) {
+        if (ok) {
+          rimraf(folderMenu.filename, function(err) {
+            if (err) {
+              console.error("[ERROR]: Could not delete: " + folderMenu.filename);
+            } else {
+              setFiles(USER_WD);
+            }
+          });
+        }
+      });
+    }
+  }
+];
+
+folderMenu = Menu.buildFromTemplate(template);
