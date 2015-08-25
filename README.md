@@ -21,6 +21,8 @@ $ electron .
       - [x] editor
       - [x] console
     - [ ] autocomplete for packages names
+- [ ] run button
+- [ ] uglify/minify JS?
 - [-] Uncaught TypeError: path must be a string
       Uncaught TypeError: Cannot read property 'text' of undefined console.js:101
 - [x] add "Set Working Directory" button on files UI
@@ -32,9 +34,8 @@ $ electron .
 - [x] search!!!
 - [x] preferences
 - [x] convert to LESS
-- [?] bug on open files
+- [x] bug on open files
 - [x] shortcuts for running commands in your history
-- [ ] run button
 - [x] zoom in/out
 - [x] autosave option
 - [x] ctrl + w for variable window (can't quite figure this one out)
@@ -46,7 +47,6 @@ $ electron .
 - [x] `setwd` in python instance
 - [?] setwd icon looks bad
 - [x] code history not showing new lines
-- [ ] uglify/minify JS?
 - [x] dialogs should open in current working directory
 - [x] better responsive window sizing
 - [x] build package
