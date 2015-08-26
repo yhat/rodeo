@@ -7,6 +7,9 @@ Check the [releases](https://github.com/yhat/rodeo-native/releases) for the late
 You'll need the following:
 - node.js
 - electron
+- handlebars (npm install handlebars -g)
+- uglifyjs (npm install uglify-js -g)
+- lessc (npm install -g lessc)
 
 Clone the repo and run:
 ```
