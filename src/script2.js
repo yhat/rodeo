@@ -33,7 +33,7 @@ fse.copySync(pythonKernel, kernelFile.name);
 fs.chmodSync(kernelFile.name, 0755);
 // config file to store ipython session details
 var configFile = tmp.fileSync();
-var python = spawn(kernelFile.name, ["-u", configFile.name + ".json", delim]);
+var python = spawn("python", ["-u", kernelFile.name, configFile.name + ".json", delim]);
 
 // we'll print any feedback from the kernel as yellow text
 python.stderr.on("data", function(data) {

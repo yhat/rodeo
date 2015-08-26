@@ -56,99 +56,17 @@
     <script src="ace/ace.js"></script>
     <script src="ace/ext-language_tools.js"></script>
 
-    <script id="editor-template" type="text/x-handlebars-template">
-      <div class="tab-pane active" id="editor-tab-pane-{{n}}" style="height: 100%;">
-        <div class="editor" id="editor-{{n}}"></div>
-      </div>
-    </script>
-
-    <script id="editor-tab-template" type="text/x-handlebars-template">
-      <li id="editor-tab-{{n}}" class="{{#isFirst}}active{{/isFirst}}">
-        <a class="editor-tab-a" href="#editor-tab-pane-{{n}}" data-toggle="tab" aria-expanded="false">
-          <span class="name">{{ name }}</span><span class="unsaved hide">*</span>&nbsp;<span style="color: red;" onclick="closeActiveTab('{{n}}');">&times;</span>
-        </a>
-      </li>
-    </script>
-
-    <script id="active-variables-row-template" type="text/x-handlebars-template">
-      <tr>
-        <td>{{name}}</td>
-        <td>{{type}}</td>
-        <td style="td-align: center;">
-          <a href="#" onclick="showVariable('{{name}}', '{{type}}');"><span class='fa {{#compare type "DataFrame"}}fa-table{{/compare}}{{#compare type "list"}}fa-list-alt{{/compare}}' aria-hidden='true'></span></a>
-        </td>
-      </tr>
-    </script>
-
-    <script id="history-row-template" type="text/x-handlebars-template">
-      <p><span style="white-space: pre-wrap;">{{command}}</span></p>
-    </script>
-
-    <script id="package-row-template" type="text/x-handlebars-template">
-      <tr>
-        <td>{{name}}</td>
-        <td>{{version}}</td>
-      </tr>
-    </script>
-
-    <script id="file-template" type="text/x-handlebars-template">
-      <a oncontextmenu="folderMenu.filename = '{{filename}}'; folderMenu.popup(remote.getCurrentWindow());" onclick="openFile('{{filename}}');" data-parnet-slug="" data-dirname="top_dir" href="#" class="list-group-item showdir" style="padding: 5px 10px;">
-          <i class="fa fa {{#isDir}}fa-folder{{else}}fa-file-o{{/isDir}}" style="{{#isDir}}color: grey;{{/isDir}}"></i>
-        &nbsp;&nbsp;{{basename}}
-      </a>
-    </script>
-
-    <script id="wd-template" type="text/x-handlebars-template">
-      <a class="list-group-item" style="padding: 5px 10px;">
-        <i onclick="fileMenu.popup(remote.getCurrentWindow());" class="fa fa-cogs" style="color: grey;"></i>&nbsp;
-        &nbsp;&nbsp;{{dir}}
-      </a>
-    </script>
-
     <script type="text/javascript">
-    var preferences_template = Handlebars.templates["preferences.hbs"];
-
-    var source   = $("#editor-template").html();
-    var editor_template = Handlebars.compile(source);
-
-    var source   = $("#editor-tab-template").html();
-    var editor_tab_template = Handlebars.compile(source);
-
-    var source   = $("#active-variables-row-template").html();
-    var active_variables_row_template = Handlebars.compile(source);
-
-    var source   = $("#history-row-template").html();
-    var history_row_template = Handlebars.compile(source);
-
-    var source   = $("#package-row-template").html();
-    var package_row_template = Handlebars.compile(source);
-
-    var source   = $("#file-template").html();
-    var file_template = Handlebars.compile(source);
-
-    var source   = $("#wd-template").html();
-    var wd_template = Handlebars.compile(source);
-
+      // Load in Handlebars templates
+      var preferences_template = Handlebars.templates["preferences.hbs"];
+      var editor_tab_template = Handlebars.templates["editor-tab.hbs"];
+      var editor_template = Handlebars.templates["editor.hbs"];
+      var active_variables_row_template = Handlebars.templates["active-variable.hbs"];
+      var history_row_template = Handlebars.templates["history-row.hbs"];
+      var package_row_template = Handlebars.templates["package-row.hbs"];
+      var file_template = Handlebars.templates["file-item.hbs"];
+      var wd_template = Handlebars.templates["wd.hbs"];
     </script>
-
-
-    <style>
-        .hat {
-          position: absolute;
-          left: 2px;
-          top: 10px;
-          width: 35px;
-          height: auto;
-          z-index: 100000;
-        }
-        .big-hat {
-          position: relative;
-          left: 295px;
-          top: 165px;
-          width: 200px;
-          height: auto;
-        }
-    </style>
 </head>
 <body>
 
