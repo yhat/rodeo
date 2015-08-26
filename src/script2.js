@@ -396,4 +396,4 @@ function setConsoleWidth(w) {
 }
 
 setFiles(USER_HOME)
-setFiles("/Users/glamp/repos/yhat/prototypes/rodeo-native/")
+// setFiles("/Users/glamp/repos/yhat/prototypes/rodeo-native/")
