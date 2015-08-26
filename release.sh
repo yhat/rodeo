@@ -2,6 +2,7 @@
 # The .Trash thing seems very strange, but I don't argue with results:
 #   http://stackoverflow.com/questions/18621467/error-creating-disk-image-using-hdutil
 
+# OSX
 rm -rf build/
 electron-compile --target ./cache src/ static/ --verbose \
   && node scripts/build.js \
