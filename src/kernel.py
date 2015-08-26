@@ -1,3 +1,5 @@
+#!/usr/bin/env python
+
 # start compatibility with IPython Jupyter 4.0+
 try:
     from jupyter_client import BlockingKernelClient

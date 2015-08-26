@@ -27,7 +27,7 @@ var pythonKernel = path.join(__dirname, "../src", "kernel.py");
 var kernelFile = tmp.fileSync();
 fse.copySync(pythonKernel, kernelFile.name);
 var configFile = tmp.fileSync();
-var python = spawn("/usr/local/bin/python", ["-u",  kernelFile.name, configFile.name + ".json", delim]);
+var python = spawn(kernelFile.name, ["-u", configFile.name + ".json", delim]);
 
 // we'll print any feedback from the kernel as yellow text
 python.stderr.on("data", function(data) {
