@@ -23,9 +23,15 @@ var variableWindow;
 var spawn = require('child_process').spawn;
 var delim = "\n";
 global.callbacks = {};
+
+// we need to actually write the python kernel to a tmp file. this is so python
+// can run as a "real" file and not an asar file
 var pythonKernel = path.join(__dirname, "../src", "kernel.py");
 var kernelFile = tmp.fileSync();
 fse.copySync(pythonKernel, kernelFile.name);
+// make executeable
+fs.chmodSync(pythonKernel.name, 0755);
+// config file to store ipython session details
 var configFile = tmp.fileSync();
 var python = spawn(kernelFile.name, ["-u", configFile.name + ".json", delim]);
 
