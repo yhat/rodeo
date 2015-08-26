@@ -30,7 +30,7 @@ var pythonKernel = path.join(__dirname, "../src", "kernel.py");
 var kernelFile = tmp.fileSync();
 fse.copySync(pythonKernel, kernelFile.name);
 // make executeable
-fs.chmodSync(pythonKernel.name, 0755);
+fs.chmodSync(kernelFile.name, 0755);
 // config file to store ipython session details
 var configFile = tmp.fileSync();
 var python = spawn(kernelFile.name, ["-u", configFile.name + ".json", delim]);
@@ -401,5 +401,4 @@ function setConsoleWidth(w) {
   sendCommand(code, true);
 }
 
-setFiles(USER_HOME)
-// setFiles("/Users/glamp/repos/yhat/prototypes/rodeo-native/")
+setFiles(USER_HOME);
