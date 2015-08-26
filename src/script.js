@@ -30,13 +30,56 @@ global.callbacks = {};
 var pythonKernel = path.join(__dirname, "../src", "kernel.py");
 var kernelFile = tmp.fileSync();
 fse.copySync(pythonKernel, kernelFile.name);
-// make executeable
+// make executable
 fs.chmodSync(kernelFile.name, 0755);
 // config file to store ipython session details
 var configFile = tmp.fileSync();
 // spawn the kernel. we're using #!/usr/bin/env python and making the kernel
-// an executeable to avoid `python kernel.py` not working
-var python = spawn(kernelFile.name, [configFile.name + ".json", delim]);
+// an executable to avoid `python kernel.py` not working
+
+
+function getUserPath() {
+  var USER_HOME = process.env[(process.platform == 'win32') ? 'USERPROFILE' : 'HOME'];
+  var bp = path.join(USER_HOME, ".bash_profile");
+
+  if (fs.existsSync(bp)) {
+    bp = fs.readFileSync(bp).toString()
+                            .split('\n')
+                            .filter(function(line) {
+                                return /export PATH/.test(line);
+                            });
+
+
+    var originalPath = '';
+    var paths = bp.map(function(line) {
+      var m = line.match(/(\export PATH=)(.+)$/);
+      if (m && m.length > 1) {
+        if (! /\$PATH/.test(m[2])) {
+          originalPath = m[2];
+        } else {
+          return m[2];
+        }
+      } else {
+        return;
+      }
+    }).filter(function(p) { return p; })
+
+    var totalPath = originalPath;
+    paths.forEach(function(p) {
+      totalPath = totalPath + p.slice(5);
+    }.bind(this));
+    return totalPath;
+  } else {
+    return null;
+  }
+}
+
+
+var python = spawn(kernelFile.name, [configFile.name + ".json", delim], {
+  env: {
+    PATH: getUserPath()
+  }
+});
 
 // we'll print any feedback from the kernel as yellow text
 python.stderr.on("data", function(data) {

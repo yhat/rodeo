@@ -1,6 +1,9 @@
 #!/usr/bin/env python
 
-# start compatibility with IPython Jupyter 4.0+
+import sys
+sys.stderr.write("kernel is running using: %s\n" % sys.executable)
+
+# start compatibility with IPython Jupyter 4.0
 try:
     from jupyter_client import BlockingKernelClient
 except ImportError:

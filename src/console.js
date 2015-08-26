@@ -39,23 +39,14 @@ jqconsole.RegisterShortcut('c', function() {
 
 // ctrl + u to clear to beginning
 jqconsole.RegisterShortcut('u', function() {
-  var idx = jqconsole.GetColumn() - 4;
-  var text = jqconsole.GetPromptText();
-  jqconsole.SetPromptText(text.slice(0, idx));
+  var text = jqconsole.GetPromptText().slice(jqconsole.GetColumn() - 4);
+  jqconsole.SetPromptText(text);
 });
 
-// ctrl + w to clear to beginning
-jqconsole.RegisterShortcut('z', function() {
-  var idx = jqconsole.GetColumn() - 4;
-  var text = jqconsole.GetPromptText();
-  jqconsole.SetPromptText(text.slice(0, idx));
-});
-
-// ctrl + k to clear to beginning
+// ctrl + k to clear to end
 jqconsole.RegisterShortcut('k', function() {
-  var idx = jqconsole.GetColumn() - 4;
-  var text = jqconsole.GetPromptText();
-  jqconsole.SetPromptText(text.slice(idx));
+  var text = jqconsole.GetPromptText().slice(0, jqconsole.GetColumn() - 4);
+  jqconsole.SetPromptText(text);
 });
 
 // ctrl + w to clear one word backwards
@@ -70,6 +61,7 @@ jqconsole.RegisterShortcut('w', function() {
   text = text.trim();
   jqconsole.SetPromptText(text);
 });
+
 // autocomplete
 jqconsole._IndentOld = jqconsole._Indent;
 jqconsole._Indent = function() {
