@@ -22,8 +22,8 @@ $ electron .
       - [x] console
     - [ ] autocomplete for packages names
 - [ ] run button
-- [ ] uglify/minify JS?
-- [-] Uncaught TypeError: path must be a string
+- [x] uglify/minify JS?
+- [x] Uncaught TypeError: path must be a string
       Uncaught TypeError: Cannot read property 'text' of undefined console.js:101
 - [x] add "Set Working Directory" button on files UI
 - [x] make headers and rows in all tables have the same width
