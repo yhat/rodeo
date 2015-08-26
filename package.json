@@ -20,7 +20,6 @@
     "sinon": "^1.15.3"
   },
   "dependencies": {
-    "ace": "0.0.2",
     "colors": "^1.1.2",
     "dialogs": "^1.1.2",
     "fs-extra": "^0.23.1",

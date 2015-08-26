@@ -222,3 +222,4 @@ if __name__=="__main__":
         output = k.execute(data['code'], data.get('complete', False))
         output['id'] = data['id']
         sys.stdout.write(json.dumps(output) + '\n')
+        sys.stdout.flush()

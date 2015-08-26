@@ -33,6 +33,13 @@ $ electron .
 - [x] automatic go to next line is jumping all over the place
 - [x] search!!!
 - [x] preferences
+- [x] fix python subprocess stuff
+- [ ] Excel renderer
+- [x] update file tree on save
+- [ ] multiline execute jumps around
+- [ ] on durastic change to editor, some things aren't visible
+- [x] on restart session, run refreshVariables()
+- [x] default working directory in preferences
 - [ ] data tables look a little funky
 - [ ] console font size
 - [x] convert to LESS

@@ -1,12 +1,12 @@
 var path = require('path');
 var fs = require('fs');
+var rodeorc = path.join(USER_HOME, ".rodeorc");
 
 
 function updateRC(key, value) {
-  var rodeorc = path.join(USER_HOME, ".rodeorc");
   var rc;
   if (fs.existsSync(rodeorc)) {
-    rc = JSON.parse(fs.readFileSync(rodeorc).toString())
+    rc = JSON.parse(fs.readFileSync(rodeorc).toString());
   } else {
     rc = {};
   }
@@ -42,6 +42,10 @@ function setFontSize(size) {
   updateRC("fontSize", size);
 }
 
+function setDefaultWd(wd) {
+  updateRC("defaultWd", wd);
+}
+
 function setTheme(theme) {
   alert("This feature doesn't work yet, but if it did your Rodeo Theme would be: " + theme);
   updateRC("theme", theme);
@@ -50,4 +54,15 @@ function setTheme(theme) {
 
 function setAutoSave(val) {
   updateRC("autoSave", val);
+}
+
+if (fs.existsSync(rodeorc)) {
+  var rc = JSON.parse(fs.readFileSync(rodeorc).toString());
+  if (rc.defaultWd && fs.existsSync(rc.defaultWd)) {
+    setFiles(rc.defaultWd);
+  } else {
+    setFiles(USER_HOME);
+  }
+} else {
+  setFiles(USER_HOME);
 }

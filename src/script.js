@@ -21,6 +21,7 @@ var variableWindow;
 
 // Python Kernel
 var spawn = require('child_process').spawn;
+var StreamSplitter = require("stream-splitter");
 var delim = "\n";
 global.callbacks = {};
 
@@ -33,12 +34,14 @@ fse.copySync(pythonKernel, kernelFile.name);
 fs.chmodSync(kernelFile.name, 0755);
 // config file to store ipython session details
 var configFile = tmp.fileSync();
-var python = spawn("python", ["-u", kernelFile.name, configFile.name + ".json", delim]);
+// spawn the kernel. we're using #!/usr/bin/env python and making the kernel
+// an executeable to avoid `python kernel.py` not working
+var python = spawn(kernelFile.name, [configFile.name + ".json", delim]);
 
 // we'll print any feedback from the kernel as yellow text
 python.stderr.on("data", function(data) {
+// process.stderr.write(data.toString().yellow);
   console.log(data.toString().yellow);
-  // process.stderr.write(data.toString().yellow);
 });
 
 python.on("error", function(err) {
@@ -50,7 +53,6 @@ python.on("exit", function(code) {
     if (err) {
       console.log("failed to remove temporary kernel file: " + err);
     }
-    // remove var_dir (?)
   });
   console.log("exited with code: " + code);
 });
@@ -63,25 +65,19 @@ python.on("disconnect", function() {
   console.log("disconnected");
 });
 
-var chunk = "";
-python.stdout.on("data", function(data) {
-  var chunkette, idx, result, results;
-  chunk += data.toString();
-  results = [];
-  while (chunk.indexOf(delim) > -1) {
-    idx = chunk.indexOf(delim);
-    chunkette = chunk.slice(0, idx);
-    result = JSON.parse(chunkette);
-
+// StreamSplitter looks at the incoming stream from kernel.py (which is line
+// delimited JSON) and splits on \n automatically, so we're just left with the
+// JSON data
+python.stdout.pipe(StreamSplitter(delim))
+  .on("token", function(data) {
+    var result = JSON.parse(data.toString());
     if (result.id in callbacks) {
       callbacks[result.id](result);
       delete callbacks[result.id];
     } else {
       console.log("[ERROR]: " + "callback not found for: " + result.id + " --> " + JSON.stringify(result));
     }
-    chunk = chunk.slice(idx + 1);
-  }
-});
+  });
 
 // End Python Kernel
 
@@ -90,6 +86,7 @@ function refreshVariables() {
   var payload = { id: uuid.v4(), code: "__get_variables()" }
   callbacks[payload.id] = function(result) {
     if (! result.output) {
+      $("#vars").children().remove();
       console.error("[ERROR]: Result from code execution was null.");
       return;
     }
@@ -183,6 +180,7 @@ function showPreferences() {
     rc = {};
   }
   rc.keyBindings = rc.keyBindings || "default";
+  rc.defaultWd = rc.defaultWd || USER_HOME;
   if ($("#editor-tab-preferences").length) {
     $("#editor-tab-" + "preferences" + " .editor-tab-a").click();
     return;
@@ -272,6 +270,7 @@ function saveEditor(editor, saveas, fn) {
         $("#editorsTab .active a").attr("data-filename", destfile);
         fs.writeFileSync(destfile, content);
         $("#" + id.replace("editor", "editor-tab") + " .unsaved").addClass("hide");
+        setFiles();
         if (fn) {
           fn();
         }
@@ -280,6 +279,7 @@ function saveEditor(editor, saveas, fn) {
   } else {
     fs.writeFileSync($("#editorsTab .active a").attr("data-filename"), content);
     $("#" + id.replace("editor", "editor-tab") + " .unsaved").addClass("hide");
+    setFiles();
     if (fn) {
       fn();
     }
@@ -324,6 +324,7 @@ function openDialog() {
 
 
 function setFiles(dir) {
+  dir = dir || USER_WD;
   USER_WD = dir;
   // set ipython working directory
   var payload = {
@@ -371,12 +372,18 @@ function setFiles(dir) {
   }.bind(this));
 }
 
-function pickWorkingDirectory() {
+function pickDirectory(title, defaultPath, fn) {
   remote.require('dialog').showOpenDialog({
-    title: 'Select a Working Directory',
+    title: title,
     properties: ['openDirectory'],
-    defaultPath: USER_WD
-  }, function(wd) {
+    defaultPath: defaultPath
+  }, function(dir) {
+    fn(dir);
+  });
+}
+
+function pickWorkingDirectory(fn) {
+  pickDirectory('Select a Working Directory', USER_WD, function(wd) {
     if (! wd) {
       return;
     }
@@ -400,5 +407,3 @@ function setConsoleWidth(w) {
   var code = "pd.set_option('display.width', " + w + ")";
   sendCommand(code, true);
 }
-
-setFiles(USER_HOME);

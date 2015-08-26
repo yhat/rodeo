@@ -92,7 +92,7 @@ templates['preferences.hbs'] = template({"1":function(depth0,helpers,partials,da
 },"3":function(depth0,helpers,partials,data) {
     return "checked";
 },"compiler":[6,">= 2.0.0-beta.1"],"main":function(depth0,helpers,partials,data) {
-    var stack1, helper, options, alias1=helpers.helperMissing, alias2="function", buffer = 
+    var stack1, helper, options, alias1=helpers.helperMissing, alias2="function", alias3=this.escapeExpression, buffer = 
   "<div class=\"tab-pane active\" id=\"editor-tab-pane-preferences\" style=\"height: 100%;\">\n  <div class=\"panel-body\">\n    <ul class=\"nav nav-tabs\">\n      <li class=\"active\"><a href=\"#editor\" data-toggle=\"tab\">Editor</a></li>\n      <li><a href=\"#theme\" data-toggle=\"tab\">Theme</a></li>\n    </ul>\n    <div id=\"myTabContent\" class=\"tab-content\">\n      <div class=\"tab-pane active in\" id=\"editor\">\n        <br>\n        <div class=\"form-group\">\n          <label for=\"editorTheme\">Color Scheme</label>\n          <select onchange=\"setEditorTheme($(this).val());\" class=\"form-control\" name=\"editorTheme\" id=\"editorTheme\">\n            <option value=\"ace/theme/ambiance\" "
     + ((stack1 = (helpers.compare || (depth0 && depth0.compare) || alias1).call(depth0,(depth0 != null ? depth0.editorTheme : depth0),"ace/theme/ambiance",{"name":"compare","hash":{},"fn":this.program(1, data, 0),"inverse":this.noop,"data":data})) != null ? stack1 : "")
     + ">ambiance</option>\n            <option value=\"ace/theme/chaos\" "
@@ -164,8 +164,10 @@ templates['preferences.hbs'] = template({"1":function(depth0,helpers,partials,da
     + ">vim</option>\n            <option value=\"ace/keybindings/emacs\" "
     + ((stack1 = (helpers.compare || (depth0 && depth0.compare) || alias1).call(depth0,(depth0 != null ? depth0.keyBindings : depth0),"ace/keybindings/emacs",{"name":"compare","hash":{},"fn":this.program(1, data, 0),"inverse":this.noop,"data":data})) != null ? stack1 : "")
     + ">emacs</option>\n          </select>\n        </div>\n        <div class=\"form-group\">\n          <label for=\"fontSize\">Font Size</label>\n          <input onchange=\"setFontSize($(this).val());\" class=\"form-control\" id=\"fontSize\" name=\"fontSize\" type=\"number\" step=\"1\" value=\""
-    + this.escapeExpression(((helper = (helper = helpers.fontSize || (depth0 != null ? depth0.fontSize : depth0)) != null ? helper : alias1),(typeof helper === alias2 ? helper.call(depth0,{"name":"fontSize","hash":{},"data":data}) : helper)))
-    + "\" min=\"8\" max=\"20\" />\n        </div>\n        <div class=\"checkbox\">\n          <label>\n            <input onchange=\"setAutoSave($(this).prop('checked'));\" type=\"checkbox\" ";
+    + alias3(((helper = (helper = helpers.fontSize || (depth0 != null ? depth0.fontSize : depth0)) != null ? helper : alias1),(typeof helper === alias2 ? helper.call(depth0,{"name":"fontSize","hash":{},"data":data}) : helper)))
+    + "\" min=\"8\" max=\"20\" />\n        </div>\n        <div class=\"form-group\">\n          <label for=\"defaultWorkingDirectory\">Default Working Directory</label>\n          <input onclick=\"var me = $(this); pickDirectory('Select a Default Working Directory', USER_WD, function(dir) { if (dir) { $(me).val(dir); setDefaultWd($(me).val()); }});\" class=\"form-control\" id=\"defaultWorkingDirectory\" name=\"defaultWorkingDirectory\" value=\""
+    + alias3(((helper = (helper = helpers.defaultWd || (depth0 != null ? depth0.defaultWd : depth0)) != null ? helper : alias1),(typeof helper === alias2 ? helper.call(depth0,{"name":"defaultWd","hash":{},"data":data}) : helper)))
+    + "\" />\n        </div>\n        <div class=\"checkbox\">\n          <label>\n            <input onchange=\"setAutoSave($(this).prop('checked'));\" type=\"checkbox\" ";
   stack1 = ((helper = (helper = helpers.autoSave || (depth0 != null ? depth0.autoSave : depth0)) != null ? helper : alias1),(options={"name":"autoSave","hash":{},"fn":this.program(3, data, 0),"inverse":this.noop,"data":data}),(typeof helper === alias2 ? helper.call(depth0,options) : helper));
   if (!helpers.autoSave) { stack1 = helpers.blockHelperMissing.call(depth0,stack1,options)}
   if (stack1 != null) { buffer += stack1; }

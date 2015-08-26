@@ -56,6 +56,10 @@
           <label for="fontSize">Font Size</label>
           <input onchange="setFontSize($(this).val());" class="form-control" id="fontSize" name="fontSize" type="number" step="1" value="{{fontSize}}" min="8" max="20" />
         </div>
+        <div class="form-group">
+          <label for="defaultWorkingDirectory">Default Working Directory</label>
+          <input onclick="var me = $(this); pickDirectory('Select a Default Working Directory', USER_WD, function(dir) { if (dir) { $(me).val(dir); setDefaultWd($(me).val()); }});" class="form-control" id="defaultWorkingDirectory" name="defaultWorkingDirectory" value="{{defaultWd}}" />
+        </div>
         <div class="checkbox">
           <label>
             <input onchange="setAutoSave($(this).prop('checked'));" type="checkbox" {{#autoSave}}checked{{/autoSave}}> AutoSave Files

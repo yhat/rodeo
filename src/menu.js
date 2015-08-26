@@ -260,6 +260,7 @@ var template = [
             if (reply==0) {
               // yes, nuke it
               sendCommand("%reset -f", false);
+              refreshVariables();
             } else
               // do nothing
               return;
