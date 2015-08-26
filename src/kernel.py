@@ -26,11 +26,16 @@ try:
     import pandas as pd
 except:
     pd = None
-import pip
+
+try:
+    import pip
+except:
+    pip = None
 
 def __get_variables():
     if not pd:
         print('[]')
+        return
     variable_names = globals().keys()
     data_frames = []
     for v in variable_names:
@@ -46,6 +51,9 @@ def __get_variables():
 
 
 def __get_packages():
+    if not pip:
+        print('[]')
+        return
     installed_packages = pip.get_installed_distributions()
     packages = [{ "name": i.key, "version": i.version} for i in installed_packages]
     installed_packages_list = sorted(packages, key=lambda x: x['name'])

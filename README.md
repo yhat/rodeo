@@ -33,6 +33,8 @@ $ electron .
 - [x] automatic go to next line is jumping all over the place
 - [x] search!!!
 - [x] preferences
+- [ ] data tables look a little funky
+- [ ] console font size
 - [x] convert to LESS
 - [x] bug on open files
 - [x] shortcuts for running commands in your history
@@ -45,7 +47,7 @@ $ electron .
 - [x] stuff from editor not in terminal history
 - [x] expand plot and save plot not working
 - [x] `setwd` in python instance
-- [?] setwd icon looks bad
+- [x] setwd icon looks bad
 - [x] code history not showing new lines
 - [x] dialogs should open in current working directory
 - [x] better responsive window sizing
@@ -53,5 +55,5 @@ $ electron .
 - [x] add in logo
 - [x] plots not working ```([ERROR-2]: [Errno 2] No such file or directory: '../static/plots/1440334796-8e40484e-d335-4fec-b5bd-4481f8cbfd1e.png')```
 - [ ] more "Rodeo specific" logo
-- [ ] fix "*" for unsaved files
+- [x] fix "*" for unsaved files
 - [x] editors sometimes behave strangely. i think it's something to do with the IDs not being unique (think this is b/c you can have multiple `editor-1` if you open, close, then open again).

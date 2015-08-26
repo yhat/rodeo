@@ -53,7 +53,7 @@
 @font-family-monospace:    "Inconsolata","Inconsolata-dz", Monaco, Menlo, Consolas, "Courier New", monospace;;
 @font-family-base:        @font-family-sans-serif;
 
-@font-size-base:          13px;
+@font-size-base:          16px;
 @font-size-large:         ceil((@font-size-base * 1.25)); // ~18px
 @font-size-small:         ceil((@font-size-base * 0.85)); // ~12px
 
@@ -225,9 +225,9 @@
 @legend-border-color:            #e5e5e5;
 
 //** Background color for textual input addons
-@input-group-addon-bg:           transparent; // @gray-lighter;
+@input-group-addon-bg:           @gray-lighter;
 //** Border color for textual input addons
-@input-group-addon-border-color: transparent; // @input-border;
+@input-group-addon-border-color: @input-border;
 
 
 //** `.form-group` margin

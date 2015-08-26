@@ -1,13 +1,13 @@
 LESS_FILES=$(shell find public/less -name '*.less' -type f)
 
-.PHONEY: all css handlebars
+.PHONEY: all css 
 
-all: css handlebars
+all: css 
 
 css: static/css/styles.css
 
 static/css/styles.css: $(LESS_FILES)
-	lessc less/main.less > static/css/styles.css
+	lessc public/less/main.less > static/css/styles.css
 
-handlebars: static/js/templates/preferences.js
+handlebars: public/handlebars-templates/preferences.hbs
 	handlebars public/handlebars-templates/preferences.hbs > static/js/templates/preferences.js

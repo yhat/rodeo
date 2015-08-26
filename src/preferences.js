@@ -43,7 +43,7 @@ function setFontSize(size) {
 }
 
 function setTheme(theme) {
-  alert("GLOAL THEME IS NOW: " + theme);
+  alert("This feature doesn't work yet, but if it did your Rodeo Theme would be: " + theme);
   updateRC("theme", theme);
 }
 

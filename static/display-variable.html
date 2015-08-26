@@ -2,8 +2,7 @@
 <html lang="en">
 <head>
     <title>Rodeo</title>
-    <link href="css/bootstrap.paper.css" rel="stylesheet">
-
+    <link href="css/styles.css" rel="stylesheet">
     <script type="text/javascript">
       window.$ = window.jQuery = require('jquery');
     </script>
@@ -30,8 +29,14 @@ $(document).ready(function() {
       var rows = $("tbody", data.html);
       $("#rows").append(rows);
       // configure column widths
+      // TODO: this doesn't appear to be working when the header widths are bigger
+      // than the row widths
+      $("#rows").width($("#header").width());
       $("#rows tr").first().children().each(function(i, el) {
-        $($("#header th")[i]).css("width", $(el).css("width"));
+        var rowWidth = $(el).outerWidth();
+        var headerWidth = $($("#header th")[i]).outerWidth();
+        var width = Math.max(rowWidth, headerWidth);
+        $($("#header th")[i]).outerWidth(width);
       });
     }
   });

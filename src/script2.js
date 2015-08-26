@@ -194,6 +194,7 @@ function showVariable(varname, type) {
   var params = {toolbar: false, resizable: true, show: true, height: 800, width: 1000};
   variableWindow = new BrowserWindow(params);
   variableWindow.loadUrl('file://' + __dirname + '/../static/display-variable.html');
+  // variableWindow.openDevTools();
 
   var show_var_statements = {
     DataFrame: "print(" + varname + "[:1000].to_html())",
