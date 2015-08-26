@@ -38,48 +38,23 @@ var configFile = tmp.fileSync();
 // an executable to avoid `python kernel.py` not working
 
 
-function getUserPath() {
-  var USER_HOME = process.env[(process.platform == 'win32') ? 'USERPROFILE' : 'HOME'];
-  var bp = path.join(USER_HOME, ".bash_profile");
-
-  if (fs.existsSync(bp)) {
-    bp = fs.readFileSync(bp).toString()
-                            .split('\n')
-                            .filter(function(line) {
-                                return /export PATH/.test(line);
-                            });
-
-
-    var originalPath = '';
-    var paths = bp.map(function(line) {
-      var m = line.match(/(\export PATH=)(.+)$/);
-      if (m && m.length > 1) {
-        if (! /\$PATH/.test(m[2])) {
-          originalPath = m[2];
-        } else {
-          return m[2];
-        }
-      } else {
-        return;
-      }
-    }).filter(function(p) { return p; })
-
-    var totalPath = originalPath;
-    paths.forEach(function(p) {
-      totalPath = totalPath + p.slice(5);
-    }.bind(this));
-    return totalPath;
-  } else {
-    return null;
-  }
+var pythonCmd;
+if (fs.existsSync("/usr/local/bin/python")) {
+  pythonCmd = "/usr/local/bin/python";
+} else if (fs.existsSync("/usr/local/bin/ipython")) {
+  pythonCmd = "/usr/local/bin/ipython";
+} else if (fs.existsSync("/anaconda/bin/python")) {
+  pythonCmd = "/anaconda/bin/python";
+} else if (fs.existsSync(path.join(USER_HOME, "anaconda", "bin", "python"))) {
+  pythonCmd = path.join(USER_HOME, "anaconda", "bin", "python");
+} else if (fs.existsSync("/usr/bin/python")) {
+  pythonCmd = "/usr/bin/python";
+} else {
+  pythonCmd = "python";
 }
 
 
-var python = spawn(kernelFile.name, [configFile.name + ".json", delim], {
-  env: {
-    PATH: getUserPath()
-  }
-});
+var python = spawn(pythonCmd, [kernelFile.name, configFile.name + ".json", delim]);
 
 // we'll print any feedback from the kernel as yellow text
 python.stderr.on("data", function(data) {
