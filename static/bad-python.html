@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>Rodeo</title>
+    <link href="css/styles.css" rel="stylesheet">
+    <script type="text/javascript">
+      window.$ = window.jQuery = require('jquery');
+    </script>
+</head>
+<body>
+
+  <div class="container">
+    <h2>Bad news! Rodeo can't start <i clas="fa fa-frown"></i></h2>
+    <h3>What's going on?</h3>
+    <p class="lead">
+      Unfortunately Rodeo wasn't able to find the <code>python</code> command it needs in order
+      to run. Rodeo uses the same libraries the IPython Notebook does. This means, if you don't
+      have your notebook setup properly, Rodeo probably isn't going to work.
+    </p>
+    <h3>How do I fix it?</h3>
+    <p class="lead">
+      The good news is that this happens to a lot of people and it's fairly easy to fix. The root
+      of the problem is that you don't have Python setup correctly (or it's setup in a pretty non-standard
+      way that Rodeo doesn't recognize). You've got a couple options.
+    </p>
+    <h4>(1) The "I just want it to work" option</h4>
+    <p class="lead">
+      I recommend installing a pre-packaged version of Python. The following work pretty well:
+      <ul>
+        <li>Anaconda</li>
+        <li>Another distro</li>
+      </ul>
+      Once you're done, try re-running Rodeo.
+    </p>
+    <h4>(2) The "I know what I'm doing" option</h4>
+    <p class="lead">
+      Rodeo attempts to load either of the following packages:
+
+    </p>
+  </div>
+
+<script type="text/javascript">
+$(document).ready(function() {
+  require('ipc').on('ping', function(data) {
+    console.log(data);
+  });
+});
+</script>
+
+</body>
+</html>

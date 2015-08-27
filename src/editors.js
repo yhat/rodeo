@@ -94,8 +94,8 @@ function createEditor(id) {
     bindKey: {win: "ctrl-Enter", mac: "Command-Enter"},
     exec: function(editor) {
       var text = editor.getCopyText();
+      var currline = editor.getSelectionRange().end.row;
       if (text=="") {
-        var currline = editor.getSelectionRange().start.row;
         text = editor.session.getLine(currline);
       }
       jqconsole.Write(">>> " + text + '\n', 'jqconsole-old-input');

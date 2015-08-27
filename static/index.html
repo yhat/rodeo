@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <title>Rodeo</title>
-    <link href="css/styles.css" rel="stylesheet"/>
+    <link id="rodeo-theme" href="css/styles.css" rel="stylesheet"/>
 
     <script type="text/javascript">
       window.$ = window.jQuery = require('jquery');
@@ -92,7 +92,7 @@
             <li><a><i class="fa fa-terminal"></i>&nbsp;Console</a></li>
           </ul>
           <div id="consoleTabContainer" class="tab-content">
-            <div class="tab-pane active in top-right" id="console-tab">
+            <div class="tab-pane active in top-right" id="console-tab" style="height: 100%;">
               <div id="console" style="height: 100%;"></div>
             </div>
           </div>
@@ -131,7 +131,7 @@
                   </div>
                 </div>
               </div>
-              <div style="background-color: #fdfdfd;" class="top-right history container" id="history-trail"></div>
+              <div class="top-right history container" id="history-trail"></div>
             </div>
           </div>
         </div>
@@ -198,7 +198,7 @@
             <!-- Packages Viewer -->
             <!-- Help -->
             <div class="tab-pane" id="help">
-              <pre style="font-size: 10px; background-color: #fdfdfd; overflow: auto;" id="help-content"><i>run help(...) for more info</i></pre>
+              <pre style="font-size: 10px; overflow: auto;" id="help-content"><i>run help(...) for more info</i></pre>
             </div>
             <!-- End Help -->
           </div>
@@ -362,6 +362,7 @@
       $(currentPlot).remove();
     }
 
+    // basic search for history
     $('#pkg-search').on('input', function() {
       var query = $(this).val().toLowerCase();
       if (query=="") {
@@ -378,6 +379,7 @@
       }
     });
 
+    // basic search for packages
     $('#history-search').on('input', function() {
       var query = $(this).val().toLowerCase();
       if (query=="") {
@@ -402,7 +404,7 @@
   <script type="text/javascript">
     // not sure why but this needs to happen last
     calibratePanes();
-    // should always be a first tab
+    // should always be a fresh tab
     $("#add-tab").click();
   </script
 </body>

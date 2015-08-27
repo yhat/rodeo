@@ -12,7 +12,7 @@
           <select onchange="setEditorTheme($(this).val());" class="form-control" name="editorTheme" id="editorTheme">
             <option value="ace/theme/ambiance" {{#compare editorTheme 'ace/theme/ambiance' }}selected{{/compare}}>ambiance</option>
             <option value="ace/theme/chaos" {{#compare editorTheme 'ace/theme/chaos' }}selected{{/compare}}>chaos</option>
-            <option value="ace/theme/chrome" {{#compare editorTheme 'ace/theme/chrome' }}selected{{/compare}}>chrome</option>
+            <option value="ace/theme/chrome" {{#compare editorTheme 'ace/theme/chrome' }}selected{{/compare}}>chrome (default)</option>
             <option value="ace/theme/clouds" {{#compare editorTheme 'ace/theme/clouds' }}selected{{/compare}}>clouds</option>
             <option value="ace/theme/clouds_midnight" {{#compare editorTheme 'ace/theme/clouds_midnight' }}selected{{/compare}}>clouds midnight</option>
             <option value="ace/theme/cobalt" {{#compare editorTheme 'ace/theme/cobalt' }}selected{{/compare}}>cobalt</option>
@@ -71,9 +71,10 @@
         <div class="form-group">
           <label for="theme">Theme</label>
           <select onchange="setTheme($(this).val());" class="form-control" name="theme" id="theme">
-            <option value="light" selected>light</option>
-            <option value="presentation">presentation</option>
-            <option value="dark">dark</option>
+            <option value="css/styles.css" {{#compare theme 'css/styles.css' }}selected{{/compare}}>light</option>
+            <option value="css/styles-presentation.css" {{#compare theme 'css/styles-presentation.css' }}selected{{/compare}}>presentation</option>
+            <option value="css/styles-dark.css" {{#compare theme 'css/styles-dark.css' }}selected{{/compare}}>dark</option>
+            <option value="css/styles-cobalt.css" {{#compare theme 'css/styles-cobalt.css' }}selected{{/compare}}>cobalt</option>
           </select>
         </div>
       </div>

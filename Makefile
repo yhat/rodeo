@@ -4,19 +4,28 @@ JS_FILES=$(shell find public/js -type f -name '*.js' | grep -v main.js)
 
 .PHONEY: all css js
 
-all: css js
+all: css js 
 
-css: static/css/styles.css
+css: styles.css styles-dark.css styles-presentation.css styles-cobalt.css
 
 js: static/js/main.js
 
-handlebars: static/js/handlebars-templates.js
+handlebars: public/js/handlebars-templates.js
 
-static/css/styles.css: $(LESS_FILES)
-	lessc public/less/main.less > static/css/styles.css
+styles.css: $(LESS_FILES)
+	lessc public/less/styles.less > static/css/styles.css
 
-static/js/handlebars-templates.js: $(HBS_FILES)
-	handlebars public/handlebars-templates/* > static/js/handlebars-templates.js
+styles-cobalt.css: $(LESS_FILES)
+	lessc public/less/styles-cobalt.less > static/css/styles-cobalt.css
+
+styles-presentation.css: $(LESS_FILES)
+	lessc public/less/styles-presentation.less > static/css/styles-presentation.css
+
+styles-dark.css: $(LESS_FILES)
+	lessc public/less/styles-dark.less > static/css/styles-dark.css
+
+public/js/handlebars-templates.js: $(HBS_FILES)
+	handlebars public/handlebars-templates/* > public/js/handlebars-templates.js
 
 static/js/main.js : $(JS_FILES)
 	uglifyjs $(shell find public/js -type f -name '*.js' | grep -v main.js | tr '\n' ' ') > static/js/main.js

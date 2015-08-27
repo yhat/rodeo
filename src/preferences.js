@@ -47,10 +47,13 @@ function setDefaultWd(wd) {
 }
 
 function setTheme(theme) {
-  alert("This feature doesn't work yet, but if it did your Rodeo Theme would be: " + theme);
+  if (fs.existsSync(path.join(__dirname, "..", "static", theme))) {
+    if ($("#rodeo-theme").attr("href")!=theme) {
+      $("#rodeo-theme").attr("href", theme);
+    }
+  }
   updateRC("theme", theme);
 }
-
 
 function setAutoSave(val) {
   updateRC("autoSave", val);
@@ -63,6 +66,9 @@ if (fs.existsSync(rodeorc)) {
     setFiles(rc.defaultWd);
   } else {
     setFiles(USER_HOME);
+  }
+  if (rc.theme) {
+    setTheme(rc.theme);
   }
 } else {
   setFiles(USER_HOME);

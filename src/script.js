@@ -20,6 +20,7 @@ var USER_WD = USER_HOME;
 var variableWindow;
 
 // Python Kernel
+var execSync = require('child_process').execSync;
 var spawn = require('child_process').spawn;
 var StreamSplitter = require("stream-splitter");
 var delim = "\n";
@@ -37,23 +38,40 @@ var configFile = tmp.fileSync();
 
 // /usr/bin/env python doesn't really work, so we're going to be doing the ole
 // guess and check method
-var pythonCmd;
-if (fs.existsSync("/usr/local/bin/python")) {
-  pythonCmd = "/usr/local/bin/python";
-} else if (fs.existsSync("/usr/local/bin/ipython")) {
-  pythonCmd = "/usr/local/bin/ipython";
-} else if (fs.existsSync("/anaconda/bin/python")) {
-  pythonCmd = "/anaconda/bin/python";
-} else if (fs.existsSync(path.join(USER_HOME, "anaconda", "bin", "python"))) {
-  pythonCmd = path.join(USER_HOME, "anaconda", "bin", "python");
-} else if (fs.existsSync("/usr/bin/python")) {
-  pythonCmd = "/usr/bin/python";
-} else if (fs.existsSync(path.join(USER_HOME, "bin", "python"))) {
-  pythonCmd = path.join(USER_HOME, "bin", "python");
-} else {
-  pythonCmd = "python";
-}
 
+var testPython = path.join(__dirname, "../src", "test_python.py");
+var testPythonFile = tmp.fileSync();
+fse.copySync(testPython, testPythonFile.name);
+
+var pythonCmds = [
+  "python",
+  "/usr/local/bin/python",
+  "/usr/local/bin/ipython",
+  "/anaconda/bin/python",
+  path.join(USER_HOME, "anaconda", "bin", "python"),
+  "/usr/bin/python",
+  path.join(USER_HOME, "bin", "python"),
+  "python"
+]
+var pythonCmds = [];
+
+var pythonCmd;
+for (var i=0; i<pythonCmds.length; i++) {
+  pythonCmd = pythonCmds[i];
+  var result = execSync(pythonCmd + " " + testPythonFile.name);
+  if (result!="FAIL") {
+    break;
+  } else {
+    console.error("PYTHON PATH: " + pythonCmd + " DID NOT WORK. FORGING AHEAD");
+  }
+  pythonCmd = null;
+}
+if (pythonCmd==null) {
+  var params = {toolbar: false, resizable: true, show: true, height: 800, width: 1000};
+  var badPythonWindow = new BrowserWindow(params);
+  badPythonWindow.loadUrl('file://' + __dirname + '/../static/bad-python.html');
+  badPythonWindow.webContents.send('ping', { pythonCmds: pythonCmds });
+}
 
 var python = spawn(pythonCmd, [kernelFile.name, configFile.name + ".json", delim]);
 

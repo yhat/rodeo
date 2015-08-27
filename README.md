@@ -36,6 +36,8 @@ $ ./watch.sh
       Uncaught TypeError: Cannot read property 'text' of undefined console.js:101
 - [x] add "Set Working Directory" button on files UI
 - [ ] make headers and rows in all tables have the same width
+- [ ] data tables look a little funky
+- [ ] alert if Rodeo is configured incorrectly
 - [x] implement "restart session"
 - [x] shortcut for new editor
 - [?] column width same as the console in the editor
@@ -46,10 +48,11 @@ $ ./watch.sh
 - [ ] Excel renderer
 - [x] update file tree on save
 - [ ] multiline execute jumps around
+    - [x] after highlight, things go nuts
+    - [ ] ability to "know" if command is done yet when going line by line
 - [ ] on drastic change to editor, some things aren't visible
 - [x] on restart session, run refreshVariables()
 - [x] default working directory in preferences
-- [ ] data tables look a little funky
 - [ ] console font size
 - [x] convert to LESS
 - [x] bug on open files

@@ -2,19 +2,22 @@
 #console {
   position: relative;
   width: 100%;
-  background-color: white;
+  background-color: @body-bg;
 }
 .jqconsole {
-    background-color: white;
+    background-color: @body-bg;
     font-size: 10px;
 }
 /* The inner console element. */
-.jqconsole, pre {
+.jqconsole {
+  border: 0px;
+  color: @text-color;
   border: 0px;
 }
+
 /* The cursor. */
 .jqconsole-cursor {
-    background-color: gray;
+    background-color: @text-color;
 }
 /* The cursor color when the console looses focus. */
 .jqconsole-blurred .jqconsole-cursor {
@@ -22,34 +25,31 @@
 }
 /* The current prompt text color */
 .jqconsole-prompt {
-    color: black;
+    color: @text-color;
 }
 /* The command history */
 .jqconsole-old-prompt {
-    color: black;
+    color: @text-color;
     font-weight: normal;
 }
 /* The text color when in input mode. */
 .jqconsole-input {
-    color: black;
+    color: @text-color;
 }
 /* Previously entered input. */
 .jqconsole-old-input {
-    color: black;
+    color: @text-color;
     font-weight: normal;
 }
 /* The text color of the output. */
 .jqconsole-output {
-    color: black;
+    color: @text-color;
 }
 
 .jqconsole-error {
     color: red;
 }
 
-.panel-console {
-  border-color: black;
-}
- .panel-console > .panel-heading {
-  background-color: black;
+.jqconsole-header {
+  color: @text-color;
 }

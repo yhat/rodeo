@@ -67,6 +67,8 @@ jqconsole._IndentOld = jqconsole._Indent;
 jqconsole._Indent = function() {
   if (jqconsole.GetPromptText().trim()=="") {
     jqconsole._IndentOld();
+  } else if (jqconsole.GetPromptText().slice(-1)=="\n") {
+    jqconsole._IndentOld();
   } else {
     var originalPrompt = jqconsole.GetPromptText();
     var code = jqconsole.GetPromptText().split(' ').slice(-1)[0];
@@ -83,7 +85,8 @@ jqconsole._Indent = function() {
       // if only 1 suggestion comes back then we'll take the liberty and finish
       // the autocomplete
       if (predictions.length==1) {
-        jqconsole.SetPromptText(predictions[0].value);
+        var completedText = originalPrompt.slice(0, originalPrompt.length - code.length) + predictions[0].value;
+        jqconsole.SetPromptText(completedText);
         return;
       }
       // otherwise we need to display potential completions

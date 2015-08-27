@@ -213,28 +213,33 @@ var template = [
         selector: 'performMiniaturize:'
       },
       {
-        label: 'Zoom to Default',
-        accelerator: 'CmdOrCtrl+0',
-        click: function() {
-          webFrame.setZoomLevel(0);
-          calibratePanes();
-        }
-      },
-      {
-        label: 'Zoom In',
-        accelerator: 'CmdOrCtrl+=',
-        click: function() {
-          webFrame.setZoomLevel(webFrame.getZoomLevel() + 1);
-          calibratePanes();
-        }
-      },
-      {
-        label: 'Zoom Out',
-        accelerator: 'CmdOrCtrl+-',
-        click: function() {
-          webFrame.setZoomLevel(webFrame.getZoomLevel() - 1);
-          calibratePanes();
-        }
+        label: 'Zoom',
+        submenu: [
+          {
+            label: 'Zoom to Default',
+            accelerator: 'CmdOrCtrl+0',
+            click: function() {
+              webFrame.setZoomLevel(0);
+              calibratePanes();
+            }
+          },
+          {
+            label: 'Zoom In',
+            accelerator: 'CmdOrCtrl+=',
+            click: function() {
+              webFrame.setZoomLevel(webFrame.getZoomLevel() + 1);
+              calibratePanes();
+            }
+          },
+          {
+            label: 'Zoom Out',
+            accelerator: 'CmdOrCtrl+-',
+            click: function() {
+              webFrame.setZoomLevel(webFrame.getZoomLevel() - 1);
+              calibratePanes();
+            }
+          }  
+        ]
       },
       {
         type: 'separator'
