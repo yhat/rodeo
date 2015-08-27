@@ -56,6 +56,7 @@ function setAutoSave(val) {
   updateRC("autoSave", val);
 }
 
+// on startup, set defaults for non-editor preferences
 if (fs.existsSync(rodeorc)) {
   var rc = JSON.parse(fs.readFileSync(rodeorc).toString());
   if (rc.defaultWd && fs.existsSync(rc.defaultWd)) {
