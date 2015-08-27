@@ -1,16 +1,19 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <title>Rodeo</title>
+    <title>Rodeo | Trouble</title>
     <link href="css/styles.css" rel="stylesheet">
     <script type="text/javascript">
       window.$ = window.jQuery = require('jquery');
     </script>
 </head>
 <body>
-
+  <div class="jumbotron">
+    <div class="container">
+      <h1>Bad news! Rodeo can't start <i class="fa fa-frown-o"></i></h1>
+    </div>
+  </div>
   <div class="container">
-    <h2>Bad news! Rodeo can't start <i clas="fa fa-frown"></i></h2>
     <h3>What's going on?</h3>
     <p class="lead">
       Unfortunately Rodeo wasn't able to find the <code>python</code> command it needs in order
@@ -19,30 +22,49 @@
     </p>
     <h3>How do I fix it?</h3>
     <p class="lead">
-      The good news is that this happens to a lot of people and it's fairly easy to fix. The root
+      The good news is that we've identified the problem and it's fairly easy to fix. The root
       of the problem is that you don't have Python setup correctly (or it's setup in a pretty non-standard
       way that Rodeo doesn't recognize). You've got a couple options.
     </p>
-    <h4>(1) The "I just want it to work" option</h4>
+    <h3>(1) The "I just want it to work" option</h3>
     <p class="lead">
-      I recommend installing a pre-packaged version of Python. The following work pretty well:
-      <ul>
-        <li>Anaconda</li>
-        <li>Another distro</li>
-      </ul>
+      If you just want this to work as quickly as humanly possible, you can install a pre-packaged version of Python.
+      <br>
+      <i>what to do</i>
+      <br>
       Once you're done, try re-running Rodeo.
     </p>
-    <h4>(2) The "I know what I'm doing" option</h4>
+    <h3>(2) The "I know what I'm doing" option</h3>
     <p class="lead">
-      Rodeo attempts to load either of the following packages:
-
+      Rodeo needs to be able to import either <code>jupyter_client</code> or <code>IPython</code>. If you don't have
+      one of these installed, then that's prboably your problem.
     </p>
+    <p class="lead">
+      If you do have one of them installed, then the issue
+      is that Rodeo is using the "wrong python". Rodeo attempted to import <code>jupyter_client/IPython</code> using
+      the following python environments but was unsuccessful:
+    </p>
+    <div>
+      <ul id="python-commands" style="list-style-type: none;">
+      </ul>
+    </div>
+    <p class="lead">
+      If you have your python environment in a different location (you can test this by running <code>which python</code>), you
+      can map that environment to one of the python paths that Rodeo supports:
+    </p>
+    <pre>
+$ which python
+# /some/other/python
+$ mkdir -p ~/bin
+$ ln -s `which python` ~/bin/python</pre>
   </div>
 
 <script type="text/javascript">
 $(document).ready(function() {
   require('ipc').on('ping', function(data) {
-    console.log(data);
+    data.pythonCmds.forEach(function(cmd) {
+      $("#python-commands").append("<li><code>" + cmd + "</code></li>");
+    });
   });
 });
 </script>

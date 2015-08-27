@@ -147,13 +147,13 @@
 //##
 
 //** `<input>` background color
-@input-bg:                       #fff;
+@input-bg:                       @body-bg;
 //** `<input disabled>` background color
 @input-bg-disabled:              @gray-lighter;
 
 //** Text color for `<input>`s
-@input-color:                    @body-bg;
-@input-addon-color:              @input-color;
+@input-color:                    @text-color;
+@input-addon-color:              @gray-lighter;
 //** `<input>` border color
 @input-border:                   transparent;
 
@@ -186,7 +186,7 @@
 @legend-border-color:            @gray-light;
 
 //** Background color for textual input addons
-@input-group-addon-bg:          @gray-lighter;
+@input-group-addon-bg:          transparent; // @gray-lighter;
 //** Border color for textual input addons
 @input-group-addon-border-color: transparent;
 

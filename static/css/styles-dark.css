@@ -2529,7 +2529,7 @@ output {
   padding-top: 11px;
   font-size: 13px;
   line-height: 1.42857143;
-  color: #000000;
+  color: #ffffff;
 }
 .form-control {
   display: block;
@@ -2538,8 +2538,8 @@ output {
   padding: 10px 15px;
   font-size: 13px;
   line-height: 1.42857143;
-  color: #000000;
-  background-color: #ffffff;
+  color: #ffffff;
+  background-color: #222222;
   background-image: none;
   border: 1px solid #f1f1f1;
   border-radius: 4px;
@@ -9501,7 +9501,7 @@ input[type="checkbox"]:disabled:checked:after,
 .has-warning .input-group-addon,
 .has-error .input-group-addon,
 .has-success .input-group-addon {
-  color: #000000;
+  color: #ffffff;
   border-color: transparent;
   background-color: transparent;
 }

@@ -37,7 +37,7 @@ $ ./watch.sh
 - [x] add "Set Working Directory" button on files UI
 - [ ] make headers and rows in all tables have the same width
 - [ ] data tables look a little funky
-- [ ] alert if Rodeo is configured incorrectly
+- [x] alert if Rodeo is configured incorrectly
 - [x] implement "restart session"
 - [x] shortcut for new editor
 - [?] column width same as the console in the editor

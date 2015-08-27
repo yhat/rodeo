@@ -60,16 +60,17 @@ for (var i=0; i<pythonCmds.length; i++) {
   var result = execSync(pythonCmd + " " + testPythonFile.name);
   if (result!="FAIL") {
     break;
-  } else {
-    console.error("PYTHON PATH: " + pythonCmd + " DID NOT WORK. FORGING AHEAD");
   }
   pythonCmd = null;
 }
+
 if (pythonCmd==null) {
   var params = {toolbar: false, resizable: true, show: true, height: 800, width: 1000};
   var badPythonWindow = new BrowserWindow(params);
   badPythonWindow.loadUrl('file://' + __dirname + '/../static/bad-python.html');
-  badPythonWindow.webContents.send('ping', { pythonCmds: pythonCmds });
+  badPythonWindow.webContents.on('did-finish-load', function() {
+    badPythonWindow.webContents.send('ping', { pythonCmds: pythonCmds });
+  });
 }
 
 var python = spawn(pythonCmd, [kernelFile.name, configFile.name + ".json", delim]);

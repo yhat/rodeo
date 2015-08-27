@@ -2529,7 +2529,7 @@ output {
   padding-top: 7px;
   font-size: 13px;
   line-height: 1.42857143;
-  color: #2b3e50;
+  color: #ebebeb;
 }
 .form-control {
   display: block;
@@ -2538,8 +2538,8 @@ output {
   padding: 6px 12px;
   font-size: 13px;
   line-height: 1.42857143;
-  color: #2b3e50;
-  background-color: #ffffff;
+  color: #ebebeb;
+  background-color: #2b3e50;
   background-image: none;
   border: 1px solid transparent;
   border-radius: 4px;
@@ -3925,9 +3925,9 @@ select[multiple].input-group-sm > .input-group-btn > .btn {
   font-size: 13px;
   font-weight: normal;
   line-height: 1;
-  color: #2b3e50;
+  color: #ebebeb;
   text-align: center;
-  background-color: #ebebeb;
+  background-color: transparent;
   border: 1px solid transparent;
   border-radius: 4px;
 }
@@ -9494,9 +9494,9 @@ input[type="checkbox"]:disabled:checked:after,
 .has-warning .input-group-addon,
 .has-error .input-group-addon,
 .has-success .input-group-addon {
-  color: #2b3e50;
+  color: #ebebeb;
   border-color: transparent;
-  background-color: #ebebeb;
+  background-color: transparent;
 }
 .nav-tabs > li > a,
 .nav-tabs > li > a:focus {
