@@ -88,8 +88,14 @@
 
         <!-- BOTTOM LEFT -->
         <div id="bottom-left">
-          <!-- <h3 class="panel-title"><i class="fa fa-terminal"></i></h3> -->
-          <div id="console"></div>
+          <ul id="consoleTab" class="nav nav-tabs">
+            <li><a><i class="fa fa-terminal"></i>&nbsp;Console</a></li>
+          </ul>
+          <div id="consoleTabContainer" class="tab-content">
+            <div class="tab-pane active in top-right" id="console-tab">
+              <div id="console" style="height: 100%;"></div>
+            </div>
+          </div>
         </div>
         <!-- END BOTTOM LEFT -->
     </div>
@@ -242,8 +248,8 @@
 
       // Bottom Left
       var bottomLeftHeight = $("#bottom-left").height();
-      // var offset = $("#bottom-left .panel-heading").height() + 1;
-      $("#console").height(bottomLeftHeight);
+      var offset = $("#bottom-left #consoleTab").height() + 1;
+      $("#consoleTabContainer").height(bottomLeftHeight - offset);
       // TODO: this is getting called constantly
       // setConsoleWidth($("#console").width());
 
