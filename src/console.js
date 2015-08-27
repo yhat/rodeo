@@ -84,8 +84,16 @@ jqconsole._Indent = function() {
       var predictions = result.output;
       // if only 1 suggestion comes back then we'll take the liberty and finish
       // the autocomplete
+      var completedText = "";
       if (predictions.length==1) {
-        var completedText = originalPrompt.slice(0, originalPrompt.length - code.length) + predictions[0].value;
+        var prediction = predictions[0].value;
+        for(var i=prediction.length; i>0; i--) {
+          var p = prediction.slice(0, i);
+          if (originalPrompt.slice(-p.length)==p) {
+            completedText = originalPrompt + prediction.slice(i);
+            break;
+          }
+        }
         jqconsole.SetPromptText(completedText);
         return;
       }

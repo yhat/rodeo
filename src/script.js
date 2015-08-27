@@ -259,6 +259,9 @@ function showVariable(varname, type) {
 }
 
 function showPlot() {
+  if (! $("img.active").length) {
+    return;
+  }
   var filename = $("img.active").attr("src");
   var params = {toolbar: false, resizable: false, show: true, height: 1000, width: 1000};
   var plotWindow = new BrowserWindow(params);
@@ -266,6 +269,9 @@ function showPlot() {
 }
 
 function savePlot() {
+  if (! $("img.active").length) {
+    return;
+  }
   remote.require('dialog').showSaveDialog({
     title:'Export Plot',
     default_path: USER_WD,
