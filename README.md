@@ -16,6 +16,12 @@ Clone the repo and run:
 $ electron .
 ```
 
+To updated static assets are you change them, run `watch.sh`:
+
+```
+$ ./watch.sh
+```
+
 ## TODOs
 - [x] node.js to ipython kernel module
     - [x] plots
@@ -29,7 +35,7 @@ $ electron .
 - [x] Uncaught TypeError: path must be a string
       Uncaught TypeError: Cannot read property 'text' of undefined console.js:101
 - [x] add "Set Working Directory" button on files UI
-- [x] make headers and rows in all tables have the same width
+- [ ] make headers and rows in all tables have the same width
 - [x] implement "restart session"
 - [x] shortcut for new editor
 - [?] column width same as the console in the editor
@@ -40,7 +46,7 @@ $ electron .
 - [ ] Excel renderer
 - [x] update file tree on save
 - [ ] multiline execute jumps around
-- [ ] on durastic change to editor, some things aren't visible
+- [ ] on drastic change to editor, some things aren't visible
 - [x] on restart session, run refreshVariables()
 - [x] default working directory in preferences
 - [ ] data tables look a little funky

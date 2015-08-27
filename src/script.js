@@ -34,10 +34,9 @@ fse.copySync(pythonKernel, kernelFile.name);
 fs.chmodSync(kernelFile.name, 0755);
 // config file to store ipython session details
 var configFile = tmp.fileSync();
-// spawn the kernel. we're using #!/usr/bin/env python and making the kernel
-// an executable to avoid `python kernel.py` not working
 
-
+// /usr/bin/env python doesn't really work, so we're going to be doing the ole
+// guess and check method
 var pythonCmd;
 if (fs.existsSync("/usr/local/bin/python")) {
   pythonCmd = "/usr/local/bin/python";
@@ -49,6 +48,8 @@ if (fs.existsSync("/usr/local/bin/python")) {
   pythonCmd = path.join(USER_HOME, "anaconda", "bin", "python");
 } else if (fs.existsSync("/usr/bin/python")) {
   pythonCmd = "/usr/bin/python";
+} else if (fs.existsSync(path.join(USER_HOME, "bin", "python"))) {
+  pythonCmd = path.join(USER_HOME, "bin", "python");
 } else {
   pythonCmd = "python";
 }
