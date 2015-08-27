@@ -53,7 +53,6 @@ var pythonCmds = [
   path.join(USER_HOME, "bin", "python"),
   "python"
 ]
-var pythonCmds = [];
 
 var pythonCmd;
 for (var i=0; i<pythonCmds.length; i++) {
