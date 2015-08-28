@@ -95,8 +95,10 @@ var template = [
           if (variableWindow && variableWindow.isFocused()) {
             variableWindow.close();
           } else {
-            var n = $("#editorsTab .active").attr("id").replace("editor-tab-", "");
-            closeActiveTab(n);
+            if ($("#editorsTab .active").length) {
+              var n = $("#editorsTab .active").attr("id").replace("editor-tab-", "");
+              closeActiveTab(n);
+            }
           }
         }
       },

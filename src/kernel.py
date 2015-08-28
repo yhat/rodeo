@@ -192,9 +192,8 @@ class Kernel(object):
                         result['text'] = ".".join(result['value'].split(".")[1:])
                         result["dtype"] = "function"
                     else:
-                        # result['text'] = result['value'].replace(code, '', 1)
                         result['text'] = result['value']
-                        result["dtype"] = "session variable" # type(globals().get(code)).__name__
+                        result["dtype"] = "" # type(globals().get(code)).__name__
                     results.append(result)
                 output['output'] = results
                 return output
