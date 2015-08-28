@@ -2,18 +2,8 @@
 var path = require('path');
 var fs = require('fs');
 
-function getLastWord(editor) {
-  var pos = editor.getCursorPosition();
-  var column = pos.column - 1;
-  var wordRange = editor.session.getAWordRange(pos.row, column);
-  var text = editor.session.getTextRange(wordRange);
-
-  var newPos = { row: wordRange.start.row, column: wordRange.start.column-1 };
-  if (editor.session.getTextRange({start: newPos, end: wordRange.start })==".") {
-    var variable = editor.session.getTextRange(editor.session.getAWordRange(newPos.row, newPos.column));
-    text = variable + "." + text;
-  }
-  return text;
+function getCurrentLine(editor) {
+  return editor.session.getLine(editor.getCursorPosition().row);
 }
 
 function setDefaultPreferences(editor) {
@@ -54,12 +44,7 @@ function createEditor(id) {
   var pythonCompleter = {
     getCompletions: function(editor, session, pos, prefix, fn) {
       session.$mode.$keywordList = [];
-      var code;
-      if (prefix.length==0) {
-        code = getLastWord(editor) + ".";
-      } else {
-        code = getLastWord(editor);
-      }
+      var code = getCurrentLine(editor);
       var payload = {
         id: uuid.v4(),
         code: code,
@@ -124,7 +109,12 @@ function createEditor(id) {
         start: { row: pos.row, column: pos.column - 1 },
         end: { row: pos.row, column: pos.column }
       });
-      if (text!=" " && text!="") {
+
+      var line = getCurrentLine(editor);
+
+      if (/from /.test(line) || /import /.test(line)) {
+        editor.completer.showPopup(editor)
+      } else if (text!=" " && text!="") {
         editor.completer.showPopup(editor)
       } else {
         editor.insert("    ");

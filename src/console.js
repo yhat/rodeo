@@ -71,7 +71,7 @@ jqconsole._Indent = function() {
     jqconsole._IndentOld();
   } else {
     var originalPrompt = jqconsole.GetPromptText();
-    var code = jqconsole.GetPromptText().split(' ').slice(-1)[0];
+    var code = jqconsole.GetPromptText();
     jqconsole.ClearPromptText(true);
 
     var payload = {

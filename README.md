@@ -29,7 +29,7 @@ $ ./watch.sh
     - [x] autocomplete
       - [x] editor
       - [x] console
-    - [ ] autocomplete for packages names
+    - [x] autocomplete for packages names
 - [ ] run button
 - [x] uglify/minify JS?
 - [x] Uncaught TypeError: path must be a string
