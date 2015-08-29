@@ -5942,8 +5942,8 @@ button.close {
   filter: alpha(opacity=0);
 }
 .modal-backdrop.in {
-  opacity: 0.5;
-  filter: alpha(opacity=50);
+  opacity: 0;
+  filter: alpha(opacity=0);
 }
 .modal-header {
   padding: 15px;
@@ -8937,6 +8937,20 @@ button.close {
 #help-content {
   background-color: #ffffff;
   color: #333333;
+}
+.selected {
+  font-size: 20px;
+}
+.filename {
+  text-decoration: none;
+}
+.selected:hover {
+  background-color: #428bca;
+  color: #eeeeee;
+}
+.selected > a:hover {
+  background-color: #428bca;
+  color: #eeeeee;
 }
 .navbar {
   border: none;

@@ -77,6 +77,10 @@
             <option value="css/styles-cobalt.css" {{#compare theme 'css/styles-cobalt.css' }}selected{{/compare}}>cobalt</option>
           </select>
         </div>
+        <div class="form-group">
+          <label for="pythonCmd">Default Python Command</label>
+          <input onchange="setPythonCmd($(this).val());" class="form-control" id="pythonCmd" name="pythonCmd" value="{{pythonCmd}}" placeholder="/usr/local/bin/python"/>
+        </div>
       </div>
       <div class="tab-pane" id="layout">
         <div class="row" style="height: 100px;">

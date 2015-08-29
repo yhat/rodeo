@@ -30,7 +30,8 @@
     "shelljs": "^0.5.3",
     "stream-splitter": "^0.3.2",
     "tmp": "0.0.27",
-    "uuid": "^2.0.1"
+    "uuid": "^2.0.1",
+    "walk": "^2.3.9"
   },
   "scripts": {
     "start": "electron .",

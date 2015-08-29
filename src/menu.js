@@ -107,6 +107,59 @@ var template = [
         click: function() {
           alert("TODO");
         }
+      },
+      {
+        type: 'separator'
+      },
+      {
+        label: 'Find File',
+        accelerator: 'CmdOrCtrl+t',
+        click: function() {
+          $("#file-search-modal").unbind();
+          $("#file-search-modal").modal("show");
+          $("#file-search-modal input").focus();
+          $("#file-search-modal").keydown(function(e){
+            var selectedFile = $("#file-search-list .list .selected").data("filename");
+            if (! fileList) {
+              return;
+            }
+            var nextFile;
+            if (e.which==40) {
+              // down
+              for(var i=0; i<fileList.matchingItems.length-1; i++) {
+                if ($(fileList.matchingItems[i].elm).data("filename")==selectedFile) {
+                  nextFile = $(fileList.matchingItems[i+1].elm).data("filename");
+                  break;
+                }
+              }
+              if (! nextFile) {
+                nextFile = $(fileList.matchingItems[0].elm).data("filename");
+              }
+            } else if (e.which==38) {
+              // up
+              for(var i=fileList.matchingItems.length-1; i>0; i--) {
+                if ($(fileList.matchingItems[i].elm).data("filename")==selectedFile) {
+                  nextFile = $(fileList.matchingItems[i-1].elm).data("filename");
+                  break;
+                }
+              }
+              if (! nextFile) {
+                nextFile = $(fileList.matchingItems[fileList.matchingItems.length-1].elm).data("filename");
+              }
+            }
+
+            $("#file-search-list .list li").each(function(i, el) {
+              if ($(el).data("filename")==nextFile) {
+                $("#file-search-list .list .selected").removeClass("selected");
+                $(el).addClass("selected");
+                // keep selected item in the center
+                var $parentDiv = $("#file-search-list ul");
+                var $innerListItem = $(el);
+                $parentDiv.scrollTop($parentDiv.scrollTop() + $innerListItem.position().top - $parentDiv.height()/1.5 + $innerListItem.height()/3);
+              }
+            });
+          });
+        }
       }
     ]
   },
@@ -240,7 +293,7 @@ var template = [
               webFrame.setZoomLevel(webFrame.getZoomLevel() - 1);
               calibratePanes();
             }
-          }  
+          }
         ]
       },
       {

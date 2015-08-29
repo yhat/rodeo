@@ -55,6 +55,15 @@ function setTheme(theme) {
   updateRC("theme", theme);
 }
 
+function setPythonCmd(cmd) {
+  if (cmd) {
+    cmd = cmd.replace("~", USER_HOME);
+    updateRC("pythonCmd", cmd);
+  } else {
+    updateRC("pythonCmd", null);
+  }
+}
+
 function setAutoSave(val) {
   updateRC("autoSave", val);
 }

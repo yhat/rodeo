@@ -206,11 +206,48 @@
         </div>
         <!-- END BOTTOM RIGHT -->
     </div>
-  </div>
+    <!-- END main section -->
+
+    <!-- File Search Modal -->
+    <div id="file-search-modal" class="modal">
+      <div class="modal-dialog modal-md">
+        <div class="modal-content">
+          <div class="modal-body">
+            <div id="file-search-list">
+              <form id="file-search-form">
+                <input id="file-search-input" class="search form-control" />
+                <button type="submit" class="hide"></button>
+              </form>
+              <ul class="list list-group" style="list-style-type: none; max-height: 250px; overflow: scroll;"></ul>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <!-- File Search Modal -->
+
   <script type="text/javascript" src="../src/editors.js"></script>
   <script type="text/javascript" src="../src/console.js"></script>
   <!-- end main section -->
   <script type="text/javascript">
+    var fileList;
+    function indexFiles() {
+      $("#file-search-list .list li").removeClass("selected");
+      $("#file-search-list .list li").first().addClass("selected");
+      var options = { valueNames: [ 'filename' ] };
+      fileList = new List('file-search-list', options);
+      $("#file-search-form").submit(function(e) {
+        e.preventDefault();
+        var filename = $("#file-search-list .selected").attr("data-filename");
+        openFile(filename);
+        $("#file-search-input").val("");
+        $("#file-search-modal").modal("hide");
+        $("#file-search-list .list li").removeClass("selected");
+        $("#file-search-list .list li").first().addClass("selected");
+        return false;
+      });
+    }
+
     // resizeable panes
     $("#pane-container").height($(window).height());
 

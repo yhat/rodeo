@@ -31,6 +31,7 @@ $ ./watch.sh
       - [x] console
     - [x] autocomplete for packages names
 - [ ] run button
+- [x] cmd + t for file searching
 - [x] uglify/minify JS?
 - [x] Uncaught TypeError: path must be a string
       Uncaught TypeError: Cannot read property 'text' of undefined console.js:101

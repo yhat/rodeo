@@ -10,6 +10,7 @@ var colors = require('colors');
 var fs = require('fs');
 var fse = require('fs-extra');
 var uuid = require('uuid');
+var walk = require('walk');
 var tmp = require('tmp');
 var abar = require('address_bar');
 var folder_view = require('folder_view');
@@ -43,16 +44,26 @@ var testPython = path.join(__dirname, "../src", "test_python.py");
 var testPythonFile = tmp.fileSync();
 fse.copySync(testPython, testPythonFile.name);
 
-var pythonCmds = [
-  "python",
-  "/usr/local/bin/python",
+var rodeorc = path.join(USER_HOME, ".rodeorc");
+var rc;
+if (fs.existsSync(rodeorc)) {
+  rc = JSON.parse(fs.readFileSync(rodeorc).toString())
+} else {
+  rc = {};
+}
+
+var pythonCmds = []
+if (rc.pythonCmd) {
+  pythonCmds.push(rc.pythonCmd);
+}
+pythonCmds = pythonCmds.concat([
   "/usr/local/bin/ipython",
   "/anaconda/bin/python",
   path.join(USER_HOME, "anaconda", "bin", "python"),
   "/usr/bin/python",
   path.join(USER_HOME, "bin", "python"),
   "python"
-]
+]);
 
 var pythonCmd;
 for (var i=0; i<pythonCmds.length; i++) {
@@ -413,6 +424,19 @@ function setFiles(dir) {
       basename: f
     }));
   }.bind(this));
+
+  // reindex file search
+  var walker = walk.walk(USER_WD, { followLinks: false });
+  $("#file-search-list .list").children().remove();
+  walker.on('file', function(root, stat, next) {
+    var dir = root.replace(USER_WD, '') || "";
+    var filename = path.join(dir, stat.name).replace(/^\//, '');
+    $("#file-search-list .list").append("<li onclick='$(\"#file-search-list .selected\").removeClass(\"selected\"); $(this).addClass(\"selected\"); $(\"#file-search-form\").submit();' data-filename='" + path.join(root, stat.name) + "'><a class='filename'>" + filename + "</a></li>");
+    next();
+  });
+  walker.on('end', function() {
+    indexFiles();
+  });
 }
 
 function pickDirectory(title, defaultPath, fn) {
