@@ -246,11 +246,7 @@ var template = [
         accelerator: 'CmdOrCtrl+R',
         click: function() { remote.getCurrentWindow().reload(); }
       },
-      {
-        label: 'Toggle DevTools',
-        accelerator: 'Alt+CmdOrCtrl+I',
-        click: function() { remote.getCurrentWindow().toggleDevTools(); }
-      },
+      { label: 'Toggle Dev Tools', accelerator: 'Alt+CmdOrCtrl+I', click: function() { remote.getCurrentWindow().toggleDevTools(); } },
     ]
   },
   {
