@@ -7,9 +7,7 @@ APP_NAME="Rodeo"
 VERSION=$(cat package.json | jq .version -r)
 DMG_BACKGROUND_IMG="${HOME_DIR}/resources/app.png"
 
-# you should not need to change these
 APP_EXE="${APP_NAME}.app/Contents/MacOS/Electron"
-
 VOL_NAME="${APP_NAME} ${VERSION}"   # volume name will be "SuperCoolApp 1.0.0"
 DMG_TMP="${VOL_NAME}-temp.dmg"
 DMG_FINAL="${VOL_NAME}.dmg"         # final DMG name will be "SuperCoolApp 1.0.0.dmg"

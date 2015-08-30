@@ -103,12 +103,6 @@ var template = [
         }
       },
       {
-        label: 'Close All Files',
-        click: function() {
-          alert("TODO");
-        }
-      },
-      {
         type: 'separator'
       },
       {

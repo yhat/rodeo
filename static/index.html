@@ -71,15 +71,23 @@
         <!-- TOP LEFT -->
         <div id="top-left">
           <!-- editors -->
-          <ul id="editorsTab" class="nav nav-tabs">
-            <li>
-              <img class="hat" src="img/cowboy-hat.svg" title="Yee Haw!" href="https://www.yhathq.com/">
-              <a href="#"><span style="color: #ee5311;">&ycirc;</span><span class="color: #898989">hat</span></a>
-            </li>
-            <!-- editor tabs go here -->
-            <li><a href="#" id="add-tab"><i class="fa fa-plus-square-o"></i></a></li>
-          </ul>
-          </ul>
+          <div class="row">
+            <div class="col-sm-11" style="padding: 0px; margin: 0px; padding-left: 5px;">
+              <ul id="editorsTab" class="nav nav-tabs">
+                <li>
+                  <img class="hat" src="img/cowboy-hat.svg" title="Yee Haw!" href="https://www.yhathq.com/">
+                  <a href="#"><span style="color: #ee5311;">&ycirc;</span><span class="color: #898989">hat</span></a>
+                </li>
+                <!-- editor tabs go here -->
+                <li><a href="#" id="add-tab"><i class="fa fa-plus-square-o"></i></a></li>
+              </ul>
+            </div>
+            <div class="col-sm-1" style="padding: 0px; margin: 0px;">
+              <ul class="nav nav-tabs">
+                <li><a id="run-button" href="#"><i class="fa fa-play-circle"></i></a></li>
+              </ul>
+            </div>
+          </div>
           <div id="editors" class="tab-content">
           </div>
           <!-- end editors -->
@@ -337,6 +345,20 @@
       if (id!="preferences") {
         ace.edit("editor-" + id).focus();
       }
+      return false;
+    });
+
+    $("#run-button").click(function(e) {
+      e.preventDefault();
+      var id = $("#editors .active .editor").attr("id");
+      var editor = ace.edit(id);
+      var code = editor.getSelectedText();
+      // if nothing was selected, then we'll run the entire file
+      if (! code) {
+        code = editor.session.getValue();
+      }
+      jqconsole.Write(">>> " + code + '\n', 'jqconsole-old-input');
+      sendCommand(code);
       return false;
     });
 

@@ -6,5 +6,10 @@
 rm -rf build/
 electron-compile --target ./cache src/ static/ --verbose \
   && node scripts/build.js \
-  && touch build/darwin/x64/Rodeo-darwin-x64/Rodeo.app/.Trash \
-  && hdiutil create -format UDZO -srcfolder build/darwin/x64/Rodeo-darwin-x64/Rodeo.app build/darwin/x64/Rodeo-darwin-x64/Rodeo.dmg
+  && mkdir build/darwin/x64/Rodeo-darwin-x64/dmg/ \
+  && cd build/darwin/x64/Rodeo-darwin-x64/dmg/ && ln -s /Applications && cd - \
+  && touch build/darwin/x64/Rodeo-darwin-x64/dmg/.Trash \
+  && mkdir build/darwin/x64/Rodeo-darwin-x64/dmg/.background \
+  && cp -R build/darwin/x64/Rodeo-darwin-x64/Rodeo.app build/darwin/x64/Rodeo-darwin-x64/dmg/ \
+  && hdiutil create -format UDZO -srcfolder build/darwin/x64/Rodeo-darwin-x64/dmg/ build/darwin/x64/Rodeo-darwin-x64/Rodeo.dmg \
+  && rm -rf build/darwin/x64/Rodeo-darwin-x64/dmg/

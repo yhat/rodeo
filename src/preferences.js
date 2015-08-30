@@ -68,6 +68,10 @@ function setAutoSave(val) {
   updateRC("autoSave", val);
 }
 
+function setDisplayDotFiles(val) {
+  updateRC("displayDotFiles", val);
+}
+
 // on startup, set defaults for non-editor preferences
 if (fs.existsSync(rodeorc)) {
   var rc = JSON.parse(fs.readFileSync(rodeorc).toString());

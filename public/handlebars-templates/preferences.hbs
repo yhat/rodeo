@@ -1,11 +1,48 @@
 <div class="tab-pane active" id="editor-tab-pane-preferences" style="height: 100%;">
   <div class="panel-body">
     <ul class="nav nav-tabs">
-      <li class="active"><a href="#editor" data-toggle="tab">Editor</a></li>
-      <li><a href="#theme" data-toggle="tab">Theme</a></li>
+      <li class="active"><a href="#general" data-toggle="tab">General</a></li>
+      <li><a href="#editor" data-toggle="tab">Editor</a></li>
     </ul>
-    <div id="myTabContent" class="tab-content" style="height: 100%;">
-      <div class="tab-pane active in" id="editor">
+    <div class="tab-content" style="height: 100%;">
+
+      <!-- General Tab -->
+      <div class="tab-pane active" id="general">
+        <br>
+        <div class="form-group">
+          <label for="theme">Theme</label>
+          <select onchange="setTheme($(this).val());" class="form-control" name="theme" id="theme">
+            <option value="css/styles.css" {{#compare theme 'css/styles.css' }}selected{{/compare}}>light</option>
+            <option value="css/styles-presentation.css" {{#compare theme 'css/styles-presentation.css' }}selected{{/compare}}>presentation</option>
+            <option value="css/styles-dark.css" {{#compare theme 'css/styles-dark.css' }}selected{{/compare}}>dark</option>
+            <option value="css/styles-cobalt.css" {{#compare theme 'css/styles-cobalt.css' }}selected{{/compare}}>cobalt</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label for="defaultWorkingDirectory">
+            Default Working Directory
+            <a data-toggle="tooltip" data-placement="right" title="<p class='small'>This is the default directory that Rodeo will open on launch.</p>" data-html="true"><i class="fa fa-question-circle"></i></a>
+          </label>
+          <input onclick="var me = $(this); pickDirectory('Select a Default Working Directory', USER_WD, function(dir) { if (dir) { $(me).val(dir); setDefaultWd($(me).val()); }});" class="form-control" id="defaultWorkingDirectory" name="defaultWorkingDirectory" value="{{defaultWd}}" />
+        </div>
+        <div class="form-group">
+          <label for="pythonCmd">
+            Default Python Command
+            <a data-toggle="tooltip" data-placement="right" title="<p class='small'>The <code>python</code> command that Rodeo will use. Some operating systems (OSX in particular) ship with multiple versions of Python installed. This can be confusing and it is sometimes difficult to determine which <code>python</code> is the 'right one'.</p>" data-html="true"><i class="fa fa-question-circle"></i></a>
+          </label>
+          <input onchange="setPythonCmd($(this).val());" class="form-control" id="pythonCmd" name="pythonCmd" value="{{pythonCmd}}" placeholder="/usr/local/bin/python"/>
+        </div>
+        <div class="checkbox">
+          <label>
+            <input onchange="setDisplayDotFiles($(this).prop('checked'));" type="checkbox" {{#displayDotFiles}}checked{{/displayDotFiles}}> Display Dot Files
+            <a data-toggle="tooltip" data-placement="right" title="<p class='small'>When checked, 'dotfiles' and directories (i.e. `.git`) will be displayed. NOTE: When updated, this will take affect upon restart.</p>" data-html="true"><i class="fa fa-question-circle"></i></a>
+          </label>
+        </div>
+      </div>
+      <!-- End General Tab -->
+
+      <!-- Editor Tab -->
+      <div class="tab-pane in" id="editor">
         <br>
         <div class="form-group">
           <label for="editorTheme">Color Scheme</label>
@@ -45,7 +82,7 @@
           </select>
         </div>
         <div class="form-group">
-          <label for="keyBindings">Key Bindings:</label>
+          <label for="keyBindings">Key Bindings</label>
           <select onchange="setKeyBindings($(this).val());" class="form-control" name="keyBindings" id="keyBindings">
             <option value="default" {{#compare keyBindings 'default'}}selected{{/compare}}>default</option>
             <option value="ace/keybindings/vim" {{#compare keyBindings 'ace/keybindings/vim'}}selected{{/compare}}>vim</option>
@@ -56,32 +93,15 @@
           <label for="fontSize">Font Size</label>
           <input onchange="setFontSize($(this).val());" class="form-control" id="fontSize" name="fontSize" type="number" step="1" value="{{fontSize}}" min="8" max="20" />
         </div>
-        <div class="form-group">
-          <label for="defaultWorkingDirectory">Default Working Directory</label>
-          <input onclick="var me = $(this); pickDirectory('Select a Default Working Directory', USER_WD, function(dir) { if (dir) { $(me).val(dir); setDefaultWd($(me).val()); }});" class="form-control" id="defaultWorkingDirectory" name="defaultWorkingDirectory" value="{{defaultWd}}" />
-        </div>
         <div class="checkbox">
           <label>
             <input onchange="setAutoSave($(this).prop('checked'));" type="checkbox" {{#autoSave}}checked{{/autoSave}}> AutoSave Files
           </label>
         </div>
       </div>
-      <div class="tab-pane" id="theme">
-        <br>
-        <div class="form-group">
-          <label for="theme">Theme</label>
-          <select onchange="setTheme($(this).val());" class="form-control" name="theme" id="theme">
-            <option value="css/styles.css" {{#compare theme 'css/styles.css' }}selected{{/compare}}>light</option>
-            <option value="css/styles-presentation.css" {{#compare theme 'css/styles-presentation.css' }}selected{{/compare}}>presentation</option>
-            <option value="css/styles-dark.css" {{#compare theme 'css/styles-dark.css' }}selected{{/compare}}>dark</option>
-            <option value="css/styles-cobalt.css" {{#compare theme 'css/styles-cobalt.css' }}selected{{/compare}}>cobalt</option>
-          </select>
-        </div>
-        <div class="form-group">
-          <label for="pythonCmd">Default Python Command</label>
-          <input onchange="setPythonCmd($(this).val());" class="form-control" id="pythonCmd" name="pythonCmd" value="{{pythonCmd}}" placeholder="/usr/local/bin/python"/>
-        </div>
-      </div>
+      <!-- End Editor Tab -->
+
+      <!-- Layout Tab -->
       <div class="tab-pane" id="layout">
         <div class="row" style="height: 100px;">
           <div class="col-sm-2" style="height: 100px; background-color: skyblue;">
@@ -96,6 +116,7 @@
           </div>
         </div>
       </div>
+      <!-- End Layout Tab -->
     </div>
   </div>
 </div>

@@ -30,14 +30,23 @@ $ ./watch.sh
       - [x] editor
       - [x] console
     - [x] autocomplete for packages names
-- [ ] run button
+- [x] run button
 - [x] cmd + t for file searching
 - [x] uglify/minify JS?
 - [x] Uncaught TypeError: path must be a string
       Uncaught TypeError: Cannot read property 'text' of undefined console.js:101
 - [x] add "Set Working Directory" button on files UI
+- [ ] toggle display dotfiles
 - [ ] make headers and rows in all tables have the same width
 - [ ] data tables look a little funky
+- [ ] landing page
+- [-] more legit .dmg for OSX
+- [ ] OS support
+  - [x] OSX
+  - [ ] windows
+  - [ ] linux
+    - [ ] ubuntu
+    - [ ] fedora/redhat
 - [x] alert if Rodeo is configured incorrectly
 - [x] implement "restart session"
 - [x] shortcut for new editor

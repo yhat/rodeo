@@ -20,6 +20,18 @@ var USER_HOME = process.env[(process.platform == 'win32') ? 'USERPROFILE' : 'HOM
 var USER_WD = USER_HOME;
 var variableWindow;
 
+
+function getRC() {
+  var rodeorc = path.join(USER_HOME, ".rodeorc");
+  var rc;
+  if (fs.existsSync(rodeorc)) {
+    rc = JSON.parse(fs.readFileSync(rodeorc).toString())
+  } else {
+    rc = {};
+  }
+  return rc;
+}
+
 // Python Kernel
 var execSync = require('child_process').execSync;
 var spawn = require('child_process').spawn;
@@ -44,13 +56,7 @@ var testPython = path.join(__dirname, "../src", "test_python.py");
 var testPythonFile = tmp.fileSync();
 fse.copySync(testPython, testPythonFile.name);
 
-var rodeorc = path.join(USER_HOME, ".rodeorc");
-var rc;
-if (fs.existsSync(rodeorc)) {
-  rc = JSON.parse(fs.readFileSync(rodeorc).toString())
-} else {
-  rc = {};
-}
+var rc = getRC();
 
 var pythonCmds = []
 if (rc.pythonCmd) {
@@ -220,13 +226,7 @@ function showAbout(varname) {
 }
 
 function showPreferences() {
-  var rodeorc = path.join(USER_HOME, ".rodeorc");
-  var rc;
-  if (fs.existsSync(rodeorc)) {
-    rc = JSON.parse(fs.readFileSync(rodeorc).toString())
-  } else {
-    rc = {};
-  }
+  var rc = getRC();
   rc.keyBindings = rc.keyBindings || "default";
   rc.defaultWd = rc.defaultWd || USER_HOME;
   if ($("#editor-tab-preferences").length) {
@@ -240,13 +240,16 @@ function showPreferences() {
   $(editor_tab_html).insertBefore($("#add-tab").parent());
   $("#editors").append(preferences_html);
   $("#editor-tab-" + "preferences" + " .editor-tab-a").click();
+  // initialize all of our tooltips
+  $('[data-toggle="tooltip"]').tooltip();
 }
 
 function showVariable(varname, type) {
   var params = {toolbar: false, resizable: true, show: true, height: 800, width: 1000};
+
   variableWindow = new BrowserWindow(params);
   variableWindow.loadUrl('file://' + __dirname + '/../static/display-variable.html');
-  // variableWindow.openDevTools();
+  variableWindow.openDevTools();
 
   var show_var_statements = {
     DataFrame: "print(" + varname + "[:1000].to_html())",
@@ -401,11 +404,21 @@ function setFiles(dir) {
     filename: path.join(dir, '..'),
     basename: '..'
   }));
+
+  var rc = getRC();
+
   files.forEach(function(f) {
     var filename = path.join(dir, f);
     if (! fs.lstatSync(filename).isDirectory()) {
       return;
     }
+    if (rc.displayDotFiles!=true) {
+      if (/\/\./.test(dir) || /^\./.test(f)) {
+        // essa dotfile so we're going to skip it
+        return;
+      }
+    }
+
     $("#file-list").append(file_template({
       isDir: fs.lstatSync(filename).isDirectory(),
       filename: filename,
@@ -417,6 +430,12 @@ function setFiles(dir) {
     var filename = path.join(dir, f);
     if (fs.lstatSync(filename).isDirectory()) {
       return;
+    }
+    if (rc.displayDotFiles!=true) {
+      if (/\/\./.test(dir) || /^\./.test(f)) {
+        // essa dotfile so we're going to skip it
+        return;
+      }
     }
     $("#file-list").append(file_template({
       isDir: fs.lstatSync(filename).isDirectory(),
@@ -431,7 +450,16 @@ function setFiles(dir) {
   walker.on('file', function(root, stat, next) {
     var dir = root.replace(USER_WD, '') || "";
     var filename = path.join(dir, stat.name).replace(/^\//, '');
-    $("#file-search-list .list").append("<li onclick='$(\"#file-search-list .selected\").removeClass(\"selected\"); $(this).addClass(\"selected\"); $(\"#file-search-form\").submit();' data-filename='" + path.join(root, stat.name) + "'><a class='filename'>" + filename + "</a></li>");
+    if (rc.displayDotFiles!=true) {
+      if (/\/\./.test(dir) || /^\./.test(stat.name)) {
+        // essa dotfile so we're going to skip it
+        return next();
+      }
+    }
+    var onclick = '$(\"#file-search-list .selected\").removeClass(\"selected\"); $(this).addClass(\"selected\"); $(\"#file-search-form\").submit();';
+    $("#file-search-list .list").append(
+      "<li onclick='" + onclick + "' data-filename='" + path.join(root, stat.name) + "'><a class='filename'>" + filename + "</a></li>"
+    );
     next();
   });
   walker.on('end', function() {
