@@ -249,7 +249,7 @@ function showVariable(varname, type) {
 
   variableWindow = new BrowserWindow(params);
   variableWindow.loadUrl('file://' + __dirname + '/../static/display-variable.html');
-  variableWindow.openDevTools();
+  // variableWindow.openDevTools();
 
   var show_var_statements = {
     DataFrame: "print(" + varname + "[:1000].to_html())",
