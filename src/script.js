@@ -12,8 +12,6 @@ var fse = require('fs-extra');
 var uuid = require('uuid');
 var walk = require('walk');
 var tmp = require('tmp');
-var abar = require('address_bar');
-var folder_view = require('folder_view');
 
 // global vars
 var USER_HOME = process.env[(process.platform == 'win32') ? 'USERPROFILE' : 'HOME'];
@@ -52,7 +50,7 @@ var configFile = tmp.fileSync();
 // /usr/bin/env python doesn't really work, so we're going to be doing the ole
 // guess and check method
 
-var testPython = path.join(__dirname, "../src", "test_python.py");
+var testPython = path.join(__dirname, "../src", "check_python.py");
 var testPythonFile = tmp.fileSync();
 fse.copySync(testPython, testPythonFile.name);
 
