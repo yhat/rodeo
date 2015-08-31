@@ -219,8 +219,8 @@ function sendCommand(input, hideResult) {
 }
 
 
-function showAbout(varname) {
-  var params = {toolbar: false, resizable: false, show: true, height: 150, width: 400};
+function showAbout() {
+  var params = {toolbar: false, resizable: false, show: true, height: 500, width: 800};
   var aboutWindow = new BrowserWindow(params);
   aboutWindow.loadUrl('file://' + __dirname + '/../static/about.html');
 }

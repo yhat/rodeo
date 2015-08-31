@@ -36,9 +36,9 @@ $ ./watch.sh
 - [x] Uncaught TypeError: path must be a string
       Uncaught TypeError: Cannot read property 'text' of undefined console.js:101
 - [x] add "Set Working Directory" button on files UI
-- [ ] toggle display dotfiles
-- [ ] make headers and rows in all tables have the same width
-- [ ] data tables look a little funky
+- [x] toggle display dotfiles
+- [ ] !!! make headers and rows in all tables have the same width
+- [ ] !!! data tables look a little funky
 - [ ] landing page
 - [-] more legit .dmg for OSX
 - [ ] OS support
@@ -47,6 +47,7 @@ $ ./watch.sh
   - [ ] linux
     - [ ] ubuntu
     - [ ] fedora/redhat
+- [ ] option pane on the icon at the bottom of the screen
 - [x] alert if Rodeo is configured incorrectly
 - [x] implement "restart session"
 - [x] shortcut for new editor

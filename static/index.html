@@ -1,67 +1,67 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <title>Rodeo</title>
-    <link id="rodeo-theme" href="css/styles.css" rel="stylesheet"/>
+  <title>Rodeo</title>
+  <link id="rodeo-theme" href="css/styles.css" rel="stylesheet"/>
 
-    <script type="text/javascript">
-      window.$ = window.jQuery = require('jquery');
-      Handlebars = require("handlebars");
-      Handlebars.registerHelper('compare', function (lvalue, operator, rvalue, options) {
+  <script type="text/javascript">
+    window.$ = window.jQuery = require('jquery');
+    Handlebars = require("handlebars");
+    Handlebars.registerHelper('compare', function (lvalue, operator, rvalue, options) {
 
-        var operators, result;
+      var operators, result;
 
-        if (arguments.length < 3) {
-            throw new Error("Handlerbars Helper 'compare' needs 2 parameters");
-        }
+      if (arguments.length < 3) {
+          throw new Error("Handlerbars Helper 'compare' needs 2 parameters");
+      }
 
-        if (options === undefined) {
-            options = rvalue;
-            rvalue = operator;
-            operator = "===";
-        }
+      if (options === undefined) {
+          options = rvalue;
+          rvalue = operator;
+          operator = "===";
+      }
 
-        operators = {
-            '==': function (l, r) { return l == r; },
-            '===': function (l, r) { return l === r; },
-            '!=': function (l, r) { return l != r; },
-            '!==': function (l, r) { return l !== r; },
-            '<': function (l, r) { return l < r; },
-            '>': function (l, r) { return l > r; },
-            '<=': function (l, r) { return l <= r; },
-            '>=': function (l, r) { return l >= r; },
-            'typeof': function (l, r) { return typeof l == r; }
-        };
+      operators = {
+          '==': function (l, r) { return l == r; },
+          '===': function (l, r) { return l === r; },
+          '!=': function (l, r) { return l != r; },
+          '!==': function (l, r) { return l !== r; },
+          '<': function (l, r) { return l < r; },
+          '>': function (l, r) { return l > r; },
+          '<=': function (l, r) { return l <= r; },
+          '>=': function (l, r) { return l >= r; },
+          'typeof': function (l, r) { return typeof l == r; }
+      };
 
-        if (!operators[operator]) {
-            throw new Error("Handlerbars Helper 'compare' doesn't know the operator " + operator);
-        }
+      if (!operators[operator]) {
+          throw new Error("Handlerbars Helper 'compare' doesn't know the operator " + operator);
+      }
 
-        result = operators[operator](lvalue, rvalue);
+      result = operators[operator](lvalue, rvalue);
 
-        if (result) {
-            return options.fn(this);
-        } else {
-            return options.inverse(this);
-        }
+      if (result) {
+          return options.fn(this);
+      } else {
+          return options.inverse(this);
+      }
 
-    });
-    </script>
-    <script src="js/main.js"></script>
-    <script src="ace/ace.js"></script>
-    <script src="ace/ext-language_tools.js"></script>
+  });
+  </script>
+  <script src="js/main.js"></script>
+  <script src="ace/ace.js"></script>
+  <script src="ace/ext-language_tools.js"></script>
 
-    <script type="text/javascript">
-      // Load in Handlebars templates
-      var preferences_template = Handlebars.templates["preferences.hbs"];
-      var editor_tab_template = Handlebars.templates["editor-tab.hbs"];
-      var editor_template = Handlebars.templates["editor.hbs"];
-      var active_variables_row_template = Handlebars.templates["active-variable.hbs"];
-      var history_row_template = Handlebars.templates["history-row.hbs"];
-      var package_row_template = Handlebars.templates["package-row.hbs"];
-      var file_template = Handlebars.templates["file-item.hbs"];
-      var wd_template = Handlebars.templates["wd.hbs"];
-    </script>
+  <script type="text/javascript">
+    // Load in Handlebars templates
+    var preferences_template = Handlebars.templates["preferences.hbs"];
+    var editor_tab_template = Handlebars.templates["editor-tab.hbs"];
+    var editor_template = Handlebars.templates["editor.hbs"];
+    var active_variables_row_template = Handlebars.templates["active-variable.hbs"];
+    var history_row_template = Handlebars.templates["history-row.hbs"];
+    var package_row_template = Handlebars.templates["package-row.hbs"];
+    var file_template = Handlebars.templates["file-item.hbs"];
+    var wd_template = Handlebars.templates["wd.hbs"];
+  </script>
 </head>
 <body>
 

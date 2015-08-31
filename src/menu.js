@@ -12,7 +12,9 @@ var template = [
     submenu: [
       {
         label: 'About Rodeo',
-        selector: 'orderFrontStandardAboutPanel:'
+        click: function() {
+          showAbout();
+        }
       },
       {
         type: 'separator'
