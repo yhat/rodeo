@@ -78,8 +78,8 @@ $ electron-builder build/win32/all/Rodeo-win32-x64 --platform=win \
 - [ ] !!! make headers and rows in all tables have the same width
 - [ ] !!! data tables look a little funky
 - [ ] OS support
-  - [-] OSX
-      - [ ] fancy dmg/installer
+  - [x] OSX
+      - [x] fancy dmg/installer
   - [-] windows
       - [x] installer
       - [ ] scroll bars are always visible
