@@ -64,10 +64,12 @@ $ electron-builder build/win32/all/Rodeo-win32-x64 --platform=win \
 - [ ] OS support
   - [x] OSX
   - [ ] windows
-      - [?] scroll bars are always visible
-      - [?] python is undefined (?)
-      - [ ] openFile doesn't work for C:\any\dirs; needs to be C:\\any\\dirs
-      - [ ] ctrl + t is opening 4 files (?)
+      - [ ] scroll bars are always visible
+      - [ ] height for panes is messed up
+      - [x] python is undefined (?)
+      - [x] openFile doesn't work for C:\any\dirs; needs to be C:\\any\\dirs
+      - [x] ctrl + t is opening 4 files (?)
+      - [ ] for indexing files for cmd + t, things get a little hairy when you launch in a directory with lots of files (i.e. ~)
   - [ ] linux
     - [ ] ubuntu
     - [ ] fedora/redhat

@@ -1,6 +1,7 @@
 // Editors and tabs
 var path = require('path');
 var fs = require('fs');
+global.USER_HOME = process.env[(process.platform == 'win32') ? 'USERPROFILE' : 'HOME'];
 
 function getCurrentLine(editor) {
   return editor.session.getLine(editor.getCursorPosition().row);

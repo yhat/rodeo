@@ -78,11 +78,11 @@ if (fs.existsSync(rodeorc)) {
   if (rc.defaultWd && fs.existsSync(rc.defaultWd)) {
     USER_WD = rc.defaultWd;
   } else {
-    setFiles(USER_HOME);
+    USER_WD = USER_HOME;
   }
   if (rc.theme) {
     setTheme(rc.theme);
   }
 } else {
-  setFiles(USER_HOME);
+  USER_WD = USER_HOME;
 }
