@@ -1,7 +1,7 @@
 {
   "name": "rodeo",
   "productName": "Rodeo",
-  "version": "0.1.1",
+  "version": "0.2.0",
   "appBundleId": "io.rodeo.app",
   "helperBundleId": "io.rodeo.app.helper",
   "description": "An IDE for data science.",
@@ -35,5 +35,6 @@
     "start": "electron .",
     "test": "echo 0",
     "build": "electron-compile --target ./cache src/ static/ --verbose && node scripts/build.js"
-  }
+  },
+  "license": "AGPL v3"
 }
