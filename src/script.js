@@ -15,10 +15,18 @@ var tmp = require('tmp');
 var SteveIrwin = require(path.join(__dirname, '/../src/steve-irwin'));
 
 // global vars
-var USER_HOME = process.env[(process.platform == 'win32') ? 'USERPROFILE' : 'HOME'];
+global.USER_HOME = process.env[(process.platform == 'win32') ? 'USERPROFILE' : 'HOME'];
 var USER_WD = USER_HOME;
 var variableWindow;
 
+function formatFilename(filename) {
+  // strange windows issue w/ javascript
+  if (path.sep=="\\") {
+    return filename.replace(/\\/g, '\\\\');
+  } else {
+    return filename;
+  }
+}
 
 function getRC() {
   var rodeorc = path.join(USER_HOME, ".rodeorc");
@@ -362,6 +370,9 @@ function openDialog() {
 
 
 function setFiles(dir) {
+  if (python==null) {
+    return;
+  }
   dir = dir || USER_WD;
   USER_WD = dir;
   // set ipython working directory
@@ -382,14 +393,14 @@ function setFiles(dir) {
   }));
   $("#file-list").append(file_template({
     isDir: true,
-    filename: path.join(dir, '..'),
+    filename: formatFilename(path.join(dir, '..')),
     basename: '..'
   }));
 
   var rc = getRC();
 
   files.forEach(function(f) {
-    var filename = path.join(dir, f);
+    var filename = formatFilename(path.join(dir, f));
     if (! fs.lstatSync(filename).isDirectory()) {
       return;
     }
@@ -399,7 +410,6 @@ function setFiles(dir) {
         return;
       }
     }
-
     $("#file-list").append(file_template({
       isDir: fs.lstatSync(filename).isDirectory(),
       filename: filename,
@@ -408,7 +418,7 @@ function setFiles(dir) {
   }.bind(this));
 
   files.forEach(function(f) {
-    var filename = path.join(dir, f);
+    var filename = formatFilename(path.join(dir, f));
     if (fs.lstatSync(filename).isDirectory()) {
       return;
     }
@@ -430,16 +440,17 @@ function setFiles(dir) {
   $("#file-search-list .list").children().remove();
   walker.on('file', function(root, stat, next) {
     var dir = root.replace(USER_WD, '') || "";
-    var filename = path.join(dir, stat.name).replace(/^\//, '');
+    var displayFilename = path.join(dir, stat.name).replace(/^\//, '');
     if (rc.displayDotFiles!=true) {
       if (/\/\./.test(dir) || /^\./.test(stat.name)) {
         // essa dotfile so we're going to skip it
         return next();
       }
     }
+    var fullFilename = formatFilename(path.join(root, stat.name));
     var onclick = '$(\"#file-search-list .selected\").removeClass(\"selected\"); $(this).addClass(\"selected\"); $(\"#file-search-form\").submit();';
     $("#file-search-list .list").append(
-      "<li onclick='" + onclick + "' data-filename='" + path.join(root, stat.name) + "'><a class='filename'>" + filename + "</a></li>"
+      "<li onclick='" + onclick + "' data-filename='" + fullFilename + "'><a class='filename'>" + displayFilename + "</a></li>"
     );
     next();
   });
