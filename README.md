@@ -24,11 +24,22 @@ $ ./watch.sh
 
 ## Building
 
+### Executables
 ```
 # build for just your OS
 $ node scripts/build.js
 # build for OSX, Windows, and Linux
 $ node scripts/build.js --all
+```
+
+### Installers
+```
+# osx
+$ electron-builder ./build/darwin/all/Rodeo-darwin-x64/Rodeo.app --platform=osx \
+      --out=./build/darwin/all/Rodeo-darwin-x64/ --config=packager.json
+# windows
+$ electron-builder build/win32/all/Rodeo-win32-x64 --platform=win \
+      --out=./build/win32/all/ --config=packager.json
 ```
 
 ## TODOs
