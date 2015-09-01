@@ -149,6 +149,11 @@ function refreshPackages() {
 }
 
 function sendCommand(input, hideResult) {
+  if (python==null) {
+    jqconsole.Write('Could not execute command. Python is still starting up. This should only take another couple seconds.\n',
+                    'jqconsole-error');
+    return;
+  }
   if (/^\?/.test(input)) {
     input = "help(" + input.slice(1) + ")"
   }
@@ -325,12 +330,19 @@ function openFile(pathname) {
     $("#editorsTab li:nth-last-child(2) a").attr("data-filename", filename);
     var id = $("#editors .editor").last().attr("id");
     var editor = ace.edit(id);
-    editor.getSession().setValue(fs.readFileSync(filename).toString());
-    $("#editorsTab li:nth-last-child(2) a").click();
-    // set to not modified -- NOT IDEAL but it works :)
-    setTimeout(function() {
-      $("#" + id.replace("editor", "editor-tab") + " .unsaved").addClass("hide");
-    }, 50);
+    fs.readFile(filename, function(err, data) {
+      if (err) {
+        console.error("[ERROR]: could not open file: " + filename);
+        return;
+      }
+      editor.getSession().setValue(data.toString());
+      // [+] tab is always the last tab, so we'll activate the 2nd to last tab
+      $("#editorsTab li:nth-last-child(2) a").click();
+      // set to not modified -- NOT IDEAL but it works :)
+      setTimeout(function() {
+        $("#" + id.replace("editor", "editor-tab") + " .unsaved").addClass("hide");
+      }, 50);
+    });
   }
 }
 

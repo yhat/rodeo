@@ -27,7 +27,7 @@ $ ./watch.sh
 ```
 # build for just your OS
 $ node scripts/build.js
-# build for OSX and Windows
+# build for OSX, Windows, and Linux
 $ node scripts/build.js --all
 ```
 
@@ -53,6 +53,10 @@ $ node scripts/build.js --all
 - [ ] OS support
   - [x] OSX
   - [ ] windows
+      - [?] scroll bars are always visible
+      - [?] python is undefined (?)
+      - [ ] openFile doesn't work for C:\any\dirs; needs to be C:\\any\\dirs
+      - [ ] ctrl + t is opening 4 files (?)
   - [ ] linux
     - [ ] ubuntu
     - [ ] fedora/redhat
