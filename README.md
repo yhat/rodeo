@@ -7,6 +7,8 @@ Check the [releases](https://github.com/yhat/rodeo-native/releases) for the late
 You'll need the following:
 - node.js
 - electron
+- electron-packager (npm install electron-packager -g)
+- electron-builder (npm install electron-builder -g)
 - handlebars (npm install handlebars -g)
 - uglifyjs (npm install uglify-js -g)
 - lessc (npm install -g lessc)
@@ -42,6 +44,21 @@ $ electron-builder build/win32/all/Rodeo-win32-x64 --platform=win \
       --out=./build/win32/all/ --config=packager.json
 ```
 
+## Go To Market
+- Rodeo go to market
+    - [x] OSX support
+    - [-] windows support
+    - [ ] limited beta
+    - [ ] marketing material
+      - [ ] landing page
+      - [ ] downloads page
+    - [x] binary replacement for kernel?
+        * __don't need it for v1 but would be nice to eventually have__
+    - [ ] licensing
+    - [ ] logo
+    - [ ] sunset "old rodeo"
+    - [ ] enterprise strategy / timeline
+
 ## TODOs
 - [x] node.js to ipython kernel module
     - [x] plots
@@ -50,6 +67,7 @@ $ electron-builder build/win32/all/Rodeo-win32-x64 --platform=win \
       - [x] editor
       - [x] console
     - [x] autocomplete for packages names
+- [x] don't open file if it's already open
 - [x] run button
 - [x] cmd + t for file searching
 - [x] uglify/minify JS?
@@ -59,17 +77,17 @@ $ electron-builder build/win32/all/Rodeo-win32-x64 --platform=win \
 - [x] toggle display dotfiles
 - [ ] !!! make headers and rows in all tables have the same width
 - [ ] !!! data tables look a little funky
-- [ ] landing page
-- [-] more legit .dmg for OSX
 - [ ] OS support
-  - [x] OSX
-  - [ ] windows
+  - [-] OSX
+      - [ ] fancy dmg/installer
+  - [-] windows
+      - [x] installer
       - [ ] scroll bars are always visible
       - [ ] height for panes is messed up
       - [x] python is undefined (?)
       - [x] openFile doesn't work for C:\any\dirs; needs to be C:\\any\\dirs
       - [x] ctrl + t is opening 4 files (?)
-      - [ ] for indexing files for cmd + t, things get a little hairy when you launch in a directory with lots of files (i.e. ~)
+      - [?] for indexing files for cmd + t, things get a little hairy when you launch in a directory with lots of files (i.e. ~)
   - [ ] linux
     - [ ] ubuntu
     - [ ] fedora/redhat
