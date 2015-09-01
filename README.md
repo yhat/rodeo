@@ -54,6 +54,7 @@ $ node scripts/build.js --all
   - [x] OSX
   - [ ] windows
       - [ ] scroll bars are always visible
+      - [ ] height for panes is messed up
       - [x] python is undefined (?)
       - [x] openFile doesn't work for C:\any\dirs; needs to be C:\\any\\dirs
       - [x] ctrl + t is opening 4 files (?)

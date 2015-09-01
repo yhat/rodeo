@@ -368,7 +368,7 @@ function openDialog() {
   });
 }
 
-
+var walker;
 function setFiles(dir) {
   if (python==null) {
     return;
@@ -435,8 +435,12 @@ function setFiles(dir) {
     }));
   }.bind(this));
 
+  if (walker) {
+    walker.pause();
+    delete walker;
+  }
   // reindex file search
-  var walker = walk.walk(USER_WD, { followLinks: false });
+  walker = walk.walk(USER_WD, { followLinks: false });
   $("#file-search-list .list").children().remove();
   walker.on('file', function(root, stat, next) {
     var dir = root.replace(USER_WD, '') || "";
