@@ -76,7 +76,7 @@ function setDisplayDotFiles(val) {
 if (fs.existsSync(rodeorc)) {
   var rc = JSON.parse(fs.readFileSync(rodeorc).toString());
   if (rc.defaultWd && fs.existsSync(rc.defaultWd)) {
-    setFiles(rc.defaultWd);
+    USER_WD = rc.defaultWd;
   } else {
     setFiles(USER_HOME);
   }

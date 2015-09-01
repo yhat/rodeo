@@ -12,6 +12,7 @@ var fse = require('fs-extra');
 var uuid = require('uuid');
 var walk = require('walk');
 var tmp = require('tmp');
+var SteveIrwin = require(path.join(__dirname, '/../src/steve-irwin'));
 
 // global vars
 var USER_HOME = process.env[(process.platform == 'win32') ? 'USERPROFILE' : 'HOME'];
@@ -31,7 +32,6 @@ function getRC() {
 }
 
 // Python Kernel
-var execSync = require('child_process').execSync;
 var spawn = require('child_process').spawn;
 var StreamSplitter = require("stream-splitter");
 var delim = "\n";
@@ -47,91 +47,65 @@ fs.chmodSync(kernelFile.name, 0755);
 // config file to store ipython session details
 var configFile = tmp.fileSync();
 
-// /usr/bin/env python doesn't really work, so we're going to be doing the ole
-// guess and check method
-
-var testPython = path.join(__dirname, "../src", "check_python.py");
-var testPythonFile = tmp.fileSync();
-fse.copySync(testPython, testPythonFile.name);
-
-var rc = getRC();
-
-var pythonCmds = []
-if (rc.pythonCmd) {
-  pythonCmds.push(rc.pythonCmd);
-}
-pythonCmds = pythonCmds.concat([
-  "/usr/local/bin/ipython",
-  "/anaconda/bin/python",
-  path.join(USER_HOME, "anaconda", "bin", "python"),
-  "/usr/bin/python",
-  path.join(USER_HOME, "bin", "python"),
-  "python"
-]);
-
-var pythonCmd;
-for (var i=0; i<pythonCmds.length; i++) {
-  pythonCmd = pythonCmds[i];
-  var result = execSync(pythonCmd + " " + testPythonFile.name);
-  if (result!="FAIL") {
-    break;
+var python;
+SteveIrwin.findMeAPython(function(err, pythonCmd) {
+  if (pythonCmd==null || err) {
+    var params = {toolbar: false, resizable: true, show: true, height: 800, width: 1000};
+    var badPythonWindow = new BrowserWindow(params);
+    badPythonWindow.loadUrl('file://' + __dirname + '/../static/bad-python.html');
+    badPythonWindow.webContents.on('did-finish-load', function() {
+      badPythonWindow.webContents.send('ping', { pythonCmds: pythonCmds });
+    });
+    return;
   }
-  pythonCmd = null;
-}
 
-if (pythonCmd==null) {
-  var params = {toolbar: false, resizable: true, show: true, height: 800, width: 1000};
-  var badPythonWindow = new BrowserWindow(params);
-  badPythonWindow.loadUrl('file://' + __dirname + '/../static/bad-python.html');
-  badPythonWindow.webContents.on('did-finish-load', function() {
-    badPythonWindow.webContents.send('ping', { pythonCmds: pythonCmds });
-  });
-}
+  python = spawn(pythonCmd, [kernelFile.name, configFile.name + ".json", delim]);
 
-var python = spawn(pythonCmd, [kernelFile.name, configFile.name + ".json", delim]);
-
-// we'll print any feedback from the kernel as yellow text
-python.stderr.on("data", function(data) {
-// process.stderr.write(data.toString().yellow);
-  console.log(data.toString().yellow);
-});
-
-python.on("error", function(err) {
-  console.log(err.toString());
-});
-
-python.on("exit", function(code) {
-  fs.unlink(kernelFile.name, function(err) {
-    if (err) {
-      console.log("failed to remove temporary kernel file: " + err);
-    }
-  });
-  console.log("exited with code: " + code);
-});
-
-python.on("close", function(code) {
-  console.log("closed with code: " + code);
-});
-
-python.on("disconnect", function() {
-  console.log("disconnected");
-});
-
-// StreamSplitter looks at the incoming stream from kernel.py (which is line
-// delimited JSON) and splits on \n automatically, so we're just left with the
-// JSON data
-python.stdout.pipe(StreamSplitter(delim))
-  .on("token", function(data) {
-    var result = JSON.parse(data.toString());
-    if (result.id in callbacks) {
-      callbacks[result.id](result);
-      delete callbacks[result.id];
-    } else {
-      console.log("[ERROR]: " + "callback not found for: " + result.id + " --> " + JSON.stringify(result));
-    }
+  // we'll print any feedback from the kernel as yellow text
+  python.stderr.on("data", function(data) {
+  // process.stderr.write(data.toString().yellow);
+    console.log(data.toString().yellow);
   });
 
-// End Python Kernel
+  python.on("error", function(err) {
+    console.log(err.toString());
+  });
+
+  python.on("exit", function(code) {
+    fs.unlink(kernelFile.name, function(err) {
+      if (err) {
+        console.log("failed to remove temporary kernel file: " + err);
+      }
+    });
+    console.log("exited with code: " + code);
+  });
+
+  python.on("close", function(code) {
+    console.log("closed with code: " + code);
+  });
+
+  python.on("disconnect", function() {
+    console.log("disconnected");
+  });
+
+  // StreamSplitter looks at the incoming stream from kernel.py (which is line
+  // delimited JSON) and splits on \n automatically, so we're just left with the
+  // JSON data
+  python.stdout.pipe(StreamSplitter(delim))
+    .on("token", function(data) {
+      var result = JSON.parse(data.toString());
+      if (result.id in callbacks) {
+        callbacks[result.id](result);
+        delete callbacks[result.id];
+      } else {
+        console.log("[ERROR]: " + "callback not found for: " + result.id + " --> " + JSON.stringify(result));
+      }
+    });
+
+  refreshVariables();
+  refreshPackages();
+  setFiles(USER_WD);
+});
 
 
 function refreshVariables() {
@@ -158,7 +132,6 @@ function refreshVariables() {
   }
   python.stdin.write(JSON.stringify(payload) + delim);
 }
-refreshVariables();
 
 
 function refreshPackages() {
@@ -174,8 +147,6 @@ function refreshPackages() {
   }
   python.stdin.write(JSON.stringify(payload) + delim);
 }
-refreshPackages();
-
 
 function sendCommand(input, hideResult) {
   if (/^\?/.test(input)) {

@@ -8,7 +8,6 @@
   "author": "The Yhat Team",
   "main": "src/main.js",
   "devDependencies": {
-    "async": "^1.4.2",
     "electron-packager": "^5.0.2",
     "electron-prebuilt": "0.30.3",
     "lodash": "^3.10.1",
@@ -19,6 +18,7 @@
     "sinon": "^1.15.3"
   },
   "dependencies": {
+    "async": "^1.4.2",
     "colors": "^1.1.2",
     "dialogs": "^1.1.2",
     "fs-extra": "^0.23.1",
