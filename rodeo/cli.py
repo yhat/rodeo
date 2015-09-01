@@ -24,7 +24,7 @@ Examples:
 To run a rodeo server, just execute the `rodeo` command like so:
     $ rodeo . # basic usage
     $ rodeo . --port=4567 # run in this directory, but on port 4567
-    $ rodeo . --verbose # run with excessive logging
+    $ rodeo . --verbose # run with verbose logging
     $ rodeo . --host=0.0.0.0 --no-browser # externally visible
     $ rodeo /path/to/a/folder # run in a different directory
     $ rodeo /path/to/a/folder --port=4567 # new directory, new port
@@ -67,7 +67,6 @@ def cmd():
 
         main(active_dir, port=port, host=host, browser=browser,
              verbose=verbose, pyspark=pyspark)
-
     else:
         sys.stdout.write(__doc__)
 
