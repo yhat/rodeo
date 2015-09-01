@@ -22,6 +22,15 @@ To updated static assets are you change them, run `watch.sh`:
 $ ./watch.sh
 ```
 
+## Building
+
+```
+# build for just your OS
+$ node scripts/build.js
+# build for OSX and Windows
+$ node scripts/build.js --all
+```
+
 ## TODOs
 - [x] node.js to ipython kernel module
     - [x] plots
