@@ -74,6 +74,14 @@ function createEditor(id) {
       showPreferences();
     }
   });
+  // override cmt+t
+  editor.commands.addCommand({
+    name: "showPreferences",
+    bindKey: {win: "ctrl-t", mac: "Command-t"},
+    exec: function(editor) {
+      findFile();
+    }
+  });
 
   editor.commands.addCommand({
     name: "sendCommand",
