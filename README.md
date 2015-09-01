@@ -77,7 +77,7 @@ $ electron-builder build/win32/all/Rodeo-win32-x64 --platform=win \
 - [x] toggle display dotfiles
 - [ ] !!! make headers and rows in all tables have the same width
 - [ ] !!! data tables look a little funky
-- [ ] OS support
+- [-] OS support
   - [x] OSX
       - [x] fancy dmg/installer
   - [-] windows
