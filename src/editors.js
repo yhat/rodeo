@@ -24,7 +24,7 @@ function setDefaultPreferences(editor) {
 
 function createEditor(id) {
 
-  track('rodeo', 'editor');
+  track('application', 'editor');
 
   var langTools = ace.require("ace/ext/language_tools");
   var Autocomplete = ace.require("ace/autocomplete").Autocomplete;

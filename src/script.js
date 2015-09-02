@@ -136,7 +136,7 @@ function refreshPackages() {
 }
 
 function sendCommand(input, hideResult) {
-  track('rodeo', 'command');
+  track('command', 'python');
   if (python==null) {
     jqconsole.Write('Could not execute command. Python is still starting up. This should only take another couple seconds.\n',
                     'jqconsole-error');
@@ -173,7 +173,7 @@ function sendCommand(input, hideResult) {
       jqconsole.Write((result.output || "") + "\n");
     }
     if (result.error) {
-      track('rodeo', 'command', 'error');
+      track('command', 'error');
       jqconsole.Write(result.error + '\n', 'jqconsole-error');
     }
     refreshVariables();

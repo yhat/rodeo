@@ -42,10 +42,15 @@ getUserId(function(err, userId) {
 var rc = utilities.getRC();
 function track(cat, action, label, value) {
   if (rc.tracking==null || rc.trackingOn==true) {
-    var tracker = ua('UA-XXXX-XX', USER_ID);
+    var tracker = ua('UA-46996803-1', USER_ID);
     // if we have internet...
     if (navigator && navigator.onLine) {
-      console.log("tracker.event('" + cat + "', '" + action + "', " + rodeoVersion + ", :value:).send();")
+      var params = {
+        an: "Rodeo",
+        av: rodeoVersion,
+        sr: $(window).width() + "x" + $(window).height()
+      }
+      tracker.event(cat, action).send();
     }
   }
 }

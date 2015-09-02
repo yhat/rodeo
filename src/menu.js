@@ -24,7 +24,7 @@ var template = [
         accelerator: 'CmdOrCtrl+,',
         click: function() {
           showPreferences();
-          track('rodeo', 'shortcut', 'Preferences');
+          track('shortcut', 'Preferences');
         }
       },
       {
@@ -61,7 +61,7 @@ var template = [
         label: 'New',
         accelerator: 'CmdOrCtrl+N',
         click: function() {
-          track('rodeo', 'shortcut', 'New');
+          track('shortcut', 'New');
           $("#add-tab").click();
         }
       },
@@ -69,7 +69,7 @@ var template = [
         label: 'Open',
         accelerator: 'Shift+CmdOrCtrl+O',
         click: function() {
-          track('rodeo', 'shortcut', 'Open');
+          track('shortcut', 'Open');
           openDialog();
         }
       },
@@ -80,7 +80,7 @@ var template = [
         label: 'Save',
         accelerator: 'CmdOrCtrl+s',
         click: function() {
-          track('rodeo', 'shortcut', 'Save');
+          track('shortcut', 'Save');
           saveEditor();
         }
       },
@@ -88,7 +88,7 @@ var template = [
         label: 'Save As',
         // accelerator: 'CmdOrCtrl+C',
         click: function() {
-          track('rodeo', 'shortcut', 'Save As');
+          track('shortcut', 'Save As');
           saveEditor(null, true);
         }
       },
@@ -107,7 +107,7 @@ var template = [
               closeActiveTab(n);
             }
           }
-          track('rodeo', 'shortcut', 'Close File');
+          track('shortcut', 'Close File');
         }
       },
       {
@@ -117,7 +117,7 @@ var template = [
         label: 'Find File',
         accelerator: 'CmdOrCtrl+t',
         click: function() {
-          track('rodeo', 'shortcut', 'Find File');
+          track('shortcut', 'Find File');
           findFile();
         }
       }
@@ -145,7 +145,7 @@ var template = [
             label: 'Move One Left',
             accelerator: 'CmdOrCtrl+Shift+Left',
             click: function() {
-              track('rodeo', 'shortcut', 'Change Editor > Move One Left');
+              track('shortcut', 'Change Editor > Move One Left');
               var prevTab = $("#editorsTab .active").prev();
               if (prevTab && $("a", prevTab).attr("href")!="#") {
                 $("a", prevTab).click();
@@ -156,7 +156,7 @@ var template = [
             label: 'Move One Right',
             accelerator: 'CmdOrCtrl+Shift+Right',
             click: function() {
-              track('rodeo', 'shortcut', 'Change Editor > Move One Right');
+              track('shortcut', 'Change Editor > Move One Right');
               var nextTab = $("#editorsTab .active").next();
               if (nextTab && $("a", nextTab).attr("href")!="#") {
                 $("a", nextTab).click();
@@ -173,7 +173,7 @@ var template = [
             label: 'Editor',
             accelerator: 'CmdOrCtrl+1',
             click: function() {
-              track('rodeo', 'shortcut', 'Focus > Editor');
+              track('shortcut', 'Focus > Editor');
               var id = $("#editors .active .editor").attr("id");
               var editor = ace.edit(id);
               editor.focus();
@@ -183,7 +183,7 @@ var template = [
             label: 'Console',
             accelerator: 'CmdOrCtrl+2',
             click: function() {
-              track('rodeo', 'shortcut', 'Focus > Console');
+              track('shortcut', 'Focus > Console');
               jqconsole.Focus();
             }
           },
@@ -191,7 +191,7 @@ var template = [
             label: 'Variables/History',
             accelerator: 'CmdOrCtrl+3',
             click: function() {
-              track('rodeo', 'shortcut', 'Focus > Variables/History');
+              track('shortcut', 'Focus > Variables/History');
               var next = $("#top-right .nav .active").next();
               if (! $(next).length) {
                 next = $("#top-right .nav li").first();
@@ -203,7 +203,7 @@ var template = [
             label: 'Files/Plots/Packages/Help',
             accelerator: 'CmdOrCtrl+4',
             click: function() {
-              track('rodeo', 'shortcut', 'Focus > Files/Plots/Pacakges/Help');
+              track('shortcut', 'Focus > Files/Plots/Pacakges/Help');
               var next = $("#bottom-right .nav .active").next();
               if (! $(next).length) {
                 next = $("#bottom-right .nav li").first();
@@ -217,7 +217,7 @@ var template = [
         label: 'Reload',
         accelerator: 'CmdOrCtrl+R',
         click: function() {
-          track('rodeo', 'shortcut', 'Reload');
+          track('shortcut', 'Reload');
           remote.getCurrentWindow().reload();
         }
       },
@@ -239,7 +239,7 @@ var template = [
             label: 'Zoom to Default',
             accelerator: 'CmdOrCtrl+0',
             click: function() {
-              track('rodeo', 'shortcut', 'Zoom > Default');
+              track('shortcut', 'Zoom > Default');
               webFrame.setZoomLevel(0);
               calibratePanes();
             }
@@ -248,7 +248,7 @@ var template = [
             label: 'Zoom In',
             accelerator: 'CmdOrCtrl+=',
             click: function() {
-              track('rodeo', 'shortcut', 'Zoom > Zoom In');
+              track('shortcut', 'Zoom > Zoom In');
               webFrame.setZoomLevel(webFrame.getZoomLevel() + 1);
               calibratePanes();
             }
@@ -257,7 +257,7 @@ var template = [
             label: 'Zoom Out',
             accelerator: 'CmdOrCtrl+-',
             click: function() {
-              track('rodeo', 'shortcut', 'Zoom > Zoom Out');
+              track('shortcut', 'Zoom > Zoom Out');
               webFrame.setZoomLevel(webFrame.getZoomLevel() - 1);
               calibratePanes();
             }
@@ -279,7 +279,7 @@ var template = [
       {
         label: 'Restart Session',
         click: function() {
-          track('rodeo', 'shortcut', 'Session > Restart Session');
+          track('shortcut', 'Session > Restart Session');
           remote.require('dialog').showMessageBox({
             type: "warning",
             buttons: ["Yes", "Cancel"],
@@ -299,7 +299,7 @@ var template = [
       {
         label: 'Set Working Directory',
         click: function() {
-          track('rodeo', 'shortcut', 'Session > Set Working Directory');
+          track('shortcut', 'Session > Set Working Directory');
           pickWorkingDirectory();
         }
       },
@@ -310,7 +310,7 @@ var template = [
             label: '2nd to Last',
             accelerator: 'CmdOrCtrl+Shift+2',
             click: function() {
-              track('rodeo', 'shortcut', 'Session > Run Previous Command > 2nd to Last');
+              track('shortcut', 'Session > Run Previous Command > 2nd to Last');
               sendCommand($("#history-trail").children().slice(-2, -1).text());
             }
           },
@@ -318,7 +318,7 @@ var template = [
             label: 'Last',
             accelerator: 'CmdOrCtrl+Shift+1',
             click: function() {
-              track('rodeo', 'shortcut', 'Session > Run Previous Command > Last');
+              track('shortcut', 'Session > Run Previous Command > Last');
               sendCommand($("#history-trail").children().slice(-1).text());
             }
           }
