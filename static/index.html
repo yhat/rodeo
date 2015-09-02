@@ -234,6 +234,8 @@
     </div>
     <!-- File Search Modal -->
 
+  <script type="text/javascript" src="../src/utilities.js"></script>
+  <script type="text/javascript" src="../src/metrics.js"></script>
   <script type="text/javascript" src="../src/editors.js"></script>
   <script type="text/javascript" src="../src/console.js"></script>
   <script type="text/javascript" src="../src/script.js"></script>
@@ -460,10 +462,11 @@
 
   </script>
   <script type="text/javascript">
+    track('rodeo', 'open');
     // not sure why but this needs to happen last
     calibratePanes();
     // should always be a fresh tab
     $("#add-tab").click();
-  </script
+  </script>
 </body>
 </html>

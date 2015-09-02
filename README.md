@@ -26,7 +26,7 @@ $ ./watch.sh
 
 ## Building
 
-### Executables
+### Executables (.exe, .app)
 ```
 # build for just your OS
 $ node scripts/build.js
@@ -36,18 +36,14 @@ $ node scripts/build.js --all
 
 ### Installers
 ```
-# osx
-$ electron-builder ./build/darwin/all/Rodeo-darwin-x64/Rodeo.app --platform=osx \
-      --out=./build/darwin/all/Rodeo-darwin-x64/ --config=packager.json
-# windows
-$ electron-builder build/win32/all/Rodeo-win32-x64 --platform=win \
-      --out=./build/win32/all/ --config=packager.json
+$ ./scripts/release.sh
 ```
 
 ## Go To Market
 - Rodeo go to market
     - [x] OSX support
     - [-] windows support
+    - [ ] usage statistics / metrics
     - [ ] limited beta
     - [ ] marketing material
       - [ ] landing page
@@ -58,6 +54,41 @@ $ electron-builder build/win32/all/Rodeo-win32-x64 --platform=win \
     - [ ] logo
     - [ ] sunset "old rodeo"
     - [ ] enterprise strategy / timeline
+
+## Beta Testers
+
+http://www.kdnuggets.com/2012/12/most-influential-data-scientists-on-twitter.html
+
+- Peter Skomoroch: https://twitter.com/peteskomoroch/status/591275403701923841
+- Olivier Grisel
+- Wes McKinney
+- Josh Wills: https://twitter.com/josh_wills
+- Mark Faridani: https://twitter.com/siah
+- Jeff Hammerbacher & friends
+- Glen Thompson
+- Charlie Hack
+- Jeroen Janssens
+- Chris Beaumont: https://github.com/ChrisBeaumont
+- Spencer Boucher: https://github.com/justmytwospence (interviewed him a while ago. now at Uber)
+- Lynn Cherny: https://twitter.com/arnicas (Owl Lady)
+- Hilary Parker: https://twitter.com/hspter (Etsy)
+
+
+```
+Hi ________!
+
+<insert personal tidbit>
+
+I think you've heard of [Rodeo](https://github.com/yhat/rodeo)--I'm pretty sure I saw you tweeted or github-starred it or something. Anyways, we're releasing a new version that, to be frank, is way better (screenshot below). It runs native on OSX, Linux, and even Windows! All that's required is that you have IPython setup.
+
+We're going to be doing a full release in the coming weeks, but I was wondering if you'd be interesting in getting a sneak peak. If you'd be up for giving it a try.
+
+Thanks!
+
+Greg
+
+<screenshot>
+```
 
 ## TODOs
 - [x] node.js to ipython kernel module
@@ -77,6 +108,10 @@ $ electron-builder build/win32/all/Rodeo-win32-x64 --platform=win \
 - [x] toggle display dotfiles
 - [ ] !!! make headers and rows in all tables have the same width
 - [ ] !!! data tables look a little funky
+- [ ] shell.showItemInFolder
+- [ ] shell.moveItemToTrash instead of delete?
+- [ ] metrics or something like it: https://github.com/atom/metrics and/or https://www.npmjs.com/package/universal-analytics
+- [ ] auto update: https://github.com/atom/electron/blob/master/docs/api/auto-updater.md, https://github.com/GitbookIO/nuts
 - [-] OS support
   - [x] OSX
       - [x] fancy dmg/installer

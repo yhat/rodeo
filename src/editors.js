@@ -1,32 +1,31 @@
 // Editors and tabs
 var path = require('path');
 var fs = require('fs');
-global.USER_HOME = process.env[(process.platform == 'win32') ? 'USERPROFILE' : 'HOME'];
 
 function getCurrentLine(editor) {
   return editor.session.getLine(editor.getCursorPosition().row);
 }
 
 function setDefaultPreferences(editor) {
-  var rodeorc = path.join(USER_HOME, ".rodeorc");
-  if (fs.existsSync(rodeorc)) {
-    var rc = JSON.parse(fs.readFileSync(rodeorc).toString());
-    if (rc.keyBindings=="default") {
-      rc.keyBindings = null;
-    }
-    editor.setKeyboardHandler(rc.keyBindings || null); // null is the "default"
-    editor.setTheme(rc.editorTheme || "ace/theme/chrome");
-    editor.setFontSize(rc.fontSize || 12);
+  var rc = getRC();
+  if (rc.keyBindings=="default") {
+    rc.keyBindings = null;
+  }
+  editor.setKeyboardHandler(rc.keyBindings || null); // null is the "default"
+  editor.setTheme(rc.editorTheme || "ace/theme/chrome");
+  editor.setFontSize(rc.fontSize || 12);
 
-    if (rc.autoSave) {
-      editor.on('input', function() {
-        saveEditor();
-      });
-    }
+  if (rc.autoSave) {
+    editor.on('input', function() {
+      saveEditor();
+    });
   }
 }
 
 function createEditor(id) {
+
+  track('rodeo', 'editor');
+
   var langTools = ace.require("ace/ext/language_tools");
   var Autocomplete = ace.require("ace/autocomplete").Autocomplete;
   var editor = ace.edit(id);
@@ -74,9 +73,10 @@ function createEditor(id) {
       showPreferences();
     }
   });
+
   // override cmt+t
   editor.commands.addCommand({
-    name: "showPreferences",
+    name: "findFile",
     bindKey: {win: "ctrl-t", mac: "Command-t"},
     exec: function(editor) {
       findFile();

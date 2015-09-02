@@ -1,6 +1,8 @@
 var app = require('app');  // Module to control application life.
 var BrowserWindow = require('browser-window');  // Module to create native browser window.
 
+// localStorage.rodeoVersion = app.getVersion();
+
 // Report crashes to our server.
 require('crash-reporter').start();
 
@@ -20,6 +22,7 @@ app.on('window-all-closed', function() {
 // This method will be called when Electron has finished
 // initialization and is ready to create browser windows.
 app.on('ready', function() {
+
   // Create the browser window.
   var atomScreen = require('screen');
   var size = atomScreen.getPrimaryDisplay().workAreaSize;

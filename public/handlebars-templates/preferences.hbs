@@ -38,6 +38,12 @@
             <a data-toggle="tooltip" data-placement="right" title="<p class='small'>When checked, 'dotfiles' and directories (i.e. `.git`) will be displayed. NOTE: When updated, this will take affect upon restart.</p>" data-html="true"><i class="fa fa-question-circle"></i></a>
           </label>
         </div>
+        <div class="checkbox">
+          <label>
+            <input onchange="setTracking($(this).prop('checked'));" type="checkbox" {{#trackingOn}}checked{{/trackingOn}}> Tracking Metrics
+            <a data-toggle="tooltip" data-placement="right" title="<p class='small'>When checked, <strong>anonymous</strong> usage metrics will be reported back to <span style='color: #ee5311;'>&ycirc;</span>hat.</p>" data-html="true"><i class="fa fa-question-circle"></i></a>
+          </label>
+        </div>
       </div>
       <!-- End General Tab -->
 

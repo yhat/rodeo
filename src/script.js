@@ -15,29 +15,8 @@ var tmp = require('tmp');
 var SteveIrwin = require(path.join(__dirname, '/../src/steve-irwin'));
 
 // global vars
-global.USER_HOME = process.env[(process.platform == 'win32') ? 'USERPROFILE' : 'HOME'];
 var USER_WD = USER_HOME;
 var variableWindow;
-
-function formatFilename(filename) {
-  // strange windows issue w/ javascript
-  if (path.sep=="\\") {
-    return filename.replace(/\\/g, '\\\\');
-  } else {
-    return filename;
-  }
-}
-
-function getRC() {
-  var rodeorc = path.join(USER_HOME, ".rodeorc");
-  var rc;
-  if (fs.existsSync(rodeorc)) {
-    rc = JSON.parse(fs.readFileSync(rodeorc).toString())
-  } else {
-    rc = {};
-  }
-  return rc;
-}
 
 // Python Kernel
 var spawn = require('child_process').spawn;
@@ -157,6 +136,7 @@ function refreshPackages() {
 }
 
 function sendCommand(input, hideResult) {
+  track('rodeo', 'command');
   if (python==null) {
     jqconsole.Write('Could not execute command. Python is still starting up. This should only take another couple seconds.\n',
                     'jqconsole-error');
@@ -193,6 +173,7 @@ function sendCommand(input, hideResult) {
       jqconsole.Write((result.output || "") + "\n");
     }
     if (result.error) {
+      track('rodeo', 'command', 'error');
       jqconsole.Write(result.error + '\n', 'jqconsole-error');
     }
     refreshVariables();
@@ -211,6 +192,7 @@ function showPreferences() {
   var rc = getRC();
   rc.keyBindings = rc.keyBindings || "default";
   rc.defaultWd = rc.defaultWd || USER_HOME;
+  rc.trackingOn = rc.trackingOn || true;
   if ($("#editor-tab-preferences").length) {
     $("#editor-tab-" + "preferences" + " .editor-tab-a").click();
     return;

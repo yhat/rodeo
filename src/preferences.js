@@ -1,18 +1,5 @@
 var path = require('path');
 var fs = require('fs');
-var rodeorc = path.join(USER_HOME, ".rodeorc");
-
-
-function updateRC(key, value) {
-  var rc;
-  if (fs.existsSync(rodeorc)) {
-    rc = JSON.parse(fs.readFileSync(rodeorc).toString());
-  } else {
-    rc = {};
-  }
-  rc[key] = value;
-  fs.writeFileSync(rodeorc, JSON.stringify(rc, null, 2));
-}
 
 function setEditorTheme(theme) {
   $(".editor").each(function(i, item) {
@@ -72,17 +59,17 @@ function setDisplayDotFiles(val) {
   updateRC("displayDotFiles", val);
 }
 
+function setTracking(val) {
+  updateRC("trackingOn", val);
+}
+
 // on startup, set defaults for non-editor preferences
-if (fs.existsSync(rodeorc)) {
-  var rc = JSON.parse(fs.readFileSync(rodeorc).toString());
-  if (rc.defaultWd && fs.existsSync(rc.defaultWd)) {
-    USER_WD = rc.defaultWd;
-  } else {
-    USER_WD = USER_HOME;
-  }
-  if (rc.theme) {
-    setTheme(rc.theme);
-  }
+var rc = getRC();
+if (rc.defaultWd && fs.existsSync(rc.defaultWd)) {
+  USER_WD = rc.defaultWd;
 } else {
   USER_WD = USER_HOME;
+}
+if (rc.theme) {
+  setTheme(rc.theme);
 }

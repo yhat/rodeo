@@ -5,20 +5,6 @@ var fs = require('fs');
 var fse = require('fs-extra');
 var tmp = require('tmp');
 
-
-var USER_HOME = process.env[(process.platform == 'win32') ? 'USERPROFILE' : 'HOME'];
-
-function getRC() {
-  var rodeorc = path.join(USER_HOME, ".rodeorc");
-  var rc;
-  if (fs.existsSync(rodeorc)) {
-    rc = JSON.parse(fs.readFileSync(rodeorc).toString())
-  } else {
-    rc = {};
-  }
-  return rc;
-}
-
 // Steve Irwin gets you a python, no questions asked
 function findMeAPython(fn) {
   // /usr/bin/env python doesn't really work, so we're going to be doing the ole
@@ -72,9 +58,5 @@ function findMeAPython(fn) {
     }
   );
 };
-
-// findMeAPython(function(err, cmd) {
-//   console.log(cmd);
-// })
 
 module.exports.findMeAPython = findMeAPython;

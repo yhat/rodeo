@@ -197,10 +197,6 @@ class Kernel(object):
                     results.append(result)
                 output['output'] = results
                 return output
-            # else:
-                #Don't know what to do with the rest.
-                #I've observed parent_header msg_types: kernel_info_request, execute_request
-                #Just discard for now
 
     def execute(self, code, complete=False):
         if complete==True:
