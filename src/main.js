@@ -1,7 +1,7 @@
 var app = require('app');  // Module to control application life.
 var BrowserWindow = require('browser-window');  // Module to create native browser window.
 var os = require('os');
-
+var ipc = require('ipc');
 
 // Report crashes to our server.
 require('crash-reporter').start();
@@ -38,6 +38,9 @@ app.on('ready', function() {
   // Open the devtools.
   // mainWindow.openDevTools();
 
+  ipc.on('quit', function(event) {
+    app.quit();
+  });
 
   // TODO: check for updates (i think i need to codesign?)
   // var autoUpdater = require('auto-updater');
@@ -45,7 +48,6 @@ app.on('ready', function() {
   // var version = app.getVersion();
   // var updateUrl = 'https://rodeo-nuts.herokuapp.com/update/' + 'osx_64' + '/' + version;
   // autoUpdater.setFeedUrl(updateUrl);
-
 
   // Emitted when the window is closed.
   mainWindow.on('closed', function() {

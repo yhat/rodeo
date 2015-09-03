@@ -65,8 +65,8 @@ http://www.kdnuggets.com/2012/12/most-influential-data-scientists-on-twitter.htm
 - Josh Wills: https://twitter.com/josh_wills
 - Mark Faridani: https://twitter.com/siah
 - Jeff Hammerbacher & friends
-- Glen Thompson
-- Charlie Hack
+- [x] Glen Thompson
+- [x] Charlie Hack
 - Jeroen Janssens
 - Chris Beaumont: https://github.com/ChrisBeaumont
 - Spencer Boucher: https://github.com/justmytwospence (interviewed him a while ago. now at Uber)

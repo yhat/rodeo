@@ -5,6 +5,7 @@ var Menu = remote.require('menu');
 var BrowserWindow = remote.require('browser-window');
 var MenuItem = remote.require('menu-item');
 var shell = require('shell');
+var ipc = require('ipc');
 var path = require('path');
 var colors = require('colors');
 var fs = require('fs');
@@ -144,6 +145,9 @@ function sendCommand(input, hideResult) {
   }
   if (/^\?/.test(input)) {
     input = "help(" + input.slice(1) + ")"
+  } else if (input=="quit" || input=="quit()" || input=="exit" || input=="exit()") {
+    ipc.send('quit');
+    return;
   }
   var html = history_row_template({ n: $("#history-trail").children().length, command: input });
   $("#history-trail").append(html);
