@@ -108,10 +108,10 @@ Greg
 - [x] toggle display dotfiles
 - [ ] !!! make headers and rows in all tables have the same width
 - [ ] !!! data tables look a little funky
-- [ ] shell.showItemInFolder
-- [ ] shell.moveItemToTrash instead of delete?
-- [ ] metrics or something like it: https://github.com/atom/metrics and/or https://www.npmjs.com/package/universal-analytics
-- [ ] auto update: https://github.com/atom/electron/blob/master/docs/api/auto-updater.md, https://github.com/GitbookIO/nuts
+- [x] shell.showItemInFolder
+- [x] shell.moveItemToTrash instead of delete?
+- [x] metrics or something like it: https://github.com/atom/metrics and/or https://www.npmjs.com/package/universal-analytics
+- [?] auto update: https://github.com/atom/electron/blob/master/docs/api/auto-updater.md, https://github.com/GitbookIO/nuts
 - [-] OS support
   - [x] OSX
       - [x] fancy dmg/installer

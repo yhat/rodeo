@@ -1,7 +1,7 @@
+var shell = require('shell');
 var remote = require('remote');
 var fs = require('fs');
 var path = require('path');
-var rimraf = require('rimraf');
 var webFrame = require('web-frame');
 var dialogs = require("dialogs")({ url: "../static/img/cowboy-hat.svg" });
 var Menu = remote.require('menu');
@@ -362,17 +362,18 @@ fileMenu = Menu.buildFromTemplate(template);
 // context menu for file nav
 var template = [
   {
+    label: 'Reveal in Finder',
+    click: function() {
+      shell.showItemInFolder(folderMenu.filename);
+    }
+  },
+  {
     label: 'Delete',
     click: function() {
       dialogs.confirm("Are you sure you want to delete " + path.basename(folderMenu.filename) +"? This will remove all files and directories within this folder.", function(ok) {
         if (ok) {
-          rimraf(folderMenu.filename, function(err) {
-            if (err) {
-              console.error("[ERROR]: Could not delete: " + folderMenu.filename);
-            } else {
-              setFiles(USER_WD);
-            }
-          });
+          shell.moveItemToTrash(folderMenu.filename);
+          setFiles(USER_WD);
         }
       });
     }

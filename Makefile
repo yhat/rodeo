@@ -9,7 +9,7 @@ all: css js
 
 css: static/css/styles.css static/css/styles-dark.css static/css/styles-presentation.css static/css/styles-cobalt.css
 
-js: static/js/main.js src/app.js
+js: static/js/main.js
 
 handlebars: public/js/handlebars-templates.js
 
@@ -31,5 +31,5 @@ public/js/handlebars-templates.js: $(HBS_FILES)
 static/js/main.js : $(JS_FILES)
 	uglifyjs $(shell find public/js -type f -name '*.js' | grep -v main.js | tr '\n' ' ')	> static/js/main.js
 
-src/app.js: $(APP_FILES)
-	uglifyjs $(APP_FILES) > src/app.js
+# src/app.js: $(APP_FILES)
+# 	uglifyjs $(APP_FILES) > src/app.js
