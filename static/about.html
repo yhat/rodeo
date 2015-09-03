@@ -5,11 +5,10 @@
   <link id="rodeo-theme" href="css/styles.css" rel="stylesheet"/
 </head>
 <body>
-  <div class="container">
-    <h1 class="text-info">Rodeo</h1>
+  <div class="container text-center">
+    <h1 id="app-name" class="text-info">Rodeo </h1>
     <p>
-      Rodeo includes other open source software components. The following
-      is a list of these components and their license agreements:
+      Rodeo includes other open source software components. Click below for a list of these components and their license agreements.
     </p>
     <button onclick="require('shell').openItem(__dirname + '/../static/acknowledgements.txt');" class="btn btn-primary">Acknowledgements</button>
     <!-- List of open source projects
@@ -34,5 +33,10 @@
     </ul>
     -->
   </div>
+  <script type="text/javascript">
+    var pkg = JSON.parse(require('fs').readFileSync(__dirname + "/../package.json").toString());
+    var appName = document.getElementById('app-name');
+    appName.textContent = pkg.productName + " v" + pkg.version;
+  </script>
 </body>
 </html>

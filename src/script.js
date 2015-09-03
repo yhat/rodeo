@@ -187,7 +187,7 @@ function sendCommand(input, hideResult) {
 
 
 function showAbout() {
-  var params = {toolbar: false, resizable: false, show: true, height: 500, width: 800};
+  var params = {toolbar: false, resizable: false, show: true, height: 200, width: 300 };
   var aboutWindow = new BrowserWindow(params);
   aboutWindow.loadUrl('file://' + __dirname + '/../static/about.html');
 }

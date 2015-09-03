@@ -10,3 +10,12 @@ electron-builder build/win32/all/Rodeo-win32-ia32 --platform=win \
 #   64 bit
 electron-builder build/win32/all/Rodeo-win32-x64 --platform=win \
         --out=./build/win32/all/Rodeo-win32-x64 --config=packager.json
+
+echo "UPLOADING TO GITHUB"
+
+github-release upload \
+  --user yhat \
+  --repo rodeo-native \
+  --tag v0.2.1 \
+  --name "Rodeo-mac.dmg" \
+  --file build/darwin/x64/Rodeo-darwin-x64/Rodeo.dmg
