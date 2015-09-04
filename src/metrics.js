@@ -1,7 +1,8 @@
 var fs = require('fs');
-var ua = require('universal-analytics');
 var uuid = require('uuid');
-var utilities = require(__dirname + "/../src/utilities");
+var querystring = require('querystring');
+var jQuery = require('jquery');
+var rodeohelpers = require(__dirname + "/../src/rodeohelpers");
 var rodeoVersion = JSON.parse(fs.readFileSync(__dirname + '/../package.json').toString()).version;
 
 global.USER_ID;
@@ -13,7 +14,7 @@ function getUserId(fn) {
   // get id for user
   var userId;
   // check .rodeorc for rodeoid
-  var rc = utilities.getRC();
+  var rc = rodeohelpers.getRC();
   if (rc.id) {
     userId = rc.id;
     fn(null, userId);
@@ -40,22 +41,45 @@ function getUserId(fn) {
 // time open?
 ;
 
-var rc = utilities.getRC();
+function post(url) {
+  var xhr = new XMLHttpRequest();
+  xhr.open("POST", url);
+  xhr.send(null);
+}
+
+
+var rc = rodeohelpers.getRC();
 function track(cat, action, label, value) {
   if (rc.tracking==null || rc.trackingOn==true) {
     getUserId(function(err, userId) {
       if (global.USER_ID==null) {
         global.USER_ID = userId;
       }
-      var tracker = ua('UA-46996803-1', USER_ID);
       // if we have internet...
       if (navigator && navigator.onLine) {
         var params = {
+          // default
+          v: 1,
+          tid: 'UA-46996803-1',
+          cid: USER_ID,
           an: "Rodeo",
           av: rodeoVersion,
-          sr: $(window).width() + "x" + $(window).height()
+          sr: $(window).width() + "x" + $(window).height(),
+          // event
+          t: 'event',
+          ec: cat,
+          ea: action
         }
-        tracker.event(cat, action).send();
+        if (label) {
+          params.el = label;
+        }
+        if (value) {
+          params.ev = value;
+        }
+        var url = "https://www.google-analytics.com/collect?" + querystring.stringify(params);
+        console.log(url);
+        console.log(JSON.stringify(params));
+        post(url);
       }
     });
   }

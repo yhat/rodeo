@@ -21,7 +21,6 @@
   "dependencies": {
     "async": "^1.4.2",
     "colors": "^1.1.2",
-    "combined-stream": "^1.0.5",
     "dialogs": "^1.1.2",
     "fs-extra": "^0.23.1",
     "getmac": "^1.0.7",
@@ -39,5 +38,5 @@
     "test": "echo 0",
     "build": "electron-compile --target ./cache src/ static/ --verbose && node scripts/build.js"
   },
-  "license": "AGPL v3"
+  "license": "AGPL-3.0"
 }
