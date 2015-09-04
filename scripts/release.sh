@@ -16,6 +16,6 @@ echo "UPLOADING TO GITHUB"
 github-release upload \
   --user yhat \
   --repo rodeo-native \
-  --tag v0.2.1 \
+  --tag 0.2.1 \
   --name "Rodeo-mac.dmg" \
   --file build/darwin/x64/Rodeo-darwin-x64/Rodeo.dmg

@@ -35,6 +35,7 @@ $ node scripts/build.js --all
 ```
 
 ### Installers
+https://github.com/aktau/github-release
 ```
 $ ./scripts/release.sh
 ```

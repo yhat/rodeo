@@ -7,6 +7,9 @@ var rodeoVersion = JSON.parse(fs.readFileSync(__dirname + '/../package.json').to
 global.USER_ID;
 
 function getUserId(fn) {
+  if (global.USER_ID!=null) {
+    return fn(null, global.USER_ID);
+  }
   // get id for user
   var userId;
   // check .rodeorc for rodeoid
@@ -35,23 +38,26 @@ function getUserId(fn) {
 // errors
 // python path?
 // time open?
-getUserId(function(err, userId) {
-  global.USER_ID = userId;
-});
+;
 
 var rc = utilities.getRC();
 function track(cat, action, label, value) {
   if (rc.tracking==null || rc.trackingOn==true) {
-    var tracker = ua('UA-46996803-1', USER_ID);
-    // if we have internet...
-    if (navigator && navigator.onLine) {
-      var params = {
-        an: "Rodeo",
-        av: rodeoVersion,
-        sr: $(window).width() + "x" + $(window).height()
+    getUserId(function(err, userId) {
+      if (global.USER_ID==null) {
+        global.USER_ID = userId;
       }
-      tracker.event(cat, action).send();
-    }
+      var tracker = ua('UA-46996803-1', USER_ID);
+      // if we have internet...
+      if (navigator && navigator.onLine) {
+        var params = {
+          an: "Rodeo",
+          av: rodeoVersion,
+          sr: $(window).width() + "x" + $(window).height()
+        }
+        tracker.event(cat, action).send();
+      }
+    });
   }
 }
 

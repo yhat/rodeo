@@ -14,12 +14,14 @@
     "minimist": "^1.1.1",
     "mkdirp": "^0.5.0",
     "mocha": "^2.2.5",
+    "rimraf": "^2.4.3",
     "sandboxed-module": "^2.0.2",
     "sinon": "^1.15.3"
   },
   "dependencies": {
     "async": "^1.4.2",
     "colors": "^1.1.2",
+    "combined-stream": "^1.0.5",
     "dialogs": "^1.1.2",
     "fs-extra": "^0.23.1",
     "getmac": "^1.0.7",
