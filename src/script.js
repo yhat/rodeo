@@ -145,7 +145,7 @@ function sendCommand(input, hideResult) {
   }
   if (/^\?/.test(input)) {
     input = "help(" + input.slice(1) + ")"
-  } else if (input=="quit" || input=="quit()" || input=="exit" || input=="exit()") {
+  } else if (input=="reset" || input=="%%reset" || input=="%reset" || input=="quit" || input=="quit()" || input=="exit" || input=="exit()") {
     ipc.send('quit');
     return;
   }
