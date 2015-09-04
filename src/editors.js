@@ -92,6 +92,32 @@ function createEditor(id) {
     }
   });
 
+  // indent selection
+  editor.commands.addCommand({
+    name: "indentSelection",
+    bindKey: {win: "ctrl-\]", mac: "Command-\]"},
+    exec: function(editor) {
+      if (editor.getSelectedText()) {
+        editor.blockIndent(editor.getSelectionRange());
+      } else {
+        editor.blockIndent(editor.getCursorPosition().row);
+      }
+    }
+  });
+
+  // outdent selection
+  editor.commands.addCommand({
+    name: "outSelection",
+    bindKey: {win: "ctrl-\[", mac: "Command-\["},
+    exec: function(editor) {
+      if (editor.getSelectedText()) {
+        editor.blockOutdent(editor.getSelectionRange());
+      } else {
+        editor.blockOutdent(editor.getCursorPosition().row);
+      }
+    }
+  });
+
   editor.commands.addCommand({
     name: "sendCommand",
     bindKey: {win: "ctrl-Enter", mac: "Command-Enter"},
