@@ -298,6 +298,7 @@ var template = [
       },
       {
         label: 'Set Working Directory',
+        accelerator: 'CmdOrCtrl+Shift+g',
         click: function() {
           track('shortcut', 'Session > Set Working Directory');
           pickWorkingDirectory();

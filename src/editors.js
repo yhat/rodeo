@@ -74,6 +74,15 @@ function createEditor(id) {
     }
   });
 
+  // override cmd+shift+g
+  editor.commands.addCommand({
+    name: "pickWorkingDirectory",
+    bindKey: {win: "ctrl-Shift-g", mac: "Command-Shift-g"},
+    exec: function(editor) {
+      pickWorkingDirectory();
+    }
+  });
+
   // override cmt+t
   editor.commands.addCommand({
     name: "findFile",
