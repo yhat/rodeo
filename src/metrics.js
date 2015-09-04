@@ -1,7 +1,6 @@
 var fs = require('fs');
 var uuid = require('uuid');
 var querystring = require('querystring');
-var jQuery = require('jquery');
 var rodeohelpers = require(__dirname + "/../src/rodeohelpers");
 var rodeoVersion = JSON.parse(fs.readFileSync(__dirname + '/../package.json').toString()).version;
 
@@ -41,9 +40,9 @@ function getUserId(fn) {
 // time open?
 ;
 
-function post(url) {
+function send(url) {
   var xhr = new XMLHttpRequest();
-  xhr.open("POST", url);
+  xhr.open("GET", url);
   xhr.send(null);
 }
 
@@ -58,17 +57,15 @@ function track(cat, action, label, value) {
       // if we have internet...
       if (navigator && navigator.onLine) {
         var params = {
-          // default
           v: 1,
           tid: 'UA-46996803-1',
           cid: USER_ID,
-          an: "Rodeo",
-          av: rodeoVersion,
-          sr: $(window).width() + "x" + $(window).height(),
-          // event
           t: 'event',
           ec: cat,
           ea: action
+          // an: "Rodeo"
+          // av: rodeoVersion,
+          // sr: $(window).width() + "x" + $(window).height(),
         }
         if (label) {
           params.el = label;
@@ -77,9 +74,7 @@ function track(cat, action, label, value) {
           params.ev = value;
         }
         var url = "https://www.google-analytics.com/collect?" + querystring.stringify(params);
-        console.log(url);
-        console.log(JSON.stringify(params));
-        post(url);
+        send(url);
       }
     });
   }
