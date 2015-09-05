@@ -9,6 +9,9 @@ function setEditorTheme(theme) {
   updateRC("editorTheme", theme);
 }
 
+ace.require("ace/keyboard/vim");
+ace.require("ace/keyboard/emacs");
+
 function setKeyBindings(binding) {
   $(".editor").each(function(i, item) {
     var editor = ace.edit(item.id);

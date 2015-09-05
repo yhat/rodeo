@@ -3,6 +3,7 @@ var uuid = require('uuid');
 var querystring = require('querystring');
 var rodeohelpers = require(__dirname + "/../src/rodeohelpers");
 var rodeoVersion = JSON.parse(fs.readFileSync(__dirname + '/../package.json').toString()).version;
+var ipc = require('ipc');
 
 global.USER_ID;
 
@@ -46,10 +47,14 @@ function send(url) {
   xhr.send(null);
 }
 
+function track(cat, action, label, value) {
+  ipc.send('metric', { cat: cat, action: action, label: label, value: value });
+}
 
 var rc = rodeohelpers.getRC();
-function track(cat, action, label, value) {
+function send(cat, action, label, value) {
   if (rc.tracking==null || rc.trackingOn==true) {
+    return;
     getUserId(function(err, userId) {
       if (global.USER_ID==null) {
         global.USER_ID = userId;
@@ -81,3 +86,4 @@ function track(cat, action, label, value) {
 }
 
 module.exports.track = track;
+module.exports.send = send;

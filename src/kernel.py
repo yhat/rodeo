@@ -37,6 +37,19 @@ try:
 except:
     pip = None
 
+import ast
+import re
+
+def __is_code_finished(code):
+    try:
+        ast.parse(code)
+        if "\\n" in code:
+            return re.search('\\n\s+?$', code) is not None
+        else:
+            return True
+    except Exception, e:
+        return str(e)
+
 def __get_variables():
     if not pd:
         print('[]')
@@ -52,8 +65,6 @@ def __get_variables():
                 "dtype": "DataFrame"
             })
     print(json.dumps(data_frames))
-
-
 
 def __get_packages():
     if not pip:

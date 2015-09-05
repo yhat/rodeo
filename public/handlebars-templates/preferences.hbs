@@ -35,7 +35,7 @@
         <div class="checkbox">
           <label>
             <input onchange="setDisplayDotFiles($(this).prop('checked'));" type="checkbox" {{#displayDotFiles}}checked{{/displayDotFiles}}> Display Dot Files
-            <a data-toggle="tooltip" data-placement="right" title="<p class='small'>When checked, 'dotfiles' and directories (i.e. `.git`) will be displayed. NOTE: When updated, this will take affect upon restart.</p>" data-html="true"><i class="fa fa-question-circle"></i></a>
+            <a data-toggle="tooltip" data-placement="right" title="<p class='small'>When checked, 'dotfiles' and directories (i.e. <code>.git</code>) will be displayed. NOTE: When updated, this will take affect upon restart.</p>" data-html="true"><i class="fa fa-question-circle"></i></a>
           </label>
         </div>
         <div class="checkbox">
@@ -91,8 +91,8 @@
           <label for="keyBindings">Key Bindings</label>
           <select onchange="setKeyBindings($(this).val());" class="form-control" name="keyBindings" id="keyBindings">
             <option value="default" {{#compare keyBindings 'default'}}selected{{/compare}}>default</option>
-            <option value="ace/keybindings/vim" {{#compare keyBindings 'ace/keybindings/vim'}}selected{{/compare}}>vim</option>
-            <option value="ace/keybindings/emacs" {{#compare keyBindings 'ace/keybindings/emacs'}}selected{{/compare}}>emacs</option>
+            <option value="ace/keyboard/vim" {{#compare keyBindings 'ace/keyboard/vim'}}selected{{/compare}}>vim</option>
+            <option value="ace/keyboard/emacs" {{#compare keyBindings 'ace/keyboard/emacs'}}selected{{/compare}}>emacs</option>
           </select>
         </div>
         

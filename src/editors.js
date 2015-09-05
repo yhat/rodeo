@@ -127,12 +127,24 @@ function createEditor(id) {
       if (text=="") {
         text = editor.session.getLine(currline);
       }
-      jqconsole.Write(">>> " + text + '\n', 'jqconsole-old-input');
-      jqconsole.SetHistory(jqconsole.GetHistory().concat([text]));
-      sendCommand(text);
-      // this seems to behave better without the scroll getting in th way...
-      // editor.scrollToLine(currline + 1, true, true, function () {});
-      editor.gotoLine(currline + 2, 10, true);
+      text = jqconsole.GetPromptText() + text;
+
+      isCodeFinished(text, function(err, isFinished) {
+        if (isFinished) {
+          jqconsole.SetPromptText(text);
+          jqconsole.Write(jqconsole.GetPromptText(true) + '\n');
+          jqconsole.ClearPromptText();
+          jqconsole.SetHistory(jqconsole.GetHistory().concat([text]));
+          sendCommand(text);
+          // this seems to behave better without the scroll getting in th way...
+          // editor.scrollToLine(currline + 1, true, true, function () {});
+        } else {
+          text = text + '\n';
+          jqconsole.ClearPromptText();
+          jqconsole.SetPromptText(text);
+        }
+        editor.gotoLine(currline + 2, 10, true);
+      });
     }
   });
 
@@ -141,6 +153,14 @@ function createEditor(id) {
     bindKey: {win: "ctrl-s", mac: "Command-s"},
     exec: function(editor) {
       saveEditor(editor);
+    }
+  });
+
+  editor.commands.addCommand({
+    name: "cancelInput",
+    bindKey: {win: "ctrl-c", mac: "ctrl-c"},
+    exec: function(editor) {
+      jqconsole.SetPromptText('');
     }
   });
 

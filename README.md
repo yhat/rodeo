@@ -138,9 +138,9 @@ Greg
 - [x] fix python subprocess stuff
 - [ ] Excel renderer
 - [x] update file tree on save
-- [ ] multiline execute jumps around
+- [x] multiline execute jumps around
     - [x] after highlight, things go nuts
-    - [ ] ability to "know" if command is done yet when going line by line
+    - [x] ability to "know" if command is done yet when going line by line
 - [ ] on drastic change to editor, some things aren't visible
 - [x] on restart session, run refreshVariables()
 - [x] default working directory in preferences

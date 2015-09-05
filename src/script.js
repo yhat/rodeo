@@ -136,6 +136,14 @@ function refreshPackages() {
   python.stdin.write(JSON.stringify(payload) + delim);
 }
 
+function isCodeFinished(code, fn) {
+  var payload = { id: uuid.v4(), code: "__is_code_finished('''" + code + "''')" };
+  callbacks[payload.id] = function(result) {
+    fn(null, result.output=="True");
+  }
+  python.stdin.write(JSON.stringify(payload) + delim);
+}
+
 function sendCommand(input, hideResult) {
   track('command', 'python');
   if (python==null) {
