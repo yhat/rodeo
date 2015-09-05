@@ -2,6 +2,7 @@ var app = require('app');  // Module to control application life.
 var BrowserWindow = require('browser-window');  // Module to create native browser window.
 var os = require('os');
 var ipc = require('ipc');
+var metrics = require('./metrics');
 
 // Report crashes to our server.
 require('crash-reporter').start();
@@ -37,6 +38,15 @@ app.on('ready', function() {
 
   // Open the devtools.
   // mainWindow.openDevTools();
+
+  ipc.on('metric', function(event, data) {
+    if (/Applications/.test(app.getAppPath())) {
+      metrics.send(data.cat, data.action, data.label, data.value);
+    } else {
+      // we're in dev mode
+      console.info('[INFO]: theoretically tracking metrics: ' + JSON.stringify(data));
+    }
+  });
 
   ipc.on('quit', function(event) {
     app.quit();
