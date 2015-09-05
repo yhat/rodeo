@@ -11,7 +11,7 @@ You'll need the following:
 - electron-builder (npm install electron-builder -g)
 - handlebars (npm install handlebars -g)
 - uglifyjs (npm install uglify-js -g)
-- lessc (npm install -g lessc)
+- lessc (npm install -g less)
 
 Clone the repo and run:
 ```
