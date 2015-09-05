@@ -40,7 +40,7 @@ app.on('ready', function() {
   // mainWindow.openDevTools();
 
   ipc.on('metric', function(event, data) {
-    if (/Applications/.test(app.getAppPath())) {
+    if (! /rodeo-native/.test(app.getAppPath())) {
       metrics.send(data.cat, data.action, data.label, data.value);
     } else {
       // we're in dev mode
