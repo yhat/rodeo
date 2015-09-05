@@ -185,9 +185,23 @@ templates['preferences.hbs'] = template({"1":function(depth0,helpers,partials,da
     + ((stack1 = (helpers.compare || (depth0 && depth0.compare) || alias1).call(depth0,(depth0 != null ? depth0.keyBindings : depth0),"ace/keybindings/vim",{"name":"compare","hash":{},"fn":this.program(1, data, 0),"inverse":this.noop,"data":data})) != null ? stack1 : "")
     + ">vim</option>\n            <option value=\"ace/keybindings/emacs\" "
     + ((stack1 = (helpers.compare || (depth0 && depth0.compare) || alias1).call(depth0,(depth0 != null ? depth0.keyBindings : depth0),"ace/keybindings/emacs",{"name":"compare","hash":{},"fn":this.program(1, data, 0),"inverse":this.noop,"data":data})) != null ? stack1 : "")
-    + ">emacs</option>\n          </select>\n        </div>\n        <div class=\"form-group\">\n          <label for=\"fontSize\">Font Size</label>\n          <input onchange=\"setFontSize($(this).val());\" class=\"form-control\" id=\"fontSize\" name=\"fontSize\" type=\"number\" step=\"1\" value=\""
+    + ">emacs</option>\n          </select>\n        </div>\n        \n        <div class=\"form-group\">\n          <div style=\"width:10%; max-width: 25%;\">\n            <label for=\"fontSize\">Font Size</label>\n            <select onchange=\"setFontSize($(this).val());\" class=\"form-control\" id=\"fontSize\" name=\"fontSize\" type=\"number\" value=\""
     + alias3(((helper = (helper = helpers.fontSize || (depth0 != null ? depth0.fontSize : depth0)) != null ? helper : alias1),(typeof helper === alias2 ? helper.call(depth0,{"name":"fontSize","hash":{},"data":data}) : helper)))
-    + "\" min=\"8\" max=\"20\" />\n        </div>\n        <div class=\"checkbox\">\n          <label>\n            <input onchange=\"setAutoSave($(this).prop('checked'));\" type=\"checkbox\" ";
+    + "\" >\n                <option value=\"10\" "
+    + ((stack1 = (helpers.compare || (depth0 && depth0.compare) || alias1).call(depth0,(depth0 != null ? depth0.fontSize : depth0),10,{"name":"compare","hash":{},"fn":this.program(1, data, 0),"inverse":this.noop,"data":data})) != null ? stack1 : "")
+    + ">10</option>\n                <option value=\"12\" "
+    + ((stack1 = (helpers.compare || (depth0 && depth0.compare) || alias1).call(depth0,(depth0 != null ? depth0.fontSize : depth0),12,{"name":"compare","hash":{},"fn":this.program(1, data, 0),"inverse":this.noop,"data":data})) != null ? stack1 : "")
+    + ">12</option>\n                <option value=\"14\" "
+    + ((stack1 = (helpers.compare || (depth0 && depth0.compare) || alias1).call(depth0,(depth0 != null ? depth0.fontSize : depth0),14,{"name":"compare","hash":{},"fn":this.program(1, data, 0),"inverse":this.noop,"data":data})) != null ? stack1 : "")
+    + ">14</option>\n                <option value=\"16\" "
+    + ((stack1 = (helpers.compare || (depth0 && depth0.compare) || alias1).call(depth0,(depth0 != null ? depth0.fontSize : depth0),16,{"name":"compare","hash":{},"fn":this.program(1, data, 0),"inverse":this.noop,"data":data})) != null ? stack1 : "")
+    + ">16</option>\n                <option value=\"18\" "
+    + ((stack1 = (helpers.compare || (depth0 && depth0.compare) || alias1).call(depth0,(depth0 != null ? depth0.fontSize : depth0),18,{"name":"compare","hash":{},"fn":this.program(1, data, 0),"inverse":this.noop,"data":data})) != null ? stack1 : "")
+    + ">18</option>\n                <option value=\"20\" "
+    + ((stack1 = (helpers.compare || (depth0 && depth0.compare) || alias1).call(depth0,(depth0 != null ? depth0.fontSize : depth0),20,{"name":"compare","hash":{},"fn":this.program(1, data, 0),"inverse":this.noop,"data":data})) != null ? stack1 : "")
+    + ">20</option>\n                <option value=\"22\" "
+    + ((stack1 = (helpers.compare || (depth0 && depth0.compare) || alias1).call(depth0,(depth0 != null ? depth0.fontSize : depth0),22,{"name":"compare","hash":{},"fn":this.program(1, data, 0),"inverse":this.noop,"data":data})) != null ? stack1 : "")
+    + ">22</option>\n            </select>\n          </div>\n        </div>\n        <div class=\"checkbox\">\n          <label>\n            <input onchange=\"setAutoSave($(this).prop('checked'));\" type=\"checkbox\" ";
   stack1 = ((helper = (helper = helpers.autoSave || (depth0 != null ? depth0.autoSave : depth0)) != null ? helper : alias1),(options={"name":"autoSave","hash":{},"fn":this.program(3, data, 0),"inverse":this.noop,"data":data}),(typeof helper === alias2 ? helper.call(depth0,options) : helper));
   if (!helpers.autoSave) { stack1 = alias4.call(depth0,stack1,options)}
   if (stack1 != null) { buffer += stack1; }

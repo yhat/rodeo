@@ -95,9 +95,20 @@
             <option value="ace/keybindings/emacs" {{#compare keyBindings 'ace/keybindings/emacs'}}selected{{/compare}}>emacs</option>
           </select>
         </div>
+        
         <div class="form-group">
-          <label for="fontSize">Font Size</label>
-          <input onchange="setFontSize($(this).val());" class="form-control" id="fontSize" name="fontSize" type="number" step="1" value="{{fontSize}}" min="8" max="20" />
+          <div style="width:10%; max-width: 25%;">
+            <label for="fontSize">Font Size</label>
+            <select onchange="setFontSize($(this).val());" class="form-control" id="fontSize" name="fontSize" type="number" value="{{fontSize}}" >
+                <option value="10" {{#compare fontSize 10}}selected{{/compare}}>10</option>
+                <option value="12" {{#compare fontSize 12}}selected{{/compare}}>12</option>
+                <option value="14" {{#compare fontSize 14}}selected{{/compare}}>14</option>
+                <option value="16" {{#compare fontSize 16}}selected{{/compare}}>16</option>
+                <option value="18" {{#compare fontSize 18}}selected{{/compare}}>18</option>
+                <option value="20" {{#compare fontSize 20}}selected{{/compare}}>20</option>
+                <option value="22" {{#compare fontSize 22}}selected{{/compare}}>22</option>
+            </select>
+          </div>
         </div>
         <div class="checkbox">
           <label>

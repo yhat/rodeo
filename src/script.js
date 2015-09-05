@@ -202,7 +202,7 @@ function showPreferences() {
     return;
   }
   $("#editor-tab-" + "preferences" + " .editor-tab-a").click();
-  var editor_tab_html = editor_tab_template({ n: "preferences", name: "Preferences" });
+  var editor_tab_html = editor_tab_template({ n: "preferences", name: "Preferences" });  
   var preferences_html = preferences_template(rc);
 
   $(editor_tab_html).insertBefore($("#add-tab").parent());
