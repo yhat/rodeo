@@ -141,7 +141,6 @@ function createEditor(id) {
         } else {
           text = text + '\n';
           jqconsole.ClearPromptText();
-          // jqconsole.Write(text + '\n', 'jqconsole-old-input');
           jqconsole.SetPromptText(text);
         }
         editor.gotoLine(currline + 2, 10, true);
