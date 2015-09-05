@@ -176,10 +176,9 @@
             <div class="tab-pane" id="packages">
               <div class="row">
                 <div class="col-sm-4">
-                  <!--
-                  <a class="label label-primary" title=""><i class="fa fa-download"></i>&nbsp;&nbsp;Install Packages</a>
-                  <a class="label label-warning" title=""><i class="fa fa-refresh"></i>&nbsp;&nbsp;Update Packages</a>
-                  -->
+                  <button id="package-install-button" style="margin-left: 5px; margin-top: 5px;" class="btn btn-primary btn-xs" title="">
+                    <i class="fa fa-download"></i>&nbsp;&nbsp;Install Package
+                  </button>
                 </div>
                 <div class="col-sm-5 col-sm-offset-3">
                   <div class="input-group">
@@ -228,6 +227,24 @@
               </form>
               <ul class="list list-group" style="list-style-type: none; max-height: 250px; overflow: scroll;"></ul>
             </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <!-- File Search Modal -->
+
+    <!-- Package Install Modal -->
+    <div id="package-install-modal" class="modal">
+      <div class="modal-dialog modal-md">
+        <div class="modal-content">
+          <div class="modal-body">
+            <form>
+              <div class="form-group">
+                <label>Package Name</label>
+                <input id="package-to-install" type="text" class="form-control" placeholder="pandas, ggplot, requests" required/>
+              </div>
+              <button type="submit" class="btn btn-primary">install</button>
+            </form>
           </div>
         </div>
       </div>
@@ -328,7 +345,6 @@
       $("#help-content").height($("#bottom-right").height() - tabOffset);
 
     }
-
 
     // Tab stuff
     $("#add-tab").click(function(e) {
@@ -460,13 +476,27 @@
       }
     });
 
+    $("#package-install-button").click(function(e) {
+      $("#package-install-modal").modal('show');
+      $("#package-install-modal input").focus();
+    });
+
+    $("#package-install-modal form").submit(function(e) {
+      e.preventDefault();
+      var command = "! pip install " + $("#package-to-install").val();
+      jqconsole.ClearPromptText();
+      jqconsole.Write(">>> " + command + '\n', 'jqconsole-old-input');
+      jqconsole.SetHistory(jqconsole.GetHistory().concat([command]));
+      sendCommand(command);
+      return false;
+    });
+
   </script>
   <script type="text/javascript">
     track('application', 'open');
-    // not sure why but this needs to happen last
-    calibratePanes();
-    // should always be a fresh tab
-    $("#add-tab").click();
+    // not sure why but this needs to happen last AND after everything else happens
+    setTimeout(function() { $("#add-tab").click(); }, 500);
+    setTimeout(calibratePanes, 500);
   </script>
 </body>
 </html>
