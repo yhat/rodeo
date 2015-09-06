@@ -95,6 +95,11 @@ SteveIrwin.findMeAPython(function(err, pythonCmd) {
   setFiles(USER_WD);
 });
 
+ipc.on('set-wd', function(wd) {
+  USER_WD = wd || USER_WD;
+  setFiles(USER_WD);
+});
+
 
 function refreshVariables() {
   var payload = { id: uuid.v4(), code: "__get_variables()" }
@@ -210,7 +215,7 @@ function showPreferences() {
     return;
   }
   $("#editor-tab-" + "preferences" + " .editor-tab-a").click();
-  var editor_tab_html = editor_tab_template({ n: "preferences", name: "Preferences" });  
+  var editor_tab_html = editor_tab_template({ n: "preferences", name: "Preferences" });
   var preferences_html = preferences_template(rc);
 
   $(editor_tab_html).insertBefore($("#add-tab").parent());

@@ -1,3 +1,5 @@
 #!/bin/bash
 
+DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+cd $DIR
 ../build/darwin/x64/Rodeo-darwin-x64/Rodeo.app/Contents/MacOS/Electron $1
