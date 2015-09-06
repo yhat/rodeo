@@ -44,15 +44,15 @@ $ ./scripts/release.sh
 - Rodeo go to market
     - [x] OSX support
     - [-] windows support
-    - [ ] usage statistics / metrics
+    - [x] usage statistics / metrics
     - [ ] limited beta
     - [ ] marketing material
       - [ ] landing page
       - [ ] downloads page
     - [x] binary replacement for kernel?
         * __don't need it for v1 but would be nice to eventually have__
-    - [ ] licensing
-    - [ ] logo
+    - [-] licensing
+    - [-] logo
     - [ ] sunset "old rodeo"
     - [ ] enterprise strategy / timeline
 
