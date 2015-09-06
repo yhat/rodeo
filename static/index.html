@@ -238,12 +238,15 @@
       <div class="modal-dialog modal-md">
         <div class="modal-content">
           <div class="modal-body">
-            <form>
+            <form class="form-inline">
               <div class="form-group">
-                <label>Package Name</label>
-                <input id="package-to-install" type="text" class="form-control" placeholder="pandas, ggplot, requests" required/>
+                <label class="sr-only" for="exampleInputAmount">Amount (in dollars)</label>
+                <div class="input-group">
+                  <div class="input-group-addon"><a data-toggle="tooltip" data-placement="right" title="<p class='small'>Packages are installed using <code>pip</code>. You can specify specific versions using the <code>==</code> syntax.</p>" data-html="true"><i class="fa fa-question-circle"></i></a>&nbsp;Package Name</div>
+                  <input style="width: 350px;" id="package-to-install" type="text" class="form-control" placeholder="pandas, ggplot, requests, bashplotlib==0.5.2" required/>
+                </div>
               </div>
-              <button type="submit" class="btn btn-primary">install</button>
+              <button type="submit" class="btn btn-primary pull-right">install</button>
             </form>
           </div>
         </div>
@@ -494,6 +497,8 @@
   </script>
   <script type="text/javascript">
     track('application', 'open');
+    // initialize all tooltips
+    $('[data-toggle="tooltip"]').tooltip();
     // not sure why but this needs to happen last AND after everything else happens
     setTimeout(function() { $("#add-tab").click(); }, 500);
     setTimeout(calibratePanes, 500);
