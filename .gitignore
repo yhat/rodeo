@@ -5,3 +5,4 @@ build
 *.pyc
 .DS_Store
 *.log
+BETA.md
