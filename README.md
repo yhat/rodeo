@@ -46,15 +46,17 @@ $ ./scripts/release.sh
     - [-] windows support
     - [x] usage statistics / metrics
     - [ ] limited beta
-    - [ ] marketing material
-      - [ ] landing page
-      - [ ] downloads page
+    - [-] marketing material
+        - [x] landing page
+        - [x] downloads page
+        - [ ] quote from somebody cool?
     - [x] binary replacement for kernel?
         * __don't need it for v1 but would be nice to eventually have__
     - [-] licensing
     - [-] logo
     - [ ] sunset "old rodeo"
     - [ ] enterprise strategy / timeline
+        - https://s3.amazonaws.com/rstudio-server/rstudio-server-pro-0.99.483-admin-guide.pdf
 
 ## TODOs
 - [x] node.js to ipython kernel module
