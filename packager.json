@@ -12,5 +12,9 @@
   "win" : {
     "title" : "Rodeo",
     "icon" : "resources/app.ico"
+  },
+  "linux": {
+    "title": "Rodeo",
+    "icon": "resources/app.png"
   }
 }
