@@ -53,7 +53,7 @@ function createEditor(id) {
 
       callbacks[payload.id] = function(result) {
         var predictions = result.output.map(function(p) {
-          return { name: p.text, value: p.text, score: 100, meta: p.dtype };
+          return { caption: p.text, value: p.text, score: 100, meta: p.dtype };
         });
         fn(null, predictions)
       };

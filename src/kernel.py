@@ -200,7 +200,9 @@ class Kernel(object):
                         "dtype": "---"
                     }
                     if "." in code:
-                        result['text'] = ".".join(result['value'].split(".")[1:])
+                        sys.stderr.write(str(result) + '\n')
+                        # result['text'] = result['value'] # ".".join(result['value'].split(".")[1:])
+                        result['text'] = result['value'].split('.')[-1]
                         result["dtype"] = "function"
                     else:
                         result['text'] = result['value']
