@@ -16,7 +16,7 @@
 
 Rodeo is a data centric IDE for Python. You can think of it as an alternative 
 UI to the notebook for the IPython Kernel. It's heavily inspired by great 
-projects like Sublime Text and Eclipse.
+projects like [Atom](https://atom.io/ "Atom"), [Sublime Text](http://www.sublimetext.com "Sublime Text"), and [Eclipse](https://eclipse.org/ "Eclipse").
 
 ![](https://raw.githubusercontent.com/yhat/rodeo/master/rodeo/static/img/Rodeo-Demo.gif)
 
