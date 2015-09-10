@@ -185,6 +185,10 @@ function sendCommand(input, hideResult) {
         $("#plots").append('<img class="active" style="max-height: 100%; max-width: 100%;" src="' + plotImage + '" />');
         $('a[href="#plot-window"]').tab("show");
         calibratePanes();
+      } else if (result.html) {
+        $("#plots .active").removeClass("active").addClass("hide");
+        $("#plots").append('<div class="active" style="max-height: 100%; max-width: 100%;" >' + result.html + "</div>");
+        $('a[href="#plot-window"]').tab("show");
       }
 
       jqconsole.Write((result.output || "") + "\n");
