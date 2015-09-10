@@ -36,9 +36,9 @@ fs.chmodSync(kernelFile.name, 0755);
 var configFile = tmp.fileSync();
 
 var python;
-SteveIrwin.findMeAPython(function(err, pythonCmd) {
+SteveIrwin.findMeAPython(function(err, pythonCmd, opts) {
   if (pythonCmd==null || err) {
-    var params = {toolbar: false, resizable: true, show: true, height: 800, width: 1000};
+    var params = { toolbar: false, resizable: true, show: true, height: 800, width: 1000 };
     var badPythonWindow = new BrowserWindow(params);
     badPythonWindow.loadUrl('file://' + __dirname + '/../static/bad-python.html');
     badPythonWindow.webContents.on('did-finish-load', function() {
@@ -47,7 +47,7 @@ SteveIrwin.findMeAPython(function(err, pythonCmd) {
     return;
   }
 
-  python = spawn(pythonCmd, [kernelFile.name, configFile.name + ".json", delim]);
+  python = spawn(pythonCmd, [kernelFile.name, configFile.name + ".json", delim], opts);
 
   // we'll print any feedback from the kernel as yellow text
   python.stderr.on("data", function(data) {
