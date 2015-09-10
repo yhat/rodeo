@@ -45,6 +45,7 @@ $ ./scripts/release.sh
     - [x] OSX support
     - [-] windows support
     - [x] usage statistics / metrics
+    - [ ] video for website
     - [ ] limited beta
     - [-] marketing material
         - [x] landing page
