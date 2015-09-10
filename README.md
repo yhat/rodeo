@@ -54,6 +54,7 @@ $ ./scripts/release.sh
         * __don't need it for v1 but would be nice to eventually have__
     - [-] licensing
     - [-] logo
+        - [ ] stickers (landing page for people to ask for stickers)
     - [ ] sunset "old rodeo"
     - [ ] enterprise strategy / timeline
         - https://s3.amazonaws.com/rstudio-server/rstudio-server-pro-0.99.483-admin-guide.pdf
@@ -111,7 +112,7 @@ $ ./scripts/release.sh
 - [ ] on drastic change to editor, some things aren't visible
 - [x] on restart session, run refreshVariables()
 - [x] default working directory in preferences
-- [ ] console font size
+- [x] console font size
 - [x] convert to LESS
 - [x] bug on open files
 - [x] shortcuts for running commands in your history
