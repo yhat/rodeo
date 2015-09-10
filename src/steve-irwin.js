@@ -77,7 +77,7 @@ function findMeAPython(fn) {
           });
         },
         function(err) {
-          fn(err, pythonCmd);
+          fn(err, pythonCmd, opts);
         }
       );
     });
