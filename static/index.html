@@ -6,6 +6,9 @@
 
   <script type="text/javascript">
     window.$ = window.jQuery = require('jquery');
+    jQuery.fn.outerHTML = function() {
+      return jQuery('<div />').append(this.eq(0).clone()).html();
+    };
     Handlebars = require("handlebars");
     Handlebars.registerHelper('compare', function (lvalue, operator, rvalue, options) {
 
@@ -162,13 +165,16 @@
             <!-- End File Nav -->
             <!-- Plot viewer -->
             <div class="tab-pane" id="plot-window">
-              &nbsp;
               <a onclick="previousPlot();" class="label label-primary" title="Prevous Plot"><i class="fa fa-caret-left"></i></a>
               <a onclick="nextPlot()" class="label label-primary" title="Next Plot"><i class="fa fa-caret-right"></i></a>
               <a onclick="showPlot();" class="label label-primary" title="Zoom In"><i class="fa fa-arrows-alt"></i></a>
               <a onclick="savePlot();" class="label label-primary" title="Export Plot" download><i class="fa fa-floppy-o"></i></a>
               <a onclick="deletePlot();" class="label label-primary" title="Delete Plot"><i class="fa fa-trash-o"></i></a>
-              <div id="plots">
+              <div clas="row">
+                <div class="col-sm-10" id="plots">
+                </div>
+                <div class="col-sm-2 pull-right" id="plots-minimap" style="overflow: scroll;">
+                </div>
               </div>
             </div>
             <!-- End Plot viewer -->
@@ -341,8 +347,9 @@
 
       // plots
       $("#plot-window").height($("#bottom-right").height() - tabOffset);
-      var offset = offset + 25; //13;
+      var offset = offset + 25 + 5; //13;
       $("#plots img").css("max-height", $("#bottom-right").height() - offset);
+      $("#plots-minimap").css("max-height", $("#bottom-right").height() - offset);
       // help
       $("#help-content").parent().height($("#bottom-right").height() - tabOffset);
       $("#help-content").height($("#bottom-right").height() - tabOffset);

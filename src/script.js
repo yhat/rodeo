@@ -179,16 +179,30 @@ function sendCommand(input, hideResult) {
         return;
       }
 
+      // handling png and html, but are there any other types of outputs
       if (result.image) {
         var plotImage = "data:image/png;charset=utf-8;base64," + result.image;
+        $("#plots-minimap .active").removeClass("active");
         $("#plots .active").removeClass("active").addClass("hide");
-        $("#plots").append('<img class="active" style="max-height: 100%; max-width: 100%;" src="' + plotImage + '" />');
+        var newplot = $.parseHTML('<img onclick="activatePlot(this);" class="active" style="max-height: 100%; max-width: 100%;" />');
+        var plotid = uuid.v4().toString();
+        $(newplot).attr("data-plot-id", plotid);
+        $(newplot).attr("src", plotImage);
+        // TODO: maybe if minimap is getting too long we can trim it
+        $("#plots").append($(newplot).clone());
+        // TODO: maybe if minimap is getting too long we can trim it
+        $("#plots-minimap").prepend($(newplot).clone());
         $('a[href="#plot-window"]').tab("show");
         calibratePanes();
       } else if (result.html) {
         $("#plots .active").removeClass("active").addClass("hide");
-        $("#plots").append('<div class="active" style="max-height: 100%; max-width: 100%;" >' + result.html + "</div>");
+        // var html = $(result.html, "svg").attr("width", "100%").attr("height", "100%").html();
+        // TODO: need to handle the sizing here
+        result.html = result.html.replace(/600px/g, "95%");
+        result.html = $("svg", result.html).outerHTML();
+        $("#plots").append('<div class="active">' + result.html + "</div>");
         $('a[href="#plot-window"]').tab("show");
+        calibratePanes();
       }
 
       jqconsole.Write((result.output || "") + "\n");
@@ -257,11 +271,19 @@ function showVariable(varname, type) {
   });
 }
 
+function activatePlot(plotid) {
+  var plotid = $(plotid).data("plot-id");
+  $("#plots .active").removeClass("active").addClass("hide");
+  $("#plots-minimap .active").removeClass("active");
+  $("#plots [data-plot-id='" + plotid + "']").removeClass("hide").addClass("active");
+  $("#plots-minimap [data-plot-id='" + plotid + "']").addClass("active");
+}
+
 function showPlot() {
-  if (! $("img.active").length) {
+  if (! $("#plots img.active").length) {
     return;
   }
-  var filename = $("img.active").attr("src");
+  var filename = $("#plots img.active").attr("src");
   var params = {toolbar: false, resizable: false, show: true, height: 1000, width: 1000};
   var plotWindow = new BrowserWindow(params);
   plotWindow.loadUrl(filename);
