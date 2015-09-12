@@ -4,7 +4,6 @@ import sys
 
 try:
     from jupyter_client import BlockingKernelClient
-    sys.exit(0)
 except:
     try:
         from IPython.kernel import BlockingKernelClient

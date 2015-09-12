@@ -1,6 +1,8 @@
 #!/usr/bin/env python
 
+# from __future__ import print_function
 import sys
+
 sys.stderr.write("kernel is running using: %s\n" % sys.executable)
 
 # start compatibility with IPython Jupyter 4.0
@@ -34,6 +36,11 @@ except:
     pd = None
 
 try:
+    import numpy as np
+except:
+    np = None
+
+try:
     import pip
 except:
     pip = None
@@ -48,7 +55,7 @@ def __is_code_finished(code):
             return re.search('\\n\s+?$', code) is not None
         else:
             return True
-    except Exception, e:
+    except Exception as e:
         return str(e)
 
 def __get_variables():
@@ -56,6 +63,7 @@ def __get_variables():
     variables = {
         "list": [],
         "dict": [],
+        "ndarray": [],
         "DataFrame": [],
         "Series": []
     }
@@ -71,13 +79,17 @@ def __get_variables():
         if isinstance(variable, list):
             variable_repr = "List of length %d" % len(variable)
             variables["list"].append({ "name": variable_name, "repr": variable_repr })
+        if np and isinstance(variable, np.ndarray):
+            shape = " x ".join([str(i) for i in variable.shape])
+            variable_repr = "Array [%s]" %  shape
+            variables["ndarray"].append({ "name": variable_name, "repr": variable_repr })
         if isinstance(variable, dict):
             variable_repr = "Dict with %d keys" % len(variable)
             variables["dict"].append({ "name": variable_name, "repr": variable_repr })
-        if isinstance(variable, pd.DataFrame):
+        if pd and isinstance(variable, pd.DataFrame):
             variable_repr = "[%d rows x %d cols]" % variable.shape
             variables["DataFrame"].append({ "name": variable_name, "repr": variable_repr })
-        if isinstance(variable, pd.Series):
+        if pd and isinstance(variable, pd.Series):
             variable_repr = "[%d rows]" % variable.shape
             variables["Series"].append({ "name": variable_name, "repr": variable_repr })
 

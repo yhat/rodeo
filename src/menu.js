@@ -60,7 +60,13 @@ var template = [
       {
         label: 'Quit',
         accelerator: 'CmdOrCtrl+Q',
-        selector: 'terminate:'
+        click: function() {
+          $("#editorsTab .unsaved:not(.hide)").parent().each(function(i, el) {
+            var n = $(el).attr("href").replace("#editor-tab-pane", "");
+            closeActiveTab(n);
+          });
+          require('ipc').send('quit');
+        }
       },
     ]
   },
