@@ -65,6 +65,12 @@ function createEditor(id) {
 
   // initialize shortcuts
 
+  // TODO: fix this...
+  var allCommands = editor.commands.byName;
+  editor.commands.bindKey("Cmd-d", null)
+  allCommands.findnext.bindKey = {win: "Ctrl-d", mac: "Cmd-d"};
+  editor.commands.addCommand(allCommands.findnext)
+
   // override the settings menu
   editor.commands.addCommand({
     name: "showPreferences",
