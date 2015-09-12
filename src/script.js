@@ -283,7 +283,7 @@ function showVariable(varname, type) {
   });
 }
 
-function activatePlot(plotid) {
+function activatePlot(plot) {
   var plotid = $(plotid).data("plot-id");
   $("#plots .active").removeClass("active").addClass("hide");
   $("#plots-minimap .active").removeClass("active");
@@ -411,6 +411,7 @@ function openDialog() {
 
 var walker;
 function setFiles(dir) {
+  dir = path.resolve(dir)
   if (python==null) {
     return;
   }
