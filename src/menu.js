@@ -5,6 +5,7 @@ var path = require('path');
 var webFrame = require('web-frame');
 var dialogs = require("dialogs")({ url: "../static/img/cowboy-hat.svg" });
 var Menu = remote.require('menu');
+var ipc = require('ipc');
 
 var template = [
   {
@@ -61,11 +62,24 @@ var template = [
         label: 'Quit',
         accelerator: 'CmdOrCtrl+Q',
         click: function() {
-          $("#editorsTab .unsaved:not(.hide)").parent().each(function(i, el) {
-            var n = $(el).attr("href").replace("#editor-tab-pane", "");
-            closeActiveTab(n);
-          });
-          require('ipc').send('quit');
+          if ($("#editorsTab .unsaved:not(.hide)").length) {
+            remote.require('dialog').showMessageBox({
+              type: "warning",
+              buttons: ["Yes", "Cancel"],
+              message: "You have unsaved files in your Rodeo session. Are you sure you want to quit?",
+              detail: "These files will be deleted permanently."
+            }, function(reply) {
+              if (reply==0) {
+                // yes, nuke it
+                ipc.send('quit');
+              } else {
+                // do nothing
+                return;
+              }
+            });
+          } else {
+            ipc.send('quit');
+          }
         }
       },
     ]
@@ -306,10 +320,11 @@ var template = [
               // yes, nuke it
               sendCommand("%reset -f", false);
               refreshVariables();
-            } else
+            } else {
               // do nothing
               return;
-            });
+            }
+          });
         }
       },
       {
