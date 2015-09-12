@@ -115,7 +115,7 @@ function refreshVariables() {
     }
     var variables = JSON.parse(result.output);
     $("#vars").children().remove();
-    var variableTypes = ["list", "dict", "DataFrame", "Series"];
+    var variableTypes = ["list", "dict", "ndarray", "DataFrame", "Series"];
     variableTypes.forEach(function(type) {
       variables[type].forEach(function(v) {
         $("#vars").append(active_variables_row_template({
@@ -259,7 +259,7 @@ function showPreferences() {
 }
 
 function showVariable(varname, type) {
-  var params = {toolbar: false, resizable: true, show: true, height: 800, width: 1000};
+  var params = { toolbar: false, resizable: true, show: true, height: 800, width: 1000 };
 
   variableWindow = new BrowserWindow(params);
   variableWindow.loadUrl('file://' + __dirname + '/../static/display-variable.html');
@@ -269,6 +269,7 @@ function showVariable(varname, type) {
     DataFrame: "print(" + varname + "[:1000].to_html())",
     Series: "print(" + varname + "[:1000].to_frame().to_html())",
     list: "pp.pprint(" + varname + ")",
+    ndarray: "pp.pprint(" + varname + ")",
     dict: "pp.pprint(" + varname + ")"
   }
   variableWindow.webContents.on('did-finish-load', function() {

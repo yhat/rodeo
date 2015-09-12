@@ -6,6 +6,9 @@
     {{#compare type "list"}}
       <a href="#" onclick="showVariable('{{name}}', '{{type}}');"><span class='fa fa-list-alt' aria-hidden='true'></span></a>
     {{/compare}}
+    {{#compare type "ndarray"}}
+      <a href="#" onclick="showVariable('{{name}}', '{{type}}');"><span class='fa fa-list-alt' aria-hidden='true'></span></a>
+    {{/compare}}
     {{#compare type "dict"}}
       <a href="#" onclick="showVariable('{{name}}', '{{type}}');"><span class='fa fa-list-alt' aria-hidden='true'></span></a>
     {{/compare}}
