@@ -4,16 +4,18 @@
 Check the [releases](https://github.com/yhat/rodeo-native/releases) for the latest build. Download it, unzip, and double-click Rodeo!
 
 ## Dev
-You'll need the following:
+You'll need the following to run Rodeo in dev mode:
 - node.js
-- electron
+- electron (npm install electron-prebuilt -g)
+
+You'll need the following to actually develop Rodeo:
 - electron-packager (npm install electron-packager -g)
 - electron-builder (npm install electron-builder -g)
 - handlebars (npm install handlebars -g)
 - uglifyjs (npm install uglify-js -g)
 - lessc (npm install -g less)
 
-Clone the repo and run:
+To run Rodeo in dev mode, clone the repo and run:
 ```
 $ electron .
 ```
