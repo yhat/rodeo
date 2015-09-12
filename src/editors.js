@@ -27,6 +27,9 @@ function createEditor(id) {
   track('application', 'editor');
 
   var langTools = ace.require("ace/ext/language_tools");
+  // this removes local completer
+  langTools.setCompleters([]);
+
   var Autocomplete = ace.require("ace/autocomplete").Autocomplete;
   var editor = ace.edit(id);
   editor.completer = new Autocomplete(editor);

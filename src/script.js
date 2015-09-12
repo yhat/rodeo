@@ -191,10 +191,11 @@ function sendCommand(input, hideResult) {
         var plotImage = "data:image/png;charset=utf-8;base64," + result.image;
         $("#plots-minimap .active").removeClass("active");
         $("#plots .active").removeClass("active").addClass("hide");
-        var newplot = $.parseHTML('<img onclick="activatePlot(this);" class="active" style="max-height: 100%; max-width: 100%;" />');
+        var newplot = $.parseHTML('<img class="active" style="max-height: 100%; max-width: 100%;" />');
         var plotid = uuid.v4().toString();
         $(newplot).attr("data-plot-id", plotid);
         $(newplot).attr("src", plotImage);
+        $(newplot).attr("onclick", "activatePlot($(this).data('plot-id'));")
         // TODO: maybe if minimap is getting too long we can trim it
         $("#plots").append($(newplot).clone());
         // TODO: maybe if minimap is getting too long we can trim it
@@ -288,8 +289,8 @@ function showVariable(varname, type) {
   });
 }
 
-function activatePlot(plot) {
-  var plotid = $(plotid).data("plot-id");
+function activatePlot(plotid) {
+  console.log(plotid);
   $("#plots .active").removeClass("active").addClass("hide");
   $("#plots-minimap .active").removeClass("active");
   $("#plots [data-plot-id='" + plotid + "']").removeClass("hide").addClass("active");
