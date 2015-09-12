@@ -28,6 +28,16 @@ var template = [
         }
       },
       {
+        label: 'Default Variables',
+        accelerator: 'CmdOrCtrl+g',
+        click: function() {
+          if (! fs.existsSync(path.join(USER_HOME, '.rodeoprofile'))) {
+            fs.writeFileSync(path.join(USER_HOME, '.rodeoprofile'), '');
+          }
+          openFile(path.join(USER_HOME, '.rodeoprofile'));
+        }
+      },
+      {
         type: 'separator'
       },
       {
