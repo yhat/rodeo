@@ -93,6 +93,10 @@ SteveIrwin.findMeAPython(function(err, pythonCmd, opts) {
   refreshVariables();
   refreshPackages();
   setFiles(USER_WD);
+  if (fs.existsSync(path.join(USER_HOME, ".rodeoprofile"))) {
+    var profile = fs.readFileSync(path.join(USER_HOME, ".rodeoprofile")).toString();
+    sendCommand(profile, false)
+  }
 });
 
 ipc.on('set-wd', function(wd) {
@@ -199,7 +203,7 @@ function sendCommand(input, hideResult) {
         // var html = $(result.html, "svg").attr("width", "100%").attr("height", "100%").html();
         // TODO: need to handle the sizing here
         result.html = result.html.replace(/600px/g, "95%");
-        result.html = $("svg", result.html).outerHTML();
+        // result.html = $("svg", result.html).outerHTML();
         $("#plots").append('<div class="active">' + result.html + "</div>");
         $('a[href="#plot-window"]').tab("show");
         calibratePanes();
@@ -221,6 +225,14 @@ function showAbout() {
   var params = {toolbar: false, resizable: false, show: true, height: 200, width: 300 };
   var aboutWindow = new BrowserWindow(params);
   aboutWindow.loadUrl('file://' + __dirname + '/../static/about.html');
+}
+
+function popOutConsole() {
+  $('#left-column .hsplitter').css('top', $('#left-column').height()-7);
+  calibratePanes();
+  var params = {toolbar: false, resizable: true, show: true, height: 800, width: 500 };
+  var consoleWindow = new BrowserWindow(params);
+  consoleWindow.loadUrl('file://' + __dirname + '/../static/about.html');
 }
 
 function showPreferences() {
