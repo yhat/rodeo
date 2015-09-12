@@ -9,21 +9,27 @@
 </head>
 <body>
   <!-- header -->
-  <table id="header" class="table table-bordered" style="margin-bottom: 0px;">
+  <table id="header" class="table table-bordered hide" style="margin-bottom: 0px;">
   </table>
 
   <!-- rows -->
   <div style="max-height: 900px; overflow: auto;">
-    <table id="rows" class="table table-bordered">
+    <table id="rows" class="table table-bordered hide">
     </table>
   </div>
+  <pre class="hide" id="data"></pre>
 
 
 <script type="text/javascript">
 $(document).ready(function() {
   require('ipc').on('ping', function(data) {
-    if (data.type=="DataFrame") {
-      $("#data").text()
+    if (data.type=="DataFrame" || data.type=="Series") {
+      $("#data").addClass("hide");
+      $("#data").text();
+
+      $("#header").removeClass("hide");
+      $("#rows").removeClass("hide");
+
       var header = $("thead", data.html);
       $("#header").append(header);
       var rows = $("tbody", data.html);
@@ -38,6 +44,12 @@ $(document).ready(function() {
         var width = Math.max(rowWidth, headerWidth);
         $($("#header th")[i]).outerWidth(width);
       });
+    } else {
+      $("#data").removeClass("hide");
+      $("#data").text(data.html);
+
+      $("#header").addClass("hide");
+      $("#rows").addClass("hide");
     }
   });
 });

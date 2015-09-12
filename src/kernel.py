@@ -26,6 +26,7 @@ import json
 __dirname = os.path.dirname(os.path.abspath(__file__))
 
 vars_patch = """
+import pprint as pp
 import json
 try:
     import pandas as pd
@@ -51,20 +52,36 @@ def __is_code_finished(code):
         return str(e)
 
 def __get_variables():
-    if not pd:
-        print('[]')
-        return
-    variable_names = globals().keys()
-    data_frames = []
-    for v in variable_names:
-        if v.startswith("_"):
+
+    variables = {
+        "list": [],
+        "dict": [],
+        "DataFrame": [],
+        "Series": []
+    }
+
+    SPECIAL_VARS = ["In", "Out"]
+    for variable_name in globals().keys():
+
+        if variable_name.startswith("_") or variable_name in SPECIAL_VARS:
             continue
-        if isinstance(globals()[v], pd.DataFrame):
-            data_frames.append({
-                "name": v,
-                "dtype": "DataFrame"
-            })
-    print(json.dumps(data_frames))
+
+        variable = globals()[variable_name]
+
+        if isinstance(variable, list):
+            variable_repr = "List of length %d" % len(variable)
+            variables["list"].append({ "name": variable_name, "repr": variable_repr })
+        if isinstance(variable, dict):
+            variable_repr = "Dict with %d keys" % len(variable)
+            variables["dict"].append({ "name": variable_name, "repr": variable_repr })
+        if isinstance(variable, pd.DataFrame):
+            variable_repr = "[%d rows x %d cols]" % variable.shape
+            variables["DataFrame"].append({ "name": variable_name, "repr": variable_repr })
+        if isinstance(variable, pd.Series):
+            variable_repr = "[%d rows]" % variable.shape
+            variables["Series"].append({ "name": variable_name, "repr": variable_repr })
+
+    print(json.dumps(variables))
 
 def __get_packages():
     if not pip:
@@ -218,9 +235,6 @@ class Kernel(object):
             return self._complete(code)
         else:
             return self._run_code(code)
-
-    def get_dataframes(self):
-        return self.execute("__get_variables()")
 
     def get_packages(self):
         return self.execute("__get_packages()")

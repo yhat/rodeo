@@ -115,12 +115,15 @@ function refreshVariables() {
     }
     var variables = JSON.parse(result.output);
     $("#vars").children().remove();
-    variables.forEach(function(v) {
-      $("#vars").append(active_variables_row_template({
-          name: v.name, type: v.dtype
-        })
-      );
-    }.bind(this));
+    var variableTypes = ["list", "dict", "DataFrame", "Series"];
+    variableTypes.forEach(function(type) {
+      variables[type].forEach(function(v) {
+        $("#vars").append(active_variables_row_template({
+            name: v.name, type: type, repr: v.repr
+          })
+        );
+      }.bind(this));
+    });
     // configure column widths
     $("#vars tr").first().children().each(function(i, el) {
       $($("#vars-header th")[i]).css("width", $(el).css("width"));
@@ -264,9 +267,10 @@ function showVariable(varname, type) {
 
   var show_var_statements = {
     DataFrame: "print(" + varname + "[:1000].to_html())",
-    list: "pp.pprint(%s)" %  varname
+    Series: "print(" + varname + "[:1000].to_frame().to_html())",
+    list: "pp.pprint(" + varname + ")",
+    dict: "pp.pprint(" + varname + ")"
   }
-
   variableWindow.webContents.on('did-finish-load', function() {
     var payload = {
       id: uuid.v4(),
