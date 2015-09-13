@@ -1,7 +1,7 @@
 var shell = require('shell');
 var remote = require('remote');
 var fs = require('fs');
-var fse = require('fse');
+var fse = require('fs-extra');
 var path = require('path');
 var webFrame = require('web-frame');
 var dialogs = require("dialogs")({ url: "../static/img/cowboy-hat.svg" });
