@@ -32,8 +32,9 @@ var template = [
         label: 'Default Variables',
         accelerator: 'CmdOrCtrl+g',
         click: function() {
-          if (! fs.existsSync(path.join(USER_HOME, '.rodeoprofile'))) {
-            fs.writeFileSync(path.join(USER_HOME, '.rodeoprofile'), '');
+          var rodeoProfile = path.join(USER_HOME, '.rodeoprofile');
+          if (! fs.existsSync(rodeoProfile)) {
+            fse.copySync(path.join(__dirname, "../src", "default-rodeo-profile.txt"), rodeoProfile)
           }
           openFile(path.join(USER_HOME, '.rodeoprofile'));
         }
