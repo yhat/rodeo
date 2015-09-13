@@ -87,6 +87,7 @@ jqconsole._Indent = function() {
       var completedText = "";
       if (predictions.length==1) {
         var prediction = predictions[0].value;
+        originalPrompt = originalPrompt.replace("~", USER_HOME);
         for(var i=prediction.length; i>0; i--) {
           var p = prediction.slice(0, i);
           if (originalPrompt.slice(-p.length)==p) {
