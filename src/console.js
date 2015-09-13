@@ -118,11 +118,7 @@ jqconsole._Indent = function() {
         if (! predictions[i]) {
           return;
         }
-        if (code.slice(-1)==".") {
-          text = code + predictions[i].text;
-        } else {
-          text = predictions[i].text;
-        }
+        text = predictions[i].text;
         row.push(text);
         if (row.length==nCols) {
           table.addRow(row);

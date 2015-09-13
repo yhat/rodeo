@@ -56,14 +56,32 @@ function createEditor(id) {
 
       callbacks[payload.id] = function(result) {
         var predictions = result.output.map(function(p) {
-          for(var i=p.text.length; i>0; i--) {
-            p.value = p.text;
-            if (code.endsWith(p.text.slice(0, i)) ){
-              p.value = p.text.slice(i);
-            }
+          // for(var i=p.text.length; i>0; i--) {
+          //   p.value = p.text;
+          //   if (code==p.text.slice(0, i) ){
+          //     p.value = p.text.slice(i);
+          //     break;
+          //   }
+          // }
+          var value = p.text;
+          if (value.indexOf("/")==-1 && value.indexOf(".") > -1) {
+            value = value.split(".").slice(1).join(".");
           }
-          return { caption: p.text, value: p.value, score: 100, meta: p.dtype };
+          return { caption: p.text, value: value, score: 100, meta: null };
         });
+        // if (predictions.length==1 && code.indexOf("~") > -1) {
+        //   var rng = {
+        //     start: {
+        //       row:2 ,
+        //       column:4
+        //     },
+        //     end:{
+        //       row:2,
+        //       column:6
+        //     }
+        //   };
+        //   editor.session.replace(rng, USER_HOME);
+        // }
         fn(null, predictions)
       };
       python.stdin.write(JSON.stringify(payload) + "\n");

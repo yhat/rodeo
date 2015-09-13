@@ -35,6 +35,11 @@ function formatFilename(filename) {
   }
 }
 
+function escapeRegExp(str) {
+  return str.replace(/[\-\[\]\/\{\}\(\)\*\+\?\.\\\^\$\|]/g, "\\$&");
+}
+
 module.exports.getRC = getRC;
 module.exports.updateRC = updateRC;
 module.exports.formatFilename = formatFilename;
+module.exports.escapeRegExp = escapeRegExp;

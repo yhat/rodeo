@@ -233,7 +233,7 @@ class Kernel(object):
                     }
                     if "." in code:
                         # result['text'] = result['value'] # ".".join(result['value'].split(".")[1:])
-                        result['text'] = result['value'].split('.')[-1]
+                        result['text'] = result['value'] #.split('.')[-1]
                         result["dtype"] = "function"
                     else:
                         result['text'] = result['value']
