@@ -57,11 +57,12 @@ function createEditor(id) {
       callbacks[payload.id] = function(result) {
         var predictions = result.output.map(function(p) {
           for(var i=p.text.length; i>0; i--) {
+            p.value = p.text;
             if (code.endsWith(p.text.slice(0, i)) ){
-              p.text = p.text.slice(i);
+              p.value = p.text.slice(i);
             }
           }
-          return { caption: p.text, value: p.text, score: 100, meta: p.dtype };
+          return { caption: p.text, value: p.value, score: 100, meta: p.dtype };
         });
         fn(null, predictions)
       };
