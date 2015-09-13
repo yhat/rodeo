@@ -290,7 +290,6 @@ function showVariable(varname, type) {
 }
 
 function activatePlot(plotid) {
-  console.log(plotid);
   $("#plots .active").removeClass("active").addClass("hide");
   $("#plots-minimap .active").removeClass("active");
   $("#plots [data-plot-id='" + plotid + "']").removeClass("hide").addClass("active");
