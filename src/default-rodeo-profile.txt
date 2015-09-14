@@ -17,12 +17,13 @@
 
 # db.py
 # from db import DB
-# db = DB(username="kermit", password="rainbowconnection", hostname="db.themuppets.com", dbname="muppetdb", dbtype="mysql")
+# db = DB(username="kermit", password="rainbowconnection",
+#      hostname="db.themuppets.com", dbname="muppetdb", dbtype="mysql")
 # db = DB(profile='dw')
 
 ###################################################
 
 # HELPER FUNCTIONS
 
-def my_func():
-   print "hello Rodeo!"
+# def my_func():
+#    print "hello Rodeo!"
