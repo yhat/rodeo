@@ -8,15 +8,18 @@
   "author": "The Yhat Team",
   "main": "src/main.js",
   "devDependencies": {
-    "electron-packager": "^5.0.2",
+    "electron-builder": "^2.0.0",
+    "electron-packager": "^5.1.0",
     "electron-prebuilt": "0.30.3",
+    "less": "^2.5.1",
     "lodash": "^3.10.1",
     "minimist": "^1.1.1",
     "mkdirp": "^0.5.0",
     "mocha": "^2.2.5",
     "rimraf": "^2.4.3",
     "sandboxed-module": "^2.0.2",
-    "sinon": "^1.15.3"
+    "sinon": "^1.15.3",
+    "uglify-js": "^2.4.24"
   },
   "dependencies": {
     "async": "^1.4.2",
