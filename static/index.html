@@ -64,6 +64,7 @@
     var package_row_template = Handlebars.templates["package-row.hbs"];
     var file_template = Handlebars.templates["file-item.hbs"];
     var wd_template = Handlebars.templates["wd.hbs"];
+    var shortcuts_template = Handlebars.templates["shortcuts.hbs"];
   </script>
 </head>
 <body>
@@ -260,6 +261,27 @@
       </div>
     </div>
     <!-- File Search Modal -->
+
+    <!-- Shortcut Display Modal -->
+    <div id="shortcut-display-modal" class="modal">
+      <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+          <div class="modal-body">
+            <div class="row">
+              <div class="col-sm-4 pull-right">
+                <div class="input-group">
+                  <div class="input-group-addon"><i class="fa fa-search"></i></div>
+                  <input type="text" class="form-control input-sm" id="shortcut-search" placeholder="filter..." />
+                </div>
+              </div>
+            </div>
+            <div id="shortcuts" class="row">
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <!-- Shortcut Display Modal -->
 
   <script type="text/javascript" src="../src/rodeohelpers.js"></script>
   <script type="text/javascript" src="../src/metrics.js"></script>
@@ -505,6 +527,20 @@
       jqconsole.SetHistory(jqconsole.GetHistory().concat([command]));
       sendCommand(command);
       return false;
+    });
+
+    // setup the shortcut display modal here. we're using a handlebars
+    // template here are a partial (the shortcuts table is really big).
+    // this keeps this file a lot cleaner.
+    $("#shortcut-display-modal #shortcuts").append(shortcuts_template())
+
+    $("#shortcut-search").on('input', function() {
+      var query = $(this).val().toLowerCase();
+      if (query=="") {
+        $("#shortcuts tr .hide").removeClass("hide");
+      } else {
+        // theoretical search...
+      }
     });
 
   </script>
