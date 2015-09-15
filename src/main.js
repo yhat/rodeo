@@ -40,7 +40,7 @@ app.on('ready', function() {
       mainWindow.webContents.send('set-wd', wd);
     }
     var rc = helpers.getRC();
-
+    rc.version = null;
     if (rc.version==null) {
       mainWindow.webContents.send('start-tour', { version: "first" });
       helpers.updateRC("version", app.getVersion());
