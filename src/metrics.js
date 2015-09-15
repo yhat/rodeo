@@ -39,7 +39,6 @@ function getUserId(fn) {
 // errors
 // python path?
 // time open?
-;
 
 function send(url) {
   var xhr = new XMLHttpRequest();

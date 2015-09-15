@@ -1,4 +1,5 @@
 var fs = require('fs')
+  , fse = require('fs-extra')
   , path = require('path')
   , spawn = require('child_process').spawn
   , uuid = require('uuid')

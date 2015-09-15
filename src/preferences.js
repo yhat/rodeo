@@ -52,7 +52,8 @@ function setDefaultWd(wd) {
 }
 
 function setTheme(theme) {
-    if ($("#rodeo-theme")attr("href")!=theme) {
+  if (fs.existsSync(path.join(__dirname, "..", "static", theme))) {
+    if ($("#rodeo-theme").attr("href")!=theme) {
       $("#rodeo-theme").attr("href", theme);
     }
   }
