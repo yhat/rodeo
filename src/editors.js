@@ -1,7 +1,3 @@
-// Editors and tabs
-var path = require('path');
-var fs = require('fs');
-
 function getCurrentLine(editor) {
   return editor.session.getLine(editor.getCursorPosition().row);
 }
@@ -48,13 +44,8 @@ function createEditor(id) {
     getCompletions: function(editor, session, pos, prefix, fn) {
       session.$mode.$keywordList = [];
       var code = getCurrentLine(editor);
-      var payload = {
-        id: uuid.v4(),
-        code: code,
-        complete: true,
-      }
 
-      callbacks[payload.id] = function(result) {
+      python.execute(code, true, function(result) { 
         var predictions = result.output.map(function(p) {
           // for(var i=p.text.length; i>0; i--) {
           //   p.value = p.text;
@@ -83,8 +74,7 @@ function createEditor(id) {
         //   editor.session.replace(rng, USER_HOME);
         // }
         fn(null, predictions)
-      };
-      python.stdin.write(JSON.stringify(payload) + "\n");
+      });
     }
   };
   langTools.addCompleter(pythonCompleter);

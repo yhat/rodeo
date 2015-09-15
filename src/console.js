@@ -74,13 +74,7 @@ jqconsole._Indent = function() {
     var code = jqconsole.GetPromptText();
     jqconsole.ClearPromptText(true);
 
-    var payload = {
-      id: uuid.v4(),
-      code: code,
-      complete: true,
-    }
-
-    callbacks[payload.id] = function(result) {
+    python.execute(code, true, function(result) { 
       var predictions = result.output;
       // if only 1 suggestion comes back then we'll take the liberty and finish
       // the autocomplete
@@ -132,7 +126,6 @@ jqconsole._Indent = function() {
       jqconsole.Write(table.render() + '\n\n', 'jqconsole-output');
       startPrompt();
       jqconsole.SetPromptText(originalPrompt)
-    };
-    python.stdin.write(JSON.stringify(payload) + "\n");
+    });
   }
 };

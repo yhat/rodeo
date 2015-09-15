@@ -7,37 +7,25 @@ var MenuItem = remote.require('menu-item');
 var shell = require('shell');
 var ipc = require('ipc');
 var path = require('path');
-var colors = require('colors');
 var fs = require('fs');
-var fse = require('fs-extra');
 var uuid = require('uuid');
 var walk = require('walk');
 var tmp = require('tmp');
-var SteveIrwin = require(path.join(__dirname, '/../src/steve-irwin'));
+var kernel = require(path.join(__dirname, '/../src/kernel'));
 
 // global vars
 var USER_WD = USER_HOME;
 var variableWindow;
 
 // Python Kernel
-var spawn = require('child_process').spawn;
-var StreamSplitter = require("stream-splitter");
-var delim = "\n";
-global.callbacks = {};
-
-// we need to actually write the python kernel to a tmp file. this is so python
-// can run as a "real" file and not an asar file
-var pythonKernel = path.join(__dirname, "../src", "kernel.py");
-var kernelFile = tmp.fileSync();
-fse.copySync(pythonKernel, kernelFile.name);
-// make executable
-fs.chmodSync(kernelFile.name, 0755);
-// config file to store ipython session details
-var configFile = tmp.fileSync();
-
 var python;
-SteveIrwin.findMeAPython(function(err, pythonCmd, opts) {
-  if (pythonCmd==null || err) {
+kernel(function(err, python) {
+  global.python = python;
+  if (err) {
+    console.log(err)
+    return;
+  }
+  if (err) {
     var params = { toolbar: false, resizable: true, show: true, height: 800, width: 1000 };
     var badPythonWindow = new BrowserWindow(params);
     badPythonWindow.loadUrl('file://' + __dirname + '/../static/bad-python.html');
@@ -46,53 +34,10 @@ SteveIrwin.findMeAPython(function(err, pythonCmd, opts) {
     });
     return;
   }
-
-  python = spawn(pythonCmd, [kernelFile.name, configFile.name + ".json", delim], opts);
-
-  // we'll print any feedback from the kernel as yellow text
-  python.stderr.on("data", function(data) {
-  // process.stderr.write(data.toString().yellow);
-    console.log(data.toString().yellow);
-  });
-
-  python.on("error", function(err) {
-    console.log(err.toString());
-  });
-
-  python.on("exit", function(code) {
-    fs.unlink(kernelFile.name, function(err) {
-      if (err) {
-        console.log("failed to remove temporary kernel file: " + err);
-      }
-    });
-    console.log("exited with code: " + code);
-  });
-
-  python.on("close", function(code) {
-    console.log("closed with code: " + code);
-  });
-
-  python.on("disconnect", function() {
-    console.log("disconnected");
-  });
-
-  // StreamSplitter looks at the incoming stream from kernel.py (which is line
-  // delimited JSON) and splits on \n automatically, so we're just left with the
-  // JSON data
-  python.stdout.pipe(StreamSplitter(delim))
-    .on("token", function(data) {
-      var result = JSON.parse(data.toString());
-      if (result.id in callbacks) {
-        callbacks[result.id](result);
-        delete callbacks[result.id];
-      } else {
-        console.log("[ERROR]: " + "callback not found for: " + result.id + " --> " + JSON.stringify(result));
-      }
-    });
-
   refreshVariables();
   refreshPackages();
   setFiles(USER_WD);
+  // setup default rodeoProfile
   if (fs.existsSync(path.join(USER_HOME, ".rodeoprofile"))) {
     var profile = fs.readFileSync(path.join(USER_HOME, ".rodeoprofile")).toString();
     sendCommand(profile, false)
@@ -106,8 +51,7 @@ ipc.on('set-wd', function(wd) {
 
 
 function refreshVariables() {
-  var payload = { id: uuid.v4(), code: "__get_variables()" }
-  callbacks[payload.id] = function(result) {
+  python.execute("__get_variables()", false, function(result) {
     if (! result.output) {
       $("#vars").children().remove();
       console.error("[ERROR]: Result from code execution was null.");
@@ -128,15 +72,12 @@ function refreshVariables() {
     $("#vars tr").first().children().each(function(i, el) {
       $($("#vars-header th")[i]).css("width", $(el).css("width"));
     });
-
-  }
-  python.stdin.write(JSON.stringify(payload) + delim);
+  });
 }
 
 
 function refreshPackages() {
-  var payload = { id: uuid.v4(), code: "__get_packages()" }
-  callbacks[payload.id] = function(result) {
+  python.execute("__get_packages()", false, function(result) {
     var packages = JSON.parse(result.output);
     $("#packages-rows").children().remove();
     packages.forEach(function(p) {
@@ -144,16 +85,14 @@ function refreshPackages() {
         package_row_template({ name: p.name, version: p.version})
       );
     });
-  }
-  python.stdin.write(JSON.stringify(payload) + delim);
+  })
 }
 
 function isCodeFinished(code, fn) {
-  var payload = { id: uuid.v4(), code: "__is_code_finished('''" + code + "''')" };
-  callbacks[payload.id] = function(result) {
+  var code = "__is_code_finished('''" + code + "''')";
+  python.execute(code, false, function(result) {
     fn(null, result.output=="True");
-  }
-  python.stdin.write(JSON.stringify(payload) + delim);
+  })
 }
 
 function sendCommand(input, hideResult) {
@@ -175,8 +114,7 @@ function sendCommand(input, hideResult) {
   $cont = $("#history-trail").parent();
   $cont[0].scrollTop = $cont[0].scrollHeight;
 
-  var payload = { id: uuid.v4(), code: input }
-  callbacks[payload.id] = function(result) {
+  python.execute(input, false, function(result) {
     if (/^help[(]/.test(input)) {
       $("#help-content").text(result.output);
       $('a[href="#help"]').tab("show");
@@ -185,7 +123,6 @@ function sendCommand(input, hideResult) {
       if (hideResult==true) {
         return;
       }
-
       // handling png and html, but are there any other types of outputs
       if (result.image) {
         var plotImage = "data:image/png;charset=utf-8;base64," + result.image;
@@ -220,11 +157,10 @@ function sendCommand(input, hideResult) {
       jqconsole.Write(result.error + '\n', 'jqconsole-error');
     }
     refreshVariables();
-  }
-  python.stdin.write(JSON.stringify(payload) + delim);
+  });
 }
 
-
+// New Windows
 function showAbout() {
   var params = {toolbar: false, resizable: false, show: true, height: 200, width: 300 };
   var aboutWindow = new BrowserWindow(params);
@@ -274,14 +210,9 @@ function showVariable(varname, type) {
     dict: "pp.pprint(" + varname + ")"
   }
   variableWindow.webContents.on('did-finish-load', function() {
-    var payload = {
-      id: uuid.v4(),
-      code: show_var_statements[type]
-    }
-    callbacks[payload.id] = function(result) {
+    python.execute(show_var_statements[type], false, function(result) {
       variableWindow.webContents.send('ping', { type: type, html: result.output });
-    }
-    python.stdin.write(JSON.stringify(payload) + delim);
+    });
   });
 
   variableWindow.on('close', function() {
@@ -289,43 +220,7 @@ function showVariable(varname, type) {
   });
 }
 
-function activatePlot(plotid) {
-  $("#plots .active").removeClass("active").addClass("hide");
-  $("#plots-minimap .active").removeClass("active");
-  $("#plots [data-plot-id='" + plotid + "']").removeClass("hide").addClass("active");
-  $("#plots-minimap [data-plot-id='" + plotid + "']").addClass("active");
-}
-
-function showPlot() {
-  if (! $("#plots img.active").length) {
-    return;
-  }
-  var filename = $("#plots img.active").attr("src");
-  var params = {toolbar: false, resizable: false, show: true, height: 1000, width: 1000};
-  var plotWindow = new BrowserWindow(params);
-  plotWindow.loadUrl(filename);
-}
-
-function savePlot() {
-  if (! $("img.active").length) {
-    return;
-  }
-  remote.require('dialog').showSaveDialog({
-    title:'Export Plot',
-    default_path: USER_WD,
-  }, function(destfile) {
-    if (! destfile) {
-      return
-    }
-    // get rid of inline business
-    var img = $("img.active").attr("src").replace("data:image/png;charset=utf-8;base64,", "");
-    fs.writeFile(destfile, img, 'base64', function(err) {
-      if (err) {
-        return console.error(err);
-      }
-    });
-  });
-}
+// End New Windows
 
 function saveEditor(editor, saveas, fn) {
   saveas = saveas || false;
@@ -400,20 +295,6 @@ function openFile(pathname) {
   }
 }
 
-
-function openDialog() {
-  remote.require('dialog').showOpenDialog({
-    title: "Open File",
-    default_path: USER_WD,
-  }, function(files) {
-    if (files) {
-      files.forEach(function(filename) {
-        openFile(filename);
-      });
-    }
-  });
-}
-
 var walker;
 function setFiles(dir) {
   dir = path.resolve(dir)
@@ -423,14 +304,9 @@ function setFiles(dir) {
   dir = dir || USER_WD;
   USER_WD = dir;
   // set ipython working directory
-  var payload = {
-    id: uuid.v4(),
-    code: "cd " + dir
-  }
-  callbacks[payload.id] = function(result) {
+  python.execute("cd " + dir, false, function(result) {
     // do nothing
-  }
-  python.stdin.write(JSON.stringify(payload) + '\n');
+  });
 
   var files = fs.readdirSync(dir);
   $("#file-list").children().remove();
@@ -510,6 +386,19 @@ function setFiles(dir) {
   });
 }
 
+function openDialog() {
+  remote.require('dialog').showOpenDialog({
+    title: "Open File",
+    default_path: USER_WD,
+  }, function(files) {
+    if (files) {
+      files.forEach(function(filename) {
+        openFile(filename);
+      });
+    }
+  });
+}
+
 function pickDirectory(title, defaultPath, fn) {
   remote.require('dialog').showOpenDialog({
     title: title,
@@ -539,11 +428,6 @@ function addFolderToWorkingDirectory(newdir) {
       setFiles(USER_WD);
     }
   });
-}
-
-function setConsoleWidth(w) {
-  var code = "pd.set_option('display.width', " + w + ")";
-  sendCommand(code, true);
 }
 
 function findFile() {

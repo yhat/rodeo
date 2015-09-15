@@ -1,4 +1,3 @@
-var path = require('path');
 var fs = require('fs');
 
 function setEditorTheme(theme) {
@@ -53,8 +52,7 @@ function setDefaultWd(wd) {
 }
 
 function setTheme(theme) {
-  if (fs.existsSync(path.join(__dirname, "..", "static", theme))) {
-    if ($("#rodeo-theme").attr("href")!=theme) {
+    if ($("#rodeo-theme")attr("href")!=theme) {
       $("#rodeo-theme").attr("href", theme);
     }
   }
@@ -84,6 +82,7 @@ function setTracking(val) {
 
 // on startup, set defaults for non-editor preferences
 var rc = getRC();
+// TODO: would be nice to get rid of the fs check here
 if (rc.defaultWd && fs.existsSync(rc.defaultWd)) {
   USER_WD = rc.defaultWd;
 } else {
