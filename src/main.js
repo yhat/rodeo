@@ -3,6 +3,7 @@ var BrowserWindow = require('browser-window');  // Module to create native brows
 var os = require('os');
 var ipc = require('ipc');
 var metrics = require('./metrics');
+var helpers = require('./rodeohelpers');
 
 // Report crashes to our server.
 require('crash-reporter').start();
@@ -37,6 +38,15 @@ app.on('ready', function() {
     if (wd) {
       console.log("[INFO]: working directory passed as argument: `" + wd + "`");
       mainWindow.webContents.send('set-wd', wd);
+    }
+    var rc = helpers.getRC();
+
+    if (rc.version==null) {
+      mainWindow.webContents.send('start-tour', { version: "first" });
+      helpers.updateRC("version", app.getVersion());
+    } else if (rc.version != app.getVersion()) {
+      mainWindow.webContents.send('start-tour', { version: app.getVersion() });
+      helpers.updateRC("version", app.getVersion());
     }
   });
 
