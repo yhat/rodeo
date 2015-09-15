@@ -143,9 +143,6 @@ var template = [
         }
       },
       {
-        type: 'separator'
-      },
-      {
         label: 'Find File',
         accelerator: 'CmdOrCtrl+t',
         click: function() {
