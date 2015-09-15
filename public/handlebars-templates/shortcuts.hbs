@@ -1,14 +1,210 @@
-<table class="table table-bordered">
+<table class="table table-bordered" style="margin-bottom: 0px;">
   <thead>
     <tr>
-      <th>Keys</th>
+      <th>Topic</th>
+      <th>OSX</th>
+      <th>Windows / Linux</th>
       <th>Action</th>
     </tr>
   </thead>
-  <tbody>
+  <tbody id="shortcut-rows">
+    <!-- system shortcuts -->
     <tr>
-      <td>CMD + FOO</td>
-      <td>Alerts you with FOO</td>
+      <td>System</td>
+      <td>&#x2318; + enter</td>
+      <td>ctrl + enter</td>
+      <td>run code</td>
+    </tr>
+    <tr>
+      <td>System</td>
+      <td>&#x2318; + ,</td>
+      <td>ctrl + ,</td>
+      <td>show preferences</td>
+    </tr>
+    <tr>
+      <td>System</td>
+      <td>&#x2318; + g</td>
+      <td>ctrl + g</td>
+      <td>set default variables</td>
+    </tr>
+    <tr>
+      <td>System</td>
+      <td>&#x2318; + Q</td>
+      <td>ctrl + Q</td>
+      <td>theoretical explanation</td>
+    </tr>
+    <tr>
+      <td>System</td>
+      <td>&#x2318; + N</td>
+      <td>ctrl + N</td>
+      <td>new editor</td>
+    </tr>
+    <tr>
+      <td>System</td>
+      <td> &#x21E7; + &#x2318; + O</td>
+      <td> &#x21E7; + ctrl + O</td>
+      <td>open file</td>
+    </tr>
+    <tr>
+      <td>System</td>
+      <td>&#x2318; + s</td>
+      <td>ctrl + s</td>
+      <td>save file</td>
+    </tr>
+    <tr>
+      <td>System</td>
+      <td>&#x2318; + w</td>
+      <td>ctrl + w</td>
+      <td>close file</td>
+    </tr>
+    <tr>
+      <td>System</td>
+      <td>&#x2318; + t</td>
+      <td>ctrl + t</td>
+      <td>find file</td>
+    </tr>
+    <tr>
+      <td>System</td>
+      <td>&#x2318; + &#x21E7; + &#x2190;</td>
+      <td>ctrl + &#x21E7; + &#x2190;</td>
+      <td>move to editor to the left of active editor</td>
+    </tr>
+    <tr>
+      <td>System</td>
+      <td>&#x2318; + &#x21E7; + &#x2192;</td>
+      <td>ctrl + &#x21E7; + &#x2192;</td>
+      <td>move to editor to the right of active editor</td>
+    </tr>
+    <tr>
+      <td>System</td>
+      <td>&#x2318; + 1</td>
+      <td>ctrl + 1</td>
+      <td>focus on editor</td>
+    </tr>
+    <tr>
+      <td>System</td>
+      <td>&#x2318; + 2</td>
+      <td>ctrl + 2</td>
+      <td>focus on console</td>
+    </tr>
+    <tr>
+      <td>System</td>
+      <td>&#x2318; + 3</td>
+      <td>ctrl + 3</td>
+      <td>toggle view for Environment/History</td>
+    </tr>
+    <tr>
+      <td>System</td>
+      <td>&#x2318; + 4</td>
+      <td>ctrl + 4</td>
+      <td>toggle view for Files/Plots/Packages/Help</td>
+    </tr>
+    <tr>
+      <td>System</td>
+      <td>&#x2318; + R</td>
+      <td>ctrl + R</td>
+      <td>restart Rodeo</td>
+    </tr>
+    <tr>
+      <td>System</td>
+      <td>&#x2318; + 0</td>
+      <td>ctrl + 0</td>
+      <td>default zoom</td>
+    </tr>
+    <tr>
+      <td>System</td>
+      <td>&#x2318; + =</td>
+      <td>ctrl + =</td>
+      <td>zoom in</td>
+    </tr>
+    <tr>
+      <td>System</td>
+      <td>&#x2318; + -</td>
+      <td>ctrl + -</td>
+      <td>zoom out</td>
+    </tr>
+    <tr>
+      <td>System</td>
+      <td>&#x2318; + &#x21E7; + g</td>
+      <td>ctrl + &#x21E7; + g</td>
+      <td>set working directory</td>
+    </tr>
+    <tr>
+      <td>System</td>
+      <td>&#x2318; + &#x21E7; + 2</td>
+      <td>ctrl + &#x21E7; + 2</td>
+      <td>rerun 2nd to last command</td>
+    </tr>
+    <tr>
+      <td>System</td>
+      <td>&#x2318; + &#x21E7; + 1</td>
+      <td>ctrl + &#x21E7; + 1</td>
+      <td>rerun last command</td>
+    </tr>
+    <!-- console shortcuts -->
+    <tr>
+      <td>Console</td>
+      <td>&#x2318;/ctrl + l</td>
+      <td>ctrl + l</td>
+      <td>clear console</td>
+    </tr>
+    <tr>
+      <td>Console</td>
+      <td>&#x2318;/ctrl + a</td>
+      <td>ctrl + a</td>
+      <td>skip to beginning of console</td>
+    </tr>
+    <tr>
+      <td>Console</td>
+      <td>&#x2318;/ctrl + e</td>
+      <td>ctrl + e</td>
+      <td>skip to end of console</td>
+    </tr>
+    <tr>
+      <td>Console</td>
+      <td>&#x2318;/ctrl + c</td>
+      <td>ctrl + c</td>
+      <td>cancel console input</td>
+    </tr>
+    <tr>
+      <td>Console</td>
+      <td>&#x2318;/ctrl + u</td>
+      <td>ctrl + u</td>
+      <td>clear to beginning of console</td>
+    </tr>
+    <tr>
+      <td>Console</td>
+      <td>&#x2318;/ctrl + k</td>
+      <td>ctrl + k</td>
+      <td>clear to end of console</td>
+    </tr>
+    <tr>
+      <td>Console</td>
+      <td>&#x2318;/ctrl + w</td>
+      <td>ctrl + w</td>
+      <td>clear one word backwards in console</td>
+    </tr>
+    <tr>
+      <td>Console</td>
+      <td><i>tab</i></td>
+      <td><i>tab</i></td>
+      <td>show autocomplete options</td>
+    </tr>
+    <!-- Editor shortcuts -->
+    <tr>
+      <td>Editor</td>
+      <td>&#x2318; + f</td>
+      <td>ctrl + f</td>
+      <td>find text</td>
+    </tr>
+    <tr>
+      <td>Editor</td>
+      <td><i>tab</i></td>
+      <td><i>tab</i></td>
+      <td>show autocomplete options</td>
     </tr>
   </tbody>
 </table>
+<footer class="container">
+  &#x2318; = Command, &#x21E7; = Shift, &#x2190;&#x2191;&#x2192;&#x2193; = Arrow Keys
+</footer>

@@ -271,7 +271,7 @@
               <div class="col-sm-4 pull-right">
                 <div class="input-group">
                   <div class="input-group-addon"><i class="fa fa-search"></i></div>
-                  <input type="text" class="form-control input-sm" id="shortcut-search" placeholder="filter..." />
+                  <input type="text" class="form-control input-sm" id="shortcut-search" placeholder="i.e. System, run cmd, etc." />
                 </div>
               </div>
             </div>
@@ -539,7 +539,14 @@
       if (query=="") {
         $("#shortcuts tr .hide").removeClass("hide");
       } else {
-        // theoretical search...
+        $("#shortcut-rows tr").each(function(i, shortcut) {
+          var text = $("td", shortcut).text().split('\n').join("-");
+          if (text.indexOf(query) > -1) {
+            $(this).removeClass("hide");
+          } else {
+            $(this).addClass("hide");
+          }
+        });
       }
     });
 
