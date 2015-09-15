@@ -362,7 +362,21 @@ var template = [
   },
   {
     label: 'Help',
-    submenu: []
+    submenu: [
+      {
+        label: 'View Shortcuts',
+        // no shortcut (?)
+        click: function() {
+          $("#shortcut-display-modal").modal('show');
+        }
+      },
+      {
+        label: 'Docs',
+        click: function() {
+          shell.openExternal("https://rodeo.yhathq.com/");
+        }
+      }
+    ]
   }
 ];
 

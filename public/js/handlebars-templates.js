@@ -220,6 +220,9 @@ templates['preferences.hbs'] = template({"1":function(depth0,helpers,partials,da
   if (stack1 != null) { buffer += stack1; }
   return buffer + "> AutoSave Files\n          </label>\n        </div>\n      </div>\n      <!-- End Editor Tab -->\n\n      <!-- Layout Tab -->\n      <div class=\"tab-pane\" id=\"layout\">\n        <div class=\"row\" style=\"height: 100px;\">\n          <div class=\"col-sm-2\" style=\"height: 100px; background-color: skyblue;\">\n          </div>\n          <div class=\"col-sm-2\" style=\"height: 100px; background-color: grey;\">\n          </div>\n        </div>\n        <div class=\"row\" style=\"height: 100px;\">\n          <div class=\"col-sm-2\" style=\"height: 100px; background-color: grey;\">\n          </div>\n          <div class=\"col-sm-2\" style=\"height: 100px; background-color: skyblue;\">\n          </div>\n        </div>\n      </div>\n      <!-- End Layout Tab -->\n    </div>\n  </div>\n</div>\n";
 },"useData":true});
+templates['shortcuts.hbs'] = template({"compiler":[6,">= 2.0.0-beta.1"],"main":function(depth0,helpers,partials,data) {
+    return "<table class=\"table table-bordered\">\n  <thead>\n    <tr>\n      <th>Keys</th>\n      <th>Action</th>\n    </tr>\n  </thead>\n  <tbody>\n    <tr>\n      <td>CMD + FOO</td>\n      <td>Alerts you with FOO</td>\n    </tr>\n  </tbody>\n</table>\n";
+},"useData":true});
 templates['wd.hbs'] = template({"compiler":[6,">= 2.0.0-beta.1"],"main":function(depth0,helpers,partials,data) {
     var helper;
 
