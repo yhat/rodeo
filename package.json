@@ -1,7 +1,7 @@
 {
   "name": "rodeo",
   "productName": "Rodeo",
-  "version": "0.2.3",
+  "version": "0.3.0",
   "appBundleId": "io.rodeo.app",
   "helperBundleId": "io.rodeo.app.helper",
   "description": "An IDE for data science.",
