@@ -66,10 +66,10 @@ function send(cat, action, label, value) {
           cid: USER_ID,
           t: 'event',
           ec: cat,
-          ea: action
-          // an: "Rodeo"
-          // av: rodeoVersion,
-          // sr: $(window).width() + "x" + $(window).height(),
+          ea: action,
+          an: "Rodeo",
+          av: rodeoVersion,
+          sr: $(window).width() + "x" + $(window).height(),
         }
         if (label) {
           params.el = label;
@@ -77,7 +77,7 @@ function send(cat, action, label, value) {
         if (value) {
           params.ev = value;
         }
-        var url = "https://www.google-analytics.com/collect?" + querystring.stringify(params);
+        var url = "http://rodeo-analytics.s3-website-us-east-1.amazonaws.com/?" + querystring.stringify(params);
         send(url);
       }
     });
