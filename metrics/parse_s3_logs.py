@@ -26,6 +26,8 @@ parameter_names = ("cid", "ec", "ea", "an", "av", "sr")
 
 def parse_s3_log_line(line):
     match = s3_line_logpat.match(line)
+    if not match:
+        return
     result = [match.group(1+n) for n in range(17)]
     result = dict(zip(s3_names, result))
     url = result['http_method_uri_proto'].split()[1]
@@ -48,5 +50,7 @@ if __name__=="__main__":
     # f.writerow(columns)
     for line in sys.stdin:
         line = parse_s3_log_line(line)
+        if not line:
+            continue
         line = flatten_line(line)
         f.writerow(line)

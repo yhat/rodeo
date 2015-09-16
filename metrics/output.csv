@@ -1,0 +1,1 @@
+bucket_owner,bucket,datetime,ip,requestor_id,request_id,operation,key,http_method_uri_proto,http_status,s3_error,bytes_sent,object_size,total_time,turn_around_time,referer,user_agent,cid,ec,ea,an,av,sr

@@ -2,7 +2,6 @@
 
 test -f /tmp/s3cmd.file && rm /tmp/s3cmd.file
 PAT=$(python -c 'from datetime import timedelta, datetime; print(datetime.utcnow() - timedelta(hours=1)).strftime("%Y-%m-%d-%H")')
-PAT="2015-09-16-14"
 echo ${PAT} 1>&2
 
 echo "bucket_owner,bucket,datetime,ip,requestor_id,request_id,operation,key,http_method_uri_proto,http_status,s3_error,bytes_sent,object_size,total_time,turn_around_time,referer,user_agent,cid,ec,ea,an,av,sr"
