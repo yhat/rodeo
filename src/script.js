@@ -40,7 +40,8 @@ kernel(function(err, python) {
   // setup default rodeoProfile
   if (fs.existsSync(path.join(USER_HOME, ".rodeoprofile"))) {
     var profile = fs.readFileSync(path.join(USER_HOME, ".rodeoprofile")).toString();
-    sendCommand(profile, false)
+    sendCommand(profile, false);
+    $("#history-trail").children().remove();
   }
 });
 
