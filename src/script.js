@@ -51,31 +51,7 @@ ipc.on('set-wd', function(wd) {
 
 ipc.on('start-tour', function(data) {
   if (data.version=="first") {
-    var intro = introJs();
-    intro.onbeforechange(function(element) {
-      switch(element.id) {
-        case "#plot-window": $('a[href="#plot-window"]').click();
-      }
-    });
-    intro.setOptions({
-      tooltipPosition: 'auto',
-      positionPrecedence: ['left', 'right', 'bottom', 'top'],
-      steps: [
-        {
-          element: "#console",
-          intro: "This is a <b>bold</b> tooltip."
-        },
-        {
-          element: "#files",
-          intro: "This is another <b>bold</b> tooltip."
-        },
-        {
-          element: "#plot-window",
-          intro: "Your plots will show up here."
-        },
-      ]
-    });
-    intro.start();
+    // theoretical tour
   }
 });
 
