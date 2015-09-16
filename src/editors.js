@@ -187,6 +187,9 @@ function createEditor(id) {
         jqconsole.ClearPromptText();
         jqconsole.SetPromptText(text);
       }
+      if (nextRow==editor.session.getLength()) {
+        editor.session.setValue(editor.session.getValue() + "\n")
+      }
       editor.gotoLine(currentRow + 2, 10, true);
     }
   });
