@@ -365,6 +365,7 @@ var template = [
         // no shortcut (?)
         click: function() {
           $("#shortcut-display-modal").modal('show');
+          $("#shortcut-display-modal input").focus();
         }
       },
       {

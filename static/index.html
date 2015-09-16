@@ -540,7 +540,11 @@
         $("#shortcuts tr .hide").removeClass("hide");
       } else {
         $("#shortcut-rows tr").each(function(i, shortcut) {
-          var text = $("td", shortcut).text().split('\n').join("-");
+          var text = [];
+          $("td", shortcut).map(function(i, el) {
+            text.push($(el).text());
+          });
+          text = text.join("-").toLowerCase();
           if (text.indexOf(query) > -1) {
             $(this).removeClass("hide");
           } else {

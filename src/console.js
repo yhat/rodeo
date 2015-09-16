@@ -74,7 +74,7 @@ jqconsole._Indent = function() {
     var code = jqconsole.GetPromptText();
     jqconsole.ClearPromptText(true);
 
-    python.execute(code, true, function(result) { 
+    python.execute(code, true, function(result) {
       var predictions = result.output;
       // if only 1 suggestion comes back then we'll take the liberty and finish
       // the autocomplete

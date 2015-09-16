@@ -32,6 +32,7 @@ function createEditor(id) {
   editor.setTheme("ace/theme/chrome");
   editor.getSession().setMode("ace/mode/python");
   editor.setOptions({
+    useSoftTabs: true,
     showPrintMargin: false,
     enableBasicAutocompletion: true,
     enableSnippets: false,
@@ -45,7 +46,7 @@ function createEditor(id) {
       session.$mode.$keywordList = [];
       var code = getCurrentLine(editor);
 
-      python.execute(code, true, function(result) { 
+      python.execute(code, true, function(result) {
         var predictions = result.output.map(function(p) {
           // for(var i=p.text.length; i>0; i--) {
           //   p.value = p.text;
@@ -145,29 +146,48 @@ function createEditor(id) {
     name: "sendCommand",
     bindKey: {win: "ctrl-Enter", mac: "Command-Enter"},
     exec: function(editor) {
+      // grab selected text
       var text = editor.getCopyText();
-      var currline = editor.getSelectionRange().end.row;
+
+      // get the current line number and the next line number
+      var currentRow = editor.getSelectionRange().end.row;
+      var nextRow = currentRow + 1;
+
+      // if they don't have anything highlighted (i.e. going 1 line at a time), then
+      //  we need to be a little tricky
       if (text=="") {
-        text = editor.session.getLine(currline);
+        text = editor.session.getLine(currentRow);
       }
       text = jqconsole.GetPromptText() + text;
 
-      isCodeFinished(text, function(err, isFinished) {
-        if (isFinished) {
-          jqconsole.SetPromptText(text);
-          jqconsole.Write(jqconsole.GetPromptText(true) + '\n');
-          jqconsole.ClearPromptText();
-          jqconsole.SetHistory(jqconsole.GetHistory().concat([text]));
-          sendCommand(text);
-          // this seems to behave better without the scroll getting in th way...
-          // editor.scrollToLine(currline + 1, true, true, function () {});
-        } else {
-          text = text + '\n';
-          jqconsole.ClearPromptText();
-          jqconsole.SetPromptText(text);
-        }
-        editor.gotoLine(currline + 2, 10, true);
-      });
+      var isFinished = false;
+      if (nextRow==editor.session.getLength()) {
+        // we're done. send the code
+        isFinished = true;
+      } else if (editor.session.getLine(nextRow)=="") {
+        // we're done. send the code
+        isFinished = true;
+      } else if (/return/.test(editor.session.getLine(currentRow))) {
+        // we're done. send the code
+        isFinished = true;
+      } else {
+        // well then we're still going...
+      }
+
+      if (isFinished) {
+        jqconsole.SetPromptText(text);
+        jqconsole.Write(jqconsole.GetPromptText(true) + '\n');
+        jqconsole.ClearPromptText();
+        jqconsole.SetHistory(jqconsole.GetHistory().concat([text]));
+        sendCommand(text);
+        // this seems to behave better without the scroll getting in th way...
+        // editor.scrollToLine(currentRow + 1, true, true, function () {});
+      } else {
+        text = text + '\n';
+        jqconsole.ClearPromptText();
+        jqconsole.SetPromptText(text);
+      }
+      editor.gotoLine(currentRow + 2, 10, true);
     }
   });
 
