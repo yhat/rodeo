@@ -166,7 +166,7 @@ class Kernel(object):
         # ID (msg_id) that's associated with our executing code. if this is the
         # case, we'll return the data and the msg_id and exit
         msg_id = self.client.execute(code)
-        output = { "msg_id": msg_id, "output": None, "image": None, "error": None }
+        output = { "msg_id": msg_id, "output": "", "image": None, "error": None }
         while True:
             try:
                 reply = self.client.get_iopub_msg(timeout=timeout)
@@ -185,7 +185,7 @@ class Kernel(object):
                 elif 'text/html' in reply['content']['data']:
                     output['html'] = reply['content']['data']['text/html']
             elif reply['header']['msg_type']=="stream":
-                output['output'] = reply['content'].get('text', '')
+                output['output'] += reply['content'].get('text', '')
             elif reply['header']['msg_type']=="error":
                 output['error'] = "\n".join(reply['content']['traceback'])
 
