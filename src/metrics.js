@@ -77,7 +77,7 @@ function send(cat, action, label, value) {
         if (value) {
           params.ev = value;
         }
-        var url = "http://rodeo-analytics.s3-website-us-east-1.amazonaws.com/?" + querystring.stringify(params);
+        var url = "http://rodeo-analytics.yhathq.com/?" + querystring.stringify(params);
         send(url);
       }
     });
