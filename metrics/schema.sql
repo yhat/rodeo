@@ -1,0 +1,26 @@
+
+CREATE TABLE rodeo_metrics (
+  bucket_owner VARCHAR,
+  bucket VARCHAR,
+  datetime VARCHAR,
+  ip VARCHAR,
+  requestor_id VARCHAR,
+  request_id VARCHAR,
+  operation VARCHAR,
+  key VARCHAR,
+  http_method_uri_proto VARCHAR,
+  http_status VARCHAR,
+  s3_error VARCHAR,
+  bytes_sent VARCHAR,
+  object_size VARCHAR,
+  total_time VARCHAR,
+  turn_around_time VARCHAR,
+  referer VARCHAR,
+  user_agent VARCHAR,
+  cid VARCHAR,
+  ec VARCHAR,
+  ea VARCHAR,
+  an VARCHAR,
+  av VARCHAR,
+  sr VARCHAR
+);
