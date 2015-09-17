@@ -56,6 +56,12 @@ ipc.on('start-tour', function(data) {
   }
 });
 
+ipc.on('kill', function() {
+  if (python) {
+    python.stdin.write("EXIT\n");
+  }
+});
+
 
 function refreshVariables() {
   python.execute("__get_variables()", false, function(result) {

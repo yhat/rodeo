@@ -73,6 +73,10 @@ app.on('ready', function() {
   // var updateUrl = 'https://rodeo-nuts.herokuapp.com/update/' + 'osx_64' + '/' + version;
   // autoUpdater.setFeedUrl(updateUrl);
 
+  mainWindow.on('close', function() {
+    mainWindow.webContents.send('kill');
+  });
+
   // Emitted when the window is closed.
   mainWindow.on('closed', function() {
     // Dereference the window object, usually you would store windows

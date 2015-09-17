@@ -252,6 +252,11 @@ if __name__=="__main__":
 
     while True:
         line = sys.stdin.readline()
+
+        # watch for kill command
+        if line.strip()=="EXIT":
+            sys.exit(0)
+
         data = json.loads(line)
         output = k.execute(data['code'], data.get('complete', False))
         output['id'] = data['id']
