@@ -284,7 +284,12 @@
     <!-- Shortcut Display Modal -->
 
   <script type="text/javascript" src="../src/rodeohelpers.js"></script>
-  <script type="text/javascript" src="../src/metrics.js"></script>
+  <script type="text/javascript">
+    function track(cat, action, label, value) {
+      var data = { cat: cat, action: action, label: label, value: value };
+      ipc.send('metric', data);
+    }
+  </script>
   <script type="text/javascript" src="../src/editors.js"></script>
   <script type="text/javascript" src="../src/plots.js"></script>
   <script type="text/javascript" src="../src/console.js"></script>

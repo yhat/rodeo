@@ -1,9 +1,25 @@
 var app = require('app');  // Module to control application life.
 var BrowserWindow = require('browser-window');  // Module to create native browser window.
 var os = require('os');
+var http = require('http');
+var querystring = require('querystring');
 var ipc = require('ipc');
-var metrics = require('./metrics');
 var helpers = require('./rodeohelpers');
+
+
+function sendMetric(category, action, label, value) {
+  var data = {
+    an: "Rodeo",
+    av: app.getVersion(),
+    cid: "FOO",
+    ec: category,
+    ea: action,
+    el: label
+  }
+  
+  var url = "http://rodeo-analytics.yhathq.com/?" + querystring.stringify(data);
+  http.get(url);
+}
 
 // Report crashes to our server.
 require('crash-reporter').start();
@@ -61,11 +77,12 @@ app.on('ready', function() {
   ipc.on('metric', function(event, data) {
     if (! /rodeo-native/.test(app.getAppPath())) {
       if (internetStatus=='online') {
-        metrics.send(data.cat, data.action, data.label, data.value);
+        sendMetric(data.cat, data.action, data.label, data.value);
       }
     } else {
       // we're in dev mode
       console.info('[INFO]: theoretically tracking metrics: ' + JSON.stringify(data));
+      sendMetric(data.cat, data.action, data.label, data.value);
     }
   });
 
