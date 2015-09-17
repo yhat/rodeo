@@ -192,7 +192,9 @@ function showPreferences() {
   var rc = getRC();
   rc.keyBindings = rc.keyBindings || "default";
   rc.defaultWd = rc.defaultWd || USER_HOME;
-  rc.trackingOn = rc.trackingOn || true;
+  if (rc.trackingOn!=false) {
+  rc.trackingOn = true;
+  }
   if ($("#editor-tab-preferences").length) {
     $("#editor-tab-" + "preferences" + " .editor-tab-a").click();
     return;
