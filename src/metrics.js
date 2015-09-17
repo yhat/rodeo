@@ -1,15 +1,17 @@
 var fs = require('fs');
-var uuid = require('uuid');
+var http = require('http');
 var querystring = require('querystring');
+var uuid = require('uuid');
+var ipc = require('ipc');
 var rodeohelpers = require(__dirname + "/../src/rodeohelpers");
 var rodeoVersion = JSON.parse(fs.readFileSync(__dirname + '/../package.json').toString()).version;
-var ipc = require('ipc');
 
 global.USER_ID;
 
 function getUserId(fn) {
   if (global.USER_ID!=null) {
-    return fn(null, global.USER_ID);
+    fn(null, global.USER_ID);
+    return;
   }
   // get id for user
   var userId;
@@ -40,46 +42,42 @@ function getUserId(fn) {
 // python path?
 // time open?
 
-function send(url) {
-  var xhr = new XMLHttpRequest();
-  xhr.open("GET", url);
-  xhr.send(null);
+function sendData(url) {
+  http.get(url);
 }
 
 function track(cat, action, label, value) {
-  ipc.send('metric', { cat: cat, action: action, label: label, value: value });
+  var data = { cat: cat, action: action, label: label, value: value };
+  ipc.send('metric', data);
 }
 
 var rc = rodeohelpers.getRC();
 function send(cat, action, label, value) {
-  if (rc.tracking==null || rc.trackingOn==true) {
-    return;
+  if (rc.trackingOn==null || rc.trackingOn==true) {
     getUserId(function(err, userId) {
       if (global.USER_ID==null) {
         global.USER_ID = userId;
       }
       // if we have internet...
-      if (navigator && navigator.onLine) {
-        var params = {
-          v: 1,
-          tid: 'UA-46996803-1',
-          cid: USER_ID,
-          t: 'event',
-          ec: cat,
-          ea: action,
-          an: "Rodeo",
-          av: rodeoVersion,
-          sr: $(window).width() + "x" + $(window).height(),
-        }
-        if (label) {
-          params.el = label;
-        }
-        if (value) {
-          params.ev = value;
-        }
-        var url = "http://rodeo-analytics.yhathq.com/?" + querystring.stringify(params);
-        send(url);
+      var params = {
+        v: 1,
+        tid: 'UA-46996803-1',
+        cid: USER_ID,
+        t: 'event',
+        ec: cat,
+        ea: action,
+        an: "Rodeo",
+        av: rodeoVersion,
+        // sr: $(window).width() + "x" + $(window).height(),
       }
+      if (label) {
+        params.el = label;
+      }
+      if (value) {
+        params.ev = value;
+      }
+      var url = "http://rodeo-analytics.yhathq.com/?" + querystring.stringify(params);
+      sendData(url);
     });
   }
 }

@@ -562,6 +562,17 @@
     // not sure why but this needs to happen last AND after everything else happens
     setTimeout(function() { $("#add-tab").click(); }, 500);
     setTimeout(calibratePanes, 500);
+
+    // tell server if we're online or offline
+    var ipc = require('ipc');
+    var updateOnlineStatus = function() {
+      ipc.send('online-status-changed', navigator.onLine ? 'online' : 'offline');
+    };
+    // send initial status
+    ipc.send('online-status-changed', navigator.onLine ? 'online' : 'offline');
+    // send subsequent changes to status
+    window.addEventListener('online',  updateOnlineStatus);
+    window.addEventListener('offline',  updateOnlineStatus);
   </script>
 </body>
 </html>

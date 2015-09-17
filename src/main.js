@@ -53,9 +53,16 @@ app.on('ready', function() {
   // Open the devtools.
   // mainWindow.openDevTools();
 
+  var internetStatus = 'online';
+  ipc.on('online-status-changed', function(evt, status) {
+    internetStatus = status;
+  });
+
   ipc.on('metric', function(event, data) {
     if (! /rodeo-native/.test(app.getAppPath())) {
-      metrics.send(data.cat, data.action, data.label, data.value);
+      if (internetStatus=='online') {
+        metrics.send(data.cat, data.action, data.label, data.value);
+      }
     } else {
       // we're in dev mode
       console.info('[INFO]: theoretically tracking metrics: ' + JSON.stringify(data));
