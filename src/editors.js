@@ -56,9 +56,12 @@ function createEditor(id) {
           //   }
           // }
           var value = p.text;
+          // if it's not a filename and there's a "." in the value, we want
+          // to set the value to just the last item in the list
           if (value.indexOf("/")==-1 && value.indexOf(".") > -1) {
-            value = value.split(".").slice(1).join(".");
+            value = value.split(".").slice(value.split(".").length-1).join(".");
           }
+          // console.log(code + "|" + p.text + "|" + value);
           return { caption: p.text, value: value, score: 100, meta: null };
         });
         // if (predictions.length==1 && code.indexOf("~") > -1) {
