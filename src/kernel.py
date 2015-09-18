@@ -147,7 +147,7 @@ class Kernel(object):
         self.client.execute("%matplotlib inline")
         self.client.execute(vars_patch)
 
-    def _run_code(self, code, timeout=0.1):
+    def _run_code(self, execution_id, code, timeout=0.1):
         # this function executes some code and waits for it to completely finish
         # before returning. i don't think that this is neccessarily the best
         # way to do this, but the IPython documentation isn't very helpful for
@@ -166,7 +166,10 @@ class Kernel(object):
         # ID (msg_id) that's associated with our executing code. if this is the
         # case, we'll return the data and the msg_id and exit
         msg_id = self.client.execute(code)
-        output = { "msg_id": msg_id, "output": "", "image": None, "error": None }
+        request = { "id": execution_id, "msg_id": msg_id, "code": code, "status": "started" }
+        sys.stdout.write(json.dumps(request) + '\n')
+        sys.stdout.flush()
+        output = { "id": execution_id, "msg_id": msg_id, "output": "", "image": None, "error": None }
         while True:
             try:
                 reply = self.client.get_iopub_msg(timeout=timeout)
@@ -176,7 +179,10 @@ class Kernel(object):
             if "execution_state" in reply['content']:
                 if reply['content']['execution_state']=="idle" and reply['parent_header']['msg_id']==msg_id:
                     if reply['parent_header']['msg_type']=="execute_request":
-                        return output
+                        request["status"] = "complete"
+                        sys.stdout.write(json.dumps(request) + '\n')
+                        sys.stdout.flush()
+                        return
             elif reply['header']['msg_type']=="execute_result":
                 output['output'] = reply['content']['data'].get('text/plain', '')
             elif reply['header']['msg_type']=="display_data":
@@ -189,7 +195,11 @@ class Kernel(object):
             elif reply['header']['msg_type']=="error":
                 output['error'] = "\n".join(reply['content']['traceback'])
 
-    def _complete(self, code, timeout=0.5):
+            # TODO: if we have something non-trivial to send back...
+            sys.stdout.write(json.dumps(output) + '\n')
+            sys.stdout.flush()
+
+    def _complete(self, execution_id, code, timeout=0.5):
         # Call ipython kernel complete, wait for response with the correct msg_id,
         # and construct appropriate UI payload.
         # See below for an example response from ipython kernel completion for 'el'
@@ -237,11 +247,11 @@ class Kernel(object):
                 output['output'] = results
                 return output
 
-    def execute(self, code, complete=False):
+    def execute(self, execution_id, code, complete=False):
         if complete==True:
-            return self._complete(code)
+            return self._complete(execution_id, code)
         else:
-            return self._run_code(code)
+            return self._run_code(execution_id, code)
 
     def get_packages(self):
         return self.execute("__get_packages()")
@@ -258,7 +268,7 @@ if __name__=="__main__":
             sys.exit(0)
 
         data = json.loads(line)
-        output = k.execute(data['code'], data.get('complete', False))
-        output['id'] = data['id']
-        sys.stdout.write(json.dumps(output) + '\n')
-        sys.stdout.flush()
+        output = k.execute(data['id'], data['code'], data.get('complete', False))
+        # output['id'] = data['id']
+        # sys.stdout.write(json.dumps(output) + '\n')
+        # sys.stdout.flush()

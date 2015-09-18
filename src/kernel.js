@@ -66,18 +66,30 @@ module.exports = function(cb) {
         var result = JSON.parse(data.toString());
         if (result.id in completionCallbacks) {
           completionCallbacks[result.id](result);
-          delete completionCallbacks[result.id];
+          if (result.status=="complete") {
+            delete completionCallbacks[result.id];
+          }
         } else {
           console.log("[ERROR]: " + "callback not found for: " + result.id + " --> " + JSON.stringify(result));
         }
       });
     python.execute = function(cmd, complete, fn) {
       var payload = { id: uuid.v4().toString(), code: cmd, complete: complete };
+      var results = [];
+      var output = "";
       completionCallbacks[payload.id] = function(result) {
-        fn(result);
+        output = output + (result.output || "");
+        if (result.status=="complete") {
+          var r = results[results.length-1];
+          r.output = output;
+          console.log(JSON.stringify(r));
+          fn(r);
+        }
+        results.push(result)
       }
-      this.stdin.write(JSON.stringify(payload) + delim);    
+      this.stdin.write(JSON.stringify(payload) + delim);
     }
+
     cb(null, python);
   });
 }
