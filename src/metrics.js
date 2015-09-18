@@ -28,7 +28,7 @@ function getUserId(fn) {
       } else {
         userId = crypto.createHash('sha1').update(macAddress, 'utf8').digest('hex');
       }
-      updateRC("id", userId);
+      rodeohelpers.updateRC("id", userId);
       fn(null, userId);
     });
   }
@@ -46,4 +46,5 @@ function track(cat, action, label, value) {
   ipc.send('metric', data);
 }
 
+module.exports.getUserId = getUserId;
 module.exports.track = track;

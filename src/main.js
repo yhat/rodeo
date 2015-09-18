@@ -4,14 +4,20 @@ var os = require('os');
 var http = require('http');
 var querystring = require('querystring');
 var ipc = require('ipc');
+var metrics = require('./metrics');
 var helpers = require('./rodeohelpers');
 
+
+global.USER_ID = null;
+metrics.getUserId(function(err, userId) {
+  global.USER_ID = userId;
+});
 
 function sendMetric(category, action, label, value) {
   var data = {
     an: "Rodeo",
     av: app.getVersion(),
-    cid: "FOO",
+    cid: USER_ID,
     ec: category,
     ea: action,
     el: label
@@ -82,7 +88,6 @@ app.on('ready', function() {
     } else {
       // we're in dev mode
       console.info('[INFO]: theoretically tracking metrics: ' + JSON.stringify(data));
-      sendMetric(data.cat, data.action, data.label, data.value);
     }
   });
 
