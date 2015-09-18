@@ -147,7 +147,7 @@ var template = [
         accelerator: 'CmdOrCtrl+t',
         click: function() {
           track('shortcut', 'Find File');
-          findFile();
+          // findFile();
         }
       }
     ]
