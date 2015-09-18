@@ -33,12 +33,12 @@ function setFontSize(font_size) {
         $('.jqconsole').each(function(i, tab) {
             tab.css({fontSize: font_size});
         });
-    } 
+    }
     else {
         $('.jqconsole').css({fontSize: font_size});
     }
 
-    // set fontSize for each editor 
+    // set fontSize for each editor
     // i.e. handles top left pane which has multiple tabs
     $(".editor").each(function(i, item) {
         var editor = ace.edit(item.id);
