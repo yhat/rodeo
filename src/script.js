@@ -378,7 +378,8 @@ function setFiles(dir) {
     delete walker;
   }
   // reindex file search
-  walker = walk.walk(USER_WD, { followLinks: false });
+  var n = 0;
+  walker = walk.walk(USER_WD, { followLinks: false, });
   $("#file-search-list .list").children().remove();
   walker.on('file', function(root, stat, next) {
     var dir = root.replace(USER_WD, '') || "";

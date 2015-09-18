@@ -1,6 +1,7 @@
 LESS_FILES=$(shell find public/less -name '*.less' -type f)
 HBS_FILES=$(shell find public/handlebars-templates -name '*.hbs' -type f)
 JS_FILES=$(shell find public/js -type f -name '*.js' | grep -v main.js)
+ACE_FILES=$(shell find public/ace -type f -name '*.js' | grep -v ace.min.js)
 APP_FILES=src/editors.js src/console.js src/script.js src/preferences.js src/menu.js
 
 .PHONEY: all css js
@@ -9,7 +10,7 @@ all: css js
 
 css: static/css/styles.css static/css/styles-dark.css static/css/styles-presentation.css static/css/styles-cobalt.css
 
-js: static/js/main.js
+js: static/js/main.js static/js/ace.min.js
 
 handlebars: public/js/handlebars-templates.js
 
@@ -30,6 +31,9 @@ public/js/handlebars-templates.js: $(HBS_FILES)
 
 static/js/main.js : $(JS_FILES)
 	uglifyjs $(shell find public/js -type f -name '*.js' | grep -v main.js | tr '\n' ' ')	> static/js/main.js
+
+static/js/ace.min.js : $(ACE_FILES)
+	uglifyjs $(shell find public/ace -type f -name '*.js' | grep -v main.js | tr '\n' ' ')	> static/js/ace.min.js
 
 # src/app.js: $(APP_FILES)
 # 	uglifyjs $(APP_FILES) > src/app.js

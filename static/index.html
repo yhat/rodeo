@@ -50,9 +50,8 @@
 
   });
   </script>
+  <script src="js/ace.min.js"></script>
   <script src="js/main.js"></script>
-  <script src="ace/ace.js"></script>
-  <script src="ace/ext-language_tools.js"></script>
 
   <script type="text/javascript">
     // Load in Handlebars templates
@@ -578,7 +577,7 @@
     // initialize all tooltips
     $('[data-toggle="tooltip"]').tooltip();
     // not sure why but this needs to happen last AND after everything else happens
-    setTimeout(function() { $("#add-tab").click(); }, 500);
+    setTimeout(function() { $("#add-tab").click(); }, 600);
     setTimeout(calibratePanes, 500);
 
     // tell server if we're online or offline
