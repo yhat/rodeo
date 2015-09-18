@@ -36,7 +36,6 @@ function findMeAPython(fn) {
         }
       };
     }
-    opts = {}
     exec("python -c 'import sys; print(sys.executable)'", opts, function(err, stdout, stderr) {
       if (opts.env && stdout) {
         pythonCmds.push(stdout.toString().trim());
