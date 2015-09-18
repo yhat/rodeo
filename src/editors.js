@@ -173,6 +173,8 @@ function createEditor(id) {
       } else if (/return/.test(editor.session.getLine(currentRow))) {
         // we're done. send the code
         isFinished = true;
+      } else if (! /^ /.test(editor.session.getLine(currentRow))) {
+        isFinished = true;
       } else {
         // well then we're still going...
       }

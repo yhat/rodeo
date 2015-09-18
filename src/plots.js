@@ -39,29 +39,24 @@ function savePlot() {
 }
 
 function addPlot(result) {
+  var plotid = uuid.v4().toString();
   if (result.image) {
     var plotImage = "data:image/png;charset=utf-8;base64," + result.image;
     $("#plots-minimap .active").removeClass("active");
     $("#plots .active").removeClass("active").addClass("hide");
     var newplot = $.parseHTML('<img class="active" style="max-height: 100%; max-width: 100%;" />');
-    var plotid = uuid.v4().toString();
-    $(newplot).attr("data-plot-id", plotid);
     $(newplot).attr("src", plotImage);
-    $(newplot).attr("onclick", "activatePlot($(this).data('plot-id'));")
-    // TODO: maybe if minimap is getting too long we can trim it
-    $("#plots").append($(newplot).clone());
-    // TODO: maybe if minimap is getting too long we can trim it
-    $("#plots-minimap").prepend($(newplot).clone());
-    $('a[href="#plot-window"]').tab("show");
-    calibratePanes();
   } else if (result.html) {
     $("#plots .active").removeClass("active").addClass("hide");
-    // var html = $(result.html, "svg").attr("width", "100%").attr("height", "100%").html();
     // TODO: need to handle the sizing here
     result.html = result.html.replace(/600px/g, "95%");
-    // result.html = $("svg", result.html).outerHTML();
-    $("#result.htmls").append('<div class="active">' + result.html + "</div>");
-    $('a[href="#plot-window"]').tab("show");
-    calibratePanes();
+    var newplot = '<div class="active">' + result.html + "</div>";
   }
+  $(newplot).attr("onclick", "activatePlot($(this).data('plot-id'));")
+  $(newplot).attr("data-plot-id", plotid);
+  // add to plotting window and to minimap
+  $("#plots").append($(newplot).clone());
+  $("#plots-minimap").prepend($(newplot).clone());
+  $('a[href="#plot-window"]').tab("show");
+  calibratePanes();
 }
