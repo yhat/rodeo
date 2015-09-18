@@ -382,8 +382,20 @@
       // help
       $("#help-content").parent().height($("#bottom-right").height() - tabOffset);
       $("#help-content").height($("#bottom-right").height() - tabOffset);
+
+      // scrolling fixes...
       // removes stupid scroll bars on windows/linux
-      // $("[style*=height]").css("overflow", "hidden");
+      $("[style*=height]").css("overflow", "hidden");
+
+      // things we actually want to scroll
+      // top right
+      $("#environment").css("overflow-y", "scroll");
+      $("#history").css("overflow-y", "scroll");
+      // bottom right
+      $("#file-list").css("overflow-y", "scroll");
+      $("#plots-minimap").css("overflow-y", "scroll");
+      $("#packages-container").css("overflow-y", "scroll");
+      $("#help-content").css("overflow-y", "scroll");
     }
 
     // Tab stuff
