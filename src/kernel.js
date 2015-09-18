@@ -78,17 +78,27 @@ module.exports = function(cb) {
       var results = [];
       var output = "";
       completionCallbacks[payload.id] = function(result) {
-        output = output + (result.output || "");
+        // autocompleted results come back as a proper JSON array
+        if (complete==true) {
+          output = result.output;
+        } else {
+          output = output + (result.output || "");
+        }
         if (result.status=="complete") {
           var r = results[results.length-1];
           r.output = output;
-          console.log(JSON.stringify(r));
           fn(r);
         }
         results.push(result)
       }
       this.stdin.write(JSON.stringify(payload) + delim);
-    }
+    };
+
+    python.executeStream = function(cmd, complete, fn) {
+      var payload = { id: uuid.v4().toString(), code: cmd, complete: complete };
+      completionCallbacks[payload.id] = fn
+      this.stdin.write(JSON.stringify(payload) + delim);
+    };
 
     cb(null, python);
   });

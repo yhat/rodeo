@@ -169,7 +169,14 @@ class Kernel(object):
         request = { "id": execution_id, "msg_id": msg_id, "code": code, "status": "started" }
         sys.stdout.write(json.dumps(request) + '\n')
         sys.stdout.flush()
-        output = { "id": execution_id, "msg_id": msg_id, "output": "", "image": None, "error": None }
+        output = {
+            "id": execution_id,
+            "msg_id": msg_id,
+            "output": "",
+            "stream": None,
+            "image": None,
+            "error": None
+        }
         while True:
             try:
                 reply = self.client.get_iopub_msg(timeout=timeout)
@@ -185,6 +192,7 @@ class Kernel(object):
                         return
             elif reply['header']['msg_type']=="execute_result":
                 output['output'] = reply['content']['data'].get('text/plain', '')
+                output['stream'] = reply['content']['data'].get('text/plain', '')
             elif reply['header']['msg_type']=="display_data":
                 if 'image/png' in reply['content']['data']:
                     output['image'] = reply['content']['data']['image/png']
@@ -192,12 +200,17 @@ class Kernel(object):
                     output['html'] = reply['content']['data']['text/html']
             elif reply['header']['msg_type']=="stream":
                 output['output'] += reply['content'].get('text', '')
+                output['stream'] = reply['content'].get('text', '')
             elif reply['header']['msg_type']=="error":
                 output['error'] = "\n".join(reply['content']['traceback'])
 
             # TODO: if we have something non-trivial to send back...
             sys.stdout.write(json.dumps(output) + '\n')
             sys.stdout.flush()
+            # TODO: should probably get rid of all this
+            output['stream'] = None
+            output['image'] = None
+            output['html'] = None
 
     def _complete(self, execution_id, code, timeout=0.5):
         # Call ipython kernel complete, wait for response with the correct msg_id,
@@ -222,7 +235,10 @@ class Kernel(object):
         # }
         #
         msg_id = self.client.complete(code)
-        output = { "msg_id": msg_id, "output": None, "image": None, "error": None }
+        request = { "id": execution_id, "msg_id": msg_id, "code": code, "status": "started" }
+        sys.stdout.write(json.dumps(request) + '\n')
+        sys.stdout.flush()
+        output = { "id": execution_id, "msg_id": msg_id, "output": None, "image": None, "error": None }
         while True:
             try:
                 reply = self.client.get_shell_msg(timeout=timeout)
@@ -245,7 +261,10 @@ class Kernel(object):
                         result["dtype"] = "" # type(globals().get(code)).__name__
                     results.append(result)
                 output['output'] = results
-                return output
+                output['status'] = "complete"
+                sys.stdout.write(json.dumps(output) + '\n')
+                sys.stdout.flush()
+                return
 
     def execute(self, execution_id, code, complete=False):
         if complete==True:
@@ -268,7 +287,7 @@ if __name__=="__main__":
             sys.exit(0)
 
         data = json.loads(line)
-        output = k.execute(data['id'], data['code'], data.get('complete', False))
+        k.execute(data['id'], data['code'], data.get('complete', False))
         # output['id'] = data['id']
         # sys.stdout.write(json.dumps(output) + '\n')
         # sys.stdout.flush()

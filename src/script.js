@@ -127,50 +127,53 @@ function sendCommand(input, hideResult) {
   $cont = $("#history-trail").parent();
   $cont[0].scrollTop = $cont[0].scrollHeight;
 
-  python.execute(input, false, function(result) {
-    if (/^help[(]/.test(input)) {
-      $("#help-content").text(result.output);
-      $('a[href="#help"]').tab("show");
-      return;
-    } else {
+  var useStream = true;
+
+  if (/^help[(]/.test(input)) {
+    useStream = false;
+  } else if (hideResult) {
+    useStream = false;
+  }
+
+  if (useStream==true) {
+    python.executeStream(input, false, function(result) {
+      if (result.stream) {
+        jqconsole.Write(result.stream || "");
+      }
+
+      if (result.image || result.html) {
+        addPlot(result);
+      }
+
+      if (result.error) {
+        track('command', 'error');
+        jqconsole.Write(result.error + '\n', 'jqconsole-error');
+      }
+
+      if (result.status=="complete") {
+        jqconsole.Write('\n');
+        refreshVariables();
+      }
+    });
+  } else {
+    python.execute(input, false, function(result) {
+      if (/^help[(]/.test(input)) {
+        $('#help-content').text(result.output);
+        $('a[href="#help"]').tab("show");
+        return;
+      }
       if (hideResult==true) {
         return;
       }
-      // handling png and html, but are there any other types of outputs
-      if (result.image) {
-        var plotImage = "data:image/png;charset=utf-8;base64," + result.image;
-        $("#plots-minimap .active").removeClass("active");
-        $("#plots .active").removeClass("active").addClass("hide");
-        var newplot = $.parseHTML('<img class="active" style="max-height: 100%; max-width: 100%;" />');
-        var plotid = uuid.v4().toString();
-        $(newplot).attr("data-plot-id", plotid);
-        $(newplot).attr("src", plotImage);
-        $(newplot).attr("onclick", "activatePlot($(this).data('plot-id'));")
-        // TODO: maybe if minimap is getting too long we can trim it
-        $("#plots").append($(newplot).clone());
-        // TODO: maybe if minimap is getting too long we can trim it
-        $("#plots-minimap").prepend($(newplot).clone());
-        $('a[href="#plot-window"]').tab("show");
-        calibratePanes();
-      } else if (result.html) {
-        $("#plots .active").removeClass("active").addClass("hide");
-        // var html = $(result.html, "svg").attr("width", "100%").attr("height", "100%").html();
-        // TODO: need to handle the sizing here
-        result.html = result.html.replace(/600px/g, "95%");
-        // result.html = $("svg", result.html).outerHTML();
-        $("#plots").append('<div class="active">' + result.html + "</div>");
-        $('a[href="#plot-window"]').tab("show");
-        calibratePanes();
-      }
 
       jqconsole.Write((result.output || "") + "\n");
-    }
-    if (result.error) {
-      track('command', 'error');
-      jqconsole.Write(result.error + '\n', 'jqconsole-error');
-    }
-    refreshVariables();
-  });
+      if (result.error) {
+        track('command', 'error');
+        jqconsole.Write(result.error + '\n', 'jqconsole-error');
+      }
+      refreshVariables();
+    });
+  }
 }
 
 // New Windows
