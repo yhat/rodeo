@@ -385,7 +385,7 @@ function setFiles(dir) {
   walker = walk.walk(USER_WD, { followLinks: false, });
 
   $("#file-search-list .list").children().remove();
-  $("#file-search-list .list").append("<li id='index-count'>Indexing files</li>");
+  $("#file-search-list .list").append("<li id='index-count'><i class='fa fa-hourglass-end'></i>&nbsp;Indexing files</li>");
 
   var wd = USER_WD;
   walker.on('file', function(root, stat, next) {
@@ -410,7 +410,7 @@ function setFiles(dir) {
 
     n++;
     if (n%100==0) {
-      $("#file-search-list .list #index-count").text("Indexing files " + n);
+      $("#file-search-list .list #index-count").html("<i class='fa fa-hourglass-end'></i>&nbsp;Indexing files " + n);
     }
 
     next();
