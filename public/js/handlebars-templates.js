@@ -96,11 +96,13 @@ templates['file-search-item.hbs'] = template({"compiler":[6,">= 2.0.0-beta.1"],"
     + "</a>\n</li>\n";
 },"useData":true});
 templates['history-row.hbs'] = template({"compiler":[6,">= 2.0.0-beta.1"],"main":function(depth0,helpers,partials,data) {
-    var helper;
+    var helper, alias1=helpers.helperMissing, alias2="function", alias3=this.escapeExpression;
 
-  return "<p><span style=\"white-space: pre-wrap;\">"
-    + this.escapeExpression(((helper = (helper = helpers.command || (depth0 != null ? depth0.command : depth0)) != null ? helper : helpers.helperMissing),(typeof helper === "function" ? helper.call(depth0,{"name":"command","hash":{},"data":data}) : helper)))
-    + "</span></p>\n";
+  return "<p style=\"margin: 0px;\">\n  <span class=\"pull-left\" style=\"width: 15px;\">()"
+    + alias3(((helper = (helper = helpers.n || (depth0 != null ? depth0.n : depth0)) != null ? helper : alias1),(typeof helper === alias2 ? helper.call(depth0,{"name":"n","hash":{},"data":data}) : helper)))
+    + ")</span><span style=\"white-space: pre-wrap;\">"
+    + alias3(((helper = (helper = helpers.command || (depth0 != null ? depth0.command : depth0)) != null ? helper : alias1),(typeof helper === alias2 ? helper.call(depth0,{"name":"command","hash":{},"data":data}) : helper)))
+    + "</span>\n</p>\n";
 },"useData":true});
 templates['package-row.hbs'] = template({"compiler":[6,">= 2.0.0-beta.1"],"main":function(depth0,helpers,partials,data) {
     var helper, alias1=helpers.helperMissing, alias2="function", alias3=this.escapeExpression;

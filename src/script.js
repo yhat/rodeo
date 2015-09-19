@@ -121,8 +121,10 @@ function sendCommand(input, hideResult) {
     ipc.send('quit');
     return;
   }
-  var html = history_row_template({ n: $("#history-trail").children().length, command: input });
-  $("#history-trail").append(html);
+  if (input) {
+    var html = history_row_template({ n: 1 + $("#history-trail").children().length, command: input });
+    $("#history-trail").append(html);
+  }
   // auto scroll down
   $cont = $("#history-trail").parent();
   $cont[0].scrollTop = $cont[0].scrollHeight;
