@@ -62,6 +62,7 @@
     var history_row_template = Handlebars.templates["history-row.hbs"];
     var package_row_template = Handlebars.templates["package-row.hbs"];
     var file_template = Handlebars.templates["file-item.hbs"];
+    var file_search_item_template = Handlebars.templates["file-search-item.hbs"];
     var wd_template = Handlebars.templates["wd.hbs"];
     var shortcuts_template = Handlebars.templates["shortcuts.hbs"];
   </script>
@@ -82,12 +83,12 @@
                   <a href="#"><span style="color: #ee5311;">&ycirc;</span><span class="color: #898989">hat</span></a>
                 </li>
                 <!-- editor tabs go here -->
-                <li><a href="#" id="add-tab"><i class="fa fa-plus-square-o"></i></a></li>
+                <li><a title="Create new file" href="#" id="add-tab"><i class="fa fa-plus-square-o"></i></a></li>
               </ul>
             </div>
             <div class="col-sm-1" style="padding: 0px; margin: 0px;">
               <ul class="nav nav-tabs">
-                <li><a id="run-button" href="#"><i class="fa fa-play-circle"></i></a></li>
+                <li><a title="Run script" id="run-button" href="#"><i class="fa fa-play-circle"></i></a></li>
               </ul>
             </div>
           </div>
@@ -303,6 +304,7 @@
       $("#file-search-list .list li").first().addClass("selected");
       var options = { valueNames: [ 'filename' ] };
       fileList = new List('file-search-list', options);
+      $("#file-search-form").unbind();
       $("#file-search-form").submit(function(e) {
         e.preventDefault();
         var filename = $("#file-search-list .selected").attr("data-filename");
@@ -310,7 +312,6 @@
         $("#file-search-input").val("");
         $("#file-search-modal").modal("hide");
         $("#file-search-list .list li").removeClass("selected");
-        $("#file-search-list .list li").first().addClass("selected");
         return false;
       });
     }
@@ -460,9 +461,12 @@
           }
         });
       } else {
+        var prevTab = $("#editor-tab-" + n).prev();
         $("#editor-tab-" + n).remove();
         $("#editor-tab-pane-" + n).remove();
-        $("#editorsTab .editor-tab-a").first().click();
+        if (prevTab) {
+          $("a", prevTab).click();
+        }
       }
     }
 

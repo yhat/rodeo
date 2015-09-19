@@ -296,12 +296,12 @@ function openFile(pathname) {
     $("#editorsTab li:nth-last-child(2) .name").text(basename);
     $("#editorsTab li:nth-last-child(2) a").attr("data-filename", filename);
     var id = $("#editors .editor").last().attr("id");
-    var editor = ace.edit(id);
     fs.readFile(filename, function(err, data) {
       if (err) {
         console.error("[ERROR]: could not open file: " + filename);
         return;
       }
+      var editor = ace.edit(id);
       editor.getSession().setValue(data.toString());
       // [+] tab is always the last tab, so we'll activate the 2nd to last tab
       $("#editorsTab li:nth-last-child(2) a").click();
@@ -383,8 +383,19 @@ function setFiles(dir) {
   // reindex file search
   var n = 0;
   walker = walk.walk(USER_WD, { followLinks: false, });
+
   $("#file-search-list .list").children().remove();
+  $("#file-search-list .list").append("<li id='index-count'>Indexing files</li>");
+
+  var wd = USER_WD;
   walker.on('file', function(root, stat, next) {
+
+    // handles issue w/ extra files being emitted if you're indexing a large directory and
+    // then cd into another directory
+    if (wd!=USER_WD) {
+      return;
+    }
+
     var dir = root.replace(USER_WD, '') || "";
     var displayFilename = path.join(dir, stat.name).replace(/^\//, '');
     if (rc.displayDotFiles!=true) {
@@ -394,13 +405,21 @@ function setFiles(dir) {
       }
     }
     var fullFilename = formatFilename(path.join(root, stat.name));
-    var onclick = '$(\"#file-search-list .selected\").removeClass(\"selected\"); $(this).addClass(\"selected\"); $(\"#file-search-form\").submit();';
-    $("#file-search-list .list").append(
-      "<li onclick='" + onclick + "' data-filename='" + fullFilename + "'><a class='filename'>" + displayFilename + "</a></li>"
-    );
+    var fileSearchItem = file_search_item_template({ fullFilename: fullFilename, displayFilename: displayFilename });
+    $("#file-search-list .list").append(fileSearchItem);
+
+    n++;
+    if (n%100==0) {
+      $("#file-search-list .list #index-count").text("Indexing files " + n);
+    }
+
     next();
   });
   walker.on('end', function() {
+    // remove the 'indexing...' and make the files visible
+    $("#file-search-list #index-count").remove();
+    $("#file-search-list .list .hide").removeClass("hide");
+    // update the UI
     indexFiles();
   });
 }

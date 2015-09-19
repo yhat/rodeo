@@ -86,6 +86,15 @@ templates['file-item.hbs'] = template({"1":function(depth0,helpers,partials,data
     + alias3(((helper = (helper = helpers.basename || (depth0 != null ? depth0.basename : depth0)) != null ? helper : alias1),(typeof helper === alias2 ? helper.call(depth0,{"name":"basename","hash":{},"data":data}) : helper)))
     + "\n</a>\n";
 },"useData":true});
+templates['file-search-item.hbs'] = template({"compiler":[6,">= 2.0.0-beta.1"],"main":function(depth0,helpers,partials,data) {
+    var helper, alias1=helpers.helperMissing, alias2="function", alias3=this.escapeExpression;
+
+  return "<li class=\"hide\" onclick=\"$('#file-search-list .selected').removeClass('selected'); $(this).addClass('selected'); $('#file-search-form').submit();\" data-filename=\""
+    + alias3(((helper = (helper = helpers.fullFilename || (depth0 != null ? depth0.fullFilename : depth0)) != null ? helper : alias1),(typeof helper === alias2 ? helper.call(depth0,{"name":"fullFilename","hash":{},"data":data}) : helper)))
+    + "\">\n  <a class=\"filename\">"
+    + alias3(((helper = (helper = helpers.displayFilename || (depth0 != null ? depth0.displayFilename : depth0)) != null ? helper : alias1),(typeof helper === alias2 ? helper.call(depth0,{"name":"displayFilename","hash":{},"data":data}) : helper)))
+    + "</a>\n</li>\n";
+},"useData":true});
 templates['history-row.hbs'] = template({"compiler":[6,">= 2.0.0-beta.1"],"main":function(depth0,helpers,partials,data) {
     var helper;
 

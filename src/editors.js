@@ -115,7 +115,7 @@ function createEditor(id) {
     name: "findFile",
     bindKey: {win: "ctrl-t", mac: "Command-t"},
     exec: function(editor) {
-      // findFile();
+      findFile();
     }
   });
 
