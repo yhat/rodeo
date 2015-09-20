@@ -474,37 +474,6 @@
       }
     }
 
-    // Plots
-    function previousPlot() {
-      var currentPlot = $("#plots .active");
-      if ($("#plots .active").prev().length) {
-        var plotid = $("#plots .active").prev().data("plot-id");
-        activatePlot(plotid);
-      }
-    }
-
-    function nextPlot() {
-      var currentPlot = $("#plots .active")
-      if ($("#plots .active").next().length) {
-        var plotid = $("#plots .active").next().data("plot-id");
-        activatePlot(plotid);
-      }
-    }
-
-    function deletePlot() {
-      var currentplotid = $("#plots .active").data("plot-id");
-      var plotid;
-      if ($("#plots .active").next().length) {
-        plotid = $("#plots .active").next().data("plot-id");
-        activatePlot(plotid);
-      } else if ($("#plots .active").prev().length) {
-        plotid = $("#plots .active").prev().data("plot-id");
-        activatePlot(plotid);
-      }
-      $("#plots [data-plot-id='" + currentplotid + "']").remove();
-      $("#plots-minimap [data-plot-id='" + currentplotid + "']").remove();
-    }
-
     // basic search for history
     $('#pkg-search').on('input', function() {
       var query = $(this).val().toLowerCase();

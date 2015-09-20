@@ -1,5 +1,36 @@
 var fs = require('fs');
 
+// Plots
+function previousPlot() {
+  var currentPlot = $("#plots .active");
+  if ($("#plots .active").prev().length) {
+    var plotid = $("#plots .active").prev().data("plot-id");
+    activatePlot(plotid);
+  }
+}
+
+function nextPlot() {
+  var currentPlot = $("#plots .active")
+  if ($("#plots .active").next().length) {
+    var plotid = $("#plots .active").next().data("plot-id");
+    activatePlot(plotid);
+  }
+}
+
+function deletePlot() {
+  var currentplotid = $("#plots .active").data("plot-id");
+  var plotid;
+  if ($("#plots .active").next().length) {
+    plotid = $("#plots .active").next().data("plot-id");
+    activatePlot(plotid);
+  } else if ($("#plots .active").prev().length) {
+    plotid = $("#plots .active").prev().data("plot-id");
+    activatePlot(plotid);
+  }
+  $("#plots [data-plot-id='" + currentplotid + "']").remove();
+  $("#plots-minimap [data-plot-id='" + currentplotid + "']").remove();
+}
+
 function activatePlot(plotid) {
   $("#plots .active").removeClass("active").addClass("hide");
   $("#plots-minimap .active").removeClass("active");
@@ -18,7 +49,7 @@ function showPlot() {
 }
 
 function savePlot() {
-  if (! $("img.active").length) {
+  if (! $("#plots .active").length) {
     return;
   }
   remote.require('dialog').showSaveDialog({
@@ -28,13 +59,19 @@ function savePlot() {
     if (! destfile) {
       return
     }
-    // get rid of inline business
-    var img = $("img.active").attr("src").replace("data:image/png;charset=utf-8;base64,", "");
-    fs.writeFile(destfile, img, 'base64', function(err) {
-      if (err) {
-        return console.error(err);
-      }
-    });
+
+    if ($("#plots img.active").length) {
+      // if image
+      var img = $("img.active").attr("src").replace("data:image/png;charset=utf-8;base64,", "");
+      fs.writeFileSync(destfile, img, 'base64');
+    } else {
+      // if svg
+      var svg = document.getElementsByTagName("svg")[0]
+      svgAsDataUri(svg, {}, function(uri) {
+        img = uri.replace("data:image/svg+xml;base64,", "");
+        fs.writeFileSync(destfile, img, 'base64');
+      });
+    }
   });
 }
 
@@ -50,7 +87,7 @@ function addPlot(result) {
     $("#plots .active").removeClass("active").addClass("hide");
     // TODO: need to handle the sizing here
     result.html = result.html.replace(/600px/g, "95%");
-    var newplot = '<div class="active">' + result.html + "</div>";
+    var newplot = $.parseHTML('<div class="active">' + result.html + "</div>");
   }
   $(newplot).attr("onclick", "activatePlot($(this).data('plot-id'));")
   $(newplot).attr("data-plot-id", plotid);
