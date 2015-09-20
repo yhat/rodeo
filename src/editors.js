@@ -85,13 +85,37 @@ function createEditor(id) {
   langTools.addCompleter(pythonCompleter);
 
 
-  // initialize shortcuts
+  // start shortcuts
 
   // TODO: fix this...
   var allCommands = editor.commands.byName;
   editor.commands.bindKey("Cmd-d", null)
   allCommands.findnext.bindKey = {win: "Ctrl-d", mac: "Cmd-d"};
   editor.commands.addCommand(allCommands.findnext)
+
+
+  editor.commands.addCommand({
+    name: "shift-editor-left",
+    bindKey: {win: "ctrl-shift-left", mac: "Command-shift-left"},
+    exec: function(editor) {
+      var prevTab = $("#editorsTab .active").prev();
+      if (prevTab && $("a", prevTab).attr("href")!="#") {
+        $("a", prevTab).click();
+      }
+    }
+  });
+
+  editor.commands.addCommand({
+    name: "shift-editor-right",
+    bindKey: {win: "ctrl-shift-right", mac: "Command-shift-right"},
+    exec: function(editor) {
+      track('shortcut', 'Change Editor > Move One Right');
+      var nextTab = $("#editorsTab .active").next();
+      if (nextTab && $("a", nextTab).attr("href")!="#") {
+        $("a", nextTab).click();
+      }
+    }
+  });
 
   // override the settings menu
   editor.commands.addCommand({
@@ -237,6 +261,8 @@ function createEditor(id) {
       }
     }
   });
+  // end shortcuts
+
   editor.on('input', function() {
     $("#" + id.replace("editor", "editor-tab") + " .unsaved").removeClass("hide");
   });

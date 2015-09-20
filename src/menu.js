@@ -8,7 +8,7 @@ var dialogs = require("dialogs")({ url: "../static/img/cowboy-hat.svg" });
 var Menu = remote.require('menu');
 var ipc = require('ipc');
 
-var template = [
+var menuShortcutsTemplate = [
   {
     label: 'Rodeo',
     submenu: [
@@ -399,7 +399,7 @@ var template = [
   }
 ];
 
-menu = Menu.buildFromTemplate(template);
+menu = Menu.buildFromTemplate(menuShortcutsTemplate);
 
 Menu.setApplicationMenu(menu);
 
