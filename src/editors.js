@@ -44,7 +44,8 @@ function createEditor(id) {
   var pythonCompleter = {
     getCompletions: function(editor, session, pos, prefix, fn) {
       session.$mode.$keywordList = [];
-      var code = getCurrentLine(editor);
+      // get the current line from the begining of the line to the cursor
+      var code = getCurrentLine(editor).slice(0, editor.getCursorPosition().column);
 
       python.execute(code, true, function(result) {
         var predictions = result.output.map(function(p) {

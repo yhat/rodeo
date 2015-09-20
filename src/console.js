@@ -72,6 +72,8 @@ jqconsole._Indent = function() {
   } else {
     var originalPrompt = jqconsole.GetPromptText();
     var code = jqconsole.GetPromptText();
+    code = code.slice(0, jqconsole.GetColumn() - 4);
+
     jqconsole.ClearPromptText(true);
 
     python.execute(code, true, function(result) {
@@ -82,6 +84,7 @@ jqconsole._Indent = function() {
       if (predictions.length==1) {
         var prediction = predictions[0].value;
         originalPrompt = originalPrompt.replace("~", USER_HOME);
+        completedText = originalPrompt.replace(code, prediction);
         for(var i=prediction.length; i>0; i--) {
           var p = prediction.slice(0, i);
           if (originalPrompt.slice(-p.length)==p) {
