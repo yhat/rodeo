@@ -262,6 +262,27 @@ var template = [
         selector: 'performMiniaturize:'
       },
       {
+        label: 'Reset Panes',
+        click: function() {
+          remote.require('dialog').showMessageBox({
+            type: "warning",
+            buttons: ["Yes", "Cancel"],
+            message: "This will restart your Rodeo session. Are you sure you want to continue?",
+            detail: "Any unsaved scripts and data will be deleted permanently."
+          }, function(reply) {
+            if (reply==0) {
+              updateRC("paneVertical", null);
+              updateRC("paneHorizontalRight", null);
+              updateRC("paneHorizontalLeft", null);
+              remote.getCurrentWindow().reload();
+            } else {
+              // do nothing
+              return;
+            }
+          });
+        }
+      },
+      {
         label: 'Zoom',
         submenu: [
           {

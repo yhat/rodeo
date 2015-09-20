@@ -81,6 +81,15 @@ function setTracking(val) {
   updateRC("trackingOn", val);
 }
 
+function saveWindowCalibration() {
+  var paneVertical = 100 * $("#pane-container #left-column").width() / $("#pane-container").width();
+  var paneHorizontalRight = 100 * $("#pane-container #top-right").height() / $("#pane-container #right-column").height();
+  var paneHorizontalLeft = 100 * $("#pane-container #top-left").height() / $("#pane-container #left-column").height();
+  updateRC("paneVertical", paneVertical + "%");
+  updateRC("paneHorizontalRight", paneHorizontalRight + "%");
+  updateRC("paneHorizontalLeft", paneHorizontalLeft + "%");
+}
+
 // on startup, set defaults for non-editor preferences
 var rc = getRC();
 // TODO: would be nice to get rid of the fs check here

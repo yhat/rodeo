@@ -319,24 +319,28 @@
     // resizeable panes
     $("#pane-container").height($(window).height());
 
+    var rc = getRC();
     $("#pane-container").split({
       orientation: 'vertical',
       limit: 100,
-      position:'50%'
+      position: rc.paneVertical || '50%'
     });
 
     $("#right-column").split({
       orientation: 'horizontal',
-      limit: 100
+      limit: 100,
+      position: rc.paneHorizontalRight || '50%'
     });
 
     $("#left-column").split({
       orientation: 'horizontal',
-      limit: 100
+      limit: 100,
+      position: rc.paneHorizontalLeft || '50%'
     });
 
     // on resize w/ gray bars, recalibrate
     $(document.documentElement).bind('mouseup.splitter touchend.splitter touchleave.splitter touchcancel.spliter', function(e) {
+      saveWindowCalibration();
       calibratePanes();
     });
 
