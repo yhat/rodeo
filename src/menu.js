@@ -178,6 +178,8 @@ var menuShortcutsTemplate = [
               var prevTab = $("#editorsTab .active").prev();
               if (prevTab && $("a", prevTab).attr("href")!="#") {
                 $("a", prevTab).click();
+              } else {
+                $("a", $("#editorsTab li").last().prev()).click()
               }
             }
           },
@@ -189,8 +191,9 @@ var menuShortcutsTemplate = [
               var nextTab = $("#editorsTab .active").next();
               if (nextTab && $("a", nextTab).attr("href")!="#") {
                 $("a", nextTab).click();
+              } else {
+                $("a", $("#editorsTab li").first().next()).click();
               }
-
             }
           }
         ]

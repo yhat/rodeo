@@ -101,7 +101,12 @@ function createEditor(id) {
       var prevTab = $("#editorsTab .active").prev();
       if (prevTab && $("a", prevTab).attr("href")!="#") {
         $("a", prevTab).click();
+      } else {
+        prevTab = $("#editorsTab li").last().prev();
+        $("a", prevTab).click()
       }
+      var id = $(prevTab).attr("id").replace("tab-", "");
+      ace.edit(id).focus();
     }
   });
 
@@ -113,7 +118,12 @@ function createEditor(id) {
       var nextTab = $("#editorsTab .active").next();
       if (nextTab && $("a", nextTab).attr("href")!="#") {
         $("a", nextTab).click();
+      } else {
+        nextTab = $("#editorsTab li").first().next();
+        $("a", nextTab).click();
       }
+      var id = $(nextTab).attr("id").replace("tab-", "");
+      ace.edit(id).focus();
     }
   });
 
