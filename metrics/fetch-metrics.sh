@@ -1,5 +1,9 @@
 #!/bin/bash
 
+DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+
+cd ${DIR}
+
 if [ "$1" == "--all" ]; then
   PAT=""
 else
@@ -15,6 +19,8 @@ do
   echo "    reading file: ${f}" 1>&2
   s3cmd get $f /tmp/s3cmd.file > /dev/null
   # index and error are the only 2 keys in the bucket
-  cat /tmp/s3cmd.file | grep -E "index.html|error.html" | python ./metrics/parse_s3_logs.py
+  cat /tmp/s3cmd.file | grep -E "index.html|error.html" | python parse_s3_logs.py
   rm /tmp/s3cmd.file
 done
+
+cd --
