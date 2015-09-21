@@ -15,12 +15,12 @@ metrics.getUserId(function(err, userId) {
 
 function sendMetric(category, action, label, value) {
   var data = {
-    an: "Rodeo",
-    av: app.getVersion(),
-    cid: USER_ID,
-    ec: category,
-    ea: action,
-    el: label
+    an: "Rodeo",          // app name
+    av: app.getVersion(), // app version
+    cid: USER_ID,         // user id
+    ec: category,         // event category
+    ea: action,           // event action
+    el: label             // event label
   }
   
   var url = "http://rodeo-analytics.yhathq.com/?" + querystring.stringify(data);
