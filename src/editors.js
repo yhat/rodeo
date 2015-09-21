@@ -62,7 +62,7 @@ function createEditor(id) {
           if (value.indexOf("/")==-1 && value.indexOf(".") > -1) {
             value = value.split(".").slice(value.split(".").length-1).join(".");
           }
-          // console.log(code + "|" + p.text + "|" + value);
+
           return { caption: p.text, value: value, score: 100, meta: null };
         });
         // if (predictions.length==1 && code.indexOf("~") > -1) {
