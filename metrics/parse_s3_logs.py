@@ -33,6 +33,7 @@ def parse_s3_log_line(line):
     url = result['http_method_uri_proto'].split()[1]
     u = urlparse.urlparse(url)
     result['parameters'] = urlparse.parse_qs(u.query)
+    result['parameters'] = {k: v[0] for k, v in result['parameters'].items() }
     return result
 
 
