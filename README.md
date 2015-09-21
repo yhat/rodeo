@@ -42,13 +42,18 @@ https://github.com/aktau/github-release
 $ ./scripts/release.sh
 ```
 
+- https://github.com/sindresorhus/grunt-electron
+- https://github.com/atom/grunt-electron-installer
+- https://www.npmjs.com/package/grunt-electron-debian-installer
+- https://github.com/maxogden/electron-packager
+
 ## Go To Market
 - Rodeo go to market
     - [x] OSX support
     - [-] windows support
     - [x] usage statistics / metrics
     - [ ] video for website
-    - [ ] limited beta
+    - [x] limited beta
     - [-] marketing material
         - [x] landing page
         - [x] downloads page
@@ -56,7 +61,7 @@ $ ./scripts/release.sh
     - [x] binary replacement for kernel?
         * __don't need it for v1 but would be nice to eventually have__
     - [-] licensing
-    - [-] logo
+    - [?] logo
         - [ ] stickers (landing page for people to ask for stickers)
     - [ ] sunset "old rodeo"
     - [ ] enterprise strategy / timeline
