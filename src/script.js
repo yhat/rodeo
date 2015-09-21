@@ -415,6 +415,15 @@ function setFiles(dir) {
       $("#file-search-list .list #index-count").html("<i class='fa fa-hourglass-end'></i>&nbsp;Indexing files " + n);
     }
 
+    // stop if there are too many files
+    if (n > 15000) {
+      walker.pause();
+      delete walker
+      $("#file-search-list .list").children().remove();
+      var msg = "Sorry this directory was too big to index."
+      $("#file-search-list .list").append("<li id='index-count'><i class='fa fa-ban'></i>&nbsp;" + msg + "</li>");
+    }
+
     next();
   });
   walker.on('end', function() {
