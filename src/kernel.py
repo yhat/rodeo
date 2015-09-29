@@ -165,7 +165,7 @@ class Kernel(object):
         # the kernel is idle and the message's parent is the original execution
         # ID (msg_id) that's associated with our executing code. if this is the
         # case, we'll return the data and the msg_id and exit
-        msg_id = self.client.execute(code)
+        msg_id = self.client.execute(code, allow_stdin=False)
         request = { "id": execution_id, "msg_id": msg_id, "code": code, "status": "started" }
         sys.stdout.write(json.dumps(request) + '\n')
         sys.stdout.flush()
