@@ -27,7 +27,7 @@ kernel(function(err, python) {
     var badPythonWindow = new BrowserWindow(params);
     badPythonWindow.loadUrl('file://' + __dirname + '/../static/bad-python.html');
     badPythonWindow.webContents.on('did-finish-load', function() {
-      badPythonWindow.webContents.send('ping', { pythonCmds: pythonCmds });
+      badPythonWindow.webContents.send('ping', { pythonCmds: [] });
     });
     return;
   }
