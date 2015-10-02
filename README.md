@@ -50,7 +50,7 @@ $ ./scripts/release.sh
 ## Go To Market
 - Rodeo go to market
     - [x] OSX support
-    - [-] windows support
+    - [x] windows support
     - [x] usage statistics / metrics
     - [ ] video for website
     - [x] limited beta
@@ -140,6 +140,6 @@ $ ./scripts/release.sh
 - [x] build package
 - [x] add in logo
 - [x] plots not working ```([ERROR-2]: [Errno 2] No such file or directory: '../static/plots/1440334796-8e40484e-d335-4fec-b5bd-4481f8cbfd1e.png')```
-- [ ] more "Rodeo specific" logo
+- [-] more "Rodeo specific" logo
 - [x] fix "*" for unsaved files
 - [x] editors sometimes behave strangely. i think it's something to do with the IDs not being unique (think this is b/c you can have multiple `editor-1` if you open, close, then open again).
