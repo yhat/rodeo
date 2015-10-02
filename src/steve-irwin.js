@@ -10,6 +10,9 @@ function findMeAPython(fn) {
   // /usr/bin/env python doesn't really work, so we're going to be doing the ole
   // guess and check method
   var testPython = path.join(__dirname, "../src", "check_python.py");
+
+  // this needs to be a tmp file because we're shelling out and the `python`
+  // command doesn't know about files in the asar
   var testPythonFile = tmp.fileSync();
   fse.copySync(testPython, testPythonFile.name);
 
