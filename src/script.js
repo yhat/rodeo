@@ -23,9 +23,6 @@ kernel(function(err, python) {
   global.python = python;
   if (err) {
     console.log(err)
-    return;
-  }
-  if (err) {
     var params = { toolbar: false, resizable: true, show: true, height: 800, width: 1000 };
     var badPythonWindow = new BrowserWindow(params);
     badPythonWindow.loadUrl('file://' + __dirname + '/../static/bad-python.html');
