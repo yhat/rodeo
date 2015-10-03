@@ -2,41 +2,34 @@
 <html lang="en">
 <head>
   <title>Rodeo</title>
-  <link id="rodeo-theme" href="css/styles.css" rel="stylesheet"/
+  <link id="rodeo-theme" href="css/styles.css" rel="stylesheet" />
 </head>
 <body>
   <div class="container text-center">
-    <h1 id="app-name" class="text-info">Rodeo </h1>
-    <p>
+    <h1>Rodeo (insert logo)</h1>
+    <hr />
+    <p class="lead" id="app-name" class="text-info">Rodeo </p>
+    <hr />
+    <p class="lead">
+      Rodeo is built by <a onclick="shell.openExternal('http://yhat.com/');"><span style="color: #ee5311;">&ycirc;</span><span class="color: #898989">hat</span></a>.
+    </p>
+    <p class="lead">
       Rodeo includes other open source software components. Click below for a list of these components and their license agreements.
     </p>
     <button onclick="require('shell').openItem(__dirname + '/../static/acknowledgements.txt');" class="btn btn-primary">Acknowledgements</button>
-    <!-- List of open source projects
-    <ul>
-      <li>Ace (MIT)</li>
-      <li>Electron (MIT)</li>
-      <li>Bootstrap (MIT)</li>
-      <li>JQuery (MIT)</li>
-      <li>jqconsole (MIT)</li>
-      <li>list.js (MIT)</li>
-      <li>ascii-table (MIT)</li>
-      <li>colors (MIT)</li>
-      <li>dialogs (MIT)</li>
-      <li>fs-extra (MIT)</li>
-      <li>handlebars (MIT)</li>
-      <li>jade (MIT)</li>
-      <li>rimraf (ISC)</li>
-      <li>stream-splitter (BSD)</li>
-      <li>tmp (MIT)</li>
-      <li>uuid (MIT)</li>
-      <li>walk (MIT)</li>
-    </ul>
-    -->
+
+    <br />
+    <br />
+    <p class="text-muted">
+      <i>Note</i>: To help us improve Rodeo, we anonymously track usage metrics, such as # of opens/closes, shortcuts used, and current version. You can disable
+      these metrics at any time by visiting <strong>Preferences</strong> and unchecking the <i>Track Metrics</i> field.
+    </p>
   </div>
   <script type="text/javascript">
     var pkg = JSON.parse(require('fs').readFileSync(__dirname + "/../package.json").toString());
     var appName = document.getElementById('app-name');
     appName.textContent = pkg.productName + " v" + pkg.version;
+    var shell = require('shell');
   </script>
 </body>
 </html>

@@ -177,7 +177,7 @@ function sendCommand(input, hideResult) {
 
 // New Windows
 function showAbout() {
-  var params = {toolbar: false, resizable: false, show: true, height: 200, width: 300 };
+  var params = {toolbar: false, resizable: false, show: true, height: 420, width: 400 };
   var aboutWindow = new BrowserWindow(params);
   aboutWindow.loadUrl('file://' + __dirname + '/../static/about.html');
 }
