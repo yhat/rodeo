@@ -22,7 +22,7 @@ function sendMetric(category, action, label, value) {
     ea: action,           // event action
     el: label             // event label
   }
-  
+
   var url = "http://rodeo-analytics.yhathq.com/?" + querystring.stringify(data);
   http.get(url);
 }
@@ -38,9 +38,10 @@ var mainWindow = null;
 app.on('window-all-closed', function() {
   // On OS X it is common for applications and their menu bar
   // to stay active until the user quits explicitly with Cmd + Q
-  if (process.platform != 'darwin') {
-    app.quit();
-  }
+  // if (process.platform != 'darwin') {
+  //   app.quit();
+  // }
+  app.quit();
 });
 
 // This method will be called when Electron has finished
