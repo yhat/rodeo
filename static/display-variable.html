@@ -2,21 +2,24 @@
 <html lang="en">
 <head>
     <title>Rodeo</title>
-    <link href="css/styles.css" rel="stylesheet">
+    <link href="css/styles.css" rel="stylesheet" />
+    <link href="http://cdn.datatables.net/1.10.9/css/jquery.dataTables.min.css" rel="stylesheet" />
     <script type="text/javascript">
       window.$ = window.jQuery = require('jquery');
+      Handlebars = require("handlebars");
     </script>
+    <script src="js/main.js"></script>
 </head>
 <body>
   <!-- header -->
-  <table id="header" class="table table-bordered hide" style="margin-bottom: 0px;">
+  <table id="header" class="table table-bordered hide">
   </table>
 
   <!-- rows -->
-  <div style="max-height: 900px; overflow: auto;">
+  <!-- <div style="max-height: 900px; overflow: auto;">
     <table id="rows" class="table table-bordered hide">
     </table>
-  </div>
+  </div> -->
   <pre class="hide" id="data"></pre>
 
 
@@ -33,16 +36,15 @@ $(document).ready(function() {
       var header = $("thead", data.html);
       $("#header").append(header);
       var rows = $("tbody", data.html);
-      $("#rows").append(rows);
-      // configure column widths
-      // TODO: this doesn't appear to be working when the header widths are bigger
-      // than the row widths
-      $("#rows").width($("#header").width());
-      $("#rows tr").first().children().each(function(i, el) {
-        var rowWidth = $(el).outerWidth();
-        var headerWidth = $($("#header th")[i]).outerWidth();
-        var width = Math.max(rowWidth, headerWidth);
-        $($("#header th")[i]).outerWidth(width);
+      $("#header").append(rows);
+
+      $("#header").DataTable({
+        fixedHeader: true,
+        paging: false,
+        searching: false,
+        scrollX: $(window).width(),
+        scrollY: $(window).height() - $(".dataTables_scrollHead").height() - 20,
+        info: false
       });
     } else {
       $("#data").removeClass("hide");
