@@ -13,7 +13,7 @@
       <h1>Bad news! Rodeo can't start <i class="fa fa-frown-o"></i></h1>
     </div>
   </div>
-  <div class="container">
+  <div id="ipython-error" class="container hide">
     <h3>What's going on?</h3>
     <p class="small">
       Unfortunately Rodeo wasn't able to find the <code>python</code> command it needs in order
@@ -30,10 +30,12 @@
     <h3>The "I just want it to work" option</h3>
     <p class="small">
       If you just want this to work as quickly as humanly possible, you can install a pre-packaged version of Python.
-      <br>
+      <br />
+      <br />
       The easiest way to go about this is to install <a href="http://docs.continuum.io/anaconda/install" target="_blank">Anaconda</a>. It's free,
       you can double-click to install, and it has everything you need to use Rodeo.
       <br>
+      <br />
       Once you're done, try re-running Rodeo.
     </p>
     <hr />
@@ -42,16 +44,40 @@
       Rodeo needs to be able to import either the <code>jupyter_client</code> or the <code>IPython</code> module. If you don't have
       one of these installed, then that's prboably your problem.
       <br>
+      <br />
       If you do have one of them installed, then the issue is that Rodeo is using the "wrong python". Rodeo defaults to using
       whatever <code>python</code> is on your PATH (or on Windows, whatever is set in your Environment Variables).
       <br />
+      <br />
       Not sure if you have python installed? You should probabyl go back to the "I just want it to work" section.
     </p>
+  </div>
+  <div id="matplotlib-error" class="container hide">
+    <h3>What's going on?</h3>
+    <p class="small">
+      Good news and bad news. The good news is that you've configured Jupyter/IPython correctly. The bad news is Rodeo wasn't able to load <code>matplotlib</code>.
+    </p>
+    <hr />
+    <h3>Installing <code>matplotlib</code></h3>
+    <p class="small">
+      Luckily it's fairly easy to get out of this mess. The easiest way is to use <code>conda</code> (if you're using Anaconda) or
+      <code>pip</code> (if you're using "regular" python). Open up your terminal/command prompt and type in the following:
+    </p>
+    <pre># if you're a conda user...
+$ conda install matplotlib
+# or
+$ pip install matplotlib</pre>
+  </div>
 
 <script type="text/javascript">
 $(document).ready(function() {
-  // require('ipc').on('ping', function(data) {
-  // });
+  require('ipc').on('ping', function(data) {
+    if (/matplotlib/.test(data.error)) {
+      $("#matplotlib-error").removeClass("hide");
+    } else {
+      $("#ipython-error").removeClass("hide");
+    }
+  });
 });
 </script>
 

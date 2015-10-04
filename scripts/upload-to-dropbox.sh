@@ -11,5 +11,5 @@ VERSION=$(cat package.json | jq .version --raw-output)
 SHA=$(git rev-parse HEAD | awk '{ print substr($1, 0, 7)}')
 
 mkdir ~/Dropbox-Yhat/yhat-box/greg/rodeo/dist/${VERSION}
+echo "Rodeo v${VERSION} - ${SHA}" > ~/Dropbox-Yhat/yhat-box/greg/rodeo/dist/${VERSION}/VERSION
 cp ~/Dropbox-Yhat/yhat-box/greg/rodeo/dist/* ~/Dropbox-Yhat/yhat-box/greg/rodeo/dist/${VERSION}
-echo "Rodeo v${VERSION} - ${SHA}" > ~/Dropbox-Yhat/yhat-box/greg/rodeo/dist/${VERSION}/README

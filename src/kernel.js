@@ -24,7 +24,7 @@ module.exports = function(cb) {
   var python;
   SteveIrwin.findMeAPython(function(err, pythonCmd, opts) {
     if (pythonCmd==null || err) {
-      cb("could not find a python", null);
+      cb(err, null);
     }
 
     python = spawn(pythonCmd, [kernelFile.name, configFile.name + ".json", delim], opts);

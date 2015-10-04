@@ -70,12 +70,17 @@ function findMeAPython(fn) {
           exec(pythonCmd + " " + testPythonFile.name, function(err, stdout, stderr) {
             if (err) {
               pythonCmd = null;
-            } else if (stdout.toString()!="FAIL") {
+              callback();
+            } else if (! /FAIL/.test(stdout.toString())) {
               // then we're good
-            } else {
+              callback();
+            } else if (stdout.toString()=="FAIL-jupyter"){
               pythonCmd = null;
+              callback("Could not load Jupyter/IPython");
+            } else if (stdout.toString()=="FAIL-matplotlib"){
+              pythonCmd = null;
+              callback("Could not load matplotlib");
             }
-            callback();
           });
         },
         function(err) {
