@@ -96,7 +96,7 @@ function createEditor(id) {
 
   editor.commands.addCommand({
     name: "shift-editor-left",
-    bindKey: {win: "ctrl-shift-left", mac: "Command-shift-left"},
+    bindKey: {win: "ctrl-option-left", mac: "Command-option-left"},
     exec: function(editor) {
       var prevTab = $("#editorsTab .active").prev();
       if (prevTab && $("a", prevTab).attr("href")!="#") {
@@ -112,7 +112,7 @@ function createEditor(id) {
 
   editor.commands.addCommand({
     name: "shift-editor-right",
-    bindKey: {win: "ctrl-shift-right", mac: "Command-shift-right"},
+    bindKey: {win: "ctrl-option-right", mac: "Command-option-right"},
     exec: function(editor) {
       track('shortcut', 'Change Editor > Move One Right');
       var nextTab = $("#editorsTab .active").next();

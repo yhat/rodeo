@@ -172,7 +172,7 @@ var menuShortcutsTemplate = [
         submenu: [
           {
             label: 'Move One Left',
-            accelerator: 'CmdOrCtrl+Shift+Left',
+            accelerator: 'CmdOrCtrl+Alt+Left',
             click: function() {
               track('shortcut', 'Change Editor > Move One Left');
               var prevTab = $("#editorsTab .active").prev();
@@ -185,7 +185,7 @@ var menuShortcutsTemplate = [
           },
           {
             label: 'Move One Right',
-            accelerator: 'CmdOrCtrl+Shift+Right',
+            accelerator: 'CmdOrCtrl+Alt+Right',
             click: function() {
               track('shortcut', 'Change Editor > Move One Right');
               var nextTab = $("#editorsTab .active").next();
