@@ -1,4 +1,6 @@
 var fs = require('fs');
+var fse = require('fs-extra');
+
 
 function setEditorTheme(theme) {
   $(".editor").each(function(i, item) {
@@ -25,9 +27,6 @@ function setKeyBindings(binding) {
 function setFontSize(font_size) {
     var font_size_int = parseInt(font_size);
     font_size = Math.min(font_size_int, 22) + "px";
-    // set fontSize for both sub-tabs in the preferences tab
-    $("#general").css({fontSize: font_size});
-    $("#editor").css({fontSize: font_size});
     // set fontSize for console-tab in lower left
     if ($('.jqconsole').length > 1) {
         $('.jqconsole').each(function(i, tab) {
@@ -88,6 +87,14 @@ function saveWindowCalibration() {
   updateRC("paneVertical", paneVertical + "%");
   updateRC("paneHorizontalRight", paneHorizontalRight + "%");
   updateRC("paneHorizontalLeft", paneHorizontalLeft + "%");
+}
+
+function showRodeoProfile() {
+  var rodeoProfile = path.join(USER_HOME, '.rodeoprofile');
+  if (! fs.existsSync(rodeoProfile)) {
+    fse.copySync(path.join(__dirname, "../src", "default-rodeo-profile.txt"), rodeoProfile)
+  }
+  openFile(path.join(USER_HOME, '.rodeoprofile'));
 }
 
 // on startup, set defaults for non-editor preferences

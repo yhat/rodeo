@@ -80,7 +80,7 @@
               <ul id="editorsTab" class="nav nav-tabs">
                 <li>
                   <img class="hat" src="img/cowboy-hat.svg" title="Yee Haw!" href="https://www.yhathq.com/">
-                  <a onclick="shell.openExternal('http://yhat.com/');"><span style="color: #ee5311;">&ycirc;</span><span class="color: #898989">hat</span></a>
+                  <a href="#" onclick="shell.openExternal('http://yhat.com/');"><span style="color: #ee5311;">&ycirc;</span><span class="color: #898989">hat</span></a>
                 </li>
                 <!-- editor tabs go here -->
                 <li><a title="Create new file" href="#" id="add-tab"><i class="fa fa-plus-square-o"></i></a></li>
@@ -156,6 +156,7 @@
             <li><a href="#plot-window" data-toggle="tab"><i class="fa fa-bar-chart"></i>&nbsp;Plots</a></li>
             <li><a href="#packages" data-toggle="tab"><i class="fa fa-archive"></i>&nbsp;Packages</a></li>
             <li><a href="#help" data-toggle="tab"><i class="fa fa-life-ring"></i>&nbsp;Help</a></li>
+            <li><a href="#preferences" data-toggle="tab"><i class="fa fa-cogs"></i>&nbsp;Preferences</a></li>
           </ul>
           <div id="bottomRightTabContent" class="tab-content">
             <!-- File Nav -->
@@ -216,6 +217,10 @@
               <pre style="font-size: 10px; overflow: auto;" id="help-content"><i>run help(...) for more info</i></pre>
             </div>
             <!-- End Help -->
+            <!-- Preferences -->
+            <div class="tab-pane" id="preferences">
+            </div>
+            <!-- End Preferences -->
           </div>
           </div>
         </div>
@@ -386,6 +391,9 @@
       // help
       $("#help-content").parent().height($("#bottom-right").height() - tabOffset);
       $("#help-content").height($("#bottom-right").height() - tabOffset);
+      // preferences
+      $("#preferences").height($("#bottom-right").height() - tabOffset);
+      // $("#preferences .panel-body").height($("#bottom-right").height() - tabOffset);
 
       // scrolling fixes...
       // removes stupid scroll bars on windows/linux
@@ -547,6 +555,18 @@
         });
       }
     });
+
+    // add preferences
+    var rc = getRC();
+    rc.keyBindings = rc.keyBindings || "default";
+    rc.defaultWd = rc.defaultWd || USER_HOME;
+    if (rc.trackingOn!=false) {
+    rc.trackingOn = true;
+    }
+
+    var preferences_html = preferences_template(rc);
+
+    $("#preferences").append(preferences_html);
 
   </script>
   <script type="text/javascript">

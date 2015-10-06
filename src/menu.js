@@ -1,7 +1,6 @@
 var shell = require('shell');
 var remote = require('remote');
 var fs = require('fs');
-var fse = require('fs-extra');
 var path = require('path');
 var webFrame = require('web-frame');
 var dialogs = require("dialogs")({ url: "../static/img/cowboy-hat.svg" });
@@ -33,11 +32,7 @@ var menuShortcutsTemplate = [
         label: 'Default Variables',
         accelerator: 'CmdOrCtrl+g',
         click: function() {
-          var rodeoProfile = path.join(USER_HOME, '.rodeoprofile');
-          if (! fs.existsSync(rodeoProfile)) {
-            fse.copySync(path.join(__dirname, "../src", "default-rodeo-profile.txt"), rodeoProfile)
-          }
-          openFile(path.join(USER_HOME, '.rodeoprofile'));
+          showRodeoProfile();
         }
       },
       {

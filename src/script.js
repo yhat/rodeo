@@ -191,25 +191,7 @@ function popOutConsole() {
 }
 
 function showPreferences() {
-  var rc = getRC();
-  rc.keyBindings = rc.keyBindings || "default";
-  rc.defaultWd = rc.defaultWd || USER_HOME;
-  if (rc.trackingOn!=false) {
-  rc.trackingOn = true;
-  }
-  if ($("#editor-tab-preferences").length) {
-    $("#editor-tab-" + "preferences" + " .editor-tab-a").click();
-    return;
-  }
-  $("#editor-tab-" + "preferences" + " .editor-tab-a").click();
-  var editor_tab_html = editor_tab_template({ n: "preferences", name: "Preferences" });
-  var preferences_html = preferences_template(rc);
-
-  $(editor_tab_html).insertBefore($("#add-tab").parent());
-  $("#editors").append(preferences_html);
-  $("#editor-tab-" + "preferences" + " .editor-tab-a").click();
-  // initialize all of our tooltips
-  $('[data-toggle="tooltip"]').tooltip();
+  $('a[href^="#preferences"]').click();
 }
 
 function showVariable(varname, type) {
