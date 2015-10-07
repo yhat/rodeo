@@ -289,6 +289,38 @@
     </div>
     <!-- Shortcut Display Modal -->
 
+    <!-- Tour Display Modal -->
+    <div id="tour-modal" class="modal">
+      <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+          <div class="modal-body">
+            <div id="tour" class="owl-carousel">
+              <div class="text-center">
+                <h3 class="text-primary">Welcome to Rodeo!</h3>
+                <img src="img/rodeo-logo.png" style="height: 250px;" />
+              </div>
+              <div class="text-center">
+                <img src="img/tour/tour1.png" style="height: 300px;" />
+                <br />
+                <p>this is a description</p>
+              </div>
+              <div class="text-center">
+                <img src="img/tour/tour2.png" style="height: 300px;" />
+                <br />
+                <p>this is a description</p>
+              </div>
+              <div class="text-center">
+                <img src="img/tour/tour3.png" style="height: 300px;" />
+                <br />
+                <p>this is a description</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <!-- Tour Display Modal -->
+
   <script type="text/javascript" src="../src/rodeohelpers.js"></script>
   <script type="text/javascript">
     function track(cat, action, label, value) {
@@ -568,7 +600,7 @@
     var preferences_html = preferences_template(rc);
 
     $("#preferences").append(preferences_html);
-
+    $("#tour").owlCarousel({ singleItem: true });
   </script>
   <script type="text/javascript">
     track('application', 'open');

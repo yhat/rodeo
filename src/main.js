@@ -69,7 +69,8 @@ app.on('ready', function() {
     }
     var rc = helpers.getRC();
     rc.version = null;
-    if (rc.version==null) {
+    if (1==1 || rc.version==null) {
+      // TODO: remove tour stuff?
       mainWindow.webContents.send('start-tour', { version: "first" });
       helpers.updateRC("version", app.getVersion());
     } else if (rc.version != app.getVersion()) {

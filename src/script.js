@@ -49,7 +49,7 @@ ipc.on('set-wd', function(wd) {
 
 ipc.on('start-tour', function(data) {
   if (data.version=="first") {
-    // theoretical tour
+    $("#tour-modal").modal('show');
   }
 });
 

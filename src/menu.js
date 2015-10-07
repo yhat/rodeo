@@ -392,6 +392,12 @@ var menuShortcutsTemplate = [
         click: function() {
           shell.openExternal("https://rodeo.yhathq.com/");
         }
+      },
+      {
+        label: 'Tour',
+        click: function() {
+          $("#tour-modal").modal('show');
+        }
       }
     ]
   }
