@@ -24,7 +24,11 @@ function sendMetric(category, action, label, value) {
   }
 
   var url = "http://rodeo-analytics.yhathq.com/?" + querystring.stringify(data);
-  http.get(url);
+  try {
+    http.get(url);
+  } catch (e) {
+    // do nothing
+  }
 }
 
 // Report crashes to our server.
@@ -57,7 +61,8 @@ app.on('ready', function() {
   mainWindow.loadUrl('file://' + __dirname + '/../static/index.html');
 
   mainWindow.webContents.on('did-finish-load', function() {
-    var wd = process.argv[1];
+    console.log("[INFO]: " + JSON.stringify(process.argv));
+    var wd = null; // process.argv[1];
     if (wd) {
       console.log("[INFO]: working directory passed as argument: `" + wd + "`");
       mainWindow.webContents.send('set-wd', wd);
