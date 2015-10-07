@@ -390,7 +390,7 @@ var menuShortcutsTemplate = [
       {
         label: 'Docs',
         click: function() {
-          shell.openExternal("https://rodeo.yhathq.com/");
+          shell.openExternal("http://yhat.github.io/rodeo-docs/docs/");
         }
       },
       {
