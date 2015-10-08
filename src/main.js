@@ -38,7 +38,10 @@ app.on('ready', function() {
 
   mainWindow.webContents.on('did-finish-load', function() {
     mainWindow.webContents.send('log', JSON.stringify(process.argv))
-    var wd = null; // process.argv[1];
+    var wd;
+    if (process.argv.length == 5) {
+      wd = process.argv[4];
+    }
     if (wd) {
       console.log("[INFO]: working directory passed as argument: `" + wd + "`");
       mainWindow.webContents.send('set-wd', wd);
