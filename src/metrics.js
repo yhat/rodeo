@@ -2,7 +2,6 @@ var fs = require('fs');
 var http = require('http');
 var querystring = require('querystring');
 var getmac = require('getmac');
-var crypto = require('crypto');
 var uuid = require('uuid');
 var ipc = require('ipc');
 var rodeohelpers = require(__dirname + "/../src/rodeohelpers");
@@ -26,7 +25,7 @@ function getUserId(fn) {
       if (err) {
         userId = uuid.v4().toString();
       } else {
-        userId = crypto.createHash('sha1').update(macAddress, 'utf8').digest('hex');
+        userId = require("crypto").createHash('sha1').update(macAddress, 'utf8').digest('hex');
       }
       rodeohelpers.updateRC("id", userId);
       fn(null, userId);
