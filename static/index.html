@@ -125,16 +125,20 @@
                 <thead>
                   <tr id="vars-header">
                     <th>Variable</th>
-                    <th>Type</th>
-                    <th></desc>
+                    <th>Type&nbsp;
+                      <a data-toggle="tooltip" data-placement="bottom" title="<p class='small'>Currently supported data types:</p><ul class='small text-left'><li>dict</li><li>list</li><li>array (numpy)</li><li>DataFrame (pandas)</li><li>Series (pandas)</li></ul>" data-html="true"><i class="fa fa-question-circle"></i></a>
+                    </th>
+                    <th></th>
                     <th></th>
                   </tr>
                 </thead>
               </table>
-              <table class="table table-bordered">
-                <tbody id="vars">
-                </tbody>
-              </table>
+              <div id="vars-container" style="max-height: 400px; overflow: auto;">
+                <table class="table table-bordered">
+                  <tbody id="vars">
+                  </tbody>
+                </table>
+              </div>
             </div>
             <div class="tab-pane" id="history">
               <div class="row">
@@ -254,7 +258,6 @@
           <div class="modal-body">
             <form class="form-inline">
               <div class="form-group">
-                <label class="sr-only" for="exampleInputAmount">Amount (in dollars)</label>
                 <div class="input-group">
                   <div class="input-group-addon"><a data-toggle="tooltip" data-placement="right" title="<p class='small'>Packages are installed using <code>pip</code>. You can specify specific versions using the <code>==</code> syntax.</p>" data-html="true"><i class="fa fa-question-circle"></i></a>&nbsp;Package Name</div>
                   <input style="width: 350px;" id="package-to-install" type="text" class="form-control" placeholder="pandas, ggplot, requests, bashplotlib==0.5.2" required/>
@@ -404,7 +407,8 @@
       var offset = $("#top-right ul").height() + 1;
       $("#environment").height($("#top-right").height() - offset);
       $("#history").height($("#top-right").height() - offset);
-      $("#vars").height($("#top-right").height()*.7);
+      // $("#vars").height($("#top-right").height()*.7);
+      $("#vars-container").height($("#environment").height() - offset);
 
       // Bottom Right
       var tabOffset = $("#bottom-right .nav-tabs").height() + 1;
@@ -434,7 +438,7 @@
 
       // things we actually want to scroll
       // top right
-      $("#environment").css("overflow-y", "scroll");
+      $("#vars-container").css("overflow-y", "scroll");
       $("#history").css("overflow-y", "scroll");
       // bottom right
       $("#file-list").css("overflow-y", "scroll");
