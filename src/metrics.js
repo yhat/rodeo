@@ -53,10 +53,8 @@ function track(category, action, label, value) {
   }
 
   var url = "http://rodeo-analytics.yhathq.com/?" + querystring.stringify(data);
-  try {
+  if (navigator.onLine==true) {
     http.get(url);
-  } catch (e) {
-    // do nothing
   }
 }
 
