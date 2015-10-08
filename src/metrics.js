@@ -41,10 +41,29 @@ function getUserId(fn) {
 // shortcuts used
 // errors
 // python path?
-function track(cat, action, label, value) {
-  var data = { cat: cat, action: action, label: label, value: value };
-  ipc.send('metric', data);
+var rodeoVersion = require('../package.json').version;
+function track(category, action, label, value) {
+  var data = {
+    an: "Rodeo",          // app name
+    av: rodeoVersion, // app version
+    cid: USER_ID,         // user id
+    ec: category,         // event category
+    ea: action,           // event action
+    el: label             // event label
+  }
+
+  var url = "http://rodeo-analytics.yhathq.com/?" + querystring.stringify(data);
+  try {
+    http.get(url);
+  } catch (e) {
+    // do nothing
+  }
 }
+
+global.USER_ID = null;
+getUserId(function(err, userId) {
+  global.USER_ID = userId;
+});
 
 module.exports.getUserId = getUserId;
 module.exports.track = track;

@@ -4,32 +4,8 @@ var os = require('os');
 var http = require('http');
 var querystring = require('querystring');
 var ipc = require('ipc');
-var metrics = require('./metrics');
 var helpers = require('./rodeohelpers');
 
-
-global.USER_ID = null;
-metrics.getUserId(function(err, userId) {
-  global.USER_ID = userId;
-});
-
-function sendMetric(category, action, label, value) {
-  var data = {
-    an: "Rodeo",          // app name
-    av: app.getVersion(), // app version
-    cid: USER_ID,         // user id
-    ec: category,         // event category
-    ea: action,           // event action
-    el: label             // event label
-  }
-
-  var url = "http://rodeo-analytics.yhathq.com/?" + querystring.stringify(data);
-  try {
-    http.get(url);
-  } catch (e) {
-    // do nothing
-  }
-}
 
 // Report crashes to our server.
 require('crash-reporter').start();
@@ -85,16 +61,17 @@ app.on('ready', function() {
     internetStatus = status;
   });
 
-  ipc.on('metric', function(event, data) {
-    if (! /rodeo-native/.test(app.getAppPath())) {
-      if (internetStatus=='online') {
-        sendMetric(data.cat, data.action, data.label, data.value);
-      }
-    } else {
-      // we're in dev mode
-      console.info('[INFO]: theoretically tracking metrics: ' + JSON.stringify(data));
-    }
-  });
+  // ipc.on('metric', function(event, data) {
+  //   if (! /rodeo-native/.test(app.getAppPath())) {
+  //     if (internetStatus=='online') {
+  //       sendMetric(data.cat, data.action, data.label, data.value);
+  //       mainWindow.webContents.send('metric', { version: "first" });
+  //     }
+  //   } else {
+  //     // we're in dev mode
+  //     console.info('[INFO]: theoretically tracking metrics: ' + JSON.stringify(data));
+  //   }
+  // });
 
   ipc.on('quit', function(event) {
     app.quit();

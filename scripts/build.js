@@ -37,8 +37,8 @@ var packagerOptions = {
 
 // Supported platforms and platfrom specific options
 var tasks = [
-  // { platform: 'darwin', arch: 'x64', icon: 'app.icns' },
-  // { platform: 'win32', arch: 'all', icon: 'app.icns' },
+  { platform: 'darwin', arch: 'x64', icon: 'app.icns' },
+  { platform: 'win32', arch: 'all', icon: 'app.icns' },
   { platform: 'linux', arch: 'all', icon: 'app.icns' }
 ].map(function (item) {
   return _.assign({}, item, packagerOptions, {
