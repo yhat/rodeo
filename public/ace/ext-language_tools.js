@@ -1460,7 +1460,6 @@ var Autocomplete = function() {
         var total = editor.completers.length;
         editor.completers.forEach(function(completer, i) {
             completer.getCompletions(editor, session, pos, prefix, function(err, results) {
-              console.log(results);
                 if (!err)
                     matches = matches.concat(results);
                 var pos = editor.getCursorPosition();

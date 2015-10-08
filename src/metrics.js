@@ -34,18 +34,11 @@ function getUserId(fn) {
   }
 }
 
-// opens
-// exit
-// commands executed
-// things clicked
-// shortcuts used
-// errors
-// python path?
 var rodeoVersion = require('../package.json').version;
 function track(category, action, label, value) {
   var data = {
     an: "Rodeo",          // app name
-    av: rodeoVersion, // app version
+    av: rodeoVersion,     // app version
     cid: USER_ID,         // user id
     ec: category,         // event category
     ea: action,           // event action
