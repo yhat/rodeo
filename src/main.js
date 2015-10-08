@@ -37,7 +37,7 @@ app.on('ready', function() {
   mainWindow.loadUrl('file://' + __dirname + '/../static/index.html');
 
   mainWindow.webContents.on('did-finish-load', function() {
-    console.log("[INFO]: " + JSON.stringify(process.argv));
+    mainWindow.webContents.send('log', JSON.stringify(process.argv))
     var wd = null; // process.argv[1];
     if (wd) {
       console.log("[INFO]: working directory passed as argument: `" + wd + "`");

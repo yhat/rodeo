@@ -59,6 +59,10 @@ ipc.on('kill', function() {
   }
 });
 
+ipc.on('log', function(data) {
+  console.log(data);
+});
+
 
 function refreshVariables() {
   python.execute("__get_variables()", false, function(result) {
@@ -177,7 +181,7 @@ function sendCommand(input, hideResult) {
 
 // New Windows
 function showAbout() {
-  var params = {toolbar: false, resizable: false, show: true, height: 420, width: 400 };
+  var params = {toolbar: false, resizable: false, show: true, height: 500, width: 400 };
   var aboutWindow = new BrowserWindow(params);
   aboutWindow.loadUrl('file://' + __dirname + '/../static/about.html');
 }
