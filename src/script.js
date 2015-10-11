@@ -16,6 +16,7 @@ var kernel = require(path.join(__dirname, '/../src/kernel'));
 // global vars
 var USER_WD = USER_HOME;
 var variableWindow;
+var aboutWindow;
 
 // Python Kernel
 var python;
@@ -182,7 +183,7 @@ function sendCommand(input, hideResult) {
 // New Windows
 function showAbout() {
   var params = {toolbar: false, resizable: false, show: true, height: 500, width: 400 };
-  var aboutWindow = new BrowserWindow(params);
+  aboutWindow = new BrowserWindow(params);
   aboutWindow.loadUrl('file://' + __dirname + '/../static/about.html');
 }
 

@@ -128,6 +128,8 @@ var menuShortcutsTemplate = [
         click: function() {
           if (variableWindow && variableWindow.isFocused()) {
             variableWindow.close();
+          } else if (aboutWindow && aboutWindow.isFocused()) {
+            aboutWindow.close();
           } else {
             if ($("#editorsTab .active").length) {
               var n = $("#editorsTab .active").attr("id").replace("editor-tab-", "");
