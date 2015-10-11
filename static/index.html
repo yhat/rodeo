@@ -575,7 +575,7 @@
         var prevTab = $("#editor-tab-" + n).prev();
         $("#editor-tab-" + n).remove();
         $("#editor-tab-pane-" + n).remove();
-        if (prevTab) {
+        if (prevTab && $("a", prevTab).attr("href")!="#") {
           $("a", prevTab).click();
         }
       }
