@@ -262,7 +262,7 @@ var menuShortcutsTemplate = [
         selector: 'performMiniaturize:'
       },
       {
-        label: 'Reset Panes',
+        label: 'Reset Windows to Default Sizes',
         click: function() {
           remote.require('dialog').showMessageBox({
             type: "warning",
