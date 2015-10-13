@@ -1,4 +1,10 @@
-# [Rodeo](http://blog.yhathq.com/posts/introducing-rodeo.html)
+# Rodeo
+
+## [Rodeo Desktop](http://blog.yhathq.com/posts/rodeo-native.html)
+
+
+## [Rodeo Python](http://blog.yhathq.com/posts/introducing-rodeo.html)
+
      $ pip install -U rodeo
      $ rodeo .
      
