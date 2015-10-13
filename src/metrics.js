@@ -38,6 +38,7 @@ function track(category, action, label, value) {
   var data = {
     an: "Rodeo",          // app name
     av: rodeoVersion,     // app version
+    os: process.platform, // OS of the user
     cid: USER_ID,         // user id
     ec: category,         // event category
     ea: action,           // event action
