@@ -493,6 +493,8 @@
       // preferences
       $("#preferences").height($("#bottom-right").height() - tabOffset);
       // $("#preferences .panel-body").height($("#bottom-right").height() - tabOffset);
+      $("#preferences").parent().height($("#bottom-right").height() - tabOffset);
+      $("#preferences").height($("#bottom-right").height() - tabOffset);
 
       // scrolling fixes...
       // removes stupid scroll bars on windows/linux
@@ -507,6 +509,7 @@
       $("#plots-minimap").css("overflow-y", "scroll");
       $("#packages-container").css("overflow-y", "scroll");
       $("#help-content").css("overflow-y", "scroll");
+      $("#preferences").css("overflow-y", "scroll");
     }
 
     // Tab stuff
