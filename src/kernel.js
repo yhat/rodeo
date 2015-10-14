@@ -27,7 +27,10 @@ module.exports = function(cb) {
       cb(err, null);
     }
 
-    python = spawn(pythonCmd, [kernelFile.name, configFile.name + ".json", delim], opts);
+    console.log("[INFO]: starting python using PYTHON='" + pythonCmd + "'");
+    console.log("[INFO]: starting python using OPTIONS='" + opts + "'");
+    var args = [ kernelFile.name, configFile.name + ".json", delim ];
+    python = spawn(pythonCmd, args, opts);
 
     // we'll print any feedback from the kernel as yellow text
     python.stderr.on("data", function(data) {
