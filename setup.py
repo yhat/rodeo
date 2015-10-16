@@ -45,6 +45,7 @@ setup(
     long_description=io.open("README.rst", encoding='utf8').read(),
     install_requires=[
         "ipython>=3.0.0",
+        "ipykernel",
         "Flask>=0.10.1",
         "docopt",
         "pyzmq>=13",
