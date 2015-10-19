@@ -4,7 +4,7 @@ function getCurrentLine(editor) {
 
 function setDefaultPreferences(editor) {
   var rc = {}; // TODO: getRC();
-  $.get("/preferences", function(rc) {
+  $.get("preferences", function(rc) {
     if (rc.keyBindings=="default") {
       rc.keyBindings = null;
     }
@@ -313,7 +313,7 @@ function createEditor(id) {
 }
 
 function saveFile(filepath, content, fn) {
-  $.post("/file", { "filepath": filepath, "content": content }, function(resp) {
+  $.post("file", { "filepath": filepath, "content": content }, function(resp) {
     fn(resp);
   });
 }
@@ -383,7 +383,7 @@ function openFile(pathname, isDir) {
     var directory = pathname;
     setFiles(pathname);
   } else {
-    $.get("/file", { filepath: pathname }, function(resp) {
+    $.get("file", { filepath: pathname }, function(resp) {
       newEditor(resp.basename, pathname, resp.content.toString())
       // [+] tab is always the last tab, so we'll activate the 2nd to last tab
       $("#editorsTab li:nth-last-child(2) a").click();

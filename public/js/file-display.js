@@ -2,7 +2,7 @@
 USER_HOME = "/Users/glamp"
 
 function setFiles(dir) {
-  $.get('/files', { "dir": dir }, function(resp) {
+  $.get('files', { "dir": dir }, function(resp) {
     var files = resp.files;
     $("#file-list").children().remove();
     $("#working-directory").children().remove();
@@ -15,7 +15,7 @@ function setFiles(dir) {
       basename: '..'
     }));
 
-    $.get("/preferences", function(rc) {
+    $.get("preferences", function(rc) {
       files.forEach(function(f) {
         var filename = formatFilename(pathJoin([dir, f.basename]));
         if (! f.isDir) {

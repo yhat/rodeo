@@ -3,8 +3,7 @@ var walk = require('walk');
 
 var walker;
 
-module.exports = function(socket) {
-
+module.exports = function(ws) {
   if (walker) {
     walker.pause();
     delete walker;
@@ -16,8 +15,8 @@ module.exports = function(socket) {
   var n = 0;
   walker = walk.walk(USER_WD, { followLinks: false, });
 
-  socket.emit('file-index-start');
-  
+  ws.sendJSON({ msg: 'file-index-start' });
+
   var wd = USER_WD;
   walker.on('file', function(root, stat, next) {
 
@@ -36,23 +35,23 @@ module.exports = function(socket) {
       }
     }
 
-    socket.emit('index-file', { fullFilename: path.join(root, stat.name), displayFilename: displayFilename });
+    ws.sendJSON({ msg: 'index-file', fullFilename: path.join(root, stat.name), displayFilename: displayFilename });
 
     n++;
     if (n%100==0) {
-      socket.emit('file-index-update', { nComplete: n });
+      ws.sendJSON({ msg: 'file-index-update', nComplete: n });
     }
 
     // stop if there are too many files
     if (n > 15000) {
       walker.pause();
       delete walker
-      socket.emit('file-index-interrupt');
+      ws.sendJSON({ msg: 'file-index-interrupt' });
     }
 
     next();
   });
   walker.on('end', function() {
-    socket.emit('file-index-complete');
+    ws.sendJSON({ msg: 'file-index-complete' });
   });
 }

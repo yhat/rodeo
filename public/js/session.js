@@ -5,7 +5,7 @@ function restartSession() {
 }
 
 function setWorkingDirectory() {
-  $.get("/wd", function(currentWd) {
+  $.get("wd", function(currentWd) {
     bootbox.prompt({
       title: "Please specify a working directory:",
       value: currentWd,
@@ -13,7 +13,7 @@ function setWorkingDirectory() {
         if (wd==null) {
           return;
         }
-        $.post("/wd", { "wd": wd }, function(resp) {
+        $.post("wd", { "wd": wd }, function(resp) {
           if (resp.status=="error") {
             return;
           } else {

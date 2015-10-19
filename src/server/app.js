@@ -1,8 +1,9 @@
 var fs = require('fs');
 var path = require('path');
 var express = require('express');
+var WebSocketServer = require('ws').Server;
 var sshClient = require('ssh2').Client;
-var bodyParser = require('body-parser')
+var bodyParser = require('body-parser');
 var kernel = require('./kernel');
 var findFile = require('./find-file');
 
@@ -44,7 +45,7 @@ PREFERENCES = {
 
 
 app.get('/', function(req, res) {
-  var filepath = path.join(__dirname, '..', '..', './static/index2.html');
+  var filepath = path.join(__dirname, '..', '..', './static/server-index.html');
   res.sendFile(filepath);
 });
 
@@ -184,15 +185,21 @@ var HOST = process.env.HOST || "0.0.0.0";
 var server = app.listen(PORT, HOST);
 console.log("The party is at: " + HOST + ":" + PORT);
 
-var io = require('socket.io').listen(server);
+var wss = new WebSocketServer({ server: server });
 
-io.on('connection', function (socket) {
-  socket.emit('refresh-variables');
-  socket.emit('refresh-packages');
-  socket.emit('set-working-directory', global.USER_WD || '.');
+wss.on('connection', function (ws) {
 
-  socket.on('index-files', function() {
-    findFile(socket);
+  ws.sendJSON = function(data) {
+    ws.send(JSON.stringify(data));
+  }
+  ws.sendJSON({ msg: 'refresh-variables' });
+  ws.sendJSON({ msg: 'refresh-packages' });
+  ws.sendJSON({ msg: 'set-working-directory', wd: global.USER_WD || '.' });
+
+  ws.on('message', function(data) {
+    if (data.msg=="index-files") {
+      findFile(ws);
+    }
   });
 
 });

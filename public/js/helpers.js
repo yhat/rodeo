@@ -1,8 +1,7 @@
 
 
 function updateRC(preferenceName, preferenceValue) {
-  $.post("/preferences", { name: preferenceName, value: preferenceValue }, function(res) {
-    console.log(res);
+  $.post("preferences", { name: preferenceName, value: preferenceValue }, function(res) {
   });
 }
 

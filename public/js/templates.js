@@ -212,7 +212,7 @@ function sendCommand(input, hideResult) {
     stream: true
   };
 
-  $.get("/command", data, function(results) {
+  $.get("command", data, function(results) {
     var results = results.trim().split('\n');
     for(var i=0; i < results.length; i++) {
       var result = JSON.parse(results[i]);
@@ -267,7 +267,7 @@ function executeCommand(command, autocomplete, fn) {
     stream: false
   };
 
-  $.get("/command", data, fn);
+  $.get("command", data, fn);
 }
 
 function showPreferences() {

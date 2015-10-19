@@ -1,50 +1,42 @@
-var socket = io.connect();
-socket.on('refresh-variables', function () {
-  refreshVariables();
-});
+var wsUrl = document.URL.replace(/https?:\/\//, "ws://");
+var ws = new WebSocket(wsUrl);
 
-socket.on('refresh-packages', function() {
-  refreshPackages();
-});
+ws.onopen = function() {
+  ws.send(JSON.stringify({ msg: 'index-files'}));
+}
 
-socket.on('set-working-directory', function(workingDirectory) {
-  setFiles(workingDirectory);
-});
+ws.onmessage = function(evt) {
+  var data = JSON.parse(evt.data);
 
-
-// trigger initial file index
-socket.emit('index-files');
-
-socket.on('file-index-start', function() {
-  $("#file-search-list .list").children().remove();
-  $("#file-search-list .list").append("<li id='index-count'><i class='fa fa-hourglass-end'></i>&nbsp;Indexing files</li>");
-});
-
-// { fullFilename: fullFilename, displayFilename: displayFilename }
-socket.on('index-file', function(data) {
-  var fileSearchItem = file_search_item_template(data);
-  $("#file-search-list .list").append(fileSearchItem);
-});
-
-// { nComplete: n }
-socket.on('file-index-update', function(data) {
-  var html = "<i class='fa fa-hourglass-end'></i>&nbsp;Indexing files " + data.n;
-  $("#file-search-list .list #index-count").html(html);
-});
-
-socket.on('file-index-interrupt', function() {
-  $("#file-search-list .list").children().remove();
-  var msg = "Sorry this directory was too big to index."
-  $("#file-search-list .list").append("<li id='index-count'><i class='fa fa-ban'></i>&nbsp;" + msg + "</li>");
-});
-
-socket.on('file-index-complete', function() {
-  // remove the 'indexing...' and make the files visible
-  $("#file-search-list #index-count").remove();
-  $("#file-search-list .list .hide").removeClass("hide");
-  // update the UI
-  indexFiles();
-});
+  if (data.msg=="refresh-variables") {
+    refreshVariables();
+  } else if (data.msg=="refresh-packages") {
+    refreshPackages();
+  } else if (data.msg=="set-working-directory") {
+    setFiles(data.wd);
+  } else if (data.msg=="file-index-start") {
+    $("#file-search-list .list").children().remove();
+    $("#file-search-list .list").append("<li id='index-count'><i class='fa fa-hourglass-end'></i>&nbsp;Indexing files</li>");
+  } else if (data.msg=="index-file") {
+    var fileSearchItem = file_search_item_template(data);
+    $("#file-search-list .list").append(fileSearchItem);
+  } else if (data.msg=="file-index-update") {
+    var html = "<i class='fa fa-hourglass-end'></i>&nbsp;Indexing files " + data.n;
+    $("#file-search-list .list #index-count").html(html);
+  } else if (data.msg=="file-index-interrupt") {
+    $("#file-search-list .list").children().remove();
+    var msg = "Sorry this directory was too big to index."
+    $("#file-search-list .list").append("<li id='index-count'><i class='fa fa-ban'></i>&nbsp;" + msg + "</li>");
+  } else if (data.msg=="file-index-complete") {
+    // remove the 'indexing...' and make the files visible
+    $("#file-search-list #index-count").remove();
+    $("#file-search-list .list .hide").removeClass("hide");
+    // update the UI
+    indexFiles();
+  } else {
+    console.log("UNKNOWN MESSAGE");
+  }
+};
 
 var fileList;
 function indexFiles() {

@@ -86,14 +86,14 @@ function saveWindowCalibration() {
 function showRodeoProfile() {
   // should do something special here...
   // openFile(path.join(USER_HOME, '.rodeoprofile'));
-  $.get("/profile", function(profile) {
+  $.get("profile", function(profile) {
     newEditor('.rodeoprofile', '~/.rodeoprofile', profile);
   });
 }
 
 // initialize preferences
 USER_HOME = null;
-$.get("/preferences", function(rc) {
+$.get("preferences", function(rc) {
   rc.keyBindings = rc.keyBindings || "default";
   rc.defaultWd = rc.defaultWd || USER_HOME;
 
