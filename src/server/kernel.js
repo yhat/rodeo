@@ -6,14 +6,14 @@ var fs = require('fs')
   , tmp = require('tmp')
   , colors = require('colors')
   , StreamSplitter = require("stream-splitter")
-  , SteveIrwin = require(path.join(__dirname, '/../src/steve-irwin'));
+  , SteveIrwin = require('./steve-irwin');
 
 
 global.completionCallbacks = {};
 
 // we need to actually write the python kernel to a tmp file. this is so python
 // can run as a "real" file and not an asar file
-var pythonKernel = path.join(__dirname, "../src", "kernel.py");
+var pythonKernel = path.join(__dirname, "kernel.py");
 var kernelFile = tmp.fileSync();
 fse.copySync(pythonKernel, kernelFile.name);
 fs.chmodSync(kernelFile.name, 0755);
@@ -28,7 +28,7 @@ module.exports = function(cb) {
     }
 
     console.log("[INFO]: starting python using PYTHON='" + pythonCmd + "'");
-    console.log("[INFO]: starting python using OPTIONS='" + opts + "'");
+    console.log("[INFO]: starting python using OPTIONS='" + JSON.stringify(opts) + "'");
     var args = [ kernelFile.name, configFile.name + ".json", delim ];
     python = spawn(pythonCmd, args, opts);
 

@@ -1,7 +1,3 @@
-var fs = require('fs');
-var fse = require('fs-extra');
-
-
 function setEditorTheme(theme) {
   $(".editor").each(function(i, item) {
     var editor = ace.edit(item.id);
@@ -51,10 +47,8 @@ function setDefaultWd(wd) {
 }
 
 function setTheme(theme) {
-  if (fs.existsSync(path.join(__dirname, "..", "static", theme))) {
-    if ($("#rodeo-theme").attr("href")!=theme) {
-      $("#rodeo-theme").attr("href", theme);
-    }
+  if ($("#rodeo-theme").attr("href")!=theme) {
+    $("#rodeo-theme").attr("href", theme);
   }
   updateRC("theme", theme);
 }
@@ -90,24 +84,37 @@ function saveWindowCalibration() {
 }
 
 function showRodeoProfile() {
-  var rodeoProfile = path.join(USER_HOME, '.rodeoprofile');
-  if (! fs.existsSync(rodeoProfile)) {
-    fse.copySync(path.join(__dirname, "../src", "default-rodeo-profile.txt"), rodeoProfile)
-  }
-  openFile(path.join(USER_HOME, '.rodeoprofile'));
+  // should do something special here...
+  // openFile(path.join(USER_HOME, '.rodeoprofile'));
+  $.get("/profile", function(profile) {
+    newEditor('.rodeoprofile', '~/.rodeoprofile', profile);
+  });
 }
 
-// on startup, set defaults for non-editor preferences
-var rc = getRC();
-// TODO: would be nice to get rid of the fs check here
-if (rc.defaultWd && fs.existsSync(rc.defaultWd)) {
-  USER_WD = rc.defaultWd;
-} else {
-  USER_WD = USER_HOME;
-}
-if (rc.theme) {
-  setTheme(rc.theme);
-}
-if (rc.fontSize) {
-  setTheme(rc.fontSize);
-}
+// initialize preferences
+USER_HOME = null;
+$.get("/preferences", function(rc) {
+  rc.keyBindings = rc.keyBindings || "default";
+  rc.defaultWd = rc.defaultWd || USER_HOME;
+
+  if (rc.trackingOn!=false) {
+    rc.trackingOn = true;
+  }
+
+  var preferences_html = preferences_template(rc);
+  $("#preferences").append(preferences_html);
+  $('[data-toggle="tooltip"]').tooltip();
+
+  // on startup, set defaults for non-editor preferences
+  if (rc.defaultWd) { // && fs.existsSync(rc.defaultWd)) {
+    USER_WD = rc.defaultWd;
+  } else {
+    USER_WD = USER_HOME;
+  }
+  if (rc.theme) {
+    setTheme(rc.theme);
+  }
+  if (rc.fontSize) {
+    setFontSize(rc.fontSize);
+  }
+});

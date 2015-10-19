@@ -100,7 +100,7 @@ function refreshPackages() {
         package_row_template({ name: p.name, version: p.version})
       );
     });
-  })
+  });
 }
 
 function isCodeFinished(code, fn) {

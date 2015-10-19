@@ -1,0 +1,58 @@
+var path = require('path');
+var walk = require('walk');
+
+var walker;
+
+module.exports = function(socket) {
+
+  if (walker) {
+    walker.pause();
+    delete walker;
+  }
+
+  walker = walk.walk(USER_WD, { followLinks: false, });
+
+  // reindex file search
+  var n = 0;
+  walker = walk.walk(USER_WD, { followLinks: false, });
+
+  socket.emit('file-index-start');
+  
+  var wd = USER_WD;
+  walker.on('file', function(root, stat, next) {
+
+    // handles issue w/ extra files being emitted if you're indexing a large directory and
+    // then cd into another directory
+    if (wd!=USER_WD) {
+      return;
+    }
+
+    var dir = root.replace(USER_WD, '') || "";
+    var displayFilename = path.join(dir, stat.name).replace(/^\//, '');
+    if (PREFERENCES.displayDotFiles!=true) {
+      if (/\/\./.test(dir) || /^\./.test(stat.name)) {
+        // essa dotfile so we're going to skip it
+        return next();
+      }
+    }
+
+    socket.emit('index-file', { fullFilename: path.join(root, stat.name), displayFilename: displayFilename });
+
+    n++;
+    if (n%100==0) {
+      socket.emit('file-index-update', { nComplete: n });
+    }
+
+    // stop if there are too many files
+    if (n > 15000) {
+      walker.pause();
+      delete walker
+      socket.emit('file-index-interrupt');
+    }
+
+    next();
+  });
+  walker.on('end', function() {
+    socket.emit('file-index-complete');
+  });
+}

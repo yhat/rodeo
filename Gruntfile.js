@@ -73,7 +73,7 @@ module.exports = function(grunt) {
           'Utility'
         ],
         rename: function (dest, src) {
-           return dest + '<%= name %>_<%= version %>_<%= arch %>.deb';
+          return dest + '<%= name %>_<%= version %>_<%= arch %>.deb';
         }
       },
       linux32: {

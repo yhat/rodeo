@@ -4,19 +4,19 @@
   <td>{{repr}}</td>
   <td style="td-align: center;">
     {{#compare type "list"}}
-      <a href="#" onclick="showVariable('{{name}}', '{{type}}');"><span class='fa fa-list-alt' aria-hidden='true'></span></a>
+      <a target=_blank href="/variable?name={{name}}&type={{type}}"><span class='fa fa-list-alt' aria-hidden='true'></span></a>
     {{/compare}}
     {{#compare type "ndarray"}}
-      <a href="#" onclick="showVariable('{{name}}', '{{type}}');"><span class='fa fa-list-alt' aria-hidden='true'></span></a>
+      <a target=_blank href="/variable?name={{name}}&type={{type}}"><span class='fa fa-list-alt' aria-hidden='true'></span></a>
     {{/compare}}
     {{#compare type "dict"}}
-      <a href="#" onclick="showVariable('{{name}}', '{{type}}');"><span class='fa fa-list-alt' aria-hidden='true'></span></a>
+      <a target=_blank href="/variable?name={{name}}&type={{type}}"><span class='fa fa-list-alt' aria-hidden='true'></span></a>
     {{/compare}}
     {{#compare type "DataFrame"}}
-      <a href="#" onclick="showVariable('{{name}}', '{{type}}');"><span class='fa fa-table' aria-hidden='true'></span></a>
+      <a target=_blank href="/variable?name={{name}}&type={{type}}"><span class='fa fa-table' aria-hidden='true'></span></a>
     {{/compare}}
     {{#compare type "Series"}}
-      <a href="#" onclick="showVariable('{{name}}', '{{type}}');"><span class='fa fa-table' aria-hidden='true'></span></a>
+      <a target=_blank href="/variable?name={{name}}&type={{type}}"><span class='fa fa-table' aria-hidden='true'></span></a>
     {{/compare}}
   </td>
 </tr>

@@ -1,5 +1,6 @@
-var app = require('app');  // Module to control application life.
-var BrowserWindow = require('browser-window');  // Module to create native browser window.
+var app = require('app');
+var autoUpdater = require('auto-updater');
+var BrowserWindow = require('browser-window');
 var os = require('os');
 var http = require('http');
 var querystring = require('querystring');
@@ -64,28 +65,31 @@ app.on('ready', function() {
     internetStatus = status;
   });
 
-  // ipc.on('metric', function(event, data) {
-  //   if (! /rodeo-native/.test(app.getAppPath())) {
-  //     if (internetStatus=='online') {
-  //       sendMetric(data.cat, data.action, data.label, data.value);
-  //       mainWindow.webContents.send('metric', { version: "first" });
-  //     }
-  //   } else {
-  //     // we're in dev mode
-  //     console.info('[INFO]: theoretically tracking metrics: ' + JSON.stringify(data));
-  //   }
-  // });
-
   ipc.on('quit', function(event) {
     app.quit();
   });
 
   // TODO: check for updates (i think i need to codesign?)
-  // var autoUpdater = require('auto-updater');
-  // var platform = os.platform() + '_' + os.arch();
-  // var version = app.getVersion();
-  // var updateUrl = 'https://rodeo-nuts.herokuapp.com/update/' + 'osx_64' + '/' + version;
-  // autoUpdater.setFeedUrl(updateUrl);
+  var platform = os.platform() + '_' + os.arch();
+  var version = app.getVersion();
+  updateUrl = 'https://rodeo-nuts.herokuapp.com/update/'+platform+'/'+version;
+
+  autoUpdater.on('error', function(err, msg) {
+    mainWindow.webContents.send('log', "[ERROR]: " + msg);
+  });
+  mainWindow.webContents.send('log', updateUrl);
+  autoUpdater.setFeedUrl(updateUrl);
+
+  autoUpdater.on('update-available', function(data) {
+    mainWindow.webContents.send('log', "UPDATE AVAILABLE");
+    mainWindow.webContents.send('log', data);
+  });
+  autoUpdater.on('update-not-available', function(data) {
+    mainWindow.webContents.send('log', "NO UPDATE AVAILABLE");
+    mainWindow.webContents.send('log', data);
+  });
+
+  autoUpdater.checkForUpdates();
 
   mainWindow.on('close', function() {
     mainWindow.webContents.send('kill');

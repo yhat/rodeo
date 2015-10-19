@@ -62,6 +62,18 @@ jqconsole.RegisterShortcut('w', function() {
   jqconsole.SetPromptText(text);
 });
 
+jqconsole.RegisterShortcut('1', function() {
+  focusOnEditor();
+});
+
+jqconsole.RegisterShortcut('3', function() {
+  focusOnTopRight();
+});
+
+jqconsole.RegisterShortcut('4', function() {
+  focusOnBottomRight();
+});
+
 // autocomplete
 jqconsole._IndentOld = jqconsole._Indent;
 jqconsole._Indent = function() {
@@ -76,7 +88,7 @@ jqconsole._Indent = function() {
 
     jqconsole.ClearPromptText(true);
 
-    python.execute(code, true, function(result) {
+    executeCommand(code, true, function(result) {
       var predictions = result.output;
       // if only 1 suggestion comes back then we'll take the liberty and finish
       // the autocomplete

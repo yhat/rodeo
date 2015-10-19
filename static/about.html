@@ -3,9 +3,10 @@
 <head>
   <title>Rodeo</title>
   <link id="rodeo-theme" href="css/styles.css" rel="stylesheet" />
+  <script src="js/jquery.min.js"></script>
 </head>
 <body>
-  <div class="container text-center">
+  <div class="container text-center" style="max-width: 400px;">
     <br />
     <img src="img/rodeo-text-dark.png" style="max-height: 200px; width: 90%;"/>
     <hr />
@@ -27,10 +28,9 @@
     </p>
   </div>
   <script type="text/javascript">
-    var pkg = JSON.parse(require('fs').readFileSync(__dirname + "/../package.json").toString());
-    var appName = document.getElementById('app-name');
-    appName.textContent = pkg.productName + " v" + pkg.version;
-    var shell = require('shell');
+    $.get("/preferences", function(rc) {
+      $("#app-name").text("Rodeo" + " v" + rc.version);
+    });
   </script>
 </body>
 </html>

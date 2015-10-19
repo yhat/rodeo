@@ -1,0 +1,28 @@
+TODO
+- package up for Cluster install--just needs to work one time :)
+- package up for server install
+    - installable
+    - rodeo user and/or user group
+    - /etc/init
+        - systemd or upstart? or both?
+        - start/stop/restart scripts
+        - config file
+- setup authentication for users
+    - [-] add session/user support (feasible w/ passport and ssh2)
+    - [ ] use USER_HOME and USER_WD for given user
+- shortcuts
+    - all global shortcuts
+      - [x] global
+      - [?] console
+      - [x] editor
+    - [-] key mapping?
+- dialogs
+    - [x] "Are you sure you want to do XYZ? (with 3 options)"
+    - [-] file dialog
+    - [x] Confirm yes/no
+- docs/manual
+- bugs
+    - [ ] run previous doing strange things
+    - [x] save plot?
+    - [ ] restart session doing strange things
+    - [-] shortcut mapping not correct anymore

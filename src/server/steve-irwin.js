@@ -9,14 +9,14 @@ var tmp = require('tmp');
 function findMeAPython(fn) {
   // /usr/bin/env python doesn't really work, so we're going to be doing the ole
   // guess and check method
-  var testPython = path.join(__dirname, "../src", "check_python.py");
+  var testPython = path.join(__dirname, "check_python.py");
 
   // this needs to be a tmp file because we're shelling out and the `python`
   // command doesn't know about files in the asar
   var testPythonFile = tmp.fileSync();
   fse.copySync(testPython, testPythonFile.name);
 
-  var rc = getRC();
+  var rc = {}; // TODO: getRC();
   var pythonCmds = [];
   // if we have one in our RC file, we'll prioritize that first
   if (rc.pythonCmd) {
@@ -47,10 +47,10 @@ function findMeAPython(fn) {
       pythonCmds = pythonCmds.concat([
         "/usr/local/bin/ipython",
         "/anaconda/bin/python",
-        path.join(USER_HOME, "anaconda", "bin", "python"),
-        path.join(USER_HOME, "anaconda", "python"),
+        // path.join(USER_HOME, "anaconda", "bin", "python"),
+        // path.join(USER_HOME, "anaconda", "python"),
         "/usr/bin/python",
-        path.join(USER_HOME, "bin", "python"),
+        // path.join(USER_HOME, "bin", "python"),
         "python"
       ]);
 
