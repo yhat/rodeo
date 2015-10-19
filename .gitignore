@@ -1,6 +1,7 @@
 
 cache
 node_modules
+node_modules_linux
 build
 *.pyc
 .DS_Store

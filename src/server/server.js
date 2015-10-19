@@ -17,7 +17,7 @@ app.use(bodyParser.json())
 
 
 global.python = null;
-global.USER_WD = __dirname;
+global.USER_WD = process.argv[2] || __dirname;
 
 
 
