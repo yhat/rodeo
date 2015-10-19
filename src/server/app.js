@@ -23,18 +23,11 @@ global.USER_WD = __dirname;
 kernel(function(err, python) {
   global.python = python;
   if (err) {
-    // TODO: shit went down
+    console.log("[ERROR]: " + err);
   }
-  // refreshVariables();
-  // refreshPackages();
-  // setFiles(USER_WD);
-  //
-  // setup default rodeoProfile
-  // if (fs.existsSync(path.join(USER_HOME, ".rodeoprofile"))) {
-  //   var profile = fs.readFileSync(path.join(USER_HOME, ".rodeoprofile")).toString();
-  //   sendCommand(profile, false);
-  //   $("#history-trail").children().remove();
-  // }
+  if (python==null) {
+    console.log("[ERROR]: python came back null");
+  }
 });
 
 PREFERENCES = {
@@ -50,7 +43,7 @@ PREFERENCES = {
 }
 
 
-app.get('/app', function(req, res) {
+app.get('/', function(req, res) {
   var filepath = path.join(__dirname, '..', '..', './static/index2.html');
   res.sendFile(filepath);
 });
@@ -186,8 +179,10 @@ app.get('/about', function(req, res) {
   res.sendFile(filepath);
 });
 
-var server = app.listen(3000);
-console.log('Example app listening at http://localhost:3000/');
+var PORT = parseInt(process.env.PORT || "3000");
+var HOST = process.env.HOST || "0.0.0.0";
+var server = app.listen(PORT, HOST);
+console.log("The party is at: " + HOST + ":" + PORT);
 
 var io = require('socket.io').listen(server);
 

@@ -26,6 +26,8 @@ function findMeAPython(fn) {
   var cmd;
   if (/^win/.test(process.platform)) {
     cmd = "echo %path%";
+  } else if (process.platform=="linux") {
+    cmd = "bash -c 'source ~/.bashrc > /dev/null && echo $PATH'";
   } else {
     cmd = "source ~/.bash_profile > /dev/null && echo $PATH";
   }
@@ -39,12 +41,14 @@ function findMeAPython(fn) {
         }
       };
     }
-    exec("python -c 'import sys; print(sys.executable)'", opts, function(err, stdout, stderr) {
+
+    exec("/root/miniconda/bin/python -c 'import sys; print(sys.executable)'", opts, function(err, stdout, stderr) {
       if (opts.env && stdout) {
         pythonCmds.push(stdout.toString().trim());
       }
 
       pythonCmds = pythonCmds.concat([
+        "/root/miniconda/bin/python",
         "/usr/local/bin/ipython",
         "/anaconda/bin/python",
         // path.join(USER_HOME, "anaconda", "bin", "python"),
