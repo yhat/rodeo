@@ -35,7 +35,7 @@ app.on('ready', function() {
   mainWindow = new BrowserWindow({ width: size.width, height: size.height });
 
   // and load the index.html of the app.
-  mainWindow.loadUrl('file://' + __dirname + '/../static/index.html');
+  mainWindow.loadUrl('file://' + __dirname + '/../../static/index.html');
 
   mainWindow.webContents.on('did-finish-load', function() {
     mainWindow.webContents.send('log', JSON.stringify(process.argv))
