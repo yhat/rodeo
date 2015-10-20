@@ -298,8 +298,8 @@ function createEditor(id) {
   });
   // new file
   editor.commands.addCommand({
-    name: "run2ndToLastCommand",
-    bindKey: {win: "option-shift-n", mac: "option-shift-n"},
+    name: "newFile",
+    bindKey: {win: "Ctrl-Shift-n", mac: "Ctrl-Shift-n"},
     exec: function(editor) {
       $("#add-tab").click();
     }

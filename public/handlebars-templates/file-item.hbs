@@ -1,4 +1,4 @@
-<a oncontextmenu="folderMenu.filename = '{{filename}}'; folderMenu.popup(remote.getCurrentWindow());" onclick="openFile('{{filename}}', {{ isDir}});" data-parnet-slug="" data-dirname="top_dir" href="#" class="list-group-item showdir" style="padding: 5px 10px;">
+<a oncontextmenu="folderMenu.filename = '{{filename}}'; folderMenu.popup(remote.getCurrentWindow());" onclick="openFile('{{filename}}', {{ isDir }});" data-parnet-slug="" data-dirname="top_dir" href="#" class="list-group-item showdir" style="padding: 5px 10px;">
   <i class="fa fa {{#isDir}}fa-folder{{else}}fa-file-o{{/isDir}}" style="{{#isDir}}color: grey;{{/isDir}}"></i>
   &nbsp;&nbsp;{{basename}}
 </a>

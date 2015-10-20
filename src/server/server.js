@@ -6,6 +6,7 @@ var sshClient = require('ssh2').Client;
 var bodyParser = require('body-parser');
 var kernel = require('../rodeo/kernel');
 var findFile = require('../rodeo/find-file');
+var preferences = require('../rodeo/preferences');
 
 var app = express();
 // setup static assets route handler
@@ -84,9 +85,11 @@ app.get('/variable', function(req, res) {
 
   var command = show_var_statements[req.query.type];
   python.execute(command, false, function(result) {
-    res.send(result.output);
-    // var filepath = path.join(__dirname, '..', '..', './static/display-variable.html');
-    // res.sendFile(filepath);
+    // poor man's template...
+    var variable = result.output;
+    variable = variable.replace('class="dataframe"', 'class="table table-bordered"');
+    var html = "<html><head><link id=\"rodeo-theme\" href=\"css/styles.css\" rel=\"stylesheet\"/></head><body>" + variable + "</body>";
+    res.send(html);
   });
 });
 
@@ -103,7 +106,8 @@ app.get('/files', function(req, res) {
   res.json({
     status: "OK",
     files: files,
-    dir: dirname
+    dir: dirname,
+    home: USER_HOME,
   });
 });
 
@@ -142,14 +146,14 @@ app.post('/file', function(req, res) {
 });
 
 app.get('/preferences', function(req, res) {
-  res.json(PREFERENCES);
+  res.json(preferences.getPreferences());
 });
 
 app.post('/preferences', function(req, res) {
-  if (req.body.name) {
-    PREFERENCES[req.body.name] = req.body.value;
+  if (req.body.name && req.body.value) {
+    preferences.setPreferences(req.body.name, req.body.value);
   }
-  res.json(PREFERENCES);
+  res.json(preferences.getPreferences());
 });
 
 var profile;

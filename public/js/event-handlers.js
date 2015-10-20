@@ -1,4 +1,4 @@
-var wsUrl = document.URL.replace(/https?:\/\//, "ws://");
+var wsUrl = document.URL.replace(/https?:\/\//, "ws://").replace("#", "");
 var ws = new WebSocket(wsUrl);
 
 ws.onopen = function() {

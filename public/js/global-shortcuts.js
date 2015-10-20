@@ -40,6 +40,6 @@ Mousetrap.bind(['command+shift+2', 'ctrl+shift+2'], function(e) {
   run2ndToLastCommand();
 });
 
-Mousetrap.bind(['option-shift-n'], function(e) {
+Mousetrap.bind(['ctrl-shift-n'], function(e) {
   $("#add-tab").click();
 })

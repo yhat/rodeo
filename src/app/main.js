@@ -135,7 +135,11 @@ app.on('ready', function() {
         isDir: fs.lstatSync(path.join(dirname, filename)).isDirectory()
       }
     });
-    event.returnValue = files;
+    event.returnValue = {
+      files: files,
+      dir: dirname,
+      home: USER_HOME
+    };
   });
 
   ipc.on('wd-get', function(event) {

@@ -13,4 +13,11 @@ function getPreferences() {
   return rc;
 }
 
+function setPreferences(key, value) {
+  var rcFilepath = path.join(USER_HOME, ".rodeorc");
+  var prefs = getPreferences();
+  prefs[key] = value;
+  fs.writeFileSync(rcFilepath, JSON.stringify(prefs, null, 2));
+}
+
 module.exports.getPreferences = getPreferences;

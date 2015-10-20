@@ -26,6 +26,7 @@ TODO
     - [x] save plot?
     - [x] restart session doing strange things
     - [-] shortcut mapping not correct anymore
-    - [x] preferences
-    - [ ] plan for working directories
     - [-] shortcuts in menu
+    - [x] preferences
+    - [x] plan for working directories
+    - [x] bug w/ file nav not working

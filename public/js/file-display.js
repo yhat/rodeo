@@ -1,12 +1,9 @@
-// TODO: ??? USER_HOME
-USER_HOME = "/Users/glamp"
-
 function setFiles(dir) {
-  function callback(dir, files) {
+  function callback(home, dir, files) {
     $("#file-list").children().remove();
     $("#working-directory").children().remove();
     $("#working-directory").append(wd_template({
-      dir: dir.replace(USER_HOME, "~")
+      dir: dir.replace(home, "~")
     }));
     $("#file-list").append(file_template({
       isDir: true,
@@ -53,14 +50,18 @@ function setFiles(dir) {
     });
   }
   if (isDesktop()) {
-    dir = ipc.sendSync('wd-get');
-    var files = ipc.sendSync('files', { "dir": dir });
-    callback(dir, files);
+    if (dir==null) {
+      dir = ipc.sendSync('wd-get');
+    }
+    var resp = ipc.sendSync('files', { "dir": dir });
+    callback(resp.home, resp.dir, resp.files);
   } else {
     getWorkingDirectory(function(wd) {
-      dir = wd;
+      if (dir==null) {
+        dir = wd;
+      }
       $.get('files', { "dir": dir }, function(resp) {
-        callback(dir, resp.files);
+        callback(resp.home, resp.dir, resp.files);
       });
     });
   }
