@@ -1,3 +1,4 @@
+var variableWindow;
 function showVariable(varname, type) {
   var params = { toolbar: false, resizable: true, show: true, height: 800, width: 1000 };
 
