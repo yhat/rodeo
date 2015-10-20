@@ -1,8 +1,8 @@
 
 
 function updateRC(preferenceName, preferenceValue) {
-  $.post("preferences", { name: preferenceName, value: preferenceValue }, function(res) {
-  });
+  // $.post("preferences", { name: preferenceName, value: preferenceValue }, function(res) {
+  // });
 }
 
 function formatFilename(filename) {

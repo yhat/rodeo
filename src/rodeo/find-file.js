@@ -1,5 +1,6 @@
 var path = require('path');
 var walk = require('walk');
+var preferences = require('./preferences');
 
 var walker;
 
@@ -8,6 +9,8 @@ module.exports = function(ws) {
     walker.pause();
     delete walker;
   }
+
+  PREFERENCES = preferences.getPreferences();
 
   walker = walk.walk(USER_WD, { followLinks: false, });
 

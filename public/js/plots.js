@@ -40,10 +40,15 @@ function showPlot() {
   if (! $("#plots img.active").length) {
     return;
   }
-  var filename = $("#plots img.active").attr("src");
-  var params = {toolbar: false, resizable: false, show: true, height: 1000, width: 1000};
-  var plotWindow = new BrowserWindow(params);
-  plotWindow.loadUrl(filename);
+  if (isDesktop()) {
+    var BrowserWindow = remote.require('browser-window');
+    var filename = $("#plots img.active").attr("src");
+    var params = {toolbar: false, resizable: false, show: true, height: 1000, width: 1000};
+    var plotWindow = new BrowserWindow(params);
+    plotWindow.loadUrl(filename);
+  } else {
+    // TODO
+  }
 }
 
 function savePlot() {

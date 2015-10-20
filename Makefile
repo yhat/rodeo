@@ -10,7 +10,7 @@ all: css js
 
 css: static/css/styles.css static/css/styles-dark.css static/css/styles-presentation.css static/css/styles-cobalt.css
 
-js: static/js/main.js static/js/ace.min.js
+js: static/js/main.js static/js/desktop-main.js static/js/ace.min.js
 
 handlebars: public/js/handlebars-templates.js
 
@@ -43,6 +43,7 @@ static/js/main.js : $(JS_FILES)
 		public/js/lib/saveSvgAsPng.js \
 		public/js/lib/handlebars-v4.0.2.js \
 		public/js/handlebars-templates.js \
+		public/js/editor-events.js \
 		public/js/event-handlers.js \
 		public/js/helpers.js \
 		public/js/editors.js \
@@ -57,6 +58,35 @@ static/js/main.js : $(JS_FILES)
 		public/js/session.js \
 		public/js/global-shortcuts.js \
 		public/js/preferences.js > static/js/main.js
+
+static/js/desktop-main.js : $(JS_FILES)
+	uglifyjs public/js/lib/jquery.min.js \
+		public/js/lib/jqconsole.min.js \
+		public/js/lib/jquery.dataTables.js \
+		public/js/lib/jquery.splitter-0.15.0.js \
+		public/js/lib/mousetrap.js \
+		public/js/lib/ascii-table.min.js \
+		public/js/lib/bootstrap.min.js \
+		public/js/lib/bootbox.js \
+		public/js/lib/list.js \
+		public/js/lib/owl.carousel.js \
+		public/js/lib/saveSvgAsPng.js \
+		public/js/lib/handlebars-v4.0.2.js \
+		public/js/handlebars-templates.js \
+		public/js/editor-events.js \
+		public/js/event-handlers-desktop.js \
+		public/js/helpers.js \
+		public/js/editors.js \
+		public/js/console.js \
+		public/js/plots.js \
+		public/js/search.js \
+		public/js/templates.js \
+		public/js/install-package.js \
+		public/js/display-shortcuts.js \
+		public/js/file-display.js \
+		public/js/focus.js \
+		public/js/session.js \
+		public/js/preferences.js > static/js/desktop-main.js
 
 static/js/ace.min.js : $(ACE_FILES)
 	uglifyjs $(shell find public/ace -type f -name '*.js' | grep -v main.js | tr '\n' ' ')	> static/js/ace.min.js

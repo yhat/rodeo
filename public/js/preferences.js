@@ -91,9 +91,7 @@ function showRodeoProfile() {
   });
 }
 
-// initialize preferences
-USER_HOME = null;
-$.get("preferences", function(rc) {
+function configurePreferences(rc) {
   rc.keyBindings = rc.keyBindings || "default";
   rc.defaultWd = rc.defaultWd || USER_HOME;
 
@@ -117,4 +115,25 @@ $.get("preferences", function(rc) {
   if (rc.fontSize) {
     setFontSize(rc.fontSize);
   }
-});
+}
+
+// initialize preferences
+USER_HOME = null;
+
+function getRC(fn) {
+  if (isDesktop()) {
+    var rc = ipc.sendSync('preferences');
+    fn(rc);
+  } else {
+    $.get("preferences", function(rc) {
+      fn(rc);
+    });
+  }
+}
+
+function setupPreferences() {
+  getRC(function(rc) {
+    configurePreferences(rc);
+  });
+}
+setupPreferences();

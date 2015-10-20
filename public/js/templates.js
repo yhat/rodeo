@@ -211,45 +211,58 @@ function sendCommand(input, hideResult) {
     autocomplete: false,
     stream: true
   };
+  if (isDesktop()) {
+    ipc.send('command', data);
+  } else {
+    $.get("command", data, function(results) {
+      handleCommandResults(results);
+    });
+  }
+}
 
-  $.get("command", data, function(results) {
-    var results = results.trim().split('\n');
-    for(var i=0; i < results.length; i++) {
-      var result = JSON.parse(results[i]);
+function handleCommandResults(results) {
+  var results = results.trim().split('\n');
+  for(var i=0; i < results.length; i++) {
+    var result = JSON.parse(results[i]);
 
-      if (result.stream) {
-        jqconsole.Write(result.stream || "");
-      }
+    if (result.stream) {
+      jqconsole.Write(result.stream || "");
+    }
 
-      if (/^help[(]/.test(input)) {
-        if (result.output) {
-          $('#help-content').text(result.output);
-          $('a[href="#help"]').tab("show");
-        }
-      }
-
-      if (result.image || result.html) {
-        addPlot(result);
-      }
-
-      if (result.error) {
-        track('command', 'error');
-        jqconsole.Write(result.error + '\n', 'jqconsole-error');
-      }
-
-      if (result.status=="complete") {
-        jqconsole.Write('\n');
-        refreshVariables();
+    if (/^help[(]/.test(result.command)) {
+      if (result.output) {
+        $('#help-content').text(result.output);
+        $('a[href="#help"]').tab("show");
+        return;
       }
     }
-  });
+
+    if (result.image || result.html) {
+      addPlot(result);
+    }
+
+    if (result.error) {
+      track('command', 'error');
+      jqconsole.Write(result.error + '\n', 'jqconsole-error');
+    }
+
+    if (result.status=="complete") {
+      jqconsole.Write('\n');
+      refreshVariables();
+    }
+  }
+}
+
+if (isDesktop()) {
+  ipc.on('command', function(data) {
+    handleCommandResults(data);
+  })
 }
 
 // execute script button
 $("#run-button").click(function(e) {
   e.preventDefault();
-  var id = $("#editors .active .editor").attr("id");
-  var editor = ace.edit(id);
+  var editor = getActiveEditor();
   var code = editor.getSelectedText();
   // if nothing was selected, then we'll run the entire file
   if (! code) {
@@ -267,7 +280,12 @@ function executeCommand(command, autocomplete, fn) {
     stream: false
   };
 
-  $.get("command", data, fn);
+  if (isDesktop()) {
+    var results = ipc.sendSync('command', data);
+    fn(results);
+  } else {
+    $.get("command", data, fn);
+  }
 }
 
 function showPreferences() {

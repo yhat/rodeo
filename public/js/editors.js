@@ -4,7 +4,7 @@ function getCurrentLine(editor) {
 
 function setDefaultPreferences(editor) {
   var rc = {}; // TODO: getRC();
-  $.get("preferences", function(rc) {
+  getRC(function(rc) {
     if (rc.keyBindings=="default") {
       rc.keyBindings = null;
     }
@@ -128,7 +128,7 @@ function createEditor(id) {
     name: "pickWorkingDirectory",
     bindKey: {win: "ctrl-Shift-g", mac: "Command-Shift-g"},
     exec: function(editor) {
-      pickWorkingDirectory();
+      setWorkingDirectory();
     }
   });
 
@@ -238,7 +238,7 @@ function createEditor(id) {
   });
 
   editor.commands.addCommand({
-    name: "autocomplete",
+    name: "do-me-some-autocomplete",
     bindKey: {win: "tab", mac: "tab"},
     exec: function(editor) {
       var pos = editor.getCursorPosition();
@@ -250,11 +250,11 @@ function createEditor(id) {
       var line = getCurrentLine(editor);
 
       if (/from /.test(line) || /import /.test(line)) {
-        editor.completer.showPopup(editor)
+        return editor.completer.showPopup(editor);
       } else if (text!=" " && text!="") {
-        editor.completer.showPopup(editor)
+        return editor.completer.showPopup(editor);
       } else {
-        editor.insert("    ");
+        return editor.insert("    ");
       }
     }
   });
@@ -313,9 +313,15 @@ function createEditor(id) {
 }
 
 function saveFile(filepath, content, fn) {
-  $.post("file", { "filepath": filepath, "content": content }, function(resp) {
-    fn(resp);
-  });
+  var payload = { "filepath": filepath, "content": content };
+  if (isDesktop()) {
+    var data = ipc.sendSync('file-post', payload);
+    fn(data);
+  } else {
+    $.post('file', payload, function(resp) {
+      fn(resp);
+    });
+  }
 }
 
 
@@ -383,8 +389,8 @@ function openFile(pathname, isDir) {
     var directory = pathname;
     setFiles(pathname);
   } else {
-    $.get("file", { filepath: pathname }, function(resp) {
-      newEditor(resp.basename, pathname, resp.content.toString())
+    function callback(basename, pathname, content) {
+      newEditor(basename, pathname, content)
       // [+] tab is always the last tab, so we'll activate the 2nd to last tab
       $("#editorsTab li:nth-last-child(2) a").click();
       var id = $("#editors .editor").last().attr("id");
@@ -392,7 +398,15 @@ function openFile(pathname, isDir) {
       setTimeout(function() {
         $("#" + id.replace("editor", "editor-tab") + " .unsaved").addClass("hide");
       }, 50);
-    });
+    }
+    if (isDesktop()) {
+      var data = ipc.sendSync('file-get', pathname);
+      callback(data.basename, pathname, data.content);
+    } else {
+      $.get("file", { filepath: pathname }, function(resp) {
+        callback(resp.basename, pathname, resp.content);
+      });
+    }
   }
 }
 
@@ -406,20 +420,24 @@ function saveEditor(editor, saveas, fn) {
   var filename = $("#editorsTab .active a").text();
   var content = editor.getSession().getValue();
   if (! $("#editorsTab .active a").attr("data-filename") || saveas==true) {
-    bootbox.prompt("Please specify a name for your file:", function(destfile) {
-      if (destfile==null) {
-        return;
-      }
-      $("#editorsTab .active a").text(destfile);
-      $("#editorsTab .active a").attr("data-filename", destfile);
-      saveFile(destfile, content, function(resp) {
-        $("#" + id.replace("editor", "editor-tab") + " .unsaved").addClass("hide");
-        setFiles();
-        if (fn) {
-          fn();
+    if (isDesktop()) {
+      // TODO: prompt w/ showFileDialog...
+    } else {
+      bootbox.prompt("Please specify a name for your file:", function(destfile) {
+        if (destfile==null) {
+          return;
         }
-      })
-    });
+        $("#editorsTab .active a .name").text(destfile);
+        $("#editorsTab .active a").attr("data-filename", destfile);
+        saveFile(destfile, content, function(resp) {
+          $("#" + id.replace("editor", "editor-tab") + " .unsaved").addClass("hide");
+          setFiles();
+          if (fn) {
+            fn();
+          }
+        });
+      });
+    }
   } else {
     saveFile($("#editorsTab .active a").attr("data-filename"), content, function(resp) {
       $("#" + id.replace("editor", "editor-tab") + " .unsaved").addClass("hide");
@@ -429,6 +447,12 @@ function saveEditor(editor, saveas, fn) {
       }
     });
   }
+}
+
+function saveActiveEditor(saveas) {
+  saveas = saveas || false
+  var editor = getActiveEditor();
+  saveEditor(editor, saveas);
 }
 
 function closeActiveFile() {
@@ -460,4 +484,9 @@ function shiftEditorRight() {
   }
   var id = $(nextTab).attr("id").replace("tab-", "");
   ace.edit(id).focus();
+}
+
+function getActiveEditor() {
+  var id = $("#editors .active .editor").attr("id");
+  return editor = ace.edit(id);
 }

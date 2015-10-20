@@ -352,7 +352,7 @@ var menuShortcutsTemplate = [
         accelerator: 'CmdOrCtrl+Shift+g',
         click: function() {
           track('shortcut', 'Session > Set Working Directory');
-          pickWorkingDirectory();
+          setWorkingDirectory();
         }
       },
       {
@@ -414,7 +414,7 @@ var template = [
   {
     label: 'Change Working Directory',
     click: function() {
-      pickWorkingDirectory();
+      setWorkingDirectory();
     }
   },
   {

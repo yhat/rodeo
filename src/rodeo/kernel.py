@@ -19,6 +19,7 @@ import time
 import os
 import sys
 import json
+import re
 
 __dirname = os.path.dirname(os.path.abspath(__file__))
 
@@ -270,7 +271,13 @@ class Kernel(object):
         if complete==True:
             return self._complete(execution_id, code)
         else:
-            return self._run_code(execution_id, code)
+            result = self._run_code(execution_id, code)
+            if re.match("%?reset", code):
+                # load our monkeypatches...
+                k.client.execute("%matplotlib inline")
+                k.client.execute(vars_patch)
+            return result
+
 
     def get_packages(self):
         return self.execute("__get_packages()")
@@ -288,6 +295,3 @@ if __name__=="__main__":
 
         data = json.loads(line)
         k.execute(data['id'], data['code'], data.get('complete', False))
-        # output['id'] = data['id']
-        # sys.stdout.write(json.dumps(output) + '\n')
-        # sys.stdout.flush()

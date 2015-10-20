@@ -1,7 +1,7 @@
 function showVariable(varname, type) {
 
   window.location.href = '/variable?name=' + varname + '&type=' + type;
-
+  
   // var params = { toolbar: false, resizable: true, show: true, height: 800, width: 1000 };
   //
   // variableWindow = new BrowserWindow(params);

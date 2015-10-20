@@ -4,95 +4,11 @@
   <title>Rodeo</title>
   <link id="rodeo-theme" href="css/styles.css" rel="stylesheet"/>
   <script src="js/ace.min.js"></script>
+  <script type="text/javascript">
+    window.$ = window.jQuery = require('jquery');
+  </script>
 </head>
 <body>
-  <!-- start nav -->
-  <nav class="navbar navbar-default" style="margin-bottom: 2px;">
-    <div class="container-fluid">
-      <div class="navbar-header">
-        <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1">
-          <span class="sr-only">Toggle navigation</span>
-          <span class="icon-bar"></span>
-          <span class="icon-bar"></span>
-          <span class="icon-bar"></span>
-        </button>
-      </div>
-
-      <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
-        <ul class="nav navbar-nav">
-          <!-- Rodeo  -->
-          <li class="dropdown">
-            <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">Rodeo</span></a>
-            <ul class="dropdown-menu" role="menu">
-              <li><a href="about" target=_blank>About</a></li>
-              <li class="divider"></li>
-              <li><a onclick="showPreferences();">Preferences <span style="font-size: 10px;" class="pull-right">⌘ + ,</span></a></li>
-              <li><a onclick="showRodeoProfile();">Default Variables</a></li>
-              <li class="divider"></li>
-              <li><a href="#">Quit</a></li>
-            </ul>
-          </li>
-          <!-- end Rodeo -->
-          <!-- File  -->
-          <li class="dropdown">
-            <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">File</span></a>
-            <ul class="dropdown-menu" role="menu">
-              <li><a onclick="$('#add-tab').click();">New<span style="font-size: 10px;" class="pull-right">⌘ + opt + n</span></a></li>
-              <li><a onclick="$('#file-upload-trigger').click();">Open<span style="font-size: 10px;" class="pull-right">⌘ + opt + o</span></a></li>
-              <li class="divider"></li>
-              <li><a onclick="saveActiveEditor();">Save<span style="font-size: 10px;" class="pull-right">⌘ + s</span></a></li>
-              <li><a onclick="saveActiveEditor(true);">Save As</a></li>
-              <li class="divider"></li>
-              <li><a onclick="closeActiveFile();">Close File<span style="font-size: 10px;" class="pull-right">⌘ + opt + w</span></a></li>
-              <li><a onclick="findFile();">Find File<span style="font-size: 10px;" class="pull-right">⌘ + opt + t</span></a></li>
-            </ul>
-          </li>
-          <!-- end File -->
-          <!-- View  -->
-          <li class="dropdown">
-            <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">View</span></a>
-            <ul class="dropdown-menu" role="menu">
-              <li class="dropdown"><a href="#">Change Editor</a></li>
-              <li><a onclick="shiftEditorLeft();">&nbsp;&nbsp;&nbsp;&nbsp;Move One Left<span style="font-size: 10px;" class="pull-right">⌘ + opt + left</span></a></li>
-              <li><a onclick="shiftEditorRight();">&nbsp;&nbsp;&nbsp;&nbsp;Move One Right<span style="font-size: 10px;" class="pull-right">⌘ + opt + right</span></a></li>
-              <li><a href="#">Focus</a></li>
-              <li><a onclick="focusOnEditor();">&nbsp;&nbsp;&nbsp;&nbsp;Editor<span style="font-size: 10px;" class="pull-right">⌘ + 1</span></a></li>
-              <li><a onclick="focusOnConsole();">&nbsp;&nbsp;&nbsp;&nbsp;Console<span style="font-size: 10px;" class="pull-right">⌘ + 2</span></a></li>
-              <li><a onclick="focusOnTopRight();">&nbsp;&nbsp;&nbsp;&nbsp;Variables/History<span style="font-size: 10px;" class="pull-right">⌘ + 3</span></a></li>
-              <li><a onclick="focusOnBottomRight();">&nbsp;&nbsp;&nbsp;&nbsp;Files/Plots/Packages/Help/Preferences<span style="font-size: 10px;" class="pull-right">⌘ + 4</span></a></li>
-            </ul>
-          </li>
-          <!-- end View -->
-          <!-- Session  -->
-          <li class="dropdown">
-            <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">Session</span></a>
-            <ul class="dropdown-menu" role="menu">
-              <li><a onclick="restartSession();">Restart Session</a></li>
-              <li><a onclick="setWorkingDirectory();">Set Working Directory</a></li>
-              <li><a href="#">Run Previous Command</a></li>
-              <li><a onclick="runLastCommand();">&nbsp;&nbsp;&nbsp;&nbsp;Last Command<span style="font-size: 10px;" class="pull-right">⌘ + shift + 1</span></a></li>
-              <li><a onclick="run2ndToLastCommand();">&nbsp;&nbsp;&nbsp;&nbsp;2nd to Last Command<span style="font-size: 10px;" class="pull-right">⌘ + shift + 2</span></a></li>
-            </ul>
-          </li>
-          <!-- end Session -->
-          <!-- Help  -->
-          <li class="dropdown">
-            <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">Help</span></a>
-            <ul class="dropdown-menu" role="menu">
-              <li><a href="#" onclick="$('#shortcut-display-modal').modal('show');">View Shortcuts</a></li>
-              <li><a target=_blank href="http://yhat.github.io/rodeo-docs/">Docs</a></li>
-              <li><a href="#" onclick='$("#tour-modal").modal("show");'>Tour</a></li>
-            </ul>
-          </li>
-          <!-- end Help -->
-        </ul>
-        <ul class="nav navbar-nav navbar-right">
-          <li><a href="#"><img src="img/rodeo-logo.png" title="Yee Haw!" style="height: 17px;"/>Rodeo v1.0.0</a></li>
-        </ul>
-      </div>
-    </div>
-  </nav>
-  <!-- end nav -->
   <!-- main section -->
   <div id="pane-container">
       <div id="left-column">
@@ -412,7 +328,8 @@
 
     <!-- hidden stuff -->
     <input id="file-upload-trigger" type="file" style="visibility:hidden" />
-  <script src="js/main.js"></script>
+  <script src="js/desktop-main.js"></script>
+  <script src="../src/app/menu.js"></script>
   <script type="text/javascript">
     $(document).ready(function() {
       // let's get things going...

@@ -2,12 +2,11 @@
 USER_HOME = "/Users/glamp"
 
 function setFiles(dir) {
-  $.get('files', { "dir": dir }, function(resp) {
-    var files = resp.files;
+  function callback(dir, files) {
     $("#file-list").children().remove();
     $("#working-directory").children().remove();
     $("#working-directory").append(wd_template({
-      dir: resp.dir.replace(USER_HOME, "~")
+      dir: dir.replace(USER_HOME, "~")
     }));
     $("#file-list").append(file_template({
       isDir: true,
@@ -15,7 +14,7 @@ function setFiles(dir) {
       basename: '..'
     }));
 
-    $.get("preferences", function(rc) {
+    getRC(function(rc) {
       files.forEach(function(f) {
         var filename = formatFilename(pathJoin([dir, f.basename]));
         if (! f.isDir) {
@@ -52,5 +51,21 @@ function setFiles(dir) {
         }));
       }.bind(this));
     });
-  });
+  }
+  if (isDesktop()) {
+    dir = ipc.sendSync('wd-get');
+    var files = ipc.sendSync('files', { "dir": dir });
+    callback(dir, files);
+  } else {
+    getWorkingDirectory(function(wd) {
+      dir = wd;
+      $.get('files', { "dir": dir }, function(resp) {
+        callback(dir, resp.files);
+      });
+    });
+  }
 }
+
+getWorkingDirectory(function(wd) {
+  setFiles(wd);
+});

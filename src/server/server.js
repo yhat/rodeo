@@ -4,20 +4,21 @@ var express = require('express');
 var WebSocketServer = require('ws').Server;
 var sshClient = require('ssh2').Client;
 var bodyParser = require('body-parser');
-var kernel = require('./kernel');
-var findFile = require('./find-file');
+var kernel = require('../rodeo/kernel');
+var findFile = require('../rodeo/find-file');
 
 var app = express();
 // setup static assets route handler
 app.use(express.static(path.join(__dirname, '..', '..', '/static')));
 // parse application/x-www-form-urlencoded
-app.use(bodyParser.urlencoded({ extended: false }))
+app.use(bodyParser.urlencoded({ extended: false }));
 // parse application/json
-app.use(bodyParser.json())
+app.use(bodyParser.json());
 
 
 global.python = null;
 global.USER_WD = process.argv[2] || __dirname;
+global.USER_HOME = process.env.HOME;
 
 
 
@@ -31,19 +32,6 @@ kernel(function(err, python) {
   }
 });
 
-PREFERENCES = {
-  "id": "ec34d8516b5d429de5f7c04668d82f6b9b178a78",
-  "version": "1.0.2",
-  "paneVertical": "49.166666666666664%",
-  "paneHorizontalRight": "48.648648648648646%",
-  "paneHorizontalLeft": "48.648648648648646%",
-  "fontSize": 10,
-  "defaultWd": "/Users/glamp/repos/yhat/blog/code-exp/39",
-  "editorTheme": "ace/theme/chrome",
-  "pythonCmd": "/usr/local/bin/python3"
-}
-
-
 app.get('/', function(req, res) {
   var filepath = path.join(__dirname, '..', '..', './static/server-index.html');
   res.sendFile(filepath);
@@ -53,6 +41,7 @@ app.get('/command', function(req, res) {
   if (req.query.stream=='true') {
     res.set('Content-Type', 'text/event-stream');
     python.executeStream(req.query.command, req.query.autocomplete=="true", function(result) {
+      result.command = req.query.command;
       res.write(JSON.stringify(result) + '\n');
       if (result.status=="complete") {
         res.end()
@@ -60,6 +49,7 @@ app.get('/command', function(req, res) {
     });
   } else {
     python.execute(req.query.command, req.query.autocomplete=="true", function(result) {
+      result.command = req.query.command;
       result.status = "complete";
       res.json(result);
     });
@@ -194,9 +184,10 @@ wss.on('connection', function (ws) {
   }
   ws.sendJSON({ msg: 'refresh-variables' });
   ws.sendJSON({ msg: 'refresh-packages' });
-  ws.sendJSON({ msg: 'set-working-directory', wd: global.USER_WD || '.' });
+  // ws.sendJSON({ msg: 'set-working-directory', wd: global.USER_WD || '.' });
 
   ws.on('message', function(data) {
+    var data = JSON.parse(data);
     if (data.msg=="index-files") {
       findFile(ws);
     }

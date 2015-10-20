@@ -5,7 +5,7 @@ var fs = require('fs')
   , uuid = require('uuid')
   , tmp = require('tmp')
   , colors = require('colors')
-  , StreamSplitter = require("stream-splitter")
+  , StreamSplitter = require('stream-splitter')
   , SteveIrwin = require('./steve-irwin');
 
 

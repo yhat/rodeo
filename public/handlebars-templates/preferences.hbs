@@ -22,7 +22,7 @@
           Default Working Directory
           <a data-toggle="tooltip" data-placement="right" title="<p class='small'>This is the default directory that Rodeo will open on launch.</p>" data-html="true"><i class="fa fa-question-circle"></i></a>
         </label>
-        <input onclick="return setWorkingDirectory(); var me = $(this); pickDirectory('Select a Default Working Directory', USER_WD, function(dir) { if (dir) { $(me).val(dir); setDefaultWd($(me).val()); }});" class="form-control" id="defaultWorkingDirectory" name="defaultWorkingDirectory" value="{{defaultWd}}" />
+        <input onclick="setWorkingDirectory(function(wd) { var me = $(this); $(me).val(wd); });" class="form-control" id="defaultWorkingDirectory" name="defaultWorkingDirectory" value="{{defaultWd}}" />
       </div>
       <div class="form-group">
         <label for="pythonCmd">

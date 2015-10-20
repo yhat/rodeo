@@ -22,7 +22,10 @@ TODO
     - [x] Confirm yes/no
 - docs/manual
 - bugs
-    - [ ] run previous doing strange things
+    - [x] run previous doing strange things
     - [x] save plot?
-    - [ ] restart session doing strange things
+    - [x] restart session doing strange things
     - [-] shortcut mapping not correct anymore
+    - [x] preferences
+    - [ ] plan for working directories
+    - [-] shortcuts in menu
