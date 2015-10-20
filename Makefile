@@ -85,6 +85,7 @@ static/js/desktop-main.js : $(JS_FILES)
 		public/js/display-shortcuts.js \
 		public/js/file-display.js \
 		public/js/focus.js \
+		public/js/display-variable.js \
 		public/js/session.js \
 		public/js/preferences.js > static/js/desktop-main.js
 

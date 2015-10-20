@@ -4,19 +4,19 @@
   <td>{{repr}}</td>
   <td style="td-align: center;">
     {{#compare type "list"}}
-      <a target=_blank href="variable?name={{name}}&type={{type}}"><span class='fa fa-list-alt' aria-hidden='true'></span></a>
+      <a target=_blank {{#isDesktop}}onclick="showVariable('{{name}}', '{{type}}');"{{else}}href="variable?name={{name}}&type={{type}}"{{/isDesktop}}><span class='fa fa-list-alt' aria-hidden='true'></span></a>
     {{/compare}}
     {{#compare type "ndarray"}}
-      <a target=_blank href="variable?name={{name}}&type={{type}}"><span class='fa fa-list-alt' aria-hidden='true'></span></a>
+      <a target=_blank {{#isDesktop}}onclick="showVariable('{{name}}', '{{type}}');"{{else}}href="variable?name={{name}}&type={{type}}"{{/isDesktop}}><span class='fa fa-list-alt' aria-hidden='true'></span></a>
     {{/compare}}
     {{#compare type "dict"}}
-      <a target=_blank href="variable?name={{name}}&type={{type}}"><span class='fa fa-list-alt' aria-hidden='true'></span></a>
+      <a target=_blank {{#isDesktop}}onclick="showVariable('{{name}}', '{{type}}');"{{else}}href="variable?name={{name}}&type={{type}}"{{/isDesktop}}><span class='fa fa-list-alt' aria-hidden='true'></span></a>
     {{/compare}}
     {{#compare type "DataFrame"}}
-      <a target=_blank href="variable?name={{name}}&type={{type}}"><span class='fa fa-table' aria-hidden='true'></span></a>
+      <a target=_blank {{#isDesktop}}onclick="showVariable('{{name}}', '{{type}}');"{{else}}href="variable?name={{name}}&type={{type}}"{{/isDesktop}}><span class='fa fa-table' aria-hidden='true'></span></a>
     {{/compare}}
     {{#compare type "Series"}}
-      <a target=_blank href="variable?name={{name}}&type={{type}}"><span class='fa fa-table' aria-hidden='true'></span></a>
+      <a target=_blank {{#isDesktop}}onclick="showVariable('{{name}}', '{{type}}');"{{else}}href="variable?name={{name}}&type={{type}}"{{/isDesktop}}><span class='fa fa-table' aria-hidden='true'></span></a>
     {{/compare}}
   </td>
 </tr>

@@ -61,9 +61,10 @@ function refreshVariables() {
     $("#vars").children().remove();
     var variableTypes = ["list", "dict", "ndarray", "DataFrame", "Series"];
     variableTypes.forEach(function(type) {
+      var isOnDesktop = isDesktop();
       variables[type].forEach(function(v) {
         $("#vars").append(active_variables_row_template({
-            name: v.name, type: type, repr: v.repr
+            name: v.name, type: type, repr: v.repr, isDesktop: isOnDesktop
           })
         );
       }.bind(this));
