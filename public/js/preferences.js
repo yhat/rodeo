@@ -56,6 +56,7 @@ function setTheme(theme) {
 function setPythonCmd(cmd) {
   if (cmd) {
     cmd = cmd.replace("~", USER_HOME);
+    console.log("pythonCmd" + cmd);
     updateRC("pythonCmd", cmd);
   } else {
     updateRC("pythonCmd", null);
@@ -122,7 +123,7 @@ USER_HOME = null;
 
 function getRC(fn) {
   if (isDesktop()) {
-    var rc = ipc.sendSync('preferences');
+    var rc = ipc.sendSync('preferences-get');
     fn(rc);
   } else {
     $.get("preferences", function(rc) {

@@ -95,9 +95,14 @@ app.on('ready', function() {
   });
 
   // server like routes
-  ipc.on('preferences', function(event, arg) {
+  ipc.on('preferences-get', function(event, arg) {
     var rc = preferences.getPreferences();
     event.returnValue = rc;
+  });
+
+  ipc.on('preferences-post', function(event, data) {
+    preferences.setPreferences(data.name, data.value);
+    event.returnValue = null;
   });
 
   ipc.on('command', function(event, data) {
@@ -147,6 +152,7 @@ app.on('ready', function() {
 
   ipc.on('wd-post', function(event, wd) {
     USER_WD = wd;
+    preferences.setPreferences("defaultWd", wd);
     event.returnValue = USER_WD;
   });
 
