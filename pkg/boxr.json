@@ -1,0 +1,24 @@
+[
+    {
+	"target": ".*",
+	"name": "yhat-rodeo",
+	"maintainer": "Yhat Dev <dev@yhathq.com>",
+	"version": "../VERSION",
+	"license": "GNU Affero General Public License Version 3",
+	"summary": "Yhat Rodeo",
+
+	"depends": ["nodejs", "python-matplotlib", "ipython-notebook"],
+	"static": {
+	    "./rodeo": "/usr/bin/rodeo",
+	    "../src": "/var/rodeo_server/src",
+	    "../package.json": "/var/rodeo_server/package.json",
+	    "../node_modules": "/var/rodeo_server/node_modules",
+	    "../static": "/var/rodeo_server/static"
+	}
+    }, {
+        "target": "^ubuntu-14.04",
+	"type": "deb",
+	"arch": "amd64"
+    }
+]
+

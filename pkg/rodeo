@@ -1,0 +1,3 @@
+#!/usr/bin/env bash
+
+nodejs /var/rodeo_server/src/server/server.js $(pwd)
