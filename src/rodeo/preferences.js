@@ -1,6 +1,7 @@
 var fs = require('fs');
 var path = require('path');
 
+
 function getPreferences() {
   var rcFilepath = path.join(USER_HOME, ".rodeorc");
   var rc = {};
@@ -21,3 +22,4 @@ function setPreferences(key, value) {
 }
 
 module.exports.getPreferences = getPreferences;
+module.exports.setPreferences = setPreferences;

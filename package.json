@@ -6,7 +6,7 @@
   "helperBundleId": "com.yhat.rodeo.helper",
   "description": "An IDE for data science.",
   "author": "The Yhat Team",
-  "main": "src/app/main.js",
+  "main": "src/desktop/main.js",
   "devDependencies": {
     "electron-builder": "^2.0.0",
     "electron-packager": "^5.1.0",

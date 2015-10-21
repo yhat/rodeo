@@ -2,8 +2,8 @@ var fs = require('fs');
 var path = require('path');
 var express = require('express');
 var WebSocketServer = require('ws').Server;
-var sshClient = require('ssh2').Client;
 var bodyParser = require('body-parser');
+// Rodeo stuff
 var kernel = require('../rodeo/kernel');
 var findFile = require('../rodeo/find-file');
 var preferences = require('../rodeo/preferences');
@@ -19,7 +19,7 @@ app.use(bodyParser.json());
 
 global.python = null;
 global.USER_WD = process.argv[2] || __dirname;
-global.USER_HOME = process.env.HOME;
+global.USER_HOME = process.env[(process.platform == 'win32') ? 'USERPROFILE' : 'HOME'];
 
 
 

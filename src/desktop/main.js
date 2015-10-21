@@ -7,14 +7,13 @@ var path = require('path');
 var http = require('http');
 var querystring = require('querystring');
 var ipc = require('ipc');
-var helpers = require('./rodeohelpers');
 
 var kernel = require('../rodeo/kernel');
 var findFile = require('../rodeo/find-file');
 var preferences = require('../rodeo/preferences');
 
 global.python = null;
-global.USER_HOME = process.env.HOME;
+global.USER_HOME = process.env[(process.platform == 'win32') ? 'USERPROFILE' : 'HOME'];
 global.USER_WD = '/Users/glamp/go/src/github.com/yhat/box/src/sciencebox/langs/tests'; //process.env.HOME;
 
 kernel(function(err, python) {
@@ -73,13 +72,13 @@ app.on('ready', function() {
       console.log("[INFO]: working directory passed as argument: `" + wd + "`");
       mainWindow.webContents.send('set-wd', wd);
     }
-    var rc = helpers.getRC();
+    var rc = preferences.getPreferences();
     if (rc.version==null) {
       mainWindow.webContents.send('start-tour', { version: "first" });
-      helpers.updateRC("version", app.getVersion());
+      preferences.setPreferences("version", app.getVersion());
     } else if (rc.version != app.getVersion()) {
       mainWindow.webContents.send('start-tour', { version: app.getVersion() });
-      helpers.updateRC("version", app.getVersion());
+      preferences.setPreferences("version", app.getVersion());
     }
   });
 
