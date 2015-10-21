@@ -1,4 +1,13 @@
-var wsUrl = document.URL.replace(/https?:\/\//, "ws://").replace("#", "");
+var scheme = window.location.protocol;
+
+var wsScheme;
+if (scheme == "https:") {
+  wsScheme = "wss://";
+} else {
+  wsScheme = "ws://";
+}
+
+var wsUrl = document.URL.replace(/https?:\/\//, wsScheme).replace("#", "");
 var ws = new WebSocket(wsUrl);
 
 ws.onopen = function() {

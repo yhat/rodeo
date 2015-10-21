@@ -42,12 +42,14 @@ function findMeAPython(fn) {
       };
     }
 
-    exec("/root/miniconda/bin/python -c 'import sys; print(sys.executable)'", opts, function(err, stdout, stderr) {
+    // TODO: make less specific
+    exec("/home/sciencecluster/.anaconda2/bin/python -c 'import sys; print(sys.executable)'", opts, function(err, stdout, stderr) {
       if (opts.env && stdout) {
         pythonCmds.push(stdout.toString().trim());
       }
 
       pythonCmds = pythonCmds.concat([
+        "/home/sciencecluster/.anaconda2/bin/python",
         "/root/miniconda/bin/python",
         "/usr/local/bin/ipython",
         "/anaconda/bin/python",

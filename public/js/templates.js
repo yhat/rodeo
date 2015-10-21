@@ -76,7 +76,7 @@ $("#left-column").split({
 
 // on resize w/ gray bars, recalibrate
 $(document.documentElement).bind('mouseup.splitter touchend.splitter touchleave.splitter touchcancel.spliter', function(e) {
-  // TODO: saveWindowCalibration();
+  saveWindowCalibration();
   calibratePanes();
 });
 

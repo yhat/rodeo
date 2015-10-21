@@ -3,7 +3,6 @@ function getCurrentLine(editor) {
 }
 
 function setDefaultPreferences(editor) {
-  var rc = {}; // TODO: getRC();
   getRC(function(rc) {
     if (rc.keyBindings=="default") {
       rc.keyBindings = null;
