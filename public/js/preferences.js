@@ -86,10 +86,13 @@ function saveWindowCalibration() {
 
 function showRodeoProfile() {
   // should do something special here...
-  // openFile(path.join(USER_HOME, '.rodeoprofile'));
-  $.get("profile", function(profile) {
-    newEditor('.rodeoprofile', '~/.rodeoprofile', profile);
-  });
+  if (isDesktop()) {
+    openFile('~/.rodeoprofile');
+  } else {
+    $.get("profile", function(profile) {
+      newEditor('.rodeoprofile', '~/.rodeoprofile', profile);
+    });
+  }
 }
 
 function configurePreferences(rc) {

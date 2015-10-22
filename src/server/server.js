@@ -159,7 +159,7 @@ app.post('/preferences', function(req, res) {
 var profile;
 app.get('/profile', function(req, res) {
   if (profile==null) {
-    profile = fs.readFileSync(path.join(__dirname, '..', 'default-rodeo-profile.txt'));
+    profile = fs.readFileSync(path.join(__dirname, '..', '/rodeo/default-rodeo-profile.txt'));
   }
   res.send(profile);
 });

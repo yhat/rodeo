@@ -157,6 +157,9 @@ app.on('ready', function() {
   });
 
   ipc.on('file-get', function(event, filepath) {
+    if (/^~/.test(filepath)) {
+      filepath = filepath.replace("~", USER_HOME);
+    }
     event.returnValue = {
       basename: path.basename(filepath),
       pathname: filepath,
