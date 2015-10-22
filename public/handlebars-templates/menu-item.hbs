@@ -1,0 +1,25 @@
+<li class="dropdown">
+  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">{{name}}</span></a>
+  <ul id="menu-{{name}}" class="dropdown-menu" role="menu" style="width: 250px !important;">
+    {{#items}}
+      {{#isDivider}}
+      <li class="divider"></li>
+      {{else}}
+        <li>
+          <a {{#if onclick}}onclick="{{onclick}}"{{/if}} {{#if href}}href="{{href}}" target="_blank"{{/if}}>
+            <div class="row">
+              <div class="col-sm-6">
+                {{text}}
+              </div>
+              <div class="col-sm-6 text-right">
+                <span style="font-size: 10px;">
+                  {{shortcut}}
+                </span>
+              </div>
+            </div>
+          </a>
+        </li>
+      {{/isDivider}}
+    {{/items}}
+  </ul>
+</li>

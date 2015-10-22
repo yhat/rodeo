@@ -30,3 +30,8 @@ TODO
     - [x] preferences
     - [x] plan for working directories
     - [x] bug w/ file nav not working
+
+
+    - Bridge interested in Beta
+    - [ ] editor cut-off bug
+    - [ ] nicer stdin error

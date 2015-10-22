@@ -57,7 +57,8 @@ static/js/server-main.js : $(JS_FILES)
 		public/js/focus.js \
 		public/js/session.js \
 		public/js/global-shortcuts.js \
-		public/js/preferences.js > static/js/server-main.js
+		public/js/preferences.js \
+		public/js/server-menu.js > static/js/server-main.js
 
 static/js/desktop-main.js : $(JS_FILES)
 	uglifyjs public/js/lib/jquery.min.js \

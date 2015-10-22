@@ -118,6 +118,62 @@ templates['history-row.hbs'] = template({"compiler":[7,">= 4.0.0"],"main":functi
     + container.escapeExpression(((helper = (helper = helpers.command || (depth0 != null ? depth0.command : depth0)) != null ? helper : helpers.helperMissing),(typeof helper === "function" ? helper.call(depth0 != null ? depth0 : {},{"name":"command","hash":{},"data":data}) : helper)))
     + "</span>\n</p>\n";
 },"useData":true});
+templates['menu-item.hbs'] = template({"1":function(container,depth0,helpers,partials,data) {
+    var stack1, helper, options, buffer = "";
+
+  stack1 = ((helper = (helper = helpers.isDivider || (depth0 != null ? depth0.isDivider : depth0)) != null ? helper : helpers.helperMissing),(options={"name":"isDivider","hash":{},"fn":container.program(2, data, 0),"inverse":container.program(4, data, 0),"data":data}),(typeof helper === "function" ? helper.call(depth0 != null ? depth0 : {},options) : helper));
+  if (!helpers.isDivider) { stack1 = helpers.blockHelperMissing.call(depth0,stack1,options)}
+  if (stack1 != null) { buffer += stack1; }
+  return buffer;
+},"2":function(container,depth0,helpers,partials,data) {
+    return "      <li class=\"divider\"></li>\n";
+},"4":function(container,depth0,helpers,partials,data) {
+    var stack1, helper, alias1=depth0 != null ? depth0 : {}, alias2=helpers.helperMissing, alias3="function", alias4=container.escapeExpression;
+
+  return "        <li>\n          <a "
+    + ((stack1 = helpers["if"].call(alias1,(depth0 != null ? depth0.onclick : depth0),{"name":"if","hash":{},"fn":container.program(5, data, 0),"inverse":container.noop,"data":data})) != null ? stack1 : "")
+    + " "
+    + ((stack1 = helpers["if"].call(alias1,(depth0 != null ? depth0.href : depth0),{"name":"if","hash":{},"fn":container.program(7, data, 0),"inverse":container.noop,"data":data})) != null ? stack1 : "")
+    + ">\n            <div class=\"row\">\n              <div class=\"col-sm-6\">\n                "
+    + alias4(((helper = (helper = helpers.text || (depth0 != null ? depth0.text : depth0)) != null ? helper : alias2),(typeof helper === alias3 ? helper.call(alias1,{"name":"text","hash":{},"data":data}) : helper)))
+    + "\n              </div>\n              <div class=\"col-sm-6 text-right\">\n                <span style=\"font-size: 10px;\">\n                  "
+    + alias4(((helper = (helper = helpers.shortcut || (depth0 != null ? depth0.shortcut : depth0)) != null ? helper : alias2),(typeof helper === alias3 ? helper.call(alias1,{"name":"shortcut","hash":{},"data":data}) : helper)))
+    + "\n                </span>\n              </div>\n            </div>\n          </a>\n        </li>\n";
+},"5":function(container,depth0,helpers,partials,data) {
+    var helper;
+
+  return "onclick=\""
+    + container.escapeExpression(((helper = (helper = helpers.onclick || (depth0 != null ? depth0.onclick : depth0)) != null ? helper : helpers.helperMissing),(typeof helper === "function" ? helper.call(depth0 != null ? depth0 : {},{"name":"onclick","hash":{},"data":data}) : helper)))
+    + "\"";
+},"7":function(container,depth0,helpers,partials,data) {
+    var helper;
+
+  return "href=\""
+    + container.escapeExpression(((helper = (helper = helpers.href || (depth0 != null ? depth0.href : depth0)) != null ? helper : helpers.helperMissing),(typeof helper === "function" ? helper.call(depth0 != null ? depth0 : {},{"name":"href","hash":{},"data":data}) : helper)))
+    + "\" target=\"_blank\"";
+},"compiler":[7,">= 4.0.0"],"main":function(container,depth0,helpers,partials,data) {
+    var stack1, helper, options, alias1=depth0 != null ? depth0 : {}, alias2=helpers.helperMissing, alias3="function", alias4=container.escapeExpression, buffer = 
+  "<li class=\"dropdown\">\n  <a href=\"#\" class=\"dropdown-toggle\" data-toggle=\"dropdown\" role=\"button\" aria-expanded=\"false\">"
+    + alias4(((helper = (helper = helpers.name || (depth0 != null ? depth0.name : depth0)) != null ? helper : alias2),(typeof helper === alias3 ? helper.call(alias1,{"name":"name","hash":{},"data":data}) : helper)))
+    + "</span></a>\n  <ul id=\"menu-"
+    + alias4(((helper = (helper = helpers.name || (depth0 != null ? depth0.name : depth0)) != null ? helper : alias2),(typeof helper === alias3 ? helper.call(alias1,{"name":"name","hash":{},"data":data}) : helper)))
+    + "\" class=\"dropdown-menu\" role=\"menu\" style=\"width: 250px !important;\">\n";
+  stack1 = ((helper = (helper = helpers.items || (depth0 != null ? depth0.items : depth0)) != null ? helper : alias2),(options={"name":"items","hash":{},"fn":container.program(1, data, 0),"inverse":container.noop,"data":data}),(typeof helper === alias3 ? helper.call(alias1,options) : helper));
+  if (!helpers.items) { stack1 = helpers.blockHelperMissing.call(depth0,stack1,options)}
+  if (stack1 != null) { buffer += stack1; }
+  return buffer + "  </ul>\n</li>\n";
+},"useData":true});
+templates['nav-item.hbs'] = template({"compiler":[7,">= 4.0.0"],"main":function(container,depth0,helpers,partials,data) {
+    var helper, alias1=depth0 != null ? depth0 : {}, alias2=helpers.helperMissing, alias3="function", alias4=container.escapeExpression;
+
+  return "<li>\n  <a onclick=\""
+    + alias4(((helper = (helper = helpers.onclick || (depth0 != null ? depth0.onclick : depth0)) != null ? helper : alias2),(typeof helper === alias3 ? helper.call(alias1,{"name":"onclick","hash":{},"data":data}) : helper)))
+    + "\">\n    <div class=\"row\">\n      <div class=\"col-sm-6\">"
+    + alias4(((helper = (helper = helpers.text || (depth0 != null ? depth0.text : depth0)) != null ? helper : alias2),(typeof helper === alias3 ? helper.call(alias1,{"name":"text","hash":{},"data":data}) : helper)))
+    + "</div>\n      <div class=\"col-sm-6 text-right\">\n        <span style=\"font-size: 10px;\">\n          "
+    + alias4(((helper = (helper = helpers.shortcut || (depth0 != null ? depth0.shortcut : depth0)) != null ? helper : alias2),(typeof helper === alias3 ? helper.call(alias1,{"name":"shortcut","hash":{},"data":data}) : helper)))
+    + "\n        </span>\n      </div>\n    </div>\n  </a>\n</li>\n";
+},"useData":true});
 templates['package-row.hbs'] = template({"compiler":[7,">= 4.0.0"],"main":function(container,depth0,helpers,partials,data) {
     var helper, alias1=depth0 != null ? depth0 : {}, alias2=helpers.helperMissing, alias3="function", alias4=container.escapeExpression;
 

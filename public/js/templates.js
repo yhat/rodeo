@@ -36,8 +36,12 @@ Handlebars.registerHelper('compare', function (lvalue, operator, rvalue, options
   } else {
       return options.inverse(this);
   }
-
 });
+
+Handlebars.registerHelper('toJSON', function(context) {
+  return JSON.stringify(context);
+});
+
 // Load in Handlebars templates
 var preferences_template = Handlebars.templates["preferences.hbs"];
 var editor_tab_template = Handlebars.templates["editor-tab.hbs"];
@@ -49,6 +53,8 @@ var file_template = Handlebars.templates["file-item.hbs"];
 var file_search_item_template = Handlebars.templates["file-search-item.hbs"];
 var wd_template = Handlebars.templates["wd.hbs"];
 var shortcuts_template = Handlebars.templates["shortcuts.hbs"];
+var menu_item_template = Handlebars.templates["menu-item.hbs"];
+var nav_item_template = Handlebars.templates["nav-item.hbs"];
 
 
 
