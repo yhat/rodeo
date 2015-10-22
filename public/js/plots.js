@@ -55,28 +55,31 @@ function savePlot() {
   if (! $("#plots .active").length) {
     return;
   }
-  bootbox.alert("Right-click the plot to save.");
-  // remote.require('dialog').showSaveDialog({
-  //   title:'Export Plot',
-  //   default_path: USER_WD,
-  // }, function(destfile) {
-  //   if (! destfile) {
-  //     return
-  //   }
-  //
-  //   if ($("#plots img.active").length) {
-  //     // if image
-  //     var img = $("img.active").attr("src").replace("data:image/png;charset=utf-8;base64,", "");
-  //     require('fs').writeFileSync(destfile, img, 'base64');
-  //   } else {
-  //     // if svg
-  //     var svg = document.getElementsByTagName("svg")[0]
-  //     svgAsDataUri(svg, {}, function(uri) {
-  //       img = uri.replace("data:image/svg+xml;base64,", "");
-  //       require('fs').writeFileSync(destfile, img, 'base64');
-  //     });
-  //   }
-  // });
+  if (isDesktop()) {
+    remote.require('dialog').showSaveDialog({
+      title: 'Export Plot',
+      default_path: ipc.sendSync('wd-get'),
+    }, function(destfile) {
+      if (! destfile) {
+        return
+      }
+
+      if ($("#plots img.active").length) {
+        // if image
+        var img = $("img.active").attr("src").replace("data:image/png;charset=utf-8;base64,", "");
+        require('fs').writeFileSync(destfile, img, 'base64');
+      } else {
+        // if svg
+        var svg = document.getElementsByTagName("svg")[0]
+        svgAsDataUri(svg, {}, function(uri) {
+          img = uri.replace("data:image/svg+xml;base64,", "");
+          require('fs').writeFileSync(destfile, img, 'base64');
+        });
+      }
+    });
+  } else {
+    bootbox.alert("Right-click the plot to save.");
+  }
 }
 
 function addPlot(result) {
@@ -89,7 +92,7 @@ function addPlot(result) {
     $(newplot).attr("src", plotImage);
   } else if (result.html) {
     $("#plots .active").removeClass("active").addClass("hide");
-    // TODO: need to handle the sizing here
+    //  TODO: need to handle the sizing here
     result.html = result.html.replace(/600px/g, "95%");
     var newplot = $.parseHTML('<div class="active">' + result.html + "</div>");
   }
