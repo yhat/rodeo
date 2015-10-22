@@ -50,13 +50,6 @@ function createEditor(id) {
 
       executeCommand(code, true, function(result) {
         var predictions = result.output.map(function(p) {
-          // for(var i=p.text.length; i>0; i--) {
-          //   p.value = p.text;
-          //   if (code==p.text.slice(0, i) ){
-          //     p.value = p.text.slice(i);
-          //     break;
-          //   }
-          // }
           var value = p.text;
           // if it's not a filename and there's a "." in the value, we want
           // to set the value to just the last item in the list
@@ -66,20 +59,8 @@ function createEditor(id) {
 
           return { caption: p.text, value: value, score: 100, meta: null };
         });
-        // if (predictions.length==1 && code.indexOf("~") > -1) {
-        //   var rng = {
-        //     start: {
-        //       row:2 ,
-        //       column:4
-        //     },
-        //     end:{
-        //       row:2,
-        //       column:6
-        //     }
-        //   };
-        //   editor.session.replace(rng, USER_HOME);
-        // }
-        fn(null, predictions)
+
+        fn(null, predictions);
       });
     }
   };
@@ -90,7 +71,7 @@ function createEditor(id) {
 
   // TODO: fix this...
   var allCommands = editor.commands.byName;
-  editor.commands.bindKey("Cmd-d", null)
+  editor.commands.bindKey("Cmd-d", null);
   allCommands.findnext.bindKey = {win: "Ctrl-d", mac: "Cmd-d"};
   editor.commands.addCommand(allCommands.findnext)
 
@@ -237,8 +218,8 @@ function createEditor(id) {
   });
 
   editor.commands.addCommand({
-    name: "do-me-some-autocomplete",
-    bindKey: {win: "tab", mac: "tab"},
+    name: "autocomplete",
+    bindKey: {win: "Tab", mac: "Tab"},
     exec: function(editor) {
       var pos = editor.getCursorPosition();
       var text = editor.session.getTextRange({
@@ -248,12 +229,20 @@ function createEditor(id) {
 
       var line = getCurrentLine(editor);
 
+      // Don't ask about the setTimeout-50 business. This bug came out of nowhere.
+      // Everything was workign fine without it and then all of a sudden it popped
+      // up. I'm not even sure how I thought that this might fix it. It was a
+      // total shot in the dark. Million to one shot doc, million to one.
       if (/from /.test(line) || /import /.test(line)) {
-        return editor.completer.showPopup(editor);
+        setTimeout(function() {
+          editor.completer.showPopup(editor);
+        }, 50);
       } else if (text!=" " && text!="") {
-        return editor.completer.showPopup(editor);
+        setTimeout(function() {
+          editor.completer.showPopup(editor);
+        }, 50);
       } else {
-        return editor.insert("    ");
+        editor.insert("    ");
       }
     }
   });
@@ -308,6 +297,7 @@ function createEditor(id) {
   editor.on('input', function() {
     $("#" + id.replace("editor", "editor-tab") + " .unsaved").removeClass("hide");
   });
+
   setDefaultPreferences(editor);
 }
 

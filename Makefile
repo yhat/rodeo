@@ -64,7 +64,6 @@ static/js/desktop-main.js : $(JS_FILES)
 		public/js/lib/jqconsole.min.js \
 		public/js/lib/jquery.dataTables.js \
 		public/js/lib/jquery.splitter-0.15.0.js \
-		public/js/lib/mousetrap.js \
 		public/js/lib/ascii-table.min.js \
 		public/js/lib/bootstrap.min.js \
 		public/js/lib/bootbox.js \
