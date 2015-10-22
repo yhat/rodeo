@@ -10,7 +10,7 @@ all: css js
 
 css: static/css/styles.css static/css/styles-dark.css static/css/styles-presentation.css static/css/styles-cobalt.css
 
-js: static/js/main.js static/js/desktop-main.js static/js/ace.min.js
+js: static/js/server-main.js static/js/desktop-main.js static/js/ace.min.js
 
 handlebars: public/js/handlebars-templates.js
 
@@ -29,7 +29,7 @@ static/css/styles-dark.css: $(LESS_FILES)
 public/js/handlebars-templates.js: $(HBS_FILES)
 	handlebars public/handlebars-templates/* > public/js/handlebars-templates.js
 
-static/js/main.js : $(JS_FILES)
+static/js/server-main.js : $(JS_FILES)
 	uglifyjs public/js/lib/jquery.min.js \
 		public/js/lib/jqconsole.min.js \
 		public/js/lib/jquery.dataTables.js \
@@ -57,7 +57,7 @@ static/js/main.js : $(JS_FILES)
 		public/js/focus.js \
 		public/js/session.js \
 		public/js/global-shortcuts.js \
-		public/js/preferences.js > static/js/main.js
+		public/js/preferences.js > static/js/server-main.js
 
 static/js/desktop-main.js : $(JS_FILES)
 	uglifyjs public/js/lib/jquery.min.js \
