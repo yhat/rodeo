@@ -50,6 +50,17 @@ $("#psuedo-file-menu").append(
   menu_item_template(ViewMenu)
 );
 
+var WindowMenu = {
+  name: "Window",
+  items: [
+    { text: "Reset Windows to Default Sizes", onclick: "resetWindowCalibration();"}
+  ]
+};
+
+$("#psuedo-file-menu").append(
+  menu_item_template(WindowMenu)
+);
+
 var SessionMenu = {
   name: "Session",
   items: [
@@ -63,9 +74,6 @@ var SessionMenu = {
 $("#psuedo-file-menu").append(
   menu_item_template(SessionMenu)
 );
-
-
-
 
 var HelpMenu = {
   name: "Help",

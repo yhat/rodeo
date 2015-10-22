@@ -56,7 +56,6 @@ function setTheme(theme) {
 function setPythonCmd(cmd) {
   if (cmd) {
     cmd = cmd.replace("~", USER_HOME);
-    console.log("pythonCmd" + cmd);
     updateRC("pythonCmd", cmd);
   } else {
     updateRC("pythonCmd", null);
@@ -82,6 +81,32 @@ function saveWindowCalibration() {
   updateRC("paneVertical", paneVertical + "%");
   updateRC("paneHorizontalRight", paneHorizontalRight + "%");
   updateRC("paneHorizontalLeft", paneHorizontalLeft + "%");
+}
+
+function resetWindowCalibration() {
+  bootbox.dialog({
+    title: "This will restart your Rodeo session. Are you sure you want to continue?",
+    message: "Any unsaved scripts and data will be deleted permanently.",
+    buttons: {
+      cancel: {
+        label: "Cancel",
+        className: "btn-default",
+        callback: function() {
+          return;
+        }
+      },
+      yes: {
+        label: "Yes",
+        className: "btn-primary",
+          callback: function() {
+            updateRC("paneVertical", null);
+            updateRC("paneHorizontalRight", null);
+            updateRC("paneHorizontalLeft", null);
+            window.location.reload()
+          }
+      }
+    }
+  });
 }
 
 function showRodeoProfile() {
@@ -141,3 +166,4 @@ function setupPreferences() {
   });
 }
 setupPreferences();
+// setupWindows();

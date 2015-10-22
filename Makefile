@@ -58,6 +58,7 @@ static/js/server-main.js : $(JS_FILES)
 		public/js/session.js \
 		public/js/global-shortcuts.js \
 		public/js/preferences.js \
+		public/js/windows/sizing.js \
 		public/js/server-menu.js > static/js/server-main.js
 
 static/js/desktop-main.js : $(JS_FILES)
@@ -87,6 +88,7 @@ static/js/desktop-main.js : $(JS_FILES)
 		public/js/focus.js \
 		public/js/windows/display-variable.js \
 		public/js/windows/about.js \
+		public/js/windows/sizing.js \
 		public/js/session.js \
 		public/js/preferences.js > static/js/desktop-main.js
 

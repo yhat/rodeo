@@ -3,6 +3,7 @@ var path = require('path');
 var express = require('express');
 var WebSocketServer = require('ws').Server;
 var bodyParser = require('body-parser');
+var morgan = require('morgan');
 // Rodeo stuff
 var kernel = require('../rodeo/kernel');
 var findFile = require('../rodeo/find-file');
@@ -15,6 +16,8 @@ app.use(express.static(path.join(__dirname, '..', '..', '/static')));
 app.use(bodyParser.urlencoded({ extended: false }));
 // parse application/json
 app.use(bodyParser.json());
+// logging
+app.use(morgan('dev'));
 
 
 global.python = null;
