@@ -11,7 +11,8 @@ var preferences = require('../rodeo/preferences');
 
 var app = express();
 // setup static assets route handler
-app.use(express.static(path.join(__dirname, '..', '..', '/static')));
+var staticDir = path.join(__dirname, '..', '..', '/static');
+app.use(express.static(staticDir));
 // parse application/x-www-form-urlencoded
 app.use(bodyParser.urlencoded({ extended: false }));
 // parse application/json
@@ -37,7 +38,7 @@ kernel(function(err, python) {
 });
 
 app.get('/', function(req, res) {
-  var filepath = path.join(__dirname, '..', '..', './static/server-index.html');
+  var filepath = path.join(staticDir, 'server-index.html');
   res.sendFile(filepath);
 });
 
@@ -173,14 +174,14 @@ app.post('/profile', function(req, res) {
 });
 
 app.get('/about', function(req, res) {
-  var filepath = path.join(__dirname, '..', '..', './static/about.html');
+  var filepath = path.join(staticDir, 'about.html');
   res.sendFile(filepath);
 });
 
 var PORT = parseInt(process.env.PORT || "3000");
 var HOST = process.env.HOST || "0.0.0.0";
 var server = app.listen(PORT, HOST);
-console.log("The party is at: " + HOST + ":" + PORT);
+console.log("The Rodeo is at: " + HOST + ":" + PORT);
 
 var wss = new WebSocketServer({ server: server });
 

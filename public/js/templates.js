@@ -207,8 +207,8 @@ function showPreferences() {
 // misc startup stuff...
 $("#tour").owlCarousel({ singleItem: true });
 $('[data-toggle="tooltip"]').tooltip();
-// setTimeout(calibratePanes, 450);
-
+setTimeout(calibratePanes, 450);
+setupWindows();
 
 // tell server if we're online or offline
 var updateOnlineStatus = function() {

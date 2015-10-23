@@ -1,28 +1,27 @@
-//
-// function setupWindows() {
-//   // resizeable panes
-//   $("#pane-container").height($(window).height() - $(".navbar").height());
-//
-//   getRC(function(rc) {
-//     $("#pane-container").split({
-//       orientation: 'vertical',
-//       limit: 100,
-//       position: rc.paneVertical || '50%'
-//     });
-//
-//     $("#right-column").split({
-//       orientation: 'horizontal',
-//       limit: 100,
-//       position: rc.paneHorizontalRight || '50%'
-//     });
-//
-//     $("#left-column").split({
-//       orientation: 'horizontal',
-//       limit: 100,
-//       position: rc.paneHorizontalLeft || '50%'
-//     });
-//   });
-// }
+function setupWindows() {
+  // resizeable panes
+  $("#pane-container").height($(window).height() - $(".navbar").height());
+
+  getRC(function(rc) {
+    $("#pane-container").split({
+      orientation: 'vertical',
+      limit: 100,
+      position: rc.paneVertical || '50%'
+    });
+
+    $("#right-column").split({
+      orientation: 'horizontal',
+      limit: 100,
+      position: rc.paneHorizontalRight || '50%'
+    });
+
+    $("#left-column").split({
+      orientation: 'horizontal',
+      limit: 100,
+      position: rc.paneHorizontalLeft || '50%'
+    });
+  });
+}
 
 function calibratePanes() {
   $("#pane-container").height($(window).height() - $(".navbar").height());
