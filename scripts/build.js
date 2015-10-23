@@ -28,6 +28,8 @@ var packagerOptions = {
   ignore: [
     'node_modules/.bin',
     'node_modules/electron-compile/node_modules/electron-compilers',
+    'node_modules_linux',
+    'node_modules_osx',
     'public',
     'marketing',
     'scripts',
