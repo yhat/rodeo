@@ -35,6 +35,7 @@ kernel(function(err, python) {
   if (python==null) {
     console.log("[ERROR]: python came back null");
   }
+  python.execute("cd " + USER_WD);
 });
 
 app.get('/', function(req, res) {
@@ -178,7 +179,7 @@ app.get('/about', function(req, res) {
   res.sendFile(filepath);
 });
 
-var PORT = parseInt(process.env.PORT || "3000");
+var PORT = parseInt(process.argv[3] || process.env.PORT || "3000");
 var HOST = process.env.HOST || "0.0.0.0";
 var server = app.listen(PORT, HOST);
 console.log("The Rodeo is at: " + HOST + ":" + PORT);
@@ -198,6 +199,12 @@ wss.on('connection', function (ws) {
     var data = JSON.parse(data);
     if (data.msg=="index-files") {
       findFile(ws);
+    } else if (data.msg=="command") {
+      python.executeStream(data.command, data.autocomplete==true, function(result) {
+        result.command = data.command;
+        result.msg = "command"
+        ws.sendJSON(result);
+      });
     }
   });
 
