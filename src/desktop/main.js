@@ -109,7 +109,6 @@ app.on('ready', function() {
     if (data.stream==true || data.stream=='true') {
       python.executeStream(data.command, data.autocomplete=="true", function(result) {
         result.command = data.command;
-        result = JSON.stringify(result);
         event.sender.send('command', result);
       });
     } else {
