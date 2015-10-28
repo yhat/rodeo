@@ -3,28 +3,34 @@
 if uname -a | grep Darwin > /dev/null; then
     RODEO_DIR=~/repos/yhat/prototypes/rodeo-native
 else
-    RODEO_DIR=/var/rodeo
+    if [ -d /rodeo ]; then
+      RODEO_DIR=/rodeo
+    elif [ -d /var/rodeo ]; then
+      RODEO_DIR=/var/rodeo
+    else
+      echo >&2 "It doesn't look like Rodeo is installed on this machine. Make sure the /var/rodeo directory exists."
+      exit 1
+    fi
 fi
+
+
+command -v node >/dev/null 2>&1 || { echo >&2 "You need node.js installed to run Rodeo."; exit 1; }
 
 case "$1" in
 
     start)
-        # this will ventually be an init call
-        node "${RODEO_DIR}/src/server/server.js" $2
+        node "${RODEO_DIR}/src/server/server.js" $2 $3
     ;;
 
     restart)
-        # this will ventually be an init call
         for pid in $(ps ax | grep "${RODEO_DIR}/src/server/server.js" | awk '{ print $1 }')
           do
             kill $pid
           done
-        # this will ventually be an init call
         node "${RODEO_DIR}/src/server/server.js" $2
     ;;
 
     stop)
-        # this will ventually be an init call
         for pid in $(ps ax | grep "${RODEO_DIR}/src/server/server.js" | awk '{ print $1 }')
           do
             kill $pid
@@ -32,9 +38,11 @@ case "$1" in
     ;;
 
     version)
-        echo "RodeoServer v$(cat "${RODEO_DIR}/package.json" | jq -r .version)"
+        CMD="console.log(require('${RODEO_DIR}/package.json').version);"
+        VERSION=$(node -e $CMD)
+        echo "Rodeo v${VERSION}"
     ;;
-    
+
     *)
         echo "Usage: rodeo-worker {start|stop|restart|version}"
         exit 2
