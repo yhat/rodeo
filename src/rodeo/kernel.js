@@ -90,7 +90,9 @@ module.exports = function(cb) {
         if (result.status=="complete") {
           var r = results[results.length-1];
           r.output = output;
-          fn(r);
+          if (fn) {
+            fn(r);
+          }
         }
         results.push(result)
       }
