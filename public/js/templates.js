@@ -110,7 +110,12 @@ function sendCommand(input, hideResult) {
     input = "help(" + input.slice(1) + ")"
   } else if (input=="reset" || input=="%%reset" || input=="%reset" || input=="quit" || input=="quit()" || input=="exit" || input=="exit()") {
     // do quit stuff...
-    return;
+    if (isDesktop()) {
+      ipc.send('quit');
+    } else {
+      bootbox.alert("To quit Rodeo, just exit this tab.");
+      return;
+    }
   }
 
   // auto scroll down
@@ -126,49 +131,43 @@ function sendCommand(input, hideResult) {
   if (isDesktop()) {
     ipc.send('command', data);
   } else {
-    $.get("command", data, function(results) {
-      handleCommandResults(results);
-    });
+    data.msg = 'command';
+    ws.sendJSON(data);
   }
 }
 
-function handleCommandResults(results) {
-  var results = results.trim().split('\n');
-  for(var i=0; i < results.length; i++) {
-    var result = JSON.parse(results[i]);
+function handleCommandResults(result) {
+  if (result.stream) {
+    jqconsole.Write(result.stream || "");
+  }
 
-    if (result.stream) {
-      jqconsole.Write(result.stream || "");
+  if (/^help[(]/.test(result.command)) {
+    if (result.output) {
+      $('#help-content').text(result.output);
+      $('a[href="#help"]').tab("show");
+      return;
     }
+  }
 
-    if (/^help[(]/.test(result.command)) {
-      if (result.output) {
-        $('#help-content').text(result.output);
-        $('a[href="#help"]').tab("show");
-        return;
-      }
-    }
+  if (result.image || result.html) {
+    addPlot(result);
+  }
 
-    if (result.image || result.html) {
-      addPlot(result);
-    }
+  if (result.error) {
+    track('command', 'error');
+    jqconsole.Write(result.error + '\n', 'jqconsole-error');
+  }
 
-    if (result.error) {
-      track('command', 'error');
-      jqconsole.Write(result.error + '\n', 'jqconsole-error');
-    }
-
-    if (result.status=="complete") {
-      jqconsole.Write('\n');
-      refreshVariables();
-    }
+  if (result.status=="complete") {
+    jqconsole.Write('\n');
+    refreshVariables();
   }
 }
 
 if (isDesktop()) {
   ipc.on('command', function(data) {
     handleCommandResults(data);
-  })
+  });
 }
 
 // execute script button
@@ -183,7 +182,7 @@ $("#run-button").click(function(e) {
   jqconsole.Write(">>> " + code + '\n', 'jqconsole-old-input');
   sendCommand(code);
   return false;
-})
+});
 
 function executeCommand(command, autocomplete, fn) {
   var data = {

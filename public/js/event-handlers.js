@@ -9,9 +9,12 @@ if (scheme == "https:") {
 
 var wsUrl = document.URL.replace(/https?:\/\//, wsScheme).replace("#", "");
 var ws = new WebSocket(wsUrl);
+ws.sendJSON = function(data) {
+  ws.send(JSON.stringify(data));
+}
 
 ws.onopen = function() {
-  ws.send(JSON.stringify({ msg: 'index-files'}));
+  ws.sendJSON({ msg: 'index-files'});
 }
 
 ws.onmessage = function(evt) {
@@ -33,5 +36,8 @@ ws.onmessage = function(evt) {
     fileIndexInterrupt();
   } else if (data.msg=="file-index-complete") {
     fileIndexComplete();
+  } else if (data.msg=="command") {
+    handleCommandResults(data);
+    // handleCommandResults(JSON.stringify(data));
   }
 };
