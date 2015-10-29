@@ -13,11 +13,13 @@ global.completionCallbacks = {};
 
 // we need to actually write the python kernel to a tmp file. this is so python
 // can run as a "real" file and not an asar file
-var pythonKernel = path.join(__dirname, "kernel.py");
-var kernelFile = tmp.fileSync();
-fse.copySync(pythonKernel, kernelFile.name);
-fs.chmodSync(kernelFile.name, 0755);
-var configFile = tmp.fileSync();
+var pythonKernel = path.join(__dirname, "kernel", "kernel.py");
+var kernelDir = path.join(__dirname, "kernel");
+var tmpKernelDir = tmp.dirSync();
+fse.copySync(kernelDir, tmpKernelDir.name);
+
+var kernelFile = path.join(tmpKernelDir.name, "kernel.py");
+var configFile = path.join(tmpKernelDir.name, "config.json");
 var delim = "\n";
 
 module.exports = function(cb) {
@@ -29,7 +31,7 @@ module.exports = function(cb) {
 
     console.log("[INFO]: starting python using PYTHON='" + pythonCmd + "'");
     console.log("[INFO]: starting python using OPTIONS='" + JSON.stringify(opts) + "'");
-    var args = [ kernelFile.name, configFile.name + ".json", delim ];
+    var args = [ kernelFile, configFile, delim ];
     python = spawn(pythonCmd, args, opts);
 
     // we'll print any feedback from the kernel as yellow text
@@ -43,7 +45,7 @@ module.exports = function(cb) {
     });
 
     python.on("exit", function(code) {
-      fs.unlink(kernelFile.name, function(err) {
+      fs.unlink(kernelFile, function(err) {
         if (err) {
           console.log("failed to remove temporary kernel file: " + err);
         }
