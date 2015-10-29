@@ -43,17 +43,17 @@ $ rodeo .
 ## Features
 
 #### Execute scripts
-![](https://raw.githubusercontent.com/yhat/rodeo/master/rodeo/static/img/screenshot-files-with-output.png)
+![](https://raw.githubusercontent.com/yhat/rodeo/python/rodeo/static/img/screenshot-files-with-output.png)
 #### Run analysis
-![](https://raw.githubusercontent.com/yhat/rodeo/master/rodeo/static/img/screenshot-mpl-complex.png)
+![](https://raw.githubusercontent.com/yhat/rodeo/python/rodeo/static/img/screenshot-mpl-complex.png)
 #### Autocomplete
-![](https://raw.githubusercontent.com/yhat/rodeo/master/rodeo/static/img/screenshot-autocomplete.png)
+![](https://raw.githubusercontent.com/yhat/rodeo/python/rodeo/static/img/screenshot-autocomplete.png)
 #### Inspect your data
-![](https://raw.githubusercontent.com/yhat/rodeo/master/rodeo/static/img/screenshot-view-data.png)
+![](https://raw.githubusercontent.com/yhat/rodeo/python/rodeo/static/img/screenshot-view-data.png)
 #### Plots
-![](https://raw.githubusercontent.com/yhat/rodeo/master/rodeo/static/img/screenshot-ggplot.png)
+![](https://raw.githubusercontent.com/yhat/rodeo/python/rodeo/static/img/screenshot-ggplot.png)
 #### Documentation and Help
-![](https://raw.githubusercontent.com/yhat/rodeo/master/rodeo/static/img/screenshot-help.png)
+![](https://raw.githubusercontent.com/yhat/rodeo/python/rodeo/static/img/screenshot-help.png)
 
 
 [![image](https://ga-beacon.appspot.com/UA-46996803-1/rodeo/README.md)](https://github.com/yhat/rodeo)
