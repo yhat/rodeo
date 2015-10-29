@@ -66,7 +66,3 @@ function setFiles(dir) {
     });
   }
 }
-
-getWorkingDirectory(function(wd) {
-  setFiles(wd);
-});

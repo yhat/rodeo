@@ -1,4 +1,3 @@
-
 function restartSession() {
   sendCommand("%reset -f");
   refreshVariables();

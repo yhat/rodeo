@@ -13,7 +13,6 @@ function startPrompt() {
     startPrompt();
   });
 };
-startPrompt();
 // 4 spaces for python
 jqconsole.SetIndentWidth(4);
 

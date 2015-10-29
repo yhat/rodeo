@@ -1,3 +1,7 @@
+function isDesktop() {
+  return /^file:\/\//.test(window.location.href);
+}
+
 function updateRC(preferenceName, preferenceValue) {
   if (isDesktop()) {
     ipc.sendSync("preferences-post", { name: preferenceName, value: preferenceValue });
