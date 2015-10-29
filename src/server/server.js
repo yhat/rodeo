@@ -78,14 +78,21 @@ app.post('/wd', function(req, res) {
   }
 });
 
+// TODO: handle R stuff...
 app.get('/variable', function(req, res) {
   var varname = req.query.name
   var show_var_statements = {
-    DataFrame: "print(" + varname + "[:1000].to_html())",
-    Series: "print(" + varname + "[:1000].to_frame().to_html())",
-    list: "pp.pprint(" + varname + ")",
-    ndarray: "pp.pprint(" + varname + ")",
-    dict: "pp.pprint(" + varname + ")"
+    python: {
+      DataFrame: "print(" + varname + "[:1000].to_html())",
+      Series: "print(" + varname + "[:1000].to_frame().to_html())",
+      list: "pp.pprint(" + varname + ")",
+      ndarray: "pp.pprint(" + varname + ")",
+      dict: "pp.pprint(" + varname + ")"
+    },
+    r: {
+      "data.frame": 'cat(print(xtable(' + varname + '), type="html"))',
+      list: "cat(" + varname + ")"
+    }
   };
 
   var command = show_var_statements[req.query.type];
