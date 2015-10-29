@@ -78,7 +78,7 @@ function createEditor(id) {
 
   editor.commands.addCommand({
     name: "shift-editor-left",
-    bindKey: {win: "ctrl-option-shift-left", mac: "Command-option-shift-left"},
+    bindKey: {win: "ctrl-option-left", mac: "ctrl-option-left"},
     exec: function(editor) {
       track('shortcut', 'Change Editor > Move One Left');
       shiftEditorLeft();
@@ -87,7 +87,7 @@ function createEditor(id) {
 
   editor.commands.addCommand({
     name: "shift-editor-right",
-    bindKey: {win: "ctrl-option-shift-right", mac: "Command-option-shift-right"},
+    bindKey: {win: "ctrl-option-right", mac: "ctrl-option-right"},
     exec: function(editor) {
       track('shortcut', 'Change Editor > Move One Right');
       shiftEditorRight();
@@ -116,6 +116,14 @@ function createEditor(id) {
   editor.commands.addCommand({
     name: "findFile",
     bindKey: {win: "ctrl-option-t", mac: "Command-option-t"},
+    exec: function(editor) {
+      findFile();
+    }
+  });
+
+  editor.commands.addCommand({
+    name: "findFile2",
+    bindKey: {win: "ctrl-k", mac: "Command-k"},
     exec: function(editor) {
       findFile();
     }
@@ -287,11 +295,40 @@ function createEditor(id) {
   // new file
   editor.commands.addCommand({
     name: "newFile",
-    bindKey: {win: "Ctrl-Shift-n", mac: "Ctrl-Shift-n"},
+    bindKey: {win: "ctrl-option-shift-n", mac: "ctrl-option-shift-n"},
     exec: function(editor) {
       $("#add-tab").click();
     }
   });
+
+  if (! isDesktop()) {
+    editor.commands.addCommand({
+      name: "openUserFile",
+      bindKey: {win: "ctrl-o", mac: "command-o"},
+      exec: function(editor) {
+        $('#file-upload-trigger').click();
+      }
+    });
+    editor.commands.addCommand({
+      name: "closeOpenFile",
+      bindKey: {win: "ctrl-option-shift-w", mac: "command-option-shift-w"},
+      exec: function(editor) {
+        var n = $("#editorsTab .active").attr("id").replace("editor-tab-", "");
+        closeActiveTab(n);
+        getActiveEditor().focus();
+      }
+    });
+    editor.commands.addCommand({
+      name: "closeOpenFile2",
+      bindKey: {win: "ctrl-b", mac: "command-b"},
+      exec: function(editor) {
+        var n = $("#editorsTab .active").attr("id").replace("editor-tab-", "");
+        closeActiveTab(n);
+        getActiveEditor().focus();
+      }
+    });
+  }
+
   // end shortcuts
 
   editor.on('input', function() {
@@ -477,5 +514,5 @@ function shiftEditorRight() {
 
 function getActiveEditor() {
   var id = $("#editors .active .editor").attr("id");
-  return editor = ace.edit(id);
+  return ace.edit(id);
 }
