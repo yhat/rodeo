@@ -43,7 +43,7 @@ function findMeAPython(fn) {
     }
 
     // TODO: make less specific
-    exec("/home/sciencecluster/.anaconda2/bin/python -c 'import sys; print(sys.executable)'", opts, function(err, stdout, stderr) {
+    exec("python -c 'import sys; print(sys.executable)'", opts, function(err, stdout, stderr) {
       if (opts.env && stdout) {
         pythonCmds.push(stdout.toString().trim());
       }
