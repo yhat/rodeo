@@ -7,6 +7,9 @@
   "description": "An IDE for data science.",
   "author": "The Yhat Team",
   "main": "src/desktop/main.js",
+  "bin": {
+    "rodeo-worker": "./bin/rodeo-worker"
+  },
   "devDependencies": {
     "electron-builder": "^2.0.0",
     "electron-packager": "^5.1.0",
