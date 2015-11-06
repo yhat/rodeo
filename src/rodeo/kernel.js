@@ -9,6 +9,7 @@ var fs = require('fs')
   , SteveIrwin = require('./steve-irwin');
 
 
+
 global.completionCallbacks = {};
 
 // we need to actually write the python kernel to a tmp file. this is so python
@@ -106,7 +107,7 @@ module.exports = function(cb) {
       completionCallbacks[payload.id] = fn
       this.stdin.write(JSON.stringify(payload) + delim);
     };
-
+    
     cb(null, python);
   });
 }

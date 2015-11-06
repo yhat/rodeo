@@ -87,6 +87,29 @@ $("#run-button").click(function(e) {
   return false;
 });
 
+$("#run-markdown").click(function(e) {
+  var editor = getActiveEditor();
+  var code = editor.getSelectedText();
+
+  if (! code) {
+    code = editor.session.getValue();
+  }
+
+  if (isDesktop()) {
+    var html = ipc.sendSync('md', { doc: code });
+
+  } else {
+    $.post("/md", { doc: code }, function(html) {
+      var html = markdown_template({ renderedMarkdown: html });
+      var newWindow = window.open("","Rodeo Markdown","width=" + $(window).width()*0.6 +",height=" + $(window).height() +",scrollbars=1,resizable=1")
+      // read text from textbox placed in parent window
+      newWindow.document.open();
+      newWindow.document.write(html);
+      newWindow.document.close();
+    });
+  }
+});
+
 function executeCommand(command, autocomplete, fn) {
   var data = {
     "command": command,

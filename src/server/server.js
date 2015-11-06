@@ -5,6 +5,7 @@ var WebSocketServer = require('ws').Server;
 var bodyParser = require('body-parser');
 var morgan = require('morgan');
 // Rodeo stuff
+var md = require('../rodeo/md');
 var kernel = require('../rodeo/kernel');
 var findFile = require('../rodeo/find-file');
 var preferences = require('../rodeo/preferences');
@@ -154,6 +155,12 @@ app.post('/file', function(req, res) {
         basename: path.basename(req.body.filepath)
       });
     }
+  });
+});
+
+app.post('/md', function(req, res) {
+  md(req.body.doc, python, function(err, doc) {
+    res.send(doc);
   });
 });
 

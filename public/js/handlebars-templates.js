@@ -101,6 +101,13 @@ templates['history-row.hbs'] = template({"compiler":[7,">= 4.0.0"],"main":functi
     + container.escapeExpression(((helper = (helper = helpers.command || (depth0 != null ? depth0.command : depth0)) != null ? helper : helpers.helperMissing),(typeof helper === "function" ? helper.call(depth0 != null ? depth0 : {},{"name":"command","hash":{},"data":data}) : helper)))
     + "</span>\n</p>\n";
 },"useData":true});
+templates['markdown-output.hbs'] = template({"compiler":[7,">= 4.0.0"],"main":function(container,depth0,helpers,partials,data) {
+    var stack1, helper;
+
+  return "<html>\n<head>\n  <title>Rodeo</title>\n  <link rel=\"stylesheet\" href=\"css/styles.css\" />\n  <link rel=\"stylesheet\" href=\"http://cdnjs.cloudflare.com/ajax/libs/highlight.js/8.9.1/styles/default.min.css\">\n  <script src=\"http://cdnjs.cloudflare.com/ajax/libs/highlight.js/8.9.1/highlight.min.js\"></script>\n</head>\n<body>\n  <div class=\"container\">\n    "
+    + ((stack1 = ((helper = (helper = helpers.renderedMarkdown || (depth0 != null ? depth0.renderedMarkdown : depth0)) != null ? helper : helpers.helperMissing),(typeof helper === "function" ? helper.call(depth0 != null ? depth0 : {},{"name":"renderedMarkdown","hash":{},"data":data}) : helper))) != null ? stack1 : "")
+    + "\n  </div>\n  <script type=\"text/javascript\" src=\"http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML\"></script>\n</body>\n";
+},"useData":true});
 templates['menu-item.hbs'] = template({"1":function(container,depth0,helpers,partials,data) {
     var stack1, helper, options, buffer = "";
 

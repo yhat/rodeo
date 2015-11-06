@@ -54,6 +54,7 @@ var wd_template = Handlebars.templates["wd.hbs"];
 var shortcuts_template = Handlebars.templates["shortcuts.hbs"];
 var menu_item_template = Handlebars.templates["menu-item.hbs"];
 var nav_item_template = Handlebars.templates["nav-item.hbs"];
+var markdown_template = Handlebars.templates["markdown-output.hbs"];
 
 // Tab stuff
 $("#add-tab").click(function(e) {
@@ -86,4 +87,3 @@ var updateOnlineStatus = function() {
 // send subsequent changes to status
 window.addEventListener('online',  updateOnlineStatus);
 window.addEventListener('offline',  updateOnlineStatus);
-
