@@ -93,6 +93,7 @@ static/js/desktop-main.js : $(JS_FILES)
 		public/js/upload.js \
 		public/js/windows/about.js \
 		public/js/windows/display-variable.js \
+		public/js/windows/markdown.js \
 		public/js/windows/sizing.js \
 		public/js/main.js > static/js/desktop-main.js
 

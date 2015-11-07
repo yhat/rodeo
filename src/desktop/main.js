@@ -9,6 +9,7 @@ var querystring = require('querystring');
 var ipc = require('ipc');
 
 var kernel = require('../rodeo/kernel');
+var md = require('../rodeo/md');
 var findFile = require('../rodeo/find-file');
 var preferences = require('../rodeo/preferences');
 
@@ -153,6 +154,12 @@ app.on('ready', function() {
     USER_WD = wd;
     preferences.setPreferences("defaultWd", wd);
     event.returnValue = USER_WD;
+  });
+
+  ipc.on('md', function(event, data) {
+    md(data.doc, python, function(err, doc) {
+      event.returnValue = doc;
+    });
   });
 
   ipc.on('file-get', function(event, filepath) {

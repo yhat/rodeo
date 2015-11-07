@@ -1,0 +1,10 @@
+<!DOCTYPE html>
+<html lang="en">
+<body>
+  <script type="text/javascript">
+  require('ipc').on('markdown', function(data) {
+    document.body.innerHTML = data.html;
+  });
+  </script>
+  <script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+</body>

@@ -4,20 +4,23 @@ var express = require('express');
 var WebSocketServer = require('ws').Server;
 var bodyParser = require('body-parser');
 var morgan = require('morgan');
+var pdf = require('html-pdf');
+var tmp = require('tmp');
 // Rodeo stuff
 var md = require('../rodeo/md');
 var kernel = require('../rodeo/kernel');
 var findFile = require('../rodeo/find-file');
 var preferences = require('../rodeo/preferences');
 
+// setup express
 var app = express();
 // setup static assets route handler
 var staticDir = path.join(__dirname, '..', '..', '/static');
 app.use(express.static(staticDir));
 // parse application/x-www-form-urlencoded
-app.use(bodyParser.urlencoded({ extended: false }));
+app.use(bodyParser.urlencoded({limit: '50mb', extended: true}));
 // parse application/json
-app.use(bodyParser.json());
+app.use(bodyParser.json({limit: '50mb'}));
 // logging
 app.use(morgan('dev'));
 
@@ -25,8 +28,6 @@ app.use(morgan('dev'));
 global.python = null;
 global.USER_WD = process.argv[2] || __dirname;
 global.USER_HOME = process.env[(process.platform == 'win32') ? 'USERPROFILE' : 'HOME'];
-
-
 
 kernel(function(err, python) {
   global.python = python;
@@ -161,6 +162,25 @@ app.post('/file', function(req, res) {
 app.post('/md', function(req, res) {
   md(req.body.doc, python, function(err, doc) {
     res.send(doc);
+  });
+});
+
+app.post('/pdf', function(req, res) {
+  var opts = {};
+  var filename = tmp.fileSync().name + ".pdf";
+  // var filename = "/tmp/test.pdf";
+
+  pdf.create(req.body.html, opts).toFile(filename, function(err, result) {
+    if (err) {
+      console.log("[ERROR]" + err);
+      res.end();
+      return;
+    }
+    res.download(result.filename,  "Rodeo-Report.pdf", function(err) {
+      if (err) {
+        res.end();
+      }
+    });
   });
 });
 
