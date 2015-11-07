@@ -166,9 +166,13 @@ app.post('/md', function(req, res) {
 });
 
 app.post('/pdf', function(req, res) {
-  var opts = {};
+  var opts = {
+    footer: {
+      height: "28mm",
+      contents: '<center style="color: orange;">Made with Rodeo</center>'
+    }
+  };
   var filename = tmp.fileSync().name + ".pdf";
-  // var filename = "/tmp/test.pdf";
 
   pdf.create(req.body.html, opts).toFile(filename, function(err, result) {
     if (err) {

@@ -102,6 +102,8 @@ $("#run-markdown").click(function(e) {
   } else {
     $.post("/md", { doc: code }, function(html) {
       var html = markdown_template({ renderedMarkdown: html });
+      // not really sure why i'm doing this. should probably just post to /md and
+      // then render the page in a new tab.
       var newWindow = window.open("","Rodeo Markdown","width=" + $(window).width()*0.6 +",height=" + $(window).height() +",scrollbars=1,resizable=1")
       // read text from textbox placed in parent window
       newWindow.document.open();
