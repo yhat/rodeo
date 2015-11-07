@@ -7,6 +7,7 @@ var path = require('path');
 var http = require('http');
 var querystring = require('querystring');
 var ipc = require('ipc');
+var pdf = require('html-pdf');
 
 var kernel = require('../rodeo/kernel');
 var md = require('../rodeo/md');
@@ -30,8 +31,6 @@ kernel(function(err, python) {
   mainWindow.webContents.send('refresh-packages');
   mainWindow.webContents.send('set-working-directory', global.USER_WD || '.');
 });
-
-
 
 // Report crashes to our server.
 require('crash-reporter').start();
@@ -159,6 +158,26 @@ app.on('ready', function() {
   ipc.on('md', function(event, data) {
     md(data.doc, python, function(err, doc) {
       event.returnValue = doc;
+    });
+  });
+
+  ipc.on('pdf', function(event, data) {
+
+    require('dialog').showSaveDialog({
+      title: 'Save Report',
+      default_path: USER_WD,
+    }, function(destfile) {
+      var opts = {
+        footer: {
+          height: "28mm",
+          contents: '<center style="color: orange;">Made with Rodeo</center>'
+        }
+      };
+      pdf.create(data.html, opts).toFile(destfile, function(err, result) {
+        if (err) {
+          console.log("[ERROR]: " + err);
+        }
+      });
     });
   });
 

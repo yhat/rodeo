@@ -1,0 +1,32 @@
+# Simply the Best!
+
+Better than *all the rest*
+
+__Hello!__
+
+
+[Brandon.com](slash.org)
+
+![](http://i.giphy.com/fVnWfuEeAlqQE.gif)
+
+![](http://i.giphy.com/rWEr9G9dTWBG.gif)
+
+```{python}
+from ggplot import *
+import numpy as np
+x = np.arange(10000)
+y = np.sin(np.arange(10000))
+qplot(x, y)
+```
+
+
+```{mathjax}
+$$\begin{array}{r|cc}
+& \text{Lumber} & \text{Labor}\\\\
+\hline
+ \text{Chairs} & 1 & 2\\\\
+ \text{Tables} & 2 & 1\\\\
+ \hline
+ \text{Total Available} & 6 & 6\\\\
+ \end{array}$$
+```

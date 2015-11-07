@@ -4,15 +4,11 @@ function renderMarkdown(html) {
 
   var BrowserWindow = remote.require('browser-window');
   markdownWindow = new BrowserWindow(params);
-  markdownWindow.loadUrl('file://' + __dirname + '/../static/markdown.html');
-  markdownWindow.openDevTools();
-  console.log("HI");
 
-  setTimeout(function() {
-    markdownWindow.webContents.send('markdown', { html: html });
-  }, 1000);
-
-  markdownWindow.on('close', function() {
-    markdownWindow = null;
-  });
+  // I'm not proud of this, but we need the file to be in the same relative directory
+  // as our css, js, etc.
+  var tmpFile = __dirname + '/../static/markdown.html';
+  require('fs').writeFileSync(tmpFile, html);
+  markdownWindow.loadUrl('file://' + tmpFile)
+  // markdownWindow.openDevTools();
 }

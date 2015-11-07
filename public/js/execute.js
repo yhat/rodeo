@@ -97,7 +97,7 @@ $("#run-markdown").click(function(e) {
 
   if (isDesktop()) {
     var html = ipc.sendSync('md', { doc: code });
-    var html = markdown_template({ renderedMarkdown: html });
+    var html = markdown_template({ renderedMarkdown: html, desktop: true });
     renderMarkdown(html);
   } else {
     $.post("/md", { doc: code }, function(html) {
