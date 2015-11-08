@@ -2,6 +2,7 @@ var fs = require('fs');
 var path = require('path');
 var marked = require('marked');
 var highlight = require('highlight.js');
+var Handlebars = require('handlebars');
 var async = require('async');
 
 marked.setOptions({
@@ -57,7 +58,7 @@ function splitUpCells(doc) {
 }
 
 
-module.exports = function(doc, python, fn) {
+function knitHTML(doc, python, fn) {
   var cells = splitUpCells(doc);
 
   async.map(cells, function(cell, cb) {
@@ -95,5 +96,15 @@ module.exports = function(doc, python, fn) {
     }
     fn(err, output.join("\n"));
   });
+}
 
+var templateFile = path.join(__dirname, '/../../public/handlebars-templates/markdown-output.hbs')
+var source = fs.readFileSync(templateFile).toString();
+var reportTemplate = Handlebars.compile(source);
+
+module.exports = function(doc, python, fn) {
+  knitHTML(doc, python, function(err, html) {
+    var html = reportTemplate({ renderedMarkdown: html });
+    fn(null, html);
+  });
 }

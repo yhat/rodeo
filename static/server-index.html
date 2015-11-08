@@ -354,8 +354,12 @@
     </div>
     <!-- Tour Display Modal -->
 
-    <!-- hidden stuff -->
-    <input id="file-upload-trigger" type="file" style="visibility:hidden; height: 0px;" />
+  <!-- hidden stuff -->
+  <input id="file-upload-trigger" type="file" style="visibility:hidden; height: 0px;" />
+  <form target="_blank" id="markdown-form" class="hide" method="POST" action="/md">
+    <textarea type="text" name="doc"></textarea>
+  </form>
+
   <script src="js/server-main.js"></script>
   <script type="text/javascript">
     $(document).ready(function() {
