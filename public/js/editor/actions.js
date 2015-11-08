@@ -249,11 +249,12 @@ function closeActiveTab(n) {
 }
 
 function newEditor(basename, fullpath, content) {
-  $("#add-tab").click();
+  addEditor();
   $("#editorsTab li:nth-last-child(2) .name").text(basename);
   $("#editorsTab li:nth-last-child(2) a").attr("data-filename", fullpath);
   var id = $("#editors .editor").last().attr("id");
   var editor = ace.edit(id);
+  configureEditor(editor);
   editor.getSession().setValue(content);
   return editor;
 }
@@ -268,7 +269,7 @@ function openFile(pathname, isDir) {
     setFiles(pathname);
   } else {
     function callback(basename, pathname, content) {
-      newEditor(basename, pathname, content)
+      var editor = newEditor(basename, pathname, content)
       // [+] tab is always the last tab, so we'll activate the 2nd to last tab
       $("#editorsTab li:nth-last-child(2) a").click();
       var id = $("#editors .editor").last().attr("id");
@@ -326,4 +327,3 @@ function saveEditor(editor, saveas, fn) {
     });
   }
 }
-

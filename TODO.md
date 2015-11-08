@@ -30,6 +30,8 @@ TODO
     - [x] preferences
     - [x] plan for working directories
     - [x] bug w/ file nav not working
+    - [x] cant open file on server version
+    - [ ] need route for server markdown thing
 
 
     - Bridge interested in Beta

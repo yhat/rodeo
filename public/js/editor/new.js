@@ -2,7 +2,7 @@ function getCurrentLine(editor) {
   return editor.session.getLine(editor.getCursorPosition().row);
 }
 
-function newEditor(id) {
+function configureEditor(editor) {
 
   track('application', 'editor');
 
@@ -11,7 +11,6 @@ function newEditor(id) {
   langTools.setCompleters([]);
 
   var Autocomplete = ace.require("ace/autocomplete").Autocomplete;
-  var editor = ace.edit(id);
   editor.completer = new Autocomplete(editor);
   editor.setTheme("ace/theme/chrome");
   editor.getSession().setMode("ace/mode/python");
@@ -314,9 +313,11 @@ function newEditor(id) {
 
   // end shortcuts
 
+
   editor.on('input', function() {
-    $("#" + id.replace("editor", "editor-tab") + " .unsaved").removeClass("hide");
+    $("#" + editor.container.id.replace("editor", "editor-tab") + " .unsaved").removeClass("hide");
   });
 
   setDefaultPreferences(editor);
+  return editor;
 }
