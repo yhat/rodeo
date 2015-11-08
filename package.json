@@ -7,14 +7,20 @@
   "description": "An IDE for data science.",
   "author": "The Yhat Team",
   "main": "src/desktop/main.js",
+  "repository": {
+    "type": "git",
+    "url": "git+ssh://git@github.com/yhat/rodeo.git"
+  },
   "bin": {
     "rodeo-worker": "./bin/rodeo-worker"
   },
   "devDependencies": {
-    "electron-builder": "^2.0.0",
+    "electron-builder": "^2.1.1",
     "electron-packager": "^5.1.0",
-    "electron-prebuilt": "0.30.3",
+    "electron-prebuilt": "^0.34.0",
     "grunt": "^0.4.5",
+    "grunt-contrib-uglify": "^0.9.2",
+    "grunt-contrib-watch": "^0.6.1",
     "grunt-electron": "^2.0.0",
     "grunt-electron-debian-installer": "^0.1.0",
     "grunt-electron-installer": "^1.0.2",
@@ -37,8 +43,6 @@
     "express": "^4.13.3",
     "fs-extra": "^0.23.1",
     "getmac": "^1.0.7",
-    "grunt-contrib-uglify": "^0.9.2",
-    "grunt-contrib-watch": "^0.6.1",
     "highlight.js": "^8.9.1",
     "html-pdf": "^1.4.0",
     "jade": "^1.11.0",
