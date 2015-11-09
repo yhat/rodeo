@@ -249,12 +249,9 @@ function closeActiveTab(n) {
 }
 
 function newEditor(basename, fullpath, content) {
-  addEditor();
+  var editor = addEditor();
   $("#editorsTab li:nth-last-child(2) .name").text(basename);
   $("#editorsTab li:nth-last-child(2) a").attr("data-filename", fullpath);
-  var id = $("#editors .editor").last().attr("id");
-  var editor = ace.edit(id);
-  configureEditor(editor);
   editor.getSession().setValue(content);
   return editor;
 }

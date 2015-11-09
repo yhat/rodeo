@@ -98,7 +98,7 @@ function knitHTML(doc, python, fn) {
   });
 }
 
-var templateFile = path.join(__dirname, '/../../public/handlebars-templates/markdown-output.hbs')
+var templateFile = path.join(__dirname, 'markdown-output.hbs')
 var source = fs.readFileSync(templateFile).toString();
 var reportTemplate = Handlebars.compile(source);
 

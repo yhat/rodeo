@@ -11,10 +11,10 @@ function addEditor() {
 
   $(editor_tab_html).insertBefore($("#add-tab").parent());
   $("#editors").append(editor_html);
-  // newEditor("Untitled-" + id, "Untitled-" + id, "");
   // set to the active tab
   $("#editor-tab-" + id + " .editor-tab-a").click();
-  if (id!="preferences") {
-    ace.edit("editor-" + id).focus();
-  }
+  var editor = ace.edit("editor-" + id);
+  editor = configureEditor(editor);
+  editor.focus();
+  return editor;
 }
