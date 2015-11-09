@@ -28,7 +28,7 @@ def __is_code_finished(code):
     except Exception as e:
         return str(e)
 
-def __get_variables():
+def __get_variables(session):
 
     variables = {
         "list": [],
@@ -39,12 +39,12 @@ def __get_variables():
     }
 
     SPECIAL_VARS = ["In", "Out"]
-    for variable_name in globals().keys():
+    for variable_name in session.keys():
 
         if variable_name.startswith("_") or variable_name in SPECIAL_VARS:
             continue
 
-        variable = globals()[variable_name]
+        variable = session[variable_name]
 
         if isinstance(variable, list):
             variable_repr = "List of length %d" % len(variable)

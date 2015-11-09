@@ -46,7 +46,7 @@ function indexFiles() {
 }
 
 function refreshVariables() {
-  executeCommand("__get_variables()", false, function(result) {
+  executeCommand("__get_variables(globals())", false, function(result) {
     if (! result.output) {
       $("#vars").children().remove();
       console.error("[ERROR]: Result from code execution was null.");

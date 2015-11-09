@@ -32,6 +32,7 @@ TODO
     - [x] bug w/ file nav not working
     - [x] cant open file on server version
     - [x] need route for server markdown thing
+    - [x] display variables broken
 
 
     - Bridge interested in Beta

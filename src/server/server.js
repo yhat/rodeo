@@ -97,7 +97,7 @@ app.get('/variable', function(req, res) {
     }
   };
 
-  var command = show_var_statements[req.query.type];
+  var command = show_var_statements["python"][req.query.type];
   python.execute(command, false, function(result) {
     // poor man's template...
     var variable = result.output;
