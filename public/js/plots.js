@@ -47,7 +47,13 @@ function showPlot() {
     var plotWindow = new BrowserWindow(params);
     plotWindow.loadUrl(filename);
   } else {
-    // TODO
+    var filename = $("#plots img.active").attr("src");
+    var newWindow = window.open("","Rodeo Markdown","width=" + $(window).width()*0.6 +",height=" + $(window).height() +",scrollbars=1,resizable=1")
+    // read text from textbox placed in parent window
+    newWindow.document.open();
+    var img = '<img src="' + filename + '" />';
+    newWindow.document.write("<html><body>" + img + "</body>");
+    newWindow.document.close();
   }
 }
 
