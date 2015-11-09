@@ -3,7 +3,6 @@
 <head>
   <title>Rodeo</title>
   <link id="rodeo-theme" href="css/styles.css" rel="stylesheet" />
-  <script src="js/jquery.min.js"></script>
 </head>
 <body>
   <div class="container text-center" style="max-width: 400px;">
@@ -28,9 +27,23 @@
     </p>
   </div>
   <script type="text/javascript">
-    $.get("/preferences", function(rc) {
-      $("#app-name").text("Rodeo" + " v" + rc.version);
-    });
+    if (/^file:\/\//.test(window.location.href)) {
+      var rc = require('ipc').sendSync('preferences-get');
+      console.log(rc);
+      document.getElementById('app-name').innerHTML = "Rodeo v" + rc.version;
+    } else {
+      var request = new XMLHttpRequest();
+      request.open('GET', 'preferences', true);
+
+      request.onload = function() {
+        if (request.status >= 200 && request.status < 400) {
+          var rc = JSON.parse(request.responseText);
+          document.getElementById('app-name').innerHTML = "Rodeo v" + rc.version;
+        }
+      };
+
+      request.send();
+    }
   </script>
 </body>
 </html>
