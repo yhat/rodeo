@@ -297,7 +297,21 @@ function saveEditor(editor, saveas, fn) {
   var content = editor.getSession().getValue();
   if (! $("#editorsTab .active a").attr("data-filename") || saveas==true) {
     if (isDesktop()) {
-      // TODO: prompt w/ showFileDialog...
+      remote.require('dialog').showSaveDialog({
+        title: 'Save File',
+        default_path: ipc.sendSync('wd-get'),
+      }, function(destfile) {
+        if (! destfile) {
+          return
+        }
+        saveFile(destfile, content, function(resp) {
+          $("#" + id.replace("editor", "editor-tab") + " .unsaved").addClass("hide");
+          setFiles();
+          if (fn) {
+            fn();
+          }
+        });
+      });
     } else {
       bootbox.prompt("Please specify a name for your file:", function(destfile) {
         if (destfile==null) {

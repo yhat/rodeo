@@ -13,7 +13,6 @@ electron-builder build/win32/all/Rodeo-win32-x64 --platform=win \
         --out=./build/win32/all/Rodeo-win32-x64 --config=packager.json
 
 # linux
-# grunt
 tar -zcvf ./build/linux/x64/Rodeo-linux-x64.tar.gz ./build/linux/x64/Rodeo-linux-x64/
 
 # if [ "$1"!="" ]; then
