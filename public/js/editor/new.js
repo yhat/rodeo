@@ -313,7 +313,6 @@ function configureEditor(editor) {
 
   // end shortcuts
 
-
   editor.on('input', function() {
     $("#" + editor.container.id.replace("editor", "editor-tab") + " .unsaved").removeClass("hide");
   });
