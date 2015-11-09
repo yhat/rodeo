@@ -12,238 +12,243 @@ var kernel = require('../rodeo/kernel');
 var findFile = require('../rodeo/find-file');
 var preferences = require('../rodeo/preferences');
 
-// setup express
-var app = express();
-// setup static assets route handler
-var staticDir = path.join(__dirname, '..', '..', '/static');
-app.use(express.static(staticDir));
-// parse application/x-www-form-urlencoded
-app.use(bodyParser.urlencoded({limit: '50mb', extended: true}));
-// parse application/json
-app.use(bodyParser.json({limit: '50mb'}));
-// logging
-app.use(morgan('dev'));
+
+module.exports = function(host, port, wd) {
+
+  // setup express
+  var app = express();
+  // setup static assets route handler
+  var staticDir = path.join(__dirname, '..', '..', '/static');
+  app.use(express.static(staticDir));
+  // parse application/x-www-form-urlencoded
+  app.use(bodyParser.urlencoded({limit: '50mb', extended: true}));
+  // parse application/json
+  app.use(bodyParser.json({limit: '50mb'}));
+  // logging
+  app.use(morgan('dev'));
 
 
-global.python = null;
-global.USER_WD = process.argv[2] || __dirname;
-global.USER_HOME = process.env[(process.platform == 'win32') ? 'USERPROFILE' : 'HOME'];
+  global.python = null;
+  global.USER_WD = wd || __dirname;
+  global.USER_HOME = process.env[(process.platform == 'win32') ? 'USERPROFILE' : 'HOME'];
 
-kernel(function(err, python) {
-  global.python = python;
-  if (err) {
-    console.log("[ERROR]: " + err);
-  }
-  if (python==null) {
-    console.log("[ERROR]: python came back null");
-  }
-  python.execute("cd " + USER_WD);
-});
+  kernel(function(err, python) {
+    global.python = python;
+    if (err) {
+      console.log("[ERROR]: " + err);
+    }
+    if (python==null) {
+      console.log("[ERROR]: python came back null");
+    }
+    python.execute("cd " + USER_WD);
+  });
 
-app.get('/', function(req, res) {
-  var filepath = path.join(staticDir, 'server-index.html');
-  res.sendFile(filepath);
-});
+  app.get('/', function(req, res) {
+    var filepath = path.join(staticDir, 'server-index.html');
+    res.sendFile(filepath);
+  });
 
-app.get('/command', function(req, res) {
-  if (req.query.stream=='true') {
-    res.set('Content-Type', 'text/event-stream');
-    python.executeStream(req.query.command, req.query.autocomplete=="true", function(result) {
-      result.command = req.query.command;
-      res.write(JSON.stringify(result) + '\n');
-      if (result.status=="complete") {
-        res.end()
+  app.get('/command', function(req, res) {
+    if (req.query.stream=='true') {
+      res.set('Content-Type', 'text/event-stream');
+      python.executeStream(req.query.command, req.query.autocomplete=="true", function(result) {
+        result.command = req.query.command;
+        res.write(JSON.stringify(result) + '\n');
+        if (result.status=="complete") {
+          res.end()
+        }
+      });
+    } else {
+      python.execute(req.query.command, req.query.autocomplete=="true", function(result) {
+        result.command = req.query.command;
+        result.status = "complete";
+        res.json(result);
+      });
+    }
+  });
+
+  app.get('/wd', function(req, res) {
+    res.send(USER_WD);
+  });
+
+  app.post('/wd', function(req, res) {
+    if (fs.existsSync(req.body.wd)) {
+      USER_WD = req.body.wd;
+      res.send(USER_WD);
+    } else {
+      res.json({
+        status: "error",
+        message: "Filepath `" + req.body.wd + "` does not exist."
+      });
+    }
+  });
+
+  // TODO: handle R stuff...
+  app.get('/variable', function(req, res) {
+    var varname = req.query.name
+    var show_var_statements = {
+      python: {
+        DataFrame: "print(" + varname + "[:1000].to_html())",
+        Series: "print(" + varname + "[:1000].to_frame().to_html())",
+        list: "pp.pprint(" + varname + ")",
+        ndarray: "pp.pprint(" + varname + ")",
+        dict: "pp.pprint(" + varname + ")"
+      },
+      r: {
+        "data.frame": 'cat(print(xtable(' + varname + '), type="html"))',
+        list: "cat(" + varname + ")"
+      }
+    };
+
+    var command = show_var_statements["python"][req.query.type];
+    python.execute(command, false, function(result) {
+      // poor man's template...
+      var variable = result.output;
+      variable = variable.replace('class="dataframe"', 'class="table table-bordered"');
+      var html = "<html><head><link id=\"rodeo-theme\" href=\"css/styles.css\" rel=\"stylesheet\"/></head><body>" + variable + "</body>";
+      res.send(html);
+    });
+  });
+
+  app.get('/files', function(req, res) {
+    var dirname = path.resolve(req.query.dir || USER_WD);
+    USER_WD = dirname
+    var files = fs.readdirSync(dirname).map(function(filename) {
+      return {
+        filename: path.join(dirname, filename),
+        basename: filename,
+        isDir: fs.lstatSync(path.join(dirname, filename)).isDirectory()
       }
     });
-  } else {
-    python.execute(req.query.command, req.query.autocomplete=="true", function(result) {
-      result.command = req.query.command;
-      result.status = "complete";
-      res.json(result);
-    });
-  }
-});
-
-app.get('/wd', function(req, res) {
-  res.send(USER_WD);
-});
-
-app.post('/wd', function(req, res) {
-  if (fs.existsSync(req.body.wd)) {
-    USER_WD = req.body.wd;
-    res.send(USER_WD);
-  } else {
     res.json({
-      status: "error",
-      message: "Filepath `" + req.body.wd + "` does not exist."
+      status: "OK",
+      files: files,
+      dir: dirname,
+      home: USER_HOME,
     });
-  }
-});
-
-// TODO: handle R stuff...
-app.get('/variable', function(req, res) {
-  var varname = req.query.name
-  var show_var_statements = {
-    python: {
-      DataFrame: "print(" + varname + "[:1000].to_html())",
-      Series: "print(" + varname + "[:1000].to_frame().to_html())",
-      list: "pp.pprint(" + varname + ")",
-      ndarray: "pp.pprint(" + varname + ")",
-      dict: "pp.pprint(" + varname + ")"
-    },
-    r: {
-      "data.frame": 'cat(print(xtable(' + varname + '), type="html"))',
-      list: "cat(" + varname + ")"
-    }
-  };
-
-  var command = show_var_statements["python"][req.query.type];
-  python.execute(command, false, function(result) {
-    // poor man's template...
-    var variable = result.output;
-    variable = variable.replace('class="dataframe"', 'class="table table-bordered"');
-    var html = "<html><head><link id=\"rodeo-theme\" href=\"css/styles.css\" rel=\"stylesheet\"/></head><body>" + variable + "</body>";
-    res.send(html);
   });
-});
 
-app.get('/files', function(req, res) {
-  var dirname = path.resolve(req.query.dir || USER_WD);
-  USER_WD = dirname
-  var files = fs.readdirSync(dirname).map(function(filename) {
-    return {
-      filename: path.join(dirname, filename),
-      basename: filename,
-      isDir: fs.lstatSync(path.join(dirname, filename)).isDirectory()
+  app.get('/file', function(req, res) {
+    if (req.query.filepath) {
+      fs.readFile(req.query.filepath, function(err, data) {
+        if (err) {
+          res.json({
+            status: "error",
+            message: err.toString()
+          });
+        } else {
+          res.json({
+            status: "OK",
+            filepath: req.query.filepath,
+            basename: path.basename(req.query.filepath),
+            content: data.toString()
+          });
+        }
+      });
     }
   });
-  res.json({
-    status: "OK",
-    files: files,
-    dir: dirname,
-    home: USER_HOME,
-  });
-});
 
-app.get('/file', function(req, res) {
-  if (req.query.filepath) {
-    fs.readFile(req.query.filepath, function(err, data) {
+  app.post('/file', function(req, res) {
+    fs.writeFile(req.body.filepath, req.body.content, function(err) {
       if (err) {
-        res.json({
-          status: "error",
-          message: err.toString()
-        });
+        res.json({ error: err });
       } else {
         res.json({
           status: "OK",
-          filepath: req.query.filepath,
-          basename: path.basename(req.query.filepath),
-          content: data.toString()
+          filepath: req.body.filepath,
+          basename: path.basename(req.body.filepath)
         });
       }
     });
-  }
-});
-
-app.post('/file', function(req, res) {
-  fs.writeFile(req.body.filepath, req.body.content, function(err) {
-    if (err) {
-      res.json({ error: err });
-    } else {
-      res.json({
-        status: "OK",
-        filepath: req.body.filepath,
-        basename: path.basename(req.body.filepath)
-      });
-    }
   });
-});
 
-app.post('/md', function(req, res) {
-  md(req.body.doc, python, function(err, doc) {
-    res.send(doc);
-  });
-});
-
-app.post('/pdf', function(req, res) {
-  var opts = {
-    footer: {
-      height: "28mm",
-      contents: '<center style="color: orange;">Made with Rodeo</center>'
-    }
-  };
-  var filename = tmp.fileSync().name + ".pdf";
-
-  pdf.create(req.body.html, opts).toFile(filename, function(err, result) {
-    if (err) {
-      console.log("[ERROR]" + err);
-      res.end();
-      return;
-    }
-    res.download(result.filename,  "Rodeo-Report.pdf", function(err) {
-      if (err) {
-        res.end();
-      }
+  app.post('/md', function(req, res) {
+    md(req.body.doc, python, function(err, doc) {
+      res.send(doc);
     });
   });
-});
 
-app.get('/preferences', function(req, res) {
-  res.json(preferences.getPreferences());
-});
+  app.post('/pdf', function(req, res) {
+    var opts = {
+      footer: {
+        height: "28mm",
+        contents: '<center style="color: orange;">Made with Rodeo</center>'
+      }
+    };
+    var filename = tmp.fileSync().name + ".pdf";
 
-app.post('/preferences', function(req, res) {
-  if (req.body.name && req.body.value) {
-    preferences.setPreferences(req.body.name, req.body.value);
-  }
-  res.json(preferences.getPreferences());
-});
-
-var profile;
-app.get('/profile', function(req, res) {
-  if (profile==null) {
-    profile = fs.readFileSync(path.join(__dirname, '..', '/rodeo/default-rodeo-profile.txt'));
-  }
-  res.send(profile);
-});
-
-app.post('/profile', function(req, res) {
-  profile = req.body.profile;
-  res.send(profile);
-});
-
-app.get('/about', function(req, res) {
-  var filepath = path.join(staticDir, 'about.html');
-  res.sendFile(filepath);
-});
-
-var PORT = parseInt(process.argv[3] || process.env.PORT || "3000");
-var HOST = process.env.HOST || "0.0.0.0";
-var server = app.listen(PORT, HOST);
-console.log("The Rodeo is at: " + HOST + ":" + PORT);
-
-var wss = new WebSocketServer({ server: server });
-
-wss.on('connection', function (ws) {
-
-  ws.sendJSON = function(data) {
-    ws.send(JSON.stringify(data));
-  }
-  ws.sendJSON({ msg: 'refresh-variables' });
-  ws.sendJSON({ msg: 'refresh-packages' });
-  // ws.sendJSON({ msg: 'set-working-directory', wd: global.USER_WD || '.' });
-
-  ws.on('message', function(data) {
-    var data = JSON.parse(data);
-    if (data.msg=="index-files") {
-      findFile(ws);
-    } else if (data.msg=="command") {
-      python.executeStream(data.command, data.autocomplete==true, function(result) {
-        result.command = data.command;
-        result.msg = "command"
-        ws.sendJSON(result);
+    pdf.create(req.body.html, opts).toFile(filename, function(err, result) {
+      if (err) {
+        console.log("[ERROR]" + err);
+        res.end();
+        return;
+      }
+      res.download(result.filename,  "Rodeo-Report.pdf", function(err) {
+        if (err) {
+          res.end();
+        }
       });
-    }
+    });
   });
 
-});
+  app.get('/preferences', function(req, res) {
+    res.json(preferences.getPreferences());
+  });
+
+  app.post('/preferences', function(req, res) {
+    if (req.body.name && req.body.value) {
+      preferences.setPreferences(req.body.name, req.body.value);
+    }
+    res.json(preferences.getPreferences());
+  });
+
+  var profile;
+  app.get('/profile', function(req, res) {
+    if (profile==null) {
+      profile = fs.readFileSync(path.join(__dirname, '..', '/rodeo/default-rodeo-profile.txt'));
+    }
+    res.send(profile);
+  });
+
+  app.post('/profile', function(req, res) {
+    profile = req.body.profile;
+    res.send(profile);
+  });
+
+  app.get('/about', function(req, res) {
+    var filepath = path.join(staticDir, 'about.html');
+    res.sendFile(filepath);
+  });
+
+  var PORT = parseInt(port || process.env.PORT || "3000");
+  var HOST = host || process.env.HOST || "0.0.0.0";
+  var server = app.listen(PORT, HOST);
+  console.log("The Rodeo is at: " + HOST + ":" + PORT);
+
+  var wss = new WebSocketServer({ server: server });
+
+  wss.on('connection', function (ws) {
+
+    ws.sendJSON = function(data) {
+      ws.send(JSON.stringify(data));
+    }
+    ws.sendJSON({ msg: 'refresh-variables' });
+    ws.sendJSON({ msg: 'refresh-packages' });
+    // ws.sendJSON({ msg: 'set-working-directory', wd: global.USER_WD || '.' });
+
+    ws.on('message', function(data) {
+      var data = JSON.parse(data);
+      if (data.msg=="index-files") {
+        findFile(ws);
+      } else if (data.msg=="command") {
+        python.executeStream(data.command, data.autocomplete==true, function(result) {
+          result.command = data.command;
+          result.msg = "command"
+          ws.sendJSON(result);
+        });
+      }
+    });
+
+  });
+
+}
