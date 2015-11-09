@@ -7,7 +7,7 @@ function renderMarkdown(html) {
 
   // I'm not proud of this, but we need the file to be in the same relative directory
   // as our css, js, etc.
-  var tmpFile = __dirname + '/../static/markdown.html';
+  var tmpFile = __dirname + '/../static/markdown-desktop.html';
   require('fs').writeFileSync(tmpFile, html);
   markdownWindow.loadUrl('file://' + tmpFile)
   // markdownWindow.openDevTools();
