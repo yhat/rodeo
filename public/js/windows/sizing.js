@@ -24,7 +24,7 @@ function setupWindows() {
 }
 
 function calibratePanes() {
-  $("#pane-container").height($(window).height() - $(".navbar").height());
+  $("#pane-container").height($(window).height() - ($(".navbar").height() || 0));
   // Top Left
   var topLeftHeight = $("#top-left").height();
   var offset = $("#top-left #editorsTab").height() + 2;
