@@ -45,6 +45,7 @@
     "express": "^4.13.3",
     "fs-extra": "^0.23.1",
     "getmac": "^1.0.7",
+    "handlebars": "^4.0.4",
     "highlight.js": "^8.9.1",
     "html-pdf": "^1.4.0",
     "jade": "^1.11.0",

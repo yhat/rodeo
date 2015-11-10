@@ -20,8 +20,8 @@ desktop, but from a modern browser like Chrome (sorry IE).
 
 {docopt} = require 'docopt'
 options = docopt doc
-pkg = require '../package'
-server = require './server/server'
+pkg = require '../../package'
+server = require './server'
 
 
 if options["--version"]
