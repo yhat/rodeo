@@ -16,7 +16,7 @@ var preferences = require('../rodeo/preferences');
 
 global.python = null;
 global.USER_HOME = process.env[(process.platform == 'win32') ? 'USERPROFILE' : 'HOME'];
-global.USER_WD = '/Users/glamp/go/src/github.com/yhat/box/src/sciencebox/langs/tests'; //process.env.HOME;
+global.USER_WD = preferences.getPreferences().defaultWd || process.env.HOME;
 
 kernel(function(err, python) {
   global.python = python;

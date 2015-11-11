@@ -9,7 +9,7 @@ function indexFile(data) {
 }
 
 function fileIndexUpdate(data) {
-  var html = "<i class='fa fa-hourglass-end'></i>&nbsp;Indexing files " + data.n;
+  var html = "<i class='fa fa-hourglass-end'></i>&nbsp;Indexing files " + data.nComplete;
   $("#file-search-list .list #index-count").html(html);
 }
 
