@@ -5,16 +5,24 @@
   <link rel="stylesheet" href="css/styles.css" />
   <link rel="stylesheet" href="http://cdnjs.cloudflare.com/ajax/libs/highlight.js/8.9.1/styles/default.min.css">
   <script src="http://cdnjs.cloudflare.com/ajax/libs/highlight.js/8.9.1/highlight.min.js"></script>
-  {{#if desktop}}
   <script type="text/javascript">
     window.$ = window.jQuery = require('jquery');
   </script>
-  {{/if}}
   <script src="js/external.min.js"></script>
 </head>
 <body>
-  {{#if desktop}}
-  {{else}}
+  <!-- end nav -->
+  <div id="content" class="container">
+    <!DOCTYPE html>
+<html lang="en">
+<head>
+  <title>Rodeo</title>
+  <link rel="stylesheet" href="css/styles.css" />
+  <link rel="stylesheet" href="http://cdnjs.cloudflare.com/ajax/libs/highlight.js/8.9.1/styles/default.min.css">
+  <script src="http://cdnjs.cloudflare.com/ajax/libs/highlight.js/8.9.1/highlight.min.js"></script>
+  <script src="js/external.min.js"></script>
+</head>
+<body>
   <!-- start nav -->
   <nav class="navbar navbar-default" style="margin-bottom: 2px;">
     <div class="container-fluid">
@@ -36,10 +44,11 @@
 
     </div>
   </nav>
-  {{/if}}
   <!-- end nav -->
   <div id="content" class="container">
-    {{{renderedMarkdown}}}
+    <h2 id="hi">HI</h2>
+<p>My name is greg</p>
+
   </div>
   <script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
   <script type="text/javascript">
@@ -47,7 +56,15 @@
       $("#pdf-html").val($("#content").html());
     });
   </script>
-  {{#if desktop}}
+</body>
+
+  </div>
+  <script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+  <script type="text/javascript">
+    $(document).ready(function() {
+      $("#pdf-html").val($("#content").html());
+    });
+  </script>
   <script type="text/javascript">
     $("#pdf-form").submit(function(e) {
       e.preventDefault();
@@ -55,5 +72,4 @@
       return false;
     });
   </script>
-  {{/if}}
 </body>

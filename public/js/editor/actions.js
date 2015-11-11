@@ -304,6 +304,9 @@ function saveEditor(editor, saveas, fn) {
         if (! destfile) {
           return
         }
+        var basename = pathBasename(destfile);
+        $("#editorsTab .active a .name").text(basename);
+        $("#editorsTab .active a").attr("data-filename", destfile);
         saveFile(destfile, content, function(resp) {
           $("#" + id.replace("editor", "editor-tab") + " .unsaved").addClass("hide");
           setFiles();
@@ -317,7 +320,8 @@ function saveEditor(editor, saveas, fn) {
         if (destfile==null) {
           return;
         }
-        $("#editorsTab .active a .name").text(destfile);
+        var basename = pathBasename(destfile);
+        $("#editorsTab .active a .name").text(basename);
         $("#editorsTab .active a").attr("data-filename", destfile);
         saveFile(destfile, content, function(resp) {
           $("#" + id.replace("editor", "editor-tab") + " .unsaved").addClass("hide");

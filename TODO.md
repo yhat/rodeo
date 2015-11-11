@@ -33,6 +33,7 @@ TODO
     - [x] cant open file on server version
     - [x] need route for server markdown thing
     - [x] display variables broken
+    - [ ] file indexer not responding well
 
 
     - Bridge interested in Beta

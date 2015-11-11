@@ -26,6 +26,10 @@ function pathJoin(parts){
   return parts.join(separator).replace(replace, separator);
 }
 
+function pathBasename(path) {
+  return path.split(/[\\/]/).pop();
+}
+
 function guid() {
   function s4() {
     return Math.floor((1 + Math.random()) * 0x10000)

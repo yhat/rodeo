@@ -30,6 +30,7 @@ var packagerOptions = {
     'node_modules/electron-compile/node_modules/electron-compilers',
     'node_modules_linux',
     'node_modules_osx',
+    'node_modules_ubuntu',
     'public',
     'marketing',
     'scripts',
