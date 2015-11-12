@@ -6,6 +6,8 @@ function setupMenu() {
       { text: "About", href: "about" },
       { text: "Preferences", shortcut: "⌘ + ,", onclick: "showPreferences();" },
       { text: "Default Variables", onclick: "showRodeoProfile();" },
+      { isDivider: true },
+      { text: "Log Out", onclick: "logout();" },
     ]
   };
 

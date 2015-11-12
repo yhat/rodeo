@@ -77,3 +77,7 @@ function run2ndToLastCommand() {
   jqconsole.ClearPromptText();
   sendCommand(cmd);
 }
+
+function logout() {
+  window.location.href = "/logout";
+}
