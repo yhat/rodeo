@@ -35,10 +35,7 @@ module.exports = function(host, port, wd) {
   kernel(function(err, python) {
     // if we're running as a subprocess, the parent that we're ready to go!
     if (process.send) {
-      console.log("WE ARE READY");
-      process.send("ready");
-    } else {
-      console.log("NO SEND OBJEDT");
+      process.send({ msg: 'ready' });
     }
 
     global.python = python;
