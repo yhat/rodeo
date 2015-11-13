@@ -33,6 +33,14 @@ module.exports = function(host, port, wd) {
   global.USER_HOME = process.env[(process.platform == 'win32') ? 'USERPROFILE' : 'HOME'];
 
   kernel(function(err, python) {
+    // if we're running as a subprocess, the parent that we're ready to go!
+    if (process.send) {
+      console.log("WE ARE READY");
+      process.send("ready");
+    } else {
+      console.log("NO SEND OBJEDT");
+    }
+
     global.python = python;
     if (err) {
       console.log("[ERROR]: " + err);
