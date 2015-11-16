@@ -81,7 +81,7 @@ function track(cat, action, label, value) {
       request.onload = function() {
         if (request.status >= 200 && request.status < 400) {
           // good to go
-          console.log("metric tracked!");
+          // console.log("metric tracked!");
         } else {
           console.error("error with metrics");
         }
