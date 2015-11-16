@@ -23,17 +23,7 @@ function setupWindows() {
   });
 }
 
-function saveWindowCalibration() {
-  var paneVertical = 100 * $("#pane-container #left-column").width() / $("#pane-container").width();
-  var paneHorizontalRight = 100 * $("#pane-container #top-right").height() / $("#pane-container #right-column").height();
-  var paneHorizontalLeft = 100 * $("#pane-container #top-left").height() / $("#pane-container #left-column").height();
-  updateRC("paneVertical", paneVertical + "%");
-  updateRC("paneHorizontalRight", paneHorizontalRight + "%");
-  updateRC("paneHorizontalLeft", paneHorizontalLeft + "%");
-}
-
 function calibratePanes() {
-
   $("#pane-container").height($(window).height() - ($(".navbar").height() || 0));
   // Top Left
   var topLeftHeight = $("#top-left").height();
@@ -96,7 +86,7 @@ function calibratePanes() {
 
 // on resize w/ gray bars, recalibrate
 $(document.documentElement).bind('mouseup.splitter touchend.splitter touchleave.splitter touchcancel.spliter', function(e) {
-  saveWindowCalibration();
+  // saveWindowCalibration();
   calibratePanes();
 });
 
