@@ -210,7 +210,8 @@ app.on('ready', function() {
   var platform = os.platform() + '_' + os.arch();
   var version = app.getVersion();
   updateUrl = 'https://rodeo-nuts.herokuapp.com/update/'+platform+'/'+version;
-  updateUrl = "http://localhost:3000/?platform=" + platform + "&version=" + version;
+  updateUrl = "http://localhost:3000/?" + "platform=" + platform + "&version=" + version;
+  updateUrl = "http://rodeo-updates.yhat.com?" + "platform=" + platform + "&version=" + version; 
 
   mainWindow.webContents.send('log', updateUrl);
 
