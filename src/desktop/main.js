@@ -6,6 +6,7 @@ var fs = require('fs');
 var path = require('path');
 var http = require('http');
 var querystring = require('querystring');
+var request = require('request');
 var ipc = require('ipc');
 var pdf = require('html-pdf');
 
@@ -210,9 +211,7 @@ app.on('ready', function() {
   var platform = os.platform() + '_' + os.arch();
   var version = app.getVersion();
   updateUrl = "http://localhost:3000/?" + "platform=" + platform + "&version=" + version;
-  updateUrl = "http://rodeo-updates.yhat.com?" + "platform=" + platform + "&version=" + version; 
-
-  mainWindow.webContents.send('log', updateUrl);
+  updateUrl = "http://rodeo-updates.yhat.com?" + "platform=" + platform + "&version=" + version;
 
   autoUpdater.on('error', function(err, msg) {
     console.log(err, msg);
@@ -226,17 +225,26 @@ app.on('ready', function() {
   });
 
   autoUpdater.on('update-not-available', function(data) {
+    console.log("UPDATE NOT AVAILABLE")
     // mainWindow.webContents.send('log', data);
   });
 
   autoUpdater.on('update-downloaded', function(evt, releaseNotes, releaseName, releaseDate, udpateURL) {
     mainWindow.webContents.send('log', releaseNotes + '---' + releaseName + '---' + releaseDate + '---' + udpateURL);
-    mainWindow.webContents.send('update-ready');
+    mainWindow.webContents.send('update-ready', { platform: 'osx' });
   });
 
   setTimeout(function() {
-    autoUpdater.setFeedUrl(updateUrl);
-    autoUpdater.checkForUpdates();
+    if (/win32/.test(platform)) {
+      request.get(updateUrl, function(err, response, body) {
+        if (!err && response.statusCode!=204) {
+          mainWindow.webContents.send('update-ready', { platform: 'windows' });
+        }
+      });
+    } else {
+      autoUpdater.setFeedUrl(updateUrl);
+      autoUpdater.checkForUpdates();
+    // mainWindow.webContents.send('log', updateUrl);
   }, 2000);
 
   mainWindow.on('close', function() {
