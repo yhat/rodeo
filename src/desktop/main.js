@@ -63,7 +63,7 @@ app.on('ready', function() {
 
   mainWindow.webContents.on('did-finish-load', function() {
 
-    mainWindow.webContents.send('log', JSON.stringify(process.argv))
+    // mainWindow.webContents.send('log', JSON.stringify(process.argv))
     var wd;
     if (process.argv.length == 5) {
       wd = process.argv[4];
@@ -202,27 +202,42 @@ app.on('ready', function() {
     });
   });
 
+  ipc.on('update-and-restart', function() {
+    autoUpdater.quitAndInstall();
+  });
+
   // TODO: check for updates (i think i need to codesign?)
-  // var platform = os.platform() + '_' + os.arch();
-  // var version = app.getVersion();
-  // updateUrl = 'https://rodeo-nuts.herokuapp.com/update/'+platform+'/'+version;
-  //
-  // autoUpdater.on('error', function(err, msg) {
-  //   mainWindow.webContents.send('log', "[ERROR]: " + msg);
-  // });
-  // mainWindow.webContents.send('log', updateUrl);
-  // autoUpdater.setFeedUrl(updateUrl);
-  //
-  // autoUpdater.on('update-available', function(data) {
-  //   mainWindow.webContents.send('log', "UPDATE AVAILABLE");
-  //   mainWindow.webContents.send('log', data);
-  // });
-  // autoUpdater.on('update-not-available', function(data) {
-  //   mainWindow.webContents.send('log', "NO UPDATE AVAILABLE");
-  //   mainWindow.webContents.send('log', data);
-  // });
-  //
-  // autoUpdater.checkForUpdates();
+  var platform = os.platform() + '_' + os.arch();
+  var version = app.getVersion();
+  updateUrl = 'https://rodeo-nuts.herokuapp.com/update/'+platform+'/'+version;
+  updateUrl = "http://localhost:3000/?platform=" + platform + "&version=" + version;
+
+  mainWindow.webContents.send('log', updateUrl);
+
+  autoUpdater.on('error', function(err, msg) {
+    console.log(err, msg);
+    mainWindow.webContents.send('log', "[ERROR]: " + msg);
+  });
+
+  autoUpdater.on('update-available', function(data) {
+    console.log(data);
+    mainWindow.webContents.send('log', "UPDATE AVAILABLE");
+    mainWindow.webContents.send('log', data);
+  });
+
+  autoUpdater.on('update-not-available', function(data) {
+    // mainWindow.webContents.send('log', data);
+  });
+
+  autoUpdater.on('update-downloaded', function(evt, releaseNotes, releaseName, releaseDate, udpateURL) {
+    mainWindow.webContents.send('log', releaseNotes + '---' + releaseName + '---' + releaseDate + '---' + udpateURL);
+    mainWindow.webContents.send('update-ready');
+  });
+
+  setTimeout(function() {
+    autoUpdater.setFeedUrl(updateUrl);
+    autoUpdater.checkForUpdates();
+  }, 2000);
 
   mainWindow.on('close', function() {
     mainWindow.webContents.send('kill');

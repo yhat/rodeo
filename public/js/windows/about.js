@@ -5,5 +5,5 @@ function showAbout() {
   var BrowserWindow = remote.require('browser-window');
   aboutWindow = new BrowserWindow(params);
   aboutWindow.loadUrl('file://' + __dirname + '/../static/about.html');
-  aboutWindow.openDevTools();
+  // aboutWindow.openDevTools();
 }
