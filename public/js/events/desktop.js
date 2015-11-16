@@ -38,6 +38,7 @@ ipc.on('log', function(data) {
 
 ipc.on('update-ready', function(data) {
   var body;
+  console.log(data);
   if (data.platform=="windows") {
     body = "Click here to download the latest version."
   } else {
