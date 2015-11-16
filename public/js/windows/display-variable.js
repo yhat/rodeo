@@ -4,7 +4,7 @@ function showVariable(varname, type) {
 
   var BrowserWindow = remote.require('browser-window');
   variableWindow = new BrowserWindow(params);
-  variableWindow.loadUrl('file://' + __dirname + '/../static/display-variable.html');
+  variableWindow.loadURL('file://' + __dirname + '/../static/display-variable.html');
   // variableWindow.openDevTools();
 
   var show_var_statements = {

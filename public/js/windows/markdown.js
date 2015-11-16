@@ -9,6 +9,6 @@ function renderMarkdown(html) {
   // as our css, js, etc.
   var tmpFile = __dirname + '/../static/markdown-desktop.html';
   require('fs').writeFileSync(tmpFile, html);
-  markdownWindow.loadUrl('file://' + tmpFile)
+  markdownWindow.loadURL('file://' + tmpFile)
   // markdownWindow.openDevTools();
 }

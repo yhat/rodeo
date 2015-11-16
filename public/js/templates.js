@@ -64,8 +64,31 @@ $("#add-tab").click(function(e) {
 });
 
 function track(cat, action, label, value) {
-  var data = { cat: cat, action: action, label: label, value: value };
-  // TODO: actually track stuff
+  getRC(function(rc) {
+    var data = {
+      an: "Rodeo",          // app name
+      av: rc.version,       // app version
+      cid: rc.id,           // user id
+      ec: cat,              // event category
+      ea: action,           // event action
+      el: label             // event label
+    }
+
+    var url = "http://rodeo-analytics.yhathq.com/?" + serialize(data);
+    if (navigator.onLine==true) {
+      var request = new XMLHttpRequest();
+      request.open('GET', url, true);
+      request.onload = function() {
+        if (request.status >= 200 && request.status < 400) {
+          // good to go
+          console.log("metric tracked!");
+        } else {
+          console.error("error with metrics");
+        }
+      }
+      request.send();
+    }
+  });
 }
 
 // things that need a place

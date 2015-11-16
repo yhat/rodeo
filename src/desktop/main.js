@@ -7,7 +7,7 @@ var path = require('path');
 var http = require('http');
 var querystring = require('querystring');
 var request = require('request');
-var ipc = require('ipc');
+var ipc = require('electron').ipcMain;
 var pdf = require('html-pdf');
 
 var kernel = require('../rodeo/kernel');
@@ -60,7 +60,7 @@ app.on('ready', function() {
   mainWindow = new BrowserWindow({ width: size.width, height: size.height });
 
   // and load the index.html of the app.
-  mainWindow.loadUrl('file://' + __dirname + '/../../static/desktop-index.html');
+  mainWindow.loadURL('file://' + __dirname + '/../../static/desktop-index.html');
 
   mainWindow.webContents.on('did-finish-load', function() {
 
@@ -214,12 +214,10 @@ app.on('ready', function() {
   updateUrl = "http://rodeo-updates.yhat.com?" + "platform=" + platform + "&version=" + version;
 
   autoUpdater.on('error', function(err, msg) {
-    console.log(err, msg);
     mainWindow.webContents.send('log', "[ERROR]: " + msg);
   });
 
   autoUpdater.on('update-available', function(data) {
-    console.log(data);
     mainWindow.webContents.send('log', "UPDATE AVAILABLE");
     mainWindow.webContents.send('log', data);
   });
@@ -242,7 +240,7 @@ app.on('ready', function() {
         }
       });
     } else {
-      autoUpdater.setFeedUrl(updateUrl);
+      autoUpdater.setFeedURL(updateUrl);
       autoUpdater.checkForUpdates();
     // mainWindow.webContents.send('log', updateUrl);
     }

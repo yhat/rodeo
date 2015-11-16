@@ -88,6 +88,7 @@ $("#run-button").click(function(e) {
 });
 
 $("#run-markdown").click(function(e) {
+  track('command', 'markdown');
   var editor = getActiveEditor();
   var code = editor.getSelectedText();
 

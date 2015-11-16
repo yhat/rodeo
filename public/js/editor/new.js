@@ -81,6 +81,7 @@ function configureEditor(editor) {
     name: "showPreferences",
     bindKey: {win: "ctrl-,", mac: "Command-,"},
     exec: function(editor) {
+      track('shortcut', 'Preferences');
       showPreferences();
     }
   });
@@ -90,6 +91,7 @@ function configureEditor(editor) {
     name: "pickWorkingDirectory",
     bindKey: {win: "ctrl-Shift-g", mac: "Command-Shift-g"},
     exec: function(editor) {
+      track('shortcut', 'Change Working Directory');
       setWorkingDirectory();
     }
   });
@@ -99,6 +101,7 @@ function configureEditor(editor) {
     name: "findFile",
     bindKey: {win: "ctrl-option-t", mac: "Command-option-t"},
     exec: function(editor) {
+      track('shortcut', 'Find File');
       findFile();
     }
   });
@@ -141,6 +144,7 @@ function configureEditor(editor) {
     name: "sendCommand",
     bindKey: {win: "ctrl-Enter", mac: "Command-Enter"},
     exec: function(editor) {
+      track('command', 'python');
       // grab selected text
       var text = editor.getCopyText();
 

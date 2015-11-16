@@ -1,5 +1,6 @@
 // Plots
 function previousPlot() {
+  track('plot', 'previous');
   var currentPlot = $("#plots .active");
   if ($("#plots .active").prev().length) {
     var plotid = $("#plots .active").prev().data("plot-id");
@@ -8,6 +9,7 @@ function previousPlot() {
 }
 
 function nextPlot() {
+  track('plot', 'next');
   var currentPlot = $("#plots .active")
   if ($("#plots .active").next().length) {
     var plotid = $("#plots .active").next().data("plot-id");
@@ -16,6 +18,7 @@ function nextPlot() {
 }
 
 function deletePlot() {
+  track('plot', 'delete');
   var currentplotid = $("#plots .active").data("plot-id");
   var plotid;
   if ($("#plots .active").next().length) {
@@ -37,6 +40,7 @@ function activatePlot(plotid) {
 }
 
 function showPlot() {
+  track('plot', 'show');
   if (! $("#plots img.active").length) {
     return;
   }
@@ -45,7 +49,7 @@ function showPlot() {
     var filename = $("#plots img.active").attr("src");
     var params = {toolbar: false, resizable: false, show: true, height: 1000, width: 1000};
     var plotWindow = new BrowserWindow(params);
-    plotWindow.loadUrl(filename);
+    plotWindow.loadURL(filename);
   } else {
     var filename = $("#plots img.active").attr("src");
     var newWindow = window.open("","Rodeo Markdown","width=" + $(window).width()*0.6 +",height=" + $(window).height() +",scrollbars=1,resizable=1")
@@ -58,6 +62,7 @@ function showPlot() {
 }
 
 function savePlot() {
+  track('plot', 'save');
   if (! $("#plots .active").length) {
     return;
   }
