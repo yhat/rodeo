@@ -25,7 +25,7 @@
 
 <script type="text/javascript">
 $(document).ready(function() {
-  require('electron').ipcRenderer.on('ping', function(data) {
+  require('ipc').on('ping', function(data) {
     if (data.type=="DataFrame" || data.type=="Series") {
       $("#data").addClass("hide");
       $("#data").text();

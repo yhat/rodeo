@@ -3,7 +3,7 @@ var http = require('http');
 var querystring = require('querystring');
 var getmac = require('getmac');
 var uuid = require('uuid');
-var ipc = require('electron').ipcMain;
+var ipc = require('ipc');
 var rodeohelpers = require(__dirname + "/../src/rodeohelpers");
 
 global.USER_ID;

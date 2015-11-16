@@ -1,4 +1,4 @@
-var ipc = require('electron').ipcRenderer;
+var ipc = require('ipc');
 
 ipc.on('refresh-variables', function() {
   refreshVariables();
