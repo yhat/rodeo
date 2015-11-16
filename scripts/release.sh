@@ -1,19 +1,26 @@
 #!/bin/bash
 
 # osx
-ditto -ck --rsrc --sequesterRsrc --keepParent build/darwin/x64/Rodeo-darwin-x64/Rodeo.app \
-  build/darwin/x64/Rodeo-darwin-x64/Rodeo.zip
-
 electron-builder build/darwin/x64/Rodeo-darwin-x64/Rodeo.app --platform=osx \
         --out=./build/darwin/x64/Rodeo-darwin-x64/ --config=packager.json
+
+ditto -ck --rsrc --sequesterRsrc --keepParent build/darwin/x64/Rodeo-darwin-x64/Rodeo.app \
+  build/darwin/x64/Rodeo-darwin-x64/Rodeo.zip
 
 # windows
 #   32 bit
 electron-builder build/win32/all/Rodeo-win32-ia32 --platform=win \
         --out=./build/win32/all//Rodeo-win32-ia32 --config=packager.json
+
+ditto -ck --rsrc --sequesterRsrc --keepParent build/win32/all/Rodeo-win32-ia32 \
+  build/win32/all/Rodeo-win32-ia32.zip
+
 #   64 bit
 electron-builder build/win32/all/Rodeo-win32-x64 --platform=win \
         --out=./build/win32/all/Rodeo-win32-x64 --config=packager.json
+
+ditto -ck --rsrc --sequesterRsrc --keepParent build/win32/all/Rodeo-win32-x64 \
+  build/win32/all/Rodeo-win32-x64.zip
 
 # linux
 tar -zcvf ./build/linux/x64/Rodeo-linux-x64.tar.gz ./build/linux/x64/Rodeo-linux-x64/
