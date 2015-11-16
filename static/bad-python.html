@@ -71,7 +71,7 @@ $ pip install matplotlib</pre>
 
 <script type="text/javascript">
 $(document).ready(function() {
-  require('ipc').on('ping', function(data) {
+  require('electron').ipcRenderer.on('ping', function(data) {
     if (/matplotlib/.test(data.error)) {
       $("#matplotlib-error").removeClass("hide");
     } else {

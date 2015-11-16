@@ -4,7 +4,7 @@ var path = require('path');
 var webFrame = require('web-frame');
 var dialogs = require("dialogs")({ url: "../../static/img/cowboy-hat.svg" });
 var Menu = remote.require('menu');
-var ipc = require('ipc');
+var ipc = require('electron').ipcMain;
 
 var menuShortcutsTemplate = [
   {

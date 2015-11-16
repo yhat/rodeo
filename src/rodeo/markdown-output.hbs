@@ -51,7 +51,7 @@
   <script type="text/javascript">
     $("#pdf-form").submit(function(e) {
       e.preventDefault();
-      require('ipc').send('pdf', { html: $("#content").html() });
+      require('electron').ipcRenderer.send('pdf', { html: $("#content").html() });
       return false;
     });
   </script>
