@@ -245,6 +245,7 @@ app.on('ready', function() {
       autoUpdater.setFeedUrl(updateUrl);
       autoUpdater.checkForUpdates();
     // mainWindow.webContents.send('log', updateUrl);
+    }
   }, 2000);
 
   mainWindow.on('close', function() {
