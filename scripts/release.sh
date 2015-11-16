@@ -1,6 +1,9 @@
 #!/bin/bash
 
 # osx
+ditto -ck --rsrc --sequesterRsrc --keepParent build/darwin/x64/Rodeo-darwin-x64/Rodeo.app \
+  build/darwin/x64/Rodeo-darwin-x64/Rodeo.zip
+
 electron-builder build/darwin/x64/Rodeo-darwin-x64/Rodeo.app --platform=osx \
         --out=./build/darwin/x64/Rodeo-darwin-x64/ --config=packager.json
 
