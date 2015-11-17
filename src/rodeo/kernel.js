@@ -108,7 +108,7 @@ module.exports = function(cb) {
       this.stdin.write(JSON.stringify(payload) + delim);
     };
     
-    var rodeoProfile = fs.readFileSync("~/.rodeoprofile").toString();
+    var rodeoProfile = fs.readFileSync(path.join(USER_HOME, ".rodeoprofile")).toString();
     python.execute(rodeoProfile, false, function(result) {
       cb(null, python);
     });
