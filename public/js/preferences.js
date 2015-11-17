@@ -170,5 +170,3 @@ function setupPreferences() {
   });
 }
 
-// setupPreferences();
-// setupWindows();
