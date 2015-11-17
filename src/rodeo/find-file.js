@@ -51,8 +51,10 @@ module.exports = function(ws) {
       delete walker
       ws.sendJSON({ msg: 'file-index-interrupt' });
     }
-
-    next();
+    
+    // we're going to throttle this so it doesn't take up too much CPU
+    setTimeout(next, 5);
+    // next();
   });
   walker.on('end', function() {
     ws.sendJSON({ msg: 'file-index-complete' });

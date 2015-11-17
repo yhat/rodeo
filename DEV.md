@@ -47,3 +47,8 @@ $ ./scripts/release.sh
 - https://www.npmjs.com/package/grunt-electron-debian-installer
 - https://github.com/maxogden/electron-packager
 
+
+### Release everything
+```bash
+$ rm -rf build/ && node scripts/build.js --all && ./scripts/sign.sh && ./scripts/release.sh && ./scripts/upload-to-s3.sh
+```
