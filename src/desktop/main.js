@@ -6,7 +6,6 @@ var fs = require('fs');
 var path = require('path');
 var http = require('http');
 var querystring = require('querystring');
-var request = require('request');
 var ipc = require('electron').ipcMain;
 var pdf = require('html-pdf');
 
@@ -234,10 +233,12 @@ app.on('ready', function() {
 
   setTimeout(function() {
     if (/win32/.test(platform)) {
-      request.get(updateUrl, function(err, response, body) {
-        if (!err && response.statusCode!=204) {
+      http.get(updateUrl, function(res) {
+        if (res.statusCode!=204) {
           mainWindow.webContents.send('update-ready', { platform: 'windows' });
         }
+      }).on('error', function(err) {
+        console.error("[ERROR]: could not check for windows update.");
       });
     } else {
       autoUpdater.setFeedURL(updateUrl);
