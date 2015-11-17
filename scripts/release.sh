@@ -23,7 +23,9 @@ ditto -ck --rsrc --sequesterRsrc --keepParent build/win32/all/Rodeo-win32-x64 \
   build/win32/all/Rodeo-win32-x64.zip
 
 # linux
-tar -zcvf ./build/linux/x64/Rodeo-linux-x64.tar.gz ./build/linux/x64/Rodeo-linux-x64/
+if [ -d ./build/linux/x64/Rodeo-linux-x64/ ]; then
+  tar -zcvf ./build/linux/x64/Rodeo-linux-x64.tar.gz ./build/linux/x64/Rodeo-linux-x64/
+fi
 
 # if [ "$1"!="" ]; then
 # 
