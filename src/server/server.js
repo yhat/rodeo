@@ -4,7 +4,6 @@ var express = require('express');
 var WebSocketServer = require('ws').Server;
 var bodyParser = require('body-parser');
 var morgan = require('morgan');
-var pdf = require('html-pdf');
 var tmp = require('tmp');
 // Rodeo stuff
 var md = require('../rodeo/md');
@@ -170,29 +169,6 @@ module.exports = function(host, port, wd) {
   app.post('/md', function(req, res) {
     md(req.body.doc, python, true, function(err, doc) {
       res.send(doc);
-    });
-  });
-
-  app.post('/pdf', function(req, res) {
-    var opts = {
-      footer: {
-        height: "28mm",
-        contents: '<center style="color: orange;">Made with Rodeo</center>'
-      }
-    };
-    var filename = tmp.fileSync().name + ".pdf";
-
-    pdf.create(req.body.html, opts).toFile(filename, function(err, result) {
-      if (err) {
-        console.log("[ERROR]" + err);
-        res.end();
-        return;
-      }
-      res.download(result.filename,  "Rodeo-Report.pdf", function(err) {
-        if (err) {
-          res.end();
-        }
-      });
     });
   });
 

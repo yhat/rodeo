@@ -7,7 +7,6 @@ var path = require('path');
 var http = require('http');
 var querystring = require('querystring');
 var ipc = require('electron').ipcMain;
-var pdf = require('html-pdf');
 
 var kernel = require('../rodeo/kernel');
 var md = require('../rodeo/md');
