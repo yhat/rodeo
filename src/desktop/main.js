@@ -115,7 +115,6 @@ app.on('ready', function() {
       python.execute(data.command, data.autocomplete=="true" || data.autocomplete==true, function(result) {
         result.command = data.command;
         result.status = "complete";
-        // result = JSON.stringify(result);
         event.returnValue = result;
       });
     }
