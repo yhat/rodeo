@@ -164,6 +164,10 @@ app.on('ready', function() {
       title: 'Save Report',
       default_path: USER_WD,
     }, function(destfile) {
+      if (! /\.pdf/.test(destfile)) {
+        destfile += ".pdf";
+      }
+
       mainWindow.webContents.send('pdf', destfile);
     });
   });

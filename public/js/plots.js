@@ -75,6 +75,10 @@ function savePlot() {
         return
       }
 
+      if (! /\.png$/.test(destfile)) {
+        destfile += ".png";
+      }
+
       if ($("#plots img.active").length) {
         // if image
         var img = $("img.active").attr("src").replace("data:image/png;charset=utf-8;base64,", "");
