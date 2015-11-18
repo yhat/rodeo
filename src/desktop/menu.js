@@ -127,8 +127,13 @@ var menuShortcutsTemplate = [
         click: function() {
           if (variableWindow && variableWindow.isFocused()) {
             variableWindow.close();
+            variableWindow = null;
           } else if (aboutWindow && aboutWindow.isFocused()) {
             aboutWindow.close();
+            aboutWindow = null;
+          } else if (markdownWindow && markdownWindow.isFocused()) {
+            markdownWindow.close();
+            markdownWindow = null;
           } else {
             if ($("#editorsTab .active").length) {
               var n = $("#editorsTab .active").attr("id").replace("editor-tab-", "");
