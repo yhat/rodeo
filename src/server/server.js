@@ -235,7 +235,9 @@ module.exports = function(host, port, wd) {
   wss.on('connection', function (ws) {
 
     ws.sendJSON = function(data) {
-      ws.send(JSON.stringify(data));
+      if (ws.readyState==1) {
+        ws.send(JSON.stringify(data));
+      }
     }
     ws.sendJSON({ msg: 'refresh-variables' });
     ws.sendJSON({ msg: 'refresh-packages' });
