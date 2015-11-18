@@ -168,7 +168,7 @@ module.exports = function(host, port, wd) {
   });
 
   app.post('/md', function(req, res) {
-    md(req.body.doc, python, function(err, doc) {
+    md(req.body.doc, python, true, function(err, doc) {
       res.send(doc);
     });
   });

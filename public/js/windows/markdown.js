@@ -7,8 +7,19 @@ function renderMarkdown(html) {
 
   // I'm not proud of this, but we need the file to be in the same relative directory
   // as our css, js, etc.
-  var tmpFile = __dirname + '/../static/markdown-desktop.html';
-  require('fs').writeFileSync(tmpFile, html);
-  markdownWindow.loadURL('file://' + tmpFile)
+  markdownWindow.loadURL('file://' + __dirname + '/../static/markdown-desktop.html');
+  markdownWindow.webContents.on('dom-ready', function() {
+    markdownWindow.webContents.send('content', { html: html });
+  });
+
+  ipc.on('pdf', function(destfile) {
+    markdownWindow.printToPDF({}, function(err, data) {
+      require('fs').writeFile(destfile, data, function(error) {
+        if (err) {
+          throw error;
+        }
+      });
+    });
+  });
   // markdownWindow.openDevTools();
 }

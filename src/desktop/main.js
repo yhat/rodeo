@@ -155,28 +155,17 @@ app.on('ready', function() {
   });
 
   ipc.on('md', function(event, data) {
-    md(data.doc, python, function(err, doc) {
+    md(data.doc, python, false, function(err, doc) {
       event.returnValue = doc;
     });
   });
 
   ipc.on('pdf', function(event, data) {
-
     require('dialog').showSaveDialog({
       title: 'Save Report',
       default_path: USER_WD,
     }, function(destfile) {
-      var opts = {
-        footer: {
-          height: "28mm",
-          contents: '<center style="color: orange;">Made with Rodeo</center>'
-        }
-      };
-      pdf.create(data.html, opts).toFile(destfile, function(err, result) {
-        if (err) {
-          console.log("[ERROR]: " + err);
-        }
-      });
+      mainWindow.webContents.send('pdf', destfile);
     });
   });
 

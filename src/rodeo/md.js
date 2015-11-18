@@ -102,9 +102,11 @@ var templateFile = path.join(__dirname, 'markdown-output.hbs')
 var source = fs.readFileSync(templateFile).toString();
 var reportTemplate = Handlebars.compile(source);
 
-module.exports = function(doc, python, fn) {
+module.exports = function(doc, python, includeMeta, fn) {
   knitHTML(doc, python, function(err, html) {
-    var html = reportTemplate({ renderedMarkdown: html });
+    if (includeMeta) {
+      html = reportTemplate({ renderedMarkdown: html });
+    }
     fn(null, html);
   });
 }

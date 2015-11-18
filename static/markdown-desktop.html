@@ -11,18 +11,6 @@
   <script src="js/external.min.js"></script>
 </head>
 <body>
-  <!-- end nav -->
-  <div id="content" class="container">
-    <!DOCTYPE html>
-<html lang="en">
-<head>
-  <title>Rodeo</title>
-  <link rel="stylesheet" href="css/styles.css" />
-  <link rel="stylesheet" href="http://cdnjs.cloudflare.com/ajax/libs/highlight.js/8.9.1/styles/default.min.css">
-  <script src="http://cdnjs.cloudflare.com/ajax/libs/highlight.js/8.9.1/highlight.min.js"></script>
-  <script src="js/external.min.js"></script>
-</head>
-<body>
   <!-- start nav -->
   <nav class="navbar navbar-default" style="margin-bottom: 2px;">
     <div class="container-fluid">
@@ -35,122 +23,26 @@
         </button>
       </div>
 
-      <form id="pdf-form" class="navbar-form navbar-right" method="POST" action="/pdf" role="search">
-        <div class="form-group">
-          <input type="hidden" id="pdf-html" name="html" value="" />
-        </div>
-        <button type="submit" id="pdf" class="btn btn-primary">Export as PDF</button>
-      </form>
+      <ul class="nav navbar-nav navbar-right">
+        <li><a type="submit" id="pdf" class="btn btn-default">Export as PDF</a></li>
+      </ul>
 
     </div>
   </nav>
   <!-- end nav -->
   <div id="content" class="container">
-    <pre><code class="lang-python">import matplotlib<span class="hljs-class">.pyplot</span> as plt
-
-plt.<span class="hljs-function"><span class="hljs-title">plot</span><span class="hljs-params">(range(<span class="hljs-number">10</span>)</span></span>)
-</code></pre>
-
-<pre>[<matplotlib.lines.Line2D at 0x1019920d0>]</pre>
-<img src='data:image/png;base64,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
-VMoAAAAASUVORK5CYII=' />
   </div>
   <script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
   <script type="text/javascript">
     $(document).ready(function() {
-      $("#pdf-html").val($("#content").html());
+      require('ipc').on('content', function(data) {
+        $("#content").html(data.html);
+      });
     });
-  </script>
-</body>
-
-  </div>
-  <script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
-  <script type="text/javascript">
-    $(document).ready(function() {
-      $("#pdf-html").val($("#content").html());
-    });
-  </script>
-  <script type="text/javascript">
-    $("#pdf-form").submit(function(e) {
+    $("#pdf").click(function(e) {
       e.preventDefault();
-      require('ipc').send('pdf', { html: $("#content").html() });
+      var ipc = require('electron').ipcRenderer;
+      ipc.send('pdf');
       return false;
     });
   </script>
