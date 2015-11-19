@@ -12,6 +12,9 @@ marked.setOptions({
 });
 
 function splitUpCells(doc) {
+  if (/^```/.test(doc)) {
+    doc = "\n" + doc;
+  }
   var newDoc = [];
   newDoc.push({ execute: false, data: '' });
   var doc = doc.split('\n');
@@ -32,7 +35,6 @@ function splitUpCells(doc) {
           newDoc.push({ execute: "markdown", data: '' });
         } else if (lang=="mathjax") {
           newDoc.push({ execute: "mathjax", data: code });
-          newDoc.push({ execute: lang || "code", data: code });
           newDoc.push({ execute: "markdown", data: '' });
         }
         code = "";
