@@ -1,7 +1,7 @@
 {
   "name": "rodeo",
   "productName": "Rodeo",
-  "version": "1.1.4",
+  "version": "1.1.5",
   "appBundleId": "com.yhat.rodeo",
   "helperBundleId": "com.yhat.rodeo.helper",
   "description": "An IDE for data science.",
