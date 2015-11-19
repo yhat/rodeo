@@ -107,13 +107,15 @@ module.exports = function(cb) {
       completionCallbacks[payload.id] = fn
       this.stdin.write(JSON.stringify(payload) + delim);
     };
-    
+
     var profileFilepath = path.join(USER_HOME, ".rodeoprofile");
     if (fs.existsSync(profileFilepath)) {
       var rodeoProfile = fs.readFileSync(profileFilepath).toString();
       python.execute(rodeoProfile, false, function(result) {
         cb(null, python);
       });
+    } else {
+      cb(null, python);
     }
   });
 }

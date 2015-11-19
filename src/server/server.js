@@ -29,7 +29,7 @@ module.exports = function(host, port, wd) {
 
   global.python = null;
   global.USER_WD = wd || __dirname;
-  global.USER_HOME = process.env[(process.platform == 'win32') ? 'USERPROFILE' : 'HOME'];
+  global.USER_HOME = USER_WD.split("/").slice(0, 3).join("/");
 
   kernel(function(err, python) {
     // if we're running as a subprocess, the parent that we're ready to go!
@@ -205,6 +205,9 @@ module.exports = function(host, port, wd) {
   var HOST = host || process.env.HOST || "0.0.0.0";
   var server = app.listen(PORT, HOST);
   console.log("The Rodeo is at: " + HOST + ":" + PORT);
+  console.log("    host: " + HOST);
+  console.log("    port: " + PORT);
+  console.log("    wd: " + wd);
 
   var wss = new WebSocketServer({ server: server });
 

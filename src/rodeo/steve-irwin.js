@@ -50,7 +50,7 @@ function findMeAPython(fn) {
 
       pythonCmds = pythonCmds.concat([
         "/home/sciencecluster/.anaconda2/bin/python",
-        "/root/miniconda/bin/python",
+        "/root/miniconda2/bin/python",
         "/usr/local/bin/ipython",
         "/anaconda/bin/python",
         // path.join(USER_HOME, "anaconda", "bin", "python"),
