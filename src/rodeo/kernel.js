@@ -109,7 +109,7 @@ module.exports = function(cb) {
     };
     
     var profileFilepath = path.join(USER_HOME, ".rodeoprofile");
-    if (fs.existsSync(profileFilepath) {
+    if (fs.existsSync(profileFilepath)) {
       var rodeoProfile = fs.readFileSync(profileFilepath).toString();
       python.execute(rodeoProfile, false, function(result) {
         cb(null, python);

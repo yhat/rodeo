@@ -93,7 +93,7 @@ var menuShortcutsTemplate = [
       },
       {
         label: 'Open',
-        accelerator: 'Shift+CmdOrCtrl+O',
+        accelerator: 'CmdOrCtrl+O',
         click: function() {
           track('shortcut', 'Open');
           openDialog();

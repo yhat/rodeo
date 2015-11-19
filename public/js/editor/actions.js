@@ -342,3 +342,15 @@ function saveEditor(editor, saveas, fn) {
     });
   }
 }
+
+function openDialog() {
+  require('remote').dialog.showOpenDialog({
+    title: "Select a file to open",
+    defaultPath: require("electron").ipcRenderer.sendSync("wd-get"),
+    properties: ["openFile"]
+  }, function(filenames) {
+    if (filenames && filenames.length > 0) {
+      openFile(filenames[0]);
+    }
+  });
+}
