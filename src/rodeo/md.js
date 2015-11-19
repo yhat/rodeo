@@ -32,6 +32,8 @@ function splitUpCells(doc) {
           newDoc.push({ execute: "markdown", data: '' });
         } else if (lang=="mathjax") {
           newDoc.push({ execute: "mathjax", data: code });
+          newDoc.push({ execute: lang || "code", data: code });
+          newDoc.push({ execute: "markdown", data: '' });
         }
         code = "";
         continue
