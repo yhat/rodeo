@@ -16,7 +16,7 @@ if [ -d build/win32/all/Rodeo-win32-ia32 ]; then
     build/win32/all/Rodeo-win32-ia32.zip
 
   electron-builder build/win32/all/Rodeo-win32-ia32 --platform=win \
-          --out=./build/win32/all --config=packager.json
+          --out=./build/win32/all/Rodeo-win32-ia32 --config=packager.json
 fi
 
 #   64 bit
@@ -25,7 +25,7 @@ if [ -d build/win32/all/Rodeo-win32-x64 ]; then
     build/win32/all/Rodeo-win32-x64.zip
 
   electron-builder build/win32/all/Rodeo-win32-x64 --platform=win \
-          --out=./build/win32/all --config=packager.json
+          --out=./build/win32/all/Rodeo-win32-x64 --config=packager.json
 fi
 
 # linux
