@@ -39,5 +39,7 @@ ws.onmessage = function(evt) {
   } else if (data.msg=="command") {
     handleCommandResults(data);
     // handleCommandResults(JSON.stringify(data));
+  } else if (data.msg=="startup-error") {
+    showError(data.error);
   }
 };

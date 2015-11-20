@@ -36,13 +36,19 @@ module.exports = function(host, port, wd) {
     if (process.send) {
       process.send({ msg: 'ready' });
     }
+    err = "matplotlib sucks";
+    python = null;
 
     global.python = python;
     if (err) {
       console.log("[ERROR]: " + err);
+      // wss.broadcast({ msg: 'startup-error', err: err });
+      return;
     }
     if (python==null) {
       console.log("[ERROR]: python came back null");
+      // wss.broadcast({ msg: 'startup-error', err: err });
+      return;
     }
     python.execute("cd " + USER_WD);
   });
@@ -210,6 +216,11 @@ module.exports = function(host, port, wd) {
   console.log("    wd: " + wd);
 
   var wss = new WebSocketServer({ server: server });
+  wss.broadcast = function(data) {
+    wss.clients.forEach(function(ws) {
+      ws.sendJSON(data);
+    });
+  };
 
   wss.on('connection', function (ws) {
 
@@ -218,6 +229,11 @@ module.exports = function(host, port, wd) {
         ws.send(JSON.stringify(data));
       }
     }
+
+    if (python==null) {
+      ws.sendJSON({ msg: 'startup-error', error: "matplotlib problem" });
+    }
+
     ws.sendJSON({ msg: 'refresh-variables' });
     ws.sendJSON({ msg: 'refresh-packages' });
     // ws.sendJSON({ msg: 'set-working-directory', wd: global.USER_WD || '.' });

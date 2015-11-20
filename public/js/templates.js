@@ -55,6 +55,7 @@ var shortcuts_template = Handlebars.templates["shortcuts.hbs"];
 var menu_item_template = Handlebars.templates["menu-item.hbs"];
 var nav_item_template = Handlebars.templates["nav-item.hbs"];
 var markdown_template = Handlebars.templates["markdown-output.hbs"];
+var bad_python_template = Handlebars.templates["bad-python.hbs"];
 
 // Tab stuff
 $("#add-tab").click(function(e) {

@@ -1,19 +1,10 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <title>Rodeo | Trouble</title>
-    <link href="css/styles.css" rel="stylesheet">
-    <script type="text/javascript">
-      window.$ = window.jQuery = require('jquery');
-    </script>
-</head>
-<body>
+<div class="">
   <div class="jumbotron">
-    <div class="container">
+    <div class="">
       <h1>Bad news! Rodeo can't start <i class="fa fa-frown-o"></i></h1>
     </div>
   </div>
-  <div id="ipython-error" class="container hide">
+  <div id="ipython-error" class=" hide">
     <h3>What's going on?</h3>
     <p class="small">
       Unfortunately Rodeo wasn't able to find the <code>python</code> command it needs in order
@@ -52,7 +43,7 @@
       Not sure if you have python installed? You should probably go back to the "I just want it to work" section.
     </p>
   </div>
-  <div id="matplotlib-error" class="container hide">
+  <div id="matplotlib-error" class=" hide">
     <h3>What's going on?</h3>
     <p class="small">
       Good news and bad news. The good news is that you've configured Jupyter/IPython correctly. The bad news is Rodeo wasn't able to load <code>matplotlib</code>.
@@ -64,22 +55,9 @@
       <code>pip</code> (if you're using "regular" python). Open up your terminal/command prompt and type in the following:
     </p>
     <pre># if you're a conda user...
-$ conda install matplotlib
-# or
-$ pip install matplotlib</pre>
+  $ conda install matplotlib
+  # or
+  $ pip install matplotlib</pre>
   </div>
 
-<script type="text/javascript">
-$(document).ready(function() {
-  require('ipc').on('ping', function(data) {
-    if (/matplotlib/.test(data.error)) {
-      $("#matplotlib-error").removeClass("hide");
-    } else {
-      $("#ipython-error").removeClass("hide");
-    }
-  });
-});
-</script>
-
-</body>
-</html>
+</div>

@@ -18,6 +18,7 @@ global.USER_HOME = process.env[(process.platform == 'win32') ? 'USERPROFILE' : '
 global.USER_WD = preferences.getPreferences().defaultWd || process.env.HOME;
 
 kernel(function(err, python) {
+
   global.python = python;
   if (err) {
     console.log("[ERROR]: " + err);
