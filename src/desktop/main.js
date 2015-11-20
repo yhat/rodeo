@@ -21,9 +21,13 @@ kernel(function(err, python) {
   global.python = python;
   if (err) {
     console.log("[ERROR]: " + err);
+    mainWindow.webContents.send("startup-error", err);
+    return;
   }
   if (python==null) {
     console.log("[ERROR]: python came back null");
+    mainWindow.webContents.send("startup-error", err);
+    return;
   }
 
   mainWindow.webContents.send('refresh-variables');

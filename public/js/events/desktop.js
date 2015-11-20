@@ -53,4 +53,8 @@ ipc.on('update-ready', function(data) {
   }
 });
 
+ipc.on('startup-error', function(err) {
+  showError(err);
+});
+
 ipc.send('index-files');

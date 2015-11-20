@@ -28,6 +28,7 @@ module.exports = function(cb) {
   SteveIrwin.findMeAPython(function(err, pythonCmd, opts) {
     if (pythonCmd==null || err) {
       cb(err, null);
+      return;
     }
 
     console.log("[INFO]: starting python using PYTHON='" + pythonCmd + "'");
