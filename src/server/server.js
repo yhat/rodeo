@@ -36,8 +36,6 @@ module.exports = function(host, port, wd) {
     if (process.send) {
       process.send({ msg: 'ready' });
     }
-    err = "matplotlib sucks";
-    python = null;
 
     global.python = python;
     if (err) {
