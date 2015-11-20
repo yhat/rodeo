@@ -68,8 +68,7 @@ app.on('ready', function() {
 
   // and load the index.html of the app.
   mainWindow.loadURL('file://' + __dirname + '/../../static/desktop-index.html');
-
-  mainWindow.openDevTools();
+  // mainWindow.openDevTools();
   mainWindow.webContents.on('did-finish-load', function() {
 
     // mainWindow.webContents.send('log', JSON.stringify(process.argv))

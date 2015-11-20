@@ -1,26 +1,32 @@
 #!/bin/bash
 
 # osx
-electron-builder build/darwin/x64/Rodeo-darwin-x64/Rodeo.app --platform=osx \
-        --out=./build/darwin/x64/Rodeo-darwin-x64/ --config=packager.json
+if [ -d build/darwin/x64/Rodeo-darwin-x64/Rodeo.app ]; then
+  electron-builder build/darwin/x64/Rodeo-darwin-x64/Rodeo.app --platform=osx \
+          --out=./build/darwin/x64/Rodeo-darwin-x64/ --config=packager.json
 
-ditto -ck --rsrc --sequesterRsrc --keepParent build/darwin/x64/Rodeo-darwin-x64/Rodeo.app \
-  build/darwin/x64/Rodeo-darwin-x64/Rodeo.zip
+  ditto -ck --rsrc --sequesterRsrc --keepParent build/darwin/x64/Rodeo-darwin-x64/Rodeo.app \
+    build/darwin/x64/Rodeo-darwin-x64/Rodeo.zip
+fi
 
 # windows
 #   32 bit
-electron-builder build/win32/all/Rodeo-win32-ia32 --platform=win \
-        --out=./build/win32/all//Rodeo-win32-ia32 --config=packager.json
+if [ -d build/win32/all/Rodeo-win32-ia32 ]; then
+  ditto -ck --rsrc --sequesterRsrc --keepParent build/win32/all/Rodeo-win32-ia32 \
+    build/win32/all/Rodeo-win32-ia32.zip
 
-ditto -ck --rsrc --sequesterRsrc --keepParent build/win32/all/Rodeo-win32-ia32 \
-  build/win32/all/Rodeo-win32-ia32.zip
+  electron-builder build/win32/all/Rodeo-win32-ia32 --platform=win \
+          --out=./build/win32/all --config=packager.json
+fi
 
 #   64 bit
-electron-builder build/win32/all/Rodeo-win32-x64 --platform=win \
-        --out=./build/win32/all/Rodeo-win32-x64 --config=packager.json
+if [ -d build/win32/all/Rodeo-win32-x64 ]; then
+  ditto -ck --rsrc --sequesterRsrc --keepParent build/win32/all/Rodeo-win32-x64 \
+    build/win32/all/Rodeo-win32-x64.zip
 
-ditto -ck --rsrc --sequesterRsrc --keepParent build/win32/all/Rodeo-win32-x64 \
-  build/win32/all/Rodeo-win32-x64.zip
+  electron-builder build/win32/all/Rodeo-win32-x64 --platform=win \
+          --out=./build/win32/all --config=packager.json
+fi
 
 # linux
 if [ -d ./build/linux/x64/Rodeo-linux-x64/ ]; then
