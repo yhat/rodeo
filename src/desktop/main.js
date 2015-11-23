@@ -223,7 +223,7 @@ app.on('ready', function() {
 
     autoUpdater.on('update-available', function(data) {
       mainWindow.webContents.send('log', "UPDATE AVAILABLE");
-      mainWindow.webContents.send('log', data);
+      mainWindow.webContents.send('log', JSON.stringify(data));
     });
 
     autoUpdater.on('update-not-available', function(data) {
