@@ -13,7 +13,7 @@ function renderMarkdown(html) {
   });
 
   ipc.on('pdf', function(destfile) {
-    markdownWindow.printToPDF({}, function(err, data) {
+    markdownWindow.webContents.printToPDF({}, function(err, data) {
       require('fs').writeFile(destfile, data, function(error) {
         if (err) {
           throw error;
