@@ -12,12 +12,12 @@
     <p class="lead" id="app-name" class="text-info">Rodeo </p>
     <hr />
     <p class="lead">
-      Rodeo is built by <a onclick="shell.openExternal('http://yhat.com/');"><span style="color: #ee5311;">&ycirc;</span><span class="color: #898989">hat</span></a>.
+      Rodeo is built by <a onclick="require('electron').shell.openExternal('http://yhat.com/');"><span style="color: #ee5311;">&ycirc;</span><span class="color: #898989">hat</span></a>.
     </p>
     <p class="lead">
       Rodeo includes other open source software components. Click below for a list of these components and their license agreements.
     </p>
-    <button onclick="require('shell').openItem(__dirname + '/../static/acknowledgements.txt');" class="btn btn-primary">Acknowledgments</button>
+    <button onclick="require('electron').shell.openItem(__dirname + '/../static/acknowledgements.txt');" class="btn btn-primary">Acknowledgments</button>
 
     <br />
     <hr />
