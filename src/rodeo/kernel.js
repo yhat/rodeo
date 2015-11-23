@@ -110,13 +110,15 @@ module.exports = function(cb) {
     };
 
     var profileFilepath = path.join(USER_HOME, ".rodeoprofile");
-    if (fs.existsSync(profileFilepath)) {
-      var rodeoProfile = fs.readFileSync(profileFilepath).toString();
-      python.execute(rodeoProfile, false, function(result) {
-        cb(null, python);
-      });
-    } else {
-      cb(null, python);
+
+    if (! fs.existsSync(profileFilepath)) {
+      var defaultProfilePath = path.join(__dirname, "default-rodeo-profile.txt");
+      var defaultProfile = fs.readFileSync(defaultProfilePath).toString();
+      fs.writeFileSync(profileFilepath, defaultProfile);
     }
+    var rodeoProfile = fs.readFileSync(profileFilepath).toString();
+    python.execute(rodeoProfile, false, function(result) {
+      cb(null, python);
+    });
   });
 }

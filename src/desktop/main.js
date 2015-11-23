@@ -185,10 +185,14 @@ app.on('ready', function() {
     if (/^~/.test(filepath)) {
       filepath = filepath.replace("~", USER_HOME);
     }
+    var content = "";
+    if (fs.existsSync(filepath)) {
+      content = fs.readFileSync(filepath).toString();
+    }
     event.returnValue = {
       basename: path.basename(filepath),
       pathname: filepath,
-      content: fs.readFileSync(filepath).toString()
+      content: content
     }
   });
 
