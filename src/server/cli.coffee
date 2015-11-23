@@ -22,6 +22,7 @@ desktop, but from a modern browser like Chrome (sorry IE).
 options = docopt doc
 pkg = require '../../package'
 server = require './server'
+path = require 'path'
 
 
 if options["--version"]
@@ -30,4 +31,6 @@ else
   port = parseInt(options["--port"])
   host = options["--host"]
   wd = options["--wd"]
+  if wd=="~"
+    wd = process.env[if process.platform == 'win32' then 'USERPROFILE' else 'HOME']
   server host, port, wd
