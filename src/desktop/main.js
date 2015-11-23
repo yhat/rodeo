@@ -206,46 +206,56 @@ app.on('ready', function() {
     autoUpdater.quitAndInstall();
   });
 
-  // TODO: check for updates (i think i need to codesign?)
-  var platform = os.platform() + '_' + os.arch();
-  var version = app.getVersion();
-  updateUrl = "http://localhost:3000/?" + "platform=" + platform + "&version=" + version;
-  updateUrl = "http://rodeo-updates.yhat.com?" + "platform=" + platform + "&version=" + version;
-
-  autoUpdater.on('error', function(err, msg) {
-    mainWindow.webContents.send('log', "[ERROR]: " + msg);
+  ipc.on('check-for-updates', function() {
+    checkForUpdates(true);
   });
 
-  autoUpdater.on('update-available', function(data) {
-    mainWindow.webContents.send('log', "UPDATE AVAILABLE");
-    mainWindow.webContents.send('log', data);
-  });
 
-  autoUpdater.on('update-not-available', function(data) {
-    console.log("UPDATE NOT AVAILABLE")
-    // mainWindow.webContents.send('log', data);
-  });
+  function checkForUpdates(displayNoUpdate) {
+    var platform = os.platform() + '_' + os.arch();
+    var version = app.getVersion();
+    updateUrl = "http://localhost:3000/?" + "platform=" + platform + "&version=" + version;
+    updateUrl = "http://rodeo-updates.yhat.com?" + "platform=" + platform + "&version=" + version;
 
-  autoUpdater.on('update-downloaded', function(evt, releaseNotes, releaseName, releaseDate, udpateURL) {
-    mainWindow.webContents.send('log', releaseNotes + '---' + releaseName + '---' + releaseDate + '---' + udpateURL);
-    mainWindow.webContents.send('update-ready', { platform: 'osx' });
-  });
+    autoUpdater.on('error', function(err, msg) {
+      mainWindow.webContents.send('log', "[ERROR]: " + msg);
+    });
 
-  setTimeout(function() {
-    if (/win32/.test(platform)) {
-      http.get(updateUrl, function(res) {
-        if (res.statusCode!=204) {
-          mainWindow.webContents.send('update-ready', { platform: 'windows' });
-        }
-      }).on('error', function(err) {
-        console.error("[ERROR]: could not check for windows update.");
-      });
-    } else {
-      autoUpdater.setFeedURL(updateUrl);
-      autoUpdater.checkForUpdates();
-    // mainWindow.webContents.send('log', updateUrl);
-    }
-  }, 2000);
+    autoUpdater.on('update-available', function(data) {
+      mainWindow.webContents.send('log', "UPDATE AVAILABLE");
+      mainWindow.webContents.send('log', data);
+    });
+
+    autoUpdater.on('update-not-available', function(data) {
+      if (displayNoUpdate==true) {
+        mainWindow.webContents.send('no-update');
+      }
+      // mainWindow.webContents.send('log', data);
+    });
+
+    autoUpdater.on('update-downloaded', function(evt, releaseNotes, releaseName, releaseDate, udpateURL) {
+      mainWindow.webContents.send('log', releaseNotes + '---' + releaseName + '---' + releaseDate + '---' + udpateURL);
+      mainWindow.webContents.send('update-ready', { platform: 'osx' });
+    });
+
+    setTimeout(function() {
+      if (/win32/.test(platform)) {
+        http.get(updateUrl, function(res) {
+          if (res.statusCode!=204) {
+            mainWindow.webContents.send('update-ready', { platform: 'windows' });
+          }
+        }).on('error', function(err) {
+          console.error("[ERROR]: could not check for windows update.");
+        });
+      } else {
+        autoUpdater.setFeedURL(updateUrl);
+        autoUpdater.checkForUpdates();
+      // mainWindow.webContents.send('log', updateUrl);
+      }
+    }, 2000);
+  }
+
+  checkForUpdates(false);
 
   mainWindow.on('close', function() {
     mainWindow.webContents.send('kill');

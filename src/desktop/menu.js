@@ -398,6 +398,12 @@ var menuShortcutsTemplate = [
     label: 'Help',
     submenu: [
       {
+        label: 'Check for Updates',
+        click: function() {
+          ipc.send('check-for-updates');
+        }
+      },
+      {
         label: 'View Shortcuts',
         // no shortcut (?)
         click: function() {

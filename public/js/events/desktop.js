@@ -36,6 +36,13 @@ ipc.on('log', function(data) {
   console.log("[LOG]: " + data.toString());
 });
 
+ipc.on('no-update', function() {
+  var body = "Good news! You're running the most up to date version of Rodeo.";
+  new Notification("You're up to date", {
+    title: "You're up to date", body: body
+  });
+});
+
 ipc.on('update-ready', function(data) {
   var body;
   if (data.platform=="windows") {
