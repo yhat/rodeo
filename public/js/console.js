@@ -145,15 +145,19 @@ jqconsole._Indent = function() {
 };
 
 // make the cursor blink when the user is in the console
+var opacity = 0.2;
 function cursorBlink() {
-  var opacity = $(".jqconsole-cursor").css("opacity");
-  opacity = Math.abs(1 - opacity);
-  $(".jqconsole-cursor").animate({ opacity: opacity });
+  if (opacity==0.2) {
+    opacity = 1;
+  } else {
+    opacity = 0.2
+  }
+  $(".jqconsole-cursor").css("opacity", opacity);
 }
 
 var cursorBlinkId;
 $("#console").focusin(function() {
-  cursorBlinkId = setInterval(cursorBlink, 500);
+  cursorBlinkId = setInterval(cursorBlink, 550);
 });
 
 $("#console").focusout(function() {

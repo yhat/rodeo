@@ -39,6 +39,22 @@
         <button class="btn btn-xs btn-primary" onclick="showRodeoProfile();">Configure</button>
       </div>
       <div class="form-group">
+        <div style="width:20%; max-width: 25%;">
+          <label for="fontType">Font Type</label>
+          <select onchange="setFontType($(this).val());" class="form-control" id="fontType" name="fontType" type="number" value="{{fontType}}" >
+              <option value="Consolas" {{#compare fontType Consolas}}selected{{/compare}}>Consolas</option>
+              <option value="Courier New" {{#compare fontType "Courier New"}}selected{{/compare}}>Courier New</option>
+              <option value="Georgia" {{#compare fontType Georgia}}selected{{/compare}}>Georgia</option>
+              <option value="Helvetica Neue" {{#compare fontType "Helvetica Neue"}}selected{{/compare}}>Helvetica Neue (default)</option>
+              <option value="Helvetica" {{#compare fontType "Helvetica"}}selected{{/compare}}>Helvetica</option>
+              <option value="Inconsolata" {{#compare fontType Inconsolata}}selected{{/compare}}>Inconsolata</option>
+              <option value="Menlo" {{#compare fontType Menlo}}selected{{/compare}}>Menlo</option>
+              <option value="Monaco" {{#compare fontType Monaco}}selected{{/compare}}>Monaco</option>
+              <option value="Open Sans" {{#compare fontType "Open Sans"}}selected{{/compare}}>Open Sans</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-group">
         <div style="width:10%; max-width: 25%;">
           <label for="fontSize">Font Size</label>
           <select onchange="setFontSize($(this).val());" class="form-control" id="fontSize" name="fontSize" type="number" value="{{fontSize}}" >

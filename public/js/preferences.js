@@ -20,26 +20,16 @@ function setKeyBindings(binding) {
   updateRC("keyBindings", binding);
 }
 
-function setFontSize(font_size) {
-    var font_size_int = parseInt(font_size);
-    font_size = Math.min(font_size_int, 22) + "px";
-    // set fontSize for console-tab in lower left
-    if ($('.jqconsole').length > 1) {
-        $('.jqconsole').each(function(i, tab) {
-            tab.css({fontSize: font_size});
-        });
-    }
-    else {
-        $('.jqconsole').css({fontSize: font_size});
-    }
+function setFontSize(fontSize) {
+  var fontSizeInt = parseInt(fontSize);
+  fontSize = Math.min(fontSizeInt, 22) + "px";
+  $("body").css("font-size", fontSize);
+  updateRC("fontSize", fontSizeInt);
+}
 
-    // set fontSize for each editor
-    // i.e. handles top left pane which has multiple tabs
-    $(".editor").each(function(i, item) {
-        var editor = ace.edit(item.id);
-        editor.setFontSize(font_size);
-    });
-    updateRC("fontSize", font_size_int);
+function setFontType(fontType) {
+  $("body").css("font-family", fontType);
+  updateRC("fontType", fontType);
 }
 
 function setDefaultWd(wd) {
@@ -143,6 +133,9 @@ function configurePreferences(rc) {
   }
   if (rc.fontSize) {
     setFontSize(rc.fontSize);
+  }
+  if (rc.fontType) {
+    setFontType(rc.fontType);
   }
 }
 
