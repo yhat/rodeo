@@ -113,12 +113,14 @@ function showRodeoProfile() {
 function configurePreferences(rc) {
   rc.keyBindings = rc.keyBindings || "default";
   rc.defaultWd = rc.defaultWd || USER_HOME;
+  rc.fontType = rc.FontType || "Helvetica Neue";
 
   if (rc.trackingOn!=false) {
     rc.trackingOn = true;
   }
 
   var preferences_html = preferences_template(rc);
+  $("preferences").children().remove();
   $("#preferences").append(preferences_html);
   $('[data-toggle="tooltip"]').tooltip();
 

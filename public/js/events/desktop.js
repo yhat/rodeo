@@ -1,4 +1,4 @@
-var ipc = require('electron').ipcRenderer;
+var ipc = require('ipc');
 
 ipc.on('refresh-variables', function() {
   refreshVariables();
@@ -6,6 +6,10 @@ ipc.on('refresh-variables', function() {
 
 ipc.on('refresh-packages', function() {
   refreshPackages();
+});
+
+ipc.on('setup-preferences', function() {
+  setupPreferences();
 });
 
 ipc.on('set-working-directory', function(wd) {

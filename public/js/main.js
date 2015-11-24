@@ -4,12 +4,11 @@
 startPrompt();
 
 setupMenu();
+setupPreferences();
 
 getWorkingDirectory(function(wd) {
   setFiles(wd);
 });
-
-setupPreferences();
 
 // misc startup stuff...
 $("#tour").owlCarousel({ singleItem: true });

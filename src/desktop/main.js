@@ -20,6 +20,7 @@ global.USER_WD = preferences.getPreferences().defaultWd || USER_HOME;
 
 kernel(function(err, python) {
 
+
   global.python = python;
   if (err) {
     console.log("[ERROR]: " + err);
@@ -32,6 +33,10 @@ kernel(function(err, python) {
     return;
   }
 
+  preferences.setPreferences('pythonCmd', python.spawnfile);
+  console.log(python.spawnfile);
+
+  mainWindow.webContents.send('setup-preferences');
   mainWindow.webContents.send('refresh-variables');
   mainWindow.webContents.send('refresh-packages');
   mainWindow.webContents.send('set-working-directory', global.USER_WD || '.');
