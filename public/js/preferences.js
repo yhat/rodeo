@@ -120,7 +120,7 @@ function configurePreferences(rc) {
   }
 
   var preferences_html = preferences_template(rc);
-  $("preferences").children().remove();
+  $("#preferences").children().remove();
   $("#preferences").append(preferences_html);
   $('[data-toggle="tooltip"]').tooltip();
 
