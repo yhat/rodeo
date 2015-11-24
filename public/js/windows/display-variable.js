@@ -15,8 +15,10 @@ function showVariable(varname, type) {
     dict: "pp.pprint(" + varname + ")"
   }
 
-  executeCommand(show_var_statements[type], false, function(result) {
-    variableWindow.webContents.send('ping', { type: type, html: result.output });
+  variableWindow.webContents.on('dom-ready', function() {
+    executeCommand(show_var_statements[type], false, function(result) {
+      variableWindow.webContents.send('ping', { type: type, html: result.output });
+    });
   });
 
   variableWindow.on('close', function() {
