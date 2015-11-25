@@ -4,6 +4,7 @@ function showError(err) {
   } else {
     $("#ipython-error").removeClass("hide");
   }
+  $("#loading-modal").modal('hide');
   $("#error-modal").modal('show');
 }
 

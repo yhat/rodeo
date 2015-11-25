@@ -40,6 +40,10 @@ ipc.on('log', function(data) {
   console.log("[LOG]: " + data.toString());
 });
 
+ipc.on('ready', function(data) {
+  $("#loading-modal").modal('hide');
+});
+
 ipc.on('no-update', function() {
   var body = "Good news! You're running the most up to date version of Rodeo.";
   new Notification("You're up to date", {

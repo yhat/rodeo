@@ -18,29 +18,6 @@ global.python = null;
 global.USER_HOME = process.env[(process.platform == 'win32') ? 'USERPROFILE' : 'HOME'];
 global.USER_WD = preferences.getPreferences().defaultWd || USER_HOME;
 
-kernel(function(err, python) {
-
-
-  global.python = python;
-  if (err) {
-    console.log("[ERROR]: " + err);
-    mainWindow.webContents.send("startup-error", err);
-    return;
-  }
-  if (python==null) {
-    console.log("[ERROR]: python came back null");
-    mainWindow.webContents.send("startup-error", err);
-    return;
-  }
-
-  preferences.setPreferences('pythonCmd', python.spawnfile);
-  console.log(python.spawnfile);
-
-  mainWindow.webContents.send('setup-preferences');
-  mainWindow.webContents.send('refresh-variables');
-  mainWindow.webContents.send('refresh-packages');
-  mainWindow.webContents.send('set-working-directory', global.USER_WD || '.');
-});
 
 crashReporter.start({
   productName: 'Yhat Dev',
@@ -75,25 +52,48 @@ app.on('ready', function() {
   mainWindow.loadURL('file://' + __dirname + '/../../static/desktop-index.html');
   // mainWindow.openDevTools();
   mainWindow.webContents.on('did-finish-load', function() {
+    kernel(function(err, python) {
+      global.python = python;
+      if (err) {
+        console.log("[ERROR]: " + err);
+        mainWindow.webContents.send("startup-error", err);
+        return;
+      }
+      if (python==null) {
+        console.log("[ERROR]: python came back null");
+        mainWindow.webContents.send("startup-error", err);
+        return;
+      }
 
-    // mainWindow.webContents.send('log', JSON.stringify(process.argv))
-    var wd;
-    if (process.argv.length == 5) {
-      wd = process.argv[4];
-      USER_WD = wd;
-    }
-    if (wd) {
-      console.log("[INFO]: working directory passed as argument: `" + wd + "`");
-      mainWindow.webContents.send('set-wd', wd);
-    }
-    var rc = preferences.getPreferences();
-    if (rc.version==null) {
-      mainWindow.webContents.send('start-tour', { version: "first" });
-      preferences.setPreferences("version", app.getVersion());
-    } else if (rc.version != app.getVersion()) {
-      mainWindow.webContents.send('start-tour', { version: app.getVersion() });
-      preferences.setPreferences("version", app.getVersion());
-    }
+      preferences.setPreferences('pythonCmd', python.spawnfile);
+      console.log(python.spawnfile);
+
+      mainWindow.webContents.send('setup-preferences');
+      mainWindow.webContents.send('refresh-variables');
+      mainWindow.webContents.send('refresh-packages');
+      mainWindow.webContents.send('set-working-directory', global.USER_WD || '.');
+
+      mainWindow.webContents.send('ready');
+
+      // mainWindow.webContents.send('log', JSON.stringify(process.argv))
+      var wd;
+      if (process.argv.length == 5) {
+        wd = process.argv[4];
+        USER_WD = wd;
+      }
+      if (wd) {
+        console.log("[INFO]: working directory passed as argument: `" + wd + "`");
+        mainWindow.webContents.send('set-wd', wd);
+      }
+      var rc = preferences.getPreferences();
+      if (rc.version==null) {
+        mainWindow.webContents.send('start-tour', { version: "first" });
+        preferences.setPreferences("version", app.getVersion());
+      } else if (rc.version != app.getVersion()) {
+        mainWindow.webContents.send('start-tour', { version: app.getVersion() });
+        preferences.setPreferences("version", app.getVersion());
+      }
+    });
   });
 
   // Open the devtools.
