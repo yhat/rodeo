@@ -29,6 +29,10 @@ function setFontSize(fontSize) {
 
 function setFontType(fontType) {
   $("body").css("font-family", fontType);
+  $(".editor").each(function(i, item) {
+    var editor = ace.edit(item.id);
+    editor.setOption("fontFamily", fontType);
+  });
   updateRC("fontType", fontType);
 }
 
