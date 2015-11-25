@@ -80,6 +80,7 @@ app.on('ready', function() {
     var wd;
     if (process.argv.length == 5) {
       wd = process.argv[4];
+      USER_WD = wd;
     }
     if (wd) {
       console.log("[INFO]: working directory passed as argument: `" + wd + "`");
@@ -239,7 +240,6 @@ app.on('ready', function() {
       if (displayNoUpdate==true) {
         mainWindow.webContents.send('no-update');
       }
-      // mainWindow.webContents.send('log', data);
     });
 
     autoUpdater.on('update-downloaded', function(evt, releaseNotes, releaseName, releaseDate, udpateURL) {
@@ -259,7 +259,6 @@ app.on('ready', function() {
       } else {
         autoUpdater.setFeedURL(updateUrl);
         autoUpdater.checkForUpdates();
-      // mainWindow.webContents.send('log', updateUrl);
       }
     }, 2000);
   }
