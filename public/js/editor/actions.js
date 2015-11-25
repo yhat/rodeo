@@ -140,7 +140,8 @@ function setDefaultPreferences(editor) {
     editor.setTheme(rc.editorTheme || "ace/theme/chrome");
     editor.setFontSize(rc.fontSize || 12);
     if (rc.fontType) {
-      editor.setOption("fontFamily", rc.fontType);
+      // TODO: not all fonts are available
+      // editor.setOption("fontFamily", rc.fontType);
     }
 
     if (rc.autoSave) {
