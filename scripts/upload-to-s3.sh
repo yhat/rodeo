@@ -28,7 +28,11 @@ if [ -f build/win32/all/Rodeo-win32-x64/Rodeo\ Setup.exe ]; then
   s3cmd -P put build/win32/all/Rodeo-win32-x64/Rodeo\ Setup.exe "s3://rodeo-releases/${VERSION}/Rodeo-v${VERSION}-windows_64.exe"
 fi
 
-# echo "uploading Debian 64-bit"
+
+# echo "uploading Linux 64-bit"
+if [ -f build/linux/x64/Rodeo-linux-x64.zip ]; then
+  s3cmd -P put build/linux/x64/Rodeo-linux-x64.zip "s3://rodeo-releases/${VERSION}/Rodeo-v${VERSION}-linux_64.zip"
+fi
 # echo "uploading Debian 32-bit"
 
 # upload a sha for posterity

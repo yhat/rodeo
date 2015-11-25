@@ -28,9 +28,11 @@ if [ -d build/win32/all/Rodeo-win32-x64 ]; then
           --out=./build/win32/all/Rodeo-win32-x64 --config=packager.json
 fi
 
-# linux
+# linux (zip and tarball)
 if [ -d ./build/linux/x64/Rodeo-linux-x64/ ]; then
-  tar -zcvf ./build/linux/x64/Rodeo-linux-x64.tar.gz ./build/linux/x64/Rodeo-linux-x64/
+  tar -zcvf ./build/linux/x64/Rodeo-linux-x64.tar.gz build/linux/x64/Rodeo-linux-x64/
+  ditto -ck --rsrc --sequesterRsrc --keepParent build/linux/x64/Rodeo-linux-x64 \
+    build/linux/x64/Rodeo-linux-x64.zip
 fi
 
 # if [ "$1"!="" ]; then
