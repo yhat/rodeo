@@ -9,6 +9,8 @@ var querystring = require('querystring');
 var ipc = require('electron').ipcMain;
 var crashReporter = require('electron').crashReporter;
 
+require('fix-path')();
+
 var kernel = require('../rodeo/kernel');
 var md = require('../rodeo/md');
 var findFile = require('../rodeo/find-file');

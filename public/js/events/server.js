@@ -41,5 +41,7 @@ ws.onmessage = function(evt) {
     // handleCommandResults(JSON.stringify(data));
   } else if (data.msg=="startup-error") {
     showError(data.error);
+  } else if (data.msg=="ready") {
+    $("#loading-modal").modal('hide');
   }
 };

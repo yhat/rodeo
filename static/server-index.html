@@ -280,6 +280,24 @@
     </div>
     <!-- Shortcut Display Modal -->
 
+    <!-- Loading Modal -->
+    <div id="loading-modal" class="modal">
+      <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+          <div class="modal-body">
+            <div class="row text-center">
+              <div class="jumbotron" style="background-color: inherit;">
+                <h1>Rodeo is starting up...</h1>
+                <p class="lead">We're launching your python session. This should only take a moment or two.</p>
+                <img src="img/loading.gif" />
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <!-- Loading Modal -->
+
     <!-- Tour Display Modal -->
     <div id="tour-modal" class="modal">
       <div class="modal-dialog modal-lg">
@@ -382,8 +400,10 @@
   <script src="js/server-main.js"></script>
   <script type="text/javascript">
     $(document).ready(function() {
+      $("#loading-modal").modal({ backdrop: 'static', keyboard: false, show: true });
       // let's get things going...
       setTimeout(function() {
+        $("#loading-modal").modal('hide');
         $("#add-tab").click();
       }, 450);
     });

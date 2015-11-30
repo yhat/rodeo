@@ -145,6 +145,7 @@ jqconsole._Indent = function() {
 };
 
 // make the cursor blink when the user is in the console
+/*
 var opacity = 0.2;
 function cursorBlink() {
   if (opacity==0.2) {
@@ -166,3 +167,4 @@ $("#console").focusout(function() {
     cursorBlinkId = null;
   }
 });
+*/
