@@ -389,8 +389,8 @@
       created_at: Date.now()
     });
     window.Intercom('update',{
-    "pythonCmd": require('ipc').sendSync('preferences-get').pythonCmd,
-    "version": require('ipc').sendSync('preferences-get').version})
+      "pythonCmd": require('ipc').sendSync('preferences-get').pythonCmd,
+      "version": require('ipc').sendSync('preferences-get').version
     });
   </script>
 </body>

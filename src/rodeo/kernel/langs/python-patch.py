@@ -16,6 +16,7 @@ except:
     pip = None
 
 import ast
+import types
 import re
 
 def __is_code_finished(code):
@@ -35,7 +36,8 @@ def __get_variables(session):
         "dict": [],
         "ndarray": [],
         "DataFrame": [],
-        "Series": []
+        "Series": [],
+        "other": []
     }
 
     SPECIAL_VARS = ["In", "Out"]
@@ -46,7 +48,11 @@ def __get_variables(session):
 
         variable = session[variable_name]
 
-        if isinstance(variable, list):
+        if variable_name in ["get_ipython", "exit", "quit"]:
+            continue
+        elif isinstance(variable, types.ModuleType):
+            continue
+        elif isinstance(variable, list):
             variable_repr = "List of length %d" % len(variable)
             variables["list"].append({ "name": variable_name, "repr": variable_repr })
         if np and isinstance(variable, np.ndarray):
@@ -62,6 +68,9 @@ def __get_variables(session):
         if pd and isinstance(variable, pd.Series):
             variable_repr = "[%d rows]" % variable.shape
             variables["Series"].append({ "name": variable_name, "repr": variable_repr })
+        else:
+            v = { "name": variable_name, "repr": str(type(variable)) }
+            variables["other"].append(v)
 
     print(json.dumps(variables))
 

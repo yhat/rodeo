@@ -39,3 +39,11 @@ TODO
     - Bridge interested in Beta
     - [ ] editor cut-off bug
     - [ ] nicer stdin error
+
+    - [ ] better Python/PATH detection
+    - [ ] font adjustments for Console and Editor
+    - [ ] pop-out panels
+        * make panels more modular (Polymer?)
+    - [ ] packaging/distro on linux
+    - [ ] more variables in environments panel
+    - [ ] "inline" mode

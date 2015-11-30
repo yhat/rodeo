@@ -9,8 +9,6 @@ var querystring = require('querystring');
 var ipc = require('electron').ipcMain;
 var crashReporter = require('electron').crashReporter;
 
-require('fix-path')();
-
 var kernel = require('../rodeo/kernel');
 var md = require('../rodeo/md');
 var findFile = require('../rodeo/find-file');
@@ -75,6 +73,7 @@ app.on('ready', function() {
       mainWindow.webContents.send('refresh-packages');
       mainWindow.webContents.send('set-working-directory', global.USER_WD || '.');
 
+      console.log("WE'RE READY!");
       mainWindow.webContents.send('ready');
 
       // mainWindow.webContents.send('log', JSON.stringify(process.argv))
