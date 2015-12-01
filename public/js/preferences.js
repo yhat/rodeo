@@ -24,6 +24,11 @@ function setFontSize(fontSize) {
   var fontSizeInt = parseInt(fontSize);
   fontSize = Math.min(fontSizeInt, 22) + "px";
   $("body").css("font-size", fontSize);
+  $("#console pre").css("font-size", fontSize);
+  $(".editor").each(function(i, item) {
+    var editor = ace.edit(item.id);
+    editor.setFontSize(fontSize);
+  });
   updateRC("fontSize", fontSizeInt);
 }
 

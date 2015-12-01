@@ -41,9 +41,10 @@ TODO
     - [ ] nicer stdin error
 
     - [ ] better Python/PATH detection
-    - [ ] font adjustments for Console and Editor
+    - [x] font adjustments for Console and Editor
     - [ ] pop-out panels
         * make panels more modular (Polymer?)
     - [ ] packaging/distro on linux
-    - [ ] more variables in environments panel
+    - [x] more variables in environments panel
     - [ ] "inline" mode
+    - [ ] copy/paste on linux
