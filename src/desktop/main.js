@@ -159,6 +159,10 @@ app.on('ready', function() {
     };
   });
 
+  ipc.on('home-get', function(event) {
+    event.returnValue = USER_HOME;
+  });
+
   ipc.on('wd-get', function(event) {
     event.returnValue = USER_WD;
   });

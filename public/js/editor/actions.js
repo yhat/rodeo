@@ -54,7 +54,7 @@ function refreshVariables() {
     }
     var variables = JSON.parse(result.output);
     $("#vars").children().remove();
-    var variableTypes = ["list", "dict", "ndarray", "DataFrame", "Series", "other"];
+    var variableTypes = ["list", "dict", "ndarray", "DataFrame", "Series", "function", "other"];
     variableTypes.forEach(function(type) {
       var isOnDesktop = isDesktop();
       variables[type].forEach(function(v) {

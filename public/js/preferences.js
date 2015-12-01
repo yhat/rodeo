@@ -107,7 +107,9 @@ function resetWindowCalibration() {
 function showRodeoProfile() {
   // should do something special here...
   if (isDesktop()) {
-    openFile('~/.rodeoprofile');
+    var userHome = ipc.sendSync('home-get');
+    var profilePath = pathJoin([userHome, ".rodeoprofile"]);
+    openFile(profilePath);
   } else {
     $.get("profile", function(profile) {
       newEditor('.rodeoprofile', '~/.rodeoprofile', profile);

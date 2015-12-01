@@ -13,6 +13,7 @@ function showVariable(varname, type) {
     list: "pp.pprint(" + varname + ")",
     ndarray: "pp.pprint(" + varname + ")",
     dict: "pp.pprint(" + varname + ")",
+    "function": "print(inspect.getsource(" + varname + "))",
     other: "pp.pprint(" + varname + ")"
   }
 

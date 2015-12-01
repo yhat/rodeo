@@ -21,8 +21,6 @@ templates['active-variable.hbs'] = template({"1":function(container,depth0,helpe
   "<tr>\n  <td>"
     + alias4(((helper = (helper = helpers.name || (depth0 != null ? depth0.name : depth0)) != null ? helper : alias2),(typeof helper === alias3 ? helper.call(alias1,{"name":"name","hash":{},"data":data}) : helper)))
     + "</td>\n  <td>"
-    + alias4(((helper = (helper = helpers.type || (depth0 != null ? depth0.type : depth0)) != null ? helper : alias2),(typeof helper === alias3 ? helper.call(alias1,{"name":"type","hash":{},"data":data}) : helper)))
-    + "</td>\n  <td>"
     + alias4(((helper = (helper = helpers.repr || (depth0 != null ? depth0.repr : depth0)) != null ? helper : alias2),(typeof helper === alias3 ? helper.call(alias1,{"name":"repr","hash":{},"data":data}) : helper)))
     + "</td>\n  <td style=\"td-align: center;\">\n    <a target=_blank ";
   stack1 = ((helper = (helper = helpers.isDesktop || (depth0 != null ? depth0.isDesktop : depth0)) != null ? helper : alias2),(options={"name":"isDesktop","hash":{},"fn":container.program(1, data, 0),"inverse":container.program(3, data, 0),"data":data}),(typeof helper === alias3 ? helper.call(alias1,options) : helper));
