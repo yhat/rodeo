@@ -10,3 +10,6 @@ rm -rf build/ && \
 if [ "${RELEASE}" == "push" ]; then
   ./scripts/upload-to-s3.sh
 fi
+if [ "${RELEASE}" == "rc" ]; then
+  ./scripts/upload-to-s3.sh "rc"
+fi

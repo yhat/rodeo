@@ -1,6 +1,10 @@
 #!/bin/bash
 
-VERSION=$(cat package.json | jq -r .version)
+if [ "$1" == "rc" ]; then
+  VERSION="rc"
+else
+  VERSION=$(cat package.json | jq -r .version)
+fi
 
 echo "uploading OSX"
 if [ -f build/darwin/x64/Rodeo-darwin-x64/Rodeo.dmg ]; then

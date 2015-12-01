@@ -51,3 +51,4 @@ TODO
     - [ ] "inline" mode
     - [ ] copy/paste on linux
     - [ ] docstring autocomplete thingy
+    - [ ] "excel viewer" for grid-like data
