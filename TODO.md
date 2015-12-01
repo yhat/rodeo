@@ -41,7 +41,7 @@ TODO
     - [ ] nicer stdin error
 
     - [ ] better Python/PATH detection
-    - [-] font adjustments for Console and Editor
+    - [x] font adjustments for Console and Editor
         * size
         * family
     - [ ] pop-out panels

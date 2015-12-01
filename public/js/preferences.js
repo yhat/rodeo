@@ -38,7 +38,15 @@ function setFontType(fontType) {
   $(".editor").each(function(i, item) {
     var editor = ace.edit(item.id);
     // TODO: not all fonts are available
-    // editor.setOption("fontFamily", fontType);
+    var validFonts = [
+      "Consolas",
+      "Courier New",
+      "Menlo",
+      "Monaco"
+    ];
+    if (validFonts.indexOf(fontType) > -1) {
+      editor.setOption("fontFamily", fontType);
+    }
   });
   updateRC("fontType", fontType);
 }
