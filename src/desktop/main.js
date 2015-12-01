@@ -73,7 +73,6 @@ app.on('ready', function() {
       mainWindow.webContents.send('refresh-packages');
       mainWindow.webContents.send('set-working-directory', global.USER_WD || '.');
 
-      console.log("WE'RE READY!");
       mainWindow.webContents.send('ready');
 
       // mainWindow.webContents.send('log', JSON.stringify(process.argv))
