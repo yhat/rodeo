@@ -31,3 +31,20 @@ $('#history-search').on('input', function() {
     });
   }
 });
+
+// basic search for packages
+$('#variable-search').on('input', function() {
+  var query = $(this).val().toLowerCase();
+  if (query=="") {
+    $("#vars tr").removeClass("hide");
+  } else {
+    $("#vars tr").each(function(i, variable) {
+      var variableName = $("td", variable).text().toLowerCase();
+      if (variableName.indexOf(query) >= 0) {
+        $(this).removeClass("hide");
+      } else {
+        $(this).addClass("hide");
+      }
+    });
+  }
+});
