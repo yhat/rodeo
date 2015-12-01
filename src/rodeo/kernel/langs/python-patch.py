@@ -74,7 +74,7 @@ def __get_variables(session):
             args = inspect.getargspec(variable)
             args = ", ".join(args.args)
             if len(args) > 40:
-                args = args[:40] + "..."
+                args = args[:60] + "..."
             variable_repr = "def %s(%s)" % (variable_name, args)
             variables["function"].append({ "name": variable_name, "repr": variable_repr })
         else:
