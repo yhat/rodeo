@@ -89,8 +89,8 @@ app.on('ready', function() {
       if (rc.version==null) {
         mainWindow.webContents.send('start-tour', { version: "first" });
         preferences.setPreferences("version", app.getVersion());
-      } else if (rc.version != app.getVersion()) {
-        mainWindow.webContents.send('start-tour', { version: app.getVersion() });
+      }
+      if (rc.version != app.getVersion()) {
         preferences.setPreferences("version", app.getVersion());
       }
     });

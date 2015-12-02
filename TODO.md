@@ -39,16 +39,16 @@ TODO
     - Bridge interested in Beta
     - [ ] editor cut-off bug
     - [ ] nicer stdin error
-
     - [ ] better Python/PATH detection
     - [x] font adjustments for Console and Editor
         * size
         * family
-    - [ ] pop-out panels
-        * make panels more modular (Polymer?)
     - [ ] packaging/distro on linux
-    - [x] more variables in environments panel
-    - [ ] "inline" mode
     - [ ] copy/paste on linux
+    - [x] more variables in environments panel
+- features
+    - [ ] "inline" mode
     - [ ] docstring autocomplete thingy
     - [ ] "excel viewer" for grid-like data
+    - [ ] pop-out panels
+        * make panels more modular (Polymer?)

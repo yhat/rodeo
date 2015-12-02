@@ -1,14 +1,14 @@
-# Rodeo Native
+# Rodeo
 
 ## Installation
-Check the [releases](https://github.com/yhat/rodeo-native/releases) for the latest build. Download it, unzip, and double-click Rodeo!
+Check [rodeo-updates.yhat.com/latest](http://rodeo-updates.yhat.com/latest) for the latest release. Download it, unzip, and double-click Rodeo!
 
 ## Dev
-You'll need the following to run Rodeo in dev mode:
+You need the following to run Rodeo in dev mode:
 - node.js
 - electron (npm install electron-prebuilt -g)
 
-You'll need the following to actually develop Rodeo:
+You need the following to actually develop Rodeo:
 - electron-packager (npm install electron-packager -g)
 - electron-builder (npm install electron-builder -g)
 - handlebars (npm install handlebars -g)
@@ -26,9 +26,10 @@ To updated static assets are you change them, run `watch.sh`:
 $ ./watch.sh
 ```
 
-## Building
+## Distribution
 
 ### Executables (.exe, .app)
+This will cross-compile apps...
 ```
 # build for just your OS
 $ node scripts/build.js
@@ -37,7 +38,7 @@ $ node scripts/build.js --all
 ```
 
 ### Installers
-https://github.com/aktau/github-release
+This will create installers...
 ```
 $ ./scripts/release.sh
 ```
@@ -50,5 +51,8 @@ $ ./scripts/release.sh
 
 ### Release everything
 ```bash
-$ rm -rf build/ && node scripts/build.js --all && ./scripts/sign.sh && ./scripts/release.sh && ./scripts/upload-to-s3.sh
+# release an RC version
+$ ./scripts/build-and-release.sh rc
+# release a real version
+$ ./scripts/build-and-release push
 ```
