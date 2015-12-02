@@ -22,7 +22,7 @@ global.USER_WD = preferences.getPreferences().defaultWd || USER_HOME;
 crashReporter.start({
   productName: 'Yhat Dev',
   companyName: 'Yhat',
-  submitURL: 'http://rodeo-updates.yhat.com/crash',
+  submitURL: 'https://rodeo-updates.yhat.com/crash',
   autoSubmit: true
 });
 
@@ -229,7 +229,7 @@ app.on('ready', function() {
     var platform = os.platform() + '_' + os.arch();
     var version = app.getVersion();
     updateUrl = "http://localhost:3000/?" + "platform=" + platform + "&version=" + version;
-    updateUrl = "http://rodeo-updates.yhat.com?" + "platform=" + platform + "&version=" + version;
+    updateUrl = "https://rodeo-updates.yhat.com?" + "platform=" + platform + "&version=" + version;
 
     autoUpdater.on('error', function(err, msg) {
       mainWindow.webContents.send('log', "[ERROR]: " + msg);
