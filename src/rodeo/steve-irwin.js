@@ -30,7 +30,7 @@ function findMeAPython(fn) {
   } else if (process.platform=="linux") {
     cmd = "bash -c 'source ~/.bashrc > /dev/null && echo $PATH'";
   } else {
-    cmd = "source ~/.bash_profile > /dev/null && echo $PATH";
+    cmd = "source ~/.bash_profile && source ~/.bashrc > /dev/null && echo $PATH";
   }
   exec(cmd, function(err, stdout, stderr) {
     var opts = {};
