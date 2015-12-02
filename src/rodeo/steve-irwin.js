@@ -4,6 +4,7 @@ var path = require('path');
 var fs = require('fs');
 var fse = require('fs-extra');
 var tmp = require('tmp');
+var preferences = require('./preferences');
 
 // Steve Irwin gets you a python, no questions asked
 function findMeAPython(fn) {
@@ -16,7 +17,7 @@ function findMeAPython(fn) {
   var testPythonFile = tmp.fileSync();
   fse.copySync(testPython, testPythonFile.name);
 
-  var rc = {}; // TODO: getRC();
+  var rc = preferences.getPreferences();
   var pythonCmds = [];
   // if we have one in our RC file, we'll prioritize that first
   if (rc.pythonCmd) {
