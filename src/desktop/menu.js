@@ -247,6 +247,14 @@ var menuShortcutsTemplate = [
         ]
       },
       {
+        label: 'Toggle Full Screen',
+        accelerator: 'Command+Shift+F',
+        click: function() {
+          var isFull = remote.getCurrentWindow().isFullScreen();
+          remote.getCurrentWindow().setFullScreen(!isFull);
+        }
+      },
+      {
         label: 'Reload',
         accelerator: 'CmdOrCtrl+R',
         click: function() {
@@ -266,7 +274,13 @@ var menuShortcutsTemplate = [
           });
         }
       },
-      { label: 'Toggle Dev Tools', accelerator: 'Alt+CmdOrCtrl+I', click: function() { remote.getCurrentWindow().toggleDevTools(); } },
+      {
+        label: 'Toggle Dev Tools',
+        accelerator: 'Alt+CmdOrCtrl+I',
+        click: function() {
+          remote.getCurrentWindow().toggleDevTools();
+        }
+      },
     ]
   },
   {
