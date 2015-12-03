@@ -4,7 +4,7 @@ var BrowserWindow = require('browser-window');
 var os = require('os');
 var fs = require('fs');
 var path = require('path');
-var http = require('http');
+var https = require('https');
 var querystring = require('querystring');
 var ipc = require('electron').ipcMain;
 var crashReporter = require('electron').crashReporter;
@@ -253,7 +253,7 @@ app.on('ready', function() {
 
     setTimeout(function() {
       if (/win32/.test(platform)) {
-        http.get(updateUrl, function(res) {
+        https.get(updateUrl, function(res) {
           if (res.statusCode!=204) {
             mainWindow.webContents.send('update-ready', { platform: 'windows' });
           }
