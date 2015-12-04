@@ -34,10 +34,10 @@ TODO
     - [x] need route for server markdown thing
     - [x] display variables broken
     - [x] file indexer not responding well
-
-    - Bridge interested in Beta
     - [ ] editor cut-off bug
-    - [ ] nicer stdin error
+    - [ ] fix stdin
+        * nicer stdin error
+        * allow stdin
     - [ ] better Python/PATH detection
     - [x] font adjustments for Console and Editor
         * size
@@ -45,6 +45,8 @@ TODO
     - [ ] packaging/distro on linux
     - [ ] copy/paste on linux
     - [x] more variables in environments panel
+    - [x] help shouldnt show in console
+    - [ ] windows hangs when given a anaconda env python path
 - features
     - [ ] "inline" mode
     - [ ] docstring autocomplete thingy
@@ -52,8 +54,10 @@ TODO
     - [ ] autocomplete w/ text from page
     - [ ] pop-out panels
         * make panels more modular (Polymer?)
+    - [ ] in app docs?
 - unknowns
     - [ ] figure out how `resources/` works
         * can we ship it w/ Python?
     - [ ] auto-updates for windows
 
+- Bridge interested in Beta
