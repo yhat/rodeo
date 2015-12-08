@@ -34,7 +34,7 @@ module.exports = function(ws) {
     if (PREFERENCES.displayDotFiles==true) {
       // do nothing
     } else {
-      if (/\/\./.test(dir) || /^\./.test(stat.name)) {
+      if (/^\./.test(path.basename(dir)) || /^\./.test(stat.name)) {
         // it's a dotfile so we're going to skip it
         return next();
       }
