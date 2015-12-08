@@ -31,9 +31,11 @@ module.exports = function(ws) {
 
     var dir = root.replace(USER_WD, '') || "";
     var displayFilename = path.join(dir, stat.name).replace(/^\//, '');
-    if (PREFERENCES.displayDotFiles!=true) {
+    if (PREFERENCES.displayDotFiles==true) {
+      // do nothing
+    } else {
       if (/\/\./.test(dir) || /^\./.test(stat.name)) {
-        // essa dotfile so we're going to skip it
+        // it's a dotfile so we're going to skip it
         return next();
       }
     }

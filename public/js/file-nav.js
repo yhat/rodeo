@@ -54,6 +54,7 @@ function setFiles(dir) {
       dir = ipc.sendSync('wd-get');
     }
     var resp = ipc.sendSync('files', { "dir": dir });
+    ipc.send('index-files')
     callback(resp.home, resp.dir, resp.files);
   } else {
     getWorkingDirectory(function(wd) {
