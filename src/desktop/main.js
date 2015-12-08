@@ -55,18 +55,18 @@ app.on('ready', function() {
     kernel(function(err, python) {
       global.python = python;
       if (err) {
-        console.log("[ERROR]: " + err);
+        mainWindow.webContents.send('log', "[ERROR]: " + err);
         mainWindow.webContents.send("startup-error", err);
         return;
       }
       if (python==null) {
-        console.log("[ERROR]: python came back null");
+        mainWindow.webContents.send('log', "[ERROR]: python came back null");
         mainWindow.webContents.send("startup-error", err);
         return;
       }
 
       preferences.setPreferences('pythonCmd', python.spawnfile);
-      console.log(python.spawnfile);
+      mainWindow.webContents.send('log', "using python: " + python.spawnfile);
 
       mainWindow.webContents.send('setup-preferences');
       mainWindow.webContents.send('refresh-variables');
@@ -82,7 +82,7 @@ app.on('ready', function() {
         USER_WD = wd;
       }
       if (wd) {
-        console.log("[INFO]: working directory passed as argument: `" + wd + "`");
+        mainWindow.webContents.send('log', "[INFO]: working directory passed as argument: `" + wd + "`");
         mainWindow.webContents.send('set-wd', wd);
       }
       var rc = preferences.getPreferences();
