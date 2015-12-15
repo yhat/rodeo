@@ -42,8 +42,8 @@ TODO
     - [x] font adjustments for Console and Editor
         * size
         * family
-    - [ ] packaging/distro on linux
-    - [ ] copy/paste on linux
+    - [x] packaging/distro on linux
+    - [x] copy/paste on linux
     - [x] more variables in environments panel
     - [x] help shouldnt show in console
     - [ ] windows hangs when given a anaconda env python path
