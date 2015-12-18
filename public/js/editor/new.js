@@ -205,7 +205,7 @@ function configureEditor(editor) {
 
   editor.commands.addCommand({
     name: "cancelInput",
-    bindKey: {win: "ctrl-c", mac: "ctrl-c"},
+    bindKey: {win: "ctrl-shift-c", mac: "ctrl-c"},
     exec: function(editor) {
       jqconsole.SetPromptText('');
     }
