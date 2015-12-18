@@ -11,3 +11,4 @@ build
 *.log
 BETA.md
 .vagrant
+*.swp
