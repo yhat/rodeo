@@ -29,7 +29,7 @@
           Default Python Command
           <a data-toggle="tooltip" data-placement="right" title="<p class='small'>The <code>python</code> command that Rodeo will use. Some operating systems (OSX in particular) ship with multiple versions of Python installed. This can be confusing and it is sometimes difficult to determine which <code>python</code> is the 'right one'.</p>" data-html="true"><i class="fa fa-question-circle"></i></a>
         </label>
-        <select onchange="changeDefaultPath($(this).val());" class="form-control" id="fontType" name="fontType" type="number" value="{{fontType}}" >
+        <select onchange="changeDefaultPath($(this).val());" class="form-control">
           {{#pythonPaths}}
             <option {{#compare ../pythonCmd . }}selected{{/compare}}>{{ . }}</option>
           {{/pythonPaths}}
