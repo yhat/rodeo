@@ -217,7 +217,7 @@
                   </div>
                 </div>
                 <img id="loading-gif" src="img/loading-stopped.gif" style="max-height: 200px;" />
-                <div class="row">
+                <div id="which-python" class="row">
                   <h2>Don't know your python path?</h2>
                   <p class="lead"><a onClick="shell.openItem('/Applications/Utilities/Terminal.app');">Click here to open the Terminal application</a> and run the command below:</p>
                   <div class="row">
@@ -226,6 +226,54 @@
                     </div>
                   </div>
                 </div>
+                <!--  start ready -->
+                <div id="rodeo-ready" class="row hide">
+                  <h2>Ok! You're ready to go!</h2>
+                  <p class="lead">Hope you enjoy Rodeo!</p>
+                  <img src="img/rodeo-text-dark.png" style="max-height: 150px;"/>
+                </div>
+                <!--  end ready -->
+                <!--  start install jupyter -->
+                <div id="install-jupyter" class="row hide">
+                  <h2>Looks like you're missing <i>jupyter</i></h2>
+                  <p class="lead">For Conda users:</p>
+                  <div class="row">
+                    <div class="col-sm-8 col-sm-offset-2 text-left">
+                      <pre>$ conda install jupyter</pre>
+                    </div>
+                  </div>
+                  <p class="lead">For pip users:</p>
+                  <div class="row">
+                    <div class="col-sm-8 col-sm-offset-2 text-left">
+                      <pre>$ pip install jupyter</pre>
+                    </div>
+                  </div>
+                </div>
+                <!--  end install jupyter -->
+
+                <!--  start install matplotlib -->
+                <div id="install-matplotlib" class="row hide">
+                  <h2>Looks like you're missing <i>matplotlib</i></h2>
+                  <p class="lead"><a onClick="shell.openItem('/Applications/Utilities/Terminal.app');">Click here to open the Terminal application</a> and run the command below:</p>
+                  <div class="row">
+                    <div class="col-sm-8 col-sm-offset-2 text-left">
+                      <pre>$ which python</pre>
+                    </div>
+                  </div>
+                  <p class="lead">For Conda users:</p>
+                  <div class="row">
+                    <div class="col-sm-8 col-sm-offset-2 text-left">
+                      <pre>$ conda install matplotlib</pre>
+                    </div>
+                  </div>
+                  <p class="lead">For pip users:</p>
+                  <div class="row">
+                    <div class="col-sm-8 col-sm-offset-2 text-left">
+                      <pre>$ pip install matplotlib</pre>
+                    </div>
+                  </div>
+                </div>
+                <!--  end install matplotlib -->
               </div>
             </div>
           </div>

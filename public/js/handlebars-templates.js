@@ -337,15 +337,15 @@ templates['python-test-output.hbs'] = template({"1":function(container,depth0,he
 },"compiler":[7,">= 4.0.0"],"main":function(container,depth0,helpers,partials,data) {
     var stack1, alias1=depth0 != null ? depth0 : {};
 
-  return "<ul class=\"list-group\">\n  <li class=\"list-group-item "
+  return "<ul class=\"list-group\">\n  <li id=\"output-python\" class=\"list-group-item "
     + ((stack1 = helpers["if"].call(alias1,(depth0 != null ? depth0.status : depth0),{"name":"if","hash":{},"fn":container.program(1, data, 0),"inverse":container.program(3, data, 0),"data":data})) != null ? stack1 : "")
     + "\">\n    Python PATH&nbsp;"
     + ((stack1 = helpers["if"].call(alias1,(depth0 != null ? depth0.status : depth0),{"name":"if","hash":{},"fn":container.program(5, data, 0),"inverse":container.program(7, data, 0),"data":data})) != null ? stack1 : "")
-    + "\n  </li>\n  <li class=\"list-group-item "
+    + "\n  </li>\n  <li id=\"output-jupyter\" class=\"list-group-item "
     + ((stack1 = helpers["if"].call(alias1,(depth0 != null ? depth0.jupyter : depth0),{"name":"if","hash":{},"fn":container.program(1, data, 0),"inverse":container.program(3, data, 0),"data":data})) != null ? stack1 : "")
     + "\">\n    Jupyter&nbsp;"
     + ((stack1 = helpers["if"].call(alias1,(depth0 != null ? depth0.jupyter : depth0),{"name":"if","hash":{},"fn":container.program(5, data, 0),"inverse":container.program(7, data, 0),"data":data})) != null ? stack1 : "")
-    + "\n  </li>\n  <li class=\"list-group-item "
+    + "\n  </li>\n  <li id=\"output-matplotlib\" class=\"list-group-item "
     + ((stack1 = helpers["if"].call(alias1,(depth0 != null ? depth0.matplotlib : depth0),{"name":"if","hash":{},"fn":container.program(1, data, 0),"inverse":container.program(3, data, 0),"data":data})) != null ? stack1 : "")
     + "\">\n    matplotlib&nbsp;"
     + ((stack1 = helpers["if"].call(alias1,(depth0 != null ? depth0.matplotlib : depth0),{"name":"if","hash":{},"fn":container.program(5, data, 0),"inverse":container.program(7, data, 0),"data":data})) != null ? stack1 : "")

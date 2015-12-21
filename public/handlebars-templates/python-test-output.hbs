@@ -1,11 +1,11 @@
 <ul class="list-group">
-  <li class="list-group-item {{#if status}}list-group-item-success{{else}}list-group-item-danger{{/if}}">
+  <li id="output-python" class="list-group-item {{#if status}}list-group-item-success{{else}}list-group-item-danger{{/if}}">
     Python PATH&nbsp;{{#if status}}<i class="fa fa-check"></i>{{else}}<i class="fa fa-times"></i>{{/if}}
   </li>
-  <li class="list-group-item {{#if jupyter}}list-group-item-success{{else}}list-group-item-danger{{/if}}">
+  <li id="output-jupyter" class="list-group-item {{#if jupyter}}list-group-item-success{{else}}list-group-item-danger{{/if}}">
     Jupyter&nbsp;{{#if jupyter}}<i class="fa fa-check"></i>{{else}}<i class="fa fa-times"></i>{{/if}}
   </li>
-  <li class="list-group-item {{#if matplotlib}}list-group-item-success{{else}}list-group-item-danger{{/if}}">
+  <li id="output-matplotlib" class="list-group-item {{#if matplotlib}}list-group-item-success{{else}}list-group-item-danger{{/if}}">
     matplotlib&nbsp;{{#if matplotlib}}<i class="fa fa-check"></i>{{else}}<i class="fa fa-times"></i>{{/if}}
   </li>
 </ul>

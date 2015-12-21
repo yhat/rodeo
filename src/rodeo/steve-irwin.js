@@ -78,13 +78,15 @@ function findMeAPython(fn) {
             if (err) {
               pythonCmd = null;
               callback();
-            } else if (! /FAIL/.test(stdout.toString())) {
-              // then we're good
+              return;
+            }
+            var result = JSON.parse(stdout.toString());
+            if (result.matplotlib==true && result.jupyter==true) {
               callback();
-            } else if (stdout.toString()=="FAIL-jupyter"){
+            } else if (result.jupyter!=true) {
               pythonCmd = null;
               callback("Could not load Jupyter/IPython");
-            } else if (stdout.toString()=="FAIL-matplotlib"){
+            } else if (result.matplotlib!=true) {
               pythonCmd = null;
               callback("Could not load matplotlib");
             }

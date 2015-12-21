@@ -20,11 +20,8 @@ global.USER_WD = preferences.getPreferences().defaultWd || USER_HOME;
 
 
 function createPythonKernel(pythonPath, displayWindow) {
-  console.log("LAUNCHING KERNEL: " + pythonPath);
   kernel.startNewKernel(pythonPath, function(err, python) {
     global.python = python;
-
-    console.log(err, python);
 
     if (err) {
       displayWindow.webContents.send('log', "[ERROR]: " + err);
@@ -168,6 +165,7 @@ app.on('ready', function() {
 
   ipc.on('launch-kernel', function(event, pythonPath) {
     createPythonKernel(pythonPath, mainWindow);
+      event.returnValue = true;
   });
 
   ipc.on('test-path', function(event, pythonPath) {
