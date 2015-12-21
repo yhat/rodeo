@@ -19,6 +19,36 @@ global.USER_HOME = process.env[(process.platform == 'win32') ? 'USERPROFILE' : '
 global.USER_WD = preferences.getPreferences().defaultWd || USER_HOME;
 
 
+function createPythonKernel(pythonPath, displayWindow) {
+  console.log("LAUNCHING KERNEL: " + pythonPath);
+  kernel.startNewKernel(pythonPath, function(err, python) {
+    global.python = python;
+
+    console.log(err, python);
+
+    if (err) {
+      displayWindow.webContents.send('log', "[ERROR]: " + err);
+      displayWindow.webContents.send("startup-error", err);
+      return;
+    }
+    if (python==null) {
+      displayWindow.webContents.send('log', "[ERROR]: python came back null");
+      displayWindow.webContents.send("startup-error", err);
+      return;
+    }
+
+    preferences.setPreferences('pythonCmd', python.spawnfile);
+    displayWindow.webContents.send('log', "using python: " + python.spawnfile);
+
+    displayWindow.webContents.send('setup-preferences');
+    displayWindow.webContents.send('refresh-variables');
+    displayWindow.webContents.send('refresh-packages');
+    displayWindow.webContents.send('set-working-directory', global.USER_WD || '.');
+
+    displayWindow.webContents.send('ready');
+  });
+}
+
 crashReporter.start({
   productName: 'Yhat Dev',
   companyName: 'Yhat',
@@ -52,28 +82,7 @@ app.on('ready', function() {
   mainWindow.loadURL('file://' + __dirname + '/../../static/desktop-index.html');
   // mainWindow.openDevTools();
   mainWindow.webContents.on('did-finish-load', function() {
-    kernel(function(err, python) {
-      global.python = python;
-      if (err) {
-        mainWindow.webContents.send('log', "[ERROR]: " + err);
-        mainWindow.webContents.send("startup-error", err);
-        return;
-      }
-      if (python==null) {
-        mainWindow.webContents.send('log', "[ERROR]: python came back null");
-        mainWindow.webContents.send("startup-error", err);
-        return;
-      }
-
-      preferences.setPreferences('pythonCmd', python.spawnfile);
-      mainWindow.webContents.send('log', "using python: " + python.spawnfile);
-
-      mainWindow.webContents.send('setup-preferences');
-      mainWindow.webContents.send('refresh-variables');
-      mainWindow.webContents.send('refresh-packages');
-      mainWindow.webContents.send('set-working-directory', global.USER_WD || '.');
-
-      mainWindow.webContents.send('ready');
+    createPythonKernel(null, mainWindow);
 
       // mainWindow.webContents.send('log', JSON.stringify(process.argv))
       var wd;
@@ -93,7 +102,6 @@ app.on('ready', function() {
       if (rc.version != app.getVersion()) {
         preferences.setPreferences("version", app.getVersion());
       }
-    });
   });
 
   // Open the devtools.
@@ -156,6 +164,16 @@ app.on('ready', function() {
       dir: dirname,
       home: USER_HOME
     };
+  });
+
+  ipc.on('launch-kernel', function(event, pythonPath) {
+    createPythonKernel(pythonPath, mainWindow);
+  });
+
+  ipc.on('test-path', function(event, pythonPath) {
+    kernel.testPythonPath(pythonPath, function(err, result) {
+      event.returnValue = { err: err, result: result };
+    });
   });
 
   ipc.on('home-get', function(event) {
