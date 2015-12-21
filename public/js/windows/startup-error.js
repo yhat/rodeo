@@ -6,6 +6,10 @@ function showError(err) {
   }
   $("#loading-modal").modal('hide');
   $("#error-modal").modal({ backdrop: 'static', keyboard: false, show: true });
+  // if (/win32/i.test(navigator.platform)) {
+  if (1==1) {
+    $("#error-modal pre").text('c:\\> for %i in (python.exe) do @echo. %~$PATH:i');
+  }
 }
 
 // $("#error-modal .modal-body").append(bad_python_template());

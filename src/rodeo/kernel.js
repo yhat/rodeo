@@ -118,9 +118,7 @@ function spawnPython(cmd, opts, done) {
 
 module.exports.startNewKernel = function(pythonCmd, cb) {
   if (! pythonCmd) {
-    console.log("STEVE")
     SteveIrwin.findMeAPython(function(err, pythonCmd, opts) {
-      console.log("STEVE FOUND: " + pythonCmd)
       if (err) {
         cb(err, null);
         return;

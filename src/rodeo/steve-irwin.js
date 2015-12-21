@@ -21,6 +21,7 @@ function findMeAPython(fn) {
   var pythonCmds = [];
   // if we have one in our RC file, we'll prioritize that first
   if (rc.pythonCmd) {
+    console.log("[INFO]: found default python in rc file: " + rc.pythonCmd);
     pythonCmds.push(rc.pythonCmd);
   }
 
