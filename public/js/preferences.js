@@ -118,6 +118,14 @@ function resetWindowCalibration() {
   });
 }
 
+function changeDefaultPath(pythonPath) {
+  if (pythonPath=="add-path") {
+    $('#default-python-modal').modal('show');
+  } else {
+    setPythonCmd(pythonPath);  
+  }
+}
+
 function showRodeoProfile() {
   // should do something special here...
   if (isDesktop()) {
@@ -135,6 +143,12 @@ function configurePreferences(rc) {
   rc.keyBindings = rc.keyBindings || "default";
   rc.defaultWd = rc.defaultWd || USER_HOME;
   rc.fontType = rc.FontType || "Helvetica Neue";
+  rc.pythonPaths = rc.pythonPaths || [];
+  if (rc.pythonCmd) {
+    if (rc.pythonPaths.indexOf(rc.pythonCmd) < 0) {
+      rc.pythonPaths.push(rc.pythonCmd);
+    }
+  }
 
   if (rc.trackingOn!=false) {
     rc.trackingOn = true;
@@ -162,6 +176,27 @@ function configurePreferences(rc) {
   }
 }
 
+$("#add-path-button").click(function(e) {
+  var newPath = $("#new-python-path").val();
+  var data = ipc.sendSync('test-path', newPath);
+  if (data.result && data.result.status) {
+    if (data.result.matplotlib && data.result.jupyter) {
+      var result = ipc.sendSync('add-python-path', newPath);
+      if (result==true) {
+        $("#python-paths").append(python_path_item(newPath));
+      } else {
+        $("#add-path-help").text("Could not add python path: " + result);
+      }
+    } else if (! data.result.jupyter) {
+      $("#add-path-help").text("The path you specified did not have jupyter installed. Please install jupyter before adding a path.");
+    } else if (! data.result.matplotlib) {
+      $("#add-path-help").text("The path you specified did not have matplotlib installed. Please install jupyter before adding a path.");
+    }
+  } else {
+    $("#add-path-help").text("Invalid Python. Rodeo could not run Python using the path you specified.");
+  }
+});
+
 // initialize preferences
 USER_HOME = null;
 
@@ -185,4 +220,3 @@ function setupPreferences() {
     configurePreferences(rc);
   });
 }
-

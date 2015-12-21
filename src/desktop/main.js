@@ -20,6 +20,9 @@ global.USER_WD = preferences.getPreferences().defaultWd || USER_HOME;
 
 
 function createPythonKernel(pythonPath, displayWindow) {
+  if (python) {
+    python.kill('SIGHUP');
+  }
   kernel.startNewKernel(pythonPath, function(err, python) {
     global.python = python;
 
@@ -172,6 +175,25 @@ app.on('ready', function() {
     kernel.testPythonPath(pythonPath, function(err, result) {
       event.returnValue = { err: err, result: result };
     });
+  });
+
+  ipc.on('add-python-path', function(event, pythonPath) {
+    var rc = preferences.getPreferences();
+    var paths = rc.pythonPaths || [];
+
+    // make sure rc.pythonCmd is in the list
+    if (rc.pythonCmd) {
+      if (paths.indexOf(rc.pythonCmd) < 0) {
+        paths.push(rc.pythonCmd);
+      }
+    }
+    if (paths.indexOf(pythonPath) > -1) {
+      event.returnValue = "path already exists.";
+      return;
+    }
+    paths.push(pythonPath);
+    preferences.setPreferences('pythonPaths', paths);
+    event.returnValue = true;
   });
 
   ipc.on('home-get', function(event) {

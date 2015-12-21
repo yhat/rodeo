@@ -137,13 +137,15 @@ module.exports.testPythonPath = function(pythonPath, cb) {
   var testPythonFile = tmp.fileSync();
   fse.copySync(testPython, testPythonFile.name);
 
-  exec(cmd + testPythonFile.name, function(err, stdout, stderr) {
+  var testProcess = exec(cmd + testPythonFile.name, function(err, stdout, stderr) {
     if (err) {
       cb(err, null);
+      testProcess.kill('SIGHUP');
     } else {
       var result = JSON.parse(stdout.toString());
       result.status = true;
       cb(null, result);
+      testProcess.kill('SIGHUP');
     }
   });
 }
