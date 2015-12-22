@@ -82,26 +82,27 @@ app.on('ready', function() {
   mainWindow.loadURL('file://' + __dirname + '/../../static/desktop-index.html');
   // mainWindow.openDevTools();
   mainWindow.webContents.on('did-finish-load', function() {
-    createPythonKernel(null, mainWindow);
+    // keep track of the app version the user is on. this is convenient for 
+    // reporting bugs
+    var rc = preferences.getPreferences();
+    if (rc.version==null) {
+      mainWindow.webContents.send('start-tour', { version: "first" });
+      preferences.setPreferences("version", app.getVersion());
+    }
+    if (rc.version != app.getVersion()) {
+      preferences.setPreferences("version", app.getVersion());
+    }
 
-      // mainWindow.webContents.send('log', JSON.stringify(process.argv))
-      var wd;
-      if (process.argv.length == 5) {
-        wd = process.argv[4];
-        USER_WD = wd;
-      }
-      if (wd) {
-        mainWindow.webContents.send('log', "[INFO]: working directory passed as argument: `" + wd + "`");
-        mainWindow.webContents.send('set-wd', wd);
-      }
-      var rc = preferences.getPreferences();
-      if (rc.version==null) {
-        mainWindow.webContents.send('start-tour', { version: "first" });
-        preferences.setPreferences("version", app.getVersion());
-      }
-      if (rc.version != app.getVersion()) {
-        preferences.setPreferences("version", app.getVersion());
-      }
+    createPythonKernel(null, mainWindow);
+    var wd;
+    if (process.argv.length == 5) {
+      wd = process.argv[4];
+      USER_WD = wd;
+    }
+    if (wd) {
+      mainWindow.webContents.send('log', "[INFO]: working directory passed as argument: `" + wd + "`");
+      mainWindow.webContents.send('set-wd', wd);
+    }
   });
 
   // Open the devtools.
