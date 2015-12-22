@@ -13,7 +13,6 @@ var fs = require('fs')
 global.completionCallbacks = {};
 
 function spawnPython(cmd, opts, done) {
-
   // we need to actually write the python kernel to a tmp file. this is so python
   // can run as a "real" file and not an asar file
   var pythonKernel = path.join(__dirname, "kernel", "kernel.py");
