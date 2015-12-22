@@ -31,6 +31,8 @@ function sendCommand(input, hideResult) {
     autocomplete: false,
     stream: true
   };
+
+  $("#btn-interrupt").removeClass("hide");
   if (isDesktop()) {
     ipc.send('command', data);
   } else {
@@ -48,20 +50,23 @@ function handleCommandResults(result) {
     }
   }
 
-  if (result.stream) {
+  if (result.status!="complete" && result.stream) {
     jqconsole.Write(result.stream || "");
   }
 
   if (result.image || result.html) {
     addPlot(result);
+    $("#btn-interrupt").addClass("hide");
   }
 
   if (result.error) {
     track('command', 'error');
+    $("#btn-interrupt").addClass("hide");
     jqconsole.Write(result.error + '\n', 'jqconsole-error');
   }
 
   if (result.status=="complete") {
+    $("#btn-interrupt").addClass("hide");
     jqconsole.Write('\n');
     refreshVariables();
   }

@@ -15,12 +15,12 @@ global.completionCallbacks = {};
 function spawnPython(cmd, opts, done) {
   // we need to actually write the python kernel to a tmp file. this is so python
   // can run as a "real" file and not an asar file
-  var pythonKernel = path.join(__dirname, "kernel", "kernel.py");
+  var pythonKernel = path.join(__dirname, "kernel", "asynckernel.py");
   var kernelDir = path.join(__dirname, "kernel");
   var tmpKernelDir = tmp.dirSync();
   fse.copySync(kernelDir, tmpKernelDir.name);
 
-  var kernelFile = path.join(tmpKernelDir.name, "kernel.py");
+  var kernelFile = path.join(tmpKernelDir.name, "asynckernel.py");
   var configFile = path.join(tmpKernelDir.name, "config.json");
   var delim = "\n";
 
@@ -55,7 +55,7 @@ function spawnPython(cmd, opts, done) {
     console.log("[KERNEL-INFO]: disconnected");
   });
 
-  // StreamSplitter looks at the incoming stream from kernel.py (which is line
+  // StreamSplitter looks at the incoming stream from asynckernel.py (which is line
   // delimited JSON) and splits on \n automatically, so we're just left with the
   // JSON data
   python.stdout.pipe(StreamSplitter(delim))
@@ -71,8 +71,7 @@ function spawnPython(cmd, opts, done) {
       }
     });
   python.execute = function(cmd, complete, fn) {
-    var payload = { id: uuid.v4().toString(), code: cmd, complete: complete };
-    var results = [];
+    var payload = { async: false, id: uuid.v4().toString(), code: cmd, complete: complete };
     var output = "";
     completionCallbacks[payload.id] = function(result) {
       // autocompleted results come back as a proper JSON array
@@ -82,19 +81,16 @@ function spawnPython(cmd, opts, done) {
         output = output + (result.output || "");
       }
       if (result.status=="complete") {
-        var r = results[results.length-1];
-        r.output = output;
         if (fn) {
-          fn(r);
+          fn(result);
         }
       }
-      results.push(result)
     }
     this.stdin.write(JSON.stringify(payload) + delim);
   };
 
   python.executeStream = function(cmd, complete, fn) {
-    var payload = { id: uuid.v4().toString(), code: cmd, complete: complete };
+    var payload = { async: true, id: uuid.v4().toString(), code: cmd, complete: complete };
     completionCallbacks[payload.id] = fn
     this.stdin.write(JSON.stringify(payload) + delim);
   };

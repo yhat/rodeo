@@ -33,7 +33,11 @@ jqconsole.RegisterShortcut('e', function() {
 
 // ctrl + c to cancel input
 jqconsole.RegisterShortcut('c', function() {
-  jqconsole.ClearPromptText();
+  if (! $("#btn-interrupt").hasClass("hide")) {
+    $("#btn-interrupt").click();
+  } else {
+    jqconsole.ClearPromptText();
+  }
 });
 
 // ctrl + u to clear to beginning
