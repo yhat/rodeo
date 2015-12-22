@@ -255,26 +255,6 @@ var menuShortcutsTemplate = [
         }
       },
       {
-        label: 'Reload',
-        accelerator: 'CmdOrCtrl+R',
-        click: function() {
-          track('shortcut', 'Reload');
-          remote.require('dialog').showMessageBox({
-            type: "warning",
-            buttons: ["Yes", "Cancel"],
-            message: "Reloading will restart your Rodeo session. Are you sure you want to continue?",
-            detail: "Any unsaved scripts and data will be deleted permanently."
-          }, function(reply) {
-            if (reply==0) {
-              remote.getCurrentWindow().reload();
-            } else {
-              // do nothing
-              return;
-            }
-          });
-        }
-      },
-      {
         label: 'Toggle Dev Tools',
         accelerator: 'Alt+CmdOrCtrl+I',
         click: function() {
@@ -358,18 +338,17 @@ var menuShortcutsTemplate = [
     submenu: [
       {
         label: 'Restart Session',
+        accelerator: 'CmdOrCtrl+R',
         click: function() {
           track('shortcut', 'Session > Restart Session');
           remote.require('dialog').showMessageBox({
             type: "warning",
             buttons: ["Yes", "Cancel"],
-            message: "Are you sure you want to restart your Python session?",
-            detail: "Your data and variables will be deleted permanently."
+            message: "Reloading will restart your Rodeo session. Are you sure you want to continue?",
+            detail: "Any unsaved scripts and data will be deleted permanently."
           }, function(reply) {
             if (reply==0) {
-              // yes, nuke it
-              sendCommand("%reset -f", false);
-              refreshVariables();
+              remote.getCurrentWindow().reload();
             } else {
               // do nothing
               return;
