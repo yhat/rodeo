@@ -123,6 +123,26 @@ function changeDefaultPath(pythonPath) {
     $('#default-python-modal').modal('show');
   } else {
     setPythonCmd(pythonPath);
+    bootbox.dialog({
+      title: "Your default Python environment has been updated.",
+      message: "For the changes to take affect, you'll need to restart Rodeo. Would you like to do this now?",
+      buttons: {
+        cancel: {
+          label: "No",
+          className: "btn-default",
+          callback: function() {
+            return;
+          }
+        },
+        yes: {
+          label: "Yes",
+          className: "btn-primary",
+            callback: function() {
+              require('remote').getCurrentWindow().reload();
+            }
+        }
+      }
+    });
   }
 }
 
