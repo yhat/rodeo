@@ -21,6 +21,7 @@ global.USER_WD = preferences.getPreferences().defaultWd || USER_HOME;
 
 function createPythonKernel(pythonPath, displayWindow) {
   if (python) {
+    console.log("KILLING PYTHON");
     python.kill('SIGHUP');
   }
   kernel.startNewKernel(pythonPath, function(err, python) {
@@ -205,7 +206,7 @@ app.on('ready', function() {
       paths.splice(index, 1);
     }
     if (rc.pythonCmd==pythonPath) {
-      preferences.setPreferences('pythonCmd', null);  
+      preferences.setPreferences('pythonCmd', null);
     }
     preferences.setPreferences('pythonPaths', paths);
     event.returnValue = true;
