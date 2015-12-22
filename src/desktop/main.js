@@ -196,6 +196,18 @@ app.on('ready', function() {
     event.returnValue = true;
   });
 
+  ipc.on('remove-python-path', function(event, pythonPath) {
+    var rc = preferences.getPreferences();
+    var paths = rc.pythonPaths || [];
+
+    if (paths.indexOf(pythonPath) > -1) {
+      index = paths.indexOf(pythonPath);
+      paths.splice(index, 1);
+    }
+    preferences.setPreferences('pythonPaths', paths);
+    event.returnValue = true;
+  });
+
   ipc.on('home-get', function(event) {
     event.returnValue = USER_HOME;
   });

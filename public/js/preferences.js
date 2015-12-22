@@ -122,7 +122,7 @@ function changeDefaultPath(pythonPath) {
   if (pythonPath=="add-path") {
     $('#default-python-modal').modal('show');
   } else {
-    setPythonCmd(pythonPath);  
+    setPythonCmd(pythonPath);
   }
 }
 
@@ -190,12 +190,19 @@ $("#add-path-button").click(function(e) {
     } else if (! data.result.jupyter) {
       $("#add-path-help").text("The path you specified did not have jupyter installed. Please install jupyter before adding a path.");
     } else if (! data.result.matplotlib) {
-      $("#add-path-help").text("The path you specified did not have matplotlib installed. Please install jupyter before adding a path.");
+      $("#add-path-help").text("The path you specified did not have matplotlib installed. Please install matplotlib efore adding a path.");
     }
   } else {
     $("#add-path-help").text("Invalid Python. Rodeo could not run Python using the path you specified.");
   }
 });
+
+function deletePythonPath(el) {
+  var pythonPath = $(el).data("path");
+  ipc.sendSync('remove-python-path', pythonPath);
+  $(el).parent().remove();
+  setupPreferences();
+}
 
 // initialize preferences
 USER_HOME = null;

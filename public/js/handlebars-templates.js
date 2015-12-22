@@ -337,9 +337,13 @@ templates['preferences.hbs'] = template({"1":function(container,depth0,helpers,p
   return buffer + "> AutoSave Files\n        </label>\n      </div>\n    </div>\n    <!-- End Editor Tab -->\n\n    <!-- Layout Tab -->\n    <div class=\"tab-pane\" id=\"layout\">\n      <div class=\"row\" style=\"height: 100px;\">\n        <div class=\"col-sm-2\" style=\"height: 100px; background-color: skyblue;\">\n        </div>\n        <div class=\"col-sm-2\" style=\"height: 100px; background-color: grey;\">\n        </div>\n      </div>\n      <div class=\"row\" style=\"height: 100px;\">\n        <div class=\"col-sm-2\" style=\"height: 100px; background-color: grey;\">\n        </div>\n        <div class=\"col-sm-2\" style=\"height: 100px; background-color: skyblue;\">\n        </div>\n      </div>\n    </div>\n    <!-- End Layout Tab -->\n  </div>\n</div>\n";
 },"useData":true,"useDepths":true});
 templates['python-path-item.hbs'] = template({"compiler":[7,">= 4.0.0"],"main":function(container,depth0,helpers,partials,data) {
-    return "<li class=\"list-group-item\">\n  <i>"
-    + container.escapeExpression(container.lambda(depth0, depth0))
-    + "</i>\n  <button class=\"btn btn-xs btn-danger pull-right\">remove</button>\n</li>\n";
+    var alias1=container.lambda, alias2=container.escapeExpression;
+
+  return "<li class=\"list-group-item\">\n  <i>"
+    + alias2(alias1(depth0, depth0))
+    + "</i>\n  <button onclick=\"deletePythonPath(this);\" data-path=\""
+    + alias2(alias1(depth0, depth0))
+    + "\" class=\"btn btn-xs btn-danger pull-right\">remove</button>\n</li>\n";
 },"useData":true});
 templates['python-test-output.hbs'] = template({"1":function(container,depth0,helpers,partials,data) {
     return "list-group-item-success";
