@@ -32,31 +32,28 @@ function spawnPython(cmd, opts, done) {
 
   // we'll print any feedback from the kernel as yellow text
   python.stderr.on("data", function(data) {
-  // process.stderr.write(data.toString().yellow);
-    console.log(data.toString().yellow);
+    console.log("[KERNEL-STDERR]: " + data.toString().yellow);
   });
 
   python.on("error", function(err) {
-    console.log(err.toString());
+    console.log("[KERNEL-ERROR]: " + err.toString());
   });
 
   python.on("exit", function(code) {
     fs.unlink(kernelFile, function(err) {
       if (err) {
-        console.log("failed to remove temporary kernel file: " + err);
+        console.log("[KERNEL-ERROR]: failed to remove temporary kernel file: " + err);
       }
-      // show crash modal
-      // TODO: add crash modal w/ restart option
     });
-    console.log("exited with code: " + code);
+    console.log("[KERNEL-INFO]: exited with code: " + code);
   });
 
   python.on("close", function(code) {
-    console.log("closed with code: " + code);
+    console.log("[KERNEL-INFO]: closed with code: " + code);
   });
 
   python.on("disconnect", function() {
-    console.log("disconnected");
+    console.log("[KERNEL-INFO]: disconnected");
   });
 
   // StreamSplitter looks at the incoming stream from kernel.py (which is line

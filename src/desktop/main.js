@@ -22,7 +22,12 @@ global.USER_WD = preferences.getPreferences().defaultWd || USER_HOME;
 function createPythonKernel(pythonPath, displayWindow) {
   if (python) {
     console.log("KILLING PYTHON");
-    python.kill('SIGHUP');
+    if (python.connected) {
+      console.log("still alive...killing");
+      python.disconnect();
+    }
+    python.kill();
+
   }
   kernel.startNewKernel(pythonPath, function(err, python) {
     global.python = python;
