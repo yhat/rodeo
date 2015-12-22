@@ -194,7 +194,6 @@
           </div>
         </div>
         <!-- END BOTTOM RIGHT -->
-        <a class="hide" id="time-traveler" href="http://timetraveler.ytmnd.com"></a>
     </div>
     <!-- END main section -->
 
@@ -210,7 +209,7 @@
                 <div class="row">
                   <div class="form-group col-sm-8 col-sm-offset-2">
                     <div class="input-group">
-                      <input id="python-path" class="form-control" type="text" />
+                      <input id="python-path" class="form-control" type="text"/>
                       <div class="input-group-btn">
                         <button id="btn-set-path" class="btn btn-primary">Set Path</button>
                       </div>
@@ -376,7 +375,7 @@
                 </ul>
                 <div class="form-group row">
                   <div class="input-group">
-                    <input id="new-python-path" type="text" class="form-control" />
+                    <input id="new-python-path" type="text" class="form-control" placeholder="" />
                     <div class="input-group-btn">
                       <button id="add-path-button" class="btn btn-primary">add path</button>
                     </div>
@@ -491,6 +490,13 @@
   <script type="text/javascript">
     $(document).ready(function() {
       $("#loading-modal").modal({ backdrop: 'static', keyboard: false, show: true });
+
+      if (/win32/i.test(navigator.platform)) {
+        $("#new-python-path").attr("placeholder", "i.e. C:\\Users\\hmardukas\\Anaconda3\\envs\\py27\\python.exe");
+      } else {
+        $("#new-python-path").attr("placeholder", "i.e. /Users/hmardukas/anaconda/envs/py27/python");
+      }
+
       // let's get things going...
       setTimeout(function() {
         $("#add-tab").click();
