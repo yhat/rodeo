@@ -2236,8 +2236,8 @@ table {
   background-color: transparent;
 }
 caption {
-  padding-top: 8px;
-  padding-bottom: 8px;
+  padding-top: 5px;
+  padding-bottom: 5px;
   color: #999999;
   text-align: left;
 }
@@ -2255,7 +2255,7 @@ th {
 .table > thead > tr > td,
 .table > tbody > tr > td,
 .table > tfoot > tr > td {
-  padding: 8px;
+  padding: 5px;
   line-height: 1.42857143;
   vertical-align: top;
   border-top: 1px solid #464545;
@@ -2284,7 +2284,7 @@ th {
 .table-condensed > thead > tr > td,
 .table-condensed > tbody > tr > td,
 .table-condensed > tfoot > tr > td {
-  padding: 5px;
+  padding: 4px;
 }
 .table-bordered {
   border: 1px solid #464545;
