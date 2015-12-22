@@ -204,6 +204,9 @@ app.on('ready', function() {
       index = paths.indexOf(pythonPath);
       paths.splice(index, 1);
     }
+    if (rc.pythonCmd==pythonPath) {
+      preferences.setPreferences('pythonCmd', null);  
+    }
     preferences.setPreferences('pythonPaths', paths);
     event.returnValue = true;
   });

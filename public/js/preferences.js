@@ -184,6 +184,30 @@ $("#add-path-button").click(function(e) {
       var result = ipc.sendSync('add-python-path', newPath);
       if (result==true) {
         $("#python-paths").append(python_path_item(newPath));
+
+        bootbox.dialog({
+          title: "Would you like this to be your default python environment?",
+          message: "If you do, Rodeo will restart for the changes to take affect.",
+          buttons: {
+            cancel: {
+              label: "No",
+              className: "btn-default",
+              callback: function() {
+                setupPreferences();
+              }
+            },
+            yes: {
+              label: "Yes",
+              className: "btn-primary",
+                callback: function() {
+                  setPythonCmd(newPath);
+                  setupPreferences();
+                  require('remote').getCurrentWindow().reload();
+                }
+            }
+          }
+        });
+
       } else {
         $("#add-path-help").text("Could not add python path: " + result);
       }
