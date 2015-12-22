@@ -9,21 +9,16 @@ except ImportError:
 # python3/python2 nonsense
 try:
     from Queue import Empty
+    import Queue
 except:
     from queue import Empty
+    import queue as Queue
 
-import atexit
-import uuid
-import time
 import os
 import sys
 import json
-import re
 import pprint as pp
-import sys
 import threading
-import time
-import Queue
 
 def add_input(input_queue):
     while True:
