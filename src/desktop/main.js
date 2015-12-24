@@ -132,6 +132,10 @@ app.on('ready', function() {
     if (data.stream==true || data.stream=='true') {
       python.executeStream(data.command, data.autocomplete=="true", function(result) {
         result.command = data.command;
+        if (result.image || result.html) {
+          mainWindow.webContents.send('plot', result);
+          mainWindow.webContents.send('refresh-variables');
+        }
         event.sender.send('command', result);
       });
     } else {

@@ -110,6 +110,9 @@ def kernel(wd=None, verbose=0):
             if data['content']['execution_state']=='idle':
                 if data['parent_header']['msg_type']=='execute_request':
                     outputs[parent_msg_id]['status'] = 'complete'
+                    outputs[parent_msg_id]['stream'] = None
+                    outputs[parent_msg_id]['image'] = None
+                    outputs[parent_msg_id]['error'] = None
                     sys.stdout.write(json.dumps(outputs[parent_msg_id]) + '\n')
                     sys.stdout.flush()
                     del outputs[parent_msg_id]
@@ -132,6 +135,7 @@ def kernel(wd=None, verbose=0):
         sys.stdout.flush()
         # TODO: figure out why this is here...
         outputs[parent_msg_id]['image'] = None
+        outputs[parent_msg_id]['stream'] = None
 
         # handle autocomplete matches
         if 'matches' in data['content'] and data['msg_type']=='complete_reply' and data['parent_header']['msg_id']==msg_id:

@@ -54,11 +54,6 @@ function handleCommandResults(result) {
     jqconsole.Write(result.stream || "");
   }
 
-  if (result.image || result.html) {
-    addPlot(result);
-    $("#btn-interrupt").addClass("hide");
-  }
-
   if (result.error) {
     track('command', 'error');
     $("#btn-interrupt").addClass("hide");

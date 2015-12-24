@@ -12,6 +12,11 @@ ipc.on('setup-preferences', function() {
   setupPreferences();
 });
 
+ipc.on('plot', function(result) {
+  addPlot(result);
+  $("#btn-interrupt").addClass("hide");
+})
+
 ipc.on('set-working-directory', function(wd) {
   setFiles(wd);
 });
