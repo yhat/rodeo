@@ -130,6 +130,8 @@ def kernel(wd=None, verbose=0):
 
         sys.stdout.write(json.dumps(outputs[parent_msg_id]) + '\n')
         sys.stdout.flush()
+        # TODO: figure out why this is here...
+        outputs[parent_msg_id]['image'] = None
 
         # handle autocomplete matches
         if 'matches' in data['content'] and data['msg_type']=='complete_reply' and data['parent_header']['msg_id']==msg_id:
@@ -157,4 +159,4 @@ if __name__=="__main__":
     wd = None
     if len(sys.argv) > 1:
         wd = sys.argv[1]
-    kernel(wd)
+    kernel(wd, verbose=0)

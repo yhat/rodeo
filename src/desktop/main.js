@@ -82,7 +82,7 @@ app.on('ready', function() {
   mainWindow.loadURL('file://' + __dirname + '/../../static/desktop-index.html');
   // mainWindow.openDevTools();
   mainWindow.webContents.on('did-finish-load', function() {
-    // keep track of the app version the user is on. this is convenient for 
+    // keep track of the app version the user is on. this is convenient for
     // reporting bugs
     var rc = preferences.getPreferences();
     if (rc.version==null) {
