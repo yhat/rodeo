@@ -7,7 +7,8 @@ function showError(err) {
   $("#loading-modal").modal('hide');
   $("#error-modal").modal({ backdrop: 'static', keyboard: false, show: true });
   if (/win32/i.test(navigator.platform)) {
-    $("#error-modal pre").text('c:\\> for %i in (python.exe) do @echo. %~$PATH:i');
+    $("#which-python pre").text('c:\\> for %i in (python.exe) do @echo. %~$PATH:i');
+    $("#error-modal a").attr("onClick", "shell.openItem('cmd.exe');")
   }
 }
 
