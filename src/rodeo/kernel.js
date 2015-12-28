@@ -129,7 +129,7 @@ module.exports.testPythonPath = function(pythonPath, cb) {
   var testPythonFile = tmp.fileSync();
   fse.copySync(testPython, testPythonFile.name);
 
-  var testProcess = exec(cmd + testPythonFile.name, function(err, stdout, stderr) {
+  var testProcess = exec(cmd + testPythonFile.name, { timeout: 2000 }, function(err, stdout, stderr) {
     if (err) {
       cb(err, null);
       testProcess.kill('SIGHUP');

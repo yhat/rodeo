@@ -33,7 +33,7 @@ function findMeAPython(fn) {
   } else {
     cmd = "source ~/.bash_profile && source ~/.bashrc > /dev/null && echo $PATH";
   }
-  exec(cmd, function(err, stdout, stderr) {
+  exec(cmd, { timeout: 2000 }, function(err, stdout, stderr) {
     var opts = {};
     if (stdout) {
       var userPath = stdout.toString().trim();
@@ -75,7 +75,7 @@ function findMeAPython(fn) {
         function(callback) {
           pythonCmd = pythonCmds[i];
           i++;
-          exec(pythonCmd + " " + testPythonFile.name, function(err, stdout, stderr) {
+          exec(pythonCmd + " " + testPythonFile.name, { timeout: 2000 }, function(err, stdout, stderr) {
             if (err) {
               pythonCmd = null;
               callback();
