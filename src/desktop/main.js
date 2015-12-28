@@ -27,7 +27,7 @@ function createPythonKernel(pythonPath, displayWindow) {
   kernel.startNewKernel(pythonPath, function(err, python) {
     global.python = python;
 
-    console.log("[ERROR] startingNewKernel: "err);
+    console.log("[ERROR] startingNewKernel: " + err);
     if (err) {
       displayWindow.webContents.send('log', "[ERROR]: " + err);
       displayWindow.webContents.send("startup-error", err);
