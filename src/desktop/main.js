@@ -25,14 +25,14 @@ function createPythonKernel(pythonPath, displayWindow) {
   }
   kernel.startNewKernel(pythonPath, function(err, python) {
     global.python = python;
-    // if (python==null) {
-    //   displayWindow.webContents.send('log', "[ERROR]: python came back null");
-    //   displayWindow.webContents.send("startup-error", err);
-    //   return;
-    // }
-
     if (err) {
       displayWindow.webContents.send('log', "[ERROR]: " + err);
+      displayWindow.webContents.send("startup-error", err);
+      return;
+    }
+
+    if (python==null) {
+      displayWindow.webContents.send('log', "[ERROR]: python came back null");
       displayWindow.webContents.send("startup-error", err);
       return;
     }
