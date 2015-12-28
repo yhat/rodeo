@@ -17,6 +17,12 @@ var menuShortcutsTemplate = [
         }
       },
       {
+        label: 'Stickers',
+        click: function() {
+          $("#sticker-modal").modal('show');
+        }
+      },
+      {
         type: 'separator'
       },
       {
