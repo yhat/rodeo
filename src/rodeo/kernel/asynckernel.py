@@ -61,7 +61,7 @@ def kernel(wd=None, verbose=0):
             elif complete=='input':
                 msg_id = kernel_client.stdin_channel.execute(code)
             else:
-                msg_id = kernel_client.execute(code)# , allow_stdin=False)
+                msg_id = kernel_client.execute(code, allow_stdin=False)
 
             if code=="interrupt_kernel":
                 sys.stderr.write("interrupting kernel\n")
