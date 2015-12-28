@@ -77,4 +77,8 @@ ipc.on('startup-error', function(err) {
   showError(err);
 });
 
+ipc.on('prompt-for-sticker', function() {
+  $("#sticker-modal").modal('show');
+})
+
 ipc.send('index-files');

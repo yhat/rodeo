@@ -26,7 +26,6 @@ function createPythonKernel(pythonPath, displayWindow) {
   kernel.startNewKernel(pythonPath, function(err, python) {
     global.python = python;
 
-    err = "jupyter problem";
     if (err) {
       displayWindow.webContents.send('log', "[ERROR]: " + err);
       displayWindow.webContents.send("startup-error", err);
@@ -93,6 +92,7 @@ app.on('ready', function() {
     }
     if (rc.version != app.getVersion()) {
       preferences.setPreferences("version", app.getVersion());
+      mainWindow.webContents.send('prompt-for-sticker');
     }
 
     createPythonKernel(null, mainWindow);
