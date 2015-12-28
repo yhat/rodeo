@@ -19,6 +19,8 @@ global.USER_HOME = process.env[(process.platform == 'win32') ? 'USERPROFILE' : '
 global.USER_WD = preferences.getPreferences().defaultWd || USER_HOME;
 
 
+console.log("COLIN YOU ARE A BASTARD")
+
 function createPythonKernel(pythonPath, displayWindow) {
   console.log("starting python with :" + pythonPath);
   if (python) {
@@ -286,7 +288,6 @@ app.on('ready', function() {
   ipc.on('check-for-updates', function() {
     checkForUpdates(true);
   });
-
 
   function checkForUpdates(displayNoUpdate) {
     var platform = os.platform() + '_' + os.arch();
