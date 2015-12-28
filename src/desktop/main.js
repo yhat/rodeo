@@ -20,12 +20,14 @@ global.USER_WD = preferences.getPreferences().defaultWd || USER_HOME;
 
 
 function createPythonKernel(pythonPath, displayWindow) {
+  console.log("starting python with :" + pythonPath);
   if (python) {
     python.kill();
   }
   kernel.startNewKernel(pythonPath, function(err, python) {
     global.python = python;
 
+    console.log("[ERROR] startingNewKernel: "err);
     if (err) {
       displayWindow.webContents.send('log', "[ERROR]: " + err);
       displayWindow.webContents.send("startup-error", err);
