@@ -50,7 +50,9 @@ function handleCommandResults(result) {
     }
   }
 
-  if (result.status!="complete" && result.stream) {
+  if (result.status=="input" && result.stream) {
+    jqconsole.SetPromptText(result.stream || "");
+  } else if (result.status!="complete" && result.stream) {
     jqconsole.Write(result.stream || "");
   }
 

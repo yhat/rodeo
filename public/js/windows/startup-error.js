@@ -1,8 +1,8 @@
 function showError(err) {
   if (/matplotlib/.test(err)) {
-    $("#matplotlib-error").removeClass("hide");
+    $("#install-matplotlib").removeClass("hide");
   } else {
-    $("#ipython-error").removeClass("hide");
+    $("#install-jupyter").removeClass("hide");
   }
   $("#loading-modal").modal('hide');
   $("#error-modal").modal({ backdrop: 'static', keyboard: false, show: true });
