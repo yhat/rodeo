@@ -92,6 +92,12 @@ function calibratePanes() {
   $("#packages-container").css("overflow-y", "scroll");
   $("#help-content").css("overflow-y", "scroll");
   $("#preferences").css("overflow-y", "scroll");
+
+  // resize the editors so nothing gets cut off
+  $("#editors .editor").each(function(i, el) {
+    var id = $(el).attr("id");
+    ace.edit(id).resize();
+  })
 }
 
 // on resize w/ gray bars, recalibrate
