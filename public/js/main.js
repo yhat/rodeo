@@ -11,10 +11,12 @@ getWorkingDirectory(function(wd) {
 });
 
 getRC(function(rc) {
+  console.log(rc.pythonPaths);
   rc.pythonPaths = rc.pythonPaths || [];
   if (rc.pythonPaths.indexOf(rc.pythonCmd) < 0) {
     rc.pythonPaths.push(rc.pythonCmd);
   }
+  console.log(rc.pythonPaths);
   rc.pythonPaths.forEach(function(pythonPath) {
     $("#python-paths").append(python_path_item(pythonPath))
   });
