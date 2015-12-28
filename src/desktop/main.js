@@ -31,6 +31,8 @@ function createPythonKernel(pythonPath, displayWindow) {
     //   return;
     // }
 
+    err = 'matplotlib'
+
     if (err) {
       displayWindow.webContents.send('log', "[ERROR]: " + err);
       displayWindow.webContents.send("startup-error", err);
@@ -177,6 +179,7 @@ app.on('ready', function() {
   });
 
   ipc.on('test-path', function(event, pythonPath) {
+    pythonPath = pythonPath || python.spawnfile;
     kernel.testPythonPath(pythonPath, function(err, result) {
       event.returnValue = { err: err, result: result };
     });
