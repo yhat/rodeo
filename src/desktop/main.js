@@ -87,13 +87,16 @@ app.on('ready', function() {
     // keep track of the app version the user is on. this is convenient for
     // reporting bugs
     var rc = preferences.getPreferences();
+    console.log(rc);
     if (rc.version==null) {
       mainWindow.webContents.send('start-tour', { version: "first" });
       preferences.setPreferences("version", app.getVersion());
     }
     if (rc.version != app.getVersion()) {
+      console.log("HI");
       preferences.setPreferences("version", app.getVersion());
     }
+    console.log("GOODBYE!");
 
     createPythonKernel(null, mainWindow);
     var wd;
