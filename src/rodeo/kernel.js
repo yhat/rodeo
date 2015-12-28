@@ -104,9 +104,7 @@ function spawnPython(cmd, opts, done) {
   }
   var rodeoProfile = fs.readFileSync(profileFilepath).toString();
 
-  console.log("executing profile: " + rodeoProfile)
   python.execute(rodeoProfile, false, function(result) {
-    console.log("profile done");
     done(null, python);
   });
 }

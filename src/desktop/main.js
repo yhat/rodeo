@@ -26,9 +26,6 @@ function createPythonKernel(pythonPath, displayWindow) {
   kernel.startNewKernel(pythonPath, function(err, python) {
     global.python = python;
 
-    console.log(err);
-    console.log(python==null);
-
     if (err) {
       displayWindow.webContents.send('log', "[ERROR]: " + err);
       displayWindow.webContents.send("startup-error", err);
@@ -41,18 +38,12 @@ function createPythonKernel(pythonPath, displayWindow) {
       return;
     }
 
-    console.log(1);
     preferences.setPreferences('pythonCmd', python.spawnfile);
-    console.log(2);
     displayWindow.webContents.send('log', "using python: " + python.spawnfile);
 
-    console.log(3.1);
     displayWindow.webContents.send('setup-preferences');
-    console.log(3.2);
     displayWindow.webContents.send('refresh-variables');
-    console.log(3.3);
     displayWindow.webContents.send('refresh-packages');
-    console.log(3.4);
     displayWindow.webContents.send('set-working-directory', global.USER_WD || '.');
 
     displayWindow.webContents.send('ready');
