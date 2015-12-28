@@ -1,11 +1,16 @@
 function showError(err) {
+  $("#test-results").children().remove();
   $("#loading-modal").modal('hide');
-  if (/matplotlib/.test(err)) {
+  $("#error-modal .possible-error").addClass("hide");
+
+  console.log(err);
+
+  if (/python path/.test(err)) {
+    $("#python-path-missing").removeClass("hide");
+  } else if (/matplotlib/.test(err)) {
     $("#install-matplotlib").removeClass("hide");
-    $("#python-path-missing").addClass("hide");
-  } else {
+  } else if (/jupyter/.test(err)) {
     $("#install-jupyter").removeClass("hide");
-    $("#python-path-missing").addClass("hide");
   }
 
   $("#error-modal").modal({ backdrop: 'static', keyboard: false, show: true });
@@ -15,9 +20,10 @@ function showError(err) {
   }
 }
 
-function testPython(pythonPath) {
+function testPath(path) {
   $("#loading-gif").attr("src", "img/loading.gif");
-  var data = ipc.sendSync('test-path', pythonPath);
+  $("#error-modal .possible-error").addClass("hide");
+  var data = ipc.sendSync('test-path', path);
 
   $("#loading-gif").addClass("hide");
   var results = python_test_output_template(data.result);
@@ -38,17 +44,15 @@ function testPython(pythonPath) {
   setTimeout(function() {
     if (data.result.status && data.result) {
       if (data.result.matplotlib && data.result.jupyter) {
-        $("#which-python").addClass("hide");
-        ipc.sendSync('launch-kernel', pythonPath);
+        ipc.sendSync('launch-kernel', path);
         $("#rodeo-ready").removeClass("hide");
+        $("#test-results").children().remove();
         setTimeout(function() {
           $("#error-modal").modal('hide');
         }, 3000);
       } else if (data.result.jupyter==false) {
-        $("#which-python").addClass("hide");
         $("#install-jupyter").removeClass("hide");
       } else if (data.result.matplotlib==false) {
-        $("#which-python").addClass("hide");
         $("#install-matplotlib").removeClass("hide");
       }
     }
@@ -58,6 +62,6 @@ function testPython(pythonPath) {
 $("#btn-set-path").click(function(e) {
   var newPath = $("#python-path").val();
   if (newPath) {
-    testPython(newPath);
+    testPath(newPath);
   }
 });

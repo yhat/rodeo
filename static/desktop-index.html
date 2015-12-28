@@ -204,8 +204,15 @@
           <div class="modal-body">
             <div class="row text-center">
               <div class="jumbotron" style="background-color: inherit;">
-                <!-- start ready -->
-                <div class="row" id="python-path-missing">
+                <!--  start ready -->
+                <div id="rodeo-ready" class="row hide possible-error">
+                  <h2>Ok! You're ready to go!</h2>
+                  <p class="lead">Hope you enjoy Rodeo!</p>
+                  <img src="img/rodeo-text-dark.png" style="max-height: 150px;"/>
+                </div>
+                <!--  end ready -->
+                <!-- start path error -->
+                <div id="python-path-missing" class="row hide possible-error">
                   <h2>Looks like we're having trouble finding your python path</h2>
                   <p class="lead">If you know your python path, paste it in the field below:</p>
                   <div class="row">
@@ -216,10 +223,6 @@
                           <button id="btn-set-path" class="btn btn-primary">Set Path</button>
                         </div>
                       </div>
-                    </div>
-                  </div>
-                  <div class="row">
-                    <div id="test-results" class="col-sm-4 col-sm-offset-4">
                     </div>
                   </div>
                   <img id="loading-gif" src="img/loading-stopped.gif" style="max-height: 200px;" />
@@ -236,15 +239,9 @@
                     </div>
                   </div>
                 </div>
-                <!--  start ready -->
-                <div id="rodeo-ready" class="row hide">
-                  <h2>Ok! You're ready to go!</h2>
-                  <p class="lead">Hope you enjoy Rodeo!</p>
-                  <img src="img/rodeo-text-dark.png" style="max-height: 150px;"/>
-                </div>
-                <!--  end ready -->
+                <!-- end path error -->
                 <!--  start install jupyter -->
-                <div id="install-jupyter" class="row hide">
+                <div id="install-jupyter" class="row hide possible-error">
                   <h2>Looks like you're missing <i>jupyter</i></h2>
                   <p class="lead">
                     <a onClick="shell.openItem('/Applications/Utilities/Terminal.app');">Click here to open the Terminal application</a>
@@ -262,12 +259,13 @@
                       <pre>$ pip install jupyter</pre>
                     </div>
                   </div>
-                  <button onclick="testPython();" class="btn btn-primary">Try Again</button>
+                  <button class="btn btn-default" onclick="shell.openExternal('http://rodeo.yhat.com/docs/')">Help</button>
+                  <button onclick="testPath();" class="btn btn-primary">Retry</button>
                 </div>
                 <!--  end install jupyter -->
 
                 <!--  start install matplotlib -->
-                <div id="install-matplotlib" class="row hide">
+                <div id="install-matplotlib" class="row hide possible-error">
                   <h2>Looks like you're missing <i>matplotlib</i></h2>
                   <p class="lead">
                     <a onClick="shell.openItem('/Applications/Utilities/Terminal.app');">Click here to open the Terminal application</a>
@@ -285,9 +283,14 @@
                       <pre>$ pip install matplotlib</pre>
                     </div>
                   </div>
-                  <button onclick="testPython();" class="btn btn-primary">Try Again</button>
+                  <button class="btn btn-default" onclick="shell.openExternal('http://rodeo.yhat.com/docs/')">Help</button>
+                  <button onclick="testPath();" class="btn btn-primary">Retry</button>
                 </div>
                 <!--  end install matplotlib -->
+                <div class="row">
+                  <div id="test-results" class="col-sm-4 col-sm-offset-4">
+                  </div>
+                </div>
               </div>
             </div>
           </div>
