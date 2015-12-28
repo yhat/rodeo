@@ -1,10 +1,13 @@
 function showError(err) {
+  $("#loading-modal").modal('hide');
   if (/matplotlib/.test(err)) {
     $("#install-matplotlib").removeClass("hide");
+    $("#python-path-missing").addClass("hide");
   } else {
     $("#install-jupyter").removeClass("hide");
+    $("#python-path-missing").addClass("hide");
   }
-  $("#loading-modal").modal('hide');
+
   $("#error-modal").modal({ backdrop: 'static', keyboard: false, show: true });
   if (/win32/i.test(navigator.platform)) {
     $("#which-python pre").text('c:\\> for %i in (python.exe) do @echo. %~$PATH:i');

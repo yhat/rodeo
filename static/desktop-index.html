@@ -204,32 +204,35 @@
           <div class="modal-body">
             <div class="row text-center">
               <div class="jumbotron" style="background-color: inherit;">
-                <h2>Looks like we're having trouble finding your python path</h2>
-                <p class="lead">If you know your python path, paste it in the field below:</p>
-                <div class="row">
-                  <div class="form-group col-sm-8 col-sm-offset-2">
-                    <div class="input-group">
-                      <input id="python-path" class="form-control" type="text"/>
-                      <div class="input-group-btn">
-                        <button id="btn-set-path" class="btn btn-primary">Set Path</button>
+                <!-- start ready -->
+                <div class="row" id="python-path-missing">
+                  <h2>Looks like we're having trouble finding your python path</h2>
+                  <p class="lead">If you know your python path, paste it in the field below:</p>
+                  <div class="row">
+                    <div class="form-group col-sm-8 col-sm-offset-2">
+                      <div class="input-group">
+                        <input id="python-path" class="form-control" type="text"/>
+                        <div class="input-group-btn">
+                          <button id="btn-set-path" class="btn btn-primary">Set Path</button>
+                        </div>
                       </div>
                     </div>
                   </div>
-                </div>
-                <div class="row">
-                  <div id="test-results" class="col-sm-4 col-sm-offset-4">
-                  </div>
-                </div>
-                <img id="loading-gif" src="img/loading-stopped.gif" style="max-height: 200px;" />
-                <div id="which-python" class="row">
-                  <h2>Don't know your python path?</h2>
-                  <p class="lead">
-                    <a onClick="shell.openItem('/Applications/Utilities/Terminal.app');">Click here to open the Terminal application</a>
-                    and run the command below:
-                  </p>
                   <div class="row">
-                    <div class="col-sm-8 col-sm-offset-2 text-left">
-                      <pre>$ which python</pre>
+                    <div id="test-results" class="col-sm-4 col-sm-offset-4">
+                    </div>
+                  </div>
+                  <img id="loading-gif" src="img/loading-stopped.gif" style="max-height: 200px;" />
+                  <div id="which-python" class="row">
+                    <h2>Don't know your python path?</h2>
+                    <p class="lead">
+                      <a onClick="shell.openItem('/Applications/Utilities/Terminal.app');">Click here to open the Terminal application</a>
+                      and run the command below:
+                    </p>
+                    <div class="row">
+                      <div class="col-sm-8 col-sm-offset-2 text-left">
+                        <pre>$ which python</pre>
+                      </div>
                     </div>
                   </div>
                 </div>

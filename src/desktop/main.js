@@ -31,6 +31,8 @@ function createPythonKernel(pythonPath, displayWindow) {
     //   return;
     // }
 
+    err = "matplotlib problem"
+
     if (err) {
       displayWindow.webContents.send('log', "[ERROR]: " + err);
       displayWindow.webContents.send("startup-error", err);
