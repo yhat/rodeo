@@ -115,8 +115,14 @@ function executeCommand(command, autocomplete, fn) {
 
   if (isDesktop()) {
     var results = ipc.sendSync('command', data);
-    fn(results);
+    if (fn) {
+      fn(results);
+    }
   } else {
-    $.get("command", data, fn);
+    if (fn) {
+      $.get("command", data, fn);
+    } else {
+      $.get("command", data);
+    }
   }
 }
