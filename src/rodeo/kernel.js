@@ -124,8 +124,14 @@ module.exports.startNewKernel = function(pythonCmd, cb) {
       console.log("testPythonPath: ", err, result);
       if (err) {
         cb(err, { spawnfile: pythonCmd });
+      } else if (result.jupyter) {
+        cb("jupyter failed to load", { spawnfile: pythonCmd });
+      } else if (result.jupyter) {
+        cb("matplotlib failed to load", { spawnfile: pythonCmd });
       } else {
-        spawnPython(pythonCmd, {}, cb);
+        spawnPython(pythonCmd, {}, function(err, python) {
+          cb(err, python);
+        });
       }
     });
   }
