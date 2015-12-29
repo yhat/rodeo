@@ -121,7 +121,7 @@ module.exports.startNewKernel = function(pythonCmd, cb) {
   } else {
     testPythonPath(pythonCmd, function(err, result) {
       if (err) {
-        cb(err, { spawnfile: pythnoCmd });
+        cb(err, { spawnfile: pythonCmd });
         return;
       }
       spawnPython(pythonCmd, {}, cb);
