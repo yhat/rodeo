@@ -90,9 +90,11 @@ app.on('ready', function() {
       mainWindow.webContents.send('start-tour', { version: "first" });
       preferences.setPreferences("version", app.getVersion());
     }
-    if (rc.version != app.getVersion()) {
+    if (rc.version && rc.version != app.getVersion()) {
       preferences.setPreferences("version", app.getVersion());
-      mainWindow.webContents.send('prompt-for-sticker');
+      if (! rc.email) {
+        mainWindow.webContents.send('prompt-for-sticker');
+      }
     }
 
     createPythonKernel(null, mainWindow);

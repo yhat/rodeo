@@ -271,3 +271,17 @@ function setupPreferences() {
     configurePreferences(rc);
   });
 }
+
+function registerEmail() {
+  var email = $("#sticker-email").val();
+  var re = /^(([^<>()[\]\.,;:\s@\"]+(\.[^<>()[\]\.,;:\s@\"]+)*)|(\".+\"))@(([^<>()[\]\.,;:\s@\"]+\.)+[^<>()[\]\.,;:\s@\"]{2,})$/i;
+  if (email && re.test(email)) {
+    window.Intercom('update', { email: email });
+    $("#sticker-form").addClass("hide");
+    $("#sticker-success").removeClass("hide");
+    $("#sticker-help").text("");
+    updateRC("email", email);
+  } else {
+    $("#sticker-help").text("Please input a valid email address.");
+  }
+}

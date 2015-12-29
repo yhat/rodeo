@@ -77,6 +77,10 @@ ipc.on('startup-error', function(err) {
   showError(err);
 });
 
+ipc.on('start-tour', function() {
+  $("#tour-modal").modal('show');
+})
+
 ipc.on('prompt-for-sticker', function() {
   $("#sticker-modal").modal('show');
 })
