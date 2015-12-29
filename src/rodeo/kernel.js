@@ -110,7 +110,6 @@ function spawnPython(cmd, opts, done) {
 }
 
 module.exports.startNewKernel = function(pythonCmd, cb) {
-  console.log("starting new kernel: " + pythonCmd);
   if (! pythonCmd) {
     SteveIrwin.findMeAPython(function(err, pythonCmd, opts) {
       if (err) {
@@ -124,9 +123,9 @@ module.exports.startNewKernel = function(pythonCmd, cb) {
       console.log("testPythonPath: ", err, result);
       if (err) {
         cb(err, { spawnfile: pythonCmd });
-      } else if (result.jupyter) {
+      } else if (result.jupyter==false) {
         cb("jupyter failed to load", { spawnfile: pythonCmd });
-      } else if (result.jupyter) {
+      } else if (result.matplotlib==false) {
         cb("matplotlib failed to load", { spawnfile: pythonCmd });
       } else {
         spawnPython(pythonCmd, {}, function(err, python) {
