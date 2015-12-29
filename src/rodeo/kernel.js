@@ -105,8 +105,9 @@ function spawnPython(cmd, opts, done) {
   }
   var rodeoProfile = fs.readFileSync(profileFilepath).toString();
 
-  python.execute(rodeoProfile, false);
-  done(null, python);
+  python.execute(rodeoProfile, false, function(resutls) {
+    done(null, python);
+  });
 }
 
 module.exports.startNewKernel = function(pythonCmd, cb) {
@@ -120,6 +121,7 @@ module.exports.startNewKernel = function(pythonCmd, cb) {
     });
   } else {
     testPythonPath(pythonCmd, function(err, result) {
+      console.log("Result from startNewKernel python test -> " + err)
       if (err) {
         cb(err, { spawnfile: pythonCmd });
         return;
