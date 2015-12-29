@@ -171,4 +171,4 @@ if __name__=="__main__":
     wd = None
     if len(sys.argv) > 1:
         wd = sys.argv[1]
-    kernel(wd, verbose=0)
+    kernel(wd, verbose=3)
