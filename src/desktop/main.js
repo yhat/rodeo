@@ -20,17 +20,18 @@ global.USER_WD = preferences.getPreferences().defaultWd || USER_HOME;
 
 
 function createPythonKernel(pythonPath, displayWindow) {
-  if (python) {
+  if (python && python.kill) {
     python.kill();
   }
   kernel.startNewKernel(pythonPath, function(err, python) {
-    global.python = python;
 
     if (err) {
       displayWindow.webContents.send('log', "[ERROR]: " + err);
       displayWindow.webContents.send("startup-error", err);
       return;
     }
+
+    global.python = python;
 
     preferences.setPreferences('pythonCmd', python.spawnfile);
     displayWindow.webContents.send('log', "using python: " + python.spawnfile);
