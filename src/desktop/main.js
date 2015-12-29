@@ -129,9 +129,7 @@ app.on('ready', function() {
   });
 
   ipc.on('command', function(event, data) {
-    if (! python) {
-
-    } else if (data.stream==true || data.stream=='true') {
+    if (data.stream==true || data.stream=='true') {
       python.executeStream(data.command, data.autocomplete=="true", function(result) {
         result.command = data.command;
         if (result.image || result.html) {
