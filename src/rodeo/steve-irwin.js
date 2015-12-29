@@ -45,7 +45,7 @@ function findMeAPython(fn) {
   pythonCmds.push("/usr/local/bin/ipython");
   pythonCmds.push("/anaconda/bin/python");
   pythonCmds.push("/usr/bin/python");
-  pythonCmds.push("python");
+  // pythonCmds.push("python");
 
   for(var i=0; i<pythonCmds.length; i++) {
     var pythonCmd = pythonCmds[i];
