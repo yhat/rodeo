@@ -74,7 +74,6 @@ function spawnPython(cmd, opts, done) {
     var payload = { async: false, id: uuid.v4().toString(), code: cmd, complete: complete };
     var output = "";
     completionCallbacks[payload.id] = function(result) {
-      console.log("[EXECUTE RESULT]: ", result);
       // autocompleted results come back as a proper JSON array
       if (complete==true) {
         output = result.output;
