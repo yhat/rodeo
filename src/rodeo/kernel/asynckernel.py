@@ -29,7 +29,7 @@ def kernel(wd=None, verbose=0):
     kernel_mgr, kernel_client = manager.start_new_kernel()
 
     # apply patches
-    # kernel_client.execute("%matplotlib inline")
+    kernel_client.execute("%matplotlib inline")
     dirname = os.path.dirname(os.path.abspath(__file__))
     python_patch_file = os.path.join(dirname, "langs", "python-patch.py")
     kernel_client.execute("%run " + python_patch_file)
