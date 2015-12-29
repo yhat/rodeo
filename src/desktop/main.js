@@ -91,7 +91,7 @@ app.on('ready', function() {
       }
     }
 
-    createPythonKernel(null, mainWindow);
+    createPythonKernel(rc.pythonCmd, mainWindow);
     var wd;
     if (process.argv.length == 5) {
       wd = process.argv[4];
