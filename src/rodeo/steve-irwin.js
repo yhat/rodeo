@@ -1,30 +1,12 @@
-var exec = require('child_process').exec;
-var async = require('async');
 var path = require('path');
-var fs = require('fs');
 var fse = require('fs-extra');
 var tmp = require('tmp');
+var execSync = require('child_process').execSync;
 var preferences = require('./preferences');
 
-// Steve Irwin gets you a python, no questions asked
-function findMeAPython(fn) {
-  // /usr/bin/env python doesn't really work, so we're going to be doing the ole
-  // guess and check method
-  var testPython = path.join(__dirname, "check_python.py");
+USER_HOME = "/Users/glamp/"
 
-  // this needs to be a tmp file because we're shelling out and the `python`
-  // command doesn't know about files in the asar
-  var testPythonFile = tmp.fileSync();
-  fse.copySync(testPython, testPythonFile.name);
-
-  var rc = preferences.getPreferences();
-  var pythonCmds = [];
-  // if we have one in our RC file, we'll prioritize that first
-  if (rc.pythonCmd) {
-    console.log("[INFO]: found default python in rc file: " + rc.pythonCmd);
-    pythonCmds.push(rc.pythonCmd);
-  }
-
+function getUserPath() {
   var cmd;
   if (/^win/.test(process.platform)) {
     cmd = "echo %path%";
@@ -33,72 +15,55 @@ function findMeAPython(fn) {
   } else {
     cmd = "source ~/.bash_profile && source ~/.bashrc > /dev/null && echo $PATH";
   }
-  exec(cmd, { timeout: 2000 }, function(err, stdout, stderr) {
-    var opts = {};
-    if (stdout) {
-      var userPath = stdout.toString().trim();
-      opts = {
-        env: {
-          PATH: userPath
-        }
-      };
-    }
+  try {
+    return execSync(cmd, { timeout: 2000 }).toString();
+  } catch (e) {
+    return null;
+  }
+}
 
-    // TODO: make less specific
-    exec("python -c 'import sys; print(sys.executable)'", opts, function(err, stdout, stderr) {
-      if (opts.env && stdout) {
-        pythonCmds.push(stdout.toString().trim());
+function findMeAPython(fn) {
+  var testPython = path.join(__dirname, "check_python.py");
+  var testPythonFile = tmp.fileSync();
+  fse.copySync(testPython, testPythonFile.name);
+
+  var rc = preferences.getPreferences();
+
+  var pythonCmds = [];
+  if (rc.pythonCmd) {
+    console.log("[INFO]: found default python in rc file: " + rc.pythonCmd);
+    pythonCmds.push(rc.pythonCmd);
+  }
+
+  var opts = {};
+  var userPath = getUserPath();
+  if (userPath) {
+    opts = { env: { PATH: userPath } };
+  }
+  pythonCmds.push("/home/sciencecluster/.anaconda2/bin/python");
+  pythonCmds.push("/root/miniconda2/bin/python");
+  pythonCmds.push("/usr/local/bin/ipython");
+  pythonCmds.push("/anaconda/bin/python");
+  pythonCmds.push("/usr/bin/python");
+  pythonCmds.push("python");
+
+  for(var i=0; i<pythonCmds.length; i++) {
+    var pythonCmd = pythonCmds[i];
+
+    var result;
+    try {
+      var result = execSync(pythonCmd + " " + testPythonFile.name, { timeout: 1000 });
+      result = JSON.parse(result);
+    } catch (e) {
+      result = { error: e.toString() };
+    } finally {
+      if (result.jupyter==true && result.matplotlib==true) {
+        fn(null, pythonCmd, opts);
+        return;
       }
-
-      pythonCmds = pythonCmds.concat([
-        "/home/sciencecluster/.anaconda2/bin/python",
-        "/root/miniconda2/bin/python",
-        "/usr/local/bin/ipython",
-        "/anaconda/bin/python",
-        // path.join(USER_HOME, "anaconda", "bin", "python"),
-        // path.join(USER_HOME, "anaconda", "python"),
-        "/usr/bin/python",
-        // path.join(USER_HOME, "bin", "python"),
-        "python"
-      ]);
-
-      var i = 0;
-      var pythonCmd;
-      async.whilst(
-        function() {
-          if (pythonCmds.length==i) {
-            return false;
-          } else if (pythonCmd==null) {
-            return true;
-          }
-        },
-        function(callback) {
-          pythonCmd = pythonCmds[i];
-          i++;
-          exec(pythonCmd + " " + testPythonFile.name, { timeout: 2000 }, function(err, stdout, stderr) {
-            if (err) {
-              pythonCmd = null;
-              callback();
-              return;
-            }
-            var result = JSON.parse(stdout.toString());
-            if (result.matplotlib==true && result.jupyter==true) {
-              callback();
-            } else if (result.jupyter!=true) {
-              pythonCmd = null;
-              callback("Could not load Jupyter/IPython");
-            } else if (result.matplotlib!=true) {
-              pythonCmd = null;
-              callback("Could not load matplotlib");
-            }
-          });
-        },
-        function(err) {
-          fn(err, pythonCmd, opts);
-        }
-      );
-    });
-  });
+    }
+  }
+  fn("could not find a valid python path", null, null);
 };
 
 module.exports.findMeAPython = findMeAPython;

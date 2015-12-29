@@ -133,12 +133,12 @@ module.exports.testPythonPath = function(pythonPath, cb) {
   var testProcess = exec(cmd + testPythonFile.name, { timeout: 2000 }, function(err, stdout, stderr) {
     if (err) {
       cb(err, null);
-      testProcess.kill('SIGHUP');
+      testProcess.kill();
     } else {
       var result = JSON.parse(stdout.toString());
       result.status = true;
       cb(null, result);
-      testProcess.kill('SIGHUP');
+      testProcess.kill();
     }
   });
 }
