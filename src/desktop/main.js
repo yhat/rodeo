@@ -87,12 +87,12 @@ app.on('ready', function() {
     // reporting bugs
     var rc = preferences.getPreferences();
     if (rc.version==null) {
-      mainWindow.webContents.send('start-tour', { version: "first" });
-      preferences.setPreferences("version", app.getVersion());
+      mainWindow.webContents.send('start-tour', { version: 'first' });
+      preferences.setPreferences('version', app.getVersion());
       mainWindow.webContents.send('prompt-for-sticker');
     }
     if (rc.version && rc.version != app.getVersion()) {
-      preferences.setPreferences("version", app.getVersion());
+      preferences.setPreferences('version', app.getVersion());
       if (! rc.email) {
         mainWindow.webContents.send('prompt-for-sticker');
       }
