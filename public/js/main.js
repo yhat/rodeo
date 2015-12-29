@@ -23,6 +23,6 @@ getRC(function(rc) {
 // misc startup stuff...
 $("#tour").owlCarousel({ singleItem: true });
 $('[data-toggle="tooltip"]').tooltip();
-setTimeout(calibratePanes, 450);
+setTimeout(calibratePanes, 650);
 setupWindows();
 initShortcutsDisplay();
