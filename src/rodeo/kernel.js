@@ -120,7 +120,6 @@ module.exports.startNewKernel = function(pythonCmd, cb) {
     });
   } else {
     testPythonPath(pythonCmd, function(err, result) {
-      console.log("testPythonPath: ", err, result);
       if (err) {
         cb(err, { spawnfile: pythonCmd });
       } else if (result.jupyter==false) {
