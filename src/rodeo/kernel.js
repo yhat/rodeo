@@ -114,7 +114,6 @@ module.exports.startNewKernel = function(pythonCmd, cb) {
     SteveIrwin.findMeAPython(function(err, pythonCmd, opts) {
       if (err) {
         cb(err, { spawnfile: pythonCmd });
-        return;
       } else {
         spawnPython(pythonCmd, opts, cb);
       }

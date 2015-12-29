@@ -32,12 +32,6 @@ function createPythonKernel(pythonPath, displayWindow) {
       return;
     }
 
-    if (python==null) {
-      displayWindow.webContents.send('log', "[ERROR]: python came back null");
-      displayWindow.webContents.send("startup-error", "python path not found");
-      return;
-    }
-
     preferences.setPreferences('pythonCmd', python.spawnfile);
     displayWindow.webContents.send('log', "using python: " + python.spawnfile);
 
