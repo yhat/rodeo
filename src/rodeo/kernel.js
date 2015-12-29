@@ -119,11 +119,17 @@ module.exports.startNewKernel = function(pythonCmd, cb) {
       }
     });
   } else {
-    spawnPython(pythonCmd, {}, cb);
+    testPythonPath(pythonCmd, function(err, result) {
+      if (err) {
+        cb(err, { spawnfile: pythnoCmd });
+        return;
+      }
+      spawnPython(pythonCmd, {}, cb);
+    });
   }
 };
 
-module.exports.testPythonPath = function(pythonPath, cb) {
+function testPythonPath(pythonPath, cb) {
   var cmd = pythonPath + " ";
   var testPython = path.join(__dirname, "check_python.py");
   var testPythonFile = tmp.fileSync();
@@ -141,3 +147,5 @@ module.exports.testPythonPath = function(pythonPath, cb) {
     }
   });
 }
+
+module.exports.testPythonPath = module.exports.testPythonPath;
