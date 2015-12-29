@@ -57,7 +57,6 @@ function findMeAPython(fn) {
     } catch (e) {
       result = { error: e.toString() };
     } finally {
-      console.log(pythonCmd, result);
       if (result.jupyter==true && result.matplotlib==true) {
         fn(null, pythonCmd, opts);
         return;

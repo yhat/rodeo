@@ -106,13 +106,8 @@ function spawnPython(cmd, opts, done) {
   var rodeoProfile = fs.readFileSync(profileFilepath).toString();
 
   console.log("about to execute rodeoProfile");
-  // python.execute(rodeoProfile, false, function(result) {
-  //   console.log("done executing profile!")
-  //   done(null, python);
-  // });
-  python.executeStream(rodeoProfile, false, function(result) {
-    console.log("done executing profile!")
-  });
+  python.execute(rodeoProfile, false);
+  console.log("done executing profile!")
   done(null, python);
 }
 
