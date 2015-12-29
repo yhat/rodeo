@@ -18,7 +18,7 @@ except:
 
 # check for matplotlib
 try:
-    import matplotlib
+    import matplotlib.pyplot
 except:
     status_mpl = False
 

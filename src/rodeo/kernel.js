@@ -121,12 +121,11 @@ module.exports.startNewKernel = function(pythonCmd, cb) {
     });
   } else {
     testPythonPath(pythonCmd, function(err, result) {
-      console.log("Result from startNewKernel python test", + err, result)
       if (err) {
         cb(err, { spawnfile: pythonCmd });
-        return;
+      } else {
+        spawnPython(pythonCmd, {}, cb);
       }
-      spawnPython(pythonCmd, {}, cb);
     });
   }
 };
