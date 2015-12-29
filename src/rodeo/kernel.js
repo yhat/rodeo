@@ -152,6 +152,6 @@ function testPythonPath(pythonPath, cb) {
       testProcess.kill();
     }
   });
-}
+};
 
-module.exports.testPythonPath = module.exports.testPythonPath;
+module.exports.testPythonPath = testPythonPath;
