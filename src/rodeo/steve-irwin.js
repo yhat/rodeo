@@ -18,6 +18,15 @@ function getUserPath() {
   try {
     return execSync(cmd, { timeout: 2000 }).toString();
   } catch (e) {
+    console.error("[ERROR]: " + e.toString());
+    return null;
+  }
+}
+
+function getDefaultPython(opts) {
+  try {
+    return execSync("python -c 'import sys; print(sys.executable)'", opts).toString().trim();
+  } catch (e) {
     return null;
   }
 }
@@ -40,6 +49,13 @@ function findMeAPython(fn) {
   if (userPath) {
     opts = { env: { PATH: userPath } };
   }
+
+  var defaultPython = getDefaultPython(opts);
+
+  if (defaultPython) {
+    pythonCmds.push(defaultPython);
+  }
+
   pythonCmds.push("/home/sciencecluster/.anaconda2/bin/python");
   pythonCmds.push("/root/miniconda2/bin/python");
   pythonCmds.push("/usr/local/bin/ipython");

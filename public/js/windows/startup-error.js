@@ -3,7 +3,7 @@ function showError(err) {
   $("#loading-modal").modal('hide');
   $("#error-modal .possible-error").addClass("hide");
 
-  console.log("[ERROR]: " + err);
+  console.log("[ERROR]: ", err);
 
   if (/python path/.test(err)) {
     $("#python-path-missing").removeClass("hide");
