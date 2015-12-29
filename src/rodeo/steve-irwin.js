@@ -68,7 +68,7 @@ function findMeAPython(fn) {
 
     var result;
     try {
-      var result = execSync(pythonCmd + " " + testPythonFile.name, { timeout: 1000 });
+      var result = execSync(pythonCmd + " " + testPythonFile.name, { timeout: 4000 });
       result = JSON.parse(result);
     } catch (e) {
       result = { error: e.toString() };

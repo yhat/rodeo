@@ -121,7 +121,7 @@ module.exports.startNewKernel = function(pythonCmd, cb) {
   } else {
     testPythonPath(pythonCmd, function(err, result) {
       if (err) {
-        cb(err, { spawnfile: pythonCmd });
+        cb("error with python path", { spawnfile: pythonCmd });
       } else if (result.jupyter==false) {
         cb("jupyter failed to load", { spawnfile: pythonCmd });
       } else if (result.matplotlib==false) {
@@ -141,7 +141,7 @@ function testPythonPath(pythonPath, cb) {
   var testPythonFile = tmp.fileSync();
   fse.copySync(testPython, testPythonFile.name);
 
-  var testProcess = exec(cmd + testPythonFile.name, { timeout: 2000 }, function(err, stdout, stderr) {
+  var testProcess = exec(cmd + testPythonFile.name, { timeout: 4000 }, function(err, stdout, stderr) {
     if (err) {
       cb(err, null);
       testProcess.kill();
