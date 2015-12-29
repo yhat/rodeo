@@ -110,6 +110,7 @@ function spawnPython(cmd, opts, done) {
 }
 
 module.exports.startNewKernel = function(pythonCmd, cb) {
+  console.log("starting new kernel: " + pythonCmd);
   if (! pythonCmd) {
     SteveIrwin.findMeAPython(function(err, pythonCmd, opts) {
       if (err) {
