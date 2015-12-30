@@ -2,9 +2,9 @@
 
 # start compatibility with IPython Jupyter 4.0
 try:
-    from jupyter_client import manager # BlockingKernelClient
+    from jupyter_client import manager
 except ImportError:
-    from IPython.kernel import manager # BlockingKernelClient
+    from IPython.kernel import manager
 
 # python3/python2 nonsense
 try:

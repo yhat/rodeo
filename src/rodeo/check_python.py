@@ -9,10 +9,10 @@ status_mpl = True
 
 # check for IPython kernel
 try:
-    from jupyter_client import BlockingKernelClient
+    from jupyter_client import manager
 except:
     try:
-        from IPython.kernel import BlockingKernelClient
+        from IPython.kernel import manager 
     except:
         status_jupyter = False
 
