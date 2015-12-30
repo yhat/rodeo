@@ -7,7 +7,12 @@ function getPreferences() {
   var rc = {};
   if (fs.existsSync(rcFilepath)) {
     rc = fs.readFileSync(rcFilepath).toString();
+    try {
     rc = JSON.parse(rc);
+    } catch(e) {
+      console.log("[WARNING]: RC file is not valid JSON: " + e.toString());
+      rc = {};
+    }
   } else {
     rc = {};
   }
