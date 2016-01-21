@@ -111,6 +111,7 @@ function spawnPython(cmd, opts, done) {
 }
 
 module.exports.startNewKernel = function(pythonCmd, cb) {
+console.log(pythonCmd);
   if (! pythonCmd) {
     SteveIrwin.findMeAPython(function(err, pythonCmd, opts) {
       if (err) {
@@ -137,13 +138,24 @@ module.exports.startNewKernel = function(pythonCmd, cb) {
 };
 
 function testPythonPath(pythonPath, cb) {
-  var cmd = pythonPath.replace(/ /g, '\\ ');
   var testPython = path.join(__dirname, "check_python.py");
   var testPythonFile = tmp.fileSync();
   fse.copySync(testPython, testPythonFile.name);
 
+
+  var testCmd;
+  if (/win32/.test(process.platform)) {
+    if (/ /.test(pythonPath)) {
+      testCmd = '"' + pythonPath + '"' + " " + testPythonFile.name;
+    } else {
+      testCmd = pythonPath.replace(/ /g, '\\ ') + " " + testPythonFile.name;
+    }
+  } else {
+    testCmd = pythonPath.replace(/ /g, '\\ ') + " " + testPythonFile.name;
+  }
+
   // escape for spaces in paths
-  var testProcess = exec(cmd + " " + testPythonFile.name, { timeout: 4000 }, function(err, stdout, stderr) {
+  var testProcess = exec(testCmd, { timeout: 4000 }, function(err, stdout, stderr) {
     if (err) {
       cb(err, null);
       testProcess.kill();
