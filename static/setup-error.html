@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <title>Rodeo</title>
+  <link id="rodeo-theme" href="css/styles.css" rel="stylesheet"/>
+  <script src="js/ace.min.js"></script>
+  <script type="text/javascript">
+    window.$ = window.jQuery = require('jquery');
+  </script>
+  <script src="js/external.min.js"></script>
+</head>
+<body>
+  <div class="text-center jumbotron" style="background-color: inherit;">
+    <!--  start ready -->
+    <div id="rodeo-ready" class="row possible-error">
+      <h2>Ok! You're ready to go!</h2>
+      <p class="lead">Hope you enjoy Rodeo!</p>
+      <img src="img/rodeo-text-dark.png" style="max-height: 150px;"/>
+    </div>
+    <!--  end ready -->
+    <!-- start path error -->
+    <div id="python-path-missing" class="row possible-error">
+      <h2>Looks like we're having trouble finding your python path</h2>
+      <p class="lead">If you know your python path, paste it in the field below:</p>
+      <div class="row">
+        <div class="form-group col-sm-8 col-sm-offset-2">
+          <div class="input-group">
+            <input id="python-path" class="form-control" type="text"/>
+            <div class="input-group-btn">
+              <button id="btn-set-path" class="btn btn-primary">Set Path</button>
+            </div>
+          </div>
+        </div>
+      </div>
+      <img id="loading-gif" src="img/loading-stopped.gif" style="max-height: 200px;" />
+      <div id="which-python" class="row">
+        <h2>Don't know your python path?</h2>
+        <p class="lead">
+          <a onClick="shell.openItem('/Applications/Utilities/Terminal.app');">Click here to open the Terminal application</a>
+          and run the command below:
+        </p>
+        <div class="row">
+          <div class="col-sm-8 col-sm-offset-2 text-left">
+            <pre>$ which python</pre>
+          </div>
+        </div>
+      </div>
+    </div>
+    <!-- end path error -->
+    <!--  start install jupyter -->
+    <div id="install-jupyter" class="row possible-error">
+      <h2>Looks like you're missing <i>jupyter</i></h2>
+      <p class="lead">
+        <a onClick="shell.openItem('/Applications/Utilities/Terminal.app');">Click here to open the Terminal application</a>
+        and run the command below:
+      </p>
+      <p class="lead">For Conda users:</p>
+      <div class="row">
+        <div class="col-sm-8 col-sm-offset-2 text-left">
+          <pre>$ conda install jupyter</pre>
+        </div>
+      </div>
+      <p class="lead">For pip users:</p>
+      <div class="row">
+        <div class="col-sm-8 col-sm-offset-2 text-left">
+          <pre>$ pip install jupyter</pre>
+        </div>
+      </div>
+      <button class="btn btn-default" onclick="shell.openExternal('http://rodeo.yhat.com/docs/')">Help</button>
+      <button onclick="testPath();" class="btn btn-primary">Retry</button>
+    </div>
+    <!--  end install jupyter -->
+
+    <!--  start install matplotlib -->
+    <div id="install-matplotlib" class="row possible-error">
+      <h2>Looks like you're missing <i>matplotlib</i></h2>
+      <p class="lead">
+        <a onClick="shell.openItem('/Applications/Utilities/Terminal.app');">Click here to open the Terminal application</a>
+        and run the command below:
+      </p>
+      <p class="lead">For Conda users:</p>
+      <div class="row">
+        <div class="col-sm-8 col-sm-offset-2 text-left">
+          <pre>$ conda install matplotlib</pre>
+        </div>
+      </div>
+      <p class="lead">For pip users:</p>
+      <div class="row">
+        <div class="col-sm-8 col-sm-offset-2 text-left">
+          <pre>$ pip install matplotlib</pre>
+        </div>
+      </div>
+      <button class="btn btn-default" onclick="shell.openExternal('http://rodeo.yhat.com/docs/')">Help</button>
+      <button onclick="testPath();" class="btn btn-primary">Retry</button>
+    </div>
+    <!--  end install matplotlib -->
+    <div class="row">
+      <div id="test-results" class="col-sm-4 col-sm-offset-4">
+        <li id="output-python" class="list-group-item {{#if status}}list-group-item-success{{else}}list-group-item-danger{{/if}}">
+          Python PATH&nbsp;{{#if status}}<i class="fa fa-check"></i>{{else}}<i class="fa fa-times"></i>{{/if}}
+        </li>
+        <li id="output-jupyter" class="list-group-item {{#if jupyter}}list-group-item-success{{else}}list-group-item-danger{{/if}}">
+          Jupyter&nbsp;{{#if jupyter}}<i class="fa fa-check"></i>{{else}}<i class="fa fa-times"></i>{{/if}}
+        </li>
+        <li id="output-matplotlib" class="list-group-item {{#if matplotlib}}list-group-item-success{{else}}list-group-item-danger{{/if}}">
+          matplotlib&nbsp;{{#if matplotlib}}<i class="fa fa-check"></i>{{else}}<i class="fa fa-times"></i>{{/if}}
+        </li>
+      </div>
+    </div>
+  </div>
+</body>
+</html>

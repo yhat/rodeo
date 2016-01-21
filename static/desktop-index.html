@@ -218,7 +218,10 @@
                   <div class="row">
                     <div class="form-group col-sm-8 col-sm-offset-2">
                       <div class="input-group">
-                        <input id="python-path" class="form-control" type="text"/>
+                        <input id="python-path" class="form-control" type="text" readonly/>
+                        <div class="input-group-btn">
+                          <button onclick="pickPython();" class="btn btn-default">Select Path</button>
+                        </div>
                         <div class="input-group-btn">
                           <button id="btn-set-path" class="btn btn-primary">Set Path</button>
                         </div>

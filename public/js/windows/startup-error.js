@@ -20,6 +20,15 @@ function showError(err) {
   }
 }
 
+function pickPython() {
+  require('electron').dialog.showOpenDialog({
+    title: "Select your Python",
+    properties: [ 'openFile' ]
+  }, function(pythonPath) {
+    $("#python-path").val(pythonPath);
+  });
+}
+
 function testPath(path) {
   $("#loading-gif").attr("src", "img/loading.gif");
   $("#error-modal .possible-error").addClass("hide");
