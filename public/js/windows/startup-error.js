@@ -21,7 +21,7 @@ function showError(err) {
 }
 
 function pickPython() {
-  require('electron').dialog.showOpenDialog({
+  require('remote').dialog.showOpenDialog({
     title: "Select your Python",
     properties: [ 'openFile' ]
   }, function(pythonPath) {
