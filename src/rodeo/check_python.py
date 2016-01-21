@@ -12,14 +12,8 @@ try:
     from jupyter_client import manager
 except:
     try:
-        from IPython.kernel import manager 
+        from IPython.kernel import manager
     except:
         status_jupyter = False
-
-# check for matplotlib
-try:
-    import matplotlib.pyplot
-except:
-    status_mpl = False
 
 sys.stdout.write(json.dumps({ "jupyter": status_jupyter, "matplotlib": status_mpl }))

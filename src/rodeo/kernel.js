@@ -24,6 +24,7 @@ function spawnPython(cmd, opts, done) {
   var configFile = path.join(tmpKernelDir.name, "config.json");
   var delim = "\n";
 
+  // cmd = cmd.replace(/ /g, '\\ ');
   console.log("[INFO]: starting python using PYTHON='" + cmd + "'");
   console.log("[INFO]: starting python using OPTIONS='" + JSON.stringify(opts) + "'");
   var args = [ kernelFile, configFile, delim ];
@@ -136,12 +137,13 @@ module.exports.startNewKernel = function(pythonCmd, cb) {
 };
 
 function testPythonPath(pythonPath, cb) {
-  var cmd = pythonPath + " ";
+  var cmd = pythonPath.replace(/ /g, '\\ ');
   var testPython = path.join(__dirname, "check_python.py");
   var testPythonFile = tmp.fileSync();
   fse.copySync(testPython, testPythonFile.name);
 
-  var testProcess = exec(cmd + testPythonFile.name, { timeout: 4000 }, function(err, stdout, stderr) {
+  // escape for spaces in paths
+  var testProcess = exec(cmd + " " + testPythonFile.name, { timeout: 4000 }, function(err, stdout, stderr) {
     if (err) {
       cb(err, null);
       testProcess.kill();

@@ -26,10 +26,9 @@ def add_input(input_queue):
 
 def kernel(wd=None, verbose=0):
     # setup ipython kernel and configure it
-    kernel_mgr, kernel_client = manager.start_new_kernel()
+    kernel_mgr, kernel_client = manager.start_new_kernel(extra_arguments=["--matplotlib='inline'"])
 
     # apply patches
-    kernel_client.execute("%matplotlib inline")
     dirname = os.path.dirname(os.path.abspath(__file__))
     python_patch_file = os.path.join(dirname, "langs", "python-patch.py")
     kernel_client.execute("%run " + python_patch_file)

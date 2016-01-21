@@ -25,7 +25,7 @@ function createPythonKernel(pythonPath, displayWindow) {
   }
   kernel.startNewKernel(pythonPath, function(err, python) {
     global.python = python;
-    
+
     console.log(err);
     if (err) {
       displayWindow.webContents.send('log', "[ERROR]: " + err);
@@ -94,7 +94,7 @@ app.on('ready', function() {
     }
 
     createPythonKernel(rc.pythonCmd, mainWindow);
-    var wd;
+  var wd;
     if (process.argv.length == 5) {
       wd = process.argv[4];
       USER_WD = wd;
@@ -172,8 +172,9 @@ app.on('ready', function() {
   });
 
   ipc.on('launch-kernel', function(event, pythonPath) {
+    console.log("STARTING KERNEL: " + pythonPath);
     createPythonKernel(pythonPath, mainWindow);
-      event.returnValue = true;
+    event.returnValue = true;
   });
 
   ipc.on('test-path', function(event, pythonPath) {
