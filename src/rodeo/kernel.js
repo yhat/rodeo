@@ -111,7 +111,6 @@ function spawnPython(cmd, opts, done) {
 }
 
 module.exports.startNewKernel = function(pythonCmd, cb) {
-console.log(pythonCmd);
   if (! pythonCmd) {
     SteveIrwin.findMeAPython(function(err, pythonCmd, opts) {
       if (err) {
@@ -122,15 +121,18 @@ console.log(pythonCmd);
     });
   } else {
     testPythonPath(pythonCmd, function(err, result) {
+      var data = {
+        python: err==null,
+        jupyter: result.jupyter==true
+      }
+
       if (err) {
-        cb("error with python path", { spawnfile: pythonCmd });
+        cb(data, { spawnfile: pythonCmd });
       } else if (result.jupyter==false) {
-        cb("jupyter failed to load", { spawnfile: pythonCmd });
-      } else if (result.matplotlib==false) {
-        cb("matplotlib failed to load", { spawnfile: pythonCmd });
+        cb(data, { spawnfile: pythonCmd });
       } else {
         spawnPython(pythonCmd, {}, function(err, python) {
-          cb(err, python);
+          cb(data, python);
         });
       }
     });
@@ -161,7 +163,7 @@ function testPythonPath(pythonPath, cb) {
       testProcess.kill();
     } else {
       var result = JSON.parse(stdout.toString());
-      result.status = true;
+      result.python = true;
       cb(null, result);
       testProcess.kill();
     }

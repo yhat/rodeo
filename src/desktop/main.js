@@ -27,21 +27,37 @@ function createPythonKernel(pythonPath, displayWindow) {
     global.python = python;
 
     console.log(err);
+    err.isFirstRun = true;
+    // err.isFirstRun = false;
     if (err) {
       displayWindow.webContents.send('log', "[ERROR]: " + err);
-      displayWindow.webContents.send("startup-error", err);
+      // displayWindow.webContents.send('startup-error', err);
+      startupWindow.webContents.send('setup-status', err)
       return;
     }
 
     preferences.setPreferences('pythonCmd', python.spawnfile);
-    displayWindow.webContents.send('log', "using python: " + python.spawnfile);
+    startupWindow.webContents.send('setup-status', { python: true, jupyter: true });
 
     displayWindow.webContents.send('setup-preferences');
     displayWindow.webContents.send('refresh-variables');
     displayWindow.webContents.send('refresh-packages');
     displayWindow.webContents.send('set-working-directory', global.USER_WD || '.');
 
-    displayWindow.webContents.send('ready');
+    function startup() {
+      displayWindow.webContents.send('log', "using python: " + python.spawnfile);
+      displayWindow.webContents.send('ready');
+    }
+
+    // if we autodetected, let the user know we're good to go
+    if (! pythonPath) {
+      console.log("telling user we autodetected")
+      startup();
+      displayWindow.webContents.send("startup-error", null);
+      displayWindow.webContents.send('log', "[ERROR]: " + err);
+    } else {
+      startup()
+    }
   });
 }
 
@@ -73,6 +89,20 @@ app.on('ready', function() {
   var atomScreen = require('screen');
   var size = atomScreen.getPrimaryDisplay().workAreaSize;
   mainWindow = new BrowserWindow({ width: size.width, height: size.height });
+  startupWindow = new BrowserWindow({
+    useContentSize: true,
+    resizable: false,
+    moveable: false,
+    center: true,
+    alwaysOnTop: true
+  });
+  // startupWindow.openDevTools();
+  startupWindow.on('closed', function() {
+    startupWindow = null;
+  });
+
+  // and load the index.html of the app.
+  startupWindow.loadURL('file://' + __dirname + '/../../static/startup.html');
 
   // and load the index.html of the app.
   mainWindow.loadURL('file://' + __dirname + '/../../static/desktop-index.html');
@@ -180,7 +210,12 @@ app.on('ready', function() {
   ipc.on('test-path', function(event, pythonPath) {
     pythonPath = pythonPath || python.spawnfile;
     kernel.testPythonPath(pythonPath, function(err, result) {
-      event.returnValue = { err: err, result: result };
+      console.log(result);
+      var data = { python: false, jupyter: false };
+      if (err) {
+        console.log('[ERROR]: ' + err);
+      }
+      event.returnValue = result;
     });
   });
 
@@ -282,6 +317,10 @@ app.on('ready', function() {
 
   ipc.on('check-for-updates', function() {
     checkForUpdates(true);
+  });
+
+  ipc.on('exit-tour', function() {
+    startupWindow.close();
   });
 
   function checkForUpdates(displayNoUpdate) {

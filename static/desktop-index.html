@@ -203,20 +203,36 @@
         <div class="modal-content">
           <div class="modal-body">
             <div class="row text-center">
-              <div class="jumbotron" style="background-color: inherit;">
-                <!--  start ready -->
-                <div id="rodeo-ready" class="row hide possible-error">
-                  <h2>Ok! You're ready to go!</h2>
-                  <p class="lead">Hope you enjoy Rodeo!</p>
-                  <img src="img/rodeo-text-dark.png" style="max-height: 150px;"/>
+              <div class="text-center jumbotron" style="background-color: inherit;">
+                <div class="row">
+                  <h2>We're making sure you've got everything setup properly...</h2>
                 </div>
-                <!--  end ready -->
+                <div class="row">
+                  <div id="test-results" class="col-sm-4 col-sm-offset-4">
+                    <li id="output-python" class="list-group-item list-group-item-success">
+                      Python PATH&nbsp;<i class="fa fa-check"></i>
+                    </li>
+                    <li id="output-jupyter" class="list-group-item list-group-item-success">
+                      Jupyter&nbsp;<i class="fa fa-check"></i>
+                    </li>
+                  </div>
+                </div>
+                <br />
+
+                <!--  good to go -->
+                <div id="good-to-go" class="row">
+                  <div class="col-sm-6 col-sm-offset-3 text-left">
+                    <pre>Using: /usr/local/bin/python</pre>
+                  </div>
+                </div>
+                <!--  end good to go -->
+
                 <!-- start path error -->
-                <div id="python-path-missing" class="row hide possible-error">
+                <div id="python-path-missing" class="row possible-error">
                   <h2>Looks like we're having trouble finding your python path</h2>
                   <p class="lead">If you know your python path, paste it in the field below:</p>
                   <div class="row">
-                    <div class="form-group col-sm-8 col-sm-offset-2">
+                    <div class="form-group col-sm-10 col-sm-offset-1">
                       <div class="input-group">
                         <input id="python-path" class="form-control" type="text" readonly/>
                         <div class="input-group-btn">
@@ -228,9 +244,8 @@
                       </div>
                     </div>
                   </div>
-                  <img id="loading-gif" src="img/loading-stopped.gif" style="max-height: 200px;" />
                   <div id="which-python" class="row">
-                    <h2>Don't know your python path?</h2>
+                    <h2>Don't know where your python path is?</h2>
                     <p class="lead">
                       <a onClick="shell.openItem('/Applications/Utilities/Terminal.app');">Click here to open the Terminal application</a>
                       and run the command below:
@@ -243,8 +258,9 @@
                   </div>
                 </div>
                 <!-- end path error -->
+
                 <!--  start install jupyter -->
-                <div id="install-jupyter" class="row hide possible-error">
+                <div id="install-jupyter" class="row possible-error">
                   <h2>Looks like you're missing <i>jupyter</i></h2>
                   <p class="lead">
                     <a onClick="shell.openItem('/Applications/Utilities/Terminal.app');">Click here to open the Terminal application</a>
@@ -266,34 +282,6 @@
                   <button onclick="testPath();" class="btn btn-primary">Retry</button>
                 </div>
                 <!--  end install jupyter -->
-
-                <!--  start install matplotlib -->
-                <div id="install-matplotlib" class="row hide possible-error">
-                  <h2>Looks like you're missing <i>matplotlib</i></h2>
-                  <p class="lead">
-                    <a onClick="shell.openItem('/Applications/Utilities/Terminal.app');">Click here to open the Terminal application</a>
-                    and run the command below:
-                  </p>
-                  <p class="lead">For Conda users:</p>
-                  <div class="row">
-                    <div class="col-sm-8 col-sm-offset-2 text-left">
-                      <pre>$ conda install matplotlib</pre>
-                    </div>
-                  </div>
-                  <p class="lead">For pip users:</p>
-                  <div class="row">
-                    <div class="col-sm-8 col-sm-offset-2 text-left">
-                      <pre>$ pip install matplotlib</pre>
-                    </div>
-                  </div>
-                  <button class="btn btn-default" onclick="shell.openExternal('http://rodeo.yhat.com/docs/')">Help</button>
-                  <button onclick="testPath();" class="btn btn-primary">Retry</button>
-                </div>
-                <!--  end install matplotlib -->
-                <div class="row">
-                  <div id="test-results" class="col-sm-4 col-sm-offset-4">
-                  </div>
-                </div>
               </div>
             </div>
           </div>
@@ -441,106 +429,10 @@
     </div>
     <!-- End Sticker Modal -->
 
-    <!-- Tour Display Modal -->
-    <div id="tour-modal" class="modal">
-      <div class="modal-dialog modal-lg">
-        <div class="modal-content">
-          <div class="modal-body">
-            <div id="tour" class="owl-carousel">
-              <div class="text-center">
-                <h3 class="text-primary">Welcome to Rodeo!</h3>
-                <img src="img/rodeo-logo.png" style="max-width: 100%; max-height: 250px;" />
-                <br /><br />
-                <p class="lead">An IDE for Data Science</p>
-              </div>
-              <div class="text-center">
-                <h3 class="text-primary">Autocomplete Your Code</h3>
-                <img src="img/tour/first/autocomplete.png" style="max-width: 100%; max-height: 250px;" />
-                <br /><br />
-                <p class="lead">Use <kbd>tab</kbd> to autocomplete code from within the editor and the console.</p>
-              </div>
-              <div class="text-center">
-                <h3 class="text-primary">Plot and Analyze</h3>
-                <img src="img/tour/first/plots.png" style="max-width: 100%; max-height: 250px;" />
-                <br /><br />
-                <p class="lead">View plots without leaving Rodeo. Plots can be exported to your computer or saved for later.</p>
-              </div>
-              <div class="text-center">
-                <h3 class="text-primary">View Datasets</h3>
-                <div class="row">
-                  <div class="col-sm-6">
-                    <img src="img/tour/first/viewer.png" style="max-width: 100%; max-height: 250px;" />
-                  </div>
-                  <div class="col-sm-6">
-                    <img src="img/tour/first/viewer2.png" style="max-width: 100%; max-height: 250px;" />
-                  </div>
-                </div>
-                <br /><br />
-                <p class="lead">Inspect your data using the <strong>Environment</strong> tab.</p>
-              </div>
-              <div class="text-center">
-                <h3 class="text-primary">Customize Your Rodeo Preferences</h3>
-                <img src="img/tour/first/preferences.png" style="max-width: 100%; max-height: 250px;" />
-                <br /><br />
-                <p class="lead">Check out the <strong>Preferences</strong> tab to configure your Rodeo. Adjust the font size, change your syntax highlighting theme, setup your default working directory, and more!</p>
-              </div>
-              <div class="text-center">
-                <h3 class="text-primary">Bring your vim or emacs keyboard to Rodeo</h3>
-                <div class="row">
-                  <div class="col-sm-6">
-                    <img src="img/tour/first/vim-and-emacs-1.png" style="max-width: 100%; max-height: 250px;" />
-                  </div>
-                  <div class="col-sm-6">
-                    <img src="img/tour/first/vim-and-emacs-2.png" style="max-width: 100%; max-height: 250px;" />
-                  </div>
-                </div>
-                <br /><br />
-                <p class="lead">Use your favorite <strong>vim or emacs</strong> shortcuts. To setup vim/emacs, visit <strong>Preferences > Editor</strong>.</p>
-              </div>
-              <div class="text-center">
-                <h3 class="text-primary">Setup Your Default Environment</h3>
-                <img src="img/tour/first/rodeo-profile.png" style="max-width: 100%; max-height: 250px;" />
-                <br /><br />
-                <p class="lead">Create a <code>.rodeoprofile</code> to automatically load common libraries, functions, or datasets. Click <strong>CONFIGURE</strong> in the <strong>Preferences > General > Default Variables</strong> to access your <code>.rodeoprofile</code>.</p>
-              </div>
-              <div class="text-center">
-                <h3 class="text-primary">Pick from One of Rodeo's Themes</h3>
-                <img src="img/tour/first/themes.png" style="max-width: 100%; max-height: 250px;" />
-                <br /><br />
-                <p class="lead">Select the theme that speaks to you.</p>
-              </div>
-              <div class="text-center">
-                <h3 class="text-primary">Loaded with Shortcuts</h3>
-                <img src="img/tour/first/keyboard-shortcuts.png" style="max-width: 100%; max-height: 250px;" />
-                <br /><br />
-                <p class="lead">Shortcuts for everyting! Try <kbd>&#8984;</kbd> + <kbd>enter</kbd> to run code in the editor. Can't find a shortcut? No worries, visit <strong>Help > View Shortcuts</strong> to see them all!</p>
-              </div>
-              <div class="text-center">
-                <h3 class="text-primary">Find Files Quickly</h3>
-                <img src="img/tour/first/find-files.png" style="max-width: 100%; max-height: 250px;" />
-                <br /><br />
-                <p class="lead">Looking for a particular file? Try <kbd>&#8984;</kbd> + <kbd>t</kbd> to search your working directory.</p>
-              </div>
-              <div class="text-center">
-                <h3 class="text-primary">Let's Rodeo!</h3>
-                <img src="img/tour/first/rodeo-celebration.png" style="max-width: 100%; max-height: 250px;" />
-                <br /><br />
-                <p class="lead">Ok looks like you're ready to go! For more help visit <a onclick="shell.openExternal('http://yhat.github.io/rodeo-docs/docs/');">the docs</a> or email <a>info@yhathq.com</a>.</p>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-    <!-- Tour Display Modal -->
-
-    <!-- hidden stuff -->
-    <input id="file-upload-trigger" type="file" style="visibility:hidden; height: 0px;" />
   <script src="js/desktop-main.js"></script>
   <script src="../src/desktop/menu.js"></script>
   <script type="text/javascript">
     $(document).ready(function() {
-      $("#loading-modal").modal({ backdrop: 'static', keyboard: false, show: true });
 
       if (/win32/i.test(navigator.platform)) {
         $("#new-python-path").attr("placeholder", "i.e. C:\\Users\\hmardukas\\Anaconda3\\envs\\py27\\python.exe");
