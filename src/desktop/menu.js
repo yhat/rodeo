@@ -1,5 +1,6 @@
 var shell = require('shell');
 var remote = require('remote');
+var BrowserWindow = require('electron').remote.BrowserWindow
 var path = require('path');
 var webFrame = require('web-frame');
 var dialogs = require("dialogs")({ url: "../../static/img/cowboy-hat.svg" });
@@ -419,7 +420,20 @@ var menuShortcutsTemplate = [
       {
         label: 'Tour',
         click: function() {
-          $("#tour-modal").modal('show');
+          var tourWindow = new BrowserWindow({
+            useContentSize: true,
+            resizable: false,
+            moveable: false,
+            center: true,
+            alwaysOnTop: true
+          });
+          // tourWindow.openDevTools();
+          tourWindow.on('closed', function() {
+            tourWindow = null;
+          });
+
+          // and load the index.html of the app.
+          tourWindow.loadURL('file://' + __dirname + '../../static/tour.html');
         }
       }
     ]
