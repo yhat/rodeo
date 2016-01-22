@@ -74,12 +74,12 @@ function findMeAPython(fn) {
       result = { error: e.toString() };
     } finally {
       if (result.jupyter==true && result.matplotlib==true) {
-        fn(null, pythonCmd, opts);
+        fn({ python: true, jupyter: true }, pythonCmd, opts);
         return;
       }
     }
   }
-  fn("could not find a valid python path", null, null);
+  fn({ python: false, jupyter: false }, null, null);
 };
 
 module.exports.findMeAPython = findMeAPython;

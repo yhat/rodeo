@@ -113,10 +113,13 @@ function spawnPython(cmd, opts, done) {
 module.exports.startNewKernel = function(pythonCmd, cb) {
   if (! pythonCmd) {
     SteveIrwin.findMeAPython(function(err, pythonCmd, opts) {
-      if (err) {
+
+      if (err.python==false || err.jupyter==false) {
         cb(err, { spawnfile: pythonCmd });
       } else {
-        spawnPython(pythonCmd, opts, cb);
+        spawnPython(pythonCmd, opts, function(err, python) {
+          cb({ python: true, jupyter: true }, python);
+        });
       }
     });
   } else {

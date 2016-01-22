@@ -1,6 +1,6 @@
 var app = require('app');
 var autoUpdater = require('auto-updater');
-var BrowserWindow = require('browser-window');
+var BrowserWindow = require('electron').BrowserWindow;
 var os = require('os');
 var fs = require('fs');
 var path = require('path');
@@ -19,19 +19,16 @@ global.USER_HOME = process.env[(process.platform == 'win32') ? 'USERPROFILE' : '
 global.USER_WD = preferences.getPreferences().defaultWd || USER_HOME;
 
 
-function createPythonKernel(pythonPath, displayWindow) {
+function createPythonKernel(pythonPath, isFirstRun, displayWindow) {
   if (python && python.kill) {
     python.kill();
   }
   kernel.startNewKernel(pythonPath, function(err, python) {
     global.python = python;
+    err.isFirstRun = isFirstRun;
 
-    console.log(err);
-    err.isFirstRun = true;
-    // err.isFirstRun = false;
     if (err) {
       displayWindow.webContents.send('log', "[ERROR]: " + err);
-      // displayWindow.webContents.send('startup-error', err);
       startupWindow.webContents.send('setup-status', err)
       return;
     }
@@ -111,8 +108,10 @@ app.on('ready', function() {
     // keep track of the app version the user is on. this is convenient for
     // reporting bugs
     var rc = preferences.getPreferences();
+    var isFirstRun = false;
     if (rc.version==null) {
-      mainWindow.webContents.send('start-tour', { version: 'first' });
+      // mainWindow.webContents.send('start-tour', { version: 'first' });
+      isFirstRun = true;
       preferences.setPreferences('version', app.getVersion());
       mainWindow.webContents.send('prompt-for-sticker');
     }
@@ -123,8 +122,8 @@ app.on('ready', function() {
       }
     }
 
-    createPythonKernel(rc.pythonCmd, mainWindow);
-  var wd;
+    createPythonKernel(rc.pythonCmd, isFirstRun, mainWindow);
+    var wd;
     if (process.argv.length == 5) {
       wd = process.argv[4];
       USER_WD = wd;
@@ -179,7 +178,9 @@ app.on('ready', function() {
 
   ipc.on('index-files', function(event, arg) {
     event.sender.sendJSON = function(data) {
-      event.sender.send(data.msg, data);
+      if (event.sender && event.sender.send) {
+        event.sender.send(data.msg, data);
+      }
     }
     findFile(event.sender);
   });
@@ -203,7 +204,7 @@ app.on('ready', function() {
 
   ipc.on('launch-kernel', function(event, pythonPath) {
     console.log("STARTING KERNEL: " + pythonPath);
-    createPythonKernel(pythonPath, mainWindow);
+    createPythonKernel(pythonPath, false, mainWindow);
     event.returnValue = true;
   });
 
