@@ -29,12 +29,16 @@ function createPythonKernel(pythonPath, isFirstRun, displayWindow) {
 
     if (err) {
       displayWindow.webContents.send('log', "[ERROR]: " + err);
-      startupWindow.webContents.send('setup-status', err)
+      if (startupWindow) {
+        startupWindow.webContents.send('setup-status', err)
+      }
       return;
     }
 
     preferences.setPreferences('pythonCmd', python.spawnfile);
-    startupWindow.webContents.send('setup-status', { python: true, jupyter: true });
+    if (startupWindow) {
+      startupWindow.webContents.send('setup-status', { python: true, jupyter: true });
+    }
 
     displayWindow.webContents.send('setup-preferences');
     displayWindow.webContents.send('refresh-variables');
@@ -68,6 +72,7 @@ crashReporter.start({
 // Keep a global reference of the window object, if you don't, the window will
 // be closed automatically when the JavaScript object is GCed.
 var mainWindow = null;
+var startupWindow = null;
 
 // Quit when all windows are closed.
 app.on('window-all-closed', function() {
@@ -110,7 +115,6 @@ app.on('ready', function() {
     var rc = preferences.getPreferences();
     var isFirstRun = false;
     if (rc.version==null) {
-      // mainWindow.webContents.send('start-tour', { version: 'first' });
       isFirstRun = true;
       preferences.setPreferences('version', app.getVersion());
       mainWindow.webContents.send('prompt-for-sticker');
@@ -321,7 +325,9 @@ app.on('ready', function() {
   });
 
   ipc.on('exit-tour', function() {
-    startupWindow.close();
+    if (startupWindow) {
+      startupWindow.close();
+    }
   });
 
   function checkForUpdates(displayNoUpdate) {
