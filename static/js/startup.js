@@ -376,5 +376,3 @@ var Tour = React.createClass({displayName: "Tour",
     );
   }
 });
-
-ReactDOM.render(React.createElement(Startup, null), document.getElementById('content'));

@@ -199,8 +199,8 @@ function configurePreferences(rc) {
 $("#add-path-button").click(function(e) {
   var newPath = $("#new-python-path").val();
   var data = ipc.sendSync('test-path', newPath);
-  if (data.result && data.result.status) {
-    if (data.result.matplotlib && data.result.jupyter) {
+  if (data) {
+    if (data.jupyter && data.matplotlib) {
       var result = ipc.sendSync('add-python-path', newPath);
       if (result==true) {
         $("#python-paths").append(python_path_item(newPath));
@@ -231,10 +231,8 @@ $("#add-path-button").click(function(e) {
       } else {
         $("#add-path-help").text("Could not add python path: " + result);
       }
-    } else if (! data.result.jupyter) {
+    } else if (! data.jupyter) {
       $("#add-path-help").text("The path you specified did not have jupyter installed. Please install jupyter before adding a path.");
-    } else if (! data.result.matplotlib) {
-      $("#add-path-help").text("The path you specified did not have matplotlib installed. Please install matplotlib before adding a path.");
     }
   } else {
     $("#add-path-help").text("Invalid Python. Rodeo could not run Python using the path you specified.");
