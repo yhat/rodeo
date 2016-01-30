@@ -10,19 +10,17 @@ var Startup = React.createClass({
   componentDidMount: function() {
     var self = this;
     require('electron').ipcRenderer.on('setup-status', function(evt, data) {
-        var s = self.state;
-        s.statusPython = data.python;
-        s.statusJupyter = data.jupyter;
+        var s = {
+          statusPython: data.python,
+          statusJupyter: data.jupyter
+        };
         if (data.python==false || data.jupyter==false) {
           s.status = "error";
         } else if (data.isFirstRun==true) {
           s.status = "good to go";
           setTimeout(function() {
             self.setState({
-              status: "tour",
-              statusPython: self.state.statusPython,
-              statusJupyter: self.state.statusJupyter,
-              pythonPath: self.state.pythonPath
+              status: "tour"
             });
           }, 1500);
         } else {
@@ -36,24 +34,20 @@ var Startup = React.createClass({
     });
   },
   testPythonPath: function() {
-    pythonPath = this.state.pythonPath;
+    var pythonPath = this.state.pythonPath;
 
     var result = require('electron').ipcRenderer.sendSync('test-path', pythonPath);
     var status;
+    var self = this;
     if (result.python && result.jupyter) {
       status = "good to go";
-      var self = this;
       setTimeout(function() {
         self.setState({
-          status: "tour",
-          statusPython: self.state.statusPython,
-          statusJupyter: self.state.statusJupyter,
-          pythonPath: self.state.pythonPath
+          status: "tour"
         });
       }, 1500);
     } else {
       status = "loading";
-      var self = this;
       setTimeout(function() {
         self.setState({
           status: "error",
@@ -285,6 +279,15 @@ var TourItem = React.createClass({
 });
 
 var Tour = React.createClass({
+  componentDidMount: function() {
+    $("#tour").owlCarousel({ singleItem: true });
+  },
+  shouldComponentUpdate: function() {
+    return false;
+  },
+  componentWillUnmount: function() {
+    $("#tour").data('owlCarousel').destroy();
+  },
   exitTour: function() {
     require('electron').ipcRenderer.send('exit-tour');
   },
@@ -360,10 +363,6 @@ var Tour = React.createClass({
     var tourItems = data.map(function(item) {
       return <TourItem title={item.title} subtitle={item.subtitle} img={item.img} img2={item.img2} />
     });
-
-    setTimeout(function() {
-      $("#tour").owlCarousel({ singleItem: true });
-    }, 50);
 
     return (
       <div className="text-center">
