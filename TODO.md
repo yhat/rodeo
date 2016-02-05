@@ -3,4 +3,4 @@ TODO
 - [x] package list is empty
 - [x] working directory is not right
 - [ ] working directory in "active folder" is different from python session / console
-- [ ] conda package installs not working in the UI
+- [x] conda package installs not working in the UI
