@@ -164,7 +164,7 @@ app.on('ready', function() {
   });
 
   ipc.on('command', function(event, data) {
-    if (python) {
+    if (python && python.executeStream) {
       if (data.stream==true || data.stream=='true') {
         python.executeStream(data.command, data.autocomplete=="true", function(result) {
           result.command = data.command;
