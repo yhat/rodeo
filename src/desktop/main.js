@@ -188,9 +188,9 @@ app.on('ready', function() {
     } else {
       if (data.stream==true) {
         // not sure if we even need to do this one...
-        event.sender.send('command', {});
+        // event.sender.send('command', {});
       } else {
-        event.returnValue = {};
+        event.returnValue = null;
       }
     }
   });
