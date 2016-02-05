@@ -32,7 +32,9 @@ function createPythonKernel(pythonPath, isFirstRun, displayWindow) {
       if (startupWindow) {
         startupWindow.webContents.send('setup-status', err)
       }
-      return;
+      if (err.python==false || err.jupyter==false) {
+        return;
+      }
     }
 
     preferences.setPreferences('pythonCmd', python.spawnfile);
