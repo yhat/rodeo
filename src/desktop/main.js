@@ -112,34 +112,36 @@ app.on('ready', function() {
 
   // and load the index.html of the app.
   mainWindow.loadURL('file://' + __dirname + '/../../static/desktop-index.html');
-  // mainWindow.openDevTools();
-  mainWindow.webContents.on('did-finish-load', function() {
-    // keep track of the app version the user is on. this is convenient for
-    // reporting bugs
-    var rc = preferences.getPreferences();
-    var isFirstRun = false;
-    if (rc.version==null) {
-      isFirstRun = true;
-      preferences.setPreferences('version', app.getVersion());
-      mainWindow.webContents.send('prompt-for-sticker');
-    }
-    if (rc.version && rc.version != app.getVersion()) {
-      preferences.setPreferences('version', app.getVersion());
-      if (! rc.email) {
+  startupWindow.webContents.on('did-finish-load', function() {
+    // mainWindow.openDevTools();
+    mainWindow.webContents.on('did-finish-load', function() {
+      // keep track of the app version the user is on. this is convenient for
+      // reporting bugs
+      var rc = preferences.getPreferences();
+      var isFirstRun = false;
+      if (rc.version==null) {
+        isFirstRun = true;
+        preferences.setPreferences('version', app.getVersion());
         mainWindow.webContents.send('prompt-for-sticker');
       }
-    }
+      if (rc.version && rc.version != app.getVersion()) {
+        preferences.setPreferences('version', app.getVersion());
+        if (! rc.email) {
+          mainWindow.webContents.send('prompt-for-sticker');
+        }
+      }
 
-    createPythonKernel(rc.pythonCmd, isFirstRun, mainWindow);
-    var wd;
-    if (process.argv.length == 5) {
-      wd = process.argv[4];
-      USER_WD = wd;
-    }
-    if (wd) {
-      mainWindow.webContents.send('log', "[INFO]: working directory passed as argument: `" + wd + "`");
-      mainWindow.webContents.send('set-wd', wd);
-    }
+      createPythonKernel(rc.pythonCmd, isFirstRun, mainWindow);
+      var wd;
+      if (process.argv.length == 5) {
+        wd = process.argv[4];
+        USER_WD = wd;
+      }
+      if (wd) {
+        mainWindow.webContents.send('log', "[INFO]: working directory passed as argument: `" + wd + "`");
+        mainWindow.webContents.send('set-wd', wd);
+      }
+    });
   });
 
   // Open the devtools.
