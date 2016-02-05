@@ -108,12 +108,22 @@ function spawnPython(cmd, opts, done) {
   }
   var rodeoProfile = fs.readFileSync(profileFilepath).toString();
 
+  // wait for the python child to emit a message. once it does (it'll be 
+  // something simple like {"status": "OK"}, then we know it's running
+  // and we can start Rodeo
+  var hasStarted = false;
   python.on('message', function(msg) {
     console.error("[INFO]: kernel is running");
     python.execute(rodeoProfile, false, function(resutls) {
+      hasStarted = true;
       done(null, python);
     });
   });
+  setTimeout(function() {
+    if (hasStarted==false) {
+      done("Could not start Python kernel", null);
+    }
+  }, 7500);
 
 }
 
