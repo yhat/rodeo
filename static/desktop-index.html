@@ -315,8 +315,28 @@
           <div class="modal-body">
             <form class="form-inline">
               <div class="form-group">
+                <label class="col-lg-2 control-label">
+                  <a data-toggle="tooltip" data-placement="right" title="<p class='small'>Select the Python package manager you'd like to use to install new packages.</p>" data-html="true"><i class="fa fa-question-circle"></i></a>
+                  Installer
+                </label>
+                <div class="col-lg-10">
+                  <div class="radio">
+                    <label>
+                      <input type="radio" name="installerRadio" id="installerRadio1" value="conda" checked="">
+                      conda
+                    </label>
+                  </div>
+                  <div class="radio">
+                    <label>
+                      <input type="radio" name="installerRadio" id="installerRadio2" value="pip">
+                      pip
+                    </label>
+                  </div>
+                </div>
                 <div class="input-group">
-                  <div class="input-group-addon"><a data-toggle="tooltip" data-placement="right" title="<p class='small'>Packages are installed using <code>pip</code>. You can specify specific versions using the <code>==</code> syntax.</p>" data-html="true"><i class="fa fa-question-circle"></i></a>&nbsp;Package Name</div>
+                  <div class="input-group-addon">
+                    <a data-toggle="tooltip" data-placement="right" title="<p class='small'>Packages are installed using <code>conda</code> or <code>pip</code>. You can specify specific versions using the <code>==</code> syntax.</p>" data-html="true"><i class="fa fa-question-circle"></i></a>
+                    &nbsp;Package Name</div>
                   <input style="width: 350px;" id="package-to-install" type="text" class="form-control" placeholder="pandas, ggplot, requests, bashplotlib==0.5.2" required/>
                 </div>
               </div>
