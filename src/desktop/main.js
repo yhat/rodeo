@@ -162,21 +162,30 @@ app.on('ready', function() {
   });
 
   ipc.on('command', function(event, data) {
-    if (data.stream==true || data.stream=='true') {
-      python.executeStream(data.command, data.autocomplete=="true", function(result) {
-        result.command = data.command;
-        if (result.image || result.html) {
-          mainWindow.webContents.send('plot', result);
-          mainWindow.webContents.send('refresh-variables');
-        }
-        event.sender.send('command', result);
-      });
+    if (python) {
+      if (data.stream==true || data.stream=='true') {
+        python.executeStream(data.command, data.autocomplete=="true", function(result) {
+          result.command = data.command;
+          if (result.image || result.html) {
+            mainWindow.webContents.send('plot', result);
+            mainWindow.webContents.send('refresh-variables');
+          }
+          event.sender.send('command', result);
+        });
+      } else {
+        python.execute(data.command, data.autocomplete=="true" || data.autocomplete==true, function(result) {
+          result.command = data.command;
+          result.status = "complete";
+          event.returnValue = result;
+        });
+      }
     } else {
-      python.execute(data.command, data.autocomplete=="true" || data.autocomplete==true, function(result) {
-        result.command = data.command;
-        result.status = "complete";
-        event.returnValue = result;
-      });
+      if (data.stream==true) {
+        // not sure if we even need to do this one...
+        event.sender.send('command', {});
+      } else {
+        event.returnValue = {};
+      }
     }
   });
 
