@@ -1,5 +1,10 @@
 # CHANGELOG
 
+## 1.2.2
+- Better Python PATH triage
+- Handle Python PATHs that contain spaces or strange characters
+- Remove matplotlib dependency (still suggested but not 100% required)
+
 ## 1.2.0
 - Python PATH/jupyter/matplotlib triage
 - Allow for multiple environemnts
