@@ -31,6 +31,8 @@ function createPythonKernel(pythonPath, isFirstRun, displayWindow) {
       displayWindow.webContents.send('log', "[PATH-TEST-RESULT]: " + JSON.stringify(err));
       if (startupWindow) {
         startupWindow.webContents.send('setup-status', err)
+      } else {
+        console.log("tried to trigger startup window, but that mothafucka is null");
       }
       if (err.python==false || err.jupyter==false) {
         return;
