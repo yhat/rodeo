@@ -28,7 +28,7 @@ function createPythonKernel(pythonPath, isFirstRun, displayWindow) {
     err.isFirstRun = isFirstRun;
 
     if (err) {
-      displayWindow.webContents.send('log', "[ERROR]: " + err);
+      displayWindow.webContents.send('log', "[PATH-TEST-RESULT]: " + JSON.stringify(err));
       if (startupWindow) {
         startupWindow.webContents.send('setup-status', err)
       }
@@ -224,10 +224,9 @@ app.on('ready', function() {
   ipc.on('test-path', function(event, pythonPath) {
     pythonPath = pythonPath || python.spawnfile;
     kernel.testPythonPath(pythonPath, function(err, result) {
-      console.log(result);
       var data = { python: false, jupyter: false };
       if (err) {
-        console.log('[ERROR]: ' + err);
+        console.log('[ERROR]: ' + JSON.stringify(err));
       }
       event.returnValue = result;
     });
