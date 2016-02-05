@@ -27,7 +27,10 @@ function spawnPython(cmd, opts, done) {
   // cmd = cmd.replace(/ /g, '\\ ');
   console.log("[INFO]: starting python using PYTHON='" + cmd + "'");
   console.log("[INFO]: starting python using OPTIONS='" + JSON.stringify(opts) + "'");
+
   var args = [ kernelFile, configFile, delim ];
+  opts.stdio = [null, null, null, 'ipc'];
+
   var python = spawn(cmd, args, opts);
 
   // we'll print any feedback from the kernel as yellow text
@@ -105,9 +108,13 @@ function spawnPython(cmd, opts, done) {
   }
   var rodeoProfile = fs.readFileSync(profileFilepath).toString();
 
-  python.execute(rodeoProfile, false, function(resutls) {
-    done(null, python);
+  python.on('message', function(msg) {
+    console.error("[INFO]: kernel is running");
+    python.execute(rodeoProfile, false, function(resutls) {
+      done(null, python);
+    });
   });
+
 }
 
 module.exports.startNewKernel = function(pythonCmd, cb) {

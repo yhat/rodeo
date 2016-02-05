@@ -44,6 +44,7 @@ def kernel(wd=None, verbose=0):
     input_thread.start()
 
     outputs = {}
+    os.write(3, '{"status" : "OK"}' + "\n")
 
     while True:
         if not input_queue.empty():
