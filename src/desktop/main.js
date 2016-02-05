@@ -32,7 +32,7 @@ function createPythonKernel(pythonPath, isFirstRun, displayWindow) {
       if (startupWindow) {
         startupWindow.webContents.send('setup-status', err)
       } else {
-        console.log("tried to trigger startup window, but that mothafucka is null");
+        console.log("tried to trigger startup window, but is null");
       }
       if (err.python==false || err.jupyter==false) {
         return;
@@ -197,7 +197,7 @@ app.on('ready', function() {
 
   ipc.on('index-files', function(event, arg) {
     event.sender.sendJSON = function(data) {
-      if (event.sender && event.sender.send) {
+      if (mainWindow && event.sender && event.sender.send) {
         event.sender.send(data.msg, data);
       }
     }

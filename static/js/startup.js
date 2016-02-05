@@ -44,6 +44,7 @@ var Startup = React.createClass({displayName: "Startup",
     if (result.python && result.jupyter) {
       status = "good to go";
       var self = this;
+      require('electron').ipcRenderer.sendSync('launch-kernel', pythonPath);
       setTimeout(function() {
         self.setState({
           status: "tour",

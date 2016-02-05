@@ -6,7 +6,7 @@ $("#package-install-button").click(function(e) {
 $("#package-install-modal form").submit(function(e) {
   e.preventDefault();
   var cmd = $("[name='installerRadio']:checked").val();
-  var command = "! " + cmd + "install " + $("#package-to-install").val();
+  var command = "! " + cmd + " install " + $("#package-to-install").val();
   jqconsole.ClearPromptText();
   jqconsole.Write(">>> " + command + '\n', 'jqconsole-old-input');
   jqconsole.SetHistory(jqconsole.GetHistory().concat([command]));
