@@ -29,15 +29,16 @@ var Startup = React.createClass({displayName: "Startup",
           s.status = "good to go";
         }
         self.setState(s);
-        if (data.isFirstRun==false) {
+        if (data.python==true && data.jupyter==true && data.isFirstRun==false) {
           // ain't our first Rodeo
           require('electron').ipcRenderer.send('exit-tour');
         }
     });
   },
-  testPythonPath: function() {
-    pythonPath = this.state.pythonPath;
-
+  testPythonPath: function(pythonPath) {
+    var s = this.state;
+    s.pythonPath = pythonPath;
+    this.setState(s);
     var result = require('electron').ipcRenderer.sendSync('test-path', pythonPath);
     var status;
     if (result.python && result.jupyter) {
@@ -89,7 +90,7 @@ var Startup = React.createClass({displayName: "Startup",
         )
         );
     } else {
-      content = React.createElement(Tour, null);
+      content = React.createElement(Tour, null)
     }
     return (
       React.createElement("div", {className: "jumbotron", style: style}, 
@@ -169,16 +170,11 @@ var SetupPython = React.createClass({displayName: "SetupPython",
       title: "Select your Python",
       properties: [ 'openFile' ]
     }, function(pythonPath) {
-      self.setState({ pythonPath: pythonPath });
+      self.setState({ pythonPath: pythonPath[0] });
     });
   },
   setPythonPath: function() {
-    var testResult = require('electron').ipcRenderer.sendSync('test-path', this.state.pythonPath);
-    if (testResult) {
-      console.log(testResult);
-    } else {
-      require('electron').ipcRenderer.sendSync('launch-kernel', this.state.pythonPath);
-    }
+    this.props.testPythonPath(this.state.pythonPath);
   },
   openTerminal: function() {
     // if osx
@@ -197,7 +193,7 @@ var SetupPython = React.createClass({displayName: "SetupPython",
                 React.createElement("button", {onClick: this.pickPythonPath, className: "btn btn-default"}, "Select Path")
               ), 
               React.createElement("div", {className: "input-group-btn"}, 
-                React.createElement("button", {onClick: this.props.testPythonPath, className: "btn btn-primary"}, "Set Path")
+                React.createElement("button", {onClick: this.setPythonPath, className: "btn btn-primary"}, "Set Path")
               )
             )
           )

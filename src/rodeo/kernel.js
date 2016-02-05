@@ -150,7 +150,6 @@ function testPythonPath(pythonPath, cb) {
   var testPythonFile = tmp.fileSync();
   fse.copySync(testPython, testPythonFile.name);
 
-
   var testCmd;
   if (/win32/.test(process.platform)) {
     if (/ /.test(pythonPath)) {
