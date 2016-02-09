@@ -44,7 +44,8 @@ function configureEditor(editor) {
             value: value,
             score: 100,
             meta: null,
-            docHTML: "<code>" + p.text + "</code>" + "<br/>" + p.docstring || "<p>" + p.text + "</p>"
+            docHTML: "<code>" + p.text + "</code>" + "<br/>" + "<br/>" + "<pre style='margin: 0; padding: 0;'>" + p.docstring + "</pre>" || "<p>" + p.text + "</p>"
+            // docHTML: "<code>" + p.text + "</code>" + "<br/>" + "<br/>" + "<pre style='margin: 0; padding: 0;'>" + p.docstring + "</pre>" || "<p>" + p.text + "</p>"
           };
         });
 

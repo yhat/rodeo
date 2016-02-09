@@ -191,6 +191,11 @@ def kernel(wd=None, verbose=0):
                 docstring_callbacks[msg_id] = { 'parent_msg_id': parent_msg_id, 'docstring': None}
                 results.append(result)
 
+            func_args = "[%s]" % ", ".join([completion for completion in data['content']['matches']])
+            msg_id = kernel_client.execute('%s.__doc__)' % completion)
+            msg_id = kernel_client.execute("__get_metadata(%s)" % func_args)
+            docstring_callbacks[msg_id] = None
+
             outputs[parent_msg_id]['output'] = results
             outputs[parent_msg_id]['output2'] = results2
             outputs[parent_msg_id]['n_finished_docstrings'] = 0
