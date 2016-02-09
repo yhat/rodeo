@@ -16,7 +16,14 @@ var preferences = require('../rodeo/preferences');
 
 global.python = null;
 global.USER_HOME = process.env[(process.platform == 'win32') ? 'USERPROFILE' : 'HOME'];
-global.USER_WD = preferences.getPreferences().defaultWd || USER_HOME;
+
+// make sure the default working directory exists before actually using it
+var defaultWd = preferences.getPreferences().defaultWd;
+if (defaultWd && fs.existsSync(defaultWd)) {
+  global.USER_WD = defaultWd;
+} else {
+  global.USER_WD = USER_HOME;
+}
 
 
 function createPythonKernel(pythonPath, isFirstRun, displayWindow) {
@@ -138,6 +145,10 @@ app.on('ready', function() {
       }
       if (wd) {
         mainWindow.webContents.send('log', "[INFO]: working directory passed as argument: `" + wd + "`");
+        if (! fs.existsSync(wd)) {
+          console.log("[ERROR]: directory `" + wd + "` does not exist");
+          return;
+        }
         mainWindow.webContents.send('set-wd', wd);
       }
     });
