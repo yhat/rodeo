@@ -47,7 +47,10 @@ def kernel(wd=None, verbose=0):
 
     outputs = {}
     docstring_callbacks = {}
-    os.write(3, '{"status" : "OK"}' + "\n")
+    try:
+        os.write(3, '{"status" : "OK"}' + "\n")
+    except:
+        os.write(3, bytes('{"status" : "OK"}' + "\n", 'utf-8'))
 
     while True:
         if not input_queue.empty():
