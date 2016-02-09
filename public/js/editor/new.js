@@ -39,7 +39,13 @@ function configureEditor(editor) {
             value = value.split(".").slice(value.split(".").length-1).join(".");
           }
 
-          return { caption: p.text, value: value, score: 100, meta: null };
+          return {
+            caption: p.text,
+            value: value,
+            score: 100,
+            meta: null,
+            docHTML: "<code>" + p.text + "</code>" + "<br/>" + p.docstring || "<p>" + p.text + "</p>"
+          };
         });
 
         fn(null, predictions);
@@ -224,7 +230,7 @@ function configureEditor(editor) {
       var line = getCurrentLine(editor);
 
       // Don't ask about the setTimeout-50 business. This bug came out of nowhere.
-      // Everything was workign fine without it and then all of a sudden it popped
+      // Everything was working fine without it and then all of a sudden it popped
       // up. I'm not even sure how I thought that this might fix it. It was a
       // total shot in the dark. Million to one shot doc, million to one.
       if (/from /.test(line) || /import /.test(line)) {

@@ -14,6 +14,8 @@ except:
     from queue import Empty
     import queue as Queue
 
+from collections import OrderedDict
+
 import os
 import sys
 import json
@@ -44,6 +46,7 @@ def kernel(wd=None, verbose=0):
     input_thread.start()
 
     outputs = {}
+    docstring_callbacks = {}
     os.write(3, '{"status" : "OK"}' + "\n")
 
     while True:
@@ -104,14 +107,32 @@ def kernel(wd=None, verbose=0):
                     continue
 
         parent_msg_id = data['parent_header']['msg_id']
-        if parent_msg_id not in outputs:
+        if parent_msg_id not in outputs and parent_msg_id not in docstring_callbacks:
             continue
 
         if verbose > 0:
             pp.pprint(data, sys.stderr)
 
         # handle code execution results
-        if 'execution_state' in data['content']:
+        if parent_msg_id in docstring_callbacks:
+            if data['header']['msg_type']=="stream":
+                docstring = data['content']['text']
+                original_parent_msg_id = docstring_callbacks[parent_msg_id]['parent_msg_id']
+                outputs[original_parent_msg_id]['output2'][parent_msg_id]['docstring'] = docstring
+                outputs[original_parent_msg_id]['n_finished_docstrings'] += 1
+
+                del docstring_callbacks[parent_msg_id]
+
+                if outputs[original_parent_msg_id]['n_finished_docstrings']==len(outputs[original_parent_msg_id]['output2']):
+                    outputs[original_parent_msg_id]['output'] = outputs[original_parent_msg_id]['output2'].values()
+                    sys.stdout.write(json.dumps(outputs[original_parent_msg_id]) + '\n')
+                    sys.stdout.flush()
+                    del outputs[original_parent_msg_id]
+                continue
+                # if this is the last one that needs a docstring, then send back everything
+            else:
+                continue
+        elif 'execution_state' in data['content']:
             if data['content']['execution_state']=='idle':
                 if data['parent_header']['msg_type']=='execute_request':
                     outputs[parent_msg_id]['status'] = 'complete'
@@ -148,24 +169,32 @@ def kernel(wd=None, verbose=0):
         # handle autocomplete matches
         if 'matches' in data['content'] and data['msg_type']=='complete_reply' and data['parent_header']['msg_id']==msg_id:
             results = []
+            results2 = OrderedDict()
             for completion in data['content']['matches']:
                 result = {
                     'value': completion,
                     'dtype': '---'
                 }
+                text = result['value']
+                dtype = ''
+                dtype = None
                 if '.' in code:
-                    # result['text'] = result['value'] # '.'.join(result['value'].split('.')[1:])
-                    result['text'] = result['value'] #.split('.')[-1]
-                    result['dtype'] = 'function'
-                else:
-                    result['text'] = result['value']
-                    result['dtype'] = '' # type(globals().get(code)).__name__
+                    dtype = 'function'
+
+                # get docstring metadata for each suggestion
+                msg_id = kernel_client.execute('print(%s.__doc__)' % completion)
+                results2[msg_id] = {
+                    'text': text,
+                    'dtype': result['dtype'],
+                    'docstring': None
+                }
+                docstring_callbacks[msg_id] = { 'parent_msg_id': parent_msg_id, 'docstring': None}
                 results.append(result)
+
             outputs[parent_msg_id]['output'] = results
+            outputs[parent_msg_id]['output2'] = results2
+            outputs[parent_msg_id]['n_finished_docstrings'] = 0
             outputs[parent_msg_id]['status'] = 'complete'
-            sys.stdout.write(json.dumps(outputs[parent_msg_id]) + '\n')
-            sys.stdout.flush()
-            del outputs[parent_msg_id]
 
 if __name__=="__main__":
     wd = None
