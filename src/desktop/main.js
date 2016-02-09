@@ -56,7 +56,6 @@ function createPythonKernel(pythonPath, isFirstRun, displayWindow) {
 
     // if we autodetected, let the user know we're good to go
     if (! pythonPath) {
-      console.log("telling user we autodetected")
       startup();
       displayWindow.webContents.send("startup-error", null);
       displayWindow.webContents.send('log', "[ERROR]: " + err);
