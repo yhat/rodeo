@@ -11,6 +11,10 @@ function sendCommand(input, hideResult) {
 
   if (/^\?/.test(input)) {
     input = "help(" + input.slice(1) + ")"
+  } else if (/(.+)\?{2}$/.test(input)) {
+    input = "help(" + /(.+)\?{2}$/.exec(input)[1] + ")";
+  } else if (/(.+)\?$/.test(input)) {
+    input = "help(" + /(.+)\?$/.exec(input)[1] + ")";
   } else if (input=="reset" || input=="%%reset" || input=="%reset" || input=="quit" || input=="quit()" || input=="exit" || input=="exit()") {
     // do quit stuff...
     if (isDesktop()) {

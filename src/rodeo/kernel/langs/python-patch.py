@@ -20,15 +20,22 @@ import inspect
 import types
 import re
 
-def __get_docstrings(names, objects, is_function):
+def __get_docstrings(session, names, is_function):
     if is_function==True:
         dtype = "function"
     else:
         dtype = "---"
 
     docstrings = []
-    for name, obj in zip(names, objects):
-        docstring = obj.__doc__
+    for name in names:
+        try:
+            if name in session:
+                docstring = session[name].__doc__
+            else:
+                docstring = eval(name).__doc__
+        except:
+            docstring = "no docstring provided"
+
         docstrings.append({
             "text": name,
             "dtype": dtype,

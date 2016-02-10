@@ -125,6 +125,7 @@ def kernel(wd=None, verbose=0):
                 continue
             elif 'execution_state' in data['content']:
                 # if this is the last one that needs a docstring, then send back everything
+                outputs[original_parent_msg_id]['status'] = 'complete'
                 if data['content']['execution_state']=='idle':
                     sys.stdout.write(json.dumps(outputs[original_parent_msg_id]) + '\n')
                     sys.stdout.flush()
@@ -172,21 +173,17 @@ def kernel(wd=None, verbose=0):
         # handle autocomplete matches
         if 'matches' in data['content'] and data['msg_type']=='complete_reply' and data['parent_header']['msg_id']==msg_id:
             # we're going to get all the docstrings for our autocomplete options
-            objects = []
             names = []
             for completion in data['content']['matches']:
-                objects.append(completion)
                 names.append("'" + completion + "'")
 
-            objects = "[%s]" % ", ".join(objects)
             names = "[%s]" % ", ".join(names)
 
-            cmd = '__get_docstrings(%s, %s, %r)' % (names, objects, "." in code)
+            cmd = '__get_docstrings(globals(), %s, %r)' % (names, "." in code)
             msg_id = kernel_client.execute(cmd)
             docstring_callbacks[msg_id] = parent_msg_id
 
             outputs[parent_msg_id]['output'] = ''
-            outputs[parent_msg_id]['status'] = 'complete'
 
 if __name__=="__main__":
     wd = None

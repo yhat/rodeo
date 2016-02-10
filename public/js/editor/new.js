@@ -31,6 +31,7 @@ function configureEditor(editor) {
       var code = getCurrentLine(editor).slice(0, editor.getCursorPosition().column);
 
       executeCommand(code, true, function(result) {
+        console.log(result);
         result.output = JSON.parse(result.output);
         var predictions = result.output.map(function(p) {
           var value = p.text;

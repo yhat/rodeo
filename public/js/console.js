@@ -92,12 +92,18 @@ jqconsole._Indent = function() {
     jqconsole.ClearPromptText(true);
 
     executeCommand(code, true, function(result) {
-      var predictions = result.output;
+      var predictions;
+      try {
+        predictions = JSON.parse(result.output);
+      } catch (e) {
+        console.log('[ERROR]: ' + e);
+      }
       // if only 1 suggestion comes back then we'll take the liberty and finish
       // the autocomplete
       var completedText = "";
       if (predictions.length==1) {
         var prediction = predictions[0].value;
+        console.log(prediction);
         originalPrompt = originalPrompt.replace("~", USER_HOME);
         completedText = originalPrompt.replace(code, prediction);
         for(var i=prediction.length; i>0; i--) {

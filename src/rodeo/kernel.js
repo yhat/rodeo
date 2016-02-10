@@ -11,6 +11,7 @@ var fs = require('fs')
 
 
 global.completionCallbacks = {};
+var errNotReady = { stream: null, image: null, error: "Python is still starting up. Please wait a moment...", output: "" };
 
 function spawnPython(cmd, opts, done) {
   // we need to actually write the python kernel to a tmp file. this is so python
@@ -75,6 +76,12 @@ function spawnPython(cmd, opts, done) {
       }
     });
   python.execute = function(cmd, complete, fn) {
+    if (this.stdin.writable==false) {
+      if (fn) {
+        fn(errNotReady);
+      }
+      return;
+    }
     var payload = { async: false, id: uuid.v4().toString(), code: cmd, complete: complete };
     var output = "";
     completionCallbacks[payload.id] = function(result) {
@@ -94,6 +101,10 @@ function spawnPython(cmd, opts, done) {
   };
 
   python.executeStream = function(cmd, complete, fn) {
+    if (this.stdin.writable==false) {
+      fn(errNotReady);
+      return;
+    }
     var payload = { async: true, id: uuid.v4().toString(), code: cmd, complete: complete };
     completionCallbacks[payload.id] = fn
     this.stdin.write(JSON.stringify(payload) + delim);
