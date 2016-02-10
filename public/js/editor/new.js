@@ -31,6 +31,7 @@ function configureEditor(editor) {
       var code = getCurrentLine(editor).slice(0, editor.getCursorPosition().column);
 
       executeCommand(code, true, function(result) {
+        result.output = JSON.parse(result.output);
         var predictions = result.output.map(function(p) {
           var value = p.text;
           // if it's not a filename and there's a "." in the value, we want

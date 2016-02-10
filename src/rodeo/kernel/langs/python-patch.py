@@ -20,6 +20,22 @@ import inspect
 import types
 import re
 
+def __get_docstrings(names, objects, is_function):
+    if is_function==True:
+        dtype = "function"
+    else:
+        dtype = "---"
+
+    docstrings = []
+    for name, obj in zip(names, objects):
+        docstring = obj.__doc__
+        docstrings.append({
+            "text": name,
+            "dtype": dtype,
+            "docstring": docstring,
+        })
+    print(json.dumps(docstrings))
+
 def __is_code_finished(code):
     try:
         ast.parse(code)

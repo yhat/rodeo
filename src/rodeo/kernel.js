@@ -108,7 +108,7 @@ function spawnPython(cmd, opts, done) {
   }
   var rodeoProfile = fs.readFileSync(profileFilepath).toString();
 
-  // wait for the python child to emit a message. once it does (it'll be 
+  // wait for the python child to emit a message. once it does (it'll be
   // something simple like {"status": "OK"}, then we know it's running
   // and we can start Rodeo
   var hasStarted = false;
@@ -150,9 +150,9 @@ module.exports.startNewKernel = function(pythonCmd, cb) {
       }
 
       if (err) {
-        cb(data, { spawnfile: pythonCmd });
+        cb(data, null);
       } else if (result.jupyter==false) {
-        cb(data, { spawnfile: pythonCmd });
+        cb(data, null);
       } else {
         spawnPython(pythonCmd, {}, function(err, python) {
           cb(data, python);

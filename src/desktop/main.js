@@ -45,6 +45,14 @@ function createPythonKernel(pythonPath, isFirstRun, displayWindow) {
         return;
       }
     }
+    if (python==null) {
+      if (startupWindow) {
+        startupWindow.webContents.send('setup-status', { python: false, jupyter: false });
+      }
+      return;
+    }
+
+    python.execute("cd " + defaultWd);
 
     preferences.setPreferences('pythonCmd', python.spawnfile);
     if (startupWindow) {
@@ -113,10 +121,7 @@ app.on('ready', function() {
     startupWindow = null;
   });
 
-  // and load the index.html of the app.
   startupWindow.loadURL('file://' + __dirname + '/../../static/startup.html');
-
-  // and load the index.html of the app.
   mainWindow.loadURL('file://' + __dirname + '/../../static/desktop-index.html');
   startupWindow.webContents.on('did-finish-load', function() {
     // mainWindow.openDevTools();

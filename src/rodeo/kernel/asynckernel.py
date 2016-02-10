@@ -118,21 +118,21 @@ def kernel(wd=None, verbose=0):
 
         # handle code execution results
         if parent_msg_id in docstring_callbacks:
+            original_parent_msg_id = docstring_callbacks[parent_msg_id]
             if data['header']['msg_type']=="stream":
                 docstring = data['content']['text']
-                original_parent_msg_id = docstring_callbacks[parent_msg_id]['parent_msg_id']
-                outputs[original_parent_msg_id]['output2'][parent_msg_id]['docstring'] = docstring
-                outputs[original_parent_msg_id]['n_finished_docstrings'] += 1
-
-                del docstring_callbacks[parent_msg_id]
-
-                if outputs[original_parent_msg_id]['n_finished_docstrings']==len(outputs[original_parent_msg_id]['output2']):
-                    outputs[original_parent_msg_id]['output'] = outputs[original_parent_msg_id]['output2'].values()
+                outputs[original_parent_msg_id]['output'] += docstring
+                continue
+            elif 'execution_state' in data['content']:
+                # if this is the last one that needs a docstring, then send back everything
+                if data['content']['execution_state']=='idle':
                     sys.stdout.write(json.dumps(outputs[original_parent_msg_id]) + '\n')
                     sys.stdout.flush()
                     del outputs[original_parent_msg_id]
-                continue
-                # if this is the last one that needs a docstring, then send back everything
+                    del docstring_callbacks[parent_msg_id]
+                    continue
+                else:
+                    continue
             else:
                 continue
         elif 'execution_state' in data['content']:
@@ -171,37 +171,21 @@ def kernel(wd=None, verbose=0):
 
         # handle autocomplete matches
         if 'matches' in data['content'] and data['msg_type']=='complete_reply' and data['parent_header']['msg_id']==msg_id:
-            results = []
-            results2 = OrderedDict()
+            # we're going to get all the docstrings for our autocomplete options
+            objects = []
+            names = []
             for completion in data['content']['matches']:
-                result = {
-                    'value': completion,
-                    'dtype': '---'
-                }
-                text = result['value']
-                dtype = ''
-                dtype = None
-                if '.' in code:
-                    dtype = 'function'
+                objects.append(completion)
+                names.append("'" + completion + "'")
 
-                # get docstring metadata for each suggestion
-                msg_id = kernel_client.execute('print(%s.__doc__)' % completion)
-                results2[msg_id] = {
-                    'text': text,
-                    'dtype': result['dtype'],
-                    'docstring': None
-                }
-                docstring_callbacks[msg_id] = { 'parent_msg_id': parent_msg_id, 'docstring': None}
-                results.append(result)
+            objects = "[%s]" % ", ".join(objects)
+            names = "[%s]" % ", ".join(names)
 
-            func_args = "[%s]" % ", ".join([completion for completion in data['content']['matches']])
-            msg_id = kernel_client.execute('%s.__doc__)' % completion)
-            msg_id = kernel_client.execute("__get_metadata(%s)" % func_args)
-            docstring_callbacks[msg_id] = None
+            cmd = '__get_docstrings(%s, %s, %r)' % (names, objects, "." in code)
+            msg_id = kernel_client.execute(cmd)
+            docstring_callbacks[msg_id] = parent_msg_id
 
-            outputs[parent_msg_id]['output'] = results
-            outputs[parent_msg_id]['output2'] = results2
-            outputs[parent_msg_id]['n_finished_docstrings'] = 0
+            outputs[parent_msg_id]['output'] = ''
             outputs[parent_msg_id]['status'] = 'complete'
 
 if __name__=="__main__":
