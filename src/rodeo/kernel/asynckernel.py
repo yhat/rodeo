@@ -50,7 +50,11 @@ def kernel(wd=None, verbose=0):
     try:
         os.write(3, '{"status" : "OK"}' + "\n")
     except:
-        os.write(3, bytes('{"status" : "OK"}' + "\n", 'utf-8'))
+        try:
+            os.write(3, bytes('{"status" : "OK"}' + "\n", 'utf-8'))
+        except Exception as e:
+            pp.pprint(e, sys.stderr) 
+
 
     while True:
         if not input_queue.empty():
@@ -189,4 +193,4 @@ if __name__=="__main__":
     wd = None
     if len(sys.argv) > 1:
         wd = sys.argv[1]
-    kernel(wd, verbose=0)
+    kernel(wd, verbose=3)

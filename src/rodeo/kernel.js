@@ -122,6 +122,7 @@ function spawnPython(cmd, opts, done) {
   // wait for the python child to emit a message. once it does (it'll be
   // something simple like {"status": "OK"}, then we know it's running
   // and we can start Rodeo
+  // TODO: this does not work on windows
   var hasStarted = false;
   python.on('message', function(msg) {
     console.error("[INFO]: kernel is running");
@@ -130,6 +131,7 @@ function spawnPython(cmd, opts, done) {
       done(null, python);
     });
   });
+  // TODO: this is happening every time on Windows. fuck you windows
   setTimeout(function() {
     if (hasStarted==false) {
       done("Could not start Python kernel", null);
@@ -161,11 +163,13 @@ module.exports.startNewKernel = function(pythonCmd, cb) {
       }
 
       if (err) {
+        console.log("[ERROR-CRITICAL]:  could not start subprocess: " + err.toString());
         cb(data, null);
       } else if (result.jupyter==false) {
         cb(data, null);
       } else {
         spawnPython(pythonCmd, {}, function(err, python) {
+          console.log(err, python);
           cb(data, python);
         });
       }
@@ -190,7 +194,7 @@ function testPythonPath(pythonPath, cb) {
   }
 
   // escape for spaces in paths
-  var testProcess = exec(testCmd, { timeout: 4000 }, function(err, stdout, stderr) {
+  var testProcess = exec(testCmd, { timeout: 9000 }, function(err, stdout, stderr) {
     if (err) {
       cb(err, null);
       testProcess.kill();
