@@ -249,6 +249,8 @@ app.on('ready', function() {
       var data = { python: false, jupyter: false };
       if (err) {
         console.log('[ERROR]: ' + JSON.stringify(err));
+        event.returnValue = { python: false, jupyter: false };
+        return;
       }
       event.returnValue = result;
     });

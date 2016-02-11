@@ -1,3 +1,5 @@
+var ipc = require('electron').ipcRenderer;
+
 var Startup = React.createClass({displayName: "Startup",
   getInitialState: function() {
     return {
@@ -9,7 +11,7 @@ var Startup = React.createClass({displayName: "Startup",
   },
   componentDidMount: function() {
     var self = this;
-    require('electron').ipcRenderer.on('setup-status', function(evt, data) {
+    ipc.on('setup-status', function(evt, data) {
         var s = self.state;
         s.statusPython = data.python;
         s.statusJupyter = data.jupyter;
@@ -31,46 +33,38 @@ var Startup = React.createClass({displayName: "Startup",
         self.setState(s);
         if (data.python==true && data.jupyter==true && data.isFirstRun==false) {
           // ain't our first Rodeo
-          require('electron').ipcRenderer.send('exit-tour');
+          ipc.send('exit-tour');
         }
     });
   },
   testPythonPath: function(pythonPath) {
     var s = this.state;
-    s.pythonPath = pythonPath;
+    s.pythonPath = pythonPath || s.pythonPath || "NOTHING";
+    s.status = 'loading';
     this.setState(s);
-    var result = require('electron').ipcRenderer.sendSync('test-path', pythonPath);
-    var status;
-    if (result.python && result.jupyter) {
-      status = "good to go";
-      var self = this;
-      require('electron').ipcRenderer.sendSync('launch-kernel', pythonPath);
-      setTimeout(function() {
+
+    var self = this;
+    setTimeout(function() {
+      var result = ipc.sendSync('test-path', pythonPath || "NOTHING");
+      var status;
+      if (result && result.python && result.jupyter) {
+        status = "good to go";
+        ipc.sendSync('launch-kernel', pythonPath);
         self.setState({
           status: "tour",
           statusPython: self.state.statusPython,
           statusJupyter: self.state.statusJupyter,
           pythonPath: self.state.pythonPath
         });
-      }, 1500);
-    } else {
-      status = "loading";
-      var self = this;
-      setTimeout(function() {
+      } else {
         self.setState({
           status: "error",
           statusPython: result.python,
           statusJupyter: result.jupyter,
           pythonPath: pythonPath
         });
-      }, 1500);
-    }
-    this.setState({
-      status: status,
-      statusPython: result.python,
-      statusJupyter: result.jupyter,
-      pythonPath: pythonPath
-    });
+      }
+    }, 750);
   },
   render: function() {
     var style = { backgroundColor: "inherit" };
@@ -80,14 +74,14 @@ var Startup = React.createClass({displayName: "Startup",
     } else if (this.state.status=="error") {
       content = (
         React.createElement("div", null, 
-          React.createElement(SetupTriage, {statusPython: this.state.statusPython, statusJupyter: this.state.statusJupyter, testPythonPath: this.testPythonPath}), ";"
+          React.createElement(SetupTriage, {pythonPath: this.state.pythonPath, statusPython: this.state.statusPython, statusJupyter: this.state.statusJupyter, testPythonPath: this.testPythonPath}), ";"
         )
       );
     } else if (this.state.status=="good to go"){
       content = (
         React.createElement("div", null, 
           React.createElement("p", {className: "lead text-center"}, "You're ready to Rodeo!"), 
-          React.createElement(SetupTriage, {statusPython: this.state.statusPython, statusJupyter: this.state.statusJupyter, testPythonPath: this.testPythonPath}), ";"
+          React.createElement(SetupTriage, {pythonPath: this.state.pythonPath, statusPython: this.state.statusPython, statusJupyter: this.state.statusJupyter, testPythonPath: this.testPythonPath}), ";"
         )
         );
     } else {
@@ -128,11 +122,21 @@ var LoadingWidget = React.createClass({displayName: "LoadingWidget",
 
 var SetupJupyter = React.createClass({displayName: "SetupJupyter",
   openTerminal: function() {
-    // if OSX
-    // require('shell').openItem('/Applications/Utilities/Terminal.app');
+    // if windows
+    if (/win32/.test(process.platform)) {
+      require('shell').openItem('cmd.exe');
+    } else {
+      require('shell').openItem('/Applications/Utilities/Terminal.app');
+    }
   },
   openDocs: function() {
     require('shell').openExternal('http://rodeo.yhat.com/docs/');
+  },
+  testPythonPath: function() {
+    this.props.testPythonPath(this.props.pythonPath);
+  },
+  changePath: function() {
+    this.props.testPythonPath("NEW PATH");
   },
   render: function() {
     return (
@@ -155,7 +159,9 @@ var SetupJupyter = React.createClass({displayName: "SetupJupyter",
         ), 
         React.createElement("button", {className: "btn btn-default", onClick: this.openDocs}, "Help"), 
         " ", 
-        React.createElement("button", {onClick: this.props.testPythonPath, className: "btn btn-primary"}, "Retry")
+        React.createElement("button", {className: "btn btn-info", onClick: this.changePath}, "Change Path"), 
+        " ", 
+        React.createElement("button", {onClick: this.testPythonPath, className: "btn btn-primary"}, "Retry")
       )
     )
   }
@@ -171,15 +177,24 @@ var SetupPython = React.createClass({displayName: "SetupPython",
       title: "Select your Python",
       properties: [ 'openFile' ]
     }, function(pythonPath) {
+      $("#pathval").val(pythonPath[0]);
       self.setState({ pythonPath: pythonPath[0] });
     });
   },
   setPythonPath: function() {
     this.props.testPythonPath(this.state.pythonPath);
   },
+  updatePath: function() {
+    var pythonPath = $("#pathval").val();
+    this.setState({ pythonPath: pythonPath });
+  },
   openTerminal: function() {
-    // if osx
-    require('shell').openItem('/Applications/Utilities/Terminal.app');
+    // if windows
+    if (/win32/.test(process.platform)) {
+      require('shell').openItem('cmd.exe');
+    } else {
+      require('shell').openItem('/Applications/Utilities/Terminal.app');
+    }
   },
   render: function() {
     return (
@@ -189,10 +204,7 @@ var SetupPython = React.createClass({displayName: "SetupPython",
         React.createElement("div", {className: "row"}, 
           React.createElement("div", {className: "form-group col-sm-10 col-sm-offset-1"}, 
             React.createElement("div", {className: "input-group"}, 
-              React.createElement("input", {className: "form-control", type: "text", readOnly: true, value: this.state.pythonPath}), 
-              React.createElement("div", {className: "input-group-btn"}, 
-                React.createElement("button", {onClick: this.pickPythonPath, className: "btn btn-default"}, "Select Path")
-              ), 
+              React.createElement("input", {id: "pathval", className: "form-control", type: "text", onChange: this.updatePath, readOnly: false, placeholder: "i.e. /usr/bin/python, C:\\Users\\sdouglas\\Anaconda\\python, /usr/local/bin/python"}), 
               React.createElement("div", {className: "input-group-btn"}, 
                 React.createElement("button", {onClick: this.setPythonPath, className: "btn btn-primary"}, "Set Path")
               )
@@ -223,13 +235,8 @@ var SetupTriage = React.createClass({displayName: "SetupTriage",
     }
     var jupyter;
     if (this.props.statusPython==true && this.props.statusJupyter==false) {
-      jupyter = React.createElement(SetupJupyter, {testPythonPath: this.props.testPythonPath});
+      jupyter = React.createElement(SetupJupyter, {pythonPath: this.props.pythonPath, testPythonPath: this.props.testPythonPath});
     }
-    // if (this.props.statusPython==true && this.props.statusJupyter) {
-    //   setTimeout(function() {
-    //     $("#setup-triage").css("opacity", 1).animate({ opacity: 0, duration: 250 });
-    //   }, 500);
-    // }
     return (
       React.createElement("div", {id: "setup-triage", className: "row text-center"}, 
         React.createElement("div", {className: "row"}, 
@@ -283,7 +290,7 @@ var TourItem = React.createClass({displayName: "TourItem",
 
 var Tour = React.createClass({displayName: "Tour",
   exitTour: function() {
-    require('electron').ipcRenderer.send('exit-tour');
+    ipc.send('exit-tour');
   },
   render: function() {
     var data = [
