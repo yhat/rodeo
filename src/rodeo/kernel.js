@@ -69,7 +69,12 @@ function spawnPython(cmd, opts, done) {
       if (result.id in completionCallbacks) {
         completionCallbacks[result.id](result);
         if (result.status=="complete") {
-          delete completionCallbacks[result.id];
+          // we're going to hang onto the "startup-complete" callback to handle
+          // the case when the user restarts there python session. this is very
+          // important!
+          if (result.id!='startup-complete') {
+            delete completionCallbacks[result.id];
+          }
         }
       } else {
         console.log("[ERROR]: " + "callback not found for: " + result.id + " --> " + JSON.stringify(result));
