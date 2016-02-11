@@ -124,13 +124,15 @@ function spawnPython(cmd, opts, done) {
   // and we can start Rodeo
   // TODO: this does not work on windows
   var hasStarted = false;
-  python.on('message', function(msg) {
+
+  completionCallbacks['startup-complete'] = function(data) {
     console.error("[INFO]: kernel is running");
     python.execute(rodeoProfile, false, function(resutls) {
       hasStarted = true;
       done(null, python);
     });
-  });
+  }
+
   // TODO: this is happening every time on Windows. fuck you windows
   setTimeout(function() {
     if (hasStarted==false) {
@@ -169,7 +171,6 @@ module.exports.startNewKernel = function(pythonCmd, cb) {
         cb(data, null);
       } else {
         spawnPython(pythonCmd, {}, function(err, python) {
-          console.log(err, python);
           cb(data, python);
         });
       }

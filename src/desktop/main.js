@@ -34,9 +34,6 @@ function createPythonKernel(pythonPath, isFirstRun, displayWindow) {
     global.python = python;
     err.isFirstRun = isFirstRun;
 
-    console.log(err)
-    console.log(python)
-
     if (err) {
       displayWindow.webContents.send('log', "[PATH-TEST-RESULT]: " + JSON.stringify(err));
       if (startupWindow) {

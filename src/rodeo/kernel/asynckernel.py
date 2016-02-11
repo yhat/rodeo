@@ -47,14 +47,10 @@ def kernel(wd=None, verbose=0):
 
     outputs = {}
     docstring_callbacks = {}
-    try:
-        os.write(3, '{"status" : "OK"}' + "\n")
-    except:
-        try:
-            os.write(3, bytes('{"status" : "OK"}' + "\n", 'utf-8'))
-        except Exception as e:
-            pp.pprint(e, sys.stderr) 
 
+    # we're up and running!
+    sys.stdout.write(json.dumps({ "id": "startup-complete", "status": "complete" }) + "\n")
+    sys.stdout.flush()
 
     while True:
         if not input_queue.empty():
@@ -193,4 +189,4 @@ if __name__=="__main__":
     wd = None
     if len(sys.argv) > 1:
         wd = sys.argv[1]
-    kernel(wd, verbose=3)
+    kernel(wd, verbose=0)
