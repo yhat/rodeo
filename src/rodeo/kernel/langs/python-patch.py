@@ -32,7 +32,7 @@ def __get_docstrings(session, names, is_function):
             if name in session:
                 docstring = session[name].__doc__
             else:
-                docstring = eval(name).__doc__
+                docstring = eval(name, session).__doc__
         except:
             docstring = "no docstring provided"
 

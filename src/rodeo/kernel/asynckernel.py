@@ -178,7 +178,6 @@ def kernel(wd=None, verbose=0):
                 names.append("'" + completion + "'")
 
             names = "[%s]" % ", ".join(names)
-            pp.pprint(names, sys.stderr)
             cmd = '__get_docstrings(globals(), %s, %r)' % (names, "." in code)
             msg_id = kernel_client.execute(cmd)
             docstring_callbacks[msg_id] = parent_msg_id
