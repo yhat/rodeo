@@ -92,6 +92,7 @@ jqconsole._Indent = function() {
     jqconsole.ClearPromptText(true);
 
     executeCommand(code, true, function(result) {
+      console.log(result)
       var predictions;
       try {
         predictions = JSON.parse(result.output);
