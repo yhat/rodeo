@@ -136,7 +136,7 @@ app.on('ready', function() {
         preferences.setPreferences('version', app.getVersion());
         mainWindow.webContents.send('prompt-for-sticker');
       }
-      if (rc.version && rc.version != app.getVersion()) {
+      if (rc.version && rc.version != app.getVersion() && ! rc.email) {
         preferences.setPreferences('version', app.getVersion());
         if (! rc.email) {
           mainWindow.webContents.send('prompt-for-sticker');
