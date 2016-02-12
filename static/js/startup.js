@@ -197,9 +197,11 @@ var SetupPython = React.createClass({displayName: "SetupPython",
     }
   },
   render: function() {
+    var examplePaths = "i.e. /usr/bin/python, /Users/alf/anaconda/envs/py27/bin/python, /usr/local/bin/python";
     var whichPython = "which python";
     if (/win32/.test(process.platform)) {
       whichPython = "for %i in (python.exe) do @echo. %~$PATH:i";
+      examplePaths = "i.e. C:\\Program Files\\Python 3.5\\python.exe, C:\\Users\\alf\\Anaconda\\envs\\py27\\python.exe"
     }
 
     return (
@@ -209,7 +211,7 @@ var SetupPython = React.createClass({displayName: "SetupPython",
         React.createElement("div", {className: "row"}, 
           React.createElement("div", {className: "form-group col-sm-10 col-sm-offset-1"}, 
             React.createElement("div", {className: "input-group"}, 
-              React.createElement("input", {id: "pathval", className: "form-control", type: "text", onChange: this.updatePath, readOnly: false, placeholder: "i.e. /usr/bin/python, C:\\Users\\sdouglas\\Anaconda\\python, /usr/local/bin/python"}), 
+              React.createElement("input", {id: "pathval", className: "form-control", type: "text", onChange: this.updatePath, readOnly: false, placeholder: examplePaths}), 
               React.createElement("div", {className: "input-group-btn"}, 
                 React.createElement("button", {onClick: this.setPythonPath, className: "btn btn-primary"}, "Set Path")
               )
