@@ -197,6 +197,11 @@ var SetupPython = React.createClass({
     }
   },
   render: function() {
+    var whichPython = "which python";
+    if (/win32/.test(process.platform)) {
+      whichPython = "for %i in (python.exe) do @echo. %~$PATH:i";
+    }
+
     return (
       <div className="row possible-error">
         <h2>Looks like we're having trouble finding your python path</h2>
@@ -218,7 +223,7 @@ var SetupPython = React.createClass({
           </p>
           <div className="row">
             <div className="col-sm-8 col-sm-offset-2 text-left">
-              <pre>$ which python</pre>
+              <pre>{whichPython}</pre>
             </div>
           </div>
         </div>

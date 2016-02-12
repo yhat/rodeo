@@ -197,6 +197,11 @@ var SetupPython = React.createClass({displayName: "SetupPython",
     }
   },
   render: function() {
+    var whichPython = "which python";
+    if (/win32/.test(process.platform)) {
+      whichPython = "for %i in (python.exe) do @echo. %~$PATH:i";
+    }
+
     return (
       React.createElement("div", {className: "row possible-error"}, 
         React.createElement("h2", null, "Looks like we're having trouble finding your python path"), 
@@ -218,7 +223,7 @@ var SetupPython = React.createClass({displayName: "SetupPython",
           ), 
           React.createElement("div", {className: "row"}, 
             React.createElement("div", {className: "col-sm-8 col-sm-offset-2 text-left"}, 
-              React.createElement("pre", null, "$ which python")
+              React.createElement("pre", null, whichPython)
             )
           )
         )
