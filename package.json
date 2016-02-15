@@ -37,26 +37,21 @@
   },
   "dependencies": {
     "async": "^1.4.2",
-    "body-parser": "^1.14.1",
     "coffee-script": "^1.10.0",
     "colors": "^1.1.2",
     "dialogs": "^1.1.2",
     "docopt": "^0.6.2",
     "electron-prebuilt": "^0.36.5",
-    "express": "^4.13.3",
     "fix-path": "^1.1.0",
     "fs-extra": "^0.23.1",
     "handlebars": "^4.0.4",
     "highlight.js": "^8.9.1",
-    "jade": "^1.11.0",
     "jquery": "^2.1.4",
     "marked": "^0.3.5",
-    "morgan": "^1.6.1",
     "stream-splitter": "^0.3.2",
     "tmp": "0.0.27",
     "uuid": "^2.0.1",
-    "walk": "^2.3.9",
-    "ws": "^0.8.0"
+    "walk": "^2.3.9"
   },
   "scripts": {
     "start": "electron .",

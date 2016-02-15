@@ -31,7 +31,7 @@ fi
 if [ -d ./build/linux/all/Rodeo-linux-x64 ]; then
   tar -zcvf ./build/linux/all/Rodeo-linux-x64.tar.gz build/linux/all/Rodeo-linux-x64/
   ditto -ck --rsrc --sequesterRsrc --keepParent build/linux/all/Rodeo-linux-x64 \
-    build/linux/all/Rodeo-linux-ia32.zip
+    build/linux/all/Rodeo-linux-x64.zip
 fi
 
 # linux (zip and tarball)
