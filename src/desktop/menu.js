@@ -2,6 +2,7 @@ var shell = require('shell');
 var remote = require('remote');
 var BrowserWindow = require('electron').remote.BrowserWindow
 var path = require('path');
+var fs = require('fs');
 var webFrame = require('web-frame');
 var dialogs = require("dialogs")({ url: "../../static/img/cowboy-hat.svg" });
 var Menu = remote.require('menu');
@@ -457,7 +458,8 @@ var template = [
     click: function() {
       dialogs.prompt("Enter a name for your new folder: ", function(dirname) {
         if (dirname) {
-          addFolderToWorkingDirectory(dirname);
+          fs.mkdir(path.join(USER_WD, dirname));
+          setFiles(USER_WD);
         }
       });
     }
