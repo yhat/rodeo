@@ -308,6 +308,10 @@ function saveEditor(editor, saveas, fn) {
         if (! destfile) {
           return
         }
+        // if there's no file extension specified, we'll assume they meant a python file
+        if (! /\.[A-Za-z0-9]{1,5}$/.test(destfile)) {
+          destfile = destfile + ".py";
+        }
         var basename = pathBasename(destfile);
         $("#editorsTab .active a .name").text(basename);
         $("#editorsTab .active a").attr("data-filename", destfile);
