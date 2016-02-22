@@ -4,6 +4,7 @@ RELEASE="$1"
 
 rm -rf build/ && \
   node scripts/build.js --all && \
+  ./scripts/update-info-plist.py && \
   ./scripts/sign.sh && \
   ./scripts/release.sh
 

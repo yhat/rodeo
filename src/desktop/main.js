@@ -424,3 +424,6 @@ app.on('open-file', function(evt, filepath) {
     mainWindow.webContents.send('open-file', filepath);
   }
 });
+
+app.on('activate', function(evt, hasVisibleWindows) {
+});

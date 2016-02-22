@@ -87,6 +87,10 @@ ipc.on('start-tour', function() {
 
 ipc.on('prompt-for-sticker', function() {
   $("#sticker-modal").modal('show');
-})
+});
+
+ipc.on('activated', function() {
+  
+});
 
 ipc.send('index-files');
