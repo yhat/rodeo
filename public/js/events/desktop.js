@@ -41,6 +41,10 @@ ipc.on('file-index-complete', function() {
   fileIndexComplete();
 });
 
+ipc.on('open-file', function(filepath) {
+  openFile(filepath);
+});
+
 ipc.on('log', function(data) {
   console.log("[LOG]: " + data.toString());
 });
@@ -79,7 +83,7 @@ ipc.on('startup-error', function(err) {
 
 ipc.on('start-tour', function() {
   $("#tour-modal").modal('show');
-})
+});
 
 ipc.on('prompt-for-sticker', function() {
   $("#sticker-modal").modal('show');

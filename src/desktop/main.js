@@ -418,3 +418,9 @@ app.on('ready', function() {
     mainWindow = null;
   });
 });
+
+app.on('open-file', function(evt, filepath) {
+  if (mainWindow) {
+    mainWindow.webContents.send('open-file', filepath);
+  }
+});
