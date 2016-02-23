@@ -221,6 +221,7 @@ app.on('ready', function() {
   });
 
   ipc.on('files', function(event, data) {
+    var rc = preferences.getPreferences();
     var dirname = path.resolve(data.dir || USER_WD);
     USER_WD = dirname
     var files = fs.readdirSync(dirname).map(function(filename) {
@@ -228,6 +229,15 @@ app.on('ready', function() {
         filename: path.join(dirname, filename),
         basename: filename,
         isDir: fs.lstatSync(path.join(dirname, filename)).isDirectory()
+      }
+    });
+    files = files.filter(function(f) {
+      if (rc.displayDotFiles==true) {
+        return true;
+      } else if (/^\./.test(f.basename)) {
+        return false;
+      } else {
+        return true;
       }
     });
     event.returnValue = {
