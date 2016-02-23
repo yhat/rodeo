@@ -13,6 +13,9 @@ function renderMarkdown(html) {
   });
 
   ipc.on('pdf', function(destfile) {
+    if (! /\.pdf$/.test(destfile)) {
+      destfile = destfile + ".pdf";
+    }
     markdownWindow.webContents.printToPDF({}, function(err, data) {
       require('fs').writeFile(destfile, data, function(error) {
         if (err) {
