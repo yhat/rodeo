@@ -5,8 +5,15 @@ $("#package-install-button").click(function(e) {
 
 $("#package-install-modal form").submit(function(e) {
   e.preventDefault();
-  var cmd = $("[name='installerRadio']:checked").val();
-  var command = "! " + cmd + " install -y " + $("#package-to-install").val();
+  var installer = $("[name='installerRadio']:checked").val();
+  var pkgname = $("#package-to-install").val();
+  var command;
+  if (installer=="pip") {
+    command = "__pip_install('" + pkgname + "')";
+  } else {
+    command = "! conda install -y " + pkgname;
+  }
+
   jqconsole.ClearPromptText();
   jqconsole.Write(">>> " + command + '\n', 'jqconsole-old-input');
   jqconsole.SetHistory(jqconsole.GetHistory().concat([command]));

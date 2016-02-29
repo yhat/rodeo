@@ -118,3 +118,10 @@ def __get_packages():
     packages = [{ "name": i.key, "version": i.version} for i in installed_packages]
     installed_packages_list = sorted(packages, key=lambda x: x['name'])
     print(json.dumps(installed_packages_list))
+
+def __pip_install(pkgname):
+    if pip:
+        print(pip.main(['install', pkgname]))
+    else:
+        print("Did not detect a pip installation on this machine.")
+
