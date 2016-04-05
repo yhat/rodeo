@@ -4,7 +4,10 @@ const eslint = require('eslint/lib/cli'),
   globby = require('globby'),
   gulp = require('gulp'),
   gUtil = require('gutil'),
+  karma = require('karma'),
+  KarmaServer = karma.Server,
   jsPatterns = [
+    'gulpfile.js',
     'Gruntfile.js',
     'scripts/**/*.js'
     // 'src/**/*.js'
@@ -21,6 +24,18 @@ gulp.task('eslint', function () {
       // eslint output already written, wrap up with a short message
       throw new gUtil.PluginError('lint', new Error('ESLint error'));
     }
+  });
+});
+
+gulp.task('js-tests', function () {
+  return new Promise(function (resolve) {
+    const server = new KarmaServer({
+      configFile: path.join(__dirname, 'karma.conf.js'),
+      singleRun: true
+    }, function (exitCode) {
+      console.log('karma exit code', exitCode);
+      resolve();
+    });
   });
 });
 
