@@ -29,6 +29,7 @@
     "grunt-electron-installer": "^1.0.2",
     "grunt-eslint": "^18.0.0",
     "gulp": "^3.9.1",
+    "gulp-util": "^3.0.7",
     "gutil": "^1.6.4",
     "karma": "^0.13.22",
     "karma-chai": "^0.1.0",

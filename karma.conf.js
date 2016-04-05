@@ -1,3 +1,5 @@
+'use strict';
+
 module.exports = function (karma) {
   karma.set({
     autoWatch: false,

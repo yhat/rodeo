@@ -7,6 +7,7 @@ const eslint = require('eslint/lib/cli'),
   karma = require('karma'),
   KarmaServer = karma.Server,
   jsPatterns = [
+    'karma.conf.js',
     'gulpfile.js',
     'Gruntfile.js',
     'scripts/**/*.js'
@@ -29,7 +30,7 @@ gulp.task('eslint', function () {
 
 gulp.task('js-tests', function () {
   return new Promise(function (resolve) {
-    const server = new KarmaServer({
+    new KarmaServer({
       configFile: path.join(__dirname, 'karma.conf.js'),
       singleRun: true
     }, function (exitCode) {
