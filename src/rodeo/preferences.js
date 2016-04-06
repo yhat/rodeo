@@ -8,7 +8,7 @@ const fs = require('fs'),
 
 function guaranteeId(preferences) {
   if (preferences.id === null || preferences.id === undefined) {
-    preferences.id = uuid.v1().replace(/-/g, '').toString();
+    preferences.id = uuid.v1().replace(/-/g, '');
 
     writePreferences(preferences); // this shouldn't be in here
   }
@@ -19,12 +19,14 @@ function guaranteeId(preferences) {
  * @throws if global.USER_HOME is undefined
  */
 function getPreferences() {
-  if (!USER_HOME) {
+  const userHome = global.USER_HOME;
+
+  if (!userHome) {
     throw new Error('Missing USER_HOME');
   }
 
-  const filePath = path.join(USER_HOME, preferencesFileName);
-  let contents = files.getJSONFileSafeSync(filePath) || {};
+  let filePath = path.join(userHome, preferencesFileName),
+    contents = files.getJSONFileSafeSync(filePath) || {};
 
   guaranteeId(contents);
 
@@ -37,11 +39,13 @@ function getPreferences() {
  * @throws if missing USER_HOME
  */
 function writePreferences(preferences) {
-  if (!USER_HOME) {
+  const userHome = global.USER_HOME;
+
+  if (!userHome) {
     throw new Error('Missing USER_HOME');
   }
 
-  const filePath = path.join(USER_HOME, preferencesFileName);
+  let filePath = path.join(userHome, preferencesFileName);
 
   fs.writeFileSync(filePath, JSON.stringify(preferences, null, 2));
 }

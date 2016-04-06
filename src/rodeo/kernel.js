@@ -1,181 +1,205 @@
-var fs = require('fs')
-  , fse = require('fs-extra')
-  , path = require('path')
-  , exec = require('child_process').exec
-  , spawn = require('child_process').spawn
-  , uuid = require('uuid')
-  , tmp = require('tmp')
-  , colors = require('colors')
-  , StreamSplitter = require('stream-splitter')
-  , SteveIrwin = require('./steve-irwin');
+'use strict';
 
+const fs = require('fs'),
+  fse = require('fs-extra'),
+  path = require('path'),
+  exec = require('child_process').exec,
+  spawn = require('child_process').spawn,
+  uuid = require('uuid'),
+  tmp = require('tmp'),
+  StreamSplitter = require('stream-splitter'),
+  log = require('./log').withPrefix(__filename),
+  kernelLog = require('./log').withPrefix('python-kernel'),
+  SteveIrwin = require('./steve-irwin'),
+  errNotReady = {
+    stream: null,
+    image: null,
+    error: 'Python is still starting up. Please wait a moment...',
+    output: ''
+  };
 
 global.completionCallbacks = {};
-var errNotReady = { stream: null, image: null, error: "Python is still starting up. Please wait a moment...", output: "" };
 
 function spawnPython(cmd, opts, done) {
+
+  log('info', 'starting python using', cmd, opts);
+
+  const kernelDir = path.join(__dirname, 'kernel'),
+    tmpKernelDir = tmp.dirSync(),
+    kernelFile = path.join(tmpKernelDir.name, 'asynckernel.py'),
+    configFile = path.join(tmpKernelDir.name, 'config.json'),
+    delim = '\n';
+  let python;
+
   // we need to actually write the python kernel to a tmp file. this is so python
   // can run as a "real" file and not an asar file
-  var pythonKernel = path.join(__dirname, "kernel", "asynckernel.py");
-  var kernelDir = path.join(__dirname, "kernel");
-  var tmpKernelDir = tmp.dirSync();
   fse.copySync(kernelDir, tmpKernelDir.name);
 
-  var kernelFile = path.join(tmpKernelDir.name, "asynckernel.py");
-  var configFile = path.join(tmpKernelDir.name, "config.json");
-  var delim = "\n";
-
-  // cmd = cmd.replace(/ /g, '\\ ');
-  console.log("[INFO]: starting python using PYTHON='" + cmd + "'");
-  console.log("[INFO]: starting python using OPTIONS='" + JSON.stringify(opts) + "'");
-
-  var args = [ kernelFile, configFile, delim ];
   opts.stdio = [null, null, null, 'ipc'];
 
-  var python = spawn(cmd, args, opts);
+  python = spawn(cmd, [kernelFile, configFile, delim], opts);
 
   // we'll print any feedback from the kernel as yellow text
-  python.stderr.on("data", function(data) {
-    console.log("[KERNEL-STDERR]: " + data.toString().yellow);
+  python.stderr.on('data', function (data) {
+    kernelLog('error', data);
   });
 
-  python.on("error", function(err) {
-    console.log("[KERNEL-ERROR]: " + err.toString());
+  python.on('error', function (err) {
+    kernelLog('error', err);
   });
 
-  python.on("exit", function(code) {
-    fs.unlink(kernelFile, function(err) {
+  python.on('exit', function (code) {
+    fs.unlink(kernelFile, function (err) {
       if (err) {
-        console.log("[KERNEL-ERROR]: failed to remove temporary kernel file: " + err);
+        kernelLog('error', 'failed to remove temporary kernel file', err);
       }
     });
-    console.log("[KERNEL-INFO]: exited with code: " + code);
+    kernelLog('info', 'exited with code', code);
   });
 
-  python.on("close", function(code) {
-    console.log("[KERNEL-INFO]: closed with code: " + code);
+  python.on('close', function (code) {
+    kernelLog('info',  'closed with code', code);
   });
 
-  python.on("disconnect", function() {
-    console.log("[KERNEL-INFO]: disconnected");
+  python.on('disconnect', function () {
+    kernelLog('info', 'disconnected');
   });
 
   // StreamSplitter looks at the incoming stream from asynckernel.py (which is line
   // delimited JSON) and splits on \n automatically, so we're just left with the
   // JSON data
   python.stdout.pipe(StreamSplitter(delim))
-    .on("token", function(data) {
-      var result = JSON.parse(data.toString());
+    .on('token', function (data) {
+      const result = JSON.parse(data.toString());
+
       if (result.id in completionCallbacks) {
         completionCallbacks[result.id](result);
-        if (result.status=="complete") {
+        if (result.status === 'complete') {
           // we're going to hang onto the "startup-complete" callback to handle
           // the case when the user restarts there python session. this is very
           // important!
-          if (result.id!='startup-complete') {
+          if (result.id != 'startup-complete') {
             delete completionCallbacks[result.id];
           }
         }
       } else {
-        console.log("[ERROR]: " + "callback not found for: " + result.id + " --> " + JSON.stringify(result));
+        log('error', 'callback not found', result.id, '-->', result);
       }
     });
-  python.execute = function(cmd, complete, fn) {
-    if (this.stdin.writable==false) {
+
+  python.execute = function (cmd, complete, fn) {
+    if (this.stdin.writable === false) {
       if (fn) {
         fn(errNotReady);
       }
       return;
     }
-    var payload = { async: false, id: uuid.v4().toString(), code: cmd, complete: complete };
-    var output = "";
-    completionCallbacks[payload.id] = function(result) {
+
+    const payload = { async: false, id: uuid.v4().toString(), code: cmd, complete: complete };
+    let output = '';
+
+    completionCallbacks[payload.id] = function (result) {
       // autocompleted results come back as a proper JSON array
-      if (complete==true) {
+      if (complete === true) {
         output = result.output;
       } else {
-        output = output + (result.output || "");
+        output = output + (result.output || '');
       }
-      if (result.status=="complete") {
+      if (result.status == 'complete') {
         if (fn) {
           fn(result);
         }
       }
-    }
+    };
+
     this.stdin.write(JSON.stringify(payload) + delim);
   };
 
-  python.executeStream = function(cmd, complete, fn) {
-    if (this.stdin.writable==false) {
+  python.executeStream = function (cmd, complete, fn) {
+    if (this.stdin.writable === false) {
       fn(errNotReady);
       return;
     }
-    var payload = { async: true, id: uuid.v4().toString(), code: cmd, complete: complete };
-    completionCallbacks[payload.id] = fn
+
+    const payload = { async: true, id: uuid.v4().toString(), code: cmd, complete: complete };
+
+    completionCallbacks[payload.id] = fn;
+
     this.stdin.write(JSON.stringify(payload) + delim);
   };
 
-  var profileFilepath = path.join(USER_HOME, ".rodeoprofile");
+  const profileFilePath = path.join(USER_HOME, '.rodeoprofile');
 
-  if (! fs.existsSync(profileFilepath)) {
-    var defaultProfilePath = path.join(__dirname, "default-rodeo-profile.txt");
-    var defaultProfile = fs.readFileSync(defaultProfilePath).toString();
-    fs.writeFileSync(profileFilepath, defaultProfile);
+  if (! fs.existsSync(profileFilePath)) {
+    const defaultProfilePath = path.join(__dirname, 'default-rodeo-profile.txt'),
+      defaultProfile = fs.readFileSync(defaultProfilePath, {encoding: 'UTF8'});
+
+    fs.writeFileSync(profileFilePath, defaultProfile);
   }
-  var rodeoProfile = fs.readFileSync(profileFilepath).toString();
+
+  const rodeoProfile = fs.readFileSync(profileFilePath).toString();
 
   // wait for the python child to emit a message. once it does (it'll be
   // something simple like {"status": "OK"}, then we know it's running
   // and we can start Rodeo
   // TODO: this does not work on windows
-  var hasStarted = false;
+  let hasStarted = false;
 
-  completionCallbacks['startup-complete'] = function(data) {
-    console.error("[INFO]: kernel is running");
-    python.execute(rodeoProfile, false, function(resutls) {
+  completionCallbacks['startup-complete'] = function (data) {
+    log('info', 'kernel is running');
+
+    python.execute(rodeoProfile, false, function () {
       hasStarted = true;
       done(null, python);
     });
-  }
+  };
 
   // TODO: this is happening every time on Windows. fuck you windows
-  setTimeout(function() {
-    if (hasStarted==false) {
-      done("Could not start Python kernel", null);
+  setTimeout(function () {
+    if (hasStarted == false) {
+      done('Could not start Python kernel', null);
     }
   }, 7500);
-
 }
 
-module.exports.startNewKernel = function(pythonCmd, cb) {
+module.exports.startNewKernel = function (pythonCmd, cb) {
   if (! pythonCmd) {
-    SteveIrwin.findMeAPython(function(err, pythonCmd, opts) {
+    SteveIrwin.findMeAPython(function (err, pythonCmd, opts) {
 
-      if (err.python==false || err.jupyter==false) {
+      if (err.python === false || err.jupyter === false) {
         cb(err, { spawnfile: pythonCmd });
       } else {
-        spawnPython(pythonCmd, opts, function(err, python) {
+        spawnPython(pythonCmd, opts, function (err, python) {
+          if (err) {
+            log('error', err);
+          }
+
           cb({ python: true, jupyter: true }, python);
         });
       }
     });
   } else {
-    testPythonPath(pythonCmd, function(err, result) {
+    testPythonPath(pythonCmd, function (err, result) {
       if (! result) {
         result = { jupyter: false, python: false };
       }
-      var data = {
-        python: err==null,
-        jupyter: result.jupyter==true
-      }
+
+      let data = {
+        python: err === null,
+        jupyter: result.jupyter === true
+      };
 
       if (err) {
-        console.log("[ERROR-CRITICAL]:  could not start subprocess: " + err.toString());
+        log('critical', 'could not start subprocess', err);
         cb(data, null);
-      } else if (result.jupyter==false) {
+      } else if (result.jupyter === false) {
         cb(data, null);
       } else {
-        spawnPython(pythonCmd, {}, function(err, python) {
+        spawnPython(pythonCmd, {}, function (err, python) {
+          if (err) {
+            log('error', err);
+          }
+
           cb(data, python);
         });
       }
@@ -184,33 +208,37 @@ module.exports.startNewKernel = function(pythonCmd, cb) {
 };
 
 function testPythonPath(pythonPath, cb) {
-  var testPython = path.join(__dirname, "check_python.py");
-  var testPythonFile = tmp.fileSync();
+  const testPython = path.join(__dirname, 'check_python.py'),
+    testPythonFile = tmp.fileSync();
+
   fse.copySync(testPython, testPythonFile.name);
 
-  var testCmd;
+  let testCmd, testProcess;
+
   if (/win32/.test(process.platform)) {
     if (/ /.test(pythonPath)) {
-      testCmd = '"' + pythonPath + '"' + " " + testPythonFile.name;
+      testCmd = '"' + pythonPath + '"' + ' ' + testPythonFile.name;
     } else {
-      testCmd = pythonPath.replace(/ /g, '\\ ') + " " + testPythonFile.name;
+      testCmd = pythonPath.replace(/ /g, '\\ ') + ' ' + testPythonFile.name;
     }
   } else {
-    testCmd = pythonPath.replace(/ /g, '\\ ') + " " + testPythonFile.name;
+    testCmd = pythonPath.replace(/ /g, '\\ ') + ' ' + testPythonFile.name;
   }
 
   // escape for spaces in paths
-  var testProcess = exec(testCmd, { timeout: 9000 }, function(err, stdout, stderr) {
+  testProcess = exec(testCmd, { timeout: 9000 }, function (err, stdout) {
     if (err) {
       cb(err, null);
       testProcess.kill();
     } else {
-      var result = JSON.parse(stdout.toString());
+      const result = JSON.parse(stdout.toString());
+
       result.python = true;
       cb(null, result);
       testProcess.kill();
     }
   });
-};
+
+}
 
 module.exports.testPythonPath = testPythonPath;

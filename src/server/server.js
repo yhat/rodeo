@@ -234,14 +234,14 @@ module.exports = function(host, port, wd) {
       ws.sendJSON({ msg: 'refresh-packages' });
       // ws.sendJSON({ msg: 'set-working-directory', wd: global.USER_WD || '.' });
 
-      ws.on('message', function(data) {
+      ws.on('message', function (data) {
         var data = JSON.parse(data);
         if (data.msg=="index-files") {
           findFile(ws);
-        } else if (data.msg=="command") {
+        } else if (data.msg == "command") {
           python.executeStream(data.command, data.autocomplete==true, function(result) {
             result.command = data.command;
-            result.msg = "command"
+            result.msg = "command";
             ws.sendJSON(result);
           });
         }

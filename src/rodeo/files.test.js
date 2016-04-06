@@ -7,7 +7,7 @@ const expect = require('chai').expect,
   filename = __filename.split('/').pop().split('.').shift(),
   lib = require('./' + filename);
 
-describe(dirname + '::' + filename, function () {
+describe(dirname + '/' + filename, function () {
   let sandbox;
 
   beforeEach(function () {

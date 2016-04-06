@@ -12,6 +12,7 @@ module.exports = function (karma) {
       'dots'
     ],
     files: [
+      'test/**/*.js',
       'src/**/*.js'
     ],
     frameworks: ['mocha', 'chai'],

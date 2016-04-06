@@ -1,9 +1,7 @@
 'use strict';
 
-const expect = require('chai').expect,
-  sinon = require('sinon'),
+const sinon = require('sinon'),
   fs = require('fs'),
-  files = require('./files'),
   dirname = __dirname.split('/').pop(),
   filename = __filename.split('/').pop().split('.').shift(),
   lib = require('./' + filename);
@@ -13,7 +11,7 @@ describe(dirname + '/' + filename, function () {
 
   beforeEach(function () {
     sandbox = sinon.sandbox.create();
-    sandbox.stub(files);
+    sandbox.stub(fs, 'readFileSync');
     sandbox.stub(fs, 'writeFileSync');
   });
 
@@ -21,13 +19,17 @@ describe(dirname + '/' + filename, function () {
     sandbox.restore();
   });
 
-  describe('getPreferences', function () {
+  describe('onCloseWindow', function () {
     const fn = lib[this.title];
 
-    it('returns object', function () {
-      files.getJSONFileSafeSync.returns({});
+    it('closes window', function () {
+      const spy = sinon.spy(),
+        window = { webContents: { send: spy }},
+        event = {};
 
-      expect(fn()).to.have.property('id').that.is.a('string');
+      fn.bind(window, event)();
+
+      sinon.assert.calledWith(spy, 'kill');
     });
   });
 });

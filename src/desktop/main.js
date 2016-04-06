@@ -1,10 +1,8 @@
 /* globals USER_WD:true */
 'use strict';
 
-const electron = require('electron'),
-  autoUpdater = electron.autoUpdater,
-  BrowserWindow = electron.BrowserWindow,
-  crashReporter = electron.crashReporter,
+const _ = require('lodash'),
+  electron = require('electron'),
   ipc = electron.ipcMain,
   os = require('os'),
   fs = require('fs'),
@@ -13,9 +11,10 @@ const electron = require('electron'),
   kernel = require('../rodeo/kernel'),
   md = require('../rodeo/md'),
   findFile = require('../rodeo/find-file'),
-  preferences = require('../rodeo/preferences');
+  preferences = require('../rodeo/preferences'),
+  log = require('../rodeo/log').withPrefix(__filename);
 
-crashReporter.start({
+electron.crashReporter.start({
   productName: 'Yhat Dev',
   companyName: 'Yhat',
   submitURL: 'https://rodeo-updates.yhat.com/crash',
@@ -27,6 +26,9 @@ crashReporter.start({
 let mainWindow = null,
   startupWindow = null;
 
+/**
+ * @returns {string}
+ */
 function getUpdateUrl() {
   switch (process.env.NODE_ENV) {
     case 'dev': return 'http://localhost:3000';
@@ -43,7 +45,8 @@ function checkForUpdates(webContents, displayNoUpdate) {
 
   autoUpdater.on('error', function (err, msg) {
     if (err) {
-      return console.error('checkForUpdates::autoUpdater:error' + err.stack);
+      log('error', 'checkForUpdates::autoUpdater:error', err);
+      return;
     }
 
     webContents.send('log', '[ERROR]: ' + msg);
@@ -60,7 +63,6 @@ function checkForUpdates(webContents, displayNoUpdate) {
     }
   });
 
-
   /* eslint max-params: ["error", 5] */
   autoUpdater.on('update-downloaded', function (evt, releaseNotes, releaseName, releaseDate, updateURL) {
     webContents.send('log', releaseNotes + '---' + releaseName + '---' + releaseDate + '---' + updateURL);
@@ -75,10 +77,11 @@ function checkForUpdates(webContents, displayNoUpdate) {
         }
       }).on('error', function (err) {
         if (err) {
-          return console.error('checkForUpdates::https.get:error: ' + updateUrl + ' ' + err.stack);
+          log('error', 'checkForUpdates::https.get:error', updateUrl, err);
+          return;
         }
 
-        console.error('[ERROR]: could not check for windows update.');
+        log('error', 'could not check for windows update', updateUrl);
       });
     } else {
       autoUpdater.setFeedURL(updateUrl);
@@ -93,13 +96,14 @@ function checkForUpdates(webContents, displayNoUpdate) {
 function onQuitApplication(event) {
   const app = electron.app;
 
-  console.log('onQuitApplication:', event);
+  log('debug', 'onQuitApplication', this, event);
 
   app.quit();
 }
 
 function onGetPreferences(event) {
-  console.log('onGetPreferences:', event);
+  log('debug', 'onGetPreferences', this, event);
+
   event.returnValue = preferences.getPreferences();
 }
 
@@ -108,7 +112,8 @@ function onGetPreferences(event) {
  * @param {{name: string, value: *}} data
  */
 function onSetPreferences(event, data) {
-  console.log('onSetPreferences:', event, data);
+  log('debug', 'onSetPreferences', this, event, data);
+
   preferences.setPreferences(data.name, data.value);
   event.returnValue = null;
 }
@@ -121,7 +126,7 @@ function onSetPreferences(event, data) {
 function onCommand(webContents, event, data) {
   const python = global.python;
 
-  console.log('onCommand:', this, arguments);
+  log('debug', 'onCommand', this, event, data);
 
   if (python && python.executeStream) {
     if (data.stream == true || data.stream == 'true') {
@@ -150,10 +155,77 @@ function onCommand(webContents, event, data) {
   }
 }
 
-function onLaunchKernel(mainWindow, event, pythonPath) {
-  console.log('STARTING KERNEL: ' + pythonPath);
-  createPythonKernel(pythonPath, false, mainWindow);
+function onIndexFiles(event) {
+  event.sender.sendJSON = function (data) {
+    if (mainWindow && event.sender && event.sender.send) {
+      event.sender.send(data.msg, data);
+    }
+  };
+  findFile(event.sender);
+}
+
+function onFiles(event, data) {
+  const rc = preferences.getPreferences(),
+    dirname = path.resolve(data.dir || USER_WD);
+
+  USER_WD = dirname;
+
+  let files = fs.readdirSync(dirname).map(function (filename) {
+    return {
+      filename: path.join(dirname, filename),
+      basename: filename,
+      isDir: fs.lstatSync(path.join(dirname, filename)).isDirectory()
+    };
+  });
+
+  files = files.filter(function (f) {
+    if (rc.displayDotFiles == true) {
+      return true;
+    } else {
+      return !/^\./.test(f.basename);
+    }
+  });
+
+  event.returnValue = {
+    files: files,
+    dir: dirname,
+    home: USER_HOME
+  };
+}
+
+/**
+ * @param {BrowserWindow} targetWindow
+ * @param {Event} event
+ * @param {string} pythonPath
+ */
+function onLaunchKernel(targetWindow, event, pythonPath) {
+  log('info', 'starting kernel');
+  log('debug', 'onLaunchKernel', event, pythonPath);
+
+  createPythonKernel(pythonPath, false, targetWindow);
   event.returnValue = true;
+}
+
+/**
+ *
+ * @param {Event} event
+ * @param {string} pythonPath
+ */
+function onTestPath(event, pythonPath) {
+  const python = global.python;
+
+  log('debug', 'onTestPath', event, pythonPath);
+
+  pythonPath = pythonPath || python.spawnfile;
+
+  kernel.testPythonPath(pythonPath, function (err, result) {
+    if (err) {
+      log('error', 'onTestPath', err);
+      event.returnValue = { python: false, jupyter: false };
+      return;
+    }
+    event.returnValue = result;
+  });
 }
 
 function onAddPythonPath(event, pythonPath) {
@@ -207,7 +279,7 @@ function onSetWD(event, wd) {
 function onMD(event, data) {
   md(data.doc, python, false, function (err, doc) {
     if (err) {
-      return console.error('Failed to getMD:' + err.stack);
+      log('error', 'onMD', err);
     }
 
     event.returnValue = doc;
@@ -247,7 +319,8 @@ function onGetFile(event, filepath) {
 function onSaveFile(event, data) {
   fs.writeFile(data.filepath, data.content, function (err) {
     if (err) {
-      return console.error('Failed to save file: ' + err.stack);
+      log('error', 'onSaveFile', err);
+      return;
     }
 
     event.returnValue = {
@@ -258,17 +331,34 @@ function onSaveFile(event, data) {
   });
 }
 
-function onUpdateAndRestart(autoUpdater) {
+/**
+ *
+ */
+function onUpdateAndRestart() {
+  const autoUpdater = electron.autoUpdater;
+
   autoUpdater.quitAndInstall();
 }
 
-function onExitTour(startupWindow) {
+function onExitTour() {
   if (startupWindow) {
     startupWindow.close();
   }
 }
 
-function onMainWindowClosed() {
+/**
+ * @param {Event} event
+ * @this {BrowserWindow}
+ */
+function onCloseWindow(event) {
+  log('error', 'onCloseWindow', this, event);
+
+  this.webContents.send('kill');
+}
+
+function onMainWindowClosed(event) {
+  log('error', 'onMainWindowClosed', this, event);
+
   // Dereference the window object, usually you would store windows
   // in an array if your app supports multi windows, this is the time
   // when you should delete the corresponding element.
@@ -289,8 +379,8 @@ function updateStartupSetupStatus(startupWindow, status) {
   }
 }
 
-function createPythonKernel(pythonPath, isFirstRun, displayWindow) {
-  const displayWindowContents = displayWindow.webContents;
+function createPythonKernel(pythonPath, isFirstRun, targetWindow) {
+  const displayWindowContents = targetWindow.webContents;
 
   killPython();
 
@@ -302,7 +392,7 @@ function createPythonKernel(pythonPath, isFirstRun, displayWindow) {
 
     if (err) {
       displayWindowContents.send('log', '[PATH-TEST-RESULT]: ' + JSON.stringify(err));
-      console.log('trigger startup window, but is null');
+      log('warn', 'createPythonKernel', 'trigger startup window, but is null');
       updateStartupSetupStatus(startupWindow, err);
       if (err.python == false || err.jupyter == false) {
         return;
@@ -372,7 +462,8 @@ function setGlobals() {
 function onReady() {
   setGlobals();
 
-  const primaryDisplay = electron.screen.getPrimaryDisplay(),
+  const BrowserWindow = electron.BrowserWindow,
+    primaryDisplay = electron.screen.getPrimaryDisplay(),
     size = primaryDisplay.workAreaSize;
 
   mainWindow = new BrowserWindow({ width: size.width, height: size.height });
@@ -421,87 +512,31 @@ function onReady() {
   // Open the devtools.
   // mainWindow.openDevTools();
 
-  ipc.on('online-status-changed', function (event, status) {
-    console.log('online-status-changed', status);
-  });
-
   ipc.on('quit', onQuitApplication);
   ipc.on('preferences-get', onGetPreferences);
   ipc.on('preferences-post', onSetPreferences);
-  ipc.on('command', onCommand.bind(undefined, mainWindow.webContents));
-  ipc.on('index-files', function (event) {
-    event.sender.sendJSON = function (data) {
-      if (mainWindow && event.sender && event.sender.send) {
-        event.sender.send(data.msg, data);
-      }
-    };
-    findFile(event.sender);
-  });
-
-  ipc.on('files', function (event, data) {
-    const rc = preferences.getPreferences(),
-      dirname = path.resolve(data.dir || USER_WD);
-
-    USER_WD = dirname;
-
-    let files = fs.readdirSync(dirname).map(function (filename) {
-      return {
-        filename: path.join(dirname, filename),
-        basename: filename,
-        isDir: fs.lstatSync(path.join(dirname, filename)).isDirectory()
-      };
-    });
-
-    files = files.filter(function (f) {
-      if (rc.displayDotFiles == true) {
-        return true;
-      } else {
-        return !/^\./.test(f.basename);
-      }
-    });
-
-    event.returnValue = {
-      files: files,
-      dir: dirname,
-      home: USER_HOME
-    };
-  });
-
-  ipc.on('launch-kernel', onLaunchKernel.bind(null, mainWindow));
-
-  ipc.on('test-path', function (event, pythonPath) {
-    pythonPath = pythonPath || python.spawnfile;
-    kernel.testPythonPath(pythonPath, function (err, result) {
-      if (err) {
-        console.log('[ERROR]: ' + JSON.stringify(err));
-        event.returnValue = { python: false, jupyter: false };
-        return;
-      }
-      event.returnValue = result;
-    });
-  });
-
+  ipc.on('command', _.partial(onCommand, mainWindow.webContents));
+  ipc.on('index-files', onIndexFiles);
+  ipc.on('files', onFiles);
+  ipc.on('launch-kernel', _.partial(onLaunchKernel, mainWindow));
+  ipc.on('test-path', onTestPath);
   ipc.on('add-python-path', onAddPythonPath);
   ipc.on('remove-python-path', onRemovePythonPath);
   ipc.on('home-get', onGetHome);
   ipc.on('wd-get', onGetWD);
   ipc.on('wd-post', onSetWD);
   ipc.on('md', onMD);
-  ipc.on('pdf', onPDF.bind(null, mainWindow.webContents));
+  ipc.on('pdf', _.partial(onPDF, mainWindow.webContents));
   ipc.on('file-get', onGetFile);
   ipc.on('file-post', onSaveFile);
-  ipc.on('update-and-restart', onUpdateAndRestart.bind(null, autoUpdater));
-  ipc.on('check-for-updates', checkForUpdates.bind(null, mainWindow.webContents, true));
-  ipc.on('exit-tour', onExitTour.bind(null, startupWindow));
+  ipc.on('update-and-restart', onUpdateAndRestart);
+  ipc.on('check-for-updates', _.partial(checkForUpdates, mainWindow.webContents, true));
+  ipc.on('exit-tour', _.partial(onExitTour, startupWindow));
+
+  mainWindow.on('close', onCloseWindow);
+  mainWindow.on('closed', onMainWindowClosed);
 
   checkForUpdates(mainWindow.webContents, false);
-
-  mainWindow.on('close', function () {
-    console.log('mainWindow::close event', this, arguments);
-
-    mainWindow.webContents.send('kill');
-  });
-  mainWindow.on('closed', onMainWindowClosed);
 }
 
 /**
@@ -527,16 +562,20 @@ function attachAppEvents() {
   }
 }
 
-module.exports.onQuitApplication = onQuitApplication;
-module.exports.onGetPreferences = onGetPreferences;
-module.exports.onSetPreferences = onSetPreferences;
-module.exports.onCommand = onCommand;
-module.exports.onLaunchKernel = onLaunchKernel;
 module.exports.onAddPythonPath = onAddPythonPath;
-module.exports.onRemovePythonPath = onRemovePythonPath;
+module.exports.onCommand = onCommand;
+module.exports.onGetHome = onGetHome;
 module.exports.onGetPreferences = onGetPreferences;
+module.exports.onLaunchKernel = onLaunchKernel;
+module.exports.onMD = onMD;
+module.exports.onPDF = onPDF;
+module.exports.onRemovePythonPath = onRemovePythonPath;
+module.exports.onQuitApplication = onQuitApplication;
+module.exports.onSetPreferences = onSetPreferences;
+module.exports.onTestPath = onTestPath;
 module.exports.openFile = openFile;
-module.exports.onWindowAllClosed = onWindowAllClosed;
 module.exports.onReady = onReady;
+module.exports.onCloseWindow = onCloseWindow;
+module.exports.onWindowAllClosed = onWindowAllClosed;
 
 attachAppEvents();
