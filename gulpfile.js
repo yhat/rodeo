@@ -6,11 +6,13 @@ const eslint = require('eslint/lib/cli'),
   gUtil = require('gutil'),
   karma = require('karma'),
   KarmaServer = karma.Server,
+  path = require('path'),
   jsPatterns = [
     'karma.conf.js',
     'gulpfile.js',
     'Gruntfile.js',
-    'scripts/**/*.js'
+    'scripts/**/*.js',
+    'src/desktop/main.js'
     // 'src/**/*.js'
   ];
 
@@ -28,20 +30,24 @@ gulp.task('eslint', function () {
   });
 });
 
-gulp.task('js-tests', function () {
-  return new Promise(function (resolve) {
-    new KarmaServer({
+gulp.task('karma', function () {
+  console.log('hey');
+  return new Promise(function (resolve, reject) {
+    console.log('hey...');
+    const server = new KarmaServer({
       configFile: path.join(__dirname, 'karma.conf.js'),
       singleRun: true
     }, function (exitCode) {
       console.log('karma exit code', exitCode);
-      resolve();
+      reject();
     });
+
+    server.start();
   });
 });
 
 gulp.task('lint', ['eslint']);
-gulp.task('test', ['lint']);
+gulp.task('test', ['lint', 'karma']);
 gulp.task('build', []);
 gulp.task('run', []);
 gulp.task('watch', function () {

@@ -3,24 +3,25 @@
 module.exports = function (karma) {
   karma.set({
     autoWatch: false,
-    browsers: ['Chrome'],
+    browsers: ['Electron'],
     browserDisconnectTimeout: 5000,
     browserNoActivityTimeout: 50000,
     colors: true,
     singleRun: true,
     reporters: [
-      'spec'
+      'dots'
     ],
     files: [
       'src/**/*.js'
     ],
-    frameworks: ['mocha', 'chai', 'sinon'],
-    preprocessors: {},
+    frameworks: ['mocha', 'chai'],
+    preprocessors: {
+      '**/*.js': ['electron']
+    },
     plugins: [
-      'karma-chrome-launcher',
+      'karma-electron',
       'karma-mocha',
-      'karma-chai',
-      'karma-sinon'
+      'karma-chai'
     ]
   });
 };

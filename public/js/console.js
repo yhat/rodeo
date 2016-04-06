@@ -12,28 +12,28 @@ function startPrompt() {
     // Restart the prompt.
     startPrompt();
   });
-};
+}
 // 4 spaces for python
 jqconsole.SetIndentWidth(4);
 
 // ctrl + l to clear
-jqconsole.RegisterShortcut('l', function() {
+jqconsole.RegisterShortcut('l', function () {
   jqconsole.Clear();
 });
 
 // ctrl + a to skip to beginning of line
-jqconsole.RegisterShortcut('a', function() {
+jqconsole.RegisterShortcut('a', function () {
   jqconsole.MoveToStart();
 });
 
 // ctrl + e to skip to end of line
-jqconsole.RegisterShortcut('e', function() {
+jqconsole.RegisterShortcut('e', function () {
   jqconsole.MoveToEnd();
 });
 
 // ctrl + c to cancel input
-jqconsole.RegisterShortcut('c', function() {
-  if (! $("#btn-interrupt").hasClass("hide")) {
+jqconsole.RegisterShortcut('c', function () {
+  if (!$("#btn-interrupt").hasClass("hide")) {
     $("#btn-interrupt").click();
   } else {
     jqconsole.ClearPromptText();
@@ -41,48 +41,48 @@ jqconsole.RegisterShortcut('c', function() {
 });
 
 // ctrl + u to clear to beginning
-jqconsole.RegisterShortcut('u', function() {
+jqconsole.RegisterShortcut('u', function () {
   var text = jqconsole.GetPromptText().slice(jqconsole.GetColumn() - 4);
   jqconsole.SetPromptText(text);
 });
 
 // ctrl + k to clear to end
-jqconsole.RegisterShortcut('k', function() {
+jqconsole.RegisterShortcut('k', function () {
   var text = jqconsole.GetPromptText().slice(0, jqconsole.GetColumn() - 4);
   jqconsole.SetPromptText(text);
 });
 
 // ctrl + w to clear one word backwards
-jqconsole.RegisterShortcut('w', function() {
+jqconsole.RegisterShortcut('w', function () {
   var idx = jqconsole.GetColumn() - 4;
   var text = jqconsole.GetPromptText().trim();
   var lidx = text.slice(0, idx).lastIndexOf(" ");
-  if (lidx==-1) {
-      lidx = 0;
+  if (lidx == -1) {
+    lidx = 0;
   }
-  text = text.slice(0, lidx) + " " + text.slice(idx+1);
+  text = text.slice(0, lidx) + " " + text.slice(idx + 1);
   text = text.trim();
   jqconsole.SetPromptText(text);
 });
 
-jqconsole.RegisterShortcut('1', function() {
+jqconsole.RegisterShortcut('1', function () {
   focusOnEditor();
 });
 
-jqconsole.RegisterShortcut('3', function() {
+jqconsole.RegisterShortcut('3', function () {
   focusOnTopRight();
 });
 
-jqconsole.RegisterShortcut('4', function() {
+jqconsole.RegisterShortcut('4', function () {
   focusOnBottomRight();
 });
 
 // autocomplete
 jqconsole._IndentOld = jqconsole._Indent;
-jqconsole._Indent = function() {
-  if (jqconsole.GetPromptText().trim()=="") {
+jqconsole._Indent = function () {
+  if (jqconsole.GetPromptText().trim() == "") {
     jqconsole._IndentOld();
-  } else if (jqconsole.GetPromptText().slice(-1)=="\n") {
+  } else if (jqconsole.GetPromptText().slice(-1) == "\n") {
     jqconsole._IndentOld();
   } else {
     var originalPrompt = jqconsole.GetPromptText();
@@ -91,8 +91,8 @@ jqconsole._Indent = function() {
 
     jqconsole.ClearPromptText(true);
 
-    executeCommand(code, true, function(result) {
-      if (! result) {
+    executeCommand(code, true, function (result) {
+      if (!result) {
         return;
       }
       var predictions;
@@ -105,13 +105,13 @@ jqconsole._Indent = function() {
       // if only 1 suggestion comes back then we'll take the liberty and finish
       // the autocomplete
       var completedText = "";
-      if (predictions.length==1) {
+      if (predictions.length == 1) {
         var prediction = predictions[0].text;
         originalPrompt = originalPrompt.replace("~", USER_HOME);
         completedText = originalPrompt.replace(code, prediction);
-        for(var i=prediction.length; i>0; i--) {
+        for (var i = prediction.length; i > 0; i--) {
           var p = prediction.slice(0, i);
-          if (originalPrompt.slice(-p.length)==p) {
+          if (originalPrompt.slice(-p.length) == p) {
             completedText = originalPrompt + prediction.slice(i);
             break;
           }
@@ -132,16 +132,16 @@ jqconsole._Indent = function() {
 
       var table = new AsciiTable();
       var row = [];
-      for(var i=0; i < predictions.length; i++) {
+      for (var i = 0; i < predictions.length; i++) {
         var text;
         // so apparenlty the predictions sometimes don't come back as { text: "foo"}
         // not sure where/why this would happen but it causes mucho problemos
-        if (! predictions[i]) {
+        if (!predictions[i]) {
           return;
         }
         text = predictions[i].text;
         row.push(text);
-        if (row.length==nCols) {
+        if (row.length == nCols) {
           table.addRow(row);
           row = [];
         }
@@ -159,25 +159,25 @@ jqconsole._Indent = function() {
 
 // make the cursor blink when the user is in the console
 /*
-var opacity = 0.2;
-function cursorBlink() {
-  if (opacity==0.2) {
-    opacity = 1;
-  } else {
-    opacity = 0.2
-  }
-  $(".jqconsole-cursor").css("opacity", opacity);
-}
+ var opacity = 0.2;
+ function cursorBlink() {
+ if (opacity==0.2) {
+ opacity = 1;
+ } else {
+ opacity = 0.2
+ }
+ $(".jqconsole-cursor").css("opacity", opacity);
+ }
 
-var cursorBlinkId;
-$("#console").focusin(function() {
-  cursorBlinkId = setInterval(cursorBlink, 550);
-});
+ var cursorBlinkId;
+ $("#console").focusin(function() {
+ cursorBlinkId = setInterval(cursorBlink, 550);
+ });
 
-$("#console").focusout(function() {
-  if (cursorBlinkId) {
-    clearInterval(cursorBlinkId);
-    cursorBlinkId = null;
-  }
-});
-*/
+ $("#console").focusout(function() {
+ if (cursorBlinkId) {
+ clearInterval(cursorBlinkId);
+ cursorBlinkId = null;
+ }
+ });
+ */
