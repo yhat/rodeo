@@ -7,7 +7,7 @@ var morgan = require('morgan');
 var tmp = require('tmp');
 // Rodeo stuff
 var md = require('../rodeo/md');
-var kernel = require('../rodeo/kernel');
+var kernel = require('../kernels/python');
 var findFile = require('../rodeo/find-file');
 var preferences = require('../rodeo/preferences');
 
