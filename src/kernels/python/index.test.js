@@ -22,7 +22,7 @@ describe(dirname + '/' + filename, function () {
   describe('testPythonPath', function () {
     const fn = lib[this.title];
 
-    it('tests', function () {
+    xit('tests', function () {
       fn();
     });
   });

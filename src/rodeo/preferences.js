@@ -1,31 +1,35 @@
+/**
+ * @module
+ *
+ * todo: Stop relying on global state -- "state is poison"
+ */
+
 'use strict';
 
 const fs = require('fs'),
   files = require('./files'),
+  os = require('os'),
   path = require('path'),
   uuid = require('uuid'),
-  preferencesFileName = '.rodeorc';
+  preferencesFileName = '.rodeorc',
+  homeDir = os.homedir();
 
+/**
+ * @param preferences
+ */
 function guaranteeId(preferences) {
   if (preferences.id === null || preferences.id === undefined) {
     preferences.id = uuid.v1().replace(/-/g, '');
 
-    writePreferences(preferences); // this shouldn't be in here
+    writePreferences(preferences); // todo: this shouldn't be in here, someone else's responsibility
   }
 }
 
 /**
  * @returns {object}
- * @throws if global.USER_HOME is undefined
  */
 function getPreferences() {
-  const userHome = global.USER_HOME;
-
-  if (!userHome) {
-    throw new Error('Missing USER_HOME');
-  }
-
-  let filePath = path.join(userHome, preferencesFileName),
+  let filePath = path.join(homeDir, preferencesFileName),
     contents = files.getJSONFileSafeSync(filePath) || {};
 
   guaranteeId(contents);
@@ -39,24 +43,18 @@ function getPreferences() {
  * @throws if missing USER_HOME
  */
 function writePreferences(preferences) {
-  const userHome = global.USER_HOME;
-
-  if (!userHome) {
-    throw new Error('Missing USER_HOME');
-  }
-
-  let filePath = path.join(userHome, preferencesFileName);
+  let filePath = path.join(homeDir, preferencesFileName);
 
   fs.writeFileSync(filePath, JSON.stringify(preferences, null, 2));
 }
 
 /**
- *
  * @param {string} key
  * @param {*} value
+ * @param {string} [userHome]  Optionally provide userHome
  */
-function setPreferences(key, value) {
-  const preferences = getPreferences();
+function setPreferences(key, value, userHome) {
+  const preferences = getPreferences(userHome);
 
   preferences[key] = value;
 
@@ -64,4 +62,11 @@ function setPreferences(key, value) {
 }
 
 module.exports.getPreferences = getPreferences;
+module.exports.writePreferences = writePreferences;
+
+/**
+ * @type {setPreferences}
+ * @deprecated It's not performant to constantly write to skip in small steps -- make all changes first then save.
+ * @see writePreferences
+ */
 module.exports.setPreferences = setPreferences;

@@ -3,7 +3,6 @@
 
 const _ = require('lodash'),
   electron = require('electron'),
-  ipc = electron.ipcMain,
   os = require('os'),
   fs = require('fs'),
   path = require('path'),
@@ -12,7 +11,7 @@ const _ = require('lodash'),
   md = require('../rodeo/md'),
   findFile = require('../rodeo/find-file'),
   preferences = require('../rodeo/preferences'),
-  log = require('../rodeo/log').withPrefix(__filename);
+  log = require('../rodeo/log').asInternal(__filename);
 
 electron.crashReporter.start({
   productName: 'Yhat Dev',
@@ -512,6 +511,7 @@ function onReady() {
   // Open the devtools.
   // mainWindow.openDevTools();
 
+  const ipc = electron.ipcMain;
   ipc.on('quit', onQuitApplication);
   ipc.on('preferences-get', onGetPreferences);
   ipc.on('preferences-post', onSetPreferences);

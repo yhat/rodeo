@@ -4,10 +4,11 @@ module.exports = function (karma) {
   karma.set({
     autoWatch: false,
     browsers: ['Electron'],
-    browserDisconnectTimeout: 5000,
-    browserNoActivityTimeout: 50000,
+    browserDisconnectTimeout: 1000 * 60 * 2,
+    browserNoActivityTimeout: 1000 * 60 * 5,
     colors: true,
     singleRun: true,
+    logLevel: karma.LOG_INFO,
     reporters: [
       'dots'
     ],
