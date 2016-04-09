@@ -47,36 +47,6 @@ function createChildProcessStream(str, options) {
  * @param {number} [options.timeout=5000]  Optional time limit for task to complete before failing
  * @returns {Promise}
  */
-function getShellTaskOutputWithExec(str, options) {
-  return new bluebird(function (resolve, reject) {
-    options = _.defaults(options || {}, {
-      timeout: 5000 // if they don't provide one, assume there is one (they can use 0 to disable)
-    });
-
-    log('info', 'getShellTaskOutput', str, options);
-    const child = childProcess.exec(str, options, function (error, stdout, stderr) {
-      removeChild(child);
-
-      // only output "diagnostic" messages from shell tasks if at debug level
-      log('info', 'stderr:', stderr);
-
-      if (error) {
-        reject(error);
-      } else {
-        resolve(stdout);
-      }
-    });
-
-    addChild(child);
-  });
-}
-
-/**
- * @param {string} str
- * @param {object} [options]  Optional options
- * @param {number} [options.timeout=5000]  Optional time limit for task to complete before failing
- * @returns {Promise}
- */
 function getShellTaskOutputWithSpawn(str, options) {
   return new Promise(function (resolve, reject) {
     options = _.defaults(options || {}, {

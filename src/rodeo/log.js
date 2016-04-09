@@ -30,9 +30,6 @@ let logLevel = process.env.LOG || 'silly',
   });
 
 winston.handleExceptions(transports);
-winston.stream({ start: -1 }).on('log', function(log) {
-  console.log(log);
-});
 
 /**
  * @param {*} obj
@@ -63,9 +60,9 @@ function asInternal(dirname) {
       if (isError(value)) {
         list.push(value.stack);
       } else if (isEventEmitter(value)) {
-        list.push('EventEmitter ' + util.inspect(value, {showHidden: true, depth: 1}));
+        list.push('EventEmitter' + util.inspect(value, {showHidden: true, depth: 1}));
       } else if (isBrowserWindow(value)) {
-        list.push('BrowserWindow ' + util.inspect(value, {showHidden: true, depth: 1}));
+        list.push('BrowserWindow' + util.inspect(value, {showHidden: true, depth: 1}));
       } else if (_.isObject(value)) {
         list.push(util.inspect(value, {showHidden: true, depth: 10}));
       } else {

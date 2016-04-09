@@ -3,6 +3,7 @@
 
 const _ = require('lodash'),
   electron = require('electron'),
+  browserWindows = require('../rodeo/browser-windows'),
   os = require('os'),
   fs = require('fs'),
   path = require('path'),
@@ -20,11 +21,6 @@ electron.crashReporter.start({
   autoSubmit: true
 });
 
-// Keep a global reference of the window object, if you don't, the window will
-// be closed automatically when the JavaScript object is GCed.
-let mainWindow = null,
-  startupWindow = null;
-
 /**
  * @returns {string}
  */
@@ -35,8 +31,9 @@ function getUpdateUrl() {
   }
 }
 
-function checkForUpdates(webContents, displayNoUpdate) {
-  const app = electron.app,
+function checkForUpdates(displayNoUpdate) {
+  const windowName = 'mainWindow',
+    app = electron.app,
     autoUpdater = electron.autoUpdater,
     platform = os.platform() + '_' + os.arch(),
     version = app.getVersion(),
@@ -48,31 +45,31 @@ function checkForUpdates(webContents, displayNoUpdate) {
       return;
     }
 
-    webContents.send('log', '[ERROR]: ' + msg);
+    browserWindows.send(windowName, 'log', '[ERROR]: ' + msg);
   });
 
   autoUpdater.on('update-available', function (data) {
-    webContents.send('log', 'UPDATE AVAILABLE');
-    webContents.send('log', JSON.stringify(data));
+    browserWindows.send(windowName, 'log', 'UPDATE AVAILABLE');
+    browserWindows.send(windowName, 'log', JSON.stringify(data));
   });
 
   autoUpdater.on('update-not-available', function () {
     if (displayNoUpdate == true) {
-      webContents.send('no-update');
+      browserWindows.send(windowName, 'no-update');
     }
   });
 
   /* eslint max-params: ["error", 5] */
   autoUpdater.on('update-downloaded', function (evt, releaseNotes, releaseName, releaseDate, updateURL) {
-    webContents.send('log', releaseNotes + '---' + releaseName + '---' + releaseDate + '---' + updateURL);
-    webContents.send('update-ready', { platform: 'osx' });
+    browserWindows.send(windowName, 'log', releaseNotes + '---' + releaseName + '---' + releaseDate + '---' + updateURL);
+    browserWindows.send(windowName, 'update-ready', { platform: 'osx' });
   });
 
   setTimeout(function () {
     if (/win32/.test(platform)) {
       https.get(updateUrl, function (res) {
         if (res.statusCode != 204) {
-          webContents.send('update-ready', { platform: 'windows' });
+          browserWindows.send(windowName, 'update-ready', { platform: 'windows' });
         }
       }).on('error', function (err) {
         if (err) {
@@ -118,12 +115,12 @@ function onSetPreferences(event, data) {
 }
 
 /**
- * @param {object} webContents
  * @param {Event} event
  * @param {{stream: boolean, command: string, autocomplete: boolean}} data
  */
-function onCommand(webContents, event, data) {
-  const python = global.python;
+function onCommand(event, data) {
+  const python = global.python,
+    windowName = 'mainWindow';
 
   log('debug', 'onCommand', this, event, data);
 
@@ -132,8 +129,8 @@ function onCommand(webContents, event, data) {
       python.executeStream(data.command, data.autocomplete == 'true', function (result) {
         result.command = data.command;
         if (result.image || result.html) {
-          webContents.send('plot', result);
-          webContents.send('refresh-variables');
+          browserWindows.send(windowName, 'plot', result);
+          browserWindows.send(windowName, 'refresh-variables');
         }
         event.sender.send('command', result);
       });
@@ -156,6 +153,8 @@ function onCommand(webContents, event, data) {
 
 function onIndexFiles(event) {
   event.sender.sendJSON = function (data) {
+    const mainWindow = browserWindows.getByName('mainWindow');
+
     if (mainWindow && event.sender && event.sender.send) {
       event.sender.send(data.msg, data);
     }
@@ -193,15 +192,14 @@ function onFiles(event, data) {
 }
 
 /**
- * @param {BrowserWindow} targetWindow
  * @param {Event} event
  * @param {string} pythonPath
  */
-function onLaunchKernel(targetWindow, event, pythonPath) {
+function onLaunchKernel(event, pythonPath) {
   log('info', 'starting kernel');
   log('debug', 'onLaunchKernel', event, pythonPath);
 
-  createPythonKernel(pythonPath, false, targetWindow);
+  createPythonKernel(pythonPath, false);
   event.returnValue = true;
 }
 
@@ -285,7 +283,7 @@ function onMD(event, data) {
   });
 }
 
-function onPDF(webContents) {
+function onPDF() {
   require('dialog').showSaveDialog({
     title: 'Save Report',
     default_path: USER_WD
@@ -294,7 +292,7 @@ function onPDF(webContents) {
       destfile += '.pdf';
     }
 
-    webContents.send('pdf', destfile);
+    browserWindows.send('mainWindow', 'pdf', destfile);
   });
 }
 
@@ -340,8 +338,10 @@ function onUpdateAndRestart() {
 }
 
 function onExitTour() {
-  if (startupWindow) {
-    startupWindow.close();
+  const targetWindow = browserWindows.getByName('startupWindow');
+
+  if (targetWindow) {
+    targetWindow.close();
   }
 }
 
@@ -355,15 +355,6 @@ function onCloseWindow(event) {
   this.webContents.send('kill');
 }
 
-function onMainWindowClosed(event) {
-  log('error', 'onMainWindowClosed', this, event);
-
-  // Dereference the window object, usually you would store windows
-  // in an array if your app supports multi windows, this is the time
-  // when you should delete the corresponding element.
-  mainWindow = null;
-}
-
 function killPython() {
   const python = global.python;
 
@@ -372,14 +363,16 @@ function killPython() {
   }
 }
 
-function updateStartupSetupStatus(startupWindow, status) {
-  if (startupWindow) {
-    startupWindow.webContents.send('setup-status', status);
+function updateWindowSetupStatus(window, status) {
+  if (window) {
+    window.webContents.send('setup-status', status);
   }
 }
 
-function createPythonKernel(pythonPath, isFirstRun, targetWindow) {
-  const displayWindowContents = targetWindow.webContents;
+function createPythonKernel(pythonPath, isFirstRun) {
+  const startupWindow = browserWindows.getByName('startupWindow'),
+    mainWindow = browserWindows.getByName('mainWindow'),
+    displayWindowContents = mainWindow.webContents;
 
   killPython();
 
@@ -392,21 +385,21 @@ function createPythonKernel(pythonPath, isFirstRun, targetWindow) {
     if (err) {
       displayWindowContents.send('log', '[PATH-TEST-RESULT]: ' + JSON.stringify(err));
       log('warn', 'createPythonKernel', 'trigger startup window, but is null');
-      updateStartupSetupStatus(startupWindow, err);
+      updateWindowSetupStatus(startupWindow, err);
       if (err.python == false || err.jupyter == false) {
         return;
       }
     }
 
     if (python == null) {
-      updateStartupSetupStatus(startupWindow, { python: false, jupyter: false });
+      updateWindowSetupStatus(startupWindow, { python: false, jupyter: false });
       return;
     }
 
     python.execute('cd ' + defaultWd);
 
     preferences.setPreferences('pythonCmd', python.spawnfile);
-    updateStartupSetupStatus(startupWindow, { python: true, jupyter: true });
+    updateWindowSetupStatus(startupWindow, { python: true, jupyter: true });
 
     displayWindowContents.send('setup-preferences');
     displayWindowContents.send('refresh-variables');
@@ -459,27 +452,16 @@ function setGlobals() {
 // This method will be called when Electron has finished
 // initialization and is ready to create browser windows.
 function onReady() {
+  let mainWindow, startupWindow;
+
   setGlobals();
 
-  const BrowserWindow = electron.BrowserWindow,
-    primaryDisplay = electron.screen.getPrimaryDisplay(),
-    size = primaryDisplay.workAreaSize;
-
-  mainWindow = new BrowserWindow({ width: size.width, height: size.height });
-  mainWindow.loadURL('file://' + path.join(__dirname, '/../../static/desktop-index.html'));
-
-  startupWindow = new BrowserWindow({
-    useContentSize: true,
-    resizable: false,
-    moveable: false,
-    center: true,
-    alwaysOnTop: true
+  mainWindow = browserWindows.createMainWindow('mainWindow', {
+    url: 'file://' + path.join(__dirname, '/../../static/desktop-index.html')
   });
-  // startupWindow.openDevTools();
-  startupWindow.on('closed', function () {
-    startupWindow = null;
+  startupWindow = browserWindows.createStartupWindow('startupWindow', {
+    url: 'file://' + path.join(__dirname, '/../../static/startup.html')
   });
-  startupWindow.loadURL('file://' + path.join(__dirname, '/../../static/startup.html'));
 
   startupWindow.webContents.on('did-finish-load', function () {
     // mainWindow.openDevTools();
@@ -511,30 +493,7 @@ function onReady() {
   // Open the devtools.
   // mainWindow.openDevTools();
 
-  const ipc = electron.ipcMain;
-  ipc.on('quit', onQuitApplication);
-  ipc.on('preferences-get', onGetPreferences);
-  ipc.on('preferences-post', onSetPreferences);
-  ipc.on('command', _.partial(onCommand, mainWindow.webContents));
-  ipc.on('index-files', onIndexFiles);
-  ipc.on('files', onFiles);
-  ipc.on('launch-kernel', _.partial(onLaunchKernel, mainWindow));
-  ipc.on('test-path', onTestPath);
-  ipc.on('add-python-path', onAddPythonPath);
-  ipc.on('remove-python-path', onRemovePythonPath);
-  ipc.on('home-get', onGetHome);
-  ipc.on('wd-get', onGetWD);
-  ipc.on('wd-post', onSetWD);
-  ipc.on('md', onMD);
-  ipc.on('pdf', _.partial(onPDF, mainWindow.webContents));
-  ipc.on('file-get', onGetFile);
-  ipc.on('file-post', onSaveFile);
-  ipc.on('update-and-restart', onUpdateAndRestart);
-  ipc.on('check-for-updates', _.partial(checkForUpdates, mainWindow.webContents, true));
-  ipc.on('exit-tour', _.partial(onExitTour, startupWindow));
-
-  mainWindow.on('close', onCloseWindow);
-  mainWindow.on('closed', onMainWindowClosed);
+  attachIpcMainEvents();
 
   checkForUpdates(mainWindow.webContents, false);
 }
@@ -544,9 +503,35 @@ function onReady() {
  * @param {string} filePath
  */
 function openFile(event, filePath) {
-  if (mainWindow) {
-    mainWindow.webContents.send('open-file', filePath);
-  }
+  browserWindows.send('mainWindow', 'open-file', filePath);
+}
+
+/**
+ * Attaches events to the main process
+ */
+function attachIpcMainEvents() {
+  const ipcMain = electron.ipcMain;
+
+  ipcMain.on('quit', onQuitApplication);
+  ipcMain.on('preferences-get', onGetPreferences);
+  ipcMain.on('preferences-post', onSetPreferences);
+  ipcMain.on('command', onCommand);
+  ipcMain.on('index-files', onIndexFiles);
+  ipcMain.on('files', onFiles);
+  ipcMain.on('launch-kernel', onLaunchKernel);
+  ipcMain.on('test-path', onTestPath);
+  ipcMain.on('add-python-path', onAddPythonPath);
+  ipcMain.on('remove-python-path', onRemovePythonPath);
+  ipcMain.on('home-get', onGetHome);
+  ipcMain.on('wd-get', onGetWD);
+  ipcMain.on('wd-post', onSetWD);
+  ipcMain.on('md', onMD);
+  ipcMain.on('pdf', onPDF);
+  ipcMain.on('file-get', onGetFile);
+  ipcMain.on('file-post', onSaveFile);
+  ipcMain.on('update-and-restart', onUpdateAndRestart);
+  ipcMain.on('check-for-updates', _.partial(checkForUpdates, true));
+  ipcMain.on('exit-tour', onExitTour);
 }
 
 /**
