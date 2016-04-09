@@ -3,16 +3,16 @@
 
 const _ = require('lodash'),
   electron = require('electron'),
-  browserWindows = require('../rodeo/browser-windows'),
+  browserWindows = require('rodeo/browser-windows'),
   os = require('os'),
   fs = require('fs'),
   path = require('path'),
   https = require('https'),
-  kernel = require('../kernels/python'),
-  md = require('../rodeo/md'),
-  findFile = require('../rodeo/find-file'),
-  preferences = require('../rodeo/preferences'),
-  log = require('../rodeo/log').asInternal(__filename);
+  kernel = require('kernels/python/index'),
+  md = require('rodeo/md'),
+  findFile = require('rodeo/find-file'),
+  preferences = require('rodeo/preferences'),
+  log = require('rodeo/log').asInternal(__filename);
 
 electron.crashReporter.start({
   productName: 'Yhat Dev',
@@ -329,7 +329,7 @@ function onSaveFile(event, data) {
 }
 
 /**
- *
+ * 
  */
 function onUpdateAndRestart() {
   const autoUpdater = electron.autoUpdater;
@@ -337,6 +337,9 @@ function onUpdateAndRestart() {
   autoUpdater.quitAndInstall();
 }
 
+/**
+ * This should probably be with the startup window.
+ */
 function onExitTour() {
   const targetWindow = browserWindows.getByName('startupWindow');
 
@@ -355,6 +358,9 @@ function onCloseWindow(event) {
   this.webContents.send('kill');
 }
 
+/**
+ * If python was already set up, kill it now.
+ */
 function killPython() {
   const python = global.python;
 
@@ -369,6 +375,10 @@ function updateWindowSetupStatus(window, status) {
   }
 }
 
+/**
+ * @param {string} pythonPath
+ * @param {boolean} isFirstRun
+ */
 function createPythonKernel(pythonPath, isFirstRun) {
   const startupWindow = browserWindows.getByName('startupWindow'),
     mainWindow = browserWindows.getByName('mainWindow'),
