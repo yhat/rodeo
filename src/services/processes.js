@@ -19,23 +19,23 @@ function removeChild(child) {
 function createChildProcessStream(str, options) {
   const child = childProcess.spawn(str, [], options);
 
-  child.stdout.on('data', (data) => { log('info', 'child', child.uid, 'stdout:data', data); });
-  child.stdout.on('error', (data) => { log('info', 'child', child.uid, 'stdout:error', data); });
-  child.stdout.on('close', (data) => { log('info', 'child', child.uid, 'stdout:close', data); });
+  child.stdout.on('data', (data) => { log('debug', 'child', child.uid, 'stdout:data', data); });
+  child.stdout.on('error', (data) => { log('debug', 'child', child.uid, 'stdout:error', data); });
+  child.stdout.on('close', (data) => { log('debug', 'child', child.uid, 'stdout:close', data); });
 
-  child.stderr.on('data', (data) => { log('info', 'child', child.uid, 'stderr:data', data); });
-  child.stderr.on('error', (data) => { log('info', 'child', child.uid, 'stderr:error', data); });
-  child.stderr.on('close', (data) => { log('info', 'child', child.uid, 'stderr:close', data); });
+  child.stderr.on('data', (data) => { log('debug', 'child', child.uid, 'stderr:data', data); });
+  child.stderr.on('error', (data) => { log('debug', 'child', child.uid, 'stderr:error', data); });
+  child.stderr.on('close', (data) => { log('debug', 'child', child.uid, 'stderr:close', data); });
+
+  child.on('close', (data) => { log('debug', 'child', child.uid, 'close', data); });
+  child.on('exit', (data) => { log('debug', 'child', child.uid, 'exit', data); });
+  child.on('disconnect', (data) => { log('debug', 'child', child.uid, 'disconnect', data); });
+  child.on('error', (data) => { log('debug', 'child', child.uid, 'error', data); });
 
   child.on('close', (code) => {
     removeChild(child);
     log('info', 'child', child.uid, 'exited with code', code);
   });
-
-  child.on('close', (data) => { log('info', 'child', child.uid, 'close', data); });
-  child.on('exit', (data) => { log('info', 'child', child.uid, 'exit', data); });
-  child.on('disconnect', (data) => { log('info', 'child', child.uid, 'disconnect', data); });
-  child.on('error', (data) => { log('info', 'child', child.uid, 'error', data); });
 
   addChild(child);
   return child;

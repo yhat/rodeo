@@ -15,14 +15,17 @@ let logLevel = process.env.LOG || 'silly',
       level: logLevel
     }),
     new winston.transports.Console({
-      level: logLevel
+      level: logLevel,
+      colorize: true,
+      humanReadableUnhandledException: true
     }),
     new winston.transports.File({
       filename: 'rodeo.log',
       level: logLevel,
       maxFiles: 2,
       maxsize: 1024 * 1024,
-      tailable: true
+      tailable: true,
+      json: true
     })
   ],
   logger = new winston.Logger({
@@ -39,12 +42,34 @@ function isError(obj) {
   return _.isError(obj) || (_.isObject(obj) && obj.stack && _.endsWith(obj.name, 'Error'));
 }
 
+function isElectronEvent(obj) {
+  return _.isObject(obj) && _.isFunction(obj.preventDefault) && !!obj.sender;
+}
+
 function isEventEmitter(obj) {
   return _.isObject(obj) && _.isFunction(obj.on);
 }
 
 function isBrowserWindow(obj) {
   return _.isObject(obj) && _.isObject(obj.webContents) && _.isFunction(obj.webContents.send);
+}
+
+function isWebContent(obj) {
+  return _.isObject(obj) && _.isFunction(obj.send && _.isFunction(obj.printToPDF));
+}
+
+function printElectronEvent(obj) {
+  return 'ElectronEvent ' + util.inspect({sender: obj.sender}, {colors: true});
+}
+
+function printEventEmitter(obj) {
+  return 'EventEmitter ' + util.inspect({events: _.pickBy(obj._events, function (value, key) {
+    return !_.startsWith(key, 'ATOM');
+  })}, {colors: true});
+}
+
+function printObject(obj) {
+  return util.inspect(obj, {depth: 10, colors: true});
 }
 
 /**
@@ -57,14 +82,18 @@ function asInternal(dirname) {
 
   return function (type) {
     exports.log(type, _.reduce(_.slice(arguments, 1), function (list, value) {
-      if (isError(value)) {
-        list.push(value.stack);
-      } else if (isEventEmitter(value)) {
-        list.push('EventEmitter' + util.inspect(value, {showHidden: true, depth: 1}));
-      } else if (isBrowserWindow(value)) {
-        list.push('BrowserWindow' + util.inspect(value, {showHidden: true, depth: 1}));
-      } else if (_.isObject(value)) {
-        list.push(util.inspect(value, {showHidden: true, depth: 10}));
+      if (_.isObject(value)) {
+        if (isError(value)) {
+          list.push(value.stack);
+        } else if (isBrowserWindow(value) || isWebContent(value)) {
+          list.push(printObject(value));
+        } else if (isElectronEvent(value)) {
+          list.push(printElectronEvent(value));
+        } else if (isEventEmitter(value)) {
+          list.push(printEventEmitter(value));
+        }  else {
+          list.push(printObject(value));
+        }
       } else {
         list.push(value + '');
       }

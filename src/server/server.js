@@ -6,10 +6,10 @@ var bodyParser = require('body-parser');
 var morgan = require('morgan');
 var tmp = require('tmp');
 // Rodeo stuff
-var md = require('../rodeo/md');
+var md = require('../services/md');
 var kernel = require('../kernels/python');
-var findFile = require('../rodeo/find-file');
-var preferences = require('../rodeo/preferences');
+var findFile = require('../services/find-file');
+var preferences = require('../services/preferences');
 
 
 module.exports = function(host, port, wd) {
@@ -169,7 +169,7 @@ module.exports = function(host, port, wd) {
     });
 
     app.post('/md', function(req, res) {
-      md(req.body.doc, python, true, function(err, doc) {
+      md.apply(req.body.doc, python, true, function (err, doc) {
         res.send(doc);
       });
     });
@@ -187,7 +187,7 @@ module.exports = function(host, port, wd) {
 
     var profile;
     app.get('/profile', function(req, res) {
-      if (profile==null) {
+      if (!profile) {
         profile = fs.readFileSync(path.join(__dirname, '..', '/rodeo/default-rodeo-profile.txt'));
       }
       res.send(profile);

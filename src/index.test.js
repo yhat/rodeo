@@ -4,7 +4,8 @@ const sinon = require('sinon'),
   fs = require('fs'),
   dirname = __dirname.split('/').pop(),
   filename = __filename.split('/').pop().split('.').shift(),
-  lib = require('./' + filename);
+  lib = require('./' + filename),
+  log = require('./services/log');
 
 describe(dirname + '/' + filename, function () {
   let sandbox;
@@ -13,6 +14,7 @@ describe(dirname + '/' + filename, function () {
     sandbox = sinon.sandbox.create();
     sandbox.stub(fs, 'readFileSync');
     sandbox.stub(fs, 'writeFileSync');
+    sandbox.stub(log, 'log');
   });
 
   afterEach(function () {

@@ -6,7 +6,7 @@
   "helperBundleId": "com.yhat.rodeo.helper",
   "description": "An IDE for data science.",
   "author": "The Yhat Team",
-  "main": "src/desktop/main.js",
+  "main": "src",
   "repository": {
     "type": "git",
     "url": "git+ssh://git@github.com/yhat/rodeo.git"
@@ -63,9 +63,11 @@
     "handlebars": "^4.0.4",
     "highlight.js": "^8.9.1",
     "jquery": "^2.1.4",
+    "js-yaml": "^3.5.5",
     "lodash": "^4.8.2",
     "marked": "^0.3.5",
     "morgan": "^1.7.0",
+    "node-fetch": "^1.5.0",
     "stream-splitter": "^0.3.2",
     "tmp": "0.0.27",
     "uuid": "^2.0.1",

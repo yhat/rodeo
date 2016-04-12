@@ -24,9 +24,6 @@ describe(dirname + '/' + filename, function () {
     const fn = lib[this.title];
 
     it('returns', function () {
-
-      
-
       return fn('echo test').then(function (result) {
         expect(result).to.deep.equal('test\n');
       });

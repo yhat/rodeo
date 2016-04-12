@@ -12,10 +12,7 @@ const eslint = require('eslint/lib/cli'),
     'gulpfile.js',
     'Gruntfile.js',
     'scripts/**/*.js',
-    'src/desktop/main*.js',
-    'src/rodeo/files*.js',
-    'src/rodeo/preferences*.js'
-    // 'src/**/*.js'
+    'src/**/*.js'
   ];
 
 gulp.task('eslint', function () {

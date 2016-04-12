@@ -1,116 +1,142 @@
-var fs = require('fs');
-var path = require('path');
-var marked = require('marked');
-var highlight = require('highlight.js');
-var Handlebars = require('handlebars');
-var async = require('async');
+'use strict';
+
+const _ = require('lodash'),
+  fs = require('fs'),
+  path = require('path'),
+  marked = require('marked'),
+  highlight = require('highlight.js'),
+  Handlebars = require('handlebars'),
+  async = require('async'),
+  log = require('./log').asInternal(__filename),
+  codeBlockToken = /^```/mg,
+  languageSelectToken = /^\{(.+)\}/;
+let repeatedLanguages = ['python'],
+  templateFile, source, reportTemplate;
 
 marked.setOptions({
-  highlight: function(code) {
+  highlight: function (code) {
     return highlight.highlightAuto(code).value;
   }
 });
 
-function splitUpCells(doc) {
-  if (/^```/.test(doc)) {
-    doc = "\n" + doc;
-  }
-  var newDoc = [];
-  newDoc.push({ execute: false, data: '' });
-  var doc = doc.split('\n');
-  var isCodeBlock = /```/.test(doc[0]);
-  var lang = "python";
-  if (isCodeBlock==true) {
-    lang = /\{(.+)\}/.exec(doc[0])[1];
-  }
-  for(var i=0; i<doc.length; i++) {
-    var line = doc[i];
+function setRepeatedLanguages(list) {
+  repeatedLanguages = list;
+}
 
-    if (isCodeBlock) {
-      if (/```/.test(line)) {
-        isCodeBlock = false;
-        if (lang=="python") {
-          newDoc.push({ execute: "markdown", data: "```" + lang + "\n" + code + "\n```"});
-          newDoc.push({ execute: lang || "code", data: code });
-          newDoc.push({ execute: "markdown", data: '' });
-        } else if (lang=="mathjax") {
-          newDoc.push({ execute: "mathjax", data: code });
-          newDoc.push({ execute: "markdown", data: '' });
-        }
-        code = "";
-        continue
-      }
-      code += line + '\n';
-      continue
+/**
+ * @param {string} str
+ * @returns {{lang: string, text: string}}
+ */
+function getBlockLanguage(str) {
+  const match = languageSelectToken.exec(str);
+  let lang, text;
+
+  if (match) {
+    lang = match[1] || 'code';
+    text = str.substr(str.indexOf('}') + 1).trim();
+  } else {
+    lang = 'code';
+    text = str.trim();
+  }
+
+  return {lang, text};
+}
+
+/**
+ * @param {string} str
+ * @returns {[{data: string, execute: string}]}
+ */
+function splitUpCells(str) {
+  let blocks, actions;
+
+  blocks = str.split(codeBlockToken);
+  actions = [];
+
+  // for each even, assume markdown
+  for (let i = 0; i < blocks.length; i += 2) {
+    actions[i] = { execute: 'markdown', data: blocks[i]};
+  }
+
+  // for each odd, assume code
+  for (let i = 1; i < blocks.length; i += 2) {
+    const match = getBlockLanguage(blocks[i]);
+
+    if (repeatedLanguages.indexOf(match.lang) > -1) {
+      // add to the markdown above us
+      actions[i - 1].data += '\n```' + match.lang + '\n' + match.text + '\n```';
     }
 
-    if (/```/.test(line)) {
-      var code = "";
-      isCodeBlock = true;
-      if (/\{.+\}/.test(line)) {
-        lang = /\{(.+)\}/.exec(line)[1];
-      }
-    } else {
-      if (newDoc.length > 0) {
-        newDoc[newDoc.length-1].data += line + '\n';
-      } else {
-        newDoc.push({ execute: false, data: line + '\n' });
-      }
-    }
+    actions[i] = { execute: match.lang, data: match.text};
   }
-  return newDoc;
+
+  return actions;
 }
 
 
 function knitHTML(doc, python, fn) {
-  var cells = splitUpCells(doc);
+  let cells = splitUpCells(doc);
 
-  async.map(cells, function(cell, cb) {
-    if (cell.execute=="markdown") {
+  async.map(cells, function (cell, cb) {
+    if (cell.execute == 'markdown') {
       cb(null, [{ html: marked(cell.data) }]);
-    } else if (cell.execute=="mathjax") {
+    } else if (cell.execute == 'mathjax') {
       cb(null, [{ html: cell.data }]);
-    } else if (cell.execute=="python") {
-      var results = [];
+    } else if (cell.execute == 'python') {
+      let results = [];
+      
       python.executeStream(cell.data, false, function(result) {
         results.push(result);
-        if (result.status=="complete") {
+        if (result.status == 'complete') {
           cb(null, results);
         }
       });
     } else {
       cb(null, [{ html: marked(cell.data) }]);
     }
-  }, function(err, results) {
-    var output = [];
-    for(var i=0; i<results.length;i++) {
-      for(var j=0; j<results[i].length;j++) {
-        var line = results[i][j];
+  }, function (err, results) {
+    let output = [];
+
+    for (let i = 0; i < results.length; i++) {
+      for (let j = 0; j < results[i].length; j++) {
+        let line = results[i][j];
+
         if (line.image) {
-          var img = "<img src='data:image/png;base64," + line.image.trim() + "' />";
+          let img = "<img src='data:image/png;base64," + line.image.trim() + "' />";
+
           output.push(img);
         } else if (line.output) {
-          output.push("<pre>" + line.output + "</pre>");
+          output.push('<pre>' + line.output + '</pre>');
         } else if (line.stream) {
-          output.push("<pre>" + line.stream + "</pre>");
+          output.push('<pre>' + line.stream + '</pre>');
         } else if (line.html) {
           output.push(line.html);
         }
       }
     }
-    fn(err, output.join("\n"));
+    fn(err, output.join('\n'));
   });
 }
 
-var templateFile = path.join(__dirname, 'markdown-output.hbs')
-var source = fs.readFileSync(templateFile).toString();
-var reportTemplate = Handlebars.compile(source);
+templateFile = path.join(__dirname, 'markdown-output.hbs');
+source = fs.readFileSync(templateFile).toString();
+reportTemplate = Handlebars.compile(source);
 
-module.exports = function(doc, python, includeMeta, fn) {
-  knitHTML(doc, python, function(err, html) {
+function apply(doc, python, includeMeta, fn) {
+  knitHTML(doc, python, function (err, html) {
+    if (err) {
+      log('error', err);
+      return;
+    }
+
     if (includeMeta) {
       html = reportTemplate({ renderedMarkdown: html });
     }
+
     fn(null, html);
   });
 }
+
+module.exports.setRepeatedLanguages = setRepeatedLanguages;
+module.exports.splitUpCells = splitUpCells;
+module.exports.knitHTML = knitHTML;
+module.exports.apply = apply;

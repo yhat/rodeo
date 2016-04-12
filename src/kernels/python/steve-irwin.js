@@ -4,7 +4,7 @@ const path = require('path'),
   fse = require('fs-extra'),
   tmp = require('tmp'),
   execSync = require('child_process').execSync,
-  preferences = require('./../../rodeo/preferences');
+  preferences = require('./../../services/preferences');
 
 function getUserPath() {
   let cmd;

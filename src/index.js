@@ -3,16 +3,15 @@
 
 const _ = require('lodash'),
   electron = require('electron'),
-  browserWindows = require('rodeo/browser-windows'),
-  os = require('os'),
+  browserWindows = require('./services/browser-windows'),
   fs = require('fs'),
   path = require('path'),
-  https = require('https'),
-  kernel = require('kernels/python/index'),
-  md = require('rodeo/md'),
-  findFile = require('rodeo/find-file'),
-  preferences = require('rodeo/preferences'),
-  log = require('rodeo/log').asInternal(__filename);
+  kernel = require('./kernels/python'),
+  md = require('./services/md'),
+  preferences = require('./services/preferences'),
+  updater = require('./services/updater'),
+  log = require('./services/log').asInternal(__filename),
+  staticFileDir = path.resolve('./static/');
 
 electron.crashReporter.start({
   productName: 'Yhat Dev',
@@ -20,71 +19,6 @@ electron.crashReporter.start({
   submitURL: 'https://rodeo-updates.yhat.com/crash',
   autoSubmit: true
 });
-
-/**
- * @returns {string}
- */
-function getUpdateUrl() {
-  switch (process.env.NODE_ENV) {
-    case 'dev': return 'http://localhost:3000';
-    default: return 'https://rodeo-updates.yhat.com';
-  }
-}
-
-function checkForUpdates(displayNoUpdate) {
-  const windowName = 'mainWindow',
-    app = electron.app,
-    autoUpdater = electron.autoUpdater,
-    platform = os.platform() + '_' + os.arch(),
-    version = app.getVersion(),
-    updateUrl = getUpdateUrl() + '?platform=' + platform + '&version=' + version;
-
-  autoUpdater.on('error', function (err, msg) {
-    if (err) {
-      log('error', 'checkForUpdates::autoUpdater:error', err);
-      return;
-    }
-
-    browserWindows.send(windowName, 'log', '[ERROR]: ' + msg);
-  });
-
-  autoUpdater.on('update-available', function (data) {
-    browserWindows.send(windowName, 'log', 'UPDATE AVAILABLE');
-    browserWindows.send(windowName, 'log', JSON.stringify(data));
-  });
-
-  autoUpdater.on('update-not-available', function () {
-    if (displayNoUpdate == true) {
-      browserWindows.send(windowName, 'no-update');
-    }
-  });
-
-  /* eslint max-params: ["error", 5] */
-  autoUpdater.on('update-downloaded', function (evt, releaseNotes, releaseName, releaseDate, updateURL) {
-    browserWindows.send(windowName, 'log', releaseNotes + '---' + releaseName + '---' + releaseDate + '---' + updateURL);
-    browserWindows.send(windowName, 'update-ready', { platform: 'osx' });
-  });
-
-  setTimeout(function () {
-    if (/win32/.test(platform)) {
-      https.get(updateUrl, function (res) {
-        if (res.statusCode != 204) {
-          browserWindows.send(windowName, 'update-ready', { platform: 'windows' });
-        }
-      }).on('error', function (err) {
-        if (err) {
-          log('error', 'checkForUpdates::https.get:error', updateUrl, err);
-          return;
-        }
-
-        log('error', 'could not check for windows update', updateUrl);
-      });
-    } else {
-      autoUpdater.setFeedURL(updateUrl);
-      autoUpdater.checkForUpdates();
-    }
-  }, 2000);
-}
 
 /**
  * @param {Event} event
@@ -149,17 +83,6 @@ function onCommand(event, data) {
       event.returnValue = null;
     }
   }
-}
-
-function onIndexFiles(event) {
-  event.sender.sendJSON = function (data) {
-    const mainWindow = browserWindows.getByName('mainWindow');
-
-    if (mainWindow && event.sender && event.sender.send) {
-      event.sender.send(data.msg, data);
-    }
-  };
-  findFile(event.sender);
 }
 
 function onFiles(event, data) {
@@ -274,7 +197,7 @@ function onSetWD(event, wd) {
 }
 
 function onMD(event, data) {
-  md(data.doc, python, false, function (err, doc) {
+  md.apply(data.doc, python, false, function (err, doc) {
     if (err) {
       log('error', 'onMD', err);
     }
@@ -329,15 +252,6 @@ function onSaveFile(event, data) {
 }
 
 /**
- * 
- */
-function onUpdateAndRestart() {
-  const autoUpdater = electron.autoUpdater;
-
-  autoUpdater.quitAndInstall();
-}
-
-/**
  * This should probably be with the startup window.
  */
 function onExitTour() {
@@ -353,7 +267,7 @@ function onExitTour() {
  * @this {BrowserWindow}
  */
 function onCloseWindow(event) {
-  log('error', 'onCloseWindow', this, event);
+  log('debug', 'onCloseWindow', this, event);
 
   this.webContents.send('kill');
 }
@@ -466,14 +380,23 @@ function onReady() {
 
   setGlobals();
 
+  log('info', '__dirname', __dirname);
+
   mainWindow = browserWindows.createMainWindow('mainWindow', {
-    url: 'file://' + path.join(__dirname, '/../../static/desktop-index.html')
+    url: 'file://' + path.join(staticFileDir, 'desktop-index.html')
   });
   startupWindow = browserWindows.createStartupWindow('startupWindow', {
-    url: 'file://' + path.join(__dirname, '/../../static/startup.html')
+    url: 'file://' + path.join(staticFileDir, 'startup.html')
   });
 
   startupWindow.webContents.on('did-finish-load', function () {
+
+    // show when we're done loading,
+    startupWindow.show();
+    startupWindow.once('close', function () {
+      mainWindow.show();
+    });
+
     // mainWindow.openDevTools();
     mainWindow.webContents.on('did-finish-load', function () {
       // keep track of the app version the user is on. this is convenient for
@@ -505,7 +428,10 @@ function onReady() {
 
   attachIpcMainEvents();
 
-  checkForUpdates(mainWindow.webContents, false);
+  updater.update(false)
+    .catch(function (err) {
+      log('warn', 'failed to initialize auto-update', err);
+    });
 }
 
 /**
@@ -526,7 +452,6 @@ function attachIpcMainEvents() {
   ipcMain.on('preferences-get', onGetPreferences);
   ipcMain.on('preferences-post', onSetPreferences);
   ipcMain.on('command', onCommand);
-  ipcMain.on('index-files', onIndexFiles);
   ipcMain.on('files', onFiles);
   ipcMain.on('launch-kernel', onLaunchKernel);
   ipcMain.on('test-path', onTestPath);
@@ -539,8 +464,8 @@ function attachIpcMainEvents() {
   ipcMain.on('pdf', onPDF);
   ipcMain.on('file-get', onGetFile);
   ipcMain.on('file-post', onSaveFile);
-  ipcMain.on('update-and-restart', onUpdateAndRestart);
-  ipcMain.on('check-for-updates', _.partial(checkForUpdates, true));
+  ipcMain.on('update-and-restart', updater.install);
+  ipcMain.on('check-for-updates', _.partial(updater.update, true));
   ipcMain.on('exit-tour', onExitTour);
 }
 

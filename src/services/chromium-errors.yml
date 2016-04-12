@@ -1,0 +1,28 @@
+---
+# Common errors that might be encountered by users from loading a window
+IO_PENDING:
+  id: -1
+FAILED:
+  id: -2
+ABORTED:
+  id: -3
+INVALID_ARGUMENT:
+  id: -4
+INVALID_HANDLE:
+  id: -5
+FILE_NOT_FOUND:
+  id: -6
+TIMED_OUT:
+  id: -7
+FILE_TOO_BIG:
+  id: -8
+UNEXPECTED:
+  id: -9
+ACCESS_DENIED:
+  id: -10
+NOT_IMPLEMENTED:
+  id: -11
+INSUFFICIENT_RESOURCES:
+  id: -12
+OUT_OF_MEMORY:
+  id: -13

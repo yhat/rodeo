@@ -1,8 +1,18 @@
+'use strict';
+
 const _ = require('lodash'),
   bluebird = require('bluebird'),
+  chalk = require('chalk'),
   electron = require('electron'),
+  fs = require('fs'),
+  path = require('path'),
+  yaml = require('js-yaml'),
   log = require('./log').asInternal(__filename),
-  availableBrowserWindowOptions = ['width', 'height', 'useContentSize', 'resizable', 'moveable', 'center', 'alwaysOnTop'],
+  util = require('util'),
+  availableBrowserWindowOptions = [
+    'width', 'height', 'useContentSize', 'resizable', 'moveable', 'center', 'alwaysOnTop',
+    'show'
+  ],
   windows = {};
 
 /**
@@ -10,13 +20,137 @@ const _ = require('lodash'),
  * @this {BrowserWindow}
  */
 function onClose(event) {
-  log('error', 'onClose', this, event);
+  log('info', 'onClose', event);
 
   // remove reference from list of windows
-  _.pullAllWith(windows, this);
+  const key = _.findKey(windows, {id: this.id});
+
+  if (key) {
+    delete windows[key];
+  } else {
+    log('warn', 'unable to unreference window', this);
+  }
 
   // remove the stuff inside it
   this.webContents.send('kill');
+}
+
+function onShow(event) {
+  log('info', 'onShow', event);
+}
+
+function onHide(event) {
+  log('info', 'onHide', event);
+}
+
+/**
+ * Emitted when the navigation is done, i.e. the spinner of the tab has stopped spinning, and
+ * the onload event was dispatched.
+ * @param {Event} event
+ */
+function onFinishLoad(event) {
+  log('info', 'onFinishLoad', event);
+}
+
+function getCommonErrors() {
+  const targetFile = path.resolve(path.join(__dirname, 'chromium-errors.yml'));
+  let contents, commonErrors;
+
+  try {
+    contents = fs.readFileSync(targetFile, 'utf8');
+    commonErrors = contents && yaml.safeLoad(contents);
+  } catch (ex) {
+    log('warn', 'could not read', targetFile, ex);
+    commonErrors = {};
+  }
+
+  return commonErrors;
+}
+
+/**
+ * @param {Event} event
+ * @param {number} errorCode
+ * @param {string} description
+ * @param {string} validatedURL
+ * @see https://code.google.com/p/chromium/codesearch#chromium/src/net/base/net_error_list.h
+ */
+function onFailLoad(event, errorCode, description, validatedURL) {
+  const commonErrors = exports.getCommonErrors(),
+    name = _.findKey(commonErrors, {id: errorCode});
+
+  description = commonErrors[name] && commonErrors[name].description || description;
+
+  log('error', 'onFailLoad', event, _.pickBy({name, errorCode, description, validatedURL}, _.identity));
+}
+
+function onGetResponseDetails(event) {
+  log('info', 'onGetResponseDetails', event, _.slice(arguments, 1));
+}
+
+function onCrashed(event) {
+  log('error', 'onCrashed', event);
+}
+
+function onPluginCrashed(event, name, version) {
+  log('error', 'onPluginCrashed', event, {name, version});
+}
+
+function onDestroyed(event) {
+  log('info', 'onDestroyed', event);
+
+  try {
+    const key = _.findKey(windows, {id: this.id});
+
+    if (!key) {
+      log('warn', 'onDestroyed', 'destroyed window is still referenced');
+    }
+  } catch (ex) {
+    log('warn', 'onDestroyed', 'failed to iterate through window references');
+  }
+}
+
+/**
+ * Returns a property.
+ * If function, calls it to get the property value.
+ * If throws, returns default value.
+ *
+ * @param {object} target
+ * @param {string} propertyName
+ * @returns {*}
+ */
+function getPropertySafe(target, propertyName) {
+  try {
+    const value = target[propertyName];
+
+    return _.isFunction(value) && value.call(target) || value;
+  } catch (ex) {
+    return chalk.italics('throws ' + ex.name + ': ' + ex.message);
+  }
+}
+
+function getURLSafe(target) {
+  try {
+    return target.getURL();
+  } catch (ex) {
+    return '';
+  }
+}
+
+function inspectBrowserWindow() {
+  return 'BrowserWindow ' +
+    util.inspect({
+      id: getPropertySafe(this, 'id'),
+      title: getPropertySafe(this, 'title'),
+      url: getPropertySafe(this, 'url')
+    }, {colors: true});
+}
+
+function inspectWebContents() {
+  return 'WebContents ' +
+    util.inspect({
+      title: getPropertySafe(this, 'title'),
+      url: getPropertySafe(this, 'url')
+    }, {colors: true});
 }
 
 /**
@@ -37,6 +171,18 @@ function create(name, options) {
 
   // default event handlers
   window.on('close', onClose);
+  window.on('show', onShow);
+  window.on('hide', onHide);
+  window.webContents.on('did-finish-load', onFinishLoad);
+  window.webContents.on('did-fail-load', onFailLoad);
+  window.webContents.on('did-get-response-details', onGetResponseDetails);
+  window.webContents.on('crashed', onCrashed);
+  window.webContents.on('plugin-crashed', onPluginCrashed);
+  window.webContents.on('destroyed', onDestroyed);
+
+  // how to log
+  window.inspect = inspectBrowserWindow;
+  window.webContents.inspect = inspectWebContents;
 
   // hold reference so not garbage collected
   windows[name] = window;
@@ -54,7 +200,11 @@ function createMainWindow(name, options) {
   const primaryDisplay = electron.screen.getPrimaryDisplay(),
     size = primaryDisplay.workAreaSize;
 
-  return create(name, _.assign({width: size.width, height: size.height}, options));
+  return create(name, _.assign({
+    width: size.width,
+    height: size.height,
+    show: false
+  }, options));
 }
 
 /**
@@ -69,7 +219,8 @@ function createStartupWindow(name, options) {
     resizable: false,
     moveable: false,
     center: true,
-    alwaysOnTop: true
+    alwaysOnTop: true,
+    show: false
   }, options));
 }
 
@@ -103,3 +254,4 @@ module.exports.createMainWindow = createMainWindow;
 module.exports.createStartupWindow = createStartupWindow;
 module.exports.getByName = getByName;
 module.exports.send = send;
+module.exports.getCommonErrors = _.memoize(getCommonErrors);

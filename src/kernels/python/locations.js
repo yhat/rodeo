@@ -3,9 +3,9 @@
 const _ = require('lodash'),
   bluebird = require('bluebird'),
   globby = require('globby'),
-  log = require('../../rodeo/log').asInternal(__filename),
+  log = require('../../services/log').asInternal(__filename),
   os = require('os'),
-  rules = require('../../rodeo/rules');
+  rules = require('../../services/rules');
 let locationRuleSet;
 
 function setPath() {

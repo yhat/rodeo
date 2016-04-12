@@ -8,8 +8,8 @@ const fs = require('fs'),
   uuid = require('uuid'),
   tmp = require('tmp'),
   StreamSplitter = require('stream-splitter'),
-  log = require('./../../rodeo/log').asInternal(__filename),
-  kernelLog = require('./../../rodeo/log').asInternal('python-kernel'),
+  log = require('./../../services/log').asInternal(__filename),
+  kernelLog = require('./../../services/log').asInternal('python-kernel'),
   SteveIrwin = require('./steve-irwin'),
   errNotReady = {
     stream: null,
@@ -24,7 +24,7 @@ function spawnPython(cmd, opts, done) {
 
   log('info', 'starting python using', cmd, opts);
 
-  const kernelDir = path.join(__dirname, 'kernel'),
+  const kernelDir = path.join(__dirname),
     tmpKernelDir = tmp.dirSync(),
     kernelFile = path.join(tmpKernelDir.name, 'asynckernel.py'),
     configFile = path.join(tmpKernelDir.name, 'config.json'),
@@ -33,6 +33,8 @@ function spawnPython(cmd, opts, done) {
 
   // we need to actually write the python kernel to a tmp file. this is so python
   // can run as a "real" file and not an asar file
+
+  log('info', 'copying file', kernelDir, 'to', tmpKernelDir.name);
   fse.copySync(kernelDir, tmpKernelDir.name);
 
   opts.stdio = [null, null, null, 'ipc'];
