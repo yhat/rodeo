@@ -67,7 +67,7 @@ def kernel(wd=None, verbose=0):
             elif complete=='input':
                 msg_id = kernel_client.stdin_channel.execute(code)
             else:
-                msg_id = kernel_client.execute(code, allow_stdin=False)
+                msg_id = kernel_client.execute(code, allow_stdin=True)
 
             if code=="interrupt_kernel":
                 sys.stderr.write("interrupting kernel\n")
@@ -103,7 +103,7 @@ def kernel(wd=None, verbose=0):
         except Empty:
             try:
                 data = kernel_client.get_shell_msg(timeout=0.1)
-            except:
+            except Empty:
                 try:
                     data = kernel_client.get_stdin_msg(timeout=0.1)
                 except:
@@ -115,6 +115,7 @@ def kernel(wd=None, verbose=0):
 
         if verbose > 0:
             pp.pprint(data, sys.stderr)
+            sys.stderr.flush()
 
         # handle code execution results
         if parent_msg_id in docstring_callbacks:
@@ -188,4 +189,4 @@ if __name__=="__main__":
     wd = None
     if len(sys.argv) > 1:
         wd = sys.argv[1]
-    kernel(wd, verbose=0)
+    kernel(wd, verbose=2)

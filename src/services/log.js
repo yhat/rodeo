@@ -83,7 +83,9 @@ function asInternal(dirname) {
   return function (type) {
     exports.log(type, _.reduce(_.slice(arguments, 1), function (list, value) {
       if (_.isObject(value)) {
-        if (isError(value)) {
+        if (_.isBuffer(value)) {
+          list.push(value.toString());
+        } else if (isError(value)) {
           list.push(value.stack);
         } else if (isBrowserWindow(value) || isWebContent(value)) {
           list.push(printObject(value));

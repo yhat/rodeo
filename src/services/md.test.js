@@ -5,7 +5,8 @@ const expect = require('chai').expect,
   log = require('./log'),
   dirname = __dirname.split('/').pop(),
   filename = __filename.split('/').pop().split('.').shift(),
-  lib = require('./' + filename);
+  lib = require('./' + filename),
+  pythonKernel = require('../kernels/python');
 
 describe(dirname + '/' + filename, function () {
   let sandbox;
@@ -24,7 +25,7 @@ describe(dirname + '/' + filename, function () {
   describe('splitUpCells', function () {
     const fn = lib[this.title];
 
-    it('adds a newline to the end of any random text', function () {
+    it('handles plain markdown', function () {
       const text = 'random text';
 
       expect(fn(text)).to.deep.equal([{ execute: 'markdown', data: 'random text' }]);
@@ -58,6 +59,48 @@ describe(dirname + '/' + filename, function () {
         { execute: 'langC', data: 'random text' },
         { execute: 'markdown', data: '' }
       ]);
+    });
+  });
+
+  describe('knitHTML', function () {
+    const fn = lib[this.title];
+    let pythonWrapper;
+
+    beforeEach(function () {
+      return new Promise(function (resolve, reject) {
+        pythonKernel.startNewKernel('/usr/local/bin/python', function (status, python) {
+          if (status.jupyter !== true || status.python !== true) {
+            reject(new Error('unable to start python with jupyter'));
+          } else {
+            pythonWrapper = python;
+            resolve();
+          }
+        });
+      });
+    });
+
+    it('handles markdown', function (done) {
+      const text = 'random text',
+        expectedResult = '<p>random text</p>\n';
+
+      fn(text, pythonWrapper, function (err, result) {
+        expect(err).to.equal(null);
+        expect(result).to.equal(expectedResult);
+        done(err);
+      });
+    });
+
+    it('handles python', function (done) {
+      const text = '```{python}\nrandom text\n```',
+        expectedResult = '<p>random text</p>\n';
+
+      fn(text, pythonWrapper, function (err, result) {
+        if (err) {
+          done(err);
+        } else {
+          expect(result).to.equal(expectedResult);
+        }
+      });
     });
   });
 });

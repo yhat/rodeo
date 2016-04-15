@@ -10,8 +10,19 @@ module.exports = function (karma) {
     singleRun: true,
     logLevel: karma.LOG_INFO,
     reporters: [
-      'dots'
+      'mocha'
     ],
+    specReporter: {
+      maxLogLines: 10,         // limit number of lines logged per test
+      suppressErrorSummary: false,  // do not print error summary
+      suppressFailed: false,  // do not print information about failed tests
+      suppressPassed: false,  // do not print information about passed tests
+      suppressSkipped: false,  // do not print information about skipped tests
+      showSpecTiming: true // print the time elapsed for each spec
+    },
+    mochaReporter: {
+      showDiff: true
+    },
     files: [
       'test/**/*.js',
       'src/**/*.js'
@@ -21,6 +32,8 @@ module.exports = function (karma) {
       '**/*.js': ['electron']
     },
     plugins: [
+      'karma-mocha-reporter',
+      'karma-spec-reporter',
       'karma-electron',
       'karma-mocha',
       'karma-chai'

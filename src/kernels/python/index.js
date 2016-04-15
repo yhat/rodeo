@@ -7,6 +7,7 @@ const fs = require('fs'),
   spawn = require('child_process').spawn,
   uuid = require('uuid'),
   tmp = require('tmp'),
+  os = require('os'),
   StreamSplitter = require('stream-splitter'),
   log = require('./../../services/log').asInternal(__filename),
   kernelLog = require('./../../services/log').asInternal('python-kernel'),
@@ -36,8 +37,6 @@ function spawnPython(cmd, opts, done) {
 
   log('info', 'copying file', kernelDir, 'to', tmpKernelDir.name);
   fse.copySync(kernelDir, tmpKernelDir.name);
-
-  opts.stdio = [null, null, null, 'ipc'];
 
   python = spawn(cmd, [kernelFile, configFile, delim], opts);
 
@@ -130,7 +129,7 @@ function spawnPython(cmd, opts, done) {
     this.stdin.write(JSON.stringify(payload) + delim);
   };
 
-  const profileFilePath = path.join(USER_HOME, '.rodeoprofile');
+  const profileFilePath = path.join(os.homedir(), '.rodeoprofile');
 
   if (! fs.existsSync(profileFilePath)) {
     const defaultProfilePath = path.join(__dirname, 'default-rodeo-profile.txt'),
@@ -139,7 +138,12 @@ function spawnPython(cmd, opts, done) {
     fs.writeFileSync(profileFilePath, defaultProfile);
   }
 
-  const rodeoProfile = fs.readFileSync(profileFilePath).toString();
+  let rodeoProfile;
+  try {
+    rodeoProfile = fs.readFileSync(profileFilePath, {encoding: 'UTF8'});
+  } catch (ex) {
+    log('error', ex);
+  }
 
   // wait for the python child to emit a message. once it does (it'll be
   // something simple like {"status": "OK"}, then we know it's running
@@ -150,10 +154,15 @@ function spawnPython(cmd, opts, done) {
   completionCallbacks['startup-complete'] = function (data) {
     log('info', 'kernel is running');
 
-    python.execute(rodeoProfile, false, function () {
+    if (rodeoProfile) {
+      python.execute(rodeoProfile, false, function () {
+        hasStarted = true;
+        done(null, python);
+      });
+    } else {
       hasStarted = true;
       done(null, python);
-    });
+    }
   };
 
   // TODO: this is happening every time on Windows. fuck you windows
@@ -182,6 +191,7 @@ module.exports.startNewKernel = function (pythonCmd, cb) {
     });
   } else {
     testPythonPath(pythonCmd, function (err, result) {
+      log('info', 'hey testPythonPath', err, result);
       if (! result) {
         result = { jupyter: false, python: false };
       }
@@ -192,7 +202,7 @@ module.exports.startNewKernel = function (pythonCmd, cb) {
       };
 
       if (err) {
-        log('critical', 'could not start subprocess', err);
+        log('error', 'could not start subprocess', err);
         cb(data, null);
       } else if (result.jupyter === false) {
         cb(data, null);
@@ -229,18 +239,22 @@ function testPythonPath(pythonPath, cb) {
 
   // escape for spaces in paths
   testProcess = exec(testCmd, { timeout: 9000 }, function (err, stdout) {
-    if (err) {
-      cb(err, null);
-      testProcess.kill();
-    } else {
-      const result = JSON.parse(stdout.toString());
+    try {
+      if (err) {
+        cb(err, null);
+      } else {
+        const result = JSON.parse(stdout);
 
-      result.python = true;
-      cb(null, result);
+        result.python = true;
+        cb(null, result);
+      }
+    } catch (ex) {
+      log('error', ex);
+      cb(new Error('some error in python kernel handler ' + require('util').inspect({err, stdout, ex})));
+    } finally {
       testProcess.kill();
     }
   });
-
 }
 
 module.exports.testPythonPath = testPythonPath;

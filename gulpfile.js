@@ -47,6 +47,6 @@ gulp.task('test', ['lint', 'karma']);
 gulp.task('build', []);
 gulp.task('run', []);
 gulp.task('watch', function () {
-  gulp.watch('components/myjs.js', ['lint']);
+  gulp.watch('src/**/*.js', ['karma']);
 });
 gulp.task('default', ['test', 'build', 'run']);

@@ -72,28 +72,42 @@ function splitUpCells(str) {
   return actions;
 }
 
-
+/**
+ * @param {object} doc
+ * @param {object} python
+ * @param {function} fn
+ */
 function knitHTML(doc, python, fn) {
   let cells = splitUpCells(doc);
 
   async.map(cells, function (cell, cb) {
-    if (cell.execute == 'markdown') {
-      cb(null, [{ html: marked(cell.data) }]);
-    } else if (cell.execute == 'mathjax') {
-      cb(null, [{ html: cell.data }]);
-    } else if (cell.execute == 'python') {
-      let results = [];
-      
-      python.executeStream(cell.data, false, function(result) {
-        results.push(result);
-        if (result.status == 'complete') {
-          cb(null, results);
-        }
-      });
-    } else {
-      cb(null, [{ html: marked(cell.data) }]);
+
+    try {
+      if (cell.execute == 'markdown') {
+        cb(null, [{html: marked(cell.data)}]);
+      } else if (cell.execute == 'mathjax') {
+        cb(null, [{html: cell.data}]);
+      } else if (cell.execute == 'python') {
+        let results = [];
+
+        python.executeStream(cell.data, false, function (result) {
+          results.push(result);
+          if (result.status == 'complete') {
+            cb(null, results);
+          }
+        });
+      } else {
+        cb(null, [{html: marked(cell.data)}]);
+      }
+    } catch (ex) {
+      cb(ex);
     }
   }, function (err, results) {
+    if (err) {
+      fn(err);
+      return;
+    }
+
     let output = [];
 
     for (let i = 0; i < results.length; i++) {

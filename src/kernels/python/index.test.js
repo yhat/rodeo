@@ -19,11 +19,30 @@ describe(dirname + '/' + filename, function () {
     sandbox.restore();
   });
 
+  describe('startNewKernel', function () {
+    const fn = lib[this.title];
+
+    xit('tests', function (done) {
+      fn('/usr/local/bin/python', function (err, python) {
+        expect(err).to.deep.equal({ python: true, jupyter: true });
+
+        try {
+          python.kill();
+          done();
+        } catch (ex) {
+          done(ex);
+        }
+      });
+    });
+  });
+
   describe('testPythonPath', function () {
     const fn = lib[this.title];
 
-    xit('tests', function () {
-      fn();
+    xit('tests', function (done) {
+      fn('/usr/local/bin/python', function () {
+        done();
+      });
     });
   });
 });

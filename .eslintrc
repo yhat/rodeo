@@ -51,7 +51,7 @@
     "brace-style": [2, "1tbs", { "allowSingleLine": true }],
     "comma-style": [2, "last"],
     "indent": [2, 2, { "SwitchCase": 1 }],
-    "max-nested-callbacks": [2, 4],
+    "max-nested-callbacks": [2, 5],
     "newline-after-var": [2, "always"],
     "no-nested-ternary": 2,
     "no-spaced-func": 0,
