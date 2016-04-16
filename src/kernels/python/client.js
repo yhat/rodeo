@@ -31,37 +31,11 @@ function createObjectEmitter(stream) {
       obj = JSON.parse(token);
       emitter.emit('data', obj);
     } catch (ex) {
-      log('error', 'Cannot parse to JSON', require('util').inspect(token), ex);
+      log('error', require('util').inspect(token), ex);
       // we don't have enough data yet, maybe?
     }
-
-    // outputDeferred = client.trigger('item', obj);
-    //
-    // log('info', 'new object', obj);
-    //
-    // if (obj && obj.status === 'complete' && obj.id === 'startup-complete') {
-    //   emit('ready');
-    // } else if (obj && obj.code) {
-    //   /* example: { stream: null, image: null, msg_id: '27ce9a29-d146-4c2f-9042-62e3fb20dcd7',
-    //    error: null, output: '', id: 'f9fc4759-4c9c-46b1-990b-c2b164cde9e6' } */
-    //
-    //   // id is internal to this class only, remove it before it can escape
-    //   log('info', 'conclusion', 'repeated');
-    // } else if (obj && !obj.output) {
-    //   log('info', 'conclusion', 'empty output');
-    // } else if (outputDeferred) {
-    //   /* example: { stream: null, image: null, msg_id: '27ce9a29-d146-4c2f-9042-62e3fb20dcd7',
-    //    error: null, output: '', id: 'f9fc4759-4c9c-46b1-990b-c2b164cde9e6' } */
-    //   // id is internal to this class only, remove it before it can escape
-    //   outputDeferred.unknownMessage = true;
-    //   outputDeferred.resolve(_.omit(obj, 'id'));
-    //   log('info', 'resolved request but empty output');
-    // } else {
-    //   emit('error', new Error('Unknown data object: ' + require('util').inspect(obj)));
-    // }
   });
   stream.on('error', error => emitter.emit('error', error) );
-  stream.on('done', obj => emitter.emit('end', obj) );
 
   return emitter;
 }
@@ -71,30 +45,114 @@ function handleProcessStreamEvent(client, source, data) {
   client.emit('event', source, data);
 }
 
-function handleProcessStreamObject(client, obj) {
-  let outputItem = client.outputMap[obj.id];
+function linkRequestToOutput(client, obj) {
+  const requestMap = client.requestMap,
+    outputMap = client.outputMap;
 
-  log('info', 'handling object', obj);
+  requestMap[obj.id].msg_id = obj.result;
+  outputMap[obj.result] = {id: obj.id, msg_id: obj.result, children: []};
+}
+
+function handleExecutionResults(client, parent, child) {
+  const content = child.content;
+
+  switch(child.msg_type) {
+    case 'execute_reply':
+      if (content.status === 'ok') {
+        log('info', 'Code ran alright', content.execution_count);
+      } else if (content.status === 'error') {
+        log('error', 'Nothing is good with request number', content.execution_count,
+          {ename: content.ename, evalue: content.evalue, traceback: content.traceback});
+      }
+      break;
+    case 'complete_reply':
+      if (content.status === 'ok') {
+        log('info', 'Code completion alright');
+      } else if (content.status === 'error') {
+        log('error', 'Nothing is good',
+          {ename: content.ename, evalue: content.evalue, traceback: content.traceback});
+      }
+      break;
+    case 'is_complete_reply':
+      log('info', 'Is code complete? alright', content.status);
+      break;
+    case 'execute_input':
+      log('info', 'Someone (anyone!) is running ', content.execution_count,':\n', content.code);
+      break;
+    case 'execute_result':
+      log('info', 'Someone has some results:', content.execution_count,':\n', content.data);
+      break;
+    case 'error':
+      log('error', 'Someone has an error:', {ename: content.ename, evalue: content.evalue, traceback: content.traceback});
+      break;
+    case 'status':
+      log('info', 'The kernel is', content.execution_state); // ('busy', 'idle', 'starting')
+      break;
+    case 'clear_output':
+      log('info', 'clear the decks');
+      break;
+    default:
+      log('warn', 'what?', child);
+  }
+}
+
+function requestInputFromUser(client, message) {
+  client.emit('input_request', message);
+}
+
+function broadcastKernelStatus(client, message) {
+  client.emit('status', message.content.execution_state);
+}
+
+function resolveRequest(client, id, message) {
+  const requestMap = client.requestMap;
+
+  // payload is deprecated, so don't even expose it
+  requestMap[id].deferred.resolve(_.omit(message.content, 'payload'));
+}
+
+
+function handleProcessStreamObject(client, obj) {
+  const requestMap = client.requestMap,
+    outputMap = client.outputMap,
+    source = obj.source,
+    result = obj.result,
+    parentMessageId = _.get(result, 'parent_header.msg_id');
 
   if (obj.status === 'complete' && obj.id === 'startup-complete') {
     client.emit('ready');
-  } else if (obj.code) {
-    /* example: { stream: null, image: null, msg_id: '27ce9a29-d146-4c2f-9042-62e3fb20dcd7',
-     error: null, output: '', id: 'f9fc4759-4c9c-46b1-990b-c2b164cde9e6' } */
+  } else if (obj.id && result && requestMap[obj.id]) {
+    linkRequestToOutput(client, obj);
+  } else if (result && outputMap[parentMessageId] ) {
+    // child event
+    let parent, child;
 
-    // id is internal to this class only, remove it before it can escape
-    log('info', 'conclusion', 'repeated');
-  } else if (!obj.output) {
-    log('info', 'conclusion', 'empty output');
-  } else if (outputItem) {
-    /* example: { stream: null, image: null, msg_id: '27ce9a29-d146-4c2f-9042-62e3fb20dcd7',
-     error: null, output: '', id: 'f9fc4759-4c9c-46b1-990b-c2b164cde9e6' } */
-    // id is internal to this class only, remove it before it can escape
-    outputItem.unknownMessage = true;
-    outputItem.resolve(_.omit(obj, 'id'));
-    log('info', 'resolved request but empty output');
+    parent = outputMap[parentMessageId];
+    child = _.omit(result, ['msg_id', 'parent_header']);
+    child.header = _.omit(child.header, ['version', 'msg_id', 'session', 'username', 'msg_type']);
+    parent.children.push(child);
+    if (!parent.header) {
+      parent.header = result.parent_header;
+    }
+
+    if (source === 'stdin' && child.msg_type === 'input_request') {
+      requestInputFromUser(client, result);
+    }
+
+    switch (child.msg_type) {
+      case 'execute_reply': resolveRequest(client, parent.id, result); break;
+      case 'status': broadcastKernelStatus(client, result); break;
+      default: break;
+    }
+
+    log('info', source, result);
+    client.emit(source, obj);
+  } else if (result) {
+    log('info', source, 'unknown:', result);
+
+    client.emit(source, obj);
   } else {
-    emit('error', new Error('Unknown data object: ' + require('util').inspect(obj)));
+    client.emit('error', new Error('Unknown data object: ' + require('util').inspect(obj)));
   }
 }
 
@@ -103,16 +161,13 @@ function listenToChild(client, child) {
 
   objectEmitter.on('data', _.partial(handleProcessStreamObject, client));
   objectEmitter.on('error', _.partial(handleProcessStreamEvent, client, 'objectEmitter.error'));
-  objectEmitter.on('end', _.partial(handleProcessStreamEvent, client, 'objectEmitter.error'));
+  objectEmitter.on('end', _.partial(handleProcessStreamEvent, client, 'objectEmitter.end'));
 
   child.stdout.on('error', _.partial(handleProcessStreamEvent, client, 'stdout.error'));
   child.stdout.on('close', _.partial(handleProcessStreamEvent, client, 'stdout.close'));
-  child.stdout.on('readable', _.partial(handleProcessStreamEvent, client, 'stdout.readable'));
 
   child.stderr.on('data', _.partial(handleProcessStreamEvent, client, 'stderr.data'));
   child.stderr.on('error', _.partial(handleProcessStreamEvent, client, 'stderr.error'));
-  child.stderr.on('close', _.partial(handleProcessStreamEvent, client, 'stderr.close'));
-  child.stdout.on('readable', _.partial(handleProcessStreamEvent, client, 'stderr.readable'));
 
   child.on('data', _.partial(handleProcessStreamEvent, client, 'data'));
   child.on('message', _.partial(handleProcessStreamEvent, client, 'message'));
@@ -157,6 +212,10 @@ function toPythonArgs(args) {
   }, {});
 }
 
+function run() {
+
+}
+
 /**
  * @class JupyterClient
  */
@@ -164,6 +223,7 @@ class JupyterClient extends EventEmitter {
   constructor(child) {
     super();
     this.childProcess = child;
+    this.requestMap = {};
     this.outputMap = {};
 
     listenToChild(this, child);
@@ -194,51 +254,52 @@ class JupyterClient extends EventEmitter {
    * @param {object} [options.userExpressions]
    * @param {boolean} [options.allowStdin]
    * @param {boolean} [options.stopOnError]
+   * @returns {Promise<object>}
    */
   execute(code, options) {
     const childProcess = this.childProcess,
-      outputMap = this.outputMap,
+      requestMap = this.requestMap,
       id = uuid.v4().toString(),
       inputPromise = write(childProcess, {
         id,
         method: 'execute',
-        args: _.assign({code}, toPythonArgs(options))
+        kwargs: _.assign({code}, toPythonArgs(options))
       }),
       deferred = new bluebird.defer(),
-      outputPromise = deferred.promise,
-      outputItem = {};
+      request = { id: id, deferred: deferred };
 
-    outputItem.deferred = deferred;
-
-    outputMap[id] = outputItem;
+    request.deferred = deferred;
+    requestMap[id] = request;
 
     return inputPromise.then(function () {
-      log('execution started', id);
-
-      return outputPromise;
-    }).then(function () {
-      log('info', 'execution completed', id, result);
-      return outputItem;
+      return deferred.promise;
     }).finally(function () {
       // clean up reference, no matter what the result
-      delete outputMap[id];
+      delete requestMap[id];
     });
   }
 
-  getIOPubMsg() {
-    throw new Error('Not implemented');
-  }
+  input(str) {
+    const childProcess = this.childProcess,
+      requestMap = this.requestMap,
+      id = uuid.v4().toString(),
+      inputPromise = write(childProcess, {
+        id,
+        method: 'input',
+        args: [str]
+      }),
+      deferred = new bluebird.defer(),
+      request = { id: id, deferred: deferred };
 
-  getShellMsg() {
-    throw new Error('Not implemented');
-  }
+    request.deferred = deferred;
+    requestMap[id] = request;
 
-  getStdinMsg() {
-    throw new Error('Not implemented');
-  }
-
-  getHBChannel() {
-    throw new Error('Not implemented');
+    return inputPromise.then(function () {
+      return deferred.promise;
+    }).finally(function () {
+      // clean up reference, no matter what the result
+      delete requestMap[id];
+    });
   }
 
   /**
@@ -247,13 +308,6 @@ class JupyterClient extends EventEmitter {
    * @param {string} historyAccessType
    */
   getHistory(raw, output, historyAccessType) {
-    throw new Error('Not implemented');
-  }
-
-  /**
-   * @returns {boolean}
-   */
-  isAlive() {
     throw new Error('Not implemented');
   }
 

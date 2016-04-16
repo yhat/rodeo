@@ -1,9 +1,12 @@
 import plotly
 import plotly.plotly as py
 import plotly.graph_objs as go
+from plotly.offline import download_plotlyjs, init_notebook_mode, iplot
 
 # Create random data with numpy
 import numpy as np
+
+init_notebook_mode()
 
 N = 1000
 random_x = np.random.randn(N)
@@ -17,4 +20,4 @@ trace = go.Scatter(
 )
 
 data = [trace]
-py.iplot(data, filename='basic-scatter')
+iplot(data)

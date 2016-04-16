@@ -61,8 +61,9 @@ def kernel(wd=None, verbose=0):
         if not input_queue.empty():
             line = input_queue.get().strip()
             payload = json.loads(line)
-            id = payload["id"]
-            args = payload.get("args", {})
+            uid = payload["id"]
+            args = payload.get("args", [])
+            kwargs = payload.get("kwargs", {})
             method = payload.get("method", False)
             targetStr = payload.get("target", "client")
 
@@ -72,26 +73,26 @@ def kernel(wd=None, verbose=0):
               target = kernel_client
 
             if method:
-                result = getattr(target, method)(**args)
-                sys.stdout.write(json.dumps({ "result": result, "id": id }) + '\n')
+                result = getattr(target, method)(*args, **kwargs)
+                sys.stdout.write(json.dumps({ "result": result, "id": uid }) + '\n')
 
         try:
             data = kernel_client.get_iopub_msg(timeout=0.1)
-            sys.stdout.write(json.dumps({"type": "iopub", "result": data}, default=json_serial) + '\n')
+            sys.stdout.write(json.dumps({"source": "iopub", "result": data}, default=json_serial) + '\n')
         except Empty:
-            pass;
+            pass
 
         try:
             data = kernel_client.get_shell_msg(timeout=0.1)
-            sys.stdout.write(json.dumps({"type": "shell", "result": data}, default=json_serial) + '\n')
+            sys.stdout.write(json.dumps({"source": "shell", "result": data}, default=json_serial) + '\n')
         except Empty:
-            pass;
+            pass
 
         try:
             data = kernel_client.get_stdin_msg(timeout=0.1)
-            sys.stdout.write(json.dumps({"type": "stdin", "result": data}, default=json_serial) + '\n')
+            sys.stdout.write(json.dumps({"source": "stdin", "result": data}, default=json_serial) + '\n')
         except Empty:
-            pass;
+            pass
 
 if __name__=="__main__":
     wd = None

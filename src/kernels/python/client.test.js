@@ -43,6 +43,7 @@ describe(dirname + '/' + filename, function () {
     let client;
 
     beforeEach(function () {
+      this.timeout(10000);
       return lib.create().then(function (newClient) {
         client = newClient;
       });
@@ -64,7 +65,7 @@ describe(dirname + '/' + filename, function () {
 
       it('example 1', function () {
         this.timeout(10000);
-        const expectedResult = {code: '', msg_id: ''};
+        const expectedResult = {status: 'ok', user_expressions: {}, execution_count: 2};
         
         return fn.call(client, example1).then(function (result) {
           log('info', result);
@@ -74,7 +75,7 @@ describe(dirname + '/' + filename, function () {
 
       it('example 2', function () {
         this.timeout(10000);
-        const expectedResult = {code: '', msg_id: ''};
+        const expectedResult = {status: 'ok', user_expressions: {}, execution_count: 2};
 
         return fn.call(client, example2).then(function (result) {
           log('info', result);
@@ -84,7 +85,7 @@ describe(dirname + '/' + filename, function () {
 
       it('example 3', function () {
         this.timeout(10000);
-        const expectedResult = {code: '', msg_id: ''};
+        const expectedResult = {status: 'ok', user_expressions: {}, execution_count: 2};
 
         return fn.call(client, example3).then(function (result) {
           log('info', result);
@@ -94,11 +95,18 @@ describe(dirname + '/' + filename, function () {
 
       it('example 4', function () {
         this.timeout(10000);
-        const expectedResult = {code: '', msg_id: ''};
+        const expectedResult = {status: 'ok', user_expressions: {}, execution_count: 2};
+
+        client.on('input_request', function (data) {
+          client.input('stuff!');
+          log('info', 'do a thing!', data);
+        });
 
         return fn.call(client, example4).then(function (result) {
           log('info', result);
           expect(_.cloneDeep(result)).to.deep.equal(expectedResult);
+        }).then(function () {
+
         });
       });
     });
