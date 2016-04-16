@@ -92,13 +92,14 @@ describe(dirname + '/' + filename, function () {
 
     it('handles python', function (done) {
       const text = '```{python}\nprint "Hello."\n```',
-        expectedResult = '<p>random text</p>\n';
+        expectedResult = '<pre>Hello.\n</pre>\n<pre>Hello.\n</pre>';
 
       fn(text, pythonWrapper, function (err, result) {
         if (err) {
           done(err);
         } else {
           expect(result).to.equal(expectedResult);
+          done();
         }
       });
     });
