@@ -91,7 +91,7 @@ describe(dirname + '/' + filename, function () {
     });
 
     it('handles python', function (done) {
-      const text = '```{python}\nrandom text\n```',
+      const text = '```{python}\nprint "Hello."\n```',
         expectedResult = '<p>random text</p>\n';
 
       fn(text, pythonWrapper, function (err, result) {

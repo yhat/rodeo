@@ -9,14 +9,12 @@
 const _ = require('lodash'),
   bluebird = require('bluebird'),
   EventEmitter = require('events'),
-  fs = require('fs'),
   StreamSplitter = require('stream-splitter'),
   log = require('../../services/log').asInternal(__filename),
   path = require('path'),
   processes = require('../../services/processes'),
   promises = require('../../services/promises'),
-  uuid = require('uuid'),
-  stream = require('stream');
+  uuid = require('uuid');
 
 function createObjectEmitter(stream) {
   const streamSplitter = new StreamSplitter('\n'),
@@ -53,49 +51,6 @@ function linkRequestToOutput(client, obj) {
   outputMap[obj.result] = {id: obj.id, msg_id: obj.result, children: []};
 }
 
-function handleExecutionResults(client, parent, child) {
-  const content = child.content;
-
-  switch(child.msg_type) {
-    case 'execute_reply':
-      if (content.status === 'ok') {
-        log('info', 'Code ran alright', content.execution_count);
-      } else if (content.status === 'error') {
-        log('error', 'Nothing is good with request number', content.execution_count,
-          {ename: content.ename, evalue: content.evalue, traceback: content.traceback});
-      }
-      break;
-    case 'complete_reply':
-      if (content.status === 'ok') {
-        log('info', 'Code completion alright');
-      } else if (content.status === 'error') {
-        log('error', 'Nothing is good',
-          {ename: content.ename, evalue: content.evalue, traceback: content.traceback});
-      }
-      break;
-    case 'is_complete_reply':
-      log('info', 'Is code complete? alright', content.status);
-      break;
-    case 'execute_input':
-      log('info', 'Someone (anyone!) is running ', content.execution_count,':\n', content.code);
-      break;
-    case 'execute_result':
-      log('info', 'Someone has some results:', content.execution_count,':\n', content.data);
-      break;
-    case 'error':
-      log('error', 'Someone has an error:', {ename: content.ename, evalue: content.evalue, traceback: content.traceback});
-      break;
-    case 'status':
-      log('info', 'The kernel is', content.execution_state); // ('busy', 'idle', 'starting')
-      break;
-    case 'clear_output':
-      log('info', 'clear the decks');
-      break;
-    default:
-      log('warn', 'what?', child);
-  }
-}
-
 function requestInputFromUser(client, message) {
   client.emit('input_request', message);
 }
@@ -125,7 +80,7 @@ function handleProcessStreamObject(client, obj) {
     linkRequestToOutput(client, obj);
   } else if (result && outputMap[parentMessageId] ) {
     // child event
-    let parent, child;
+    let parent, child, request;
 
     parent = outputMap[parentMessageId];
     child = _.omit(result, ['msg_id', 'parent_header']);
@@ -139,18 +94,24 @@ function handleProcessStreamObject(client, obj) {
       requestInputFromUser(client, result);
     }
 
-    switch (child.msg_type) {
-      case 'execute_reply': resolveRequest(client, parent.id, result); break;
-      case 'status': broadcastKernelStatus(client, result); break;
-      default: break;
+    request = requestMap[parent.id];
+    if (request) {
+      if (_.isArray(request.successEvent) && _.includes(request.successEvent, child.msg_type)) {
+        resolveRequest(client, parent.id, result);
+      } else if (request.successEvent === child.msg_type) {
+        resolveRequest(client, parent.id, result);
+      }
     }
 
-    log('info', source, result);
-    client.emit(source, obj);
-  } else if (result) {
-    log('info', source, 'unknown:', result);
+    if (child.msg_type === 'status') {
+      broadcastKernelStatus(client, result);
+    }
 
     client.emit(source, obj);
+  } else if (result) {
+    client.emit(source, obj);
+  } else if (obj.id && result === null) {
+    // ignore, they didn't give us a msg_id and that's okay
   } else {
     client.emit('error', new Error('Unknown data object: ' + require('util').inspect(obj)));
   }
@@ -160,6 +121,8 @@ function listenToChild(client, child) {
   const objectEmitter = createObjectEmitter(child.stdout);
 
   objectEmitter.on('data', _.partial(handleProcessStreamObject, client));
+
+
   objectEmitter.on('error', _.partial(handleProcessStreamEvent, client, 'objectEmitter.error'));
   objectEmitter.on('end', _.partial(handleProcessStreamEvent, client, 'objectEmitter.end'));
 
@@ -212,8 +175,38 @@ function toPythonArgs(args) {
   }, {});
 }
 
-function run() {
+/**
+ * @param {JupyterClient} client
+ * @param {object} invocation
+ * @param {string} invocation.method
+ * @param {Array} [invocation.args]
+ * @param {object} [invocation.kwargs]
+ * @param {string} [invocation.target]
+ * @param {object} options
+ * @param {string|string[]} options.successEvent
+ * @returns {Promise}
+ */
+function request(client, invocation, options) {
+  const childProcess = client.childProcess,
+    requestMap = client.requestMap,
+    id = uuid.v4().toString(),
+    inputPromise = write(childProcess, _.assign({id}, invocation)),
+    deferred = new bluebird.defer(),
+    request = {
+      id: id,
+      deferred: deferred,
+      successEvent: options.successEvent
+    };
 
+  request.deferred = deferred;
+  requestMap[id] = request;
+
+  return inputPromise.then(function () {
+    return deferred.promise;
+  }).finally(function () {
+    // clean up reference, no matter what the result
+    delete requestMap[id];
+  });
 }
 
 /**
@@ -231,13 +224,6 @@ class JupyterClient extends EventEmitter {
   }
 
   /**
-   * @returns {Promise}
-   */
-  getChannelsRunning() {
-    throw new Error('Not implemented');
-  }
-
-  /**
    * @param {string} code
    * @param {number} [cursorPos]
    * @returns {Promise}
@@ -248,58 +234,40 @@ class JupyterClient extends EventEmitter {
 
   /**
    * @param {string} code
-   * @param {object} [options]
-   * @param {boolean} [options.silent]
-   * @param {boolean} [options.storeHistory]
-   * @param {object} [options.userExpressions]
-   * @param {boolean} [options.allowStdin]
-   * @param {boolean} [options.stopOnError]
+   * @param {object} [args]
+   * @param {boolean} [args.silent]
+   * @param {boolean} [args.storeHistory]
+   * @param {object} [args.userExpressions]
+   * @param {boolean} [args.allowStdin]
+   * @param {boolean} [args.stopOnError]
    * @returns {Promise<object>}
    */
-  execute(code, options) {
-    const childProcess = this.childProcess,
-      requestMap = this.requestMap,
-      id = uuid.v4().toString(),
-      inputPromise = write(childProcess, {
-        id,
-        method: 'execute',
-        kwargs: _.assign({code}, toPythonArgs(options))
-      }),
-      deferred = new bluebird.defer(),
-      request = { id: id, deferred: deferred };
-
-    request.deferred = deferred;
-    requestMap[id] = request;
-
-    return inputPromise.then(function () {
-      return deferred.promise;
-    }).finally(function () {
-      // clean up reference, no matter what the result
-      delete requestMap[id];
-    });
+  execute(code, args) {
+    return request(this, {
+      method: 'execute',
+      kwargs: _.assign({code}, toPythonArgs(args))
+    }, {successEvent: 'execute_reply'});
   }
 
   input(str) {
-    const childProcess = this.childProcess,
-      requestMap = this.requestMap,
-      id = uuid.v4().toString(),
-      inputPromise = write(childProcess, {
-        id,
-        method: 'input',
-        args: [str]
-      }),
-      deferred = new bluebird.defer(),
-      request = { id: id, deferred: deferred };
+    return request(this, {method: 'input', args: [str]}, {successEvent: 'execute_reply'});
+  }
 
-    request.deferred = deferred;
-    requestMap[id] = request;
-
-    return inputPromise.then(function () {
-      return deferred.promise;
-    }).finally(function () {
-      // clean up reference, no matter what the result
-      delete requestMap[id];
-    });
+  /**
+   * @param {string} code
+   * @param {object} [args]
+   * @param {boolean} [args.silent]
+   * @param {boolean} [args.storeHistory]
+   * @param {object} [args.userExpressions]
+   * @param {boolean} [args.allowStdin]
+   * @param {boolean} [args.stopOnError]
+   * @returns {Promise<object>}
+   */
+  getResult(code, args) {
+    return request(this, {
+      method: 'execute',
+      kwargs: _.assign({code}, toPythonArgs(args))
+    }, {successEvent: ['execute_results', 'display_data', 'stream']});
   }
 
   /**
