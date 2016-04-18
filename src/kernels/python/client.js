@@ -63,7 +63,7 @@ function resolveRequest(client, id, message) {
   const requestMap = client.requestMap;
 
   // payload is deprecated, so don't even expose it
-  requestMap[id].deferred.resolve(_.omit(message.content, 'payload'));
+  requestMap[id].deferred.resolve(_.omit(message.content, 'payload', 'engine_info'));
 }
 
 
@@ -127,16 +127,10 @@ function listenToChild(client, child) {
   objectEmitter.on('end', _.partial(handleProcessStreamEvent, client, 'objectEmitter.end'));
 
   child.stdout.on('error', _.partial(handleProcessStreamEvent, client, 'stdout.error'));
-  child.stdout.on('close', _.partial(handleProcessStreamEvent, client, 'stdout.close'));
 
   child.stderr.on('data', _.partial(handleProcessStreamEvent, client, 'stderr.data'));
   child.stderr.on('error', _.partial(handleProcessStreamEvent, client, 'stderr.error'));
 
-  child.on('data', _.partial(handleProcessStreamEvent, client, 'data'));
-  child.on('message', _.partial(handleProcessStreamEvent, client, 'message'));
-  child.on('close', _.partial(handleProcessStreamEvent, client, 'close'));
-  child.on('exit', _.partial(handleProcessStreamEvent, client, 'exit'));
-  child.on('disconnect', _.partial(handleProcessStreamEvent, client, 'disconnect'));
   child.on('error', _.partial(handleProcessStreamEvent, client, 'error'));
 }
 

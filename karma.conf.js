@@ -8,7 +8,7 @@ module.exports = function (karma) {
     browserNoActivityTimeout: 1000 * 60 * 5,
     colors: true,
     singleRun: true,
-    logLevel: karma.LOG_INFO,
+    //logLevel: karma.LOG_INFO,
     reporters: [
       'mocha'
     ],

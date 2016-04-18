@@ -1,7 +1,6 @@
 'use strict';
 
-const _ = require('lodash'),
-  bluebird = require('bluebird'),
+const bluebird = require('bluebird'),
   sinon = require('sinon'),
   dirname = __dirname.split('/').pop(),
   filename = __filename.split('/').pop().split('.').shift(),
@@ -22,12 +21,12 @@ describe(dirname + '/' + filename, function () {
   describe('create', function () {
     const fn = lib[this.title];
 
-    xit('creates', function () {
+    it('creates', function () {
       this.timeout(10000);
       const kernel = fn();
-      
-      return bluebird.delay(1000).then(function () {
-        kernel.kill();
+
+      return bluebird.delay(100).then(function () {
+        return kernel.kill();
       });
     });
   });

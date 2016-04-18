@@ -12,7 +12,8 @@ const _ = require('lodash'),
   example1 = fs.readFileSync(path.resolve('./test/mocks/jupyter_examples/example_1.py'), {encoding: 'UTF8'}),
   example2 = fs.readFileSync(path.resolve('./test/mocks/jupyter_examples/example_2.py'), {encoding: 'UTF8'}),
   example3 = fs.readFileSync(path.resolve('./test/mocks/jupyter_examples/example_3.py'), {encoding: 'UTF8'}),
-  example4 = fs.readFileSync(path.resolve('./test/mocks/jupyter_examples/example_4.py'), {encoding: 'UTF8'});
+  example4 = fs.readFileSync(path.resolve('./test/mocks/jupyter_examples/example_4.py'), {encoding: 'UTF8'}),
+  example5 = fs.readFileSync(path.resolve('./test/mocks/jupyter_examples/example_5.py'), {encoding: 'UTF8'});
 
 describe(dirname + '/' + filename, function () {
   let sandbox;
@@ -51,7 +52,7 @@ describe(dirname + '/' + filename, function () {
 
     afterEach(function () {
       if (client) {
-        client.kill();
+        return client.kill();
       }
     });
 
@@ -94,12 +95,23 @@ describe(dirname + '/' + filename, function () {
         this.timeout(10000);
         const expectedResult = {status: 'ok', user_expressions: {}, execution_count: 2};
 
-        client.on('input_request', function (data) {
+        client.on('input_request', function () {
           client.input('stuff!');
         });
 
         return fn.call(client, example4).then(function (result) {
           expect(result).to.deep.equal(expectedResult);
+        });
+      });
+
+      it('example 5 returns NameError', function () {
+        this.timeout(10000);
+
+        return fn.call(client, example5).then(function (result) {
+          sinon.assert.match(result, {
+            status: 'error', user_expressions: {}, execution_count: 2,
+            ename: 'NameError', evalue: 'name \'axes\' is not defined'
+          });
         });
       });
     });
@@ -150,12 +162,23 @@ describe(dirname + '/' + filename, function () {
       it('example 4', function () {
         this.timeout(10000);
 
-        client.on('input_request', function (data) {
+        client.on('input_request', function () {
           client.input('stuff!');
         });
 
         return fn.call(client, example4).then(function (result) {
-          expect(result).to.deep.equal({ text: 'stuff!\n', name: 'stdout' });
+          expect(result).to.deep.equal({text: 'stuff!\n', name: 'stdout'});
+        });
+      });
+
+      it('example 5 returns chart on error (even though it is blank)', function () {
+        this.timeout(10000);
+
+        return fn.call(client, example2).then(function (result) {
+          expect(result).to.have.property('data').that.is.an('object')
+            .with.property('text/html').that.is.an('string');
+          expect(result).to.have.deep.property('metadata').that.is.an('object')
+            .that.deep.equals({});
         });
       });
     });

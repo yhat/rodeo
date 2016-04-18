@@ -9,7 +9,7 @@ const _ = require('lodash'),
 
 winston.transports.ElectronLogger = electronWinstonTransport;
 
-let logLevel = process.env.LOG || 'silly',
+let logLevel = process.env.RODEO_LOG_LEVEL || 'info',
   transports = [
     new winston.transports.ElectronLogger({
       level: logLevel
