@@ -63,7 +63,7 @@ function resolveRequest(client, id, message) {
   const requestMap = client.requestMap;
 
   // payload is deprecated, so don't even expose it
-  requestMap[id].deferred.resolve(_.omit(message.content, 'payload', 'engine_info'));
+  requestMap[id].deferred.resolve(_.omit(message.content, 'payload', 'engine_info', 'execution_count'));
 }
 
 
@@ -243,6 +243,11 @@ class JupyterClient extends EventEmitter {
     }, {successEvent: 'execute_reply'});
   }
 
+  /**
+   * Respond to a request for input from the kernel
+   * @param {string} str
+   * @returns {Promise}
+   */
   input(str) {
     return request(this, {method: 'input', args: [str]}, {successEvent: 'execute_reply'});
   }

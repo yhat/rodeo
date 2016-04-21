@@ -1,7 +1,9 @@
 'use strict';
 
-const fs = require('fs');
-
+const _ = require('lodash'),
+  bluebird = require('bluebird'),
+  fs = require('fs'),
+  log = require('./log').asInternal(__filename);
 
 /**
  * @param {string} filePath
@@ -17,7 +19,7 @@ function getJSONFileSafeSync(filePath) {
     try {
       result = JSON.parse(contents);
     } catch (e) {
-      console.warn(filePath + ' is not valid JSON: ' + e.message);
+      log('warn', filePath, 'is not valid JSON', e);
     }
   } catch (ex) {
     // deliberately no warning, thus "safe".
@@ -26,4 +28,11 @@ function getJSONFileSafeSync(filePath) {
   return result;
 }
 
+function readFile(filename) {
+  const read = _.partialRight(bluebird.promisify(fs.readFile), 'utf8');
+
+  return read(filename);
+}
+
 module.exports.getJSONFileSafeSync = getJSONFileSafeSync;
+module.exports.readFile = readFile;

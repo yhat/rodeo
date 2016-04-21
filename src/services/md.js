@@ -1,17 +1,17 @@
 'use strict';
 
 const _ = require('lodash'),
+  bluebird = require('bluebird'),
   fs = require('fs'),
+  files = require('./files'),
   path = require('path'),
   marked = require('marked'),
   highlight = require('highlight.js'),
   Handlebars = require('handlebars'),
-  async = require('async'),
   log = require('./log').asInternal(__filename),
   codeBlockToken = /^```/mg,
   languageSelectToken = /^\{(.+)\}/;
-let repeatedLanguages = ['python'],
-  templateFile, source, reportTemplate;
+let repeatedLanguages = ['python'];
 
 marked.setOptions({
   highlight: function (code) {
@@ -72,85 +72,109 @@ function splitUpCells(str) {
   return actions;
 }
 
-/**
- * @param {object} doc
- * @param {object} python
- * @param {function} fn
- */
-function knitHTML(doc, python, fn) {
-  let cells = splitUpCells(doc);
-
-  async.map(cells, function (cell, cb) {
-
-    try {
-      if (cell.execute == 'markdown') {
-        cb(null, [{html: marked(cell.data)}]);
-      } else if (cell.execute == 'mathjax') {
-        cb(null, [{html: cell.data}]);
-      } else if (cell.execute == 'python') {
-        let results = [];
-
-        python.executeStream(cell.data, false, function (result) {
-          results.push(result);
-          if (result.status == 'complete') {
-            cb(null, results);
-          }
-        });
-      } else {
-        cb(null, [{html: marked(cell.data)}]);
-      }
-    } catch (ex) {
-      cb(ex);
-    }
-  }, function (err, results) {
-    if (err) {
-      fn(err);
-      return;
-    }
-
-    let output = [];
-
-    for (let i = 0; i < results.length; i++) {
-      for (let j = 0; j < results[i].length; j++) {
-        let line = results[i][j];
-
-        if (line.image) {
-          let img = "<img src='data:image/png;base64," + line.image.trim() + "' />";
-
-          output.push(img);
-        } else if (line.output) {
-          output.push('<pre>' + line.output + '</pre>');
-        } else if (line.stream) {
-          output.push('<pre>' + line.stream + '</pre>');
-        } else if (line.html) {
-          output.push(line.html);
-        }
-      }
-    }
-    fn(err, output.join('\n'));
-  });
+function pythonResultToHTML(result) {
+  if (result.name === 'stdout' && _.isString(result.text)) {
+    return `<pre>${result.text}</pre>`;
+  } else {
+    log('warn', 'Unknown result:', result);
+  }
 }
 
-templateFile = path.join(__dirname, 'markdown-output.hbs');
-source = fs.readFileSync(templateFile).toString();
-reportTemplate = Handlebars.compile(source);
+/**
+ * @param {object} doc
+ * @param {object} pythonInstance
+ * @returns {Promise}
+ */
+function knitHTML(doc, pythonInstance) {
+  let actions = splitUpCells(doc),
+    languages = {
+      python: data => pythonInstance.getResult(data).then(pythonResultToHTML),
+      mathjax: data => data,
+      markdown: marked,
+      defaults: marked
+    };
 
-function apply(doc, python, includeMeta, fn) {
-  knitHTML(doc, python, function (err, html) {
-    if (err) {
-      log('error', err);
-      return;
+  return bluebird.map(actions, function (action) {
+    let result;
+
+    if (languages[action.execute]) {
+      result = languages[action.execute](action.data);
+    } else {
+      // assume markdown
+      result = languages.defaults(action.data);
     }
+    return result;
+  }).then(results => results.join('\n'));
 
-    if (includeMeta) {
-      html = reportTemplate({ renderedMarkdown: html });
-    }
+  // async.map(actions, function (cell, cb) {
+  //
+  //   try {
+  //     if (cell.execute == 'markdown') {
+  //       cb(null, [{html: marked(cell.data)}]);
+  //     } else if (cell.execute == 'mathjax') {
+  //       cb(null, [{html: cell.data}]);
+  //     } else if (cell.execute == 'python') {
+  //       let results = [];
+  //
+  //       python.getResult(cell.data).then(function (result) {
+  //         results.push(result);
+  //         if (result.status == 'complete') {
+  //           cb(null, results);
+  //         }
+  //       });
+  //     } else {
+  //       cb(null, [{html: marked(cell.data)}]);
+  //     }
+  //   } catch (ex) {
+  //     cb(ex);
+  //   }
+  // }, function (err, results) {
+  //   if (err) {
+  //     fn(err);
+  //     return;
+  //   }
+  //
+  //   let output = [];
+  //
+  //   for (let i = 0; i < results.length; i++) {
+  //     for (let j = 0; j < results[i].length; j++) {
+  //       let line = results[i][j];
+  //
+  //       if (line.image) {
+  //         let img = "<img src='data:image/png;base64," + line.image.trim() + "' />";
+  //
+  //         output.push(img);
+  //       } else if (line.output) {
+  //         output.push('<pre>' + line.output + '</pre>');
+  //       } else if (line.stream) {
+  //         output.push('<pre>' + line.stream + '</pre>');
+  //       } else if (line.html) {
+  //         output.push(line.html);
+  //       }
+  //     }
+  //   }
+  //   fn(err, output.join('\n'));
+  // });
+}
 
-    fn(null, html);
-  });
+/**
+ * @returns {Promise<function>}
+ */
+function getReportTemplate() {
+  return files.readFile(path.join(__dirname, 'markdown-output.hbs'))
+    .then(source => Handlebars.compile(source));
+}
+
+/**
+ * @param {string} html
+ * @returns {Promise<string>}
+ */
+function applyReportTemplate(html) {
+  return getReportTemplate()
+    .then(reportTemplate => reportTemplate({ renderedMarkdown: html }));
 }
 
 module.exports.setRepeatedLanguages = setRepeatedLanguages;
 module.exports.splitUpCells = splitUpCells;
 module.exports.knitHTML = knitHTML;
-module.exports.apply = apply;
+module.exports.applyReportTemplate = applyReportTemplate;

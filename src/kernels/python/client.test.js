@@ -43,14 +43,14 @@ describe(dirname + '/' + filename, function () {
   describe('JupyterClient', function () {
     let client;
 
-    beforeEach(function () {
+    before(function () {
       this.timeout(10000);
       return lib.create().then(function (newClient) {
         client = newClient;
       });
     });
 
-    afterEach(function () {
+    after(function () {
       if (client) {
         return client.kill();
       }
@@ -60,13 +60,13 @@ describe(dirname + '/' + filename, function () {
       const title = this.title;
       let fn;
 
-      beforeEach(function () {
+      before(function () {
         fn = client[title];
       });
 
       it('example 1', function () {
         this.timeout(10000);
-        const expectedResult = {status: 'ok', user_expressions: {}, execution_count: 2};
+        const expectedResult = {status: 'ok', user_expressions: {}};
 
         return fn.call(client, example1).then(function (result) {
           expect(result).to.deep.equal(expectedResult);
@@ -75,7 +75,7 @@ describe(dirname + '/' + filename, function () {
 
       it('example 2', function () {
         this.timeout(10000);
-        const expectedResult = {status: 'ok', user_expressions: {}, execution_count: 2};
+        const expectedResult = {status: 'ok', user_expressions: {}};
 
         return fn.call(client, example2).then(function (result) {
           expect(result).to.deep.equal(expectedResult);
@@ -84,7 +84,7 @@ describe(dirname + '/' + filename, function () {
 
       it('example 3', function () {
         this.timeout(10000);
-        const expectedResult = {status: 'ok', user_expressions: {}, execution_count: 2};
+        const expectedResult = {status: 'ok', user_expressions: {}};
 
         return fn.call(client, example3).then(function (result) {
           expect(result).to.deep.equal(expectedResult);
@@ -92,8 +92,7 @@ describe(dirname + '/' + filename, function () {
       });
 
       it('example 4', function () {
-        this.timeout(10000);
-        const expectedResult = {status: 'ok', user_expressions: {}, execution_count: 2};
+        const expectedResult = {status: 'ok', user_expressions: {}};
 
         client.on('input_request', function () {
           client.input('stuff!');
@@ -105,12 +104,10 @@ describe(dirname + '/' + filename, function () {
       });
 
       it('example 5 returns NameError', function () {
-        this.timeout(10000);
-
         return fn.call(client, example5).then(function (result) {
           sinon.assert.match(result, {
-            status: 'error', user_expressions: {}, execution_count: 2,
-            ename: 'NameError', evalue: 'name \'axes\' is not defined'
+            status: 'error', user_expressions: {},
+            ename: 'NameError', evalue: 'name \'asdf\' is not defined'
           });
         });
       });
@@ -120,7 +117,7 @@ describe(dirname + '/' + filename, function () {
       const title = this.title;
       let fn;
 
-      beforeEach(function () {
+      before(function () {
         fn = client[title];
       });
 

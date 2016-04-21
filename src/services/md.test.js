@@ -2,19 +2,16 @@
 
 const expect = require('chai').expect,
   sinon = require('sinon'),
-  log = require('./log'),
   dirname = __dirname.split('/').pop(),
   filename = __filename.split('/').pop().split('.').shift(),
   lib = require('./' + filename),
-  pythonKernel = require('../kernels/python');
+  client = require('../kernels/python/client');
 
 describe(dirname + '/' + filename, function () {
   let sandbox;
 
   beforeEach(function () {
     sandbox = sinon.sandbox.create();
-    sandbox.stub(log);
-
     lib.setRepeatedLanguages(['langA', 'langB']);
   });
 
@@ -64,44 +61,60 @@ describe(dirname + '/' + filename, function () {
 
   describe('knitHTML', function () {
     const fn = lib[this.title];
-    let pythonWrapper;
+    let python;
 
-    beforeEach(function () {
-      return new Promise(function (resolve, reject) {
-        pythonKernel.startNewKernel('/usr/local/bin/python', function (status, python) {
-          if (status.jupyter !== true || status.python !== true) {
-            reject(new Error('unable to start python with jupyter'));
-          } else {
-            pythonWrapper = python;
-            resolve();
-          }
-        });
+    before(function () {
+      return client.create().then(function (client) {
+        python = client;
       });
     });
 
-    it('handles markdown', function (done) {
+    after(function () {
+      if (python) {
+        return python.kill();
+      }
+    });
+
+    it('handles markdown', function () {
       const text = 'random text',
         expectedResult = '<p>random text</p>\n';
 
-      fn(text, pythonWrapper, function (err, result) {
-        expect(err).to.equal(null);
+      return fn(text, python).then(function (result) {
         expect(result).to.equal(expectedResult);
-        done(err);
       });
     });
 
-    it('handles python', function (done) {
+    it('handles python as repeated language', function () {
       const text = '```{python}\nprint "Hello."\n```',
-        expectedResult = '<pre>Hello.\n</pre>\n<pre>Hello.\n</pre>';
+        expectedResult =
+          '<pre><code class="lang-python"><span class="hljs-built_in">print</span> ' +
+          '<span class="hljs-string">"Hello."</span>\n</code></pre>\n\n<pre>Hello.\n</pre>\n';
 
-      fn(text, pythonWrapper, function (err, result) {
-        if (err) {
-          done(err);
-        } else {
-          expect(result).to.equal(expectedResult);
-          done();
-        }
+      lib.setRepeatedLanguages(['python']);
+
+      return fn(text, python).then(function (result) {
+        expect(result).to.equal(expectedResult);
       });
+    });
+
+    it('handles mathjax (by leaving it unchanged)', function () {
+      const text = '```{mathjax}\n... we have `\(x_1 = 132\)` and `\(x_2 = 370\)` and so ...\n```',
+        expectedResult = '\n... we have `(x_1 = 132)` and `(x_2 = 370)` and so ...\n';
+
+      return fn(text, python).then(function (result) {
+        expect(result).to.equal(expectedResult);
+      });
+    });
+  });
+  
+  describe('applyReportTemplate', function () {
+    const fn = lib[this.title];
+
+    it('applies template without throwing error', function () {
+      const html = 'some html';
+
+      // doesn't throw error
+      return fn(html);
     });
   });
 });
