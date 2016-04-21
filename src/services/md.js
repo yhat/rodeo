@@ -2,7 +2,6 @@
 
 const _ = require('lodash'),
   bluebird = require('bluebird'),
-  fs = require('fs'),
   files = require('./files'),
   path = require('path'),
   marked = require('marked'),
@@ -10,7 +9,8 @@ const _ = require('lodash'),
   Handlebars = require('handlebars'),
   log = require('./log').asInternal(__filename),
   codeBlockToken = /^```/mg,
-  languageSelectToken = /^\{(.+)\}/;
+  languageSelectToken = /^\{(.+)\}/,
+  reportTemplate = 'md.hbs';
 let repeatedLanguages = ['python'];
 
 marked.setOptions({
@@ -161,7 +161,7 @@ function knitHTML(doc, pythonInstance) {
  * @returns {Promise<function>}
  */
 function getReportTemplate() {
-  return files.readFile(path.join(__dirname, 'markdown-output.hbs'))
+  return files.readFile(path.join(__dirname, reportTemplate))
     .then(source => Handlebars.compile(source));
 }
 
