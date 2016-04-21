@@ -1,6 +1,7 @@
+'use strict';
+
 const util = require('util'),
-  winston = require('winston'),
-  electron = require('electron');
+  winston = require('winston');
 
 let ElectronLogger = function (options) {
   this.name = 'electronLogger';

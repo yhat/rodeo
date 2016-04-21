@@ -106,7 +106,7 @@ describe(dirname + '/' + filename, function () {
       });
     });
   });
-  
+
   describe('applyReportTemplate', function () {
     const fn = lib[this.title];
 

@@ -20,6 +20,8 @@ describe('startup', function () {
 
       const component = shallowRenderer.getRenderOutput();
 
+      console.log(JSON.stringify(component));
+
       expect(component.props.className).to.equal('jumbotron');
     });
   });

@@ -1,7 +1,6 @@
 'use strict';
 
 const _ = require('lodash'),
-  bluebird = require('bluebird'),
   chalk = require('chalk'),
   electron = require('electron'),
   fs = require('fs'),
@@ -125,14 +124,6 @@ function getPropertySafe(target, propertyName) {
     return _.isFunction(value) && value.call(target) || value;
   } catch (ex) {
     return chalk.italics('throws ' + ex.name + ': ' + ex.message);
-  }
-}
-
-function getURLSafe(target) {
-  try {
-    return target.getURL();
-  } catch (ex) {
-    return '';
   }
 }
 

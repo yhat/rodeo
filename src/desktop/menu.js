@@ -12,7 +12,7 @@ const shell = require('shell'),
   webFrame = require('web-frame'),
   dialogs = require('dialogs')({url: '../../static/img/cowboy-hat.svg'}),
   Menu = remote.require('menu'),
-  ipc = require('ipc');
+  ipcMain = require('electron').ipcMain;
 
 function getMenuShortcutsTemplate() {
   return [
@@ -82,11 +82,11 @@ function getMenuShortcutsTemplate() {
               }, function (reply) {
                 if (reply == 0) {
                   // yes, nuke it
-                  ipc.send('quit');
+                  ipcMain.send('quit');
                 }
               });
             } else {
-              ipc.send('quit');
+              ipcMain.send('quit');
             }
           }
         }
@@ -412,7 +412,7 @@ function getMenuShortcutsTemplate() {
         {
           label: 'Check for Updates',
           click: function () {
-            ipc.send('check-for-updates');
+            ipcMain.send('check-for-updates');
           }
         },
         {

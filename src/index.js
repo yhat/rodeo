@@ -9,13 +9,15 @@ const _ = require('lodash'),
   path = require('path'),
   kernel = require('./kernels/python'),
   md = require('./services/md'),
+  os = require('os'),
   preferences = require('./services/preferences'),
   updater = require('./services/updater'),
   uuid = require('uuid'),
   log = require('./services/log').asInternal(__filename),
   staticFileDir = path.resolve('./static/'),
   allowedKernelLangauges = ['python'],
-  kernelClients = {};
+  kernelClients = {},
+  USER_HOME = os.homedir();
 
 electron.crashReporter.start({
   productName: 'Yhat Dev',
@@ -176,7 +178,8 @@ function onRemovePythonPath(event, pythonPath) {
     paths = rc.pythonPaths || [];
 
   if (paths.indexOf(pythonPath) > -1) {
-    index = paths.indexOf(pythonPath);
+    let index = paths.indexOf(pythonPath);
+
     paths.splice(index, 1);
   }
   if (rc.pythonCmd == pythonPath) {
@@ -200,13 +203,22 @@ function onSetWD(event, wd) {
   event.returnValue = USER_WD;
 }
 
+/**
+ * On markdown?  Should change the name of this to be more clear.
+ * @param {Event} event
+ * @param {object} data
+ * @returns {Promise}
+ */
 function onMD(event, data) {
-  md.apply(data.doc, python, false, function (err, doc) {
-    if (err) {
-      log('error', 'onMD', err);
-    }
+  const doc = data.doc;
 
-    event.returnValue = doc;
+  return getKernelClient('python').then(function (pythonInstance) {
+    return md.knitHTML(doc, pythonInstance);
+  }).then(function (html) {
+    return md.applyReportTemplate(html);
+  }).then(function (html) {
+    event.returnValue = html; // this isn't sync anymore, so this won't work, if it ever did
+    return html;
   });
 }
 
@@ -477,8 +489,8 @@ function promiseOnlyOne(list, key, fn) {
 
 /**
  * Currently, named on language name.  We could make this more specific (python2.7) later.
- * @param language
- * @returns {*}
+ * @param {string} language
+ * @returns {Promise}
  */
 function getKernelClient(language) {
   return promiseOnlyOne(kernelClients, language, function () {

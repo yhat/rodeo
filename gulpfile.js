@@ -6,7 +6,7 @@ const eslint = require('eslint/lib/cli'),
   babel = require('gulp-babel'),
   sourcemaps = require('gulp-sourcemaps'),
   concat = require('gulp-concat'),
-  gUtil = require('gutil'),
+  gulpUtil = require('gulp-util'),
   karma = require('karma'),
   KarmaServer = karma.Server,
   path = require('path'),
@@ -23,8 +23,7 @@ function runKarma(configFile) {
     const server = new KarmaServer({
       configFile: path.join(__dirname, configFile),
       singleRun: true
-    }, function (exitCode) {
-      console.log('karma exit code', exitCode);
+    }, function () {
       reject();
     });
 
@@ -34,13 +33,12 @@ function runKarma(configFile) {
 
 gulp.task('eslint', function () {
   return globby(jsPatterns).then(function (paths) {
-    console.log('eslint', paths);
     // additional CLI options can be added here
     let code = eslint.execute(paths.join(' '));
 
     if (code) {
       // eslint output already written, wrap up with a short message
-      throw new gUtil.PluginError('lint', new Error('ESLint error'));
+      throw new gulpUtil.PluginError('lint', new Error('ESLint error'));
     }
   });
 });
@@ -66,7 +64,7 @@ gulp.task('jsx', function () {
 
 gulp.task('lint', ['eslint']);
 gulp.task('test', ['lint', 'karma-renderer', 'karma-main']);
-gulp.task('build', []);
+gulp.task('build', ['jsx']);
 gulp.task('run', []);
 gulp.task('watch', function () {
   gulp.watch('public/**/*.js', ['karma-renderer']);

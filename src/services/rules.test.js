@@ -2,7 +2,6 @@
 
 const _ = require('lodash'),
   expect = require('chai').expect,
-  sinon = require('sinon'),
   dirname = __dirname.split('/').pop(),
   filename = __filename.split('/').pop().split('.').shift(),
   lib = require('./' + filename);

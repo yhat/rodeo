@@ -7,29 +7,8 @@
  */
 
 const _ = require('lodash'),
-  bluebird = require('bluebird'),
   EventEmitter  = require('events'),
-  fs = require('fs'),
-  log = require('../../services/log').asInternal(__filename),
-  path = require('path'),
-  processes = require('../../services/processes'),
-  promises = require('../../services/promises');
-
-function handleProcessStreamStdoutData(client, data) {
-  let obj;
-
-  try {
-    obj = JSON.parse(data);
-
-    if (obj.status === 'complete' && obj.id === 'startup-complete') {
-      client.emit('ready');
-    } else {
-      client.emit('error', new Error('Unknown data object: ' + require('util').inspect(obj)));
-    }
-  } catch (ex) {
-    client.emit('error', ex);
-  }
-}
+  processes = require('../../services/processes');
 
 function handleProcessStreamEvent(client, source, data) {
   client.emit('event', source, data);

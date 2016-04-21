@@ -32,111 +32,6 @@ var LoadingWidget = window.LoadingWidget = React.createClass({
 });
 'use strict';
 
-var ipc = require('electron').ipcRenderer;
-
-var Startup = window.Startup = React.createClass({
-  displayName: 'Startup',
-
-  getInitialState: function getInitialState() {
-    return {
-      status: 'loading',
-      statusPython: false,
-      statusJupyter: false,
-      pythonPath: null
-    };
-  },
-  componentDidMount: function componentDidMount() {
-    var self = this;
-    ipc.on('setup-status', function (evt, data) {
-      var s = self.state;
-      s.statusPython = data.python;
-      s.statusJupyter = data.jupyter;
-      if (data.python == false || data.jupyter == false) {
-        s.status = 'error';
-      } else if (data.isFirstRun == true) {
-        s.status = 'good to go';
-        setTimeout(function () {
-          self.setState({
-            status: "tour",
-            statusPython: self.state.statusPython,
-            statusJupyter: self.state.statusJupyter,
-            pythonPath: self.state.pythonPath
-          });
-        }, 1500);
-      } else {
-        s.status = "good to go";
-      }
-      self.setState(s);
-      if (data.python == true && data.jupyter == true && data.isFirstRun == false) {
-        // ain't our first Rodeo
-        ipc.send('exit-tour');
-      }
-    });
-  },
-  testPythonPath: function testPythonPath(pythonPath) {
-    var s = this.state;
-    s.pythonPath = pythonPath || s.pythonPath || "NOTHING";
-    s.status = 'loading';
-    this.setState(s);
-
-    var self = this;
-    setTimeout(function () {
-      var result = ipc.sendSync('test-path', pythonPath || "NOTHING");
-      var status;
-      if (result && result.python && result.jupyter) {
-        status = "good to go";
-        ipc.sendSync('launch-kernel', pythonPath);
-        self.setState({
-          status: "tour",
-          statusPython: self.state.statusPython,
-          statusJupyter: self.state.statusJupyter,
-          pythonPath: self.state.pythonPath
-        });
-      } else {
-        self.setState({
-          status: "error",
-          statusPython: result.python,
-          statusJupyter: result.jupyter,
-          pythonPath: pythonPath
-        });
-      }
-    }, 750);
-  },
-  render: function render() {
-    var style = { backgroundColor: "inherit" };
-    var content;
-    if (this.state.status == "loading") {
-      content = React.createElement(LoadingWidget, null);
-    } else if (this.state.status == "error") {
-      content = React.createElement(
-        'div',
-        null,
-        React.createElement(SetupTriage, { pythonPath: this.state.pythonPath, statusPython: this.state.statusPython, statusJupyter: this.state.statusJupyter, testPythonPath: this.testPythonPath }),
-        ';'
-      );
-    } else if (this.state.status == "good to go") {
-      content = React.createElement(
-        'div',
-        null,
-        React.createElement(
-          'p',
-          { className: 'lead text-center' },
-          'You\'re ready to Rodeo!'
-        ),
-        React.createElement(SetupTriage, { pythonPath: this.state.pythonPath, statusPython: this.state.statusPython, statusJupyter: this.state.statusJupyter, testPythonPath: this.testPythonPath }),
-        ';'
-      );
-    } else {
-      content = React.createElement(Tour, null);
-    }
-    return React.createElement(
-      'div',
-      { className: 'jumbotron', style: style },
-      content
-    );
-  }
-});
-
 var SetupJupyter = window.SetupJupyter = React.createClass({
   displayName: 'SetupJupyter',
 
@@ -237,6 +132,7 @@ var SetupJupyter = window.SetupJupyter = React.createClass({
     );
   }
 });
+'use strict';
 
 var SetupPython = window.SetupPython = React.createClass({
   displayName: 'SetupPython',
@@ -347,9 +243,10 @@ var SetupPython = window.SetupPython = React.createClass({
     );
   }
 });
+"use strict";
 
 var SetupTriage = window.SetupTriage = React.createClass({
-  displayName: 'SetupTriage',
+  displayName: "SetupTriage",
 
   render: function render() {
     var python;
@@ -361,34 +258,141 @@ var SetupTriage = window.SetupTriage = React.createClass({
       jupyter = React.createElement(SetupJupyter, { pythonPath: this.props.pythonPath, testPythonPath: this.props.testPythonPath });
     }
     return React.createElement(
-      'div',
-      { id: 'setup-triage', className: 'row text-center' },
+      "div",
+      { id: "setup-triage", className: "row text-center" },
       React.createElement(
-        'div',
-        { className: 'row' },
+        "div",
+        { className: "row" },
         React.createElement(
-          'div',
-          { className: 'col-sm-4 col-sm-offset-4' },
+          "div",
+          { className: "col-sm-4 col-sm-offset-4" },
           React.createElement(
-            'li',
+            "li",
             { className: this.props.statusPython ? "list-group-item list-group-item-success" : "list-group-item list-group-item-danger" },
-            'Python PATH ',
-            React.createElement('i', { className: this.props.statusPython ? "fa fa-check" : "fa fa-times" })
+            "Python PATH ",
+            React.createElement("i", { className: this.props.statusPython ? "fa fa-check" : "fa fa-times" })
           ),
           React.createElement(
-            'li',
+            "li",
             { className: this.props.statusJupyter ? "list-group-item list-group-item-success" : "list-group-item list-group-item-danger" },
-            'Jupyter ',
-            React.createElement('i', { className: this.props.statusJupyter ? "fa fa-check" : "fa fa-times" })
+            "Jupyter ",
+            React.createElement("i", { className: this.props.statusJupyter ? "fa fa-check" : "fa fa-times" })
           )
         )
       ),
-      React.createElement('br', null),
+      React.createElement("br", null),
       python,
       jupyter
     );
   }
 });
+'use strict';
+
+var ipc = require('electron').ipcRenderer;
+
+var Startup = window.Startup = React.createClass({
+  displayName: 'Startup',
+
+  getInitialState: function getInitialState() {
+    return {
+      status: 'loading',
+      statusPython: false,
+      statusJupyter: false,
+      pythonPath: null
+    };
+  },
+  componentDidMount: function componentDidMount() {
+    var self = this;
+    ipc.on('setup-status', function (evt, data) {
+      var s = self.state;
+      s.statusPython = data.python;
+      s.statusJupyter = data.jupyter;
+      if (data.python == false || data.jupyter == false) {
+        s.status = 'error';
+      } else if (data.isFirstRun == true) {
+        s.status = 'good to go';
+        setTimeout(function () {
+          self.setState({
+            status: "tour",
+            statusPython: self.state.statusPython,
+            statusJupyter: self.state.statusJupyter,
+            pythonPath: self.state.pythonPath
+          });
+        }, 1500);
+      } else {
+        s.status = "good to go";
+      }
+      self.setState(s);
+      if (data.python == true && data.jupyter == true && data.isFirstRun == false) {
+        // ain't our first Rodeo
+        ipc.send('exit-tour');
+      }
+    });
+  },
+  testPythonPath: function testPythonPath(pythonPath) {
+    var s = this.state;
+    s.pythonPath = pythonPath || s.pythonPath || "NOTHING";
+    s.status = 'loading';
+    this.setState(s);
+
+    var self = this;
+    setTimeout(function () {
+      var result = ipc.sendSync('test-path', pythonPath || "NOTHING");
+      var status;
+      if (result && result.python && result.jupyter) {
+        status = "good to go";
+        ipc.sendSync('launch-kernel', pythonPath);
+        self.setState({
+          status: "tour",
+          statusPython: self.state.statusPython,
+          statusJupyter: self.state.statusJupyter,
+          pythonPath: self.state.pythonPath
+        });
+      } else {
+        self.setState({
+          status: "error",
+          statusPython: result.python,
+          statusJupyter: result.jupyter,
+          pythonPath: pythonPath
+        });
+      }
+    }, 750);
+  },
+  render: function render() {
+    var style = { backgroundColor: "inherit" };
+    var content;
+    if (this.state.status == "loading") {
+      content = React.createElement(LoadingWidget, null);
+    } else if (this.state.status == "error") {
+      content = React.createElement(
+        'div',
+        null,
+        React.createElement(SetupTriage, { pythonPath: this.state.pythonPath, statusPython: this.state.statusPython, statusJupyter: this.state.statusJupyter, testPythonPath: this.testPythonPath }),
+        ';'
+      );
+    } else if (this.state.status == "good to go") {
+      content = React.createElement(
+        'div',
+        null,
+        React.createElement(
+          'p',
+          { className: 'lead text-center' },
+          'You\'re ready to Rodeo!'
+        ),
+        React.createElement(SetupTriage, { pythonPath: this.state.pythonPath, statusPython: this.state.statusPython, statusJupyter: this.state.statusJupyter, testPythonPath: this.testPythonPath }),
+        ';'
+      );
+    } else {
+      content = React.createElement(Tour, null);
+    }
+    return React.createElement(
+      'div',
+      { className: 'jumbotron', style: style },
+      content
+    );
+  }
+});
+'use strict';
 
 var TourItem = window.TourItem = React.createClass({
   displayName: 'TourItem',
@@ -430,9 +434,10 @@ var TourItem = window.TourItem = React.createClass({
     );
   }
 });
+"use strict";
 
 var Tour = window.Tour = React.createClass({
-  displayName: 'Tour',
+  displayName: "Tour",
 
   exitTour: function exitTour() {
     ipc.send('exit-tour');
@@ -503,18 +508,18 @@ var Tour = window.Tour = React.createClass({
     }, 50);
 
     return React.createElement(
-      'div',
-      { className: 'text-center' },
+      "div",
+      { className: "text-center" },
       React.createElement(
-        'div',
-        { id: 'tour' },
+        "div",
+        { id: "tour" },
         tourItems
       ),
-      React.createElement('br', null),
+      React.createElement("br", null),
       React.createElement(
-        'button',
-        { onClick: this.exitTour, className: 'btn btn-primary' },
-        'Enough of this tour, let\'s start Rodeo!'
+        "button",
+        { onClick: this.exitTour, className: "btn btn-primary" },
+        "Enough of this tour, let's start Rodeo!"
       )
     );
   }

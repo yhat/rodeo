@@ -15,7 +15,7 @@ const fs = require('fs'),
   homeDir = os.homedir();
 
 /**
- * @param preferences
+ * @param {object} preferences
  */
 function guaranteeId(preferences) {
   if (preferences.id === null || preferences.id === undefined) {

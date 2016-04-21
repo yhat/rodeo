@@ -2,7 +2,8 @@
 
 const path = require('path'),
   walk = require('walk'),
-  preferences = require('./preferences');
+  preferences = require('./preferences'),
+  USER_WD = require('os').homedir();
 
 let walker;
 

@@ -3,6 +3,7 @@
 const path = require('path'),
   fse = require('fs-extra'),
   tmp = require('tmp'),
+  log = require('../../services/log').asInternal(__filename),
   execSync = require('child_process').execSync,
   preferences = require('./../../services/preferences');
 
@@ -19,7 +20,7 @@ function getUserPath() {
   try {
     return execSync(cmd, { timeout: 2000 }).toString();
   } catch (e) {
-    console.error('[ERROR]: ' + e.toString());
+    log('error', e);
     return null;
   }
 }
@@ -42,7 +43,7 @@ function findMeAPython(fn) {
   fse.copySync(testPython, testPythonFile.name);
 
   if (rc.pythonCmd) {
-    console.log('[INFO]: found default python in rc file: ' + rc.pythonCmd);
+    log('info', 'found default python in rc file: ' + rc.pythonCmd);
     pythonCmds.push(rc.pythonCmd);
   }
 
@@ -70,7 +71,7 @@ function findMeAPython(fn) {
     let result;
 
     try {
-      result = execSync(pythonCmd.replace(/ /g, '\\ ') + " " + testPythonFile.name, { timeout: 4000 });
+      result = execSync(pythonCmd.replace(/ /g, '\\ ') + ' ' + testPythonFile.name, { timeout: 4000 });
 
       result = JSON.parse(result);
     } catch (e) {
