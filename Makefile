@@ -34,7 +34,7 @@ public/js/handlebars-templates.js: $(HBS_FILES)
 	handlebars public/handlebars-templates/* > public/js/handlebars-templates.js
 
 static/js/startup.js: $(JSX_FILES)
-	jsx public/jsx/startup.jsx > static/js/startup.js
+	gulp jsx
 
 static/js/external.min.js : $(EXTERNAL_FILES)
 	uglifyjs public/js/lib/jquery.min.js \

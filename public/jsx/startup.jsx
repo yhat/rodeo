@@ -1,6 +1,6 @@
 var ipc = require('electron').ipcRenderer;
 
-var Startup = React.createClass({
+var Startup = window.Startup = React.createClass({
   getInitialState: function() {
     return {
       status: 'loading',
@@ -15,10 +15,10 @@ var Startup = React.createClass({
         var s = self.state;
         s.statusPython = data.python;
         s.statusJupyter = data.jupyter;
-        if (data.python==false || data.jupyter==false) {
-          s.status = "error";
-        } else if (data.isFirstRun==true) {
-          s.status = "good to go";
+        if (data.python == false || data.jupyter == false) {
+          s.status = 'error';
+        } else if (data.isFirstRun == true) {
+          s.status = 'good to go';
           setTimeout(function() {
             self.setState({
               status: "tour",
@@ -95,32 +95,7 @@ var Startup = React.createClass({
   }
 });
 
-  // <h1>Rodeo is starting up...</h1>
-  // <p className="lead">We're launching your python session. This should only take a moment or two.</p>
-var LoadingWidget = React.createClass({
-  render: function() {
-    var style={
-      height: "200px"
-    };
-    return (
-      <div className="text-center">
-        <br />
-        <br />
-        <br />
-        <br />
-        <br />
-        <br />
-        <img src="img/loading.gif" style={style} />
-        <br />
-        <br />
-        <br />
-        <p className="lead">Starting up...</p>
-      </div>
-    );
-  }
-});
-
-var SetupJupyter = React.createClass({
+var SetupJupyter = window.SetupJupyter = React.createClass({
   openTerminal: function() {
     // if windows
     if (/win32/.test(process.platform)) {
@@ -167,7 +142,7 @@ var SetupJupyter = React.createClass({
   }
 });
 
-var SetupPython = React.createClass({
+var SetupPython = window.SetupPython = React.createClass({
   getInitialState: function() {
     return { pythonPath: '' };
   },
@@ -234,7 +209,7 @@ var SetupPython = React.createClass({
   }
 });
 
-var SetupTriage = React.createClass({
+var SetupTriage = window.SetupTriage = React.createClass({
   render: function() {
     var python;
     if (this.props.statusPython==false) {
@@ -265,12 +240,12 @@ var SetupTriage = React.createClass({
 });
 
 
-var TourItem = React.createClass({
+var TourItem = window.TourItem = React.createClass({
   render: function() {
     var style = {
       maxWidth: '100%',
       maxHeight: '250px'
-    }
+    };
     var img = <img src={this.props.img} style={style} />
     if (this.props.img2) {
       img = (
@@ -295,7 +270,7 @@ var TourItem = React.createClass({
   }
 });
 
-var Tour = React.createClass({
+var Tour = window.Tour = React.createClass({
   exitTour: function() {
     ipc.send('exit-tour');
   },
@@ -367,7 +342,7 @@ var Tour = React.createClass({
         "img": "img/tour/first/rodeo-celebration.png",
         "img2": null
       }
-    ]
+    ];
     var tourItems = data.map(function(item) {
       return <TourItem title={item.title} subtitle={item.subtitle} img={item.img} img2={item.img2} />
     });

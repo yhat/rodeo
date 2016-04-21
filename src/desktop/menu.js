@@ -137,6 +137,8 @@ function getMenuShortcutsTemplate() {
           label: 'Close File',
           accelerator: 'CmdOrCtrl+w',
           click: function () {
+            var active, n;
+
             if (variableWindow && variableWindow.isFocused()) {
               variableWindow.close();
               variableWindow = null;
@@ -147,8 +149,9 @@ function getMenuShortcutsTemplate() {
               markdownWindow.close();
               markdownWindow = null;
             } else {
-              if ($('#editorsTab .active').length) {
-                var n = $('#editorsTab .active').attr('id').replace('editor-tab-', '');
+              active = $('#editorsTab').find('.active');
+              if (active.length) {
+                n = active.attr('id').replace('editor-tab-', '');
                 closeActiveTab(n);
               }
             }
@@ -188,11 +191,13 @@ function getMenuShortcutsTemplate() {
               accelerator: 'CmdOrCtrl+Alt+Left',
               click: function () {
                 track('shortcut', 'Change Editor > Move One Left');
-                var prevTab = $('#editorsTab .active').prev();
+                var tab = $('#editorsTab'),
+                  prevTab = tab.find('.active').prev();
+
                 if (prevTab && $('a', prevTab).attr('href') != '#') {
                   $('a', prevTab).click();
                 } else {
-                  $('a', $('#editorsTab li').last().prev()).click()
+                  $('a', tab.find('li').last().prev()).click()
                 }
               }
             },
@@ -201,11 +206,13 @@ function getMenuShortcutsTemplate() {
               accelerator: 'CmdOrCtrl+Alt+Right',
               click: function () {
                 track('shortcut', 'Change Editor > Move One Right');
-                var nextTab = $('#editorsTab .active').next();
+                var tab = $('#editorsTab'),
+                  nextTab = tab.find('.active').next();
+
                 if (nextTab && $('a', nextTab).attr('href') != '#') {
                   $('a', nextTab).click();
                 } else {
-                  $('a', $('#editorsTab li').first().next()).click();
+                  $('a', tab.find('li').first().next()).click();
                 }
               }
             }
@@ -219,8 +226,9 @@ function getMenuShortcutsTemplate() {
               accelerator: 'CmdOrCtrl+1',
               click: function () {
                 track('shortcut', 'Focus > Editor');
-                var id = $('#editors .active .editor').attr('id');
-                var editor = ace.edit(id);
+                var id = $('#editors').find('.active .editor').attr('id'),
+                  editor = ace.edit(id);
+
                 editor.focus();
               }
             },
@@ -237,9 +245,11 @@ function getMenuShortcutsTemplate() {
               accelerator: 'CmdOrCtrl+3',
               click: function () {
                 track('shortcut', 'Focus > Variables/History');
-                var next = $('#top-right .nav .active').next();
+                var topRight = $('#top-right'),
+                  next = topRight.find('.nav .active').next();
+
                 if (!$(next).length) {
-                  next = $('#top-right .nav li').first();
+                  next = topRight.find('.nav li').first();
                 }
                 $('a', next).click();
               }
@@ -249,10 +259,11 @@ function getMenuShortcutsTemplate() {
               accelerator: 'CmdOrCtrl+4',
               click: function () {
                 track('shortcut', 'Focus > Files/Plots/Pacakges/Help');
-                var next = $('#bottom-right .nav .active').next();
+                var bottomRight = $('#bottom-right'),
+                  next = bottomRight.find('.nav .active').next();
                 
                 if (!$(next).length) {
-                  next = $('#bottom-right .nav li').first();
+                  next = bottomRight.find('.nav li').first();
                 }
                 $('a', next).click();
               }
@@ -408,8 +419,10 @@ function getMenuShortcutsTemplate() {
           label: 'View Shortcuts',
           // no shortcut (?)
           click: function () {
-            $('#shortcut-display-modal').modal('show');
-            $('#shortcut-display-modal input').focus();
+            var modal = $('#shortcut-display-modal');
+
+            modal.modal('show');
+            modal.find('input').focus();
           }
         },
         {
@@ -428,6 +441,7 @@ function getMenuShortcutsTemplate() {
               center: true,
               alwaysOnTop: true
             });
+
             // tourWindow.openDevTools();
             tourWindow.on('closed', function () {
               tourWindow = null;

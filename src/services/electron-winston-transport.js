@@ -18,9 +18,6 @@ ElectronLogger.prototype.log = function (level, msg, meta, callback) {
 
   if (ipcRenderer) {
     ipcRenderer.send('console-log', {level, msg, meta});
-    console.log('hey');
-  } else {
-    console.log('heya');
   }
 
   //

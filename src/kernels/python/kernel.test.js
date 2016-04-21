@@ -4,8 +4,7 @@ const bluebird = require('bluebird'),
   sinon = require('sinon'),
   dirname = __dirname.split('/').pop(),
   filename = __filename.split('/').pop().split('.').shift(),
-  lib = require('./' + filename),
-  log = require('../../services/log').asInternal(__filename);
+  lib = require('./' + filename);
 
 describe(dirname + '/' + filename, function () {
   let sandbox;

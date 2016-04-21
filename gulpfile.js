@@ -3,6 +3,9 @@
 const eslint = require('eslint/lib/cli'),
   globby = require('globby'),
   gulp = require('gulp'),
+  babel = require('gulp-babel'),
+  sourcemaps = require('gulp-sourcemaps'),
+  concat = require('gulp-concat'),
   gUtil = require('gutil'),
   karma = require('karma'),
   KarmaServer = karma.Server,
@@ -14,6 +17,20 @@ const eslint = require('eslint/lib/cli'),
     'scripts/**/*.js',
     'src/**/*.js'
   ];
+
+function runKarma(configFile) {
+  return new Promise(function (resolve, reject) {
+    const server = new KarmaServer({
+      configFile: path.join(__dirname, configFile),
+      singleRun: true
+    }, function (exitCode) {
+      console.log('karma exit code', exitCode);
+      reject();
+    });
+
+    server.start();
+  });
+}
 
 gulp.task('eslint', function () {
   return globby(jsPatterns).then(function (paths) {
@@ -28,25 +45,31 @@ gulp.task('eslint', function () {
   });
 });
 
-gulp.task('karma', function () {
-  return new Promise(function (resolve, reject) {
-    const server = new KarmaServer({
-      configFile: path.join(__dirname, 'karma.conf.js'),
-      singleRun: true
-    }, function (exitCode) {
-      console.log('karma exit code', exitCode);
-      reject();
-    });
+gulp.task('karma-main', function () {
+  return runKarma('karma.main.conf.js');
+});
 
-    server.start();
-  });
+gulp.task('karma-renderer', function () {
+  return runKarma('karma.renderer.conf.js');
+});
+
+gulp.task('jsx', function () {
+  return gulp.src('public/jsx/**/*.jsx')
+    .pipe(sourcemaps.init())
+    .pipe(babel({
+      presets: ['es2015', 'react']
+    }))
+    .pipe(concat('startup.js'))
+    .pipe(sourcemaps.write('.'))
+    .pipe(gulp.dest('static/js'));
 });
 
 gulp.task('lint', ['eslint']);
-gulp.task('test', ['lint', 'karma']);
+gulp.task('test', ['lint', 'karma-renderer', 'karma-main']);
 gulp.task('build', []);
 gulp.task('run', []);
 gulp.task('watch', function () {
-  gulp.watch('src/**/*.js', ['karma']);
+  gulp.watch('public/**/*.js', ['karma-renderer']);
+  gulp.watch('src/**/*.js', ['karma-main']);
 });
 gulp.task('default', ['test', 'build', 'run']);

@@ -58,7 +58,7 @@ templates['editor.hbs'] = template({"compiler":[7,">= 4.0.0"],"main":function(co
     + alias4(((helper = (helper = helpers.filename || (depth0 != null ? depth0.filename : depth0)) != null ? helper : alias2),(typeof helper === alias3 ? helper.call(alias1,{"name":"filename","hash":{},"data":data}) : helper)))
     + "\">\n  <div class=\"editor\" id=\"editor-"
     + alias4(((helper = (helper = helpers.n || (depth0 != null ? depth0.n : depth0)) != null ? helper : alias2),(typeof helper === alias3 ? helper.call(alias1,{"name":"n","hash":{},"data":data}) : helper)))
-    + "\"></div>\n</div\n";
+    + "\"></div>\n</div>\n";
 },"useData":true});
 templates['file-item.hbs'] = template({"1":function(container,depth0,helpers,partials,data) {
     return "fa-folder";

@@ -2,6 +2,7 @@
 'use strict';
 
 const _ = require('lodash'),
+  bluebird = require('bluebird'),
   electron = require('electron'),
   browserWindows = require('./services/browser-windows'),
   fs = require('fs'),
@@ -10,8 +11,11 @@ const _ = require('lodash'),
   md = require('./services/md'),
   preferences = require('./services/preferences'),
   updater = require('./services/updater'),
+  uuid = require('uuid'),
   log = require('./services/log').asInternal(__filename),
-  staticFileDir = path.resolve('./static/');
+  staticFileDir = path.resolve('./static/'),
+  allowedKernelLangauges = ['python'],
+  kernelClients = {};
 
 electron.crashReporter.start({
   productName: 'Yhat Dev',
@@ -298,6 +302,16 @@ function createPythonKernel(pythonPath, isFirstRun) {
     mainWindow = browserWindows.getByName('mainWindow'),
     displayWindowContents = mainWindow.webContents;
 
+  // new
+  getKernelClient('python').then(function (client) {
+    subscribeBrowserWindowToEvent('mainWindow', client, 'shell');
+    subscribeBrowserWindowToEvent('mainWindow', client, 'iopub');
+    subscribeBrowserWindowToEvent('mainWindow', client, 'stdin');
+  }).catch(function (ex) {
+    log('error', 'failed to start up default kernel', ex);
+  });
+
+  // old
   killPython();
 
   kernel.startNewKernel(pythonPath, function (err, python) {
@@ -443,11 +457,135 @@ function openFile(event, filePath) {
 }
 
 /**
+ * Only one item per key will exist or can be requested.  If the item is being created, others will wait as well.
+ * @param {Array} list  list of items that can only exist once
+ * @param {string} key  identifier
+ * @param {function} fn  creation function
+ * @returns {Promise}
+ */
+function promiseOnlyOne(list, key, fn) {
+  let promise = list[key];
+
+  if (promise) {
+    return promise;
+  } else {
+    promise = bluebird.try(fn);
+    list[key] = promise;
+    return promise;
+  }
+}
+
+/**
+ * Currently, named on language name.  We could make this more specific (python2.7) later.
+ * @param language
+ * @returns {*}
+ */
+function getKernelClient(language) {
+  return promiseOnlyOne(kernelClients, language, function () {
+    let clientFactory = require(path.join(__dirname, 'kernels', language, 'client'));
+
+    return clientFactory.create();
+  });
+}
+
+/**
+ * @param {string} text
+ * @param {object} [kernelOptions]
+ * @param {string} [kernelOptions.language]
+ * @returns {Promise}
+ */
+function onExecuteWithKernel(text, kernelOptions) {
+  kernelOptions = kernelOptions || {};
+  let language = kernelOptions.language || 'python';
+
+  if (!_.includes(allowedKernelLangauges, language)) {
+    throw new Error('options did not include valid kernel language: ' + language);
+  }
+
+  return getKernelClient(language).then(function (clientInstance) {
+    return clientInstance.execute(text);
+  });
+}
+
+/**
+ * Forward these events along to a BrowserWindow (but only if the window exists)
+ * @param {string} windowName
+ * @param {EventEmitter} emitter
+ * @param {string} eventName
+ */
+function subscribeBrowserWindowToEvent(windowName, emitter, eventName) {
+  emitter.on(eventName, function () {
+    browserWindows.send.apply(browserWindows, [windowName, eventName].concat(_.slice(arguments)));
+  });
+}
+
+/**
+ * @param {string} name
+ * @param {string} requestId
+ * @returns {function}
+ */
+function replyToEvent(name, requestId) {
+  const replyName = name + '_reply';
+
+  return function (data) {
+    try {
+      if (_.isError) {
+        event.sender.send(replyName, requestId, data);
+      } else {
+        event.sender.send(replyName, requestId, null, data);
+      }
+    } catch (ex) {
+      log('error', 'failed to reply to event', name, data, ex);
+    }
+  };
+}
+
+/**
+ * Standardize our naming by forcing a convention.
+ *
+ * Take a list of functions and bind them to events of the exact same name in snake_case.
+ *
+ * The other side should be listening for a reply with the same requestId that follows
+ * the node convention of (err, data)
+ *
+ * This is important because there are a lot of ways for functions to fail with these events, so having a standard
+ * way to catch these errors is useful for maintainability
+ *
+ * @param {EventEmitter} ipcEmitter
+ * @param {[function]} list
+ */
+function exposeElectronIpcEvents(ipcEmitter, list) {
+  _.each(list, function (fn) {
+    const name = _.snakeCase(fn.name.replace(/^on/, ''));
+
+    ipcEmitter.on(name, function (event) {
+      try {
+        const requestId = uuid();
+
+        fn.apply(null, _.slice(arguments, 1))
+          .then(replyToEvent(name, requestId))
+          .catch(replyToEvent(name, requestId));
+
+        event.sender.returnValue = requestId;
+      } catch (ex) {
+        log('error', 'failed to wait for reply to event', name, event, ex);
+      }
+    });
+  });
+}
+
+/**
  * Attaches events to the main process
  */
 function attachIpcMainEvents() {
   const ipcMain = electron.ipcMain;
 
+  // todo: use this more
+  exposeElectronIpcEvents(ipcMain, [
+    onExecuteWithKernel
+  ]);
+
+  // todo: move these below here to above
   ipcMain.on('quit', onQuitApplication);
   ipcMain.on('preferences-get', onGetPreferences);
   ipcMain.on('preferences-post', onSetPreferences);

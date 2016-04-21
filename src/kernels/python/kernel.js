@@ -1,9 +1,7 @@
 'use strict';
 
 const _ = require('lodash'),
-  bluebird = require('bluebird'),
   EventEmitter  = require('events'),
-  log = require('../../services/log').asInternal(__filename),
   processes = require('../../services/processes');
 
 

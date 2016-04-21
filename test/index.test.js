@@ -20,3 +20,6 @@ bluebird.config({
 // defaults for chai
 chai.config.showDiff = true;
 chai.config.truncateThreshold = 0;
+
+// jquery sees module and thinks it's not a browser
+window.$ = window.jQuery = require('../node_modules/jquery/dist/jquery');
