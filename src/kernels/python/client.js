@@ -286,17 +286,11 @@ class JupyterClient extends EventEmitter {
 /**
  * @returns {Promise<JupyterClient>}
  */
-function create() {
-  const target = path.resolve(path.join(__dirname, 'start_kernel.py'));
+function create(options) {
+  const targetFile = path.resolve(path.join(__dirname, 'start_kernel.py'));
 
   return bluebird.try(function () {
-    const child = processes.create('python', [target], {
-        env: _.assign({
-          PYTHONUNBUFFERED: '1'
-        }, process.env),
-        stdio: ['pipe', 'pipe', 'pipe'],
-        encoding: 'UTF8'
-      }),
+    const child = createPythonScriptProcess(targetFile, options),
       client = new JupyterClient(child);
 
     return promises.eventsToPromise(client, {resolve: 'ready', reject: 'error'})
@@ -305,19 +299,36 @@ function create() {
 }
 
 /**
- * Runs a script in python, returns the output with errors and stderr rejecting the results
- * @param {string} target
- * @returns {Promise}
+ * @param {string} targetFile
+ * @param {object} [options]
+ * @param {string} [options.shell=<default for OS>]
+ * @param {string} [options.cmd="python"]
+ * @returns {ChildProcess}
  */
-function runPythonScript(target) {
-  return new bluebird(function (resolve, reject) {
-    const child = processes.create('python', [target], {
+function createPythonScriptProcess(targetFile, options) {
+  options = _.pick(options || {}, ['shell', 'cmd']);
+
+  const processOptions = _.assign({
       env: _.assign({
         PYTHONUNBUFFERED: '1'
       }, process.env),
       stdio: ['pipe', 'pipe', 'pipe'],
       encoding: 'UTF8'
-    });
+    }, _.pick(options, ['shell'])),
+    cmd = options.cmd || 'python';
+
+  return processes.create(cmd, [targetFile], processOptions);
+}
+
+/**
+ * Runs a script in python, returns the output with errors and stderr rejecting the results
+ * @param {string} targetFile
+ * @param {object} [options]
+ * @returns {Promise}
+ */
+function getPythonScriptResults(targetFile, options) {
+  return new bluebird(function (resolve, reject) {
+    const child = createPythonScriptProcess(targetFile, options);
     let stdout = [],
       stderr = [],
       errors = [];
@@ -337,12 +348,12 @@ function runPythonScript(target) {
   });
 }
 
-function checkPython() {
-  const target = path.resolve(path.join(__dirname, 'check_python.py'));
+function checkPython(options) {
+  const targetFile = path.resolve(path.join(__dirname, 'check_python.py'));
 
-  return exports.runPythonScript(target).then(JSON.parse);
+  return exports.getPythonScriptResults(targetFile, options).then(JSON.parse);
 }
 
 module.exports.create = create;
-module.exports.runPythonScript = runPythonScript;
+module.exports.getPythonScriptResults = getPythonScriptResults;
 module.exports.checkPython = checkPython;

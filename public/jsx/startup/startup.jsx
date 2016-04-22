@@ -7,60 +7,41 @@ var Startup = window.Startup = React.createClass({
       status: 'loading',
       statusPython: false,
       statusJupyter: false,
-      pythonPath: null
+      pythonPath: ''
     };
   },
   componentDidMount: function () {
-    var self = this;
+    const self = this;
 
     ipc.send('get_system_facts').then(function (result) {
       console.log('system_facts', result);
+
+      // reducer
+      self.setState({
+        status: result.preferences ? 'tour' : 'good to go',
+        statusPython: result.pythonStarts === true,
+        statusJupyter: result.python.hasJupyterKernel === true,
+        pythonPath: result.pythonPath
+      });
     }).catch(function (error) {
       console.error(error);
+
       self.setState({
-        status: 'error',
-        message: error.message
+        status: 'error'
       });
-    });
-
-    console.log('startup', 'componentDidMount', this);
-    ipc.on('setup-status', function (evt, data) {
-      console.log('startup', 'setup-status', evt, data);
-      var s = self.state;
-
-      s.statusPython = data.python;
-      s.statusJupyter = data.jupyter;
-      if (data.python == false || data.jupyter == false) {
-        s.status = 'error';
-      } else if (data.isFirstRun == true) {
-        s.status = 'good to go';
-        setTimeout(function () {
-          self.setState({
-            status: 'tour',
-            statusPython: self.state.statusPython,
-            statusJupyter: self.state.statusJupyter,
-            pythonPath: self.state.pythonPath
-          });
-        }, 1500);
-      } else {
-        s.status = 'good to go';
-      }
-      self.setState(s);
-      if (data.python == true && data.jupyter == true && data.isFirstRun == false) {
-        // ain't our first Rodeo
-        //ipc.send('exit-tour');
-      }
     });
   },
   testPythonPath: function (pythonPath) {
+    // they entered a new python path to try and fix a bad one; test to see if it is okay.
+
     var s = this.state;
-    s.pythonPath = pythonPath || s.pythonPath || "NOTHING";
+    s.pythonPath = pythonPath || s.pythonPath || 'NOTHING';
     s.status = 'loading';
     this.setState(s);
 
     var self = this;
     setTimeout(function () {
-      var result = ipc.send('test-path', pythonPath || "NOTHING");
+      var result = ipc.send('test-path', pythonPath || 'NOTHING');
       var status;
       if (result && result.python && result.jupyter) {
         status = 'good to go';
@@ -73,7 +54,7 @@ var Startup = window.Startup = React.createClass({
         });
       } else {
         self.setState({
-          status: "error",
+          status: 'error',
           statusPython: result.python,
           statusJupyter: result.jupyter,
           pythonPath: pythonPath
@@ -113,8 +94,10 @@ var Startup = window.Startup = React.createClass({
         <Tour />
       );
     }
+
     return (
-      <div className="jumbotron"
+      <div
+        className="jumbotron"
         style={style}
       >
         {content}

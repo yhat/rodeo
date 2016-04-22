@@ -1,11 +1,47 @@
 'use strict';
 
-const path = require('path'),
+const _ = require('lodash'),
+  bluebird = require('bluebird'),
+  client = require('./client'),
+  path = require('path'),
   fse = require('fs-extra'),
   tmp = require('tmp'),
   log = require('../../services/log').asInternal(__filename),
   execSync = require('child_process').execSync,
-  preferences = require('./../../services/preferences');
+  os = require('os'),
+  rules = require('../../services/rules'),
+  preferences = require('../../services/preferences');
+
+let ruleSet = [
+  {
+    when: _.matches({platform: 'win32'}),
+    then: {cmd: 'python', shell: 'cmd.exe'}
+  },
+  {
+    when: _.overSome(_.matches({platform: 'linux'}), _.matches({platform: 'darwin'})),
+    then: {cmd: '//home/sciencecluster/.anaconda2/bin/python', shell: '/bin/bash'}
+  },
+  {
+    when: _.overSome(_.matches({platform: 'linux'}), _.matches({platform: 'darwin'})),
+    then: {cmd: '/root/miniconda2/bin/python', shell: '/bin/bash'}
+  },
+  {
+    when: _.overSome(_.matches({platform: 'linux'}), _.matches({platform: 'darwin'})),
+    then: {cmd: '/anaconda/bin/python', shell: '/bin/bash'}
+  },
+  {
+    when: _.overSome(_.matches({platform: 'linux'}), _.matches({platform: 'darwin'})),
+    then: {cmd: '/usr/local/bin/python', shell: '/bin/bash'}
+  },
+  {
+    when: _.overSome(_.matches({platform: 'linux'}), _.matches({platform: 'darwin'})),
+    then: {cmd: '/usr/bin/python', shell: '/bin/bash'}
+  },
+  {
+    when: _.overSome(_.matches({platform: 'linux'}), _.matches({platform: 'darwin'})),
+    then: {cmd: 'python', shell: '/bin/bash'}
+  }
+];
 
 function getUserPath() {
   let cmd;
@@ -33,6 +69,10 @@ function getDefaultPython(opts) {
   }
 }
 
+/**
+ * @deprecated
+ * @param {function} fn
+ */
 function findMeAPython(fn) {
   const testPython = path.join(__dirname, 'check_python.py'),
     testPythonFile = tmp.fileSync(),
@@ -87,4 +127,43 @@ function findMeAPython(fn) {
   fn({ python: false, jupyter: false }, null, null);
 }
 
+/**
+ * @returns {{arch: string, platform: string, homedir: string, type: string, tmpdir: string}}
+ */
+function getFacts() {
+  return _.pickBy({
+    arch: os.arch(),
+    platform: os.platform(),
+    homedir: os.homedir(),
+    type: os.type(),
+    tmpdir: os.tmpdir()
+  }, _.identity);
+}
+
+function setRuleSet(value) {
+  ruleSet = value;
+}
+
+/**
+ * Return all paths that can run python successfully, along with the packages in each python setup
+ * @param {object} facts
+ * @returns {[string]}
+ */
+function findPythons(facts) {
+  if (!facts) {
+    throw new TypeError('You need facts.');
+  }
+
+  return bluebird.all(rules.all(ruleSet, facts)).map(function (pythonOptions) {
+    return client.checkPython(pythonOptions).then(function (checkResults) {
+      return {pythonOptions, checkResults};
+    }).reflect().then(function (inspection) {
+      return inspection.isFulfilled() && inspection.value();
+    });
+  }).filter(_.identity);
+}
+
 module.exports.findMeAPython = findMeAPython;
+module.exports.findPythons = findPythons;
+module.exports.getFacts = getFacts;
+module.exports.setRuleSet = setRuleSet;

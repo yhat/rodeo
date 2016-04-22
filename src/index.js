@@ -11,8 +11,8 @@ const _ = require('lodash'),
   md = require('./services/md'),
   os = require('os'),
   preferences = require('./services/preferences'),
+  steveIrwin = require('./kernels/python/steve-irwin'),
   updater = require('./services/updater'),
-  uuid = require('uuid'),
   log = require('./services/log').asInternal(__filename),
   staticFileDir = path.resolve('./static/'),
   allowedKernelLangauges = ['python'],
@@ -596,10 +596,16 @@ function exposeElectronIpcEvents(ipcEmitter, list) {
   });
 }
 
+/**
+ * Get system facts that the client-side hopefully caches and doesn't call repeatedly
+ * @returns {Promise<object>}
+ */
 function onGetSystemFacts() {
   log('info', 'getting system facts');
 
   return bluebird.props({
+    availablePythonKernels: steveIrwin.findPythons(steveIrwin.getFacts()),
+    preferences: preferences.getPreferences(),
     pythonStarts: getKernelClient().then(function () { return true; }),
     python: require('./kernels/python/client').checkPython(),
     homedir: os.homedir()

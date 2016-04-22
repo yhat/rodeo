@@ -9,9 +9,6 @@ try:
 except:
     pip = None
 
-
-has_jupyter_kernel = True
-
 def get_packages():
     if not pip:
         print('[]')
@@ -22,6 +19,7 @@ def get_packages():
     return installed_packages_list
 
 # check for IPython kernel
+has_jupyter_kernel = True
 try:
     from jupyter_client import manager
 except:
@@ -30,8 +28,17 @@ except:
     except:
         has_jupyter_kernel = False
 
+# may fail
+try:
+  executable = sys.executable
+except:
+  executable = None
+
 sys.stdout.write(json.dumps({
   "hasJupyterKernel": has_jupyter_kernel,
   "cwd": os.getcwd(),
+  "version": sys.version,
+  "executable": executable,
+  "argv": sys.argv,
   "packages": get_packages()
 }))
