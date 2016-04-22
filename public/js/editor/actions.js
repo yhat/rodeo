@@ -197,7 +197,7 @@ function getActiveEditor() {
 function saveFile(filepath, content, fn) {
   var payload = { "filepath": filepath, "content": content };
   if (isDesktop()) {
-    var data = ipc.sendSync('file-post', payload);
+    var data = ipc.send('file-post', payload);
     fn(data);
   } else {
     $.post('file', payload, function(resp) {
@@ -280,7 +280,7 @@ function openFile(pathname, isDir) {
       }, 50);
     }
     if (isDesktop()) {
-      var data = ipc.sendSync('file-get', pathname);
+      var data = ipc.send('file-get', pathname);
       callback(data.basename, pathname, data.content);
     } else {
       $.get("file", { filepath: pathname }, function(resp) {
@@ -303,7 +303,7 @@ function saveEditor(editor, saveas, fn) {
     if (isDesktop()) {
       remote.require('dialog').showSaveDialog({
         title: 'Save File',
-        default_path: ipc.sendSync('wd-get'),
+        default_path: ipc.send('wd-get'),
       }, function(destfile) {
         if (! destfile) {
           return
@@ -354,7 +354,7 @@ function saveEditor(editor, saveas, fn) {
 function openDialog() {
   require('remote').dialog.showOpenDialog({
     title: "Select a file to open",
-    defaultPath: require("electron").ipcRenderer.sendSync("wd-get"),
+    defaultPath: require("electron").ipcRenderer.send("wd-get"),
     properties: ["openFile"]
   }, function(filenames) {
     if (filenames && filenames.length > 0) {

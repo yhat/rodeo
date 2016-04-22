@@ -1,10 +1,11 @@
 // <h1>Rodeo is starting up...</h1>
 // <p className="lead">We're launching your python session. This should only take a moment or two.</p>
 var LoadingWidget = window.LoadingWidget = React.createClass({
-  render: function() {
-    var style={
-      height: "200px"
+  render: function () {
+    var style = {
+      height: '200px'
     };
+
     return (
       <div className="text-center">
         <br />
@@ -13,7 +14,9 @@ var LoadingWidget = window.LoadingWidget = React.createClass({
         <br />
         <br />
         <br />
-        <img src="img/loading.gif" style={style} />
+        <img src="img/loading.gif"
+          style={style}
+        />
         <br />
         <br />
         <br />

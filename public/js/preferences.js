@@ -149,7 +149,7 @@ function changeDefaultPath(pythonPath) {
 function showRodeoProfile() {
   // should do something special here...
   if (isDesktop()) {
-    var userHome = ipc.sendSync('home-get');
+    var userHome = ipc.send('home-get');
     var profilePath = pathJoin([userHome, ".rodeoprofile"]);
     openFile(profilePath);
   } else {
@@ -198,10 +198,10 @@ function configurePreferences(rc) {
 
 $("#add-path-button").click(function(e) {
   var newPath = $("#new-python-path").val();
-  var data = ipc.sendSync('test-path', newPath);
+  var data = ipc.send('test-path', newPath);
   if (data) {
     if (data.jupyter && data.matplotlib) {
-      var result = ipc.sendSync('add-python-path', newPath);
+      var result = ipc.send('add-python-path', newPath);
       if (result==true) {
         $("#python-paths").append(python_path_item(newPath));
 
@@ -241,7 +241,7 @@ $("#add-path-button").click(function(e) {
 
 function deletePythonPath(el) {
   var pythonPath = $(el).data("path");
-  ipc.sendSync('remove-python-path', pythonPath);
+  ipc.send('remove-python-path', pythonPath);
   $(el).parent().remove();
   setupPreferences();
 }
@@ -251,7 +251,7 @@ USER_HOME = null;
 
 function getRC(fn) {
   if (isDesktop()) {
-    var rc = ipc.sendSync('preferences-get');
+    var rc = ipc.send('preferences-get');
     fn(rc);
   } else {
     $.get("preferences", function(rc) {

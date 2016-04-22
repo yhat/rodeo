@@ -191,7 +191,6 @@ module.exports.startNewKernel = function (pythonCmd, cb) {
     });
   } else {
     testPythonPath(pythonCmd, function (err, result) {
-      log('info', 'hey testPythonPath', err, result);
       if (! result) {
         result = { jupyter: false, python: false };
       }

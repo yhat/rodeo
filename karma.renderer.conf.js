@@ -41,10 +41,10 @@ module.exports = function (karma) {
     frameworks: ['mocha', 'chai'],
     preprocessors: {
       '**/*.js': ['electron'],
-      '**/*.jsx': ['react', 'electron']
+      '**/*.jsx': ['babel', 'electron']
     },
     plugins: [
-      'karma-react-preprocessor',
+      'karma-babel-preprocessor',
       'karma-mocha-reporter',
       'karma-electron',
       'karma-mocha',

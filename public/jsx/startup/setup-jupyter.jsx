@@ -1,5 +1,5 @@
 var SetupJupyter = window.SetupJupyter = React.createClass({
-  openTerminal: function() {
+  openTerminal: function () {
     // if windows
     if (/win32/.test(process.platform)) {
       require('shell').openItem('cmd.exe');
@@ -7,16 +7,16 @@ var SetupJupyter = window.SetupJupyter = React.createClass({
       require('shell').openItem('/Applications/Utilities/Terminal.app');
     }
   },
-  openDocs: function() {
+  handleOpenDocs: function () {
     require('shell').openExternal('http://rodeo.yhat.com/docs/');
   },
-  testPythonPath: function() {
+  handleTestPythonPath: function () {
     this.props.testPythonPath(this.props.pythonPath);
   },
-  changePath: function() {
-    this.props.testPythonPath("NEW PATH");
+  handleChangePath: function () {
+    this.props.testPythonPath('NEW PATH');
   },
-  render: function() {
+  render: function () {
     return (
       <div className="row">
         <h2>Looks like you're missing <i>jupyter</i></h2>
@@ -35,12 +35,12 @@ var SetupJupyter = window.SetupJupyter = React.createClass({
             <pre>$ pip install jupyter</pre>
           </div>
         </div>
-        <button className="btn btn-default" onClick={this.openDocs}>Help</button>
+        <button className="btn btn-default" onClick={this.handleOpenDocs}>Help</button>
         &nbsp;
-        <button className="btn btn-info" onClick={this.changePath}>Change Path</button>
+        <button className="btn btn-info" onClick={this.handleChangePath}>Change Path</button>
         &nbsp;
-        <button onClick={this.testPythonPath} className="btn btn-primary">Retry</button>
+        <button onClick={this.handleTestPythonPath} className="btn btn-primary">Retry</button>
       </div>
-    )
+    );
   }
 });

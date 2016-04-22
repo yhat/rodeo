@@ -51,9 +51,9 @@ function setFiles(dir) {
   }
   if (isDesktop()) {
     if (dir==null) {
-      dir = ipc.sendSync('wd-get');
+      dir = ipc.send('wd-get');
     }
-    var resp = ipc.sendSync('files', { "dir": dir });
+    var resp = ipc.send('files', { "dir": dir });
     ipc.send('index-files')
     callback(resp.home, resp.dir, resp.files);
   } else {

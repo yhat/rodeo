@@ -468,12 +468,12 @@
   <script type="text/javascript">
     window.Intercom('boot', {
       app_id: 'x8kexgni',
-      user_id: require('ipc').sendSync('preferences-get').id,
+      user_id: require('ipc').send('preferences-get').id,
       created_at: Date.now()
     });
     window.Intercom('update',{
-      "pythonCmd": require('ipc').sendSync('preferences-get').pythonCmd,
-      "version": require('ipc').sendSync('preferences-get').version
+      "pythonCmd": require('ipc').send('preferences-get').pythonCmd,
+      "version": require('ipc').send('preferences-get').version
     });
   </script>
 </body>

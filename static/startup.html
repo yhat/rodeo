@@ -5,14 +5,10 @@
     <meta charset="utf-8" />
     <title>Rodeo Startup</title>
     <link id="rodeo-theme" href="css/styles.css" rel="stylesheet"/>
-    <script type="text/javascript">
-      window.$ = window.jQuery = require('jquery');
-    </script>
-    <script src="js/external.min.js"></script>
+    <script type="text/javascript">delete module;</script>
   </head>
   <body>
     <div id="content"></div>
-
     <script type="text/javascript" src="js/startup.js"></script>
     <script type="text/javascript">
       ReactDOM.render(React.createElement(Startup, null), document.getElementById('content'));

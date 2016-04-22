@@ -69,7 +69,7 @@ function savePlot() {
   if (isDesktop()) {
     remote.require('dialog').showSaveDialog({
       title: 'Export Plot',
-      default_path: ipc.sendSync('wd-get'),
+      default_path: ipc.send('wd-get'),
     }, function(destfile) {
       if (! destfile) {
         return

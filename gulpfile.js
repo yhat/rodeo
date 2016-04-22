@@ -52,11 +52,15 @@ gulp.task('karma-renderer', function () {
 });
 
 gulp.task('jsx', function () {
-  return gulp.src('public/jsx/**/*.jsx')
-    .pipe(sourcemaps.init())
-    .pipe(babel({
-      presets: ['es2015', 'react']
-    }))
+  return gulp.src([
+    'node_modules/jquery/dist/jquery.min.js',
+    'node_modules/bootstrap/dist/js/bootstrap.min.js',
+    'node_modules/react/dist/react-with-addons.min.js',
+    'node_modules/react-dom/dist/react-dom.min.js',
+    'public/js/window.ipc.js',
+    'public/jsx/**/*.jsx'
+  ]).pipe(sourcemaps.init())
+    .pipe(babel())
     .pipe(concat('startup.js'))
     .pipe(sourcemaps.write('.'))
     .pipe(gulp.dest('static/js'));

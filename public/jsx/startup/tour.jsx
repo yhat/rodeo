@@ -1,8 +1,8 @@
 var Tour = window.Tour = React.createClass({
-  exitTour: function() {
+  exitTour: function () {
     ipc.send('exit-tour');
   },
-  render: function() {
+  render: function () {
     var data = [
       {
         "title": "Welcome to Rodeo!",
@@ -75,8 +75,8 @@ var Tour = window.Tour = React.createClass({
       return <TourItem title={item.title} subtitle={item.subtitle} img={item.img} img2={item.img2} />
     });
 
-    setTimeout(function() {
-      $("#tour").owlCarousel({ singleItem: true });
+    setTimeout(function () {
+      $('#tour').owlCarousel({ singleItem: true });
     }, 50);
 
     return (

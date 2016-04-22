@@ -103,7 +103,7 @@ $("#run-markdown").click(function(e) {
   }
 
   if (isDesktop()) {
-    var html = ipc.sendSync('md', { doc: code });
+    var html = ipc.send('md', { doc: code });
     var html = markdown_template({ renderedMarkdown: html, desktop: true });
     renderMarkdown(html);
   } else {
@@ -120,7 +120,7 @@ function executeCommand(command, autocomplete, fn) {
   };
 
   if (isDesktop()) {
-    var results = ipc.sendSync('command', data);
+    var results = ipc.send('command', data);
     if (fn) {
       fn(results);
     }

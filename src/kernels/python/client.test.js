@@ -38,6 +38,19 @@ describe(dirname + '/' + filename, function () {
     });
   });
 
+  describe('checkPython', function () {
+    const fn = lib[this.title];
+
+    it('checks', function () {
+      this.timeout(10000);
+
+      return fn().then(function (result) {
+        expect(result).to.have.property('jupyter_kernel_found').that.is.a('boolean');
+        expect(result).to.have.property('packages').that.is.an('array');
+      });
+    });
+  });
+
   describe('JupyterClient', function () {
     let client;
 

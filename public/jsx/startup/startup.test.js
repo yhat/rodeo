@@ -2,11 +2,14 @@
 
 const expect = require('chai').expect,
   React = require('react/addons'),
-  path = require('path'),
   TestUtils = React.addons.TestUtils;
 
 describe('startup', function () {
-  let shallowRenderer;
+  let shallowRenderer, Startup;
+
+  before(function () {
+    Startup = window.Startup;
+  });
 
   beforeEach(function () {
     shallowRenderer = TestUtils.createRenderer();
@@ -14,8 +17,6 @@ describe('startup', function () {
 
   describe('getInitialState', function () {
     it('initializes', function () {
-      var Startup = window.Startup;
-
       shallowRenderer.render(React.createElement(Startup, {}, ''));
 
       const component = shallowRenderer.getRenderOutput();

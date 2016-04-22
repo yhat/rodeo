@@ -5,7 +5,7 @@ function restartSession() {
 
 function getWorkingDirectory(fn) {
   if (isDesktop()) {
-    var wd = ipc.sendSync('wd-get');
+    var wd = ipc.send('wd-get');
     fn(wd);
   } else {
     $.get("wd", function(currentWd) {
@@ -31,7 +31,7 @@ function setWorkingDirectory(fn) {
         return;
       }
       var wd = wd[0];
-      ipc.sendSync('wd-post', wd);
+      ipc.send('wd-post', wd);
       setFiles(wd);
       if (fn) {
         fn(wd);

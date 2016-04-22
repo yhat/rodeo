@@ -4,7 +4,7 @@ function isDesktop() {
 
 function updateRC(preferenceName, preferenceValue) {
   if (isDesktop()) {
-    return ipc.sendSync("preferences-post", { name: preferenceName, value: preferenceValue });
+    return ipc.send("preferences-post", { name: preferenceName, value: preferenceValue });
   } else {
     $.post("preferences", { name: preferenceName, value: preferenceValue });
   }

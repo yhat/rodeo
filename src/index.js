@@ -91,11 +91,16 @@ function onCommand(event, data) {
   }
 }
 
-function onFiles(event, data) {
+/**
+ * @param {object} data
+ * @returns {{files: *, dir, home: *}}
+ */
+function onFiles(data) {
   const rc = preferences.getPreferences(),
-    dirname = path.resolve(data.dir || USER_WD);
+    dirname = path.resolve(data.dir || USER_WD),
+    homedir = os.homedir();
 
-  USER_WD = dirname;
+  // USER_WD = dirname; // NOPE!  Don't do that.
 
   let files = fs.readdirSync(dirname).map(function (filename) {
     return {
@@ -113,10 +118,10 @@ function onFiles(event, data) {
     }
   });
 
-  event.returnValue = {
+  return {
     files: files,
     dir: dirname,
-    home: USER_HOME
+    home: homedir
   };
 }
 
@@ -419,9 +424,11 @@ function onReady() {
 
     // show when we're done loading,
     startupWindow.show();
-    startupWindow.once('close', function () {
-      mainWindow.show();
-    });
+    startupWindow.openDevTools();
+    // startupWindow.once('close', function () {
+    //   mainWindow.show();
+    // });
+    mainWindow.show();
 
     // mainWindow.openDevTools();
     mainWindow.webContents.on('did-finish-load', function () {
@@ -470,7 +477,7 @@ function openFile(event, filePath) {
 
 /**
  * Only one item per key will exist or can be requested.  If the item is being created, others will wait as well.
- * @param {Array} list  list of items that can only exist once
+ * @param {object} list  list of items that can only exist once
  * @param {string} key  identifier
  * @param {function} fn  creation function
  * @returns {Promise}
@@ -493,6 +500,7 @@ function promiseOnlyOne(list, key, fn) {
  * @returns {Promise}
  */
 function getKernelClient(language) {
+  language = language || 'python';
   return promiseOnlyOne(kernelClients, language, function () {
     let clientFactory = require(path.join(__dirname, 'kernels', language, 'client'));
 
@@ -534,15 +542,17 @@ function subscribeBrowserWindowToEvent(windowName, emitter, eventName) {
 /**
  * @param {string} name
  * @param {string} requestId
+ * @param {Event} event
  * @returns {function}
  */
-function replyToEvent(name, requestId) {
+function replyToEvent(name, requestId, event) {
   const replyName = name + '_reply';
 
   return function (data) {
     try {
-      if (_.isError) {
-        event.sender.send(replyName, requestId, data);
+      if (_.isError(data)) {
+        log('error', 'event failed', name, data);
+        event.sender.send(replyName, requestId, {name: data.name, message: data.message});
       } else {
         event.sender.send(replyName, requestId, null, data);
       }
@@ -570,19 +580,31 @@ function exposeElectronIpcEvents(ipcEmitter, list) {
   _.each(list, function (fn) {
     const name = _.snakeCase(fn.name.replace(/^on/, ''));
 
-    ipcEmitter.on(name, function (event) {
+    log('info', 'exposeElectronIpcEvents exposing', name);
+
+    ipcEmitter.on(name, function (event, id) {
       try {
-        const requestId = uuid();
+        log('info', 'responding to ipc event', name, _.slice(arguments, 2));
 
-        fn.apply(null, _.slice(arguments, 1))
-          .then(replyToEvent(name, requestId))
-          .catch(replyToEvent(name, requestId));
-
-        event.sender.returnValue = requestId;
+        bluebird.method(fn).apply(null, _.slice(arguments, 1))
+          .then(replyToEvent(name, id, event))
+          .catch(replyToEvent(name, id, event));
       } catch (ex) {
         log('error', 'failed to wait for reply to event', name, event, ex);
       }
     });
+  });
+}
+
+function onGetSystemFacts() {
+  log('info', 'getting system facts');
+
+  return bluebird.props({
+    pythonStarts: getKernelClient().then(function () { return true; }),
+    python: require('./kernels/python/client').checkPython(),
+    homedir: os.homedir()
+  }).tap(function (facts) {
+    log('info', 'system facts:', facts);
   });
 }
 
@@ -594,7 +616,9 @@ function attachIpcMainEvents() {
 
   // todo: use this more
   exposeElectronIpcEvents(ipcMain, [
-    onExecuteWithKernel
+    onExecuteWithKernel,
+    onFiles,
+    onGetSystemFacts
   ]);
 
   // todo: move these below here to above
@@ -602,7 +626,6 @@ function attachIpcMainEvents() {
   ipcMain.on('preferences-get', onGetPreferences);
   ipcMain.on('preferences-post', onSetPreferences);
   ipcMain.on('command', onCommand);
-  ipcMain.on('files', onFiles);
   ipcMain.on('launch-kernel', onLaunchKernel);
   ipcMain.on('test-path', onTestPath);
   ipcMain.on('add-python-path', onAddPythonPath);

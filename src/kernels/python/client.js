@@ -304,4 +304,45 @@ function create() {
   });
 }
 
+/**
+ * Runs a script in python, returns the output with errors and stderr rejecting the results
+ * @param {string} target
+ * @returns {Promise}
+ */
+function runPythonScript(target) {
+  return new bluebird(function (resolve, reject) {
+    const child = processes.create('python', [target], {
+      env: _.assign({
+        PYTHONUNBUFFERED: '1'
+      }, process.env),
+      stdio: ['pipe', 'pipe', 'pipe'],
+      encoding: 'UTF8'
+    });
+    let stdout = [],
+      stderr = [],
+      errors = [];
+
+    child.stdout.on('data', data => stdout.push(data));
+    child.stderr.on('data', data => stderr.push(data));
+    child.on('error', data => errors.push(data));
+    child.on('close', function () {
+      if (errors.length) {
+        reject(_.first(errors));
+      } else if (stderr.length) {
+        reject(new Error(stderr.join('')));
+      } else {
+        resolve(stdout.join(''));
+      }
+    });
+  });
+}
+
+function checkPython() {
+  const target = path.resolve(path.join(__dirname, 'check_python.py'));
+
+  return exports.runPythonScript(target).then(JSON.parse);
+}
+
 module.exports.create = create;
+module.exports.runPythonScript = runPythonScript;
+module.exports.checkPython = checkPython;

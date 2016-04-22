@@ -2,10 +2,24 @@
 # status code > 0
 import sys
 import json
+import os
+
+try:
+    import pip
+except:
+    pip = None
 
 
-status_jupyter = True
-status_mpl = True
+has_jupyter_kernel = True
+
+def get_packages():
+    if not pip:
+        print('[]')
+        return
+    installed_packages = pip.get_installed_distributions()
+    packages = [{ "name": i.key, "version": i.version} for i in installed_packages]
+    installed_packages_list = sorted(packages, key=lambda x: x['name'])
+    return installed_packages_list
 
 # check for IPython kernel
 try:
@@ -14,6 +28,10 @@ except:
     try:
         from IPython.kernel import manager
     except:
-        status_jupyter = False
+        has_jupyter_kernel = False
 
-sys.stdout.write(json.dumps({ "jupyter": status_jupyter, "matplotlib": status_mpl }))
+sys.stdout.write(json.dumps({
+  "hasJupyterKernel": has_jupyter_kernel,
+  "cwd": os.getcwd(),
+  "packages": get_packages()
+}))

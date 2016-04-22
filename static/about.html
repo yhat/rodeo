@@ -28,7 +28,7 @@
   </div>
   <script type="text/javascript">
     if (/^file:\/\//.test(window.location.href)) {
-      var rc = require('ipc').sendSync('preferences-get');
+      var rc = require('ipc').send('preferences-get');
       console.log(rc);
       document.getElementById('app-name').innerHTML = "Rodeo v" + rc.version;
     } else {

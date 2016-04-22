@@ -84,7 +84,7 @@ function pickPython() {
 
 function testPath(path) {
   $("#error-modal .possible-error").addClass("hide");
-  var data = ipc.sendSync('test-path', path);
+  var data = ipc.send('test-path', path);
 
   // dramatically unveil the results
   $("#output-jupyter").css("opacity", 0);
@@ -96,7 +96,7 @@ function testPath(path) {
   setTimeout(function() {
     if (data.result.status && data.result) {
       if (data.result.jupyter) {
-        ipc.sendSync('launch-kernel', path);
+        ipc.send('launch-kernel', path);
         $("#rodeo-ready").removeClass("hide");
         $("#test-results").children().remove();
         setTimeout(function() {
