@@ -7,7 +7,6 @@ const sinon = require('sinon'),
   processes = require('../../services/processes'),
   fs = require('fs'),
   path = require('path'),
-  log = require('../../services/log').asInternal(__filename),
   example1 = fs.readFileSync(path.resolve('./test/mocks/jupyter_examples/example_1.py'), {encoding: 'UTF8'}),
   example2 = fs.readFileSync(path.resolve('./test/mocks/jupyter_examples/example_2.py'), {encoding: 'UTF8'}),
   example3 = fs.readFileSync(path.resolve('./test/mocks/jupyter_examples/example_3.py'), {encoding: 'UTF8'}),
@@ -46,7 +45,6 @@ describe(dirname + '/' + filename, function () {
       this.timeout(10000);
 
       return fn().then(function (result) {
-        log('info', 'hey', result);
         expect(result).to.have.property('hasJupyterKernel').that.is.a('boolean');
         expect(result).to.have.property('cwd').that.is.a('string');
         expect(result).to.have.property('version').that.is.a('string');

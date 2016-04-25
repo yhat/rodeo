@@ -16,49 +16,67 @@ var Startup = window.Startup = React.createClass({
     ipc.send('get_system_facts').then(function (result) {
       console.log('system_facts', result);
 
+      console.log('hey');
+
+      const seenTour = window.localStorage.getItem('seenTour');
+      let state;
+
       // reducer
-      self.setState({
-        status: result.preferences ? 'tour' : 'good to go',
+      state = {
+        status: !seenTour ? 'tour' : 'good to go',
         statusPython: result.pythonStarts === true,
         statusJupyter: result.python.hasJupyterKernel === true,
         pythonPath: result.pythonPath
-      });
+      };
+
+      console.log('hey');
+      console.log('state', state);
+      self.setState(state);
+
     }).catch(function (error) {
+      let state;
       console.error(error);
 
-      self.setState({
+      state = {
         status: 'error'
-      });
+      };
+      console.log('state', state);
+      self.setState(state);
     });
   },
   testPythonPath: function (pythonPath) {
     // they entered a new python path to try and fix a bad one; test to see if it is okay.
 
-    var s = this.state;
-    s.pythonPath = pythonPath || s.pythonPath || 'NOTHING';
-    s.status = 'loading';
-    this.setState(s);
+    let state = this.state,
+      self = this;
 
-    var self = this;
+    state.pythonPath = pythonPath || state.pythonPath || 'NOTHING';
+    state.status = 'loading';
+    this.setState(state);
+
     setTimeout(function () {
-      var result = ipc.send('test-path', pythonPath || 'NOTHING');
-      var status;
+      let state,
+        result = ipc.send('test-path', pythonPath || 'NOTHING');
+
       if (result && result.python && result.jupyter) {
-        status = 'good to go';
-        ipc.send('launch-kernel', pythonPath);
-        self.setState({
+
+        state = {
           status: 'tour',
           statusPython: self.state.statusPython,
           statusJupyter: self.state.statusJupyter,
           pythonPath: self.state.pythonPath
-        });
+        };
+        console.log('state', state);
+        self.setState(state);
       } else {
-        self.setState({
+        state = {
           status: 'error',
           statusPython: result.python,
           statusJupyter: result.jupyter,
           pythonPath: pythonPath
-        });
+        };
+        console.log('state', state);
+        self.setState(state);
       }
     }, 750);
   },
@@ -81,7 +99,7 @@ var Startup = window.Startup = React.createClass({
     } else if (this.state.status == 'good to go') {
       content = (
         <div>
-          <p className="lead text-center">You're ready to Rodeo!</p>
+          <p className="lead text-center">{'You\'re ready to Rodeo!'}</p>
           <SetupTriage pythonPath={this.state.pythonPath}
             statusJupyter={this.state.statusJupyter}
             statusPython={this.state.statusPython}

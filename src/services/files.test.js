@@ -1,6 +1,7 @@
 'use strict';
 
-const expect = require('chai').expect,
+const _ = require('lodash'),
+  expect = require('chai').expect,
   sinon = require('sinon'),
   fs = require('fs'),
   dirname = __dirname.split('/').pop(),
@@ -16,6 +17,8 @@ describe(dirname + '/' + filename, function () {
     sandbox.stub(fs, 'readFileSync');
     sandbox.stub(fs, 'writeFileSync');
     sandbox.stub(fs, 'readFile');
+    sandbox.stub(fs, 'readdir');
+    sandbox.stub(fs, 'lstat');
     sandbox.stub(log);
   });
 
@@ -75,6 +78,38 @@ describe(dirname + '/' + filename, function () {
 
       return fn(filename).reflect().then(function (result) {
         expect(result.reason()).to.equal(someError);
+      });
+    });
+  });
+
+  describe('readDirectory', function () {
+    const fn = lib[this.title];
+
+    it('reads directory', function () {
+      const filename = 'some directory',
+        expectedList = ['some', 'result'],
+        expectedStats = {isDirectory: _.constant(true)},
+        expectedResult = [
+          {path: 'some directory/some', filename: 'some', isDirectory: true},
+          {path: 'some directory/result', filename: 'result', isDirectory: true}
+        ];
+
+      fs.readdir.yields(null, expectedList);
+      fs.lstat.yields(null, expectedStats);
+
+      return fn(filename).reflect().then(function (result) {
+        expect(result.value()).to.deep.equal(expectedResult);
+      });
+    });
+
+    it('throws when error', function () {
+      const filename = 'some directory',
+        someError = new Error('some error');
+
+      fs.readdir.yields(someError);
+
+      return fn(filename).reflect().then(function (result) {
+        expect(result.reason()).to.deep.equal(someError);
       });
     });
   });

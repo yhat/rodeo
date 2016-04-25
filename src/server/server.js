@@ -7,7 +7,7 @@ const fs = require('fs'),
   bodyParser = require('body-parser'),
   morgan = require('morgan'),
   md = require('../services/md'),
-  kernel = require('../kernels/python'),
+  client = require('../kernels/python/client'),
   findFile = require('../services/find-file'),
   preferences = require('../services/preferences'),
   log = require('../services/log').asInternal(__filename),
@@ -69,11 +69,7 @@ function startWebSockets(server, python) {
 
 
 module.exports = function (host, port, wd) {
-  global.python = null;
-  global.USER_WD = wd || __dirname;
-  global.USER_HOME = USER_WD.split('/').slice(0, 3).join('/');
-
-  kernel(function (err, python) {
+  client.create().then(function (python) {
     let app, staticDir, profile, server;
 
     // if we're running as a subprocess, the parent that we're ready to go!
@@ -82,17 +78,10 @@ module.exports = function (host, port, wd) {
     }
 
     global.python = python;
-    if (err) {
-      log('error', err);
-      // wss.broadcast({ msg: 'startup-error', err: err });
-      return;
-    }
     if (python === null) {
       log('error', 'python came back null');
-      // wss.broadcast({ msg: 'startup-error', err: err });
       return;
     }
-    python.execute('cd ' + USER_WD);
 
     // setup express
     app = express();
@@ -275,5 +264,7 @@ module.exports = function (host, port, wd) {
     server = startRodeo(app, port, host, wd);
 
     startWebSockets(server, python);
+  }).then(function (err) {
+    log('error', err);
   });
 };

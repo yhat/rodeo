@@ -1,18 +1,42 @@
 var TourItem = window.TourItem = React.createClass({
-  render: function() {
-    var style = {
+  propTypes: {
+    img: React.PropTypes.string,
+    img2: React.PropTypes.string,
+    subtitle: React.PropTypes.string,
+    title: React.PropTypes.title
+  },
+  getDefaultProps: function () {
+    return {
+      img: '',
+      img2: '',
+      title: '',
+      subtitle: ''
+    };
+  },
+  render: function () {
+    let style, img;
+
+    style = {
       maxWidth: '100%',
       maxHeight: '250px'
     };
-    var img = <img src={this.props.img} style={style} />
+    img = (
+      <img src={this.props.img}
+        style={style}
+      />
+    );
     if (this.props.img2) {
       img = (
         <div className="row">
           <div className="col-sm-6">
-            <img src={this.props.img} style={style} />
+            <img src={this.props.img}
+              style={style}
+            />
           </div>
           <div className="col-sm-6">
-            <img src={this.props.img2} style={style} />
+            <img src={this.props.img2}
+              style={style}
+            />
           </div>
         </div>
       );
@@ -22,7 +46,7 @@ var TourItem = window.TourItem = React.createClass({
         <h3 className="text-primary">{this.props.title}</h3>
         {img}
         <br /><br />
-        <p className="lead" dangerouslySetInnerHTML={ {__html: this.props.subtitle } }></p>
+        <p className="lead">{this.props.subtitle}</p>
       </div>
     );
   }

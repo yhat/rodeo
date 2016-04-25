@@ -5,7 +5,7 @@
  * @type {{send: function}}
  */
 var ipc = window.ipc = (function () {
-  var cid = (function () { var i = 0; return function () { return i++; }; }()),
+  var cid = (function () { let i = 0; return function () { return i++; }; }()),
     ipcRender = require('electron').ipcRenderer;
 
   function toArgs(obj) {
@@ -16,7 +16,7 @@ var ipc = window.ipc = (function () {
     return function (eventName, eventFn) {
       try {
         emitter.on(eventName, function () {
-          var eventResult,
+          let eventResult,
             eventArgs = toArgs(arguments);
 
           eventResult = eventFn.apply(null, eventArgs);
@@ -33,12 +33,12 @@ var ipc = window.ipc = (function () {
 
   function send(emitter) {
     return function () {
-      var eventId = cid().toString(),
+      let eventId = cid().toString(),
         args = toArgs(arguments),
         eventName = args[0];
 
       return new Promise(function (resolve, reject) {
-        var response,
+        let response,
           eventReplyName = eventName + '_reply';
 
         console.log('ipc sending', [eventName, eventId].concat(args.slice(1)));

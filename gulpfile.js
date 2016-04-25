@@ -8,6 +8,7 @@ const eslint = require('eslint/lib/cli'),
   concat = require('gulp-concat'),
   gulpUtil = require('gulp-util'),
   karma = require('karma'),
+  uglify = require('gulp-uglify'),
   KarmaServer = karma.Server,
   path = require('path'),
   jsPatterns = [
@@ -51,24 +52,31 @@ gulp.task('karma-renderer', function () {
   return runKarma('karma.renderer.conf.js');
 });
 
-gulp.task('jsx', function () {
+gulp.task('external-scripts', function () {
   return gulp.src([
     'node_modules/jquery/dist/jquery.min.js',
     'node_modules/bootstrap/dist/js/bootstrap.min.js',
     'node_modules/react/dist/react-with-addons.min.js',
     'node_modules/react-dom/dist/react-dom.min.js',
+    'public/js/lib/owl.carousel.js'
+  ]).pipe(concat('external.min.js'))
+    .pipe(gulp.dest('static/js'));
+});
+
+gulp.task('jsx', function () {
+  return gulp.src([
     'public/js/window.ipc.js',
     'public/jsx/**/*.jsx'
   ]).pipe(sourcemaps.init())
     .pipe(babel())
-    .pipe(concat('startup.js'))
+    .pipe(concat('jsx.js'))
     .pipe(sourcemaps.write('.'))
     .pipe(gulp.dest('static/js'));
 });
 
 gulp.task('lint', ['eslint']);
 gulp.task('test', ['lint', 'karma-renderer', 'karma-main']);
-gulp.task('build', ['jsx']);
+gulp.task('build', ['external-scripts', 'jsx']);
 gulp.task('run', []);
 gulp.task('watch', function () {
   gulp.watch('public/**/*.js', ['karma-renderer']);

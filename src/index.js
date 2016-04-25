@@ -5,9 +5,9 @@ const _ = require('lodash'),
   bluebird = require('bluebird'),
   electron = require('electron'),
   browserWindows = require('./services/browser-windows'),
+  files = require('./services/files'),
   fs = require('fs'),
   path = require('path'),
-  kernel = require('./kernels/python'),
   md = require('./services/md'),
   os = require('os'),
   preferences = require('./services/preferences'),
@@ -27,185 +27,20 @@ electron.crashReporter.start({
 });
 
 /**
- * @param {Event} event
+ * Quit the application
  */
-function onQuitApplication(event) {
+function onQuitApplication() {
   const app = electron.app;
-
-  log('debug', 'onQuitApplication', this, event);
 
   app.quit();
 }
 
-function onGetPreferences(event) {
-  log('debug', 'onGetPreferences', this, event);
-
-  event.returnValue = preferences.getPreferences();
-}
-
 /**
- * @param {Event} event
- * @param {{name: string, value: *}} data
+ * @param {string} dir
+ * @returns {Promise}
  */
-function onSetPreferences(event, data) {
-  log('debug', 'onSetPreferences', this, event, data);
-
-  preferences.setPreferences(data.name, data.value);
-  event.returnValue = null;
-}
-
-/**
- * @param {Event} event
- * @param {{stream: boolean, command: string, autocomplete: boolean}} data
- */
-function onCommand(event, data) {
-  const python = global.python,
-    windowName = 'mainWindow';
-
-  log('debug', 'onCommand', this, event, data);
-
-  if (python && python.executeStream) {
-    if (data.stream == true || data.stream == 'true') {
-      python.executeStream(data.command, data.autocomplete == 'true', function (result) {
-        result.command = data.command;
-        if (result.image || result.html) {
-          browserWindows.send(windowName, 'plot', result);
-          browserWindows.send(windowName, 'refresh-variables');
-        }
-        event.sender.send('command', result);
-      });
-    } else {
-      python.execute(data.command, data.autocomplete == 'true' || data.autocomplete == true, function (result) {
-        result.command = data.command;
-        result.status = 'complete';
-        event.returnValue = result;
-      });
-    }
-  } else {
-    if (data.stream == true) {
-      // not sure if we even need to do this one...
-      // event.sender.send('command', {});
-    } else {
-      event.returnValue = null;
-    }
-  }
-}
-
-/**
- * @param {object} data
- * @returns {{files: *, dir, home: *}}
- */
-function onFiles(data) {
-  const rc = preferences.getPreferences(),
-    dirname = path.resolve(data.dir || USER_WD),
-    homedir = os.homedir();
-
-  // USER_WD = dirname; // NOPE!  Don't do that.
-
-  let files = fs.readdirSync(dirname).map(function (filename) {
-    return {
-      filename: path.join(dirname, filename),
-      basename: filename,
-      isDir: fs.lstatSync(path.join(dirname, filename)).isDirectory()
-    };
-  });
-
-  files = files.filter(function (f) {
-    if (rc.displayDotFiles == true) {
-      return true;
-    } else {
-      return !/^\./.test(f.basename);
-    }
-  });
-
-  return {
-    files: files,
-    dir: dirname,
-    home: homedir
-  };
-}
-
-/**
- * @param {Event} event
- * @param {string} pythonPath
- */
-function onLaunchKernel(event, pythonPath) {
-  log('info', 'starting kernel');
-  log('debug', 'onLaunchKernel', event, pythonPath);
-
-  createPythonKernel(pythonPath, false);
-  event.returnValue = true;
-}
-
-/**
- *
- * @param {Event} event
- * @param {string} pythonPath
- */
-function onTestPath(event, pythonPath) {
-  const python = global.python;
-
-  log('debug', 'onTestPath', event, pythonPath);
-
-  pythonPath = pythonPath || python.spawnfile;
-
-  kernel.testPythonPath(pythonPath, function (err, result) {
-    if (err) {
-      log('error', 'onTestPath', err);
-      event.returnValue = { python: false, jupyter: false };
-      return;
-    }
-    event.returnValue = result;
-  });
-}
-
-function onAddPythonPath(event, pythonPath) {
-  const rc = preferences.getPreferences(),
-    paths = rc.pythonPaths || [];
-
-  // make sure rc.pythonCmd is in the list
-  if (rc.pythonCmd) {
-    if (paths.indexOf(rc.pythonCmd) < 0) {
-      paths.push(rc.pythonCmd);
-    }
-  }
-  if (paths.indexOf(pythonPath) > -1) {
-    event.returnValue = 'path already exists.';
-    return;
-  }
-  paths.push(pythonPath);
-  preferences.setPreferences('pythonPaths', paths);
-  event.returnValue = true;
-}
-
-function onRemovePythonPath(event, pythonPath) {
-  const rc = preferences.getPreferences(),
-    paths = rc.pythonPaths || [];
-
-  if (paths.indexOf(pythonPath) > -1) {
-    let index = paths.indexOf(pythonPath);
-
-    paths.splice(index, 1);
-  }
-  if (rc.pythonCmd == pythonPath) {
-    preferences.setPreferences('pythonCmd', null);
-  }
-  preferences.setPreferences('pythonPaths', paths);
-  event.returnValue = true;
-}
-
-function onGetHome(event) {
-  event.returnValue = USER_HOME;
-}
-
-function onGetWD(event) {
-  event.returnValue = USER_WD;
-}
-
-function onSetWD(event, wd) {
-  USER_WD = wd;
-  preferences.setPreferences('defaultWd', wd);
-  event.returnValue = USER_WD;
+function onFiles(dir) {
+  return files.readDirectory(path.resolve(dir));
 }
 
 /**
@@ -214,7 +49,7 @@ function onSetWD(event, wd) {
  * @param {object} data
  * @returns {Promise}
  */
-function onMD(event, data) {
+function onKnitHTML(event, data) {
   const doc = data.doc;
 
   return getKernelClient('python').then(function (pythonInstance) {
@@ -294,87 +129,13 @@ function onCloseWindow(event) {
 }
 
 /**
- * If python was already set up, kill it now.
+ * @param {string} windowName
+ * @param {JupyterClient} client
  */
-function killPython() {
-  const python = global.python;
-
-  if (python && python.kill) {
-    python.kill();
-  }
-}
-
-function updateWindowSetupStatus(window, status) {
-  if (window) {
-    window.webContents.send('setup-status', status);
-  }
-}
-
-/**
- * @param {string} pythonPath
- * @param {boolean} isFirstRun
- */
-function createPythonKernel(pythonPath, isFirstRun) {
-  const startupWindow = browserWindows.getByName('startupWindow'),
-    mainWindow = browserWindows.getByName('mainWindow'),
-    displayWindowContents = mainWindow.webContents;
-
-  // new
-  getKernelClient('python').then(function (client) {
-    subscribeBrowserWindowToEvent('mainWindow', client, 'shell');
-    subscribeBrowserWindowToEvent('mainWindow', client, 'iopub');
-    subscribeBrowserWindowToEvent('mainWindow', client, 'stdin');
-  }).catch(function (ex) {
-    log('error', 'failed to start up default kernel', ex);
-  });
-
-  // old
-  killPython();
-
-  kernel.startNewKernel(pythonPath, function (err, python) {
-    const defaultWd = preferences.getPreferences().defaultWd;
-
-    global.python = python;
-    err.isFirstRun = isFirstRun;
-
-    if (err) {
-      displayWindowContents.send('log', '[PATH-TEST-RESULT]: ' + JSON.stringify(err));
-      log('warn', 'createPythonKernel', 'trigger startup window, but is null');
-      updateWindowSetupStatus(startupWindow, err);
-      if (err.python == false || err.jupyter == false) {
-        return;
-      }
-    }
-
-    if (python == null) {
-      updateWindowSetupStatus(startupWindow, { python: false, jupyter: false });
-      return;
-    }
-
-    python.execute('cd ' + defaultWd);
-
-    preferences.setPreferences('pythonCmd', python.spawnfile);
-    updateWindowSetupStatus(startupWindow, { python: true, jupyter: true });
-
-    displayWindowContents.send('setup-preferences');
-    displayWindowContents.send('refresh-variables');
-    displayWindowContents.send('refresh-packages');
-    displayWindowContents.send('set-working-directory', global.USER_WD || '.');
-
-    function startup() {
-      displayWindowContents.send('log', 'using python: ' + python.spawnfile);
-      displayWindowContents.send('ready');
-    }
-
-    // if we autodetected, let the user know we're good to go
-    if (! pythonPath) {
-      startup();
-      displayWindowContents.send('startup-error', null);
-      displayWindowContents.send('log', '[ERROR]: ' + err);
-    } else {
-      startup();
-    }
-  });
+function subscribeWindowToKernelEvents(windowName, client) {
+  subscribeBrowserWindowToEvent(windowName, client, 'shell');
+  subscribeBrowserWindowToEvent(windowName, client, 'iopub');
+  subscribeBrowserWindowToEvent(windowName, client, 'stdin');
 }
 
 // Quit when all windows are closed.
@@ -390,28 +151,10 @@ function onWindowAllClosed() {
   app.quit();
 }
 
-function setGlobals() {
-  global.python = null;
-  global.USER_HOME = process.env[process.platform === 'win32' ? 'USERPROFILE' : 'HOME'];
-
-  const defaultWd = preferences.getPreferences().defaultWd;
-
-  // make sure the default working directory exists before actually using it
-  if (defaultWd && fs.existsSync(defaultWd)) {
-    global.USER_WD = defaultWd;
-  } else {
-    global.USER_WD = USER_HOME;
-  }
-}
-
 // This method will be called when Electron has finished
 // initialization and is ready to create browser windows.
 function onReady() {
   let mainWindow, startupWindow;
-
-  setGlobals();
-
-  log('info', '__dirname', __dirname);
 
   mainWindow = browserWindows.createMainWindow('mainWindow', {
     url: 'file://' + path.join(staticFileDir, 'desktop-index.html')
@@ -429,31 +172,6 @@ function onReady() {
     //   mainWindow.show();
     // });
     mainWindow.show();
-
-    // mainWindow.openDevTools();
-    mainWindow.webContents.on('did-finish-load', function () {
-      // keep track of the app version the user is on. this is convenient for
-      // reporting bugs
-      const app = electron.app,
-        rc = preferences.getPreferences();
-      let isFirstRun = false;
-
-      if (rc.version == null) {
-        isFirstRun = true;
-        preferences.setPreferences('version', app.getVersion());
-        mainWindow.webContents.send('prompt-for-sticker');
-      }
-
-      if (rc.version && rc.version != app.getVersion() && ! rc.email) {
-        preferences.setPreferences('version', app.getVersion());
-
-        if (! rc.email) {
-          mainWindow.webContents.send('prompt-for-sticker');
-        }
-      }
-
-      createPythonKernel(rc.pythonCmd, isFirstRun, mainWindow);
-    });
   });
 
   // Open the devtools.
@@ -502,9 +220,11 @@ function promiseOnlyOne(list, key, fn) {
 function getKernelClient(language) {
   language = language || 'python';
   return promiseOnlyOne(kernelClients, language, function () {
-    let clientFactory = require(path.join(__dirname, 'kernels', language, 'client'));
+    let clientFactory = require('./kernels/python/client');
 
-    return clientFactory.create();
+    return clientFactory.create().then(function (client) {
+      subscribeWindowToKernelEvents('mainWindow', client);
+    });
   });
 }
 
@@ -614,6 +334,14 @@ function onGetSystemFacts() {
   });
 }
 
+function onUpdateAndInstall() {
+  return updater.install();
+}
+
+function onCheckForUpdates() {
+  return updater.update(true);
+}
+
 /**
  * Attaches events to the main process
  */
@@ -624,28 +352,16 @@ function attachIpcMainEvents() {
   exposeElectronIpcEvents(ipcMain, [
     onExecuteWithKernel,
     onFiles,
-    onGetSystemFacts
+    onGetSystemFacts,
+    onKnitHTML,
+    onQuitApplication,
+    onPDF,
+    onGetFile,
+    onSaveFile,
+    onUpdateAndInstall,
+    onCheckForUpdates,
+    onExitTour
   ]);
-
-  // todo: move these below here to above
-  ipcMain.on('quit', onQuitApplication);
-  ipcMain.on('preferences-get', onGetPreferences);
-  ipcMain.on('preferences-post', onSetPreferences);
-  ipcMain.on('command', onCommand);
-  ipcMain.on('launch-kernel', onLaunchKernel);
-  ipcMain.on('test-path', onTestPath);
-  ipcMain.on('add-python-path', onAddPythonPath);
-  ipcMain.on('remove-python-path', onRemovePythonPath);
-  ipcMain.on('home-get', onGetHome);
-  ipcMain.on('wd-get', onGetWD);
-  ipcMain.on('wd-post', onSetWD);
-  ipcMain.on('md', onMD);
-  ipcMain.on('pdf', onPDF);
-  ipcMain.on('file-get', onGetFile);
-  ipcMain.on('file-post', onSaveFile);
-  ipcMain.on('update-and-restart', updater.install);
-  ipcMain.on('check-for-updates', _.partial(updater.update, true));
-  ipcMain.on('exit-tour', onExitTour);
 }
 
 /**
@@ -661,17 +377,8 @@ function attachAppEvents() {
   }
 }
 
-module.exports.onAddPythonPath = onAddPythonPath;
-module.exports.onCommand = onCommand;
-module.exports.onGetHome = onGetHome;
-module.exports.onGetPreferences = onGetPreferences;
-module.exports.onLaunchKernel = onLaunchKernel;
-module.exports.onMD = onMD;
 module.exports.onPDF = onPDF;
-module.exports.onRemovePythonPath = onRemovePythonPath;
 module.exports.onQuitApplication = onQuitApplication;
-module.exports.onSetPreferences = onSetPreferences;
-module.exports.onTestPath = onTestPath;
 module.exports.openFile = openFile;
 module.exports.onReady = onReady;
 module.exports.onCloseWindow = onCloseWindow;
