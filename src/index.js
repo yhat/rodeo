@@ -329,8 +329,6 @@ function onGetSystemFacts() {
     pythonStarts: getKernelClient().then(function () { return true; }),
     python: require('./kernels/python/client').checkPython(),
     homedir: os.homedir()
-  }).tap(function (facts) {
-    log('info', 'system facts:', facts);
   });
 }
 

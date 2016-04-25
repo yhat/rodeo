@@ -14,10 +14,6 @@ var Startup = window.Startup = React.createClass({
     const self = this;
 
     ipc.send('get_system_facts').then(function (result) {
-      console.log('system_facts', result);
-
-      console.log('hey');
-
       const seenTour = window.localStorage.getItem('seenTour');
       let state;
 

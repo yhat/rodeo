@@ -1,16 +1,17 @@
+/* globals React */
+
 var TourItem = window.TourItem = React.createClass({
   propTypes: {
-    img: React.PropTypes.string,
-    img2: React.PropTypes.string,
-    subtitle: React.PropTypes.string,
-    title: React.PropTypes.title
+    img: React.PropTypes.string.isRequired,
+    img2: React.PropTypes.string.isRequired,
+    subtitle: React.PropTypes.string.isRequired,
+    title: React.PropTypes.string.isRequired
   },
   getDefaultProps: function () {
     return {
       img: '',
       img2: '',
-      title: '',
-      subtitle: ''
+      title: ''
     };
   },
   render: function () {
@@ -41,12 +42,13 @@ var TourItem = window.TourItem = React.createClass({
         </div>
       );
     }
+    // noinspection HtmlUnknownAttribute,Eslint
     return (
       <div className="text-center">
         <h3 className="text-primary">{this.props.title}</h3>
         {img}
         <br /><br />
-        <p className="lead">{this.props.subtitle}</p>
+        <p className="lead" dangerouslySetInnerHTML={ {__html: this.props.subtitle } } />
       </div>
     );
   }
