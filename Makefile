@@ -18,6 +18,9 @@ jsx: static/js/startup.js
 
 handlebars: public/js/handlebars-templates.js
 
+
+
+
 static/css/styles.css: $(LESS_FILES)
 	lessc public/less/styles.less > static/css/styles.css
 
@@ -29,6 +32,8 @@ static/css/styles-presentation.css: $(LESS_FILES)
 
 static/css/styles-dark.css: $(LESS_FILES)
 	lessc public/less/styles-dark.less > static/css/styles-dark.css
+
+
 
 public/js/handlebars-templates.js: $(HBS_FILES)
 	handlebars public/handlebars-templates/* > public/js/handlebars-templates.js

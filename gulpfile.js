@@ -1,6 +1,7 @@
 'use strict';
 
-const eslint = require('eslint/lib/cli'),
+const _ = require('lodash'),
+  eslint = require('eslint/lib/cli'),
   globby = require('globby'),
   gulp = require('gulp'),
   babel = require('gulp-babel'),
@@ -8,9 +9,15 @@ const eslint = require('eslint/lib/cli'),
   concat = require('gulp-concat'),
   gulpUtil = require('gulp-util'),
   karma = require('karma'),
+  less = require('gulp-less'),
   uglify = require('gulp-uglify'),
   KarmaServer = karma.Server,
   path = require('path'),
+  rename = require('gulp-rename'),
+  merge2 = require('merge2'),
+  imagemin = require('gulp-imagemin'),
+  rework = require('gulp-rework'),
+  reworkUrl = require('rework-plugin-url'),
   jsPatterns = [
     'karma.conf.js',
     'gulpfile.js',
@@ -19,6 +26,11 @@ const eslint = require('eslint/lib/cli'),
     'src/**/*.js'
   ];
 
+/**
+ *
+ * @param {string} configFile
+ * @returns {Promise}
+ */
 function runKarma(configFile) {
   return new Promise(function (resolve, reject) {
     const server = new KarmaServer({
@@ -30,6 +42,34 @@ function runKarma(configFile) {
 
     server.start();
   });
+}
+
+function getComponentName(filePath) {
+  const match = /\/components\/([a-z0-9\-]*)\//.exec(filePath);
+
+  if (match && match[1]) {
+    return match[1];
+  }
+}
+
+/**
+ * @param {string} url
+ * @returns {string}
+ */
+function restructureCSSUrls(url) {
+  const componentName = getComponentName(this.position.source);
+
+  return componentName ? path.join('..', 'images', componentName, url) : url;
+}
+
+/**
+ * @param {object} imagePath
+ * @param {string} imagePath.dirname
+ */
+function restructureImagesDirectory(imagePath) {
+  const componentName = getComponentName(imagePath.dirname);
+
+  imagePath.dirname = componentName ? path.join('images', componentName) : imagePath.dirname;
 }
 
 gulp.task('eslint', function () {
@@ -56,8 +96,8 @@ gulp.task('external-scripts', function () {
   return gulp.src([
     'node_modules/jquery/dist/jquery.min.js',
     'node_modules/bootstrap/dist/js/bootstrap.min.js',
-    'node_modules/react/dist/react-with-addons.min.js',
-    'node_modules/react-dom/dist/react-dom.min.js',
+    'node_modules/react/dist/react-with-addons.js',
+    'node_modules/react-dom/dist/react-dom.js',
     'public/js/lib/owl.carousel.js'
   ]).pipe(concat('external.min.js'))
     .pipe(gulp.dest('static/js'));
@@ -66,6 +106,7 @@ gulp.task('external-scripts', function () {
 gulp.task('jsx', function () {
   return gulp.src([
     'public/js/window.ipc.js',
+    'public/js/window.store.js',
     'public/jsx/**/*.jsx'
   ]).pipe(sourcemaps.init())
     .pipe(babel())
@@ -74,12 +115,45 @@ gulp.task('jsx', function () {
     .pipe(gulp.dest('static/js'));
 });
 
+gulp.task('less-external', function () {
+  return gulp.src([
+    'public/themes/*.less'
+  ]).pipe(sourcemaps.init())
+    .pipe(less())
+    .pipe(sourcemaps.write('.'))
+    .pipe(gulp.dest('static/css/'));
+});
+
+gulp.task('styles', function () {
+  return gulp.src([
+    'public/jsx/**/*.less'
+  ]).pipe(sourcemaps.init())
+    .pipe(less())
+    .pipe(rework(reworkUrl(restructureCSSUrls), {sourcemap: true}))
+    .pipe(concat('jsx.css'))
+    .pipe(sourcemaps.write('.'))
+    .pipe(gulp.dest('static/css/'));
+});
+
+gulp.task('images', function () {
+  return gulp.src([
+    'public/jsx/components/**/*.svg' // no images allowed in other React types, kay?
+  ]).pipe(rename(restructureImagesDirectory))
+    .pipe(imagemin({
+      progressive: true,
+      svgoPlugins: [{removeViewBox: false}]
+    }))
+    .pipe(gulp.dest('static/images'));
+});
+
 gulp.task('lint', ['eslint']);
 gulp.task('test', ['lint', 'karma-renderer', 'karma-main']);
-gulp.task('build', ['external-scripts', 'jsx']);
+gulp.task('build', ['less', 'external-scripts', 'jsx']);
 gulp.task('run', []);
 gulp.task('watch', function () {
-  gulp.watch('public/**/*.js', ['karma-renderer']);
-  gulp.watch('src/**/*.js', ['karma-main']);
+  gulp.watch(['public/jsx/**/*.svg'], ['images']);
+  gulp.watch(['public/jsx/**/*.less'], ['styles']);
+  gulp.watch(['public/jsx/**/*.js', 'public/jsx/**/*.jsx'], ['jsx', 'karma-renderer']);
+  gulp.watch(['src/**/*.js'], ['karma-main']);
 });
 gulp.task('default', ['test', 'build', 'run']);

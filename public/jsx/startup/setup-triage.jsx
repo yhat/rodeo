@@ -1,24 +1,50 @@
-var SetupTriage = window.SetupTriage = React.createClass({
-  render: function() {
-    var python;
-    if (this.props.statusPython==false) {
-      python = <SetupPython testPythonPath={this.props.testPythonPath} />;
+/* globals ipc, React, SetupJupyter, SetupPython, ReportChecklist */
+'use strict';
+
+const SetupTriage = window.SetupTriage = React.createClass({
+  propTypes: {
+    onNewPythonPath: React.PropTypes.func.isRequired,
+    pythonPath: React.PropTypes.string.isRequired,
+    statusJupyter: React.PropTypes.bool.isRequired,
+    statusPython: React.PropTypes.bool.isRequired
+  },
+  handleOpenDocs: () => ipc.send('open_external', 'http://rodeo.yhat.com/docs/'),
+  handleOpenTerminal: () => ipc.send('open_terminal'),
+  render: function () {
+    let ready, python, jupyter;
+
+    if (this.props.statusPython && this.props.statusJupyter) {
+      ready = <p className="lead text-center">{'You\'re ready to Rodeo!'}</p>;
     }
-    var jupyter;
-    if (this.props.statusPython==true && this.props.statusJupyter==false) {
-      jupyter = <SetupJupyter pythonPath={this.props.pythonPath} testPythonPath={this.props.testPythonPath} />;
+
+    if (this.props.statusPython == false) {
+      python = (
+        <SetupPython
+          onNewPythonPath={this.props.onNewPythonPath}
+          onOpenDocs={this.handleOpenDocs}
+        />
+      );
+    } else if (this.props.statusJupyter == false) {
+      jupyter = (
+        <SetupJupyter
+          onNewPythonPath={this.props.onNewPythonPath}
+          onOpenDocs={this.handleOpenDocs}
+          pythonPath={this.props.pythonPath}
+        />
+      );
     }
+
     return (
-      <div id="setup-triage" className="row text-center">
+      <div className="row text-center"
+        id="setup-triage"
+      >
+        {ready}
         <div className="row">
-          <div className="col-sm-4 col-sm-offset-4">
-            <li className={this.props.statusPython ? "list-group-item list-group-item-success": "list-group-item list-group-item-danger"}>
-              Python PATH&nbsp;<i className={this.props.statusPython ? "fa fa-check": "fa fa-times"}></i>
-            </li>
-            <li className={this.props.statusJupyter ? "list-group-item list-group-item-success": "list-group-item list-group-item-danger"}>
-              Jupyter&nbsp;<i className={this.props.statusJupyter ? "fa fa-check": "fa fa-times"}></i>
-            </li>
-          </div>
+          <ReportChecklist list={[
+            {ok: this.props.statusPython, label: 'Python PATH'},
+            {ok: this.props.statusJupyter, label: 'Jupyter'}
+          ]}
+          />
         </div>
         <br />
         {python}

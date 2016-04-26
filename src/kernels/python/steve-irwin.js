@@ -3,6 +3,7 @@
 const _ = require('lodash'),
   bluebird = require('bluebird'),
   client = require('./client'),
+  path = require('path'),
   os = require('os'),
   rules = require('../../services/rules');
 
@@ -37,6 +38,16 @@ let ruleSet = [
   {
     when: _.overSome(_.matches({platform: 'linux'}), _.matches({platform: 'darwin'})),
     then: {cmd: '/anaconda/bin/python', shell: '/bin/bash'}
+  },
+  {
+    when: _.overSome(_.matches({platform: 'linux'}), _.matches({platform: 'darwin'})),
+    then: function (facts) {
+      return {
+        cmd: path.join(facts.homedir, 'anaconda2/bin/python'),
+        shell: '/bin/bash',
+        label: '~/anaconda2/bin/python'
+      };
+    }
   }
 ];
 

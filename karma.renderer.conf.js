@@ -35,6 +35,7 @@ module.exports = function (karma) {
     files: [
       'node_modules/react/dist/react-with-addons.js',
       'test/**/*.js',
+      'public/js/window.*.js',
       'public/jsx/**/*.js',
       'public/jsx/**/*.jsx'
     ],

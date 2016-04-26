@@ -41,7 +41,7 @@
     "react/jsx-handler-names": 1,
     "react/jsx-indent-props": [1, 2],
     "react/jsx-indent": [1, 2],
-    "react/jsx-key": 1,
+    "react/jsx-key": 0,
     "react/jsx-max-props-per-line": 1,
     "react/jsx-no-bind": 1,
     "react/jsx-no-duplicate-props": 1,
@@ -111,7 +111,6 @@
     "space-before-function-paren": [2, {"anonymous": "always", "named": "never"}],
     "space-infix-ops": [1, {"int32Hint": false}],
     "spaced-comment": [2, "always"],
-    "arrow-body-style": ["error", "as-needed"],
     "generator-star-spacing": [2, "before"],
     "max-depth": [2, 4],
     "max-params": [2, 4]

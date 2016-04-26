@@ -108,27 +108,6 @@ function onSaveFile(event, data) {
 }
 
 /**
- * This should probably be with the startup window.
- */
-function onExitTour() {
-  const targetWindow = browserWindows.getByName('startupWindow');
-
-  if (targetWindow) {
-    targetWindow.close();
-  }
-}
-
-/**
- * @param {Event} event
- * @this {BrowserWindow}
- */
-function onCloseWindow(event) {
-  log('debug', 'onCloseWindow', this, event);
-
-  this.webContents.send('kill');
-}
-
-/**
  * @param {string} windowName
  * @param {JupyterClient} client
  */
@@ -154,35 +133,45 @@ function onWindowAllClosed() {
 // This method will be called when Electron has finished
 // initialization and is ready to create browser windows.
 function onReady() {
-  let mainWindow, startupWindow;
+  let isDesign = process.argv.indexOf('--design') > -1;
 
-  mainWindow = browserWindows.createMainWindow('mainWindow', {
-    url: 'file://' + path.join(staticFileDir, 'desktop-index.html')
-  });
-  startupWindow = browserWindows.createStartupWindow('startupWindow', {
-    url: 'file://' + path.join(staticFileDir, 'startup.html')
-  });
-
-  startupWindow.webContents.on('did-finish-load', function () {
-
-    // show when we're done loading,
-    startupWindow.show();
-    startupWindow.openDevTools();
-    // startupWindow.once('close', function () {
-    //   mainWindow.show();
-    // });
-    mainWindow.show();
-  });
-
-  // Open the devtools.
-  // mainWindow.openDevTools();
-
-  attachIpcMainEvents();
-
-  updater.update(false)
-    .catch(function (err) {
-      log('warn', 'failed to initialize auto-update', err);
+  if (isDesign) {
+    let designWindow = browserWindows.create('designWindow', {
+      url: 'file://' + path.join(staticFileDir, 'design.html')
     });
+
+    designWindow.show();
+  } else {
+    let mainWindow, startupWindow;
+
+    // mainWindow = browserWindows.createMainWindow('mainWindow', {
+    //   url: 'file://' + path.join(staticFileDir, 'desktop-index.html')
+    // });
+    startupWindow = browserWindows.createStartupWindow('startupWindow', {
+      url: 'file://' + path.join(staticFileDir, 'startup.html')
+    });
+
+    startupWindow.webContents.on('did-finish-load', function () {
+
+      // show when we're done loading,
+      startupWindow.show();
+      startupWindow.openDevTools();
+      // startupWindow.once('close', function () {
+      //   mainWindow.show();
+      // });
+      //mainWindow.show();
+    });
+
+    // Open the devtools.
+    // mainWindow.openDevTools();
+
+    attachIpcMainEvents();
+
+    updater.update(false)
+      .catch(function (err) {
+        log('warn', 'failed to initialize auto-update', err);
+      });
+  }
 }
 
 /**
@@ -304,9 +293,10 @@ function exposeElectronIpcEvents(ipcEmitter, list) {
 
     ipcEmitter.on(name, function (event, id) {
       try {
-        log('info', 'responding to ipc event', name, _.slice(arguments, 2));
+        const args = _.slice(arguments, 2);
 
-        bluebird.method(fn).apply(null, _.slice(arguments, 1))
+        log('info', 'responding to ipc event', name, args);
+        bluebird.method(fn).apply(null, args)
           .then(replyToEvent(name, id, event))
           .catch(replyToEvent(name, id, event));
       } catch (ex) {
@@ -341,6 +331,44 @@ function onCheckForUpdates() {
 }
 
 /**
+ * Open browser (not in Electron)
+ * @param url
+ */
+function onOpenExternal(url) {
+  const shell = electron.shell;
+
+  log('info', 'opening in default browser', url);
+
+  shell.openExternal(url);
+}
+
+/**
+ * Open terminal (based on their OS)
+ */
+function onOpenTerminal() {
+  const shell = electron.shell,
+    isWindows = process.platform === 'win32';
+
+  log('info', 'opening terminal');
+
+  // todo: obviously, this may go badly on linux
+  shell.openItem(isWindows ? 'cmd.exe' : '/Applications/Utilities/Terminal.app');
+}
+
+function onCloseWindow(windowName) {
+
+  if (windowName) {
+    const window = browserWindows.getByName(windowName);
+
+    if (window) {
+      window.close();
+    } else {
+      log('warn', 'tried to close non-existent window', windowName);
+    }
+  }
+}
+
+/**
  * Attaches events to the main process
  */
 function attachIpcMainEvents() {
@@ -358,7 +386,9 @@ function attachIpcMainEvents() {
     onSaveFile,
     onUpdateAndInstall,
     onCheckForUpdates,
-    onExitTour
+    onCloseWindow,
+    onOpenExternal,
+    onOpenTerminal
   ]);
 }
 
@@ -379,7 +409,6 @@ module.exports.onPDF = onPDF;
 module.exports.onQuitApplication = onQuitApplication;
 module.exports.openFile = openFile;
 module.exports.onReady = onReady;
-module.exports.onCloseWindow = onCloseWindow;
 module.exports.onWindowAllClosed = onWindowAllClosed;
 
 attachAppEvents();

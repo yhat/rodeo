@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8" />
+  <title>Rodeo Startup</title>
+  <link id="rodeo-theme" href="css/styles.css" rel="stylesheet"/>
+  <script type="text/javascript">delete module;</script>
+  <style>
+    body {
+      margin-top: 40px;
+    }
+    body > header {
+      position: fixed;
+      top: 0;
+      width: 100%;
+      min-height: 32px;
+      background-color: rgba(0, 139, 139, 0.5);
+      z-index: 1;
+    }
+    body > header button {
+      border-radius: 5px;
+      background-color: rgba(0, 139, 139, 1)
+    }
+    main {
+      max-width: 1024px;
+      margin-right: auto;
+      margin-left: auto;
+    }
+    section.test {
+      border: 1px dashed darkcyan;
+      margin: 10px;
+    }
+    section.test > header h3 {
+      font-size: 16px;
+    }
+    section.test > header, section.test > footer {
+      background-color: lightcyan;
+      padding: 5px;
+      min-height: 5px;
+    }
+    .editable-value {
+      display: inline-block;
+      vertical-align: text-top;
+      margin-left: 10px;
+      padding: 5px;
+      padding-right: 15px;
+      background-color: #D3FFB1;
+      font-family: Menlo, Monaco, 'Andale Mono', 'Lucida Console', 'Courier New', monospace
+    }
+    .editable-prop-item {
+      margin-top: 10px;
+    }
+  </style>
+</head>
+<body>
+<header><button class="refresh">Refresh</button></header>
+<main></main>
+<script type="text/javascript" src="js/external.min.js"></script>
+<script type="text/javascript" src="js/jsx.js"></script>
+<script type="text/javascript">
+  document.querySelector('body > header .refresh').addEventListener('click', function () {
+    window.location = window.location;
+  });
+
+  /**
+   * @param {FocusEvent} event
+   */
+  function updateReact(event) {
+    console.log('updateReact', this, arguments);
+    // find the component we are in, update react item with new prop
+  }
+
+  var Test = (function test() {
+    var mainEl = document.querySelector('main');
+
+    function getPropType(prop) {
+      switch(prop) {
+        case React.PropTypes.string: return '[<i>:string</i>]';
+        case React.PropTypes.string.isRequired: return '<i>:string</i>';
+        case React.PropTypes.object: return '[<i>:object</i>]';
+        case React.PropTypes.object.isRequired: return '<i>:object</i>';
+        case React.PropTypes.array: return '[<i>:array</i>]';
+        case React.PropTypes.array.isRequired: return '<i>:array</i>';
+        case React.PropTypes.func: return '[<i>:func</i>]';
+        case React.PropTypes.func.isRequired: return '<i>:func</i>';
+        default: return name + ':unknown';
+      }
+    }
+
+    function printProps(component, props) {
+      var items = Object.keys(component.propTypes).map(function (name) {
+        return '<div class="editable-prop-item">' +
+          name + getPropType(component.propTypes[name]) +
+          '<pre class="editable-value" contenteditable="true">' + (props[name] || 'undefined') + '</pre>' +
+          '</div>';
+      });
+
+      return items.join('\n');
+    }
+
+    return function (component, props) {
+      var sectionEl = document.createElement('section');
+      sectionEl.setAttribute('class', 'test');
+      var headerEl = document.createElement('header');
+      var targetEl = document.createElement('div');
+      var footerEl = document.createElement('footer');
+      headerEl.innerHTML = '<h3>' + component.displayName + '</h3>' +
+        '<p>' + printProps(component, props) + '</p>';
+      sectionEl.appendChild(headerEl);
+      sectionEl.appendChild(targetEl);
+      sectionEl.appendChild(footerEl);
+      mainEl.appendChild(sectionEl);
+      var evalProps = {};
+
+      for(var key in props) {
+        if (props.hasOwnProperty(key)) {
+          evalProps[key] = eval(props[key]);
+        }
+      }
+
+      try {
+        ReactDOM.render(React.createElement(component, evalProps), targetEl);
+      } catch (ex) {
+        targetEl.innerHTML = '<div>' + ex.message + '</div>'
+      }
+    }
+  }());
+
+  Test(DocCode, {text: '"hello"'});
+
+  Test(PythonSelector, {
+    pythonDefinitions: `
+[{
+  pythonOptions:{
+    cmd: 'python'
+  },
+  checkResults: {
+    packages: []
+  }
+}]`
+  });
+
+  Test(PythonSelector, {
+    pythonDefinitions: `
+[{
+  pythonOptions: { cmd: \'/usr/locals/bin/python\' },
+  checkResults: { packages: [{ name: \'numpy\', version: \'0.17.3\' }] }
+}]
+`
+  });
+
+  (function () {
+    var list = document.querySelectorAll('.editable-value');
+    for(var i = 0; i < list.length; i++) {
+      list[i].removeEventListener('blur', updateReact);
+      list[i].addEventListener('blur', updateReact);
+    }
+  }());
+
+</script>
+</body>
+</html>
