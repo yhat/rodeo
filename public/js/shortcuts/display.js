@@ -3,7 +3,7 @@
 // this keeps this file a lot cleaner.
 
 function initShortcutsDisplay() {
-  $("#shortcut-display-modal #shortcuts").append(shortcuts_template())
+  $("#shortcut-display-modal #shortcuts").append(templates.shortcuts());
 
   $("#shortcut-search").on('input', function() {
     var query = $(this).val().toLowerCase();

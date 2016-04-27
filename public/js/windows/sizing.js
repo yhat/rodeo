@@ -2,24 +2,29 @@ function setupWindows() {
   // resizeable panes
   $("#pane-container").height($(window).height() - $(".navbar").height());
 
-  getRC(function(rc) {
-    $("#pane-container").split({
-      orientation: 'vertical',
-      limit: 100,
-      position: rc.paneVertical || '50%'
-    });
+  const paneVertical = store.get('paneVertical') || '50%',
+    paneHorizontalRight = store.get('paneHorizontalRight') || '50%',
+    paneHorizontalLeft = store.get('paneHorizontalLeft') || '50%',
+    paneContainer = $('#pane-container');
 
-    $("#right-column").split({
-      orientation: 'horizontal',
-      limit: 100,
-      position: rc.paneHorizontalRight || '50%'
-    });
+  paneContainer.height($(window).height() - $(".navbar").height());
 
-    $("#left-column").split({
-      orientation: 'horizontal',
-      limit: 100,
-      position: rc.paneHorizontalLeft || '50%'
-    });
+  paneContainer.split({
+    orientation: 'vertical',
+    limit: 100,
+    position: paneVertical
+  });
+
+  $('#right-column').split({
+    orientation: 'horizontal',
+    limit: 100,
+    position: paneHorizontalRight
+  });
+
+  $('#left-column').split({
+    orientation: 'horizontal',
+    limit: 100,
+    position: paneHorizontalLeft
   });
 }
 

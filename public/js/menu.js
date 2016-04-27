@@ -470,8 +470,8 @@ function getFileMenuTemplate() {
       click: function () {
         dialogs.prompt('Enter a name for your new folder: ', function (dirname) {
           if (dirname) {
-            fs.mkdir(path.join(USER_WD, dirname));
-            setFiles(USER_WD);
+            fs.mkdir(path.join(store.get('userWorkingDirectory'), dirname));
+            setFiles(store.get('userWorkingDirectory'));
           }
         });
       }
@@ -496,7 +496,7 @@ function getFolderMenuTemplate() {
 
           if (ok) {
             shell.moveItemToTrash(folderMenu.filename);
-            setFiles(USER_WD);
+            setFiles(store.get('userWorkingDirectory'));
           }
 
         });

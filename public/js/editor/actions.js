@@ -4,7 +4,7 @@ function fileIndexStart() {
 }
 
 function indexFile(data) {
-  var fileSearchItem = file_search_item_template(data);
+  var fileSearchItem = templates['file-search-item'](data);
   $("#file-search-list .list").append(fileSearchItem);
 }
 
@@ -58,7 +58,7 @@ function refreshVariables() {
     variableTypes.forEach(function(type) {
       var isOnDesktop = isDesktop();
       variables[type].forEach(function(v) {
-        $("#vars").append(active_variables_row_template({
+        $("#vars").append(templates['active-variable']({
             name: v.name, type: type, repr: v.repr, isDesktop: isOnDesktop
           })
         );
@@ -77,7 +77,7 @@ function refreshPackages() {
     $("#packages-rows").children().remove();
     packages.forEach(function(p) {
       $("#packages-rows").append(
-        package_row_template({ name: p.name, version: p.version})
+        templates['package-row']({ name: p.name, version: p.version})
       );
     });
   });
@@ -132,24 +132,20 @@ function findFile() {
 
 
 function setDefaultPreferences(editor) {
-  getRC(function(rc) {
-    if (rc.keyBindings=="default") {
-      rc.keyBindings = null;
-    }
-    editor.setKeyboardHandler(rc.keyBindings || null); // null is the "default"
-    editor.setTheme(rc.editorTheme || "ace/theme/chrome");
-    editor.setFontSize(rc.fontSize || 12);
-    if (rc.fontType) {
-      // TODO: not all fonts are available
-      // editor.setOption("fontFamily", rc.fontType);
-    }
+  const keyBindings = store.get('keyBindings'),
+    editorTheme = store.get('editorTheme'),
+    fontSize = store.get('fontSize'),
+    autoSave = store.get('autoSave');
 
-    if (rc.autoSave) {
-      editor.on('input', function() {
-        saveEditor();
-      });
-    }
-  });
+  editor.setKeyboardHandler(keyBindings === 'default' ? null : keyBindings); // null is the "default"
+  editor.setTheme(editorTheme || 'ace/theme/chrome');
+  editor.setFontSize(fontSize || 12);
+
+  if (autoSave) {
+    editor.on('input', function () {
+      saveEditor();
+    });
+  }
 }
 
 function saveActiveEditor(saveas) {

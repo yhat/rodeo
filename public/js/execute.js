@@ -1,6 +1,6 @@
 function sendCommand(input, hideResult) {
   if (input) {
-    var html = history_row_template({ n: 1 + $("#history-trail").children().length, command: input });
+    var html = templates['history-row']({ n: 1 + $("#history-trail").children().length, command: input });
     $("#history-trail").append(html);
   }
 
@@ -104,7 +104,7 @@ $("#run-markdown").click(function(e) {
 
   if (isDesktop()) {
     var html = ipc.send('md', { doc: code });
-    var html = markdown_template({ renderedMarkdown: html, desktop: true });
+    var html = templates['markdown-output']({ renderedMarkdown: html, desktop: true });
     renderMarkdown(html);
   } else {
     $("#markdown-form textarea").val(code);

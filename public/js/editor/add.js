@@ -6,8 +6,8 @@ function addEditor() {
     id = 1;
   }
 
-  var editor_tab_html = editor_tab_template({ n: id, name: "Untitled-" + id + ".py", isFirst: id==0});
-  var editor_html = editor_template({ n: id });
+  var editor_tab_html = templates['editor-tab']({ n: id, name: "Untitled-" + id + ".py", isFirst: id==0});
+  var editor_html = templates.editor({ n: id });
 
   $(editor_tab_html).insertBefore($("#add-tab").parent());
   $("#editors").append(editor_html);

@@ -1,69 +1,51 @@
+/* globals store, ipc, templates */
+'use strict';
+
+/**
+ * @param {string} dir
+ * @returns {Promise}
+ */
 function setFiles(dir) {
-  function callback(home, dir, files) {
-    $("#file-list").children().remove();
-    $("#working-directory").children().remove();
-    $("#working-directory").append(wd_template({
-      dir: dir.replace(home, "~")
-    }));
-    $("#file-list").append(file_template({
+  const facts = store.get('systemFacts'),
+    homedir = facts.homedir,
+    $fileList = $('#file-list'),
+    $workingDirectory = $('#working-directory'),
+    displayDotFiles = store.get('displayDotFiles');
+
+  if (!dir) {
+    throw new TypeError('Missing first parameter');
+  }
+
+  function isDotFile(file) {
+    return /\/\./.test(file.filename) || /^\./.test(file.filename);
+  }
+
+  return ipc.send('files', dir).then(function (results) {
+    $fileList.children().remove();
+    $workingDirectory.children().remove();
+    $workingDirectory.append(templates['wd']({ dir: dir.replace(homedir, '~') }));
+    $fileList.append(templates['file-item']({
       isDir: true,
       filename: formatFilename(pathJoin([dir, '..'])),
       basename: '..'
     }));
 
-    getRC(function(rc) {
-      files.forEach(function(f) {
-        var filename = formatFilename(pathJoin([dir, f.basename]));
-        if (! f.isDir) {
-          return;
-        }
-        if (rc.displayDotFiles!=true) {
-          if (/\/\./.test(dir) || /^\./.test(f.filename)) {
-            // essa dotfile so we're going to skip it
-            return;
-          }
-        }
-        $("#file-list").append(file_template({
-          isDir: f.isDir,
-          filename: filename,
-          basename: f.basename
-        }));
-      }.bind(this));
+    let directories = results.filter(function (file) { return file.isDirectory; }),
+      files = results.filter(function (file) { return !file.isDirectory; }),
+      sortedResults = directories.concat(files);
 
-      files.forEach(function(f) {
-        var filename = formatFilename(pathJoin([dir, f.basename]));
-        if (f.isDir) {
-          return;
-        }
-        if (rc.displayDotFiles!=true) {
-          if (/\/\./.test(dir) || /^\./.test(f)) {
-            // essa dotfile so we're going to skip it
-            return;
-          }
-        }
-        $("#file-list").append(file_template({
-          isDir: f.isDir,
-          filename: filename,
-          basename: f.basename
-        }));
-      }.bind(this));
-    });
-  }
-  if (isDesktop()) {
-    if (dir==null) {
-      dir = ipc.send('wd-get');
+    if (displayDotFiles === false) {
+      sortedResults = sortedResults.filter(isDotFile);
     }
-    var resp = ipc.send('files', { "dir": dir });
-    ipc.send('index-files')
-    callback(resp.home, resp.dir, resp.files);
-  } else {
-    getWorkingDirectory(function(wd) {
-      if (dir==null) {
-        dir = wd;
-      }
-      $.get('files', { "dir": dir }, function(resp) {
-        callback(resp.home, resp.dir, resp.files);
-      });
+
+    return sortedResults;
+  }).then(function (results) {
+    results.forEach(function (file) {
+      $fileList.append(templates['file-item']({
+        isDir: file.isDirectory,
+        filename: file.filename,
+        basename: file.basename
+      }));
     });
-  }
+  });
 }

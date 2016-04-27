@@ -16,28 +16,6 @@ js: static/js/server-main.js static/js/desktop-main.js static/js/ace.min.js stat
 
 jsx: static/js/startup.js
 
-handlebars: public/js/handlebars-templates.js
-
-
-
-
-static/css/styles.css: $(LESS_FILES)
-	lessc public/less/styles.less > static/css/styles.css
-
-static/css/styles-cobalt.css: $(LESS_FILES)
-	lessc public/less/styles-cobalt.less > static/css/styles-cobalt.css
-
-static/css/styles-presentation.css: $(LESS_FILES)
-	lessc public/less/styles-presentation.less > static/css/styles-presentation.css
-
-static/css/styles-dark.css: $(LESS_FILES)
-	lessc public/less/styles-dark.less > static/css/styles-dark.css
-
-
-
-public/js/handlebars-templates.js: $(HBS_FILES)
-	handlebars public/handlebars-templates/* > public/js/handlebars-templates.js
-
 static/js/startup.js: $(JSX_FILES)
 	gulp jsx
 
@@ -56,33 +34,6 @@ static/js/external.min.js : $(EXTERNAL_FILES)
 		public/js/lib/mousetrap.js \
 		public/js/lib/owl.carousel.js \
 		public/js/lib/saveSvgAsPng.js	> static/js/external.min.js
-
-static/js/server-main.js : $(JS_FILES)
-	uglifyjs public/js/console.js \
-		public/js/editor/actions.js \
-		public/js/editor/add.js \
-		public/js/editor/new.js \
-		public/js/events/server.js \
-		public/js/execute.js \
-		public/js/file-nav.js \
-		public/js/focus.js \
-		public/js/handlebars-templates.js \
-		public/js/helpers.js \
-		public/js/install-package.js \
-		public/js/menu/server.js \
-		public/js/plots.js \
-		public/js/preferences.js \
-		public/js/search.js \
-		public/js/session.js \
-		public/js/shortcuts/display.js \
-		public/js/shortcuts/server.js \
-		public/js/templates.js \
-		public/js/upload.js \
-		public/js/windows/about.js \
-		public/js/windows/display-variable.js \
-		public/js/windows/sizing.js \
-		public/js/windows/startup-error.js \
-		public/js/main.js > static/js/server-main.js
 
 static/js/desktop-main.js : $(JS_FILES)
 	uglifyjs public/js/console.js \

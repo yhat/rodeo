@@ -64,7 +64,7 @@ function setTheme(theme) {
 
 function setPythonCmd(cmd) {
   if (cmd) {
-    cmd = cmd.replace("~", USER_HOME);
+    cmd = cmd.replace("~", store.get('userHome'));
     updateRC("pythonCmd", cmd);
   } else {
     updateRC("pythonCmd", null);
@@ -159,40 +159,61 @@ function showRodeoProfile() {
   }
 }
 
-function configurePreferences(rc) {
-  rc.keyBindings = rc.keyBindings || "default";
-  rc.defaultWd = rc.defaultWd || USER_HOME;
-  rc.fontType = rc.FontType || "Helvetica Neue";
-  rc.pythonPaths = rc.pythonPaths || [];
-  if (rc.pythonCmd) {
-    if (rc.pythonPaths.indexOf(rc.pythonCmd) < 0) {
-      rc.pythonPaths.push(rc.pythonCmd);
+function configurePreferences() {
+  let keyBindings = store.get('keyBindings'),
+    defaultWd = store.get('defaultWd'),
+    pythonPaths = store.get('pythonPaths'),
+    pythonCmd = store.get('pythonCmd'),
+    trackingOn = store.get('trackingOn'),
+    theme = store.get('theme'),
+    fontSize = store.get('fontSize'),
+    fontType = store.get('fontType');
+
+
+  // todo: to localStorage
+  keyBindings = keyBindings || 'default';
+  defaultWd = defaultWd || '';
+  fontType = fontType || 'Helvetica Neue';
+  pythonPaths = pythonPaths || [];
+  if (pythonCmd) {
+    if (pythonPaths.indexOf(pythonCmd) < 0) {
+      pythonPaths.push(pythonCmd);
     }
   }
 
-  if (rc.trackingOn!=false) {
-    rc.trackingOn = true;
+  if (trackingOn !== false) {
+    trackingOn = true;
   }
 
-  var preferences_html = preferences_template(rc);
-  $("#preferences").children().remove();
-  $("#preferences").append(preferences_html);
+  var preferences_html = templates.preferences({
+      keyBindings,
+      defaultWd,
+      pythonPaths,
+      pythonCmd,
+      trackingOn,
+      fontSize,
+      fontType
+    }),
+    $preferences = $('#preferences');
+
+  $preferences.children().remove();
+  $preferences.append(preferences_html);
   $('[data-toggle="tooltip"]').tooltip();
 
   // on startup, set defaults for non-editor preferences
-  if (rc.defaultWd) { // && fs.existsSync(rc.defaultWd)) {
-    USER_WD = rc.defaultWd;
-  } else {
-    USER_WD = USER_HOME;
+  // if (defaultWd) { // && fs.existsSync(rc.defaultWd)) {
+  //   USER_WD = defaultWd;
+  // } else {
+  //   USER_WD = store.get('userHome');
+  // }
+  if (theme) {
+    setTheme(theme);
   }
-  if (rc.theme) {
-    setTheme(rc.theme);
+  if (fontSize) {
+    setFontSize(fontSize);
   }
-  if (rc.fontSize) {
-    setFontSize(rc.fontSize);
-  }
-  if (rc.fontType) {
-    setFontType(rc.fontType);
+  if (fontType) {
+    setFontType(fontType);
   }
 }
 
@@ -203,7 +224,7 @@ $("#add-path-button").click(function(e) {
     if (data.jupyter && data.matplotlib) {
       var result = ipc.send('add-python-path', newPath);
       if (result==true) {
-        $("#python-paths").append(python_path_item(newPath));
+        $("#python-paths").append(templates['python-path-item'](newPath));
 
         bootbox.dialog({
           title: "Would you like this to be your default python environment?",
@@ -246,28 +267,12 @@ function deletePythonPath(el) {
   setupPreferences();
 }
 
-// initialize preferences
-USER_HOME = null;
-
-function getRC(fn) {
-  if (isDesktop()) {
-    var rc = ipc.send('preferences-get');
-    fn(rc);
-  } else {
-    $.get("preferences", function(rc) {
-      fn(rc);
-    });
-  }
-}
-
 function showPreferences() {
   $('a[href^="#preferences"]').click();
 }
 
 function setupPreferences() {
-  getRC(function(rc) {
-    configurePreferences(rc);
-  });
+    configurePreferences();
 }
 
 function registerEmail() {

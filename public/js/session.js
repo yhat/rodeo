@@ -26,7 +26,7 @@ function pickDirectory(title, defaultPath, fn) {
 
 function setWorkingDirectory(fn) {
   if (isDesktop()) {
-    pickDirectory('Select a Working Directory', USER_WD, function(wd) {
+    pickDirectory('Select a Working Directory', store.get('userWorkingDirectory'), function (wd) {
       if (! wd) {
         return;
       }

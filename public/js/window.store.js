@@ -1,6 +1,6 @@
 'use strict';
 
-var store = window.store = (function () {
+const store = window.store = (function () {
   function get(key) {
     var result = window.localStorage.getItem(key);
 

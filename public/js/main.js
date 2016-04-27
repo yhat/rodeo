@@ -2,26 +2,27 @@
 //
 // start the console
 startPrompt();
-
-setupMenu();
 setupPreferences();
 
 getWorkingDirectory(function(wd) {
   setFiles(wd);
 });
 
-getRC(function(rc) {
-  rc.pythonPaths = rc.pythonPaths || [];
-  if (rc.pythonCmd && rc.pythonPaths.indexOf(rc.pythonCmd) < 0) {
-    rc.pythonPaths.push(rc.pythonCmd);
+(function () {
+  let pythonPaths = store.get('pythonPaths'),
+    pythonCmd = store.get('pythonCmd');
+
+  pythonPaths = pythonPaths || [];
+  if (pythonCmd && pythonPaths.indexOf(pythonCmd) < 0) {
+    pythonPaths.push(pythonCmd);
   }
-  rc.pythonPaths.forEach(function(pythonPath) {
-    $("#python-paths").append(python_path_item(pythonPath))
+  pythonPaths.forEach(function (pythonPath) {
+    $('#python-paths').append(templates['python-path-item'](pythonPath));
   });
-});
+}());
 
 // misc startup stuff...
-$("#tour").owlCarousel({ singleItem: true });
+$('#tour').owlCarousel({ singleItem: true });
 $('[data-toggle="tooltip"]').tooltip();
 setTimeout(calibratePanes, 650);
 setupWindows();

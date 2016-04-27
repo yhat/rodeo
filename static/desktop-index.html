@@ -3,19 +3,8 @@
 <head>
   <title>Rodeo</title>
   <link id="rodeo-theme" href="css/default.css" rel="stylesheet"/>
-  <script src="js/ace.min.js"></script>
-  <script type="text/javascript">
-    window.$ = window.jQuery = require('jquery');
-  </script>
-  <script src="js/external.min.js"></script>
-  <script>
-  /* Replace 'APP_ID' with your app ID */
-  window.intercomSettings = {
-      app_id: 'x8kexgni'
-  };
-  /* Replace 'APP_ID' with your app ID */
-  (function(){var w=window;var ic=w.Intercom;if(typeof ic==="function"){ic('reattach_activator');ic('update',intercomSettings);}else{var d=document;var i=function(){i.c(arguments)};i.q=[];i.c=function(args){i.q.push(args)};w.Intercom=i;function l(){var s=d.createElement('script');s.type='text/javascript';s.async=true;s.src='https://widget.intercom.io/widget/APP_ID';var x=d.getElementsByTagName('script')[0];x.parentNode.insertBefore(s,x);}if(w.attachEvent){w.attachEvent('onload',l);}else{w.addEventListener('load',l,false);}}})()
-  </script>
+  <link href="css/jsx.css" rel="stylesheet"/>
+  <script type="text/javascript">delete module;</script>
 </head>
 <body>
   <!-- main section -->
@@ -447,9 +436,19 @@
       </div>
     </div>
     <!-- End Sticker Modal -->
-
-  <script src="js/desktop-main.js"></script>
-  <script src="../src/desktop/menu.js"></script>
+  <script src="js/external.min.js"></script>
+  <script>
+    /* Replace 'APP_ID' with your app ID */
+    window.intercomSettings = {
+      app_id: 'x8kexgni'
+    };
+    /* Replace 'APP_ID' with your app ID */
+    (function(){var w=window;var ic=w.Intercom;if(typeof ic==="function"){ic('reattach_activator');ic('update',intercomSettings);}else{var d=document;var i=function(){i.c(arguments)};i.q=[];i.c=function(args){i.q.push(args)};w.Intercom=i;function l(){var s=d.createElement('script');s.type='text/javascript';s.async=true;s.src='https://widget.intercom.io/widget/APP_ID';var x=d.getElementsByTagName('script')[0];x.parentNode.insertBefore(s,x);}if(w.attachEvent){w.attachEvent('onload',l);}else{w.addEventListener('load',l,false);}}})()
+  </script>
+  <script src="js/partials.js"></script>
+  <script src="js/hbs.js"></script>
+  <script src="js/js.js"></script>
+  <script src="js/jsx.js"></script>
   <script type="text/javascript">
     $(document).ready(function() {
 
@@ -466,15 +465,26 @@
     });
   </script>
   <script type="text/javascript">
-    window.Intercom('boot', {
-      app_id: 'x8kexgni',
-      user_id: require('ipc').send('preferences-get').id,
-      created_at: Date.now()
-    });
-    window.Intercom('update',{
-      "pythonCmd": require('ipc').send('preferences-get').pythonCmd,
-      "version": require('ipc').send('preferences-get').version
-    });
+    (function () {
+      let userId = store.get('userId'),
+        pythonOptions = store.get('pythonOptions') || {},
+        checkPython = pythonOptions.checkPython || {};
+
+      if (!userId) {
+        userId = guid();
+        store.set('userId', userId)
+      }
+
+      window.Intercom('boot', {
+        app_id: 'x8kexgni',
+        user_id: userId,
+        created_at: Date.now()
+      });
+      window.Intercom('update',{
+        "pythonCmd": pythonOptions.cmd || '',
+        "version": checkPython.version || ''
+      });
+    }());
   </script>
 </body>
 </html>

@@ -1,11 +1,12 @@
 'use strict';
 
 const _ = require('lodash'),
+  babel = require('gulp-babel'),
+  declare = require('gulp-declare'),
   eslint = require('eslint/lib/cli'),
   globby = require('globby'),
   gulp = require('gulp'),
-  babel = require('gulp-babel'),
-  sourcemaps = require('gulp-sourcemaps'),
+  handlebars = require('gulp-handlebars'),
   concat = require('gulp-concat'),
   gulpUtil = require('gulp-util'),
   karma = require('karma'),
@@ -14,10 +15,12 @@ const _ = require('lodash'),
   KarmaServer = karma.Server,
   path = require('path'),
   rename = require('gulp-rename'),
+  sourcemaps = require('gulp-sourcemaps'),
   merge2 = require('merge2'),
   imagemin = require('gulp-imagemin'),
   rework = require('gulp-rework'),
   reworkUrl = require('rework-plugin-url'),
+  wrap = require('gulp-wrap'),
   jsPatterns = [
     'karma.conf.js',
     'gulpfile.js',
@@ -98,15 +101,58 @@ gulp.task('external-scripts', function () {
     'node_modules/bootstrap/dist/js/bootstrap.min.js',
     'node_modules/react/dist/react-with-addons.js',
     'node_modules/react-dom/dist/react-dom.js',
-    'public/js/lib/owl.carousel.js'
+    'public/js/lib/*.js'
   ]).pipe(concat('external.min.js'))
+    .pipe(gulp.dest('static/js'));
+});
+
+gulp.task('hbs', function () {
+  let helpers, partials, templates;
+
+  helpers = gulp.src('public/hbs/helpers/*.js');
+
+  partials = gulp.src('public/hbs/partials/*.hbs')
+    .pipe(handlebars())
+    .pipe(wrap('Handlebars.registerPartial(<%= processPartialName(file.relative) %>, Handlebars.template(<%= contents %>));', {}, {
+      imports: {
+        processPartialName: function (fileName) {
+          // Strip the extension and the underscore
+          // Escape the output with JSON.stringify
+          return JSON.stringify(path.basename(fileName, '.js').substr(1));
+        }
+      }
+    }));
+
+  templates = gulp.src([
+    'public/hbs/*.hbs',
+    '!public/hbs/_*.hbs'
+  ]).pipe(handlebars())
+    .pipe(wrap('Handlebars.template(<%= contents %>)'))
+    .pipe(declare({
+      namespace: 'templates',
+      noRedeclare: true
+    }));
+
+  return merge2(helpers, partials, templates)
+    .pipe(concat('hbs.js'))
+    .pipe(gulp.dest('static/js'));
+});
+
+gulp.task('js', function () {
+  return gulp.src([
+    'public/js/window.*.js', // important global services first
+    'public/js/**/*.js', // then everyone else
+    '!public/js/lib/**/*.js' // no external libraries
+  ]).pipe(sourcemaps.init())
+    .pipe(babel())
+    .pipe(concat('js.js'))
+    .pipe(sourcemaps.write('.'))
     .pipe(gulp.dest('static/js'));
 });
 
 gulp.task('jsx', function () {
   return gulp.src([
-    'public/js/window.ipc.js',
-    'public/js/window.store.js',
+    'public/js/window.*.js', // important global services first
     'public/jsx/**/*.js',
     'public/jsx/**/*.jsx',
     '!public/jsx/**/*.test.js'
@@ -150,9 +196,10 @@ gulp.task('images', function () {
 
 gulp.task('lint', ['eslint']);
 gulp.task('test', ['lint', 'karma-renderer', 'karma-main']);
-gulp.task('build', ['less-external', 'styles', 'external-scripts', 'jsx']);
+gulp.task('build', ['less-external', 'styles', 'external-scripts', 'hbs', 'js', 'jsx']);
 gulp.task('run', []);
 gulp.task('watch', function () {
+  gulp.watch(['public/js/**/*.js'], ['js']);
   gulp.watch(['public/jsx/**/*.svg'], ['images']);
   gulp.watch(['public/jsx/**/*.less'], ['styles']);
   gulp.watch(['public/jsx/**/*.js', 'public/jsx/**/*.jsx'], ['jsx', 'karma-renderer']);

@@ -1,6 +1,46 @@
-(function() {
-  var template = Handlebars.template, templates = Handlebars.templates = Handlebars.templates || {};
-templates['active-variable.hbs'] = template({"1":function(container,depth0,helpers,partials,data) {
+Handlebars.registerHelper('compare', function (lvalue, operator, rvalue, options) {
+
+  var operators, result;
+
+  if (arguments.length < 3) {
+    throw new Error("Handlerbars Helper 'compare' needs 2 parameters");
+  }
+
+  if (options === undefined) {
+    options = rvalue;
+    rvalue = operator;
+    operator = "===";
+  }
+
+  operators = {
+    '==': function (l, r) { return l == r; },
+    '===': function (l, r) { return l === r; },
+    '!=': function (l, r) { return l != r; },
+    '!==': function (l, r) { return l !== r; },
+    '<': function (l, r) { return l < r; },
+    '>': function (l, r) { return l > r; },
+    '<=': function (l, r) { return l <= r; },
+    '>=': function (l, r) { return l >= r; },
+    'typeof': function (l, r) { return typeof l == r; }
+  };
+
+  if (!operators[operator]) {
+    throw new Error("Handlerbars Helper 'compare' doesn't know the operator " + operator);
+  }
+
+  result = operators[operator](lvalue, rvalue);
+
+  if (result) {
+    return options.fn(this);
+  } else {
+    return options.inverse(this);
+  }
+});
+Handlebars.registerHelper('toJSON', function (context) {
+  return JSON.stringify(context);
+});
+this["templates"] = this["templates"] || {};
+this["templates"]["active-variable"] = Handlebars.template({"1":function(container,depth0,helpers,partials,data) {
     var helper, alias1=depth0 != null ? depth0 : {}, alias2=helpers.helperMissing, alias3="function", alias4=container.escapeExpression;
 
   return "onclick=\"showVariable('"
@@ -28,10 +68,10 @@ templates['active-variable.hbs'] = template({"1":function(container,depth0,helpe
   if (stack1 != null) { buffer += stack1; }
   return buffer + ">\n      <span class='fa fa-list-alt' aria-hidden='true'></span>&nbsp;View\n    </a>\n  </td>\n</tr>\n";
 },"useData":true});
-templates['bad-python.hbs'] = template({"compiler":[7,">= 4.0.0"],"main":function(container,depth0,helpers,partials,data) {
+this["templates"]["bad-python"] = Handlebars.template({"compiler":[7,">= 4.0.0"],"main":function(container,depth0,helpers,partials,data) {
     return "<div class=\"\">\n  <div class=\"jumbotron\">\n    <div class=\"\">\n      <h1>Bad news! Rodeo can't start <i class=\"fa fa-frown-o\"></i></h1>\n    </div>\n  </div>\n  <div id=\"ipython-error\" class=\" hide\">\n    <h3>What's going on?</h3>\n    <p class=\"small\">\n      Unfortunately Rodeo wasn't able to find the <code>python</code> command it needs in order\n      to run. Rodeo uses the same libraries the IPython Notebook does. This means, if you don't\n      have your notebook setup properly, Rodeo probably isn't going to work.\n    </p>\n    <h3>How do I fix it?</h3>\n    <p class=\"small\">\n      The good news is that we've identified the problem and it's fairly easy to fix. The root\n      of the problem is that you don't have Python setup correctly (or it's setup in a pretty non-standard\n      way that Rodeo doesn't recognize). You've got a couple options.\n    </p>\n    <hr />\n    <h3>The \"I just want it to work\" option</h3>\n    <p class=\"small\">\n      If you just want this to work as quickly as humanly possible, you can install a pre-packaged version of Python.\n      <br />\n      <br />\n      The easiest way to go about this is to install <a href=\"http://docs.continuum.io/anaconda/install\" target=\"_blank\">Anaconda</a>. It's free,\n      you can double-click to install, and it has everything you need to use Rodeo.\n      <br>\n      <br />\n      Once you're done, try re-running Rodeo.\n    </p>\n    <hr />\n    <h3>The \"I know what I'm doing\" option</h3>\n    <p class=\"small\">\n      Rodeo needs to be able to import either the <code>jupyter_client</code> or the <code>IPython</code> module. If you don't have\n      one of these installed, then that's probably your problem.\n      <br>\n      <br />\n      If you do have one of them installed, then the issue is that Rodeo is using the \"wrong python\". Rodeo defaults to using\n      whatever <code>python</code> is on your PATH (or on Windows, whatever is set in your Environment Variables).\n      <br />\n      <br />\n      Not sure if you have python installed? You should probably go back to the \"I just want it to work\" section.\n    </p>\n  </div>\n  <div id=\"matplotlib-error\" class=\" hide\">\n    <h3>What's going on?</h3>\n    <p class=\"small\">\n      Good news and bad news. The good news is that you've configured Jupyter/IPython correctly. The bad news is Rodeo wasn't able to load <code>matplotlib</code>.\n    </p>\n    <hr />\n    <h3>Installing <code>matplotlib</code></h3>\n    <p class=\"small\">\n      Luckily it's fairly easy to get out of this mess. The easiest way is to use <code>conda</code> (if you're using Anaconda) or\n      <code>pip</code> (if you're using \"regular\" python). Open up your terminal/command prompt and type in the following:\n    </p>\n    <pre># if you're a conda user...\n$ conda install matplotlib\n# or\n$ pip install matplotlib</pre>\n  </div>\n\n</div>";
 },"useData":true});
-templates['editor-tab.hbs'] = template({"1":function(container,depth0,helpers,partials,data) {
+this["templates"]["editor-tab"] = Handlebars.template({"1":function(container,depth0,helpers,partials,data) {
     return "active";
 },"compiler":[7,">= 4.0.0"],"main":function(container,depth0,helpers,partials,data) {
     var stack1, helper, options, alias1=depth0 != null ? depth0 : {}, alias2=helpers.helperMissing, alias3="function", alias4=container.escapeExpression, buffer = 
@@ -49,7 +89,7 @@ templates['editor-tab.hbs'] = template({"1":function(container,depth0,helpers,pa
     + alias4(((helper = (helper = helpers.n || (depth0 != null ? depth0.n : depth0)) != null ? helper : alias2),(typeof helper === alias3 ? helper.call(alias1,{"name":"n","hash":{},"data":data}) : helper)))
     + "');\">&times;</span>\n  </a>\n</li>\n";
 },"useData":true});
-templates['editor.hbs'] = template({"compiler":[7,">= 4.0.0"],"main":function(container,depth0,helpers,partials,data) {
+this["templates"]["editor"] = Handlebars.template({"compiler":[7,">= 4.0.0"],"main":function(container,depth0,helpers,partials,data) {
     var helper, alias1=depth0 != null ? depth0 : {}, alias2=helpers.helperMissing, alias3="function", alias4=container.escapeExpression;
 
   return "<div class=\"tab-pane active\" id=\"editor-tab-pane-"
@@ -60,7 +100,7 @@ templates['editor.hbs'] = template({"compiler":[7,">= 4.0.0"],"main":function(co
     + alias4(((helper = (helper = helpers.n || (depth0 != null ? depth0.n : depth0)) != null ? helper : alias2),(typeof helper === alias3 ? helper.call(alias1,{"name":"n","hash":{},"data":data}) : helper)))
     + "\"></div>\n</div>\n";
 },"useData":true});
-templates['file-item.hbs'] = template({"1":function(container,depth0,helpers,partials,data) {
+this["templates"]["file-item"] = Handlebars.template({"1":function(container,depth0,helpers,partials,data) {
     return "fa-folder";
 },"3":function(container,depth0,helpers,partials,data) {
     return "fa-file-o";
@@ -86,7 +126,7 @@ templates['file-item.hbs'] = template({"1":function(container,depth0,helpers,par
     + alias4(((helper = (helper = helpers.basename || (depth0 != null ? depth0.basename : depth0)) != null ? helper : alias2),(typeof helper === alias3 ? helper.call(alias1,{"name":"basename","hash":{},"data":data}) : helper)))
     + "\n</a>\n";
 },"useData":true});
-templates['file-search-item.hbs'] = template({"compiler":[7,">= 4.0.0"],"main":function(container,depth0,helpers,partials,data) {
+this["templates"]["file-search-item"] = Handlebars.template({"compiler":[7,">= 4.0.0"],"main":function(container,depth0,helpers,partials,data) {
     var helper, alias1=depth0 != null ? depth0 : {}, alias2=helpers.helperMissing, alias3="function", alias4=container.escapeExpression;
 
   return "<li class=\"hide\" onclick=\"$('#file-search-list .selected').removeClass('selected'); $(this).addClass('selected'); $('#file-search-form').submit();\" data-filename=\""
@@ -95,14 +135,14 @@ templates['file-search-item.hbs'] = template({"compiler":[7,">= 4.0.0"],"main":f
     + alias4(((helper = (helper = helpers.displayFilename || (depth0 != null ? depth0.displayFilename : depth0)) != null ? helper : alias2),(typeof helper === alias3 ? helper.call(alias1,{"name":"displayFilename","hash":{},"data":data}) : helper)))
     + "</a>\n</li>\n";
 },"useData":true});
-templates['history-row.hbs'] = template({"compiler":[7,">= 4.0.0"],"main":function(container,depth0,helpers,partials,data) {
+this["templates"]["history-row"] = Handlebars.template({"compiler":[7,">= 4.0.0"],"main":function(container,depth0,helpers,partials,data) {
     var helper;
 
   return "<p style=\"margin: 0px;\">\n  <span style=\"white-space: pre-wrap;\">"
     + container.escapeExpression(((helper = (helper = helpers.command || (depth0 != null ? depth0.command : depth0)) != null ? helper : helpers.helperMissing),(typeof helper === "function" ? helper.call(depth0 != null ? depth0 : {},{"name":"command","hash":{},"data":data}) : helper)))
     + "</span>\n</p>\n";
 },"useData":true});
-templates['markdown-output.hbs'] = template({"1":function(container,depth0,helpers,partials,data) {
+this["templates"]["markdown-output"] = Handlebars.template({"1":function(container,depth0,helpers,partials,data) {
     return "  <script type=\"text/javascript\">\n    window.$ = window.jQuery = require('jquery');\n  </script>\n";
 },"3":function(container,depth0,helpers,partials,data) {
     return "";
@@ -123,7 +163,7 @@ templates['markdown-output.hbs'] = template({"1":function(container,depth0,helpe
     + ((stack1 = helpers["if"].call(alias1,(depth0 != null ? depth0.desktop : depth0),{"name":"if","hash":{},"fn":container.program(7, data, 0),"inverse":container.noop,"data":data})) != null ? stack1 : "")
     + "</body>\n";
 },"useData":true});
-templates['menu-item.hbs'] = template({"1":function(container,depth0,helpers,partials,data) {
+this["templates"]["menu-item"] = Handlebars.template({"1":function(container,depth0,helpers,partials,data) {
     var stack1, helper, options, buffer = "";
 
   stack1 = ((helper = (helper = helpers.isDivider || (depth0 != null ? depth0.isDivider : depth0)) != null ? helper : helpers.helperMissing),(options={"name":"isDivider","hash":{},"fn":container.program(2, data, 0),"inverse":container.program(4, data, 0),"data":data}),(typeof helper === "function" ? helper.call(depth0 != null ? depth0 : {},options) : helper));
@@ -168,7 +208,7 @@ templates['menu-item.hbs'] = template({"1":function(container,depth0,helpers,par
   if (stack1 != null) { buffer += stack1; }
   return buffer + "  </ul>\n</li>\n";
 },"useData":true});
-templates['nav-item.hbs'] = template({"compiler":[7,">= 4.0.0"],"main":function(container,depth0,helpers,partials,data) {
+this["templates"]["nav-item"] = Handlebars.template({"compiler":[7,">= 4.0.0"],"main":function(container,depth0,helpers,partials,data) {
     var helper, alias1=depth0 != null ? depth0 : {}, alias2=helpers.helperMissing, alias3="function", alias4=container.escapeExpression;
 
   return "<li>\n  <a onclick=\""
@@ -179,7 +219,7 @@ templates['nav-item.hbs'] = template({"compiler":[7,">= 4.0.0"],"main":function(
     + alias4(((helper = (helper = helpers.shortcut || (depth0 != null ? depth0.shortcut : depth0)) != null ? helper : alias2),(typeof helper === alias3 ? helper.call(alias1,{"name":"shortcut","hash":{},"data":data}) : helper)))
     + "\n        </span>\n      </div>\n    </div>\n  </a>\n</li>\n";
 },"useData":true});
-templates['package-row.hbs'] = template({"compiler":[7,">= 4.0.0"],"main":function(container,depth0,helpers,partials,data) {
+this["templates"]["package-row"] = Handlebars.template({"compiler":[7,">= 4.0.0"],"main":function(container,depth0,helpers,partials,data) {
     var helper, alias1=depth0 != null ? depth0 : {}, alias2=helpers.helperMissing, alias3="function", alias4=container.escapeExpression;
 
   return "<tr>\n  <td>"
@@ -188,7 +228,7 @@ templates['package-row.hbs'] = template({"compiler":[7,">= 4.0.0"],"main":functi
     + alias4(((helper = (helper = helpers.version || (depth0 != null ? depth0.version : depth0)) != null ? helper : alias2),(typeof helper === alias3 ? helper.call(alias1,{"name":"version","hash":{},"data":data}) : helper)))
     + "</td>\n</tr>\n";
 },"useData":true});
-templates['preferences.hbs'] = template({"1":function(container,depth0,helpers,partials,data) {
+this["templates"]["preferences"] = Handlebars.template({"1":function(container,depth0,helpers,partials,data) {
     return "selected";
 },"3":function(container,depth0,helpers,partials,data,blockParams,depths) {
     var stack1;
@@ -330,7 +370,7 @@ templates['preferences.hbs'] = template({"1":function(container,depth0,helpers,p
   if (stack1 != null) { buffer += stack1; }
   return buffer + "> AutoSave Files\n        </label>\n      </div>\n    </div>\n    <!-- End Editor Tab -->\n  </div>\n</div>\n";
 },"useData":true,"useDepths":true});
-templates['python-path-item.hbs'] = template({"compiler":[7,">= 4.0.0"],"main":function(container,depth0,helpers,partials,data) {
+this["templates"]["python-path-item"] = Handlebars.template({"compiler":[7,">= 4.0.0"],"main":function(container,depth0,helpers,partials,data) {
     var alias1=container.lambda, alias2=container.escapeExpression;
 
   return "<li class=\"list-group-item\">\n  <i>"
@@ -339,7 +379,7 @@ templates['python-path-item.hbs'] = template({"compiler":[7,">= 4.0.0"],"main":f
     + alias2(alias1(depth0, depth0))
     + "\" class=\"btn btn-xs btn-danger pull-right\">remove</button>\n</li>\n";
 },"useData":true});
-templates['python-test-output.hbs'] = template({"1":function(container,depth0,helpers,partials,data) {
+this["templates"]["python-test-output"] = Handlebars.template({"1":function(container,depth0,helpers,partials,data) {
     return "list-group-item-success";
 },"3":function(container,depth0,helpers,partials,data) {
     return "list-group-item-danger";
@@ -364,7 +404,7 @@ templates['python-test-output.hbs'] = template({"1":function(container,depth0,he
     + ((stack1 = helpers["if"].call(alias1,(depth0 != null ? depth0.matplotlib : depth0),{"name":"if","hash":{},"fn":container.program(5, data, 0),"inverse":container.program(7, data, 0),"data":data})) != null ? stack1 : "")
     + "\n  </li>\n</ul>\n";
 },"useData":true});
-templates['python-triage.hbs'] = template({"compiler":[7,">= 4.0.0"],"main":function(container,depth0,helpers,partials,data) {
+this["templates"]["python-triage"] = Handlebars.template({"compiler":[7,">= 4.0.0"],"main":function(container,depth0,helpers,partials,data) {
     var helper, alias1=depth0 != null ? depth0 : {}, alias2=helpers.helperMissing, alias3="function", alias4=container.escapeExpression;
 
   return "<div class=\"jumbotron\" style=\"background-color: inherit;\">\n  <h2>"
@@ -379,14 +419,13 @@ templates['python-triage.hbs'] = template({"compiler":[7,">= 4.0.0"],"main":func
     + alias4(((helper = (helper = helpers.pathToterminal || (depth0 != null ? depth0.pathToterminal : depth0)) != null ? helper : alias2),(typeof helper === alias3 ? helper.call(alias1,{"name":"pathToterminal","hash":{},"data":data}) : helper)))
     + "');\">Click here to open the Terminal application</a>\n      and run the command below:\n    </p>\n    <p class=\"lead\">For Conda users:</p>\n    <div class=\"row\">\n      <div class=\"col-sm-8 col-sm-offset-2 text-left\">\n        <pre>$ conda install matplotlib</pre>\n      </div>\n    </div>\n    <p class=\"lead\">For pip users:</p>\n    <div class=\"row\">\n      <div class=\"col-sm-8 col-sm-offset-2 text-left\">\n        <pre>$ pip install matplotlib</pre>\n      </div>\n    </div>\n  </div>\n  <!--  end install matplotlib -->\n</div>\n";
 },"useData":true});
-templates['shortcuts.hbs'] = template({"compiler":[7,">= 4.0.0"],"main":function(container,depth0,helpers,partials,data) {
+this["templates"]["shortcuts"] = Handlebars.template({"compiler":[7,">= 4.0.0"],"main":function(container,depth0,helpers,partials,data) {
     return "<table class=\"table table-bordered\" style=\"margin-bottom: 0px;\">\n  <thead>\n    <tr>\n      <th>Topic</th>\n      <th>OSX</th>\n      <th>Windows / Linux</th>\n      <th>Action</th>\n    </tr>\n  </thead>\n  <tbody id=\"shortcut-rows\">\n    <!-- system shortcuts -->\n    <tr>\n      <td>System</td>\n      <td><kbd>&#8984;</kbd> + <kbd>enter</kbd></td>\n      <td><kbd>ctrl</kbd> + <kbd>enter</kbd></td>\n      <td>run code</td>\n    </tr>\n    <tr>\n      <td>System</td>\n      <td><kbd>&#8984;</kbd> + <kbd>,</kbd></td>\n      <td><kbd>ctrl</kbd> + <kbd>,</kbd></td>\n      <td>show preferences</td>\n    </tr>\n    <tr>\n      <td>System</td>\n      <td><kbd>&#8984;</kbd> + <kbd>g</kbd></td>\n      <td><kbd>ctrl</kbd> + <kbd>g</kbd></td>\n      <td>set default variables</td>\n    </tr>\n    <tr>\n      <td>System</td>\n      <td><kbd>&#8984;</kbd> + <kbd>Q</kbd></td>\n      <td><kbd>ctrl</kbd> + <kbd>Q</kbd></td>\n      <td>theoretical explanation</td>\n    </tr>\n    <tr>\n      <td>System</td>\n      <td><kbd>&#8984;</kbd> + <kbd>N</kbd></td>\n      <td><kbd>ctrl</kbd> + <kbd>N</kbd></td>\n      <td>new editor</td>\n    </tr>\n    <tr>\n      <td>System</td>\n      <td><kbd>&#8679;</kbd> + <kbd>&#8984;</kbd> + <kbd>O</kbd></td>\n      <td> <kbd>&#8679;</kbd> + <kbd><kbd>ctrl</kbd></kbd> + <kbd>O</kbd></td>\n      <td>open file</td>\n    </tr>\n    <tr>\n      <td>System</td>\n      <td><kbd>&#8984;</kbd> + <kbd>s</kbd></td>\n      <td><kbd>ctrl</kbd> + <kbd>s</kbd></td>\n      <td>save file</td>\n    </tr>\n    <tr>\n      <td>System</td>\n      <td><kbd>&#8984;</kbd> + <kbd>w</kbd></td>\n      <td><kbd>ctrl</kbd> + <kbd>w</kbd></td>\n      <td>close file</td>\n    </tr>\n    <tr>\n      <td>System</td>\n      <td><kbd>&#8984;</kbd> + <kbd>t</kbd></td>\n      <td><kbd>ctrl</kbd> + <kbd>t</kbd></td>\n      <td>find file</td>\n    </tr>\n    <tr>\n      <td>System</td>\n      <td><kbd>&#8984;</kbd> + <kbd>opt</kbd> + <kbd>&#8592;</kbd></td>\n      <td><kbd>ctrl</kbd> + <kbd>opt</kbd> + <kbd>&#8592;</kbd></td>\n      <td>move to editor to the left of active editor</td>\n    </tr>\n    <tr>\n      <td>System</td>\n      <td><kbd>&#8984;</kbd> + <kbd>opt</kbd> + <kbd>&#8594;</kbd></td>\n      <td><kbd>ctrl</kbd> + <kbd>opt</kbd> + <kbd>&#8594;</kbd></td>\n      <td>move to editor to the right of active editor</td>\n    </tr>\n    <tr>\n      <td>System</td>\n      <td><kbd>&#8984;</kbd> + <kbd>1</kbd></td>\n      <td><kbd>ctrl</kbd> + <kbd>1</kbd></td>\n      <td>focus on editor</td>\n    </tr>\n    <tr>\n      <td>System</td>\n      <td><kbd>&#8984;</kbd> + <kbd>2</kbd></td>\n      <td><kbd>ctrl</kbd> + <kbd>2</kbd></td>\n      <td>focus on console</td>\n    </tr>\n    <tr>\n      <td>System</td>\n      <td><kbd>&#8984;</kbd> + <kbd>3</kbd></td>\n      <td><kbd>ctrl</kbd> + <kbd>3</kbd></td>\n      <td>toggle view for Environment/History</td>\n    </tr>\n    <tr>\n      <td>System</td>\n      <td><kbd>&#8984;</kbd> + <kbd>4</kbd></td>\n      <td><kbd>ctrl</kbd> + <kbd>4</kbd></td>\n      <td>toggle view for Files/Plots/Packages/Help</td>\n    </tr>\n    <tr>\n      <td>System</td>\n      <td><kbd>&#8984;</kbd> + <kbd>R</kbd></td>\n      <td><kbd>ctrl</kbd> + <kbd>R</kbd></td>\n      <td>restart Rodeo</td>\n    </tr>\n    <tr>\n      <td>System</td>\n      <td><kbd>&#8984;</kbd> + <kbd>0</kbd></td>\n      <td><kbd>ctrl</kbd> + <kbd>0</kbd></td>\n      <td>default zoom</td>\n    </tr>\n    <tr>\n      <td>System</td>\n      <td><kbd>&#8984;</kbd> + <kbd>=</kbd></td>\n      <td><kbd>ctrl</kbd> + <kbd>=</kbd></td>\n      <td>zoom in</td>\n    </tr>\n    <tr>\n      <td>System</td>\n      <td><kbd>&#8984;</kbd> + <kbd>-</kbd></td>\n      <td><kbd>ctrl</kbd> + <kbd>-</kbd></td>\n      <td>zoom out</td>\n    </tr>\n    <tr>\n      <td>System</td>\n      <td><kbd>&#8984;</kbd> + <kbd>&#8679;</kbd> + <kbd>g</kbd></td>\n      <td><kbd>ctrl</kbd> + <kbd>&#8679;</kbd> + <kbd>g</kbd></td>\n      <td>set working directory</td>\n    </tr>\n    <tr>\n      <td>System</td>\n      <td><kbd>&#8984;</kbd> + <kbd>&#8679;</kbd> + <kbd>2</kbd></td>\n      <td><kbd>ctrl</kbd> + <kbd>&#8679;</kbd> + <kbd>2</kbd></td>\n      <td>rerun 2nd to last command</td>\n    </tr>\n    <tr>\n      <td>System</td>\n      <td><kbd>&#8984;</kbd> + <kbd>&#8679;</kbd> + <kbd>1</kbd></td>\n      <td><kbd>ctrl</kbd> + <kbd>&#8679;</kbd> + <kbd>1</kbd></td>\n      <td>rerun last command</td>\n    </tr>\n    <!-- console shortcuts -->\n    <tr>\n      <td>Console</td>\n      <td><kbd>&#8984;</kbd>/<kbd>ctrl</kbd> + <kbd>l</kbd></td>\n      <td><kbd>ctrl</kbd> + <kbd>l</kbd></td>\n      <td>clear console</td>\n    </tr>\n    <tr>\n      <td>Console</td>\n      <td><kbd>&#8984;</kbd>/<kbd>ctrl</kbd> + <kbd>a</kbd></td>\n      <td><kbd>ctrl</kbd> + <kbd>a</kbd></td>\n      <td>skip to beginning of console</td>\n    </tr>\n    <tr>\n      <td>Console</td>\n      <td><kbd>&#8984;</kbd>/<kbd>ctrl</kbd> + <kbd>e</kbd></td>\n      <td><kbd>ctrl</kbd> + <kbd>e</kbd></td>\n      <td>skip to end of console</td>\n    </tr>\n    <tr>\n      <td>Console</td>\n      <td><kbd>&#8984;</kbd>/<kbd>ctrl</kbd> + <kbd>c</kbd></td>\n      <td><kbd>ctrl</kbd> + <kbd>c</kbd></td>\n      <td>cancel console input</td>\n    </tr>\n    <tr>\n      <td>Console</td>\n      <td><kbd>&#8984;</kbd>/<kbd>ctrl</kbd> + <kbd>u</kbd></td>\n      <td><kbd>ctrl</kbd> + <kbd>u</kbd></td>\n      <td>clear to beginning of console</td>\n    </tr>\n    <tr>\n      <td>Console</td>\n      <td><kbd>&#8984;</kbd>/<kbd>ctrl</kbd> + <kbd>k</kbd></td>\n      <td><kbd>ctrl</kbd> + <kbd>k</kbd></td>\n      <td>clear to end of console</td>\n    </tr>\n    <tr>\n      <td>Console</td>\n      <td><kbd>&#8984;</kbd>/<kbd>ctrl</kbd> + <kbd>w</kbd></td>\n      <td><kbd>ctrl</kbd> + <kbd>w</kbd></td>\n      <td>clear one word backwards in console</td>\n    </tr>\n    <tr>\n      <td>Console</td>\n      <td><kbd><i>tab</i></kbd></td>\n      <td><kbd><i>tab</i></kbd></td>\n      <td>show autocomplete options</td>\n    </tr>\n    <!-- Editor shortcuts -->\n    <tr>\n      <td>Editor</td>\n      <td><kbd>&#8984;</kbd> + <kbd>f</kbd></td>\n      <td><kbd>ctrl</kbd> + <kbd>f</kbd></td>\n      <td>find text</td>\n    </tr>\n    <tr>\n      <td>Editor</td>\n      <td><kbd><i>tab</i></kbd></td>\n      <td><kbd><i>tab</i></kbd></td>\n      <td>show autocomplete options</td>\n    </tr>\n      <tr>\n      <td>Editor</td>\n      <td><kbd>&#8984;</kbd>/<kbd>ctrl</kbd> + <kbd>/</kbd></td>\n      <td><kbd>ctrl</kbd> + <kbd>/</kbd></td>\n      <td>comment code</td>\n    </tr>\n  </tbody>\n</table><footer class=\"container\">\n  &#x2318; = Command, &#x21E7; = Shift, &#x2190;&#x2191;&#x2192;&#x2193; = Arrow Keys\n</footer>\n";
 },"useData":true});
-templates['wd.hbs'] = template({"compiler":[7,">= 4.0.0"],"main":function(container,depth0,helpers,partials,data) {
+this["templates"]["wd"] = Handlebars.template({"compiler":[7,">= 4.0.0"],"main":function(container,depth0,helpers,partials,data) {
     var helper;
 
   return "<a class=\"list-group-item\" style=\"padding: 5px 10px;\">\n  <i onclick=\"fileMenu.popup(remote.getCurrentWindow());\" class=\"fa fa-cogs\" style=\"color: grey;\"></i>&nbsp;\n  &nbsp;&nbsp;"
     + container.escapeExpression(((helper = (helper = helpers.dir || (depth0 != null ? depth0.dir : depth0)) != null ? helper : helpers.helperMissing),(typeof helper === "function" ? helper.call(depth0 != null ? depth0 : {},{"name":"dir","hash":{},"data":data}) : helper)))
     + "\n</a>\n";
 },"useData":true});
-})();

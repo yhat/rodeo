@@ -147,20 +147,22 @@ function onReady() {
     mainWindow = browserWindows.createMainWindow('mainWindow', {
       url: 'file://' + path.join(staticFileDir, 'desktop-index.html')
     });
-    startupWindow = browserWindows.createStartupWindow('startupWindow', {
-      url: 'file://' + path.join(staticFileDir, 'startup.html')
-    });
 
-    startupWindow.webContents.on('did-finish-load', function () {
-
-      // show when we're done loading,
-      startupWindow.show();
-      startupWindow.focus();
-      startupWindow.openDevTools();
-      startupWindow.once('close', function () {
-        mainWindow.show();
+    if (argv.startup === false) {
+      mainWindow.show();
+      mainWindow.focus();
+    } else {
+      startupWindow = browserWindows.createStartupWindow('startupWindow', {
+        url: 'file://' + path.join(staticFileDir, 'startup.html')
       });
-    });
+      startupWindow.webContents.on('did-finish-load', function () {
+        startupWindow.show();
+        startupWindow.focus();
+        startupWindow.once('close', function () {
+          mainWindow.show();
+        });
+      });
+    }
 
     // Open the devtools.
     // mainWindow.openDevTools();

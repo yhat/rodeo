@@ -1,8 +1,23 @@
 'use strict';
 
 /**
+ * Generates unique ids
+ */
+
+var guid = window.guid = function () {
+  function s4() {
+    return Math.floor((1 + Math.random()) * 0x10000).toString(16).substring(1);
+  }
+
+  return function () {
+    return s4() + s4() + '-' + s4() + '-' + s4() + '-' + s4() + '-' + s4() + s4() + s4();
+  };
+}();
+'use strict';
+
+/**
  * Wrapper around ipcRenderer so we can wrap it later with something else
- * @type {{send: function}}
+ * @type {{send: function, on: function}}
  */
 
 var ipc = window.ipc = function () {

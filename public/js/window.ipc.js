@@ -2,9 +2,9 @@
 
 /**
  * Wrapper around ipcRenderer so we can wrap it later with something else
- * @type {{send: function}}
+ * @type {{send: function, on: function}}
  */
-var ipc = window.ipc = (function () {
+const ipc = window.ipc = (function () {
   var cid = (function () { let i = 0; return function () { return i++; }; }()),
     ipcRender = require('electron').ipcRenderer;
 
