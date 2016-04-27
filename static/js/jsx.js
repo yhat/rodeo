@@ -103,84 +103,65 @@ var store = window.store = function () {
     set: set
   };
 }();
-/* globals ipc, store, LoadingWidget, PythonSelector, Tour, tourData */
+/* globals React */
 'use strict';
 
-var Startup = window.Startup = React.createClass({
-  displayName: 'Startup',
-
-  getInitialState: function getInitialState() {
-    return {
-      seenTour: store.get('seenTour'),
-      pythonOptions: store.get('pythonOptions'),
-      systemFacts: store.get('systemFacts'),
-      status: 'loading'
-    };
-  },
-  componentDidMount: function componentDidMount() {
-    var state = this.state;
-
-    if (!state.pythonOptions) {
-      ipc.send('get_system_facts').then(function (result) {
-        store.set('systemFacts', result);
-        state.systemFacts = result;
-      }).catch(function (error) {
-        return console.error(error);
-      });
-    } else if (state.seenTour) {
-      this.close();
-    }
-  },
-  close: function close() {
-    return ipc.send('close_window', 'startupWindow');
-  },
-  handleExitTour: function handleExitTour() {
-    store.set('seenTour', true);
-    this.close();
-  },
-  handlePythonSelect: function handlePythonSelect(pythonDefinition) {
-    var state = this.state,
-        pythonOptions = pythonDefinition.pythonOptions;
-
-    store.set('pythonOptions', pythonOptions);
-    state.pythonOptions = pythonOptions;
-  },
-  render: function render() {
-    var state = this.state,
-        style = { backgroundColor: 'inherit' };
-    var content = void 0;
-
-    if (!state.pythonOptions) {
-      if (!state.systemFacts) {
-        content = React.createElement(LoadingWidget, null);
-      } else {
-        content = React.createElement(PythonSelector, { onSelect: this.handlePythonSelect,
-          pythonDefinitions: state.systemFacts.availablePythonKernels,
-          showDescription: true,
-          showVersion: true
-        });
-      }
-    } else if (!state.seenTour) {
-      content = React.createElement(Tour, { onExitTour: this.handleExitTour,
-        tourData: tourData
-      });
-    } else {
-      content = React.createElement(
-        'h1',
-        null,
-        'Ready to Rodeo!'
-      );
-    }
-
-    return React.createElement(
-      'div',
-      { className: 'jumbotron',
-        style: style
-      },
-      content
-    );
-  }
-});
+var tourData = [{
+  title: 'Welcome to Rodeo!',
+  subtitle: 'An IDE for Data Science',
+  img: 'img/rodeo-logo.png',
+  img2: null
+}, {
+  title: 'Autocomplete Your Code',
+  subtitle: 'Use <kbd>tab</kbd> to autocomplete code from within the editor and the console.',
+  img: 'img/tour/first/autocomplete.png',
+  img2: null
+}, {
+  title: 'Plot and Analyze',
+  subtitle: 'View plots without leaving Rodeo. Plots can be exported to your computer or saved for later.',
+  img: 'img/tour/first/plots.png',
+  img2: null
+}, {
+  img2: 'img/tour/first/viewer2.png',
+  subtitle: 'Inspect your data using the <strong>Environment</strong> tab.',
+  img: 'img/tour/first/viewer.png',
+  title: 'View Datasets'
+}, {
+  title: 'Customize Your Rodeo Preferences',
+  subtitle: 'Check out the <strong>Preferences</strong> tab to configure your Rodeo. Adjust the font size, change your syntax highlighting theme, setup your default working directory, and more!',
+  img: 'img/tour/first/preferences.png',
+  img2: null
+}, {
+  title: 'Bring your vim or emacs keyboard to Rodeo',
+  subtitle: 'Use your favorite <strong>vim or emacs</strong> shortcuts. To setup vim/emacs, visit <strong>Preferences > Editor</strong>.',
+  img: 'img/tour/first/vim-and-emacs-1.png',
+  img2: null
+}, {
+  img2: 'img/tour/first/vim-and-emacs-2.png',
+  subtitle: 'Create a <code>.rodeoprofile</code> to automatically load common libraries, functions, or datasets. Click <strong>CONFIGURE</strong> in the <strong>Preferences > General > Default Variables</strong> to access your <code>.rodeoprofile</code>.',
+  img: 'img/tour/first/rodeo-profile.png',
+  title: 'Setup Your Default Environment'
+}, {
+  title: 'Pick from One of Rodeo\'s Themes',
+  subtitle: 'Select the theme that speaks to you.',
+  img: 'img/tour/first/themes.png',
+  img2: null
+}, {
+  title: 'Loaded with Shortcuts',
+  subtitle: 'Shortcuts for everyting! Try <kbd>&#8984;</kbd> + <kbd>enter</kbd> to run code in the editor. Can\'t find a shortcut? No worries, visit <strong>Help > View Shortcuts</strong> to see them all!',
+  img: 'img/tour/first/keyboard-shortcuts.png',
+  img2: null
+}, {
+  title: 'Find Files Quickly',
+  subtitle: 'Looking for a particular file? Try <kbd>&#8984;</kbd> + <kbd>t</kbd> to search your working directory.',
+  img: 'img/tour/first/find-files.png',
+  img2: null
+}, {
+  title: 'Let\'s Rodeo!',
+  subtitle: 'Ok looks like you\'re ready to go! For more help visit <a onclick=\'shell.openExternal(\'http://yhat.github.io/rodeo-docs/docs/\');\'>the docs</a> or email <a>info@yhathq.com</a>.',
+  img: 'img/tour/first/rodeo-celebration.png',
+  img2: null
+}];
 /* globals React */
 'use strict';
 
@@ -284,6 +265,309 @@ var ReportChecklist = window.ReportChecklist = function ReportChecklist(_ref) {
 ReportChecklist.propTypes = {
   list: React.PropTypes.array.isRequired
 };
+/* globals React, ipc */
+'use strict';
+
+var SetupError = window.SetupError = function () {
+
+  return React.createClass({
+    displayName: 'SetupError',
+    handleSendError: function handleSendError() {
+      return ipc.send('send-error');
+    },
+    render: function render() {
+      return React.createElement(
+        'div',
+        { className: 'setup-error container' },
+        React.createElement(
+          'div',
+          { className: 'row possible-error' },
+          React.createElement(
+            'h2',
+            null,
+            'Looks like something has gone wrong.'
+          ),
+          React.createElement(
+            'p',
+            { className: 'lead' },
+            'There might be something unique about your system that we didn\'t plan for.:'
+          )
+        ),
+        React.createElement(
+          'div',
+          { className: 'row' },
+          React.createElement(
+            'h2',
+            null,
+            'Help us out by sending the error message?'
+          ),
+          React.createElement(
+            'p',
+            { className: 'lead' },
+            React.createElement(
+              'a',
+              { onClick: this.handleSendError },
+              'Click here to report error'
+            )
+          )
+        )
+      );
+    }
+  });
+}();
+/* globals React, DocCode */
+'use strict';
+
+var SetupJupyter = window.SetupJupyter = React.createClass({
+  displayName: 'SetupJupyter',
+
+  propTypes: {
+    onNewPythonPath: React.PropTypes.func.isRequired,
+    onOpenDocs: React.PropTypes.func.isRequired,
+    onOpenTerminal: React.PropTypes.func.isRequired,
+    pythonPath: React.PropTypes.string.isRequired
+  },
+  handleTestPythonPath: function handleTestPythonPath() {
+    this.props.onNewPythonPath(this.props.pythonPath);
+  },
+  handleChangePath: function handleChangePath() {
+    this.props.onNewPythonPath('NEW PATH');
+  },
+  render: function render() {
+    return React.createElement(
+      'div',
+      { className: 'row' },
+      React.createElement(
+        'h2',
+        null,
+        'Looks like you\'re missing ',
+        React.createElement(
+          'i',
+          null,
+          'jupyter'
+        )
+      ),
+      React.createElement(
+        'p',
+        { className: 'lead' },
+        React.createElement(
+          'a',
+          { onClick: this.props.onOpenTerminal },
+          'Click here to open the Terminal application'
+        ),
+        ' and run the command below:'
+      ),
+      React.createElement(
+        'p',
+        { className: 'lead' },
+        'For Conda users:'
+      ),
+      React.createElement(
+        'div',
+        { className: 'row' },
+        React.createElement(DocCode, { text: '$ conda install jupyter' })
+      ),
+      React.createElement(
+        'p',
+        { className: 'lead' },
+        'For pip users:'
+      ),
+      React.createElement(
+        'div',
+        { className: 'row' },
+        React.createElement(DocCode, { text: '$ pip install jupyter' })
+      ),
+      React.createElement(
+        'button',
+        { className: 'btn btn-default',
+          onClick: this.props.onOpenDocs
+        },
+        'Help'
+      ),
+      ' ',
+      React.createElement(
+        'button',
+        { className: 'btn btn-info',
+          onClick: this.handleChangePath
+        },
+        'Change Path'
+      ),
+      ' ',
+      React.createElement(
+        'button',
+        { className: 'btn btn-primary',
+          onClick: this.handleTestPythonPath
+        },
+        'Retry'
+      )
+    );
+  }
+});
+/* globals React */
+'use strict';
+
+var SetupPython = window.SetupPython = function () {
+
+  /**
+   * @param {string} platform
+   * @returns {string}
+   */
+  function getExamplePaths(platform) {
+    var result = void 0;
+
+    if (platform === 'win32') {
+      result = 'i.e. C:\\Program Files\\Python 3.5\\python.exe, C:\\Users\\alf\\Anaconda\\envs\\py27\\python.exe';
+    } else if (platform === 'linux' || platform === 'darwin') {
+      result = 'i.e. /usr/bin/python, /Users/alf/anaconda/envs/py27/bin/python, /usr/local/bin/python';
+    } else {
+      result = 'python path';
+    }
+
+    return result;
+  }
+
+  return React.createClass({
+    displayName: 'SetupPython',
+    propTypes: {
+      onInstallPython: React.PropTypes.func.isRequired,
+      onSelect: React.PropTypes.func.isRequired,
+      onSelectPythonDialog: React.PropTypes.func.isRequired,
+      platform: React.PropTypes.oneOf(['win32', 'linux', 'darwin'])
+    },
+    getInitialState: function getInitialState() {
+      return { pythonPath: '' };
+    },
+    handleChange: function handleChange(event) {
+      var target = event.currentTarget || event.target;
+
+      this.setState({ pythonPath: target.value });
+    },
+    handleSelectFromDialog: function handleSelectFromDialog() {
+      var _this = this;
+
+      this.props.onSelectPythonDialog().then(function (pythonPath) {
+        return _this.setState({ pythonPath: pythonPath });
+      }).catch(console.error);
+    },
+    handleSelect: function handleSelect() {
+      this.props.onSelect(this.state.pythonPath);
+    },
+    render: function render() {
+      var pythonPath = this.state.pythonPath,
+          examplePaths = getExamplePaths(this.props.platform);
+
+      return React.createElement(
+        'div',
+        { className: 'setup-python container' },
+        React.createElement(
+          'div',
+          { className: 'row possible-error' },
+          React.createElement(
+            'h2',
+            null,
+            'Looks like we\'re having trouble finding your python.'
+          ),
+          React.createElement(
+            'p',
+            { className: 'lead' },
+            'If you know your python path or command, paste it in the field below:'
+          )
+        ),
+        React.createElement(
+          'div',
+          { className: 'row' },
+          React.createElement(
+            'div',
+            { className: 'form-group col-sm-10 col-offset-1' },
+            React.createElement(
+              'div',
+              { className: 'input-group' },
+              React.createElement('input', { className: 'form-control',
+                onChange: this.handleChange,
+                placeholder: examplePaths,
+                type: 'text',
+                value: pythonPath
+              }),
+              React.createElement(
+                'div',
+                { className: 'input-group-btn' },
+                React.createElement(
+                  'button',
+                  { className: 'btn',
+                    onClick: this.handleSelectFromDialog
+                  },
+                  '...'
+                ),
+                React.createElement(
+                  'button',
+                  { className: 'btn btn-primary',
+                    disabled: !pythonPath,
+                    onClick: this.handleSelect
+                  },
+                  'OK'
+                )
+              )
+            )
+          )
+        ),
+        React.createElement(
+          'div',
+          { className: 'row' },
+          React.createElement(
+            'h2',
+            null,
+            'Python not installed?'
+          ),
+          React.createElement(
+            'p',
+            { className: 'lead' },
+            React.createElement(
+              'a',
+              { onClick: this.props.onInstallPython },
+              'Click here to install python'
+            )
+          )
+        )
+      );
+    }
+  });
+}();
+/* globals React, ipc */
+'use strict';
+
+var SetupReady = window.SetupReady = function () {
+
+  return React.createClass({
+    displayName: 'SetupReady',
+    propTypes: {
+      onReady: React.PropTypes.func.isRequired
+    },
+    render: function render() {
+      return React.createElement(
+        'div',
+        { className: 'setup-ready container' },
+        React.createElement(
+          'div',
+          { className: 'row' },
+          React.createElement(
+            'h2',
+            null,
+            'Ready to Rodeo!'
+          ),
+          React.createElement(
+            'p',
+            { className: 'lead' },
+            React.createElement(
+              'a',
+              { onClick: this.props.onReady },
+              'Yeehah!'
+            )
+          )
+        )
+      );
+    }
+  });
+}();
 'use strict';
 
 /* globals React */
@@ -394,207 +678,142 @@ var Tour = window.Tour = React.createClass({
     );
   }
 });
-/* globals React, DocCode */
+/* globals ipc, store, LoadingWidget, SetupPython, SetupError, SetupReady, Tour, tourData */
 'use strict';
 
-var SetupJupyter = window.SetupJupyter = React.createClass({
-  displayName: 'SetupJupyter',
+var Startup = window.Startup = function () {
 
-  propTypes: {
-    onNewPythonPath: React.PropTypes.func.isRequired,
-    onOpenDocs: React.PropTypes.func.isRequired,
-    onOpenTerminal: React.PropTypes.func.isRequired,
-    pythonPath: React.PropTypes.string.isRequired
-  },
-  handleTestPythonPath: function handleTestPythonPath() {
-    this.props.onNewPythonPath(this.props.pythonPath);
-  },
-  handleChangePath: function handleChangePath() {
-    this.props.onNewPythonPath('NEW PATH');
-  },
-  render: function render() {
-    return React.createElement(
-      'div',
-      { className: 'row' },
-      React.createElement(
-        'h2',
-        null,
-        'Looks like you\'re missing ',
-        React.createElement(
-          'i',
-          null,
-          'jupyter'
-        )
-      ),
-      React.createElement(
-        'p',
-        { className: 'lead' },
-        React.createElement(
-          'a',
-          { onClick: this.props.onOpenTerminal },
-          'Click here to open the Terminal application'
-        ),
-        ' and run the command below:'
-      ),
-      React.createElement(
-        'p',
-        { className: 'lead' },
-        'For Conda users:'
-      ),
-      React.createElement(
-        'div',
-        { className: 'row' },
-        React.createElement(DocCode, { text: '$ conda install jupyter' })
-      ),
-      React.createElement(
-        'p',
-        { className: 'lead' },
-        'For pip users:'
-      ),
-      React.createElement(
-        'div',
-        { className: 'row' },
-        React.createElement(DocCode, { text: '$ pip install jupyter' })
-      ),
-      React.createElement(
-        'button',
-        { className: 'btn btn-default',
-          onClick: this.props.onOpenDocs
-        },
-        'Help'
-      ),
-      ' ',
-      React.createElement(
-        'button',
-        { className: 'btn btn-info',
-          onClick: this.handleChangePath
-        },
-        'Change Path'
-      ),
-      ' ',
-      React.createElement(
-        'button',
-        { className: 'btn btn-primary',
-          onClick: this.handleTestPythonPath
-        },
-        'Retry'
-      )
-    );
+  /**
+   * @typedef {object} SystemFacts
+   * @property {object} pythonOptions
+   * @property {string} pythonOptions.cmd
+   * @property {string} [pythonOptions.shell]
+   * @property {Array} availablePythonKernels
+   */
+
+  /**
+   * @param {Startup} component
+   * @param {SystemFacts} facts
+   */
+  function setSystemFacts(component, facts) {
+    store.set('systemFacts', facts);
+    component.setState({ systemFacts: facts });
   }
-});
-/* globals React, DocCode */
-'use strict';
 
-var SetupPython = window.SetupPython = React.createClass({
-  displayName: 'SetupPython',
+  /**
+   * @param {Startup} component
+   */
+  function chooseFirstKernel(component) {
+    var facts = component.state.systemFacts,
+        availablePythonKernels = facts && facts.availablePythonKernels,
+        first = availablePythonKernels && availablePythonKernels[0],
+        pythonOptions = first && first.pythonOptions;
 
-  propTypes: {
-    onNewPythonPath: React.PropTypes.func.isRequired,
-    onOpenTerminal: React.PropTypes.func.isRequired
-  },
-  getInitialState: function getInitialState() {
-    return { pythonPath: '' };
-  },
-  pickPythonPath: function pickPythonPath() {
-    var self = this;
-
-    require('remote').dialog.showOpenDialog({
-      title: 'Select your Python',
-      properties: ['openFile']
-    }, function (pythonPath) {
-      $('#pathval').val(pythonPath[0]);
-      self.setState({ pythonPath: pythonPath[0] });
-    });
-  },
-  setPythonPath: function setPythonPath() {
-    this.props.onNewPythonPath(this.state.pythonPath);
-  },
-  updatePath: function updatePath() {
-    var pythonPath = $('#pathval').val();
-
-    this.setState({ pythonPath: pythonPath });
-  },
-  render: function render() {
-    var examplePaths = 'i.e. /usr/bin/python, /Users/alf/anaconda/envs/py27/bin/python, /usr/local/bin/python',
-        whichPython = 'which python';
-
-    if (/win32/.test(process.platform)) {
-      whichPython = 'for %i in (python.exe) do @echo. %~$PATH:i';
-      examplePaths = 'i.e. C:\\Program Files\\Python 3.5\\python.exe, C:\\Users\\alf\\Anaconda\\envs\\py27\\python.exe';
+    if (pythonOptions) {
+      // just chose the first one, they can tell us we were wrong later
+      store.set('pythonOptions', pythonOptions);
+      component.setState({ pythonOptions: pythonOptions });
     }
-
-    return React.createElement(
-      'div',
-      { className: 'row possible-error' },
-      React.createElement(
-        'h2',
-        null,
-        'Looks like we\'re having trouble finding your python path'
-      ),
-      React.createElement(
-        'p',
-        { className: 'lead' },
-        'If you know your python path, paste it in the field below:'
-      ),
-      React.createElement(
-        'div',
-        { className: 'row' },
-        React.createElement(
-          'div',
-          { className: 'form-group col-sm-10 col-sm-offset-1' },
-          React.createElement(
-            'div',
-            { className: 'input-group' },
-            React.createElement('input', { className: 'form-control',
-              id: 'pathval',
-              onChange: this.updatePath,
-              placeholder: examplePaths,
-              readOnly: false,
-              type: 'text'
-            }),
-            React.createElement(
-              'div',
-              { className: 'input-group-btn' },
-              React.createElement(
-                'button',
-                { className: 'btn btn-primary',
-                  onClick: this.setPythonPath
-                },
-                'Set Path'
-              )
-            )
-          )
-        )
-      ),
-      React.createElement(
-        'div',
-        { className: 'row',
-          id: 'which-python'
-        },
-        React.createElement(
-          'h2',
-          null,
-          'Don\'t know where your python path is?'
-        ),
-        React.createElement(
-          'p',
-          { className: 'lead' },
-          React.createElement(
-            'a',
-            { onClick: this.props.onOpenTerminal },
-            'Click here to open the Terminal application'
-          ),
-          ' and run the command below:'
-        ),
-        React.createElement(
-          'div',
-          { className: 'row' },
-          React.createElement(DocCode, { text: whichPython })
-        )
-      )
-    );
   }
-});
+
+  return React.createClass({
+    displayName: 'Startup',
+    getInitialState: function getInitialState() {
+      return {
+        seenTour: store.get('seenTour'),
+        pythonOptions: store.get('pythonOptions'),
+        systemFacts: store.get('systemFacts')
+      };
+    },
+    componentDidMount: function componentDidMount() {
+      var _this = this;
+
+      var state = this.state;
+
+      if (!state.pythonOptions) {
+        if (!state.systemFacts) {
+          ipc.send('get_system_facts').then(function (facts) {
+            return setSystemFacts(_this, facts);
+          }).then(function () {
+            return chooseFirstKernel(_this);
+          }).catch(this.showError);
+        } else {
+          chooseFirstKernel(this);
+        }
+      }
+    },
+    /**
+     * @param {Error} error
+     */
+    showError: function showError(error) {
+      // todo: show something to user
+      console.error(error);
+    },
+    close: function close() {
+      return ipc.send('close_window', 'startupWindow');
+    },
+    handleInstallPython: function handleInstallPython() {
+      return ipc.send('install_python');
+    },
+    handleSelectPythonDialog: function handleSelectPythonDialog() {
+      return ipc.send('open_dialog', {
+        title: 'Select your Python',
+        properties: ['openFile'] }).then(function (result) {
+        if (result.length && result.length > 0) {
+          result = result[0];
+        }
+
+        return result;
+      });
+    },
+    /**
+     * @param {string} pythonCommand
+     */
+    handleSetPython: function handleSetPython(pythonCommand) {
+      var pythonOptions = { cmd: pythonCommand };
+
+      console.log('setting state', pythonOptions);
+
+      this.setState({ pythonOptions: pythonOptions });
+      store.set('pythonOptions', pythonOptions);
+    },
+    handleExitTour: function handleExitTour() {
+      store.set('seenTour', true);
+      this.close();
+    },
+    handleReady: function handleReady() {
+      this.close();
+    },
+    render: function render() {
+      var state = this.state;
+      var content = void 0;
+
+      if (!state.pythonOptions) {
+        if (!state.systemFacts) {
+          // we're getting the system facts
+          content = React.createElement(LoadingWidget, null);
+        } else {
+          // no python in systemFacts, so ask them for it
+          content = React.createElement(SetupPython, {
+            onInstallPython: this.handleInstallPython,
+            onSelect: this.handleSetPython,
+            onSelectPythonDialog: this.handleSelectPythonDialog
+          });
+        }
+      } else if (!state.seenTour) {
+        content = React.createElement(Tour, { onExitTour: this.handleExitTour,
+          tourData: tourData
+        });
+      }
+
+      if (!content) {
+        content = React.createElement(SetupReady, { onReady: this.handleReady });
+      }
+
+      return content;
+    }
+  });
+}();
 /* globals ipc, React, SetupJupyter, SetupPython, ReportChecklist */
 'use strict';
 
@@ -699,7 +918,7 @@ var PythonSelectorItem = window.PythonSelectorItem = React.createClass({
 
     if (/Anaconda/.test(checkResults.version)) {
       logo = 'logo-anaconda';
-    } else if (/^2\.7/.test(checkResults.version)) {
+    } else {
       logo = 'logo-python';
     }
 
@@ -765,7 +984,7 @@ var PythonSelectorItem = window.PythonSelectorItem = React.createClass({
 var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
 
 var PythonSelector = window.PythonSelector = React.createClass({
-  displayName: 'PythonSelector',
+  displayName: "PythonSelector",
 
   propTypes: {
     onSelect: React.PropTypes.func.isRequired,
@@ -774,7 +993,7 @@ var PythonSelector = window.PythonSelector = React.createClass({
     showVersion: React.PropTypes.bool
   },
   handleClick: function handleClick() {
-    console.log('handleClick', this, arguments);
+    this.props.onSelect(this, arguments);
   },
   render: function render() {
     var _this = this;
@@ -787,11 +1006,11 @@ var PythonSelector = window.PythonSelector = React.createClass({
     });
 
     return React.createElement(
-      'div',
-      { className: 'python-selector' },
+      "div",
+      { className: "python-selector" },
       React.createElement(
-        'div',
-        null,
+        "div",
+        { className: "python-selector-list" },
         list
       )
     );

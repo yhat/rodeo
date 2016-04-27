@@ -4,6 +4,7 @@ const _ = require('lodash'),
   bluebird = require('bluebird'),
   client = require('./client'),
   path = require('path'),
+  processes = require('../../services/processes'),
   os = require('os'),
   rules = require('../../services/rules');
 
@@ -15,6 +16,14 @@ let ruleSet = [
     when: _.matches({platform: 'win32'}),
     then: {cmd: 'python', shell: 'cmd.exe'}
   },
+  // {
+  //   when: _.matches({platform: 'win32'}),
+  //   then: function () {
+  //     const child = processes.create('for %i in (python.exe) do @echo. %~$PATH:i');
+  //
+  //     child.kill();
+  //   }
+  // },
   {
     when: _.overSome(_.matches({platform: 'linux'}), _.matches({platform: 'darwin'})),
     then: {cmd: 'python', shell: '/bin/bash'}
@@ -49,6 +58,15 @@ let ruleSet = [
       };
     }
   }
+  // {
+  //   when: _.overSome(_.matches({platform: 'linux'}), _.matches({platform: 'darwin'})),
+  //   then: function () {
+  //     const child = processes.create('which python');
+  //
+  //     child.kill();
+  //     throw new Error('Not implemented');
+  //   }
+  // }
 ];
 
 /**

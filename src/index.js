@@ -13,6 +13,8 @@ const _ = require('lodash'),
   preferences = require('./services/preferences'),
   steveIrwin = require('./kernels/python/steve-irwin'),
   updater = require('./services/updater'),
+  yargs = require('yargs'),
+  argv = yargs.argv,
   log = require('./services/log').asInternal(__filename),
   staticFileDir = path.resolve('./static/'),
   allowedKernelLangauges = ['python'],
@@ -133,9 +135,7 @@ function onWindowAllClosed() {
 // This method will be called when Electron has finished
 // initialization and is ready to create browser windows.
 function onReady() {
-  let isDesign = process.argv.indexOf('--design') > -1;
-
-  if (isDesign) {
+  if (argv.design) {
     let designWindow = browserWindows.create('designWindow', {
       url: 'file://' + path.join(staticFileDir, 'design.html')
     });
@@ -144,9 +144,9 @@ function onReady() {
   } else {
     let mainWindow, startupWindow;
 
-    // mainWindow = browserWindows.createMainWindow('mainWindow', {
-    //   url: 'file://' + path.join(staticFileDir, 'desktop-index.html')
-    // });
+    mainWindow = browserWindows.createMainWindow('mainWindow', {
+      url: 'file://' + path.join(staticFileDir, 'desktop-index.html')
+    });
     startupWindow = browserWindows.createStartupWindow('startupWindow', {
       url: 'file://' + path.join(staticFileDir, 'startup.html')
     });
@@ -155,11 +155,11 @@ function onReady() {
 
       // show when we're done loading,
       startupWindow.show();
+      startupWindow.focus();
       startupWindow.openDevTools();
-      // startupWindow.once('close', function () {
-      //   mainWindow.show();
-      // });
-      //mainWindow.show();
+      startupWindow.once('close', function () {
+        mainWindow.show();
+      });
     });
 
     // Open the devtools.
@@ -306,6 +306,16 @@ function exposeElectronIpcEvents(ipcEmitter, list) {
   });
 }
 
+function findPythons() {
+  log('info', 'findPythons', argv);
+
+  if (argv.pythons === false) {
+    return [];
+  } else {
+    return steveIrwin.findPythons(steveIrwin.getFacts());
+  }
+}
+
 /**
  * Get system facts that the client-side hopefully caches and doesn't call repeatedly
  * @returns {Promise<object>}
@@ -314,7 +324,7 @@ function onGetSystemFacts() {
   log('info', 'getting system facts');
 
   return bluebird.props({
-    availablePythonKernels: steveIrwin.findPythons(steveIrwin.getFacts()),
+    availablePythonKernels: findPythons(),
     preferences: preferences.getPreferences(),
     pythonStarts: getKernelClient().then(function () { return true; }),
     python: require('./kernels/python/client').checkPython(),
@@ -332,7 +342,7 @@ function onCheckForUpdates() {
 
 /**
  * Open browser (not in Electron)
- * @param url
+ * @param {string} url
  */
 function onOpenExternal(url) {
   const shell = electron.shell;
@@ -362,10 +372,29 @@ function onCloseWindow(windowName) {
 
     if (window) {
       window.close();
+      return bluebird.resolve();
     } else {
       log('warn', 'tried to close non-existent window', windowName);
+      return bluebird.reject(new Error('tried to close non-existent window ' + windowName));
     }
+  } else {
+    log('warn', 'tried to close window without saying name');
+    return bluebird.reject(new Error('tried to close window without saying name'));
   }
+}
+
+/**
+ * @param {object} [options]
+ * @param {string} [options.title]
+ * @param {object} [options.properties]
+ * @returns {Promise}
+ * @example onOpenDialog({ title: 'Select your Python', properties: ['openFile'] })
+ */
+function onOpenDialog(options) {
+  options = _.pick(options || {}, ['title', 'properties']);
+  const openDialog = bluebird.promisify(electron.dialog.showOpenDialog);
+
+  return openDialog(options);
 }
 
 /**
@@ -388,7 +417,8 @@ function attachIpcMainEvents() {
     onCheckForUpdates,
     onCloseWindow,
     onOpenExternal,
-    onOpenTerminal
+    onOpenTerminal,
+    onOpenDialog
   ]);
 }
 

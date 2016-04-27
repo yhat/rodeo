@@ -9,7 +9,7 @@ const PythonSelector = window.PythonSelector = React.createClass({
     showVersion: React.PropTypes.bool
   },
   handleClick: function () {
-    console.log('handleClick', this, arguments);
+    this.props.onSelect(this, arguments);
   },
   render: function () {
     let list = this.props.pythonDefinitions.map((pythonDefinition, i) => {

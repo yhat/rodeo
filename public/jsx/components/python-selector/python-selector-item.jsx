@@ -35,7 +35,7 @@ const PythonSelectorItem = window.PythonSelectorItem = React.createClass({
 
     if (/Anaconda/.test(checkResults.version)) {
       logo = 'logo-anaconda';
-    } else if (/^2\.7/.test(checkResults.version)) {
+    } else {
       logo = 'logo-python';
     }
 

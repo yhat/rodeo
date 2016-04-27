@@ -9655,6 +9655,9 @@ table.dataTable td {
 #bottom-left {
   padding: 0 0 0 0;
 }
+a {
+  cursor: pointer;
+}
 .editor {
   height: 100%;
   position: absolute;

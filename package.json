@@ -97,7 +97,8 @@
     "uuid": "^2.0.2",
     "walk": "^2.3.9",
     "winston": "^2.2.0",
-    "ws": "^1.0.1"
+    "ws": "^1.0.1",
+    "yargs": "^4.6.0"
   },
   "scripts": {
     "start": "electron .",

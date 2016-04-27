@@ -107,7 +107,9 @@ gulp.task('jsx', function () {
   return gulp.src([
     'public/js/window.ipc.js',
     'public/js/window.store.js',
-    'public/jsx/**/*.jsx'
+    'public/jsx/**/*.js',
+    'public/jsx/**/*.jsx',
+    '!public/jsx/**/*.test.js'
   ]).pipe(sourcemaps.init())
     .pipe(babel())
     .pipe(concat('jsx.js'))
@@ -148,7 +150,7 @@ gulp.task('images', function () {
 
 gulp.task('lint', ['eslint']);
 gulp.task('test', ['lint', 'karma-renderer', 'karma-main']);
-gulp.task('build', ['less', 'external-scripts', 'jsx']);
+gulp.task('build', ['less-external', 'styles', 'external-scripts', 'jsx']);
 gulp.task('run', []);
 gulp.task('watch', function () {
   gulp.watch(['public/jsx/**/*.svg'], ['images']);
