@@ -5,6 +5,7 @@ export default React.createClass({
   propTypes: {
     active: React.PropTypes.bool,
     icon: React.PropTypes.string,
+    isCloseable: React.PropTypes.bool,
     label: React.PropTypes.string.isRequired
   },
   render: function () {

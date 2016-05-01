@@ -1,4 +1,5 @@
 import React from 'react';
+import './python-selector.less';
 
 export default React.createClass({
   displayName: 'PythonSelectorItem',

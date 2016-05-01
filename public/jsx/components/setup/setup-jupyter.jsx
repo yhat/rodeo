@@ -1,5 +1,5 @@
 import React from 'react';
-import DocCode from './doc-code';
+import DocCode from './../doc-code';
 
 export default React.createClass({
   displayName: 'SetupJupyter',

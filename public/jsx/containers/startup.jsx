@@ -1,11 +1,12 @@
 import React from 'react';
-import SetupReady from '../components/setup-ready.jsx';
+import SetupReady from '../components/setup/setup-ready.jsx';
 import LoadingWidget from '../components/loading-widget.jsx';
-import SetupPython from '../components/setup-python.jsx';
-import Tour from '../components/tour.jsx';
-import tourData from '../components/tour-data';
+import SetupPython from '../components/setup/setup-python.jsx';
+import Tour from '../components/tour/tour.jsx';
+import tourData from '../components/tour/tour-data';
 import * as store from '../services/store';
 import { send } from '../services/ipc';
+import './startup.less';
 
 /**
  * @typedef {object} SystemFacts

@@ -1,5 +1,6 @@
 import React from 'react';
-import Terminal from './terminal.jsx';
+import Terminal from './terminal/terminal.jsx';
+import './jupyter-client-viewer.less';
 
 let msg = `
 IPython -- An enhanced Interactive Python.

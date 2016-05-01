@@ -1,6 +1,6 @@
 import React from 'react';
-import FileList from './file-list.jsx';
-import FileListItem from './file-list-item.jsx';
+import FileList from './file-list/file-list.jsx';
+import FileListItem from './file-list/file-list-item.jsx';
 import * as store from '../services/store';
 import * as ipc from '../services/ipc';
 

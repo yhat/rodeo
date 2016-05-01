@@ -2,8 +2,6 @@
 
 const _ = require('lodash'),
   babel = require('gulp-babel'),
-  babelify = require('babelify'),
-  browserify = require('browserify'),
   declare = require('gulp-declare'),
   eslint = require('eslint/lib/cli'),
   globby = require('globby'),
@@ -13,7 +11,6 @@ const _ = require('lodash'),
   gulpUtil = require('gulp-util'),
   karma = require('karma'),
   less = require('gulp-less'),
-  uglify = require('gulp-uglify'),
   KarmaServer = karma.Server,
   path = require('path'),
   rename = require('gulp-rename'),
@@ -177,6 +174,9 @@ gulp.task('less-external', function () {
     .pipe(gulp.dest('static/css/'));
 });
 
+// Not really needed anymore because of webpack
+// i.e., import './filename.less'; (or '.css')
+// but it can be useful if you don't trust webpack
 gulp.task('styles', function () {
   return gulp.src([
     'public/jsx/**/*.less'

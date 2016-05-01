@@ -15,9 +15,7 @@ export default React.createClass({
         <br />
         <br />
         <br />
-        <img src="img/loading.gif"
-          style={style}
-        />
+        <img src="img/loading.gif" style={style}/>
         <br />
         <br />
         <br />

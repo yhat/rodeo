@@ -14,11 +14,13 @@ module.exports = {
     bootbox: 'bootbox'
   },
   module: {
+    // preLoaders: [
+    //   {test: /\.js$/, loader: "eslint-loader", exclude: /node_modules/}
+    // ],
     loaders: [
-      {
-        test: /\.css$/,
-        loader: 'style!css'
-      },
+      { test: /\.less$/, loader: 'style!css!less' },
+      { test: /\.css$/, loader: 'style!css?sourceMap' },
+      { test: /\.(png|jpg)$/, loader: 'url-loader?limit=8192' }, // inline base64 URLs for <=8k images, direct URLs for the rest
       {
         test: /\.jsx?$/,
         exclude: /(node_modules|bower_components)/,
