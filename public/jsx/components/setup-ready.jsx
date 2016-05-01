@@ -1,24 +1,20 @@
-/* globals React, ipc */
-'use strict';
+import React from 'react';
 
-const SetupReady = window.SetupReady = (function () {
-
-  return React.createClass({
-    displayName: 'SetupReady',
-    propTypes: {
-      onReady: React.PropTypes.func.isRequired
-    },
-    render: function () {
-      return (
-        <div className="setup-ready container">
-          <div className="row">
-            <h2>{'Ready to Rodeo!'}</h2>
-            <p className="lead">
-              <a onClick={this.props.onReady}>{'Yeehah!'}</a>
-            </p>
-          </div>
+export default React.createClass({
+  displayName: 'SetupReady',
+  propTypes: {
+    onReady: React.PropTypes.func.isRequired
+  },
+  render: function () {
+    return (
+      <div className="setup-ready container">
+        <div className="row">
+          <h2>{'Ready to Rodeo!'}</h2>
+          <p className="lead">
+            <a onClick={this.props.onReady}>{'Yeehah!'}</a>
+          </p>
         </div>
-      );
-    }
-  });
-}());
+      </div>
+    );
+  }
+});

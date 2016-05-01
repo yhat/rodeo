@@ -8,183 +8,185 @@
 </head>
 <body>
   <!-- main section -->
-  <div id="pane-container">
-      <div id="left-column">
-        <!-- TOP LEFT -->
-        <div id="top-left">
-          <!-- editors -->
-          <div class="row">
-            <div class="col-sm-10" style="padding: 0px; margin: 0px; padding-left: 5px;">
-              <ul id="editorsTab" class="nav nav-tabs">
-                <li>
-                  <a href="#" onclick="shell.openExternal('http://yhat.com/');">
-                    <img src="img/rodeo-logo.png" title="Yee Haw!" style="height: 17px; padding-left: 5px;"/>
-                  </a>
-                </li>
-                <!-- editor tabs go here -->
-                <li><a title="Create new file" href="#" id="add-tab"><i class="fa fa-plus-square-o"></i></a></li>
-              </ul>
-            </div>
-            <div class="col-sm-2" style="padding: 0px; margin: 0px;">
-              <ul class="nav nav-tabs">
-                <li>
-                  <a title="Run script" id="run-button" href="#"><i class="fa fa-play-circle"></i></a>
-                </li>
-                <li>
-                  <a title="Generate markdown report" id="run-markdown" href="#"><i class="fa fa-sticky-note-o"></i></a>
-                </li>
-              </ul>
-            </div>
-          </div>
-          <div id="editors" class="tab-content">
-          </div>
-          <!-- end editors -->
-        </div>
-        <!-- END TOP LEFT -->
+  <!--<div id="pane-container">-->
+      <!--<div id="left-column">-->
+        <!--&lt;!&ndash; TOP LEFT &ndash;&gt;-->
+        <!--<div id="top-left">-->
+          <!--&lt;!&ndash; editors &ndash;&gt;-->
+          <!--<div class="row">-->
+            <!--<div class="col-sm-10" style="padding: 0px; margin: 0px; padding-left: 5px;">-->
+              <!--<ul id="editorsTab" class="nav nav-tabs">-->
+                <!--<li>-->
+                  <!--<a href="#" onclick="shell.openExternal('http://yhat.com/');">-->
+                    <!--<img src="img/rodeo-logo.png" title="Yee Haw!" style="height: 17px; padding-left: 5px;"/>-->
+                  <!--</a>-->
+                <!--</li>-->
+                <!--&lt;!&ndash; editor tabs go here &ndash;&gt;-->
+                <!--<li><a title="Create new file" href="#" id="add-tab"><i class="fa fa-plus-square-o"></i></a></li>-->
+              <!--</ul>-->
+            <!--</div>-->
+            <!--<div class="col-sm-2" style="padding: 0px; margin: 0px;">-->
+              <!--<ul class="nav nav-tabs">-->
+                <!--<li>-->
+                  <!--<a title="Run script" id="run-button" href="#"><i class="fa fa-play-circle"></i></a>-->
+                <!--</li>-->
+                <!--<li>-->
+                  <!--<a title="Generate markdown report" id="run-markdown" href="#"><i class="fa fa-sticky-note-o"></i></a>-->
+                <!--</li>-->
+              <!--</ul>-->
+            <!--</div>-->
+          <!--</div>-->
+          <!--<div id="editors" class="tab-content">-->
+          <!--</div>-->
+          <!--&lt;!&ndash; end editors &ndash;&gt;-->
+        <!--</div>-->
+        <!--&lt;!&ndash; END TOP LEFT &ndash;&gt;-->
 
-        <!-- BOTTOM LEFT -->
-        <div id="bottom-left">
-          <ul id="consoleTab" class="nav nav-tabs">
-            <li>
-              <a style="padding: 7px;"><i class="fa fa-terminal"></i>&nbsp;Console</a>
-            </li>
-            <li id="btn-interrupt" onclick="executeCommand('interrupt_kernel', false);" class="hide pull-right">
-              <a style="padding: 7px;"><i class="fa fa-stop-circle"></i>&nbsp;Interrupt</a>
-            </li>
-          </ul>
-          <div id="consoleTabContainer" class="tab-content">
-            <div class="tab-pane active in top-right" id="console-tab" style="height: 100%; overflow: hidden;">
-              <div id="console" style="height: 100%;"></div>
-            </div>
-          </div>
-        </div>
-        <!-- END BOTTOM LEFT -->
-    </div>
-    <div id="right-column">
-        <!-- TOP RIGHT -->
-        <div id="top-right">
-          <ul class="nav nav-tabs">
-            <li class="active"><a href="#environment" data-toggle="tab"><i class="fa fa-table"></i>&nbsp;Environment</a></li>
-            <li><a href="#history" data-toggle="tab"><i class="fa fa-history"></i>&nbsp;History</a></li>
-          </ul>
-          <div id="myTabContent" class="tab-content">
-            <div class="tab-pane active in top-right" id="environment">
-              <div class="row">
-                <div class="col-sm-5 col-sm-offset-7">
-                  <div class="input-group">
-                    <div class="input-group-addon"><i class="fa fa-search"></i></div>
-                    <input type="text" class="form-control input-sm" id="variable-search" placeholder="filter..." />
-                  </div>
-                </div>
-              </div>
-              <table class="table table-bordered" style="margin-bottom: 0px;">
-                <thead>
-                  <tr id="vars-header">
-                    <th>Variable</th>
-                    <th></th>
-                    <th></th>
-                  </tr>
-                </thead>
-              </table>
-              <div id="vars-container" style="max-height: 400px; overflow: auto;">
-                <table class="table table-bordered">
-                  <tbody id="vars">
-                  </tbody>
-                </table>
-              </div>
-            </div>
-            <div class="tab-pane" id="history">
-              <div class="row">
-                <div class="col-sm-5 col-sm-offset-7">
-                  <div class="input-group">
-                    <div class="input-group-addon"><i class="fa fa-search"></i></div>
-                    <input type="text" class="form-control input-sm" id="history-search" placeholder="filter..." />
-                  </div>
-                </div>
-              </div>
-              <div class="top-right history container" id="history-trail"></div>
-            </div>
-          </div>
-        </div>
-        <!-- END TOP RIGHT -->
-        <!-- BOTTOM RIGHT -->
-        <div id="bottom-right">
-          <ul class="nav nav-tabs">
-            <li class="active"><a href="#files" data-toggle="tab"><i class="fa fa-file-text-o"></i>&nbsp;Files</a></li>
-            <li><a href="#plot-window" data-toggle="tab"><i class="fa fa-bar-chart"></i>&nbsp;Plots</a></li>
-            <li><a href="#packages" data-toggle="tab"><i class="fa fa-archive"></i>&nbsp;Packages</a></li>
-            <li><a href="#help" data-toggle="tab"><i class="fa fa-life-ring"></i>&nbsp;Help</a></li>
-            <li><a href="#preferences" data-toggle="tab"><i class="fa fa-cogs"></i>&nbsp;Preferences</a></li>
-          </ul>
-          <div id="bottomRightTabContent" class="tab-content">
-            <!-- File Nav -->
-            <div id="files" class="tab-pane active in" style="height: 100%;">
-              <div id="working-directory" class="list-group" style="margin-bottom: 0px;"></div>
-              <div id="file-list" class="list-group" style="max-height: 100%; overflow: scroll; margin-bottom: 0px;">
-              </div>
-            </div>
-            <!-- End File Nav -->
-            <!-- Plot viewer -->
-            <div class="tab-pane" id="plot-window">
-              <a title="View previous plot" onclick="previousPlot();" class="label label-primary" title="Prevous Plot"><i class="fa fa-undo"></i></a>
-              <a title="View next plot" onclick="nextPlot()" class="label label-primary" title="Next Plot"><i class="fa fa-repeat"></i></a>
-              <a title="Open plot in new window" onclick="showPlot();" class="label label-primary" title="Zoom In"><i class="fa fa-arrows-alt"></i></a>
-              <a title="Save current plot to file" onclick="savePlot();" class="label label-primary" title="Export Plot" download><i class="fa fa-floppy-o"></i></a>
-              <a title="Delete current plot" onclick="deletePlot();" class="label label-primary" title="Delete Plot"><i class="fa fa-trash-o"></i></a>
-              <div clas="row">
-                <div class="col-sm-10" id="plots">
-                </div>
-                <div class="col-sm-2 pull-right" id="plots-minimap" style="overflow: scroll;">
-                </div>
-              </div>
-            </div>
-            <!-- End Plot viewer -->
-            <!-- Packages Viewer -->
-            <div class="tab-pane" id="packages">
-              <div class="row">
-                <div class="col-sm-4">
-                  <button id="package-install-button" style="margin-left: 5px; margin-top: 5px;" class="btn btn-primary btn-xs" title="">
-                    <i class="fa fa-download"></i>&nbsp;&nbsp;Install Package
-                  </button>
-                </div>
-                <div class="col-sm-5 col-sm-offset-3">
-                  <div class="input-group">
-                    <div class="input-group-addon"><i class="fa fa-search"></i></div>
-                    <input type="text" class="form-control input-sm" id="pkg-search" placeholder="(i.e. pandas, Flask)" />
-                  </div>
-                </div>
-              </div>
-              <table class="table table-bordered" style="table-layout: fixed; margin-bottom: 0px;">
-                <thead>
-                  <tr>
-                    <th>package</th>
-                    <th>version</th>
-                  </tr>
-                </thead>
-              </table>
-              <div id="packages-container" style="overflow: auto;">
-                <table class="table table-bordered" style="table-layout: fixed;">
-                  <tbody id="packages-rows">
-                  </tbody>
-                </table>
-              </div>
-            </div>
-            <!-- Packages Viewer -->
-            <!-- Help -->
-            <div class="tab-pane" id="help">
-              <pre style="font-size: 10px; overflow: auto;" id="help-content"><i>run help(...) for more info</i></pre>
-            </div>
-            <!-- End Help -->
-            <!-- Preferences -->
-            <div class="tab-pane" id="preferences">
-            </div>
-            <!-- End Preferences -->
-          </div>
-          </div>
-        </div>
-        <!-- END BOTTOM RIGHT -->
-    </div>
+        <!--&lt;!&ndash; BOTTOM LEFT &ndash;&gt;-->
+        <!--<div id="bottom-left">-->
+          <!--<ul id="consoleTab" class="nav nav-tabs">-->
+            <!--<li>-->
+              <!--<a style="padding: 7px;"><i class="fa fa-terminal"></i>&nbsp;Console</a>-->
+            <!--</li>-->
+            <!--<li id="btn-interrupt" onclick="executeCommand('interrupt_kernel', false);" class="hide pull-right">-->
+              <!--<a style="padding: 7px;"><i class="fa fa-stop-circle"></i>&nbsp;Interrupt</a>-->
+            <!--</li>-->
+          <!--</ul>-->
+          <!--<div id="consoleTabContainer" class="tab-content">-->
+            <!--<div class="tab-pane active in top-right" id="console-tab" style="height: 100%; overflow: hidden;">-->
+              <!--<div id="console" style="height: 100%;"></div>-->
+            <!--</div>-->
+          <!--</div>-->
+        <!--</div>-->
+        <!--&lt;!&ndash; END BOTTOM LEFT &ndash;&gt;-->
+    <!--</div>-->
+    <!--<div id="right-column">-->
+        <!--&lt;!&ndash; TOP RIGHT &ndash;&gt;-->
+        <!--<div id="top-right">-->
+          <!--<ul class="nav nav-tabs">-->
+            <!--<li class="active"><a href="#environment" data-toggle="tab"><i class="fa fa-table"></i>&nbsp;Environment</a></li>-->
+            <!--<li><a href="#history" data-toggle="tab"><i class="fa fa-history"></i>&nbsp;History</a></li>-->
+          <!--</ul>-->
+          <!--<div id="myTabContent" class="tab-content">-->
+            <!--<div class="tab-pane active in top-right" id="environment">-->
+              <!--<div class="row">-->
+                <!--<div class="col-sm-5 col-sm-offset-7">-->
+                  <!--<div class="input-group">-->
+                    <!--<div class="input-group-addon"><i class="fa fa-search"></i></div>-->
+                    <!--<input type="text" class="form-control input-sm" id="variable-search" placeholder="filter..." />-->
+                  <!--</div>-->
+                <!--</div>-->
+              <!--</div>-->
+              <!--<table class="table table-bordered" style="margin-bottom: 0px;">-->
+                <!--<thead>-->
+                  <!--<tr id="vars-header">-->
+                    <!--<th>Variable</th>-->
+                    <!--<th></th>-->
+                    <!--<th></th>-->
+                  <!--</tr>-->
+                <!--</thead>-->
+              <!--</table>-->
+              <!--<div id="vars-container" style="max-height: 400px; overflow: auto;">-->
+                <!--<table class="table table-bordered">-->
+                  <!--<tbody id="vars">-->
+                  <!--</tbody>-->
+                <!--</table>-->
+              <!--</div>-->
+            <!--</div>-->
+            <!--<div class="tab-pane" id="history">-->
+              <!--<div class="row">-->
+                <!--<div class="col-sm-5 col-sm-offset-7">-->
+                  <!--<div class="input-group">-->
+                    <!--<div class="input-group-addon"><i class="fa fa-search"></i></div>-->
+                    <!--<input type="text" class="form-control input-sm" id="history-search" placeholder="filter..." />-->
+                  <!--</div>-->
+                <!--</div>-->
+              <!--</div>-->
+              <!--<div class="top-right history container" id="history-trail"></div>-->
+            <!--</div>-->
+          <!--</div>-->
+        <!--</div>-->
+        <!--&lt;!&ndash; END TOP RIGHT &ndash;&gt;-->
+        <!--&lt;!&ndash; BOTTOM RIGHT &ndash;&gt;-->
+        <!--<div id="bottom-right">-->
+          <!--<ul class="nav nav-tabs">-->
+            <!--<li class="active"><a href="#files" data-toggle="tab"><i class="fa fa-file-text-o"></i>&nbsp;Files</a></li>-->
+            <!--<li><a href="#plot-window" data-toggle="tab"><i class="fa fa-bar-chart"></i>&nbsp;Plots</a></li>-->
+            <!--<li><a href="#packages" data-toggle="tab"><i class="fa fa-archive"></i>&nbsp;Packages</a></li>-->
+            <!--<li><a href="#help" data-toggle="tab"><i class="fa fa-life-ring"></i>&nbsp;Help</a></li>-->
+            <!--<li><a href="#preferences" data-toggle="tab"><i class="fa fa-cogs"></i>&nbsp;Preferences</a></li>-->
+          <!--</ul>-->
+          <!--<div id="bottomRightTabContent" class="tab-content">-->
+            <!--&lt;!&ndash; File Nav &ndash;&gt;-->
+            <!--<div id="files" class="tab-pane active in" style="height: 100%;">-->
+              <!--<div id="working-directory" class="list-group" style="margin-bottom: 0px;"></div>-->
+              <!--<div id="file-list" class="list-group" style="max-height: 100%; overflow: scroll; margin-bottom: 0px;">-->
+              <!--</div>-->
+            <!--</div>-->
+            <!--&lt;!&ndash; End File Nav &ndash;&gt;-->
+            <!--&lt;!&ndash; Plot viewer &ndash;&gt;-->
+            <!--<div class="tab-pane" id="plot-window">-->
+              <!--<a title="View previous plot" onclick="previousPlot();" class="label label-primary" title="Prevous Plot"><i class="fa fa-undo"></i></a>-->
+              <!--<a title="View next plot" onclick="nextPlot()" class="label label-primary" title="Next Plot"><i class="fa fa-repeat"></i></a>-->
+              <!--<a title="Open plot in new window" onclick="showPlot();" class="label label-primary" title="Zoom In"><i class="fa fa-arrows-alt"></i></a>-->
+              <!--<a title="Save current plot to file" onclick="savePlot();" class="label label-primary" title="Export Plot" download><i class="fa fa-floppy-o"></i></a>-->
+              <!--<a title="Delete current plot" onclick="deletePlot();" class="label label-primary" title="Delete Plot"><i class="fa fa-trash-o"></i></a>-->
+              <!--<div clas="row">-->
+                <!--<div class="col-sm-10" id="plots">-->
+                <!--</div>-->
+                <!--<div class="col-sm-2 pull-right" id="plots-minimap" style="overflow: scroll;">-->
+                <!--</div>-->
+              <!--</div>-->
+            <!--</div>-->
+            <!--&lt;!&ndash; End Plot viewer &ndash;&gt;-->
+            <!--&lt;!&ndash; Packages Viewer &ndash;&gt;-->
+            <!--<div class="tab-pane" id="packages">-->
+              <!--<div class="row">-->
+                <!--<div class="col-sm-4">-->
+                  <!--<button id="package-install-button" style="margin-left: 5px; margin-top: 5px;" class="btn btn-primary btn-xs" title="">-->
+                    <!--<i class="fa fa-download"></i>&nbsp;&nbsp;Install Package-->
+                  <!--</button>-->
+                <!--</div>-->
+                <!--<div class="col-sm-5 col-sm-offset-3">-->
+                  <!--<div class="input-group">-->
+                    <!--<div class="input-group-addon"><i class="fa fa-search"></i></div>-->
+                    <!--<input type="text" class="form-control input-sm" id="pkg-search" placeholder="(i.e. pandas, Flask)" />-->
+                  <!--</div>-->
+                <!--</div>-->
+              <!--</div>-->
+              <!--<table class="table table-bordered" style="table-layout: fixed; margin-bottom: 0px;">-->
+                <!--<thead>-->
+                  <!--<tr>-->
+                    <!--<th>package</th>-->
+                    <!--<th>version</th>-->
+                  <!--</tr>-->
+                <!--</thead>-->
+              <!--</table>-->
+              <!--<div id="packages-container" style="overflow: auto;">-->
+                <!--<table class="table table-bordered" style="table-layout: fixed;">-->
+                  <!--<tbody id="packages-rows">-->
+                  <!--</tbody>-->
+                <!--</table>-->
+              <!--</div>-->
+            <!--</div>-->
+            <!--&lt;!&ndash; Packages Viewer &ndash;&gt;-->
+            <!--&lt;!&ndash; Help &ndash;&gt;-->
+            <!--<div class="tab-pane" id="help">-->
+              <!--<pre style="font-size: 10px; overflow: auto;" id="help-content"><i>run help(...) for more info</i></pre>-->
+            <!--</div>-->
+            <!--&lt;!&ndash; End Help &ndash;&gt;-->
+            <!--&lt;!&ndash; Preferences &ndash;&gt;-->
+            <!--<div class="tab-pane" id="preferences">-->
+            <!--</div>-->
+            <!--&lt;!&ndash; End Preferences &ndash;&gt;-->
+          <!--</div>-->
+          <!--</div>-->
+        <!--</div>-->
+        <!--&lt;!&ndash; END BOTTOM RIGHT &ndash;&gt;-->
+    <!--</div>-->
     <!-- END main section -->
+
+    <main></main>
 
     <!-- Error Modal -->
     <div id="error-modal" class="modal">
@@ -445,46 +447,8 @@
     /* Replace 'APP_ID' with your app ID */
     (function(){var w=window;var ic=w.Intercom;if(typeof ic==="function"){ic('reattach_activator');ic('update',intercomSettings);}else{var d=document;var i=function(){i.c(arguments)};i.q=[];i.c=function(args){i.q.push(args)};w.Intercom=i;function l(){var s=d.createElement('script');s.type='text/javascript';s.async=true;s.src='https://widget.intercom.io/widget/APP_ID';var x=d.getElementsByTagName('script')[0];x.parentNode.insertBefore(s,x);}if(w.attachEvent){w.attachEvent('onload',l);}else{w.addEventListener('load',l,false);}}})()
   </script>
-  <script src="js/partials.js"></script>
+  <script src="js/ace.min.js"></script>
   <script src="js/hbs.js"></script>
-  <script src="js/js.js"></script>
-  <script src="js/jsx.js"></script>
-  <script type="text/javascript">
-    $(document).ready(function() {
-
-      if (/win32/i.test(navigator.platform)) {
-        $("#new-python-path").attr("placeholder", "i.e. C:\\Users\\hmardukas\\Anaconda3\\envs\\py27\\python.exe");
-      } else {
-        $("#new-python-path").attr("placeholder", "i.e. /Users/hmardukas/anaconda/envs/py27/bin/python");
-      }
-
-      // let's get things going...
-      setTimeout(function() {
-        $("#add-tab").click();
-      }, 450);
-    });
-  </script>
-  <script type="text/javascript">
-    (function () {
-      let userId = store.get('userId'),
-        pythonOptions = store.get('pythonOptions') || {},
-        checkPython = pythonOptions.checkPython || {};
-
-      if (!userId) {
-        userId = guid();
-        store.set('userId', userId)
-      }
-
-      window.Intercom('boot', {
-        app_id: 'x8kexgni',
-        user_id: userId,
-        created_at: Date.now()
-      });
-      window.Intercom('update',{
-        "pythonCmd": pythonOptions.cmd || '',
-        "version": checkPython.version || ''
-      });
-    }());
-  </script>
+  <script src="js/main.js"></script>
 </body>
 </html>

@@ -16,6 +16,7 @@
     "React": false
   },
   "parserOptions": {
+    "sourceType": "module",
     "ecmaFeatures": {
       "jsx": true,
       "arrowFunctions": true,
@@ -42,8 +43,8 @@
     "react/jsx-indent-props": [1, 2],
     "react/jsx-indent": [1, 2],
     "react/jsx-key": 0,
-    "react/jsx-max-props-per-line": 1,
-    "react/jsx-no-bind": 1,
+    "react/jsx-max-props-per-line": 0,
+    "react/jsx-no-bind": 0,
     "react/jsx-no-duplicate-props": 1,
     "react/jsx-no-literals": 1,
     "react/jsx-no-undef": 1,
@@ -63,7 +64,7 @@
     "react/no-string-refs": 1,
     "react/no-unknown-property": 1,
     "react/prefer-es6-class": 0,
-    "react/prop-types": 1,
+    "react/prop-types": 0,
     "react/react-in-jsx-scope": 1,
     "react/require-extension": 1,
     "react/self-closing-comp": 1,

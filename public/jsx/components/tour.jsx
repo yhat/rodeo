@@ -1,7 +1,10 @@
-/* globals $, React, ReactDOM, TourItem */
-'use strict';
+import React from 'react';
+import ReactDOM from 'react-dom';
+import TourItem from './tour-item.jsx';
+import $ from 'jquery';
 
-const Tour = window.Tour = React.createClass({
+export default React.createClass({
+  displayName: 'Tour',
   propTypes: {
     onExitTour: React.PropTypes.func.isRequired,
     tourData: React.PropTypes.array.isRequired

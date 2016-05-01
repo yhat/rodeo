@@ -1,7 +1,7 @@
-/* globals React */
-'use strict';
+import React from 'react';
 
-const DocCode = window.DocCode = React.createClass({
+export default React.createClass({
+  displayName: 'DocCode',
   propTypes: {
     text: React.PropTypes.string.isRequired
   },
@@ -13,7 +13,3 @@ const DocCode = window.DocCode = React.createClass({
     );
   }
 });
-
-DocCode.propTypes = {
-  text: React.PropTypes.string.isRequired
-};

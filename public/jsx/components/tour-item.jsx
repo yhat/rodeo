@@ -1,6 +1,7 @@
-/* globals React */
+import React from 'react';
 
-var TourItem = window.TourItem = React.createClass({
+export default React.createClass({
+  displayName: 'TourItem',
   propTypes: {
     img: React.PropTypes.string.isRequired,
     img2: React.PropTypes.string.isRequired,

@@ -1,7 +1,4 @@
-/* globals React */
-'use strict';
-
-const tourData = [
+export default [
   {
     title: 'Welcome to Rodeo!',
     subtitle: 'An IDE for Data Science',

@@ -1,7 +1,8 @@
-/* globals React, PythonSelectorItem */
-'use strict';
+import React from 'react';
+import PythonSelectorItem from './python-selector-item';
 
-const PythonSelector = window.PythonSelector = React.createClass({
+export default React.createClass({
+  displayName: 'PythonSelector',
   propTypes: {
     onSelect: React.PropTypes.func.isRequired,
     pythonDefinitions: React.PropTypes.array.isRequired,

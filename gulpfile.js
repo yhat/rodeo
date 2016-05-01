@@ -2,6 +2,8 @@
 
 const _ = require('lodash'),
   babel = require('gulp-babel'),
+  babelify = require('babelify'),
+  browserify = require('browserify'),
   declare = require('gulp-declare'),
   eslint = require('eslint/lib/cli'),
   globby = require('globby'),
@@ -21,6 +23,7 @@ const _ = require('lodash'),
   rework = require('gulp-rework'),
   reworkUrl = require('rework-plugin-url'),
   wrap = require('gulp-wrap'),
+  webpack = require('webpack-stream'),
   jsPatterns = [
     'karma.conf.js',
     'gulpfile.js',
@@ -138,6 +141,14 @@ gulp.task('hbs', function () {
     .pipe(gulp.dest('static/js'));
 });
 
+gulp.task('ace', function () {
+  return gulp.src([
+    'public/ace/ace.js',
+    'public/ace/**/*.js'
+  ]).pipe(concat('ace.min.js'))
+    .pipe(gulp.dest('static/js'));
+});
+
 gulp.task('js', function () {
   return gulp.src([
     'public/js/window.*.js', // important global services first
@@ -152,14 +163,8 @@ gulp.task('js', function () {
 
 gulp.task('jsx', function () {
   return gulp.src([
-    'public/js/window.*.js', // important global services first
-    'public/jsx/**/*.js',
-    'public/jsx/**/*.jsx',
-    '!public/jsx/**/*.test.js'
-  ]).pipe(sourcemaps.init())
-    .pipe(babel())
-    .pipe(concat('jsx.js'))
-    .pipe(sourcemaps.write('.'))
+    'public/jsx/*.js'
+  ]).pipe(webpack(require('./webpack.config.js')))
     .pipe(gulp.dest('static/js'));
 });
 
@@ -196,7 +201,7 @@ gulp.task('images', function () {
 
 gulp.task('lint', ['eslint']);
 gulp.task('test', ['lint', 'karma-renderer', 'karma-main']);
-gulp.task('build', ['less-external', 'styles', 'external-scripts', 'hbs', 'js', 'jsx']);
+gulp.task('build', ['less-external', 'styles', 'external-scripts', 'hbs', 'ace', 'js', 'jsx']);
 gulp.task('run', []);
 gulp.task('watch', function () {
   gulp.watch(['public/js/**/*.js'], ['js']);

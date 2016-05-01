@@ -20,7 +20,11 @@ ipc.on('plot', function (result) {
 });
 
 ipc.on('set-working-directory', function (wd) {
-  setFiles(wd);
+  setFiles(wd).then(function (data) {
+    console.log('ipc:set-working-directory', data);
+  }).catch(function (error) {
+    console.error('ipc:set-working-directory', error);
+  });
 });
 
 ipc.on('file-index-start', function () {

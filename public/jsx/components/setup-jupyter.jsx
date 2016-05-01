@@ -1,7 +1,8 @@
-/* globals React, DocCode */
-'use strict';
+import React from 'react';
+import DocCode from './doc-code';
 
-const SetupJupyter = window.SetupJupyter = React.createClass({
+export default React.createClass({
+  displayName: 'SetupJupyter',
   propTypes: {
     onNewPythonPath: React.PropTypes.func.isRequired,
     onOpenDocs: React.PropTypes.func.isRequired,

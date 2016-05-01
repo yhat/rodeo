@@ -1,9 +1,10 @@
 'use strict';
 
-const expect = require('chai').expect,
+const _ = require('lodash'),
+  expect = require('chai').expect,
   sinon = require('sinon'),
   childProcess = require('child_process'),
-  EventEmitter = require('events'),
+  MockChildProcess = require('../../test/mocks/classes/child-process'),
   log = require('./log'),
   dirname = __dirname.split('/').pop(),
   filename = __filename.split('/').pop().split('.').shift(),
@@ -27,10 +28,8 @@ describe(dirname + '/' + filename, function () {
 
     it('creates', function () {
       const cmd = 'some command',
-        eventOn = sinon.stub(),
-        mockChild = {pid: '123', on: eventOn};
+        mockChild = new MockChildProcess();
 
-      eventOn.returns(mockChild);
       childProcess.spawn.returns(mockChild);
 
       expect(fn(cmd)).to.equal(mockChild);
@@ -41,11 +40,7 @@ describe(dirname + '/' + filename, function () {
     const fn = lib[this.title];
 
     it('kills', function () {
-      const mockChild = new EventEmitter();
-
-      mockChild.kill = function () {
-        mockChild.emit('close', 'a', 'b');
-      };
+      const mockChild = new MockChildProcess();
 
       return fn(mockChild).then(function (result) {
         expect(result).to.deep.equal({code: 'a', signal: 'b'});

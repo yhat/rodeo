@@ -263,7 +263,11 @@ function openFile(pathname, isDir) {
     return;
   } else if (isDir) {
     var directory = pathname;
-    setFiles(pathname);
+    setFiles(pathname).then(function (data) {
+      console.log('openFile', data);
+    }).catch(function (error) {
+      console.error('openFile', error);
+    });
   } else {
     function callback(basename, pathname, content) {
       var editor = newEditor(basename, pathname, content)

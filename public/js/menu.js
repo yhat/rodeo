@@ -471,7 +471,11 @@ function getFileMenuTemplate() {
         dialogs.prompt('Enter a name for your new folder: ', function (dirname) {
           if (dirname) {
             fs.mkdir(path.join(store.get('userWorkingDirectory'), dirname));
-            setFiles(store.get('userWorkingDirectory'));
+            setFiles(store.get('userWorkingDirectory')).then(function (data) {
+              console.log('Add Folder click', data);
+            }).catch(function (error) {
+              console.error('Add Folder click', error);
+            });
           }
         });
       }
@@ -496,7 +500,11 @@ function getFolderMenuTemplate() {
 
           if (ok) {
             shell.moveItemToTrash(folderMenu.filename);
-            setFiles(store.get('userWorkingDirectory'));
+            setFiles(store.get('userWorkingDirectory')).then(function (data) {
+              console.log('Delete click', data);
+            }).catch(function (error) {
+              console.error('Delete click', error);
+            });
           }
 
         });

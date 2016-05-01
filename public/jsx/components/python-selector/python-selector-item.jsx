@@ -1,7 +1,7 @@
-/* globals React */
-'use strict';
+import React from 'react';
 
-const PythonSelectorItem = window.PythonSelectorItem = React.createClass({
+export default React.createClass({
+  displayName: 'PythonSelectorItem',
   propTypes: {
     onClick: React.PropTypes.func.isRequired,
     pythonDefinition: React.PropTypes.object.isRequired,

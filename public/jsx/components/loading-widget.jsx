@@ -1,8 +1,9 @@
-// <h1>Rodeo is starting up...</h1>
-// <p className="lead">We're launching your python session. This should only take a moment or two.</p>
-const LoadingWidget = window.LoadingWidget = React.createClass({
+import React from 'react';
+
+export default React.createClass({
+  displayName: 'LoadingWidget',
   render: function () {
-    var style = {
+    const style = {
       height: '200px'
     };
 

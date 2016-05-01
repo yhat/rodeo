@@ -42,6 +42,10 @@ function onQuitApplication() {
  * @returns {Promise}
  */
 function onFiles(dir) {
+  if (!_.isString(dir)) {
+    throw new Error('onFiles expects a string as the first argument');
+  }
+
   return files.readDirectory(path.resolve(dir));
 }
 
@@ -147,6 +151,7 @@ function onReady() {
     mainWindow = browserWindows.createMainWindow('mainWindow', {
       url: 'file://' + path.join(staticFileDir, 'desktop-index.html')
     });
+    mainWindow.openDevTools();
 
     if (argv.startup === false) {
       mainWindow.show();
@@ -298,7 +303,7 @@ function exposeElectronIpcEvents(ipcEmitter, list) {
         const args = _.slice(arguments, 2);
 
         log('info', 'responding to ipc event', name, args);
-        bluebird.method(fn).apply(null, args)
+        bluebird.method(fn.bind(event.sender)).apply(null, args)
           .then(replyToEvent(name, id, event))
           .catch(replyToEvent(name, id, event));
       } catch (ex) {
@@ -367,6 +372,10 @@ function onOpenTerminal() {
   shell.openItem(isWindows ? 'cmd.exe' : '/Applications/Utilities/Terminal.app');
 }
 
+/**
+ * @param {string} windowName
+ * @returns {Promise}
+ */
 function onCloseWindow(windowName) {
 
   if (windowName) {
@@ -388,15 +397,32 @@ function onCloseWindow(windowName) {
 /**
  * @param {object} [options]
  * @param {string} [options.title]
+ * @param {string} [options.defaultPath]
  * @param {object} [options.properties]
+ * @param {Array} [options.filters]
  * @returns {Promise}
  * @example onOpenDialog({ title: 'Select your Python', properties: ['openFile'] })
  */
 function onOpenDialog(options) {
-  options = _.pick(options || {}, ['title', 'properties']);
-  const openDialog = bluebird.promisify(electron.dialog.showOpenDialog);
+  options = _.pick(options || {}, ['title', 'defaultPath', 'properties', 'filters']);
+  const fn = bluebird.promisify(electron.dialog.showOpenDialog);
 
-  return openDialog(options);
+  return fn(this, options);
+}
+
+/**
+ * @param {object} [options]
+ * @param {string} [options.title]
+ * @param {string} [options.defaultPath]
+ * @param {Array} [options.filters]
+ * @returns {Promise}
+ * @example onSaveDialog({ title: 'Save your Python' })
+ */
+function onSaveDialog(options) {
+  options = _.pick(options || {}, ['title', 'defaultPath', 'filters']);
+  const fn = bluebird.promisify(electron.dialog.showSaveDialog);
+
+  return fn(this, options);
 }
 
 /**
@@ -405,7 +431,6 @@ function onOpenDialog(options) {
 function attachIpcMainEvents() {
   const ipcMain = electron.ipcMain;
 
-  // todo: use this more
   exposeElectronIpcEvents(ipcMain, [
     onExecuteWithKernel,
     onFiles,
@@ -420,7 +445,8 @@ function attachIpcMainEvents() {
     onCloseWindow,
     onOpenExternal,
     onOpenTerminal,
-    onOpenDialog
+    onOpenDialog,
+    onSaveDialog
   ]);
 }
 
@@ -437,6 +463,8 @@ function attachAppEvents() {
   }
 }
 
+module.exports.onCloseWindow = onCloseWindow;
+module.exports.onFiles = onFiles;
 module.exports.onPDF = onPDF;
 module.exports.onQuitApplication = onQuitApplication;
 module.exports.openFile = openFile;
