@@ -1,7 +1,9 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
+import { connect } from 'react-redux';
 import ace from 'ace';
 import './ace-pane.less';
+import _ from 'lodash';
 
 export default React.createClass({
   displayName: 'AcePane',
@@ -12,19 +14,35 @@ export default React.createClass({
     mode: React.PropTypes.string,
     theme: React.PropTypes.string
   },
+  statics: {
+    resizeAll: function () {
+      _.each(document.querySelectorAll('.ace-pane'), function (el) {
+        ace.edit(el).resize();
+      });
+    }
+  },
+  getDefaultProps: function () {
+    return {
+      fontSize: 12,
+      keyBindings: 'default',
+      theme: 'chrome',
+      mode: 'python'
+    };
+  },
   componentDidMount: function () {
     const instance = ace.edit(ReactDOM.findDOMNode(this)),
       keyBindings = this.props.keyBindings,
       theme = this.props.theme,
-      fontSize = this.props.fontSize;
+      fontSize = this.props.fontSize,
+      mode = this.props.mode;
     let langTools = ace.require('ace/ext/language_tools');
 
     langTools.setCompleters([]);
 
     instance.setKeyboardHandler(keyBindings === 'default' ? null : keyBindings);
-    instance.setTheme(theme || 'ace/theme/chrome');
-    instance.setFontSize(fontSize || 12);
-    instance.getSession().setMode('ace/mode/python');
+    instance.setTheme('ace/theme/' + theme);
+    instance.setFontSize(fontSize);
+    instance.getSession().setMode('ace/mode/' + mode);
     instance.setOptions({
       useSoftTabs: true,
       showPrintMargin: false,
@@ -42,3 +60,4 @@ export default React.createClass({
     );
   }
 });
+

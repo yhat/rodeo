@@ -54,7 +54,7 @@
 
 	var _reactDom2 = _interopRequireDefault(_reactDom);
 
-	var _startup = __webpack_require__(204);
+	var _startup = __webpack_require__(229);
 
 	var _startup2 = _interopRequireDefault(_startup);
 
@@ -19665,7 +19665,30 @@
 /* 181 */,
 /* 182 */,
 /* 183 */,
-/* 184 */
+/* 184 */,
+/* 185 */,
+/* 186 */,
+/* 187 */,
+/* 188 */,
+/* 189 */,
+/* 190 */,
+/* 191 */,
+/* 192 */,
+/* 193 */,
+/* 194 */,
+/* 195 */,
+/* 196 */,
+/* 197 */,
+/* 198 */,
+/* 199 */,
+/* 200 */,
+/* 201 */,
+/* 202 */,
+/* 203 */,
+/* 204 */,
+/* 205 */,
+/* 206 */,
+/* 207 */
 /***/ function(module, exports) {
 
 	/*
@@ -19721,7 +19744,7 @@
 
 
 /***/ },
-/* 185 */
+/* 208 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/*
@@ -19973,25 +19996,27 @@
 
 
 /***/ },
-/* 186 */,
-/* 187 */,
-/* 188 */,
-/* 189 */,
-/* 190 */,
-/* 191 */,
-/* 192 */,
-/* 193 */,
-/* 194 */,
-/* 195 */,
-/* 196 */,
-/* 197 */,
-/* 198 */,
-/* 199 */,
-/* 200 */,
-/* 201 */,
-/* 202 */,
-/* 203 */,
-/* 204 */
+/* 209 */,
+/* 210 */,
+/* 211 */,
+/* 212 */,
+/* 213 */,
+/* 214 */,
+/* 215 */,
+/* 216 */,
+/* 217 */,
+/* 218 */,
+/* 219 */,
+/* 220 */,
+/* 221 */,
+/* 222 */,
+/* 223 */,
+/* 224 */,
+/* 225 */,
+/* 226 */,
+/* 227 */,
+/* 228 */,
+/* 229 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -20004,23 +20029,23 @@
 
 	var _react2 = _interopRequireDefault(_react);
 
-	var _setupReady = __webpack_require__(205);
+	var _setupReady = __webpack_require__(230);
 
 	var _setupReady2 = _interopRequireDefault(_setupReady);
 
-	var _loadingWidget = __webpack_require__(206);
+	var _loadingWidget = __webpack_require__(231);
 
 	var _loadingWidget2 = _interopRequireDefault(_loadingWidget);
 
-	var _setupPython = __webpack_require__(207);
+	var _setupPython = __webpack_require__(232);
 
 	var _setupPython2 = _interopRequireDefault(_setupPython);
 
-	var _tour = __webpack_require__(208);
+	var _tour = __webpack_require__(233);
 
 	var _tour2 = _interopRequireDefault(_tour);
 
-	var _tourData = __webpack_require__(210);
+	var _tourData = __webpack_require__(235);
 
 	var _tourData2 = _interopRequireDefault(_tourData);
 
@@ -20030,7 +20055,7 @@
 
 	var _ipc = __webpack_require__(7);
 
-	__webpack_require__(211);
+	__webpack_require__(236);
 
 	function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
 
@@ -20169,7 +20194,7 @@
 	});
 
 /***/ },
-/* 205 */
+/* 230 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -20216,7 +20241,7 @@
 	});
 
 /***/ },
-/* 206 */
+/* 231 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -20261,7 +20286,7 @@
 	});
 
 /***/ },
-/* 207 */
+/* 232 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -20401,7 +20426,7 @@
 	});
 
 /***/ },
-/* 208 */
+/* 233 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -20420,7 +20445,7 @@
 
 	var _reactDom2 = _interopRequireDefault(_reactDom);
 
-	var _tourItem = __webpack_require__(209);
+	var _tourItem = __webpack_require__(234);
 
 	var _tourItem2 = _interopRequireDefault(_tourItem);
 
@@ -20469,7 +20494,7 @@
 	});
 
 /***/ },
-/* 209 */
+/* 234 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -20548,7 +20573,7 @@
 	});
 
 /***/ },
-/* 210 */
+/* 235 */
 /***/ function(module, exports) {
 
 	'use strict';
@@ -20614,16 +20639,16 @@
 	}];
 
 /***/ },
-/* 211 */
+/* 236 */
 /***/ function(module, exports, __webpack_require__) {
 
 	// style-loader: Adds some css to the DOM by adding a <style> tag
 
 	// load the styles
-	var content = __webpack_require__(212);
+	var content = __webpack_require__(237);
 	if(typeof content === 'string') content = [[module.id, content, '']];
 	// add the styles to the DOM
-	var update = __webpack_require__(185)(content, {});
+	var update = __webpack_require__(208)(content, {});
 	if(content.locals) module.exports = content.locals;
 	// Hot Module Replacement
 	if(false) {
@@ -20640,10 +20665,10 @@
 	}
 
 /***/ },
-/* 212 */
+/* 237 */
 /***/ function(module, exports, __webpack_require__) {
 
-	exports = module.exports = __webpack_require__(184)();
+	exports = module.exports = __webpack_require__(207)();
 	// imports
 
 

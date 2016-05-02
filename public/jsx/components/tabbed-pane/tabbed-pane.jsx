@@ -1,9 +1,13 @@
 import React from 'react';
 import TabbedPaneItem from './tabbed-pane-item.jsx';
 import './tabbed-pane.less';
+import _ from 'lodash';
 
 export default React.createClass({
   displayName: 'TabbedPane',
+  propTypes: {
+    onTabClose: React.PropTypes.func
+  },
   getInitialState: function () {
     return {
       activeIndex: 0
@@ -20,15 +24,20 @@ export default React.createClass({
 
     tabList = React.Children.map(this.props.children, function (child, i) {
       const activeClassPath = i === activeIndex ? 'active' : '',
-        className = child.props.icon && 'fa fa-' + child.props.icon;
-
+        className = child.props.icon && 'fa fa-before fa-' + child.props.icon;
+      
       if (child.type === TabbedPaneItem) {
-        console.log('is TabbedPaneItem', child, i);
+        let closeable;
+
+        if (child.props.isCloseable && this.props.onTabClose) {
+          closeable = <span className="fa fa-times tabbed-pane-close" onClick={_.partial(this.props.onTabClose, i)}/>;
+        }
 
         return (
           <li className={activeClassPath} key={i}>
             <a data-toggle="tab" onClick={this.handleSelectTab.bind(this, i)}>
-              <span className={className}/>{child.props.label}
+              <span className={className}>{child.props.label}</span>
+              {closeable}
             </a>
           </li>
         );
