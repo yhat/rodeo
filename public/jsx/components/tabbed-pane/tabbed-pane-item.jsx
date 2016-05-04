@@ -5,6 +5,7 @@ export default React.createClass({
   propTypes: {
     active: React.PropTypes.bool,
     icon: React.PropTypes.string,
+    id: React.PropTypes.string,
     isCloseable: React.PropTypes.bool,
     label: React.PropTypes.string.isRequired
   },
@@ -14,6 +15,6 @@ export default React.createClass({
       this.props.active ? 'active' : ''
     ].join(' ');
 
-    return <div className={className}>{this.props.children}</div>;
+    return <div className={className} id={this.props.id}>{this.props.children}</div>;
   }
 });

@@ -1,7 +1,7 @@
 'use strict';
 
 module.exports = {
-  devtool: 'cheap-source-map',
+  devtool: 'source-map',
   entry: {
     startup: './public/jsx/startup',
     main: './public/jsx/main'
@@ -27,6 +27,7 @@ module.exports = {
         loader: 'babel',
         cacheDirectory: true,
         query: {
+          plugins: ['lodash'],
           presets: ['react', 'es2015']
         }
       }

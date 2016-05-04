@@ -39,6 +39,12 @@ function readFile(filename) {
   return read(filename);
 }
 
+function writeFile(filename, content) {
+  const write = bluebird.promisify(fs.writeFile);
+
+  return write(filename, content);
+}
+
 /**
  * @param {string} dirPath
  * @returns {Promise<[{path: string, filename: string, isDirectory: boolean}]>}
@@ -60,6 +66,18 @@ function readDirectory(dirPath) {
   });
 }
 
+/**
+ * @param {string} filename
+ * @returns {object}
+ */
+function getStats(filename) {
+  const lstat = bluebird.promisify(fs.lstat);
+
+  return lstat(filename);
+}
+
 module.exports.getJSONFileSafeSync = getJSONFileSafeSync;
 module.exports.readFile = readFile;
+module.exports.writeFile = writeFile;
 module.exports.readDirectory = readDirectory;
+module.exports.getStats = getStats;

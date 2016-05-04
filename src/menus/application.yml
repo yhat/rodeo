@@ -1,0 +1,116 @@
+---
+- label: Rodeo
+  submenu:
+  - label: About Rodeo
+    click:
+      type: SHOW_ABOUT
+  - label: Stickers
+    click:
+      type: SHOW_MODAL_STICKER
+  - type: separator
+  - label: Preferences
+    accelerator: CmdOrCtrl+,
+    click:
+      type: SHOW_PREFERENCES
+  - label: Default Variables
+    accelerator: CmdOrCtrl+g
+    click:
+      type: SHOW_PROFILE
+  - label: Quit
+    accelerator: CmdOrCtrl+Q
+    click:
+      type: QUIT
+- label: File
+  submenu:
+  - label: New
+    accelerator: CmdOrCtrl+N
+    click:
+      type: ADD_FILE
+  - label: Open
+    accelerator: CmdOrCtrl+O
+    click:
+      type: SHOW_OPEN_FILE_DIALOG
+  - type: separator
+  - label: Save
+    accelerator: CmdOrCtrl+s
+    click:
+      type: SAVE_ACTIVE_FILE
+  - label: Save As
+    click:
+      type: SHOW_SAVE_FILE_DIALOG
+  - type: separator
+  - label: Close File
+    accelerator: CmdOrCtrl+w
+    click:
+      type: CLOSE_ACTIVE_FILE
+- label: Edit
+  submenu:
+  - label: Undo
+    accelerator: CmdOrCtrl+Z
+    role: undo
+  - label: Redo
+    accelerator: Shift+CmdOrCtrl+Z
+    role: redo
+  - type: separator
+  - label: Cut
+    accelerator: CmdOrCtrl+X
+    role: cut
+  - label: Copy
+    accelerator: CmdOrCtrl+C
+    role: copy
+  - label: Paste
+    accelerator: CmdOrCtrl+V
+    role: paste
+  - label: Select All
+    accelerator: CmdOrCtrl+A
+    role: selectAll
+- label: View
+  submenu:
+  - label: Change Editor
+    submenu:
+    - label: Move One Left
+      accelerator: CmdOrCtrl+Alt+Left
+      click:
+        type: MOVE_ONE_LEFT
+    - label: Move One Right
+      accelerator: CmdOrCtrl+Alt+Right
+      click:
+        type: MOVE_ONE_RIGHT
+  - label: Toggle Full Screen
+    accelerator: Command+Shift+F
+    click:
+      type: TOGGLE_FULL_SCREEN
+  - label: Toggle Dev Tools
+    accelerator: Alt+CmdOrCtrl+I
+    click:
+      type: TOGGLE_DEV_TOOLS
+- label: Window
+  submenu:
+  - label: Minimize
+    accelerator: CmdOrCtrl+M
+    selector: 'performMiniaturize:'
+  - label: Reset Windows to Default Sizes
+    click:
+      type: RESET_TO_DEFAULT_SIZES
+  - label: Zoom
+    submenu:
+    - label: Zoom to Default
+      accelerator: CmdOrCtrl+0
+      click:
+        type: ZOOM_TO_DEFAULT
+    - label: Zoom In
+      accelerator: CmdOrCtrl+=
+      click:
+        type: ZOOM_IN
+    - label: Zoom Out
+      accelerator: CmdOrCtrl+-
+      click:
+        type: ZOOM_OUT
+  - type: separator
+  - label: Bring All to Front
+    selector: 'arrangeInFront:'
+- label: Help
+  submenu:
+  - label: Check for Updates
+    click:
+      type: CHECK_FOR_UPDATES

@@ -26,4 +26,24 @@ function eventsToPromise(eventEmitter, events) {
   });
 }
 
+/**
+ * Only one item per key will exist or can be requested.  If the item is being created, others will wait as well.
+ * @param {object} list  list of items that can only exist once
+ * @param {string} key  identifier
+ * @param {function} fn  creation function
+ * @returns {Promise}
+ */
+function promiseOnlyOne(list, key, fn) {
+  let promise = list[key];
+
+  if (promise) {
+    return promise;
+  } else {
+    promise = bluebird.try(fn);
+    list[key] = promise;
+    return promise;
+  }
+}
+
 module.exports.eventsToPromise = eventsToPromise;
+module.exports.promiseOnlyOne = promiseOnlyOne;

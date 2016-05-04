@@ -1,5 +1,7 @@
 /* eslint no-console: 0 */
-import {ipcRenderer} from 'electron';
+import { ipcRenderer } from 'electron';
+
+const registeredActions = {};
 
 let cid = (function () {
   let i = 0;
@@ -11,10 +13,11 @@ let cid = (function () {
 
 /**
  * @param {Arguments} obj
+ * @param {number} [num=0]
  * @returns {Array}
  */
-function toArgs(obj) {
-  return Array.prototype.slice.call(obj, 0);
+function toArgs(obj, num) {
+  return Array.prototype.slice.call(obj, num || 0);
 }
 
 /**
@@ -24,11 +27,11 @@ function toArgs(obj) {
  */
 export function on(eventName, eventFn) {
   try {
-    ipcRenderer.on(eventName, function () {
-      let eventResult,
-        eventArgs = toArgs(arguments);
+    ipcRenderer.on(eventName, function (event, result) {
+      let eventResult;
+      
+      eventResult = eventFn.call(null, event, result);
 
-      eventResult = eventFn.apply(null, eventArgs);
       console.log('ipc event trigger completed', eventName, eventResult);
       return eventResult;
     });
@@ -43,7 +46,6 @@ export function on(eventName, eventFn) {
  * @returns {Promise}
  */
 export function send() {
-
   let eventId = cid().toString(),
     args = toArgs(arguments),
     eventName = args[0];
@@ -73,5 +75,4 @@ export function send() {
     console.log('ipc waiting for ', eventName, eventId, 'on', eventReplyName);
     ipcRenderer.on(eventReplyName, response);
   });
-
 }

@@ -7,10 +7,13 @@ const _ = require('lodash'),
   browserWindows = require('./services/browser-windows'),
   files = require('./services/files'),
   fs = require('fs'),
+  ipcPromises = require('./services/ipc-promises'),
   path = require('path'),
   md = require('./services/md'),
+  menuDefinitions = require('./services/menu-definitions'),
   os = require('os'),
   preferences = require('./services/preferences'),
+  promises = require('./services/promises'),
   steveIrwin = require('./kernels/python/steve-irwin'),
   updater = require('./services/updater'),
   yargs = require('yargs'),
@@ -81,35 +84,24 @@ function onPDF() {
   });
 }
 
-function onGetFile(event, filepath) {
-  let content = '';
-
-  if (/^~/.test(filepath)) {
-    filepath = filepath.replace('~', USER_HOME);
-  }
-
-  if (fs.existsSync(filepath)) {
-    content = fs.readFileSync(filepath).toString();
-  }
-  event.returnValue = {
-    basename: path.basename(filepath),
-    pathname: filepath,
-    content: content
-  };
+function onFileStats(filename) {
+  console.log('getting file stats', filename);
+  return files.getStats(filename).tap(function (result) {
+    console.log('got file stats', result);
+  });
 }
 
-function onSaveFile(event, data) {
-  fs.writeFile(data.filepath, data.content, function (err) {
-    if (err) {
-      log('error', 'onSaveFile', err);
-      return;
-    }
+function onGetFile(filename) {
+  console.log('getting file', filename);
+  return files.readFile(filename).tap(function (result) {
+    console.log('got file', result);
+  });
+}
 
-    event.returnValue = {
-      status: 'OK',
-      filepath: data.filepath,
-      basename: path.basename(data.filepath)
-    };
+function onSaveFile(filename, contents) {
+  console.log('saving file', filename, contents);
+  return files.writeFile(filename, contents).tap(function (result) {
+    console.log('saved file', result);
   });
 }
 
@@ -136,6 +128,46 @@ function onWindowAllClosed() {
   app.quit();
 }
 
+function startMainWindow() {
+  const mainWindow = browserWindows.getByName('mainWindow');
+
+  if (argv.dev === true) {
+    mainWindow.openDevTools();
+  }
+
+  return attachApplicationMenu(mainWindow.webContents).then(function () {
+    mainWindow.show();
+    mainWindow.focus();
+  }).catch(function (error) {
+    log('error', error);
+  });
+}
+
+function startStartupWindow() {
+  return new bluebird(function (resolve, reject) {
+    const startupWindow = browserWindows.createStartupWindow('startupWindow', {
+      url: 'file://' + path.join(staticFileDir, 'startup.html')
+    });
+
+    startupWindow.webContents.on('did-finish-load', function () {
+      startupWindow.show();
+      startupWindow.focus();
+      startupWindow.once('close', function () {
+        startMainWindow().catch(function (error) {
+          log('error', error);
+        });
+      });
+    });
+
+    resolve();
+  });
+}
+
+function attemptAutoupdate() {
+  return updater.update(false)
+    .catch(err => log('warn', 'failed to initialize auto-update', err));
+}
+
 // This method will be called when Electron has finished
 // initialization and is ready to create browser windows.
 function onReady() {
@@ -146,38 +178,17 @@ function onReady() {
 
     designWindow.show();
   } else {
-    let mainWindow, startupWindow;
+    let mainWindow;
 
+    // start loading main window in background
     mainWindow = browserWindows.createMainWindow('mainWindow', {
       url: 'file://' + path.join(staticFileDir, 'desktop-index.html')
     });
-    mainWindow.openDevTools();
 
-    if (argv.startup === false) {
-      mainWindow.show();
-      mainWindow.focus();
-    } else {
-      startupWindow = browserWindows.createStartupWindow('startupWindow', {
-        url: 'file://' + path.join(staticFileDir, 'startup.html')
-      });
-      startupWindow.webContents.on('did-finish-load', function () {
-        startupWindow.show();
-        startupWindow.focus();
-        startupWindow.once('close', function () {
-          mainWindow.show();
-        });
-      });
-    }
-
-    // Open the devtools.
-    // mainWindow.openDevTools();
-
-    attachIpcMainEvents();
-
-    updater.update(false)
-      .catch(function (err) {
-        log('warn', 'failed to initialize auto-update', err);
-      });
+    (argv.startup === false ? startMainWindow() : startStartupWindow())
+      .then(attachIpcMainEvents)
+      .then(attemptAutoupdate)
+      .catch(err => log('error', err));
   }
 }
 
@@ -190,32 +201,13 @@ function openFile(event, filePath) {
 }
 
 /**
- * Only one item per key will exist or can be requested.  If the item is being created, others will wait as well.
- * @param {object} list  list of items that can only exist once
- * @param {string} key  identifier
- * @param {function} fn  creation function
- * @returns {Promise}
- */
-function promiseOnlyOne(list, key, fn) {
-  let promise = list[key];
-
-  if (promise) {
-    return promise;
-  } else {
-    promise = bluebird.try(fn);
-    list[key] = promise;
-    return promise;
-  }
-}
-
-/**
  * Currently, named on language name.  We could make this more specific (python2.7) later.
  * @param {string} language
  * @returns {Promise}
  */
 function getKernelClient(language) {
   language = language || 'python';
-  return promiseOnlyOne(kernelClients, language, function () {
+  return promises.promiseOnlyOne(kernelClients, language, function () {
     let clientFactory = require('./kernels/python/client');
 
     return clientFactory.create().then(function (client) {
@@ -252,64 +244,6 @@ function onExecuteWithKernel(text, kernelOptions) {
 function subscribeBrowserWindowToEvent(windowName, emitter, eventName) {
   emitter.on(eventName, function () {
     browserWindows.send.apply(browserWindows, [windowName, eventName].concat(_.slice(arguments)));
-  });
-}
-
-/**
- * @param {string} name
- * @param {string} requestId
- * @param {Event} event
- * @returns {function}
- */
-function replyToEvent(name, requestId, event) {
-  const replyName = name + '_reply';
-
-  return function (data) {
-    try {
-      if (_.isError(data)) {
-        log('error', 'event failed', name, data);
-        event.sender.send(replyName, requestId, {name: data.name, message: data.message});
-      } else {
-        event.sender.send(replyName, requestId, null, data);
-      }
-    } catch (ex) {
-      log('error', 'failed to reply to event', name, data, ex);
-    }
-  };
-}
-
-/**
- * Standardize our naming by forcing a convention.
- *
- * Take a list of functions and bind them to events of the exact same name in snake_case.
- *
- * The other side should be listening for a reply with the same requestId that follows
- * the node convention of (err, data)
- *
- * This is important because there are a lot of ways for functions to fail with these events, so having a standard
- * way to catch these errors is useful for maintainability
- *
- * @param {EventEmitter} ipcEmitter
- * @param {[function]} list
- */
-function exposeElectronIpcEvents(ipcEmitter, list) {
-  _.each(list, function (fn) {
-    const name = _.snakeCase(fn.name.replace(/^on/, ''));
-
-    log('info', 'exposeElectronIpcEvents exposing', name);
-
-    ipcEmitter.on(name, function (event, id) {
-      try {
-        const args = _.slice(arguments, 2);
-
-        log('info', 'responding to ipc event', name, args);
-        bluebird.method(fn.bind(event.sender)).apply(null, args)
-          .then(replyToEvent(name, id, event))
-          .catch(replyToEvent(name, id, event));
-      } catch (ex) {
-        log('error', 'failed to wait for reply to event', name, event, ex);
-      }
-    });
   });
 }
 
@@ -405,9 +339,10 @@ function onCloseWindow(windowName) {
  */
 function onOpenDialog(options) {
   options = _.pick(options || {}, ['title', 'defaultPath', 'properties', 'filters']);
-  const fn = bluebird.promisify(electron.dialog.showOpenDialog);
 
-  return fn(this, options);
+  return new bluebird(function (resolve) {
+    electron.dialog.showOpenDialog(options, resolve);
+  });
 }
 
 /**
@@ -420,9 +355,10 @@ function onOpenDialog(options) {
  */
 function onSaveDialog(options) {
   options = _.pick(options || {}, ['title', 'defaultPath', 'filters']);
-  const fn = bluebird.promisify(electron.dialog.showSaveDialog);
 
-  return fn(this, options);
+  return new bluebird(function (resolve) {
+    electron.dialog.showSaveDialog(options, resolve);
+  });
 }
 
 /**
@@ -431,7 +367,7 @@ function onSaveDialog(options) {
 function attachIpcMainEvents() {
   const ipcMain = electron.ipcMain;
 
-  exposeElectronIpcEvents(ipcMain, [
+  ipcPromises.exposeElectronIpcEvents(ipcMain, [
     onExecuteWithKernel,
     onFiles,
     onGetSystemFacts,
@@ -440,6 +376,7 @@ function attachIpcMainEvents() {
     onPDF,
     onGetFile,
     onSaveFile,
+    onFileStats,
     onUpdateAndInstall,
     onCheckForUpdates,
     onCloseWindow,
@@ -461,6 +398,25 @@ function attachAppEvents() {
     app.on('window-all-closed', onWindowAllClosed);
     app.on('ready', onReady);
   }
+}
+
+/**
+ *
+ * @param {EventEmitter} ipcEmitter
+ * @returns {Promise}
+ */
+function attachApplicationMenu(ipcEmitter) {
+  const Menu = electron.Menu;
+
+  return menuDefinitions.getByName('application').then(function (definition) {
+    return menuDefinitions.toElectronMenuTemplate(ipcEmitter, definition);
+  }).then(function (menuTemplate) {
+    console.log('menuTemplate', menuTemplate);
+
+    const menu = Menu.buildFromTemplate(menuTemplate);
+
+    Menu.setApplicationMenu(menu);
+  })
 }
 
 module.exports.onCloseWindow = onCloseWindow;
