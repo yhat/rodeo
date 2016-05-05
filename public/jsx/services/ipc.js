@@ -1,8 +1,6 @@
 /* eslint no-console: 0 */
 import { ipcRenderer } from 'electron';
 
-const registeredActions = {};
-
 let cid = (function () {
   let i = 0;
 
@@ -28,17 +26,15 @@ function toArgs(obj, num) {
 export function on(eventName, eventFn) {
   try {
     ipcRenderer.on(eventName, function (event, result) {
-      let eventResult;
-      
-      eventResult = eventFn.call(null, event, result);
+      let eventResult = eventFn.call(null, event, result);
 
-      console.log('ipc event trigger completed', eventName, eventResult);
+      console.log('ipc: completed', eventName, eventResult);
       return eventResult;
     });
-    console.log('ipc event registered', eventName, eventFn.name);
+    console.log('ipc: registered', eventName, eventFn.name);
     return this;
   } catch (ex) {
-    console.error('ipc event error', eventName, ex);
+    console.error('ipc: error', eventName, ex);
   }
 }
 
@@ -53,26 +49,33 @@ export function send() {
   return new Promise(function (resolve, reject) {
     // noinspection JSDuplicatedDeclaration
     let response,
-      eventReplyName = eventName + '_reply';
+      eventReplyName = eventName + '_reply',
+      timer = setInterval(function () {
+        console.warn('ipc ' + eventId + ': still waiting');
+      }, 1000);
 
-    console.log('ipc sending', [eventName, eventId].concat(args.slice(1)));
+    console.log('ipc ' + eventId + ': sending', [eventName, eventId].concat(args.slice(1)));
     ipcRenderer.send.apply(ipcRenderer, [eventName, eventId].concat(args.slice(1)));
     response = function (event, id) {
       let result;
 
       if (id === eventId) {
         ipcRenderer.removeListener(eventReplyName, response);
+        clearInterval(timer);
         result = toArgs(arguments).slice(2);
+
         if (result[0]) {
+          console.log('ipc ' + eventId + ': completed', result[0]);
           reject(new Error(result[0].message));
         } else {
+          console.log('ipc ' + eventId + ': completed', result[1]);
           resolve(result[1]);
         }
       } else {
-        console.log(eventName, eventId, 'passed on', arguments);
+        console.log('ipc ' + eventId + ':', eventName, 'passed on', arguments);
       }
     };
-    console.log('ipc waiting for ', eventName, eventId, 'on', eventReplyName);
+    console.log('ipc ' + eventId + ': waiting for ', eventName, 'on', eventReplyName);
     ipcRenderer.on(eventReplyName, response);
   });
 }

@@ -21,6 +21,7 @@ module.exports = {
       { test: /\.less$/, loader: 'style!css!less' },
       { test: /\.css$/, loader: 'style!css?sourceMap' },
       { test: /\.(png|jpg)$/, loader: 'url-loader?limit=8192' }, // inline base64 URLs for <=8k images, direct URLs for the rest
+      { test: /.*\.svg$/, loaders: ['file-loader', 'svgo-loader?useConfig=svgoConfig1'] },
       {
         test: /\.jsx?$/,
         exclude: /(node_modules|bower_components)/,
@@ -43,6 +44,13 @@ module.exports = {
   },
   stats: {
     colors: true
+  },
+  svgoConfig1: {
+    plugins: [
+      {removeTitle: true},
+      {convertColors: {shorthex: false}},
+      {convertPathData: false}
+    ]
   },
   target: 'electron-renderer'
   // watch: true

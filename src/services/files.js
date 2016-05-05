@@ -4,7 +4,10 @@ const _ = require('lodash'),
   bluebird = require('bluebird'),
   fs = require('fs'),
   path = require('path'),
-  log = require('./log').asInternal(__filename);
+  log = require('./log').asInternal(__filename),
+  temp = require('temp');
+
+temp.track();
 
 /**
  * @param {string} filePath
@@ -76,8 +79,27 @@ function getStats(filename) {
   return lstat(filename);
 }
 
+/**
+ * @param {string} suffix
+ * @param {string|Buffer} data
+ * @returns {Promise<string>}
+ */
+function saveToTemporaryFile(suffix, data) {
+  return new bluebird(function (resolve) {
+    const stream = temp.createWriteStream({suffix});
+
+    stream.write(data);
+    stream.end();
+
+    log('info', 'saveToTemporaryFile', stream.path);
+
+    resolve(stream.path);
+  }).timeout(10000, 'Timed out trying to save temporary file with extension', suffix);
+}
+
 module.exports.getJSONFileSafeSync = getJSONFileSafeSync;
 module.exports.readFile = readFile;
 module.exports.writeFile = writeFile;
 module.exports.readDirectory = readDirectory;
 module.exports.getStats = getStats;
+module.exports.saveToTemporaryFile = saveToTemporaryFile;

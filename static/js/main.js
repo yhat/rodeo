@@ -664,9 +664,6 @@
 	
 	var _electron = __webpack_require__(8);
 	
-	var registeredActions = {}; /* eslint no-console: 0 */
-	
-	
 	var cid = function () {
 	  var i = 0;
 	
@@ -680,6 +677,7 @@
 	 * @param {number} [num=0]
 	 * @returns {Array}
 	 */
+	/* eslint no-console: 0 */
 	function toArgs(obj, num) {
 	  return Array.prototype.slice.call(obj, num || 0);
 	}
@@ -692,17 +690,15 @@
 	function on(eventName, eventFn) {
 	  try {
 	    _electron.ipcRenderer.on(eventName, function (event, result) {
-	      var eventResult = void 0;
+	      var eventResult = eventFn.call(null, event, result);
 	
-	      eventResult = eventFn.call(null, event, result);
-	
-	      console.log('ipc event trigger completed', eventName, eventResult);
+	      console.log('ipc: completed', eventName, eventResult);
 	      return eventResult;
 	    });
-	    console.log('ipc event registered', eventName, eventFn.name);
+	    console.log('ipc: registered', eventName, eventFn.name);
 	    return this;
 	  } catch (ex) {
-	    console.error('ipc event error', eventName, ex);
+	    console.error('ipc: error', eventName, ex);
 	  }
 	}
 	
@@ -717,26 +713,33 @@
 	  return new Promise(function (resolve, reject) {
 	    // noinspection JSDuplicatedDeclaration
 	    var _response = void 0,
-	        eventReplyName = eventName + '_reply';
+	        eventReplyName = eventName + '_reply',
+	        timer = setInterval(function () {
+	      console.warn('ipc ' + eventId + ': still waiting');
+	    }, 1000);
 	
-	    console.log('ipc sending', [eventName, eventId].concat(args.slice(1)));
+	    console.log('ipc ' + eventId + ': sending', [eventName, eventId].concat(args.slice(1)));
 	    _electron.ipcRenderer.send.apply(_electron.ipcRenderer, [eventName, eventId].concat(args.slice(1)));
 	    _response = function response(event, id) {
 	      var result = void 0;
 	
 	      if (id === eventId) {
 	        _electron.ipcRenderer.removeListener(eventReplyName, _response);
+	        clearInterval(timer);
 	        result = toArgs(arguments).slice(2);
+	
 	        if (result[0]) {
+	          console.log('ipc ' + eventId + ': completed', result[0]);
 	          reject(new Error(result[0].message));
 	        } else {
+	          console.log('ipc ' + eventId + ': completed', result[1]);
 	          resolve(result[1]);
 	        }
 	      } else {
-	        console.log(eventName, eventId, 'passed on', arguments);
+	        console.log('ipc ' + eventId + ':', eventName, 'passed on', arguments);
 	      }
 	    };
-	    console.log('ipc waiting for ', eventName, eventId, 'on', eventReplyName);
+	    console.log('ipc ' + eventId + ': waiting for ', eventName, 'on', eventReplyName);
 	    _electron.ipcRenderer.on(eventReplyName, _response);
 	  });
 	}
@@ -21907,13 +21910,17 @@
 	
 	var ipc = _interopRequireWildcard(_ipc);
 	
-	var _reducers = __webpack_require__(390);
+	var _reducers = __webpack_require__(392);
 	
 	var _reducers2 = _interopRequireDefault(_reducers);
 	
-	var _file = __webpack_require__(423);
+	var _file = __webpack_require__(426);
 	
-	var _application = __webpack_require__(424);
+	var _application = __webpack_require__(427);
+	
+	var _iopub = __webpack_require__(428);
+	
+	var iopubActions = _interopRequireWildcard(_iopub);
 	
 	function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
 	
@@ -21941,6 +21948,56 @@
 	      return dispatch(_file.showOpenFileDialog);
 	    default:
 	      return dispatch(action);
+	  }
+	});
+	
+	ipc.on('shell', function (event, data) {
+	  var result = data.result;
+	
+	  if (result) {
+	    switch (result.msg_type) {
+	      case 'execute_reply':
+	        return console.log('shell', result.msg_type, result.content.status);
+	      default:
+	        return console.log('shell', result, { event: event, data: data });
+	    }
+	  } else {
+	    console.log('shell', { event: event, data: data });
+	  }
+	});
+	
+	ipc.on('iopub', function (event, data) {
+	  var result = data.result,
+	      dispatch = store.dispatch;
+	
+	  if (result) {
+	    switch (result.msg_type) {
+	      case 'status':
+	        return dispatch(iopubActions.setTerminalState(result.content.execution_state));
+	      case 'execute_input':
+	        return dispatch(iopubActions.addTerminalExecutedInput(result.content.code));
+	      case 'stream':
+	        return dispatch(iopubActions.addTerminalText(result.content.name, result.content.text));
+	      case 'display_data':
+	        return dispatch(iopubActions.addDisplayData(result.content.data));
+	      default:
+	        return console.log('iopub', result, { event: event, data: data });
+	    }
+	  } else {
+	    console.log('iopub', { event: event, data: data });
+	  }
+	});
+	
+	ipc.on('stdin', function (event, data) {
+	  var result = data.result;
+	
+	  if (result) {
+	    switch (result.msg_type) {
+	      default:
+	        return console.log('stdin', result, { event: event, data: data });
+	    }
+	  } else {
+	    console.log('stdin', { event: event, data: data });
 	  }
 	});
 	
@@ -23604,29 +23661,25 @@
 	
 	var _plotViewer2 = _interopRequireDefault(_plotViewer);
 	
-	var _packageViewer = __webpack_require__(373);
+	var _packageViewer = __webpack_require__(377);
 	
 	var _packageViewer2 = _interopRequireDefault(_packageViewer);
 	
-	var _helpViewer = __webpack_require__(374);
+	var _helpViewer = __webpack_require__(378);
 	
 	var _helpViewer2 = _interopRequireDefault(_helpViewer);
 	
-	var _preferenceViewer = __webpack_require__(375);
+	var _preferenceViewer = __webpack_require__(379);
 	
 	var _preferenceViewer2 = _interopRequireDefault(_preferenceViewer);
 	
-	var _environmentViewer = __webpack_require__(376);
+	var _environmentViewer = __webpack_require__(380);
 	
 	var _environmentViewer2 = _interopRequireDefault(_environmentViewer);
 	
-	var _historyViewer = __webpack_require__(377);
+	var _historyViewer = __webpack_require__(381);
 	
 	var _historyViewer2 = _interopRequireDefault(_historyViewer);
-	
-	var _jupyterClientViewer = __webpack_require__(378);
-	
-	var _jupyterClientViewer2 = _interopRequireDefault(_jupyterClientViewer);
 	
 	var _tabbedPaneItem = __webpack_require__(363);
 	
@@ -23636,9 +23689,15 @@
 	
 	var _acePane2 = _interopRequireDefault(_acePane);
 	
-	__webpack_require__(388);
+	var _terminal = __webpack_require__(388);
+	
+	var _terminal2 = _interopRequireDefault(_terminal);
+	
+	__webpack_require__(389);
 	
 	var _dom = __webpack_require__(368);
+	
+	var _kernel = __webpack_require__(391);
 	
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 	
@@ -23654,7 +23713,7 @@
 	}
 	
 	function mapStateToProps(state) {
-	  return (0, _pick3.default)(state, ['acePanes', 'splitPanes']);
+	  return (0, _pick3.default)(state, ['acePanes', 'splitPanes', 'terminals']);
 	}
 	
 	function mapDispatchToProps(dispatch) {
@@ -23668,8 +23727,14 @@
 	    onRemoveAcePane: function onRemoveAcePane(id) {
 	      return dispatch({ type: 'CLOSE_FILE', id: id });
 	    },
+	    onRunActiveAcePane: function onRunActiveAcePane() {
+	      return dispatch(_kernel.executeActiveFileInActiveConsole);
+	    },
 	    onSplitPaneDrag: function onSplitPaneDrag() {
 	      return dispatch({ type: 'SPLIT_PANE_DRAG' });
+	    },
+	    onCommand: function onCommand(text, id) {
+	      return dispatch((0, _kernel.execute)(text, id));
 	    }
 	  };
 	}
@@ -23692,9 +23757,10 @@
 	  },
 	  handleEditorTabChanged: function handleEditorTabChanged(oldTabId, newTabId) {
 	    // find the active ace-pane, and focus on it
-	    var editorTabs = _reactDom2.default.findDOMNode(this.refs.editorTabs),
-	        oldPane = (0, _find3.default)(this.props.acePanes, { tabId: oldTabId }),
-	        newPane = (0, _find3.default)(this.props.acePanes, { tabId: newTabId });
+	    var props = this.props,
+	        editorTabs = _reactDom2.default.findDOMNode(this.refs.editorTabs),
+	        oldPane = (0, _find3.default)(props.acePanes, { tabId: oldTabId }),
+	        newPane = (0, _find3.default)(props.acePanes, { tabId: newTabId });
 	
 	    if (this.props.onFocusAcePane) {
 	      this.props.onFocusAcePane(newPane.id);
@@ -23746,11 +23812,23 @@
 	    event.dataTransfer.dropEffect = 'move';
 	  },
 	  render: function render() {
-	    var acePanes = this.props.acePanes.map(function (item) {
+	    var acePanes = void 0,
+	        terminals = void 0,
+	        props = this.props;
+	
+	    acePanes = this.props.acePanes.map(function (item) {
 	      return _react2.default.createElement(
 	        _tabbedPaneItem2.default,
 	        { icon: item.icon, id: item.tabId, isCloseable: true, key: item.id, label: item.label, selected: item.hasFocus },
 	        _react2.default.createElement(_acePane2.default, _extends({ key: item.id }, item))
+	      );
+	    });
+	
+	    terminals = this.props.terminals.map(function (item) {
+	      return _react2.default.createElement(
+	        _tabbedPaneItem2.default,
+	        { icon: 'terminal', id: item.tabId, key: item.id, label: 'Console' },
+	        _react2.default.createElement(_terminal2.default, _extends({ key: item.id, onCommand: props.onCommand }, item))
 	      );
 	    });
 	
@@ -23759,7 +23837,7 @@
 	      { direction: 'left-right', id: 'split-pane-center' },
 	      _react2.default.createElement(
 	        _splitPane2.default,
-	        { direction: 'top-bottom', id: 'split-pane-left', onDrag: this.props.onSplitPaneDrag },
+	        { direction: 'top-bottom', id: 'split-pane-left', onDrag: props.onSplitPaneDrag },
 	        _react2.default.createElement(
 	          _tabbedPane2.default,
 	          {
@@ -23774,18 +23852,19 @@
 	          acePanes,
 	          _react2.default.createElement(
 	            'a',
-	            { onClick: this.props.onAddAcePane },
+	            { onClick: props.onAddAcePane },
 	            _react2.default.createElement('span', { className: 'fa fa-plus-square-o' })
+	          ),
+	          _react2.default.createElement(
+	            'a',
+	            { onClick: props.onRunActiveAcePane, title: 'Run script' },
+	            _react2.default.createElement('span', { className: 'fa fa-play-circle' })
 	          )
 	        ),
 	        _react2.default.createElement(
 	          _tabbedPane2.default,
 	          null,
-	          _react2.default.createElement(
-	            _tabbedPaneItem2.default,
-	            { icon: 'terminal', label: 'Console' },
-	            _react2.default.createElement(_jupyterClientViewer2.default, null)
-	          )
+	          terminals
 	        )
 	      ),
 	      _react2.default.createElement(
@@ -30103,7 +30182,7 @@
 	
 	
 	// module
-	exports.push([module.id, ".tabbed-pane {\n  display: flex;\n  flex-direction: column;\n}\n.tabbed-pane .fa-before:before {\n  padding-right: 6px;\n}\n.tabbed-pane-tab {\n  white-space: nowrap;\n}\n.tabbed-pane-close {\n  margin-left: 6px;\n  cursor: pointer;\n  color: #cccccc;\n  font-weight: 400;\n  transition: all 0.4s;\n}\n.tabbed-pane-close:hover {\n  color: #cc4736;\n  font-weight: 700;\n}\n.tab-content {\n  flex: 1 1;\n  overflow-y: scroll;\n  position: relative;\n  height: 100%;\n}\n.tab-pane {\n  display: block;\n  top: 0;\n  bottom: 0;\n  left: 0;\n  right: 0;\n  position: absolute;\n}\n", ""]);
+	exports.push([module.id, ".tabbed-pane {\n  display: flex;\n  flex-direction: column;\n}\n.tabbed-pane .fa-before:before {\n  padding-right: 6px;\n}\n.tabbed-pane-tab {\n  white-space: nowrap;\n  text-overflow: ellipsis;\n  min-width: 50px;\n}\n.tabbed-pane-close {\n  margin-left: 6px;\n  cursor: pointer;\n  color: #cccccc;\n  font-weight: 400;\n  transition: all 0.4s;\n}\n.tabbed-pane-close:hover {\n  color: #cc4736;\n  font-weight: 700;\n}\n.tab-content {\n  flex: 1 1;\n  overflow-y: scroll;\n  position: relative;\n  height: 100%;\n}\n.tab-pane {\n  display: block;\n  top: 0;\n  bottom: 0;\n  left: 0;\n  right: 0;\n  position: absolute;\n}\n", ""]);
 	
 	// exports
 
@@ -30615,80 +30694,242 @@
 	  value: true
 	});
 	
+	var _find2 = __webpack_require__(309);
+	
+	var _find3 = _interopRequireDefault(_find2);
+	
+	var _noop2 = __webpack_require__(326);
+	
+	var _noop3 = _interopRequireDefault(_noop2);
+	
+	var _pick2 = __webpack_require__(316);
+	
+	var _pick3 = _interopRequireDefault(_pick2);
+	
 	var _react = __webpack_require__(21);
 	
 	var _react2 = _interopRequireDefault(_react);
 	
+	var _reactRedux = __webpack_require__(192);
+	
+	__webpack_require__(373);
+	
+	var _htmlFlat = __webpack_require__(375);
+	
+	var _htmlFlat2 = _interopRequireDefault(_htmlFlat);
+	
+	var _documentErrorFlat = __webpack_require__(376);
+	
+	var _documentErrorFlat2 = _interopRequireDefault(_documentErrorFlat);
+	
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 	
-	exports.default = _react2.default.createClass({
+	/**
+	 * We only need plots
+	 * @param {object} state
+	 * @returns {object}
+	 */
+	function mapStateToProps(state) {
+	  return (0, _pick3.default)(state, ['plots']);
+	}
+	
+	/**
+	 *
+	 * @param {function} dispatch
+	 * @returns {object}
+	 */
+	function mapDispatchToProps(dispatch) {
+	  return {
+	    onDelete: function onDelete() {
+	      return dispatch({ type: 'REMOVE_ACTIVE_PLOT' });
+	    },
+	    onNext: function onNext() {
+	      return dispatch({ type: 'FOCUS_NEXT_PLOT' });
+	    },
+	    onPrev: function onPrev() {
+	      return dispatch({ type: 'FOCUS_PREV_PLOT' });
+	    },
+	    onSave: function onSave() {
+	      return dispatch({ type: 'SAVE_ACTIVE_PLOT' });
+	    },
+	    onOpen: function onOpen() {
+	      return dispatch({ type: 'OPEN_ACTIVE_PLOT' });
+	    }
+	  };
+	}
+	
+	exports.default = (0, _reactRedux.connect)(mapStateToProps, mapDispatchToProps)(_react2.default.createClass({
 	  displayName: 'PlotViewer',
 	  propTypes: {
 	    onDelete: _react2.default.PropTypes.func,
 	    onNext: _react2.default.PropTypes.func,
 	    onPrev: _react2.default.PropTypes.func,
 	    onSave: _react2.default.PropTypes.func,
-	    onShow: _react2.default.PropTypes.func
+	    onZoomIn: _react2.default.PropTypes.func,
+	    plots: _react2.default.PropTypes.array
+	  },
+	  getDefaultProps: function getDefaultProps() {
+	    return {
+	      onDelete: _noop3.default,
+	      onNext: _noop3.default,
+	      onPrev: _noop3.default,
+	      onSave: _noop3.default,
+	      onShow: _noop3.default
+	    };
 	  },
 	  render: function render() {
+	    var props = this.props;
+	
+	    function getActivePlotComponent(plot) {
+	      var plotComponent = void 0,
+	          data = plot && plot.data;
+	
+	      if (data) {
+	        if (data['image/png']) {
+	          plotComponent = _react2.default.createElement('img', { src: data['image/png'] });
+	        } else if (data['image/svg']) {
+	          plotComponent = _react2.default.createElement('img', { src: data['image/svg'] });
+	        } else if (data['text/html']) {
+	          plotComponent = _react2.default.createElement('iframe', { docsrc: data['text/html'], sandbox: '' });
+	        } else {
+	          plotComponent = _react2.default.createElement(
+	            'div',
+	            { className: 'suggestion' },
+	            'Plot must be png, svg, html or javascript.'
+	          );
+	        }
+	      } else if (props.plots && props.plots.length > 0) {
+	        plotComponent = _react2.default.createElement(
+	          'div',
+	          { className: 'suggestion' },
+	          'Select a plot.'
+	        );
+	      } else {
+	        plotComponent = _react2.default.createElement(
+	          'div',
+	          { className: 'suggestion' },
+	          'Create a plot.'
+	        );
+	      }
+	
+	      return plotComponent;
+	    }
+	
+	    function getMinimapPlotComponent(plot) {
+	      var plotComponent = void 0,
+	          data = plot && plot.data;
+	
+	      if (data) {
+	        if (data['image/png']) {
+	          plotComponent = _react2.default.createElement('img', { src: data['image/png'] });
+	        } else if (data['image/svg']) {
+	          plotComponent = _react2.default.createElement('img', { src: data['image/svg'] });
+	        } else if (data) {
+	          plotComponent = _react2.default.createElement('img', { src: _htmlFlat2.default });
+	        } else {
+	          plotComponent = _react2.default.createElement('img', { src: _documentErrorFlat2.default });
+	        }
+	      }
+	
+	      return plotComponent;
+	    }
+	
 	    return _react2.default.createElement(
-	      'div',
-	      null,
+	      'section',
+	      { className: 'plot-viewer' },
 	      _react2.default.createElement(
-	        'a',
-	        { className: 'label label-primary',
-	          onClick: this.props.onPrev,
-	          title: 'Prevous Plot'
-	        },
-	        _react2.default.createElement('i', { className: 'fa fa-undo' })
+	        'header',
+	        null,
+	        _react2.default.createElement(
+	          'a',
+	          { className: 'label label-primary', onClick: props.onPrev, title: 'Previous Plot' },
+	          _react2.default.createElement('span', { className: 'fa fa-undo' })
+	        ),
+	        _react2.default.createElement(
+	          'a',
+	          { className: 'label label-primary', onClick: props.onNext, title: 'Next Plot' },
+	          _react2.default.createElement('span', { className: 'fa fa-repeat' })
+	        ),
+	        _react2.default.createElement(
+	          'a',
+	          { className: 'label label-primary', onClick: props.onOpen, title: 'Zoom In' },
+	          _react2.default.createElement('span', { className: 'fa fa-arrows-alt' })
+	        ),
+	        _react2.default.createElement(
+	          'a',
+	          { className: 'label label-primary', onClick: props.onSave, title: 'Export Plot' },
+	          _react2.default.createElement('span', { className: 'fa fa-floppy-o' })
+	        ),
+	        _react2.default.createElement(
+	          'a',
+	          { className: 'label label-primary', onClick: props.onDelete, title: 'Delete Plot' },
+	          _react2.default.createElement('span', { className: 'fa fa-trash-o' })
+	        )
 	      ),
+	      getActivePlotComponent((0, _find3.default)(props.plots, { hasFocus: true })),
 	      _react2.default.createElement(
-	        'a',
-	        { className: 'label label-primary',
-	          onClick: this.props.onNext,
-	          title: 'Next Plot'
-	        },
-	        _react2.default.createElement('i', { className: 'fa fa-repeat' })
-	      ),
-	      _react2.default.createElement(
-	        'a',
-	        { className: 'label label-primary',
-	          onClick: this.props.onShow,
-	          title: 'Zoom In'
-	        },
-	        _react2.default.createElement('i', { className: 'fa fa-arrows-alt' })
-	      ),
-	      _react2.default.createElement(
-	        'a',
-	        { className: 'label label-primary',
-	          onClick: this.props.onSave,
-	          title: 'Export Plot'
-	        },
-	        _react2.default.createElement('i', { className: 'fa fa-floppy-o' })
-	      ),
-	      _react2.default.createElement(
-	        'a',
-	        { className: 'label label-primary',
-	          onClick: this.props.onDelete,
-	          title: 'Delete Plot'
-	        },
-	        _react2.default.createElement('i', { className: 'fa fa-trash-o' })
-	      ),
-	      _react2.default.createElement(
-	        'div',
-	        { className: 'row' },
-	        _react2.default.createElement('div', { className: 'col-sm-10',
-	          id: 'plots'
-	        }),
-	        _react2.default.createElement('div', { className: 'col-sm-2 pull-right',
-	          id: 'plots-minimap' })
+	        'nav',
+	        { className: 'plot-viewer-minimap' },
+	        getMinimapPlotComponent(props.plots)
 	      )
 	    );
 	  }
-	});
+	}));
 
 /***/ },
 /* 373 */
+/***/ function(module, exports, __webpack_require__) {
+
+	// style-loader: Adds some css to the DOM by adding a <style> tag
+	
+	// load the styles
+	var content = __webpack_require__(374);
+	if(typeof content === 'string') content = [[module.id, content, '']];
+	// add the styles to the DOM
+	var update = __webpack_require__(367)(content, {});
+	if(content.locals) module.exports = content.locals;
+	// Hot Module Replacement
+	if(false) {
+		// When the styles change, update the <style> tags
+		if(!content.locals) {
+			module.hot.accept("!!./../../../../node_modules/css-loader/index.js!./../../../../node_modules/less-loader/index.js!./plot-viewer.less", function() {
+				var newContent = require("!!./../../../../node_modules/css-loader/index.js!./../../../../node_modules/less-loader/index.js!./plot-viewer.less");
+				if(typeof newContent === 'string') newContent = [[module.id, newContent, '']];
+				update(newContent);
+			});
+		}
+		// When the module is disposed, remove the <style> tags
+		module.hot.dispose(function() { update(); });
+	}
+
+/***/ },
+/* 374 */
+/***/ function(module, exports, __webpack_require__) {
+
+	exports = module.exports = __webpack_require__(366)();
+	// imports
+	
+	
+	// module
+	exports.push([module.id, ".plot-viewer {\n  position: relative;\n  display: flex;\n  flex-direction: row;\n  justify-content: space-between;\n  align-items: stretch;\n  align-content: stretch;\n  flex-wrap: nowrap;\n  width: 100%;\n  height: 100%;\n}\n.plot-viewer header {\n  position: absolute;\n  top: 0;\n  left: 0;\n}\n.plot-viewer > * {\n  flex: 4 1 200px;\n  vertical-align: middle;\n  text-align: center;\n  display: flex;\n  align-content: center;\n  align-items: center;\n  justify-content: center;\n}\n.plot-viewer nav {\n  display: flex;\n  background: #cbcbcb;\n  flex: 1 0 100px;\n  justify-content: space-between;\n  align-items: stretch;\n  align-content: stretch;\n}\n.plot-viewer nav > * {\n  flex: 1 0 100px;\n}\n.suggestion {\n  color: #cbcbcb;\n}\n", ""]);
+	
+	// exports
+
+
+/***/ },
+/* 375 */
+/***/ function(module, exports, __webpack_require__) {
+
+	module.exports = __webpack_require__.p + "0fd55f20df93a34d6638c154745c3c3f.svg";
+
+/***/ },
+/* 376 */
+/***/ function(module, exports, __webpack_require__) {
+
+	module.exports = __webpack_require__.p + "26662e27ff186d4aa1060f1ab61eba2d.svg";
+
+/***/ },
+/* 377 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -30780,7 +31021,7 @@
 	});
 
 /***/ },
-/* 374 */
+/* 378 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -30815,7 +31056,7 @@
 	});
 
 /***/ },
-/* 375 */
+/* 379 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -30838,7 +31079,7 @@
 	});
 
 /***/ },
-/* 376 */
+/* 380 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -30914,7 +31155,7 @@
 	});
 
 /***/ },
-/* 377 */
+/* 381 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -30963,256 +31204,6 @@
 	    );
 	  }
 	});
-
-/***/ },
-/* 378 */
-/***/ function(module, exports, __webpack_require__) {
-
-	'use strict';
-	
-	Object.defineProperty(exports, "__esModule", {
-	  value: true
-	});
-	
-	var _react = __webpack_require__(21);
-	
-	var _react2 = _interopRequireDefault(_react);
-	
-	var _terminal = __webpack_require__(379);
-	
-	var _terminal2 = _interopRequireDefault(_terminal);
-	
-	__webpack_require__(380);
-	
-	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-	
-	var msg = '\nIPython -- An enhanced Interactive Python.\n?         -> Introduction and overview of IPython\'s features.\n%quickref -> Quick reference.\nhelp      -> Python\'s own help system.\nobject?   -> Details about \'object\', use \'object??\' for extra details.\n';
-	
-	exports.default = _react2.default.createClass({
-	  displayName: 'JupyterClientViewer',
-	  //   componentDidMount: function () {
-	  //     const jqConsole = $(ReactDOM.findDOMNode(this)).jqconsole(msg, '>>> ');
-	  //
-	  //     // 4 spaces for python
-	  //     jqConsole.SetIndentWidth(4);
-	  //
-	  // // ctrl + l to clear
-	  //     jqConsole.RegisterShortcut('l', function () {
-	  //       jqConsole.Clear();
-	  //     });
-	  //
-	  // // ctrl + a to skip to beginning of line
-	  //     jqConsole.RegisterShortcut('a', function () {
-	  //       jqConsole.MoveToStart();
-	  //     });
-	  //
-	  // // ctrl + e to skip to end of line
-	  //     jqConsole.RegisterShortcut('e', function () {
-	  //       jqConsole.MoveToEnd();
-	  //     });
-	  //
-	  // // ctrl + c to cancel input
-	  //     jqConsole.RegisterShortcut('c', function () {
-	  //       const $interrupt = $('#btn-interrupt');
-	  //
-	  //       if (!$interrupt.hasClass('hide')) {
-	  //         $interrupt.click();
-	  //       } else {
-	  //         jqConsole.ClearPromptText();
-	  //       }
-	  //     });
-	  //
-	  // // ctrl + u to clear to beginning
-	  //     jqConsole.RegisterShortcut('u', function () {
-	  //       const text = jqConsole.GetPromptText().slice(jqConsole.GetColumn() - 4);
-	  //
-	  //       jqConsole.SetPromptText(text);
-	  //     });
-	  //
-	  // // ctrl + k to clear to end
-	  //     jqConsole.RegisterShortcut('k', function () {
-	  //       const text = jqConsole.GetPromptText().slice(0, jqConsole.GetColumn() - 4);
-	  //
-	  //       jqConsole.SetPromptText(text);
-	  //     });
-	  //
-	  // // ctrl + w to clear one word backwards
-	  //     jqConsole.RegisterShortcut('w', function () {
-	  //       const idx = jqConsole.GetColumn() - 4;
-	  //       let text = jqConsole.GetPromptText().trim(),
-	  //         lidx = text.slice(0, idx).lastIndexOf(' ');
-	  //
-	  //       if (lidx == -1) {
-	  //         lidx = 0;
-	  //       }
-	  //
-	  //       text = text.slice(0, lidx) + ' ' + text.slice(idx + 1);
-	  //       text = text.trim();
-	  //       jqConsole.SetPromptText(text);
-	  //     });
-	  //
-	  //     jqConsole.RegisterShortcut('1', function () {
-	  //       focusOnEditor();
-	  //     });
-	  //
-	  //     jqConsole.RegisterShortcut('3', function () {
-	  //       focusOnTopRight();
-	  //     });
-	  //
-	  //     jqConsole.RegisterShortcut('4', function () {
-	  //       focusOnBottomRight();
-	  //     });
-	  //
-	  //     // autocomplete
-	  //     jqConsole._IndentOld = jqConsole._Indent;
-	  //     jqConsole._Indent = function () {
-	  //       if (jqConsole.GetPromptText().trim() == '') {
-	  //         jqConsole._IndentOld();
-	  //       } else if (jqConsole.GetPromptText().slice(-1) == '\n') {
-	  //         jqConsole._IndentOld();
-	  //       } else {
-	  //         let originalPrompt = jqConsole.GetPromptText(),
-	  //           code = jqConsole.GetPromptText();
-	  //
-	  //         code = code.slice(0, jqConsole.GetColumn() - 4);
-	  //
-	  //         jqConsole.ClearPromptText(true);
-	  //
-	  //         executeCommand(code, true, handleExecuteCommand(originalPrompt, code));
-	  //       }
-	  //     };
-	  //
-	  //     this.jqConsole = jqConsole;
-	  //   },
-	  render: function render() {
-	    return _react2.default.createElement(_terminal2.default, { message: msg });
-	  }
-	});
-
-/***/ },
-/* 379 */
-/***/ function(module, exports, __webpack_require__) {
-
-	'use strict';
-	
-	Object.defineProperty(exports, "__esModule", {
-	  value: true
-	});
-	
-	var _react = __webpack_require__(21);
-	
-	var _react2 = _interopRequireDefault(_react);
-	
-	var _reactDom = __webpack_require__(177);
-	
-	var _reactDom2 = _interopRequireDefault(_reactDom);
-	
-	var _jquery = __webpack_require__(2);
-	
-	var _jquery2 = _interopRequireDefault(_jquery);
-	
-	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-	
-	exports.default = _react2.default.createClass({
-	  displayName: 'Terminal',
-	  propTypes: {
-	    indentWidth: _react2.default.PropTypes.number,
-	    message: _react2.default.PropTypes.string,
-	    onAutoComplete: _react2.default.PropTypes.func,
-	    onCommand: _react2.default.PropTypes.func
-	  },
-	  componentDidMount: function componentDidMount() {
-	    var jqConsole = (0, _jquery2.default)(_reactDom2.default.findDOMNode(this)).jqconsole(this.props.message, '>>> ');
-	
-	    // 4 spaces for python
-	    jqConsole.SetIndentWidth(this.props.indentWidth || 4);
-	
-	    // autocomplete
-	    jqConsole._IndentOld = jqConsole._Indent;
-	    jqConsole._Indent = function () {
-	      var onAutoComplete = this.props.onAutoComplete;
-	
-	      if (jqConsole.GetPromptText().trim() == '') {
-	        jqConsole._IndentOld();
-	      } else if (jqConsole.GetPromptText().slice(-1) == '\n') {
-	        jqConsole._IndentOld();
-	      } else {
-	        var originalPrompt = jqConsole.GetPromptText(),
-	            code = jqConsole.GetPromptText();
-	
-	        code = code.slice(0, jqConsole.GetColumn() - 4);
-	
-	        jqConsole.ClearPromptText(true);
-	
-	        // ???
-	        if (onAutoComplete) {
-	          onAutoComplete(code); // ???
-	        }
-	
-	        // executeCommand(code, true, handleExecuteCommand(originalPrompt, code));
-	      }
-	    }.bind(this);
-	
-	    this.jqConsole = jqConsole;
-	    this.startPrompt();
-	  },
-	  startPrompt: function startPrompt() {
-	    var jqConsole = this.jqConsole;
-	
-	    jqConsole.Prompt(true, function (input) {
-	      var onCommand = this.props.onCommand;
-	
-	      if (onCommand) {
-	        onCommand(input);
-	      }
-	
-	      setTimeout(this.startPrompt, 0);
-	    }.bind(this));
-	  },
-	  render: function render() {
-	    return _react2.default.createElement('div', null);
-	  }
-	});
-
-/***/ },
-/* 380 */
-/***/ function(module, exports, __webpack_require__) {
-
-	// style-loader: Adds some css to the DOM by adding a <style> tag
-	
-	// load the styles
-	var content = __webpack_require__(381);
-	if(typeof content === 'string') content = [[module.id, content, '']];
-	// add the styles to the DOM
-	var update = __webpack_require__(367)(content, {});
-	if(content.locals) module.exports = content.locals;
-	// Hot Module Replacement
-	if(false) {
-		// When the styles change, update the <style> tags
-		if(!content.locals) {
-			module.hot.accept("!!./../../../node_modules/css-loader/index.js!./../../../node_modules/less-loader/index.js!./jupyter-client-viewer.less", function() {
-				var newContent = require("!!./../../../node_modules/css-loader/index.js!./../../../node_modules/less-loader/index.js!./jupyter-client-viewer.less");
-				if(typeof newContent === 'string') newContent = [[module.id, newContent, '']];
-				update(newContent);
-			});
-		}
-		// When the module is disposed, remove the <style> tags
-		module.hot.dispose(function() { update(); });
-	}
-
-/***/ },
-/* 381 */
-/***/ function(module, exports, __webpack_require__) {
-
-	exports = module.exports = __webpack_require__(366)();
-	// imports
-	
-	
-	// module
-	exports.push([module.id, ".jupyter-client-viewer {\n  position: relative;\n}\n", ""]);
-	
-	// exports
-
 
 /***/ },
 /* 382 */
@@ -31463,10 +31454,111 @@
 /* 388 */
 /***/ function(module, exports, __webpack_require__) {
 
+	'use strict';
+	
+	Object.defineProperty(exports, "__esModule", {
+	  value: true
+	});
+	
+	var _noop2 = __webpack_require__(326);
+	
+	var _noop3 = _interopRequireDefault(_noop2);
+	
+	var _react = __webpack_require__(21);
+	
+	var _react2 = _interopRequireDefault(_react);
+	
+	var _reactDom = __webpack_require__(177);
+	
+	var _reactDom2 = _interopRequireDefault(_reactDom);
+	
+	var _jquery = __webpack_require__(2);
+	
+	var _jquery2 = _interopRequireDefault(_jquery);
+	
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+	
+	var message = '\nIPython -- An enhanced Interactive Python.\n?         -> Introduction and overview of IPython\'s features.\n%quickref -> Quick reference.\nhelp      -> Python\'s own help system.\nobject?   -> Details about \'object\', use \'object??\' for extra details.\n';
+	
+	exports.default = _react2.default.createClass({
+	  displayName: 'Terminal',
+	  propTypes: {
+	    id: _react2.default.PropTypes.string,
+	    indentWidth: _react2.default.PropTypes.number,
+	    message: _react2.default.PropTypes.string,
+	    onAutoComplete: _react2.default.PropTypes.func,
+	    onCommand: _react2.default.PropTypes.func
+	  },
+	  getDefaultProps: function getDefaultProps() {
+	    return {
+	      indentWidth: 4,
+	      message: message,
+	      onAutoComplete: _noop3.default,
+	      onCommand: _noop3.default
+	    };
+	  },
+	  componentDidMount: function componentDidMount() {
+	    var jqConsole = (0, _jquery2.default)(_reactDom2.default.findDOMNode(this)).jqconsole(this.props.message, '>>> ');
+	
+	    // 4 spaces for python
+	    jqConsole.SetIndentWidth(this.props.indentWidth);
+	
+	    // autocomplete
+	    jqConsole._IndentOld = jqConsole._Indent;
+	    jqConsole._Indent = function () {
+	      var onAutoComplete = this.props.onAutoComplete;
+	
+	      if (jqConsole.GetPromptText().trim() == '') {
+	        jqConsole._IndentOld();
+	      } else if (jqConsole.GetPromptText().slice(-1) == '\n') {
+	        jqConsole._IndentOld();
+	      } else {
+	        var code = jqConsole.GetPromptText();
+	
+	        code = code.slice(0, jqConsole.GetColumn() - 4);
+	
+	        jqConsole.ClearPromptText(true);
+	
+	        // ???
+	        if (onAutoComplete) {
+	          onAutoComplete(code); // ???
+	        }
+	
+	        // executeCommand(code, true, handleExecuteCommand(originalPrompt, code));
+	      }
+	    }.bind(this);
+	
+	    this.jqConsole = jqConsole;
+	    this.startPrompt();
+	  },
+	  startPrompt: function startPrompt() {
+	    console.log('startPrompt', this, arguments);
+	    var jqConsole = this.jqConsole,
+	        id = this.props.id;
+	
+	    jqConsole.Prompt(true, function (input) {
+	      var onCommand = this.props.onCommand;
+	
+	      if (onCommand) {
+	        onCommand(input, id);
+	      }
+	
+	      setTimeout(this.startPrompt, 0);
+	    }.bind(this));
+	  },
+	  render: function render() {
+	    return _react2.default.createElement('div', { className: 'terminal', id: this.props.id });
+	  }
+	});
+
+/***/ },
+/* 389 */
+/***/ function(module, exports, __webpack_require__) {
+
 	// style-loader: Adds some css to the DOM by adding a <style> tag
 	
 	// load the styles
-	var content = __webpack_require__(389);
+	var content = __webpack_require__(390);
 	if(typeof content === 'string') content = [[module.id, content, '']];
 	// add the styles to the DOM
 	var update = __webpack_require__(367)(content, {});
@@ -31486,7 +31578,7 @@
 	}
 
 /***/ },
-/* 389 */
+/* 390 */
 /***/ function(module, exports, __webpack_require__) {
 
 	exports = module.exports = __webpack_require__(366)();
@@ -31500,7 +31592,85 @@
 
 
 /***/ },
-/* 390 */
+/* 391 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+	
+	Object.defineProperty(exports, "__esModule", {
+	  value: true
+	});
+	
+	var _find2 = __webpack_require__(309);
+	
+	var _find3 = _interopRequireDefault(_find2);
+	
+	exports.interrupt = interrupt;
+	exports.isBusy = isBusy;
+	exports.isIdle = isIdle;
+	exports.executeActiveFileInActiveConsole = executeActiveFileInActiveConsole;
+	exports.execute = execute;
+	
+	var _ipc = __webpack_require__(7);
+	
+	var _ace = __webpack_require__(11);
+	
+	var _ace2 = _interopRequireDefault(_ace);
+	
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+	
+	function interrupt(dispatch) {
+	  dispatch({ type: 'INTERRUPTING_KERNEL' });
+	
+	  return (0, _ipc.send)('interrupt').then(function () {
+	    // maybe some visual artifact?
+	    dispatch({ type: 'INTERRUPTED_KERNEL' });
+	  }).catch(function (error) {
+	    console.error('errroror', error);
+	  });
+	}
+	
+	function isBusy() {
+	  return { type: 'KERNEL_IS_BUSY' };
+	}
+	
+	function isIdle() {
+	  return { type: 'KERNEL_IS_IDLE' };
+	}
+	
+	function executeActiveFileInActiveConsole(dispatch, getState) {
+	  var state = getState(),
+	      focusedAce = state && (0, _find3.default)(state.acePanes, { hasFocus: true }),
+	      el = focusedAce && document.querySelector('#' + focusedAce.id),
+	      aceInstance = el && _ace2.default.edit(el),
+	      filename = focusedAce.filename,
+	      focusedTerminal = state && (0, _find3.default)(state.terminals, { hasFocus: true }),
+	      id = focusedTerminal.id,
+	      content = aceInstance && aceInstance.getSession().getValue();
+	
+	  dispatch({ type: 'EXECUTING', filename: filename, id: id });
+	
+	  (0, _ipc.send)('execute', content).then(function () {
+	    dispatch({ type: 'EXECUTED', id: id });
+	  }).catch(function (error) {
+	    console.error('errroror', error);
+	  });
+	}
+	
+	function execute(text, id) {
+	  return function (dispatch) {
+	    dispatch({ type: 'EXECUTING', text: text, id: id });
+	
+	    (0, _ipc.send)('execute', text).then(function () {
+	      dispatch({ type: 'EXECUTED', text: text, id: id });
+	    }).catch(function (error) {
+	      console.error('errroror', error);
+	    });
+	  };
+	}
+
+/***/ },
+/* 392 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -31511,23 +31681,28 @@
 	
 	var _redux = __webpack_require__(179);
 	
-	var _acePane = __webpack_require__(391);
+	var _acePane = __webpack_require__(393);
 	
 	var _acePane2 = _interopRequireDefault(_acePane);
 	
-	var _splitPane = __webpack_require__(422);
+	var _splitPane = __webpack_require__(424);
 	
 	var _splitPane2 = _interopRequireDefault(_splitPane);
+	
+	var _terminal = __webpack_require__(425);
+	
+	var _terminal2 = _interopRequireDefault(_terminal);
 	
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 	
 	exports.default = (0, _redux.combineReducers)({
 	  acePanes: _acePane2.default,
-	  splitPanes: _splitPane2.default
+	  splitPanes: _splitPane2.default,
+	  terminals: _terminal2.default
 	});
 
 /***/ },
-/* 391 */
+/* 393 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -31536,7 +31711,7 @@
 	  value: true
 	});
 	
-	var _assign2 = __webpack_require__(392);
+	var _assign2 = __webpack_require__(394);
 	
 	var _assign3 = _interopRequireDefault(_assign2);
 	
@@ -31544,7 +31719,7 @@
 	
 	var _without3 = _interopRequireDefault(_without2);
 	
-	var _last2 = __webpack_require__(397);
+	var _last2 = __webpack_require__(399);
 	
 	var _last3 = _interopRequireDefault(_last2);
 	
@@ -31552,11 +31727,11 @@
 	
 	var _findIndex3 = _interopRequireDefault(_findIndex2);
 	
-	var _clone2 = __webpack_require__(398);
+	var _clone2 = __webpack_require__(400);
 	
 	var _clone3 = _interopRequireDefault(_clone2);
 	
-	var _throttle2 = __webpack_require__(420);
+	var _throttle2 = __webpack_require__(422);
 	
 	var _throttle3 = _interopRequireDefault(_throttle2);
 	
@@ -31726,12 +31901,12 @@
 	}
 
 /***/ },
-/* 392 */
+/* 394 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var assignValue = __webpack_require__(393),
-	    copyObject = __webpack_require__(394),
-	    createAssigner = __webpack_require__(395),
+	var assignValue = __webpack_require__(395),
+	    copyObject = __webpack_require__(396),
+	    createAssigner = __webpack_require__(397),
 	    isArrayLike = __webpack_require__(260),
 	    isPrototype = __webpack_require__(267),
 	    keys = __webpack_require__(254);
@@ -31795,7 +31970,7 @@
 
 
 /***/ },
-/* 393 */
+/* 395 */
 /***/ function(module, exports, __webpack_require__) {
 
 	var eq = __webpack_require__(214);
@@ -31828,10 +32003,10 @@
 
 
 /***/ },
-/* 394 */
+/* 396 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var assignValue = __webpack_require__(393);
+	var assignValue = __webpack_require__(395);
 	
 	/**
 	 * Copies properties of `source` to `object`.
@@ -31865,10 +32040,10 @@
 
 
 /***/ },
-/* 395 */
+/* 397 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var isIterateeCall = __webpack_require__(396),
+	var isIterateeCall = __webpack_require__(398),
 	    rest = __webpack_require__(305);
 	
 	/**
@@ -31908,7 +32083,7 @@
 
 
 /***/ },
-/* 396 */
+/* 398 */
 /***/ function(module, exports, __webpack_require__) {
 
 	var eq = __webpack_require__(214),
@@ -31944,7 +32119,7 @@
 
 
 /***/ },
-/* 397 */
+/* 399 */
 /***/ function(module, exports) {
 
 	/**
@@ -31970,10 +32145,10 @@
 
 
 /***/ },
-/* 398 */
+/* 400 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var baseClone = __webpack_require__(399);
+	var baseClone = __webpack_require__(401);
 	
 	/**
 	 * Creates a shallow clone of `value`.
@@ -32008,23 +32183,23 @@
 
 
 /***/ },
-/* 399 */
+/* 401 */
 /***/ function(module, exports, __webpack_require__) {
 
 	var Stack = __webpack_require__(209),
 	    arrayEach = __webpack_require__(385),
-	    assignValue = __webpack_require__(393),
-	    baseAssign = __webpack_require__(400),
-	    cloneBuffer = __webpack_require__(401),
+	    assignValue = __webpack_require__(395),
+	    baseAssign = __webpack_require__(402),
+	    cloneBuffer = __webpack_require__(403),
 	    copyArray = __webpack_require__(350),
-	    copySymbols = __webpack_require__(402),
-	    getAllKeys = __webpack_require__(404),
+	    copySymbols = __webpack_require__(404),
+	    getAllKeys = __webpack_require__(406),
 	    getTag = __webpack_require__(268),
-	    initCloneArray = __webpack_require__(406),
-	    initCloneByTag = __webpack_require__(407),
-	    initCloneObject = __webpack_require__(417),
+	    initCloneArray = __webpack_require__(408),
+	    initCloneByTag = __webpack_require__(409),
+	    initCloneObject = __webpack_require__(419),
 	    isArray = __webpack_require__(264),
-	    isBuffer = __webpack_require__(418),
+	    isBuffer = __webpack_require__(420),
 	    isHostObject = __webpack_require__(183),
 	    isObject = __webpack_require__(227),
 	    keys = __webpack_require__(254);
@@ -32153,10 +32328,10 @@
 
 
 /***/ },
-/* 400 */
+/* 402 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var copyObject = __webpack_require__(394),
+	var copyObject = __webpack_require__(396),
 	    keys = __webpack_require__(254);
 	
 	/**
@@ -32176,7 +32351,7 @@
 
 
 /***/ },
-/* 401 */
+/* 403 */
 /***/ function(module, exports) {
 
 	/**
@@ -32200,11 +32375,11 @@
 
 
 /***/ },
-/* 402 */
+/* 404 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var copyObject = __webpack_require__(394),
-	    getSymbols = __webpack_require__(403);
+	var copyObject = __webpack_require__(396),
+	    getSymbols = __webpack_require__(405);
 	
 	/**
 	 * Copies own symbol properties of `source` to `object`.
@@ -32222,7 +32397,7 @@
 
 
 /***/ },
-/* 403 */
+/* 405 */
 /***/ function(module, exports) {
 
 	/** Built-in value references. */
@@ -32252,11 +32427,11 @@
 
 
 /***/ },
-/* 404 */
+/* 406 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var baseGetAllKeys = __webpack_require__(405),
-	    getSymbols = __webpack_require__(403),
+	var baseGetAllKeys = __webpack_require__(407),
+	    getSymbols = __webpack_require__(405),
 	    keys = __webpack_require__(254);
 	
 	/**
@@ -32274,7 +32449,7 @@
 
 
 /***/ },
-/* 405 */
+/* 407 */
 /***/ function(module, exports, __webpack_require__) {
 
 	var arrayPush = __webpack_require__(318),
@@ -32302,7 +32477,7 @@
 
 
 /***/ },
-/* 406 */
+/* 408 */
 /***/ function(module, exports) {
 
 	/** Used for built-in method references. */
@@ -32334,16 +32509,16 @@
 
 
 /***/ },
-/* 407 */
+/* 409 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var cloneArrayBuffer = __webpack_require__(408),
-	    cloneDataView = __webpack_require__(409),
-	    cloneMap = __webpack_require__(410),
-	    cloneRegExp = __webpack_require__(412),
-	    cloneSet = __webpack_require__(413),
-	    cloneSymbol = __webpack_require__(415),
-	    cloneTypedArray = __webpack_require__(416);
+	var cloneArrayBuffer = __webpack_require__(410),
+	    cloneDataView = __webpack_require__(411),
+	    cloneMap = __webpack_require__(412),
+	    cloneRegExp = __webpack_require__(414),
+	    cloneSet = __webpack_require__(415),
+	    cloneSymbol = __webpack_require__(417),
+	    cloneTypedArray = __webpack_require__(418);
 	
 	/** `Object#toString` result references. */
 	var boolTag = '[object Boolean]',
@@ -32420,7 +32595,7 @@
 
 
 /***/ },
-/* 408 */
+/* 410 */
 /***/ function(module, exports, __webpack_require__) {
 
 	var Uint8Array = __webpack_require__(249);
@@ -32442,10 +32617,10 @@
 
 
 /***/ },
-/* 409 */
+/* 411 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var cloneArrayBuffer = __webpack_require__(408);
+	var cloneArrayBuffer = __webpack_require__(410);
 	
 	/**
 	 * Creates a clone of `dataView`.
@@ -32464,10 +32639,10 @@
 
 
 /***/ },
-/* 410 */
+/* 412 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var addMapEntry = __webpack_require__(411),
+	var addMapEntry = __webpack_require__(413),
 	    arrayReduce = __webpack_require__(321),
 	    mapToArray = __webpack_require__(250);
 	
@@ -32489,7 +32664,7 @@
 
 
 /***/ },
-/* 411 */
+/* 413 */
 /***/ function(module, exports) {
 
 	/**
@@ -32510,7 +32685,7 @@
 
 
 /***/ },
-/* 412 */
+/* 414 */
 /***/ function(module, exports) {
 
 	/** Used to match `RegExp` flags from their coerced string values. */
@@ -32533,10 +32708,10 @@
 
 
 /***/ },
-/* 413 */
+/* 415 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var addSetEntry = __webpack_require__(414),
+	var addSetEntry = __webpack_require__(416),
 	    arrayReduce = __webpack_require__(321),
 	    setToArray = __webpack_require__(251);
 	
@@ -32558,7 +32733,7 @@
 
 
 /***/ },
-/* 414 */
+/* 416 */
 /***/ function(module, exports) {
 
 	/**
@@ -32578,7 +32753,7 @@
 
 
 /***/ },
-/* 415 */
+/* 417 */
 /***/ function(module, exports, __webpack_require__) {
 
 	var Symbol = __webpack_require__(248);
@@ -32602,10 +32777,10 @@
 
 
 /***/ },
-/* 416 */
+/* 418 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var cloneArrayBuffer = __webpack_require__(408);
+	var cloneArrayBuffer = __webpack_require__(410);
 	
 	/**
 	 * Creates a clone of `typedArray`.
@@ -32624,7 +32799,7 @@
 
 
 /***/ },
-/* 417 */
+/* 419 */
 /***/ function(module, exports, __webpack_require__) {
 
 	var baseCreate = __webpack_require__(334),
@@ -32648,10 +32823,10 @@
 
 
 /***/ },
-/* 418 */
+/* 420 */
 /***/ function(module, exports, __webpack_require__) {
 
-	/* WEBPACK VAR INJECTION */(function(module) {var constant = __webpack_require__(419),
+	/* WEBPACK VAR INJECTION */(function(module) {var constant = __webpack_require__(421),
 	    root = __webpack_require__(230);
 	
 	/** Used to determine if values are of the language type `Object`. */
@@ -32704,7 +32879,7 @@
 	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(231)(module)))
 
 /***/ },
-/* 419 */
+/* 421 */
 /***/ function(module, exports) {
 
 	/**
@@ -32734,10 +32909,10 @@
 
 
 /***/ },
-/* 420 */
+/* 422 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var debounce = __webpack_require__(421),
+	var debounce = __webpack_require__(423),
 	    isObject = __webpack_require__(227);
 	
 	/** Used as the `TypeError` message for "Functions" methods. */
@@ -32806,7 +32981,7 @@
 
 
 /***/ },
-/* 421 */
+/* 423 */
 /***/ function(module, exports, __webpack_require__) {
 
 	var isObject = __webpack_require__(227),
@@ -32998,7 +33173,7 @@
 
 
 /***/ },
-/* 422 */
+/* 424 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -33064,7 +33239,171 @@
 	}
 
 /***/ },
-/* 423 */
+/* 425 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+	
+	Object.defineProperty(exports, "__esModule", {
+	  value: true
+	});
+	
+	var _clone2 = __webpack_require__(400);
+	
+	var _clone3 = _interopRequireDefault(_clone2);
+	
+	var _find2 = __webpack_require__(309);
+	
+	var _find3 = _interopRequireDefault(_find2);
+	
+	exports.default = function () {
+	  var state = arguments.length <= 0 || arguments[0] === undefined ? initialState : arguments[0];
+	  var action = arguments[1];
+	
+	  switch (action.type) {
+	    case 'TERMINAL_STATE':
+	      return setTerminalState(state, action);
+	    case 'ADD_TERMINAL_EXECUTED_INPUT':
+	      return addTerminalExecutedInput(state, action);
+	    case 'ADD_TERMINAL_TEXT':
+	      return addTerminalText(state, action);
+	    case 'ADD_DISPLAY_DATA':
+	      return addTerminalDisplayData(state, action);
+	    default:
+	      return state;
+	  }
+	};
+	
+	var _jquery = __webpack_require__(2);
+	
+	var _jquery2 = _interopRequireDefault(_jquery);
+	
+	var _cid = __webpack_require__(202);
+	
+	var _cid2 = _interopRequireDefault(_cid);
+	
+	var _store = __webpack_require__(3);
+	
+	var store = _interopRequireWildcard(_store);
+	
+	function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
+	
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+	
+	/*
+	Available classes:
+	
+	 jqconsole: The main console container.
+	 jqconsole, jqconsole-blurred: The main console container, when not in focus.
+	 jqconsole-cursor: The cursor.
+	 jqconsole-header: The welcome message at the top of the console.
+	 jqconsole-input: The prompt area during input. May have multiple lines.
+	 jqconsole-old-input: Previously-entered inputs.
+	 jqconsole-prompt: The prompt area during prompting. May have multiple lines.
+	 jqconsole-old-prompt: Previously-entered prompts.
+	 jqconsole-composition: The div encapsulating the composition of multi-byte characters.
+	 jqconsole-prompt-text: the text entered in the current prompt
+	 */
+	
+	var initialState = [getDefault()];
+	
+	function getDefault() {
+	  return {
+	    label: 'Console',
+	    id: (0, _cid2.default)(),
+	    tabId: (0, _cid2.default)(),
+	    hasFocus: true,
+	    icon: 'terminal',
+	    fontSize: 12,
+	    status: 'idle'
+	  };
+	}
+	
+	function getTerminalConsole(action) {
+	  var el = document.querySelector('#' + action.id);
+	
+	  return el && (0, _jquery2.default)(el).data('jqconsole');
+	}
+	
+	function setTerminalState(state, action) {
+	  var instance = (0, _find3.default)(state, { id: action.id });
+	
+	  if (instance.status !== action.status) {
+	    state = (0, _clone3.default)(state);
+	    instance.status = action.status;
+	  }
+	
+	  return state;
+	}
+	
+	function addTerminalExecutedInput(state, action) {
+	  var jqconsole = getTerminalConsole(action);
+	
+	  jqconsole.Write(action.code + '\n');
+	
+	  return state;
+	}
+	
+	function addTerminalText(state, action) {
+	  var jqconsole = getTerminalConsole(action);
+	
+	  jqconsole.Write(action.text + '\n', 'jqconsole-output');
+	
+	  return state;
+	}
+	
+	/**
+	 * @param {object} jqconsole
+	 * @param {object} data
+	 */
+	function appendIFrame(jqconsole, data) {
+	  var iframeId = (0, _cid2.default)(),
+	      str = '<iframe style="resize: vertical; width: 100%" seamless id="' + iframeId + '" src="' + data['text/html'] + '" sandbox="allow-scripts"></iframe>';
+	
+	  jqconsole.Append(str);
+	  jqconsole.Write('\n');
+	}
+	
+	/**
+	 * @param {object} jqconsole
+	 * @param {object} data
+	 */
+	function appendPNG(jqconsole, data) {
+	  var src = data['image/png'];
+	
+	  jqconsole.Append('<img src="' + src + '">');
+	  jqconsole.Write('\n');
+	}
+	
+	/**
+	 * @param {object} jqconsole
+	 * @param {object} data
+	 */
+	function appendSVG(jqconsole, data) {
+	  var src = data['image/svg'];
+	
+	  jqconsole.Append('<img src="' + src + '">');
+	  jqconsole.Write('\n');
+	}
+	
+	function addTerminalDisplayData(state, action) {
+	  var jqconsole = getTerminalConsole(action),
+	      data = action.data;
+	
+	  if (data['text/html']) {
+	    appendIFrame(jqconsole, data);
+	  } else if (data['image/png']) {
+	    appendPNG(jqconsole, data);
+	    // do nothing at the moment
+	  } else if (data['image/svg']) {
+	      appendSVG(jqconsole, data);
+	    }
+	
+	  return state;
+	}
+
+/***/ },
+/* 426 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -33083,7 +33422,6 @@
 	
 	exports.addFile = addFile;
 	exports.fileIsSaved = fileIsSaved;
-	exports.setFileContent = setFileContent;
 	exports.saveActiveFileAs = saveActiveFileAs;
 	exports.saveActiveFile = saveActiveFile;
 	exports.showSaveFileDialog = showSaveFileDialog;
@@ -33115,25 +33453,6 @@
 	 */
 	function fileIsSaved(id, filename) {
 	  return { type: 'FILE_IS_SAVED', id: id, filename: filename };
-	}
-	
-	/**
-	 * This has to be a distinct action.
-	 * We should not hold the content in the application state.
-	 * @param {string} id
-	 * @param {string} content
-	 */
-	function setFileContent(id, content) {
-	  return function (dispatch, getState) {
-	    var state = getState(),
-	        targetedAce = state && (0, _find3.default)(state.acePanes, { id: id }),
-	        el = targetedAce && document.querySelector('#' + id),
-	        aceInstance = el && _ace2.default.edit(el);
-	
-	    aceInstance.getSession().setValue(content);
-	
-	    console.log('Setting content', { id: id, 'content.length': content.length });
-	  };
 	}
 	
 	function saveActiveFileAs(filename) {
@@ -33211,7 +33530,7 @@
 	}
 
 /***/ },
-/* 424 */
+/* 427 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -33263,6 +33582,67 @@
 	  }).catch(function (error) {
 	    console.error('errroror', error);
 	  });
+	}
+
+/***/ },
+/* 428 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+	
+	Object.defineProperty(exports, "__esModule", {
+	  value: true
+	});
+	
+	var _find2 = __webpack_require__(309);
+	
+	var _find3 = _interopRequireDefault(_find2);
+	
+	exports.setTerminalState = setTerminalState;
+	exports.addTerminalExecutedInput = addTerminalExecutedInput;
+	exports.addTerminalText = addTerminalText;
+	exports.addDisplayData = addDisplayData;
+	
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+	
+	function setTerminalState(status) {
+	  return function (dispatch, getState) {
+	    var state = getState(),
+	        terminal = (0, _find3.default)(state.terminals, { hasFocus: true }),
+	        id = terminal.id;
+	
+	    return dispatch({ type: 'TERMINAL_STATE', status: status, id: id });
+	  };
+	}
+	
+	function addTerminalExecutedInput(code) {
+	  return function (dispatch, getState) {
+	    var state = getState(),
+	        terminal = (0, _find3.default)(state.terminals, { hasFocus: true }),
+	        id = terminal.id;
+	
+	    return dispatch({ type: 'ADD_TERMINAL_EXECUTED_INPUT', code: code, id: id });
+	  };
+	}
+	
+	function addTerminalText(name, text) {
+	  return function (dispatch, getState) {
+	    var state = getState(),
+	        terminal = (0, _find3.default)(state.terminals, { hasFocus: true }),
+	        id = terminal.id;
+	
+	    return dispatch({ type: 'ADD_TERMINAL_TEXT', name: name, text: text, id: id });
+	  };
+	}
+	
+	function addDisplayData(data) {
+	  return function (dispatch, getState) {
+	    var state = getState(),
+	        terminal = (0, _find3.default)(state.terminals, { hasFocus: true }),
+	        id = terminal.id;
+	
+	    return dispatch({ type: 'ADD_DISPLAY_DATA', data: data, id: id });
+	  };
 	}
 
 /***/ }

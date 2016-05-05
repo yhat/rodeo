@@ -6,7 +6,6 @@ const _ = require('lodash'),
   electron = require('electron'),
   browserWindows = require('./services/browser-windows'),
   files = require('./services/files'),
-  fs = require('fs'),
   ipcPromises = require('./services/ipc-promises'),
   path = require('path'),
   md = require('./services/md'),
@@ -21,8 +20,7 @@ const _ = require('lodash'),
   log = require('./services/log').asInternal(__filename),
   staticFileDir = path.resolve('./static/'),
   allowedKernelLangauges = ['python'],
-  kernelClients = {},
-  USER_HOME = os.homedir();
+  kernelClients = {};
 
 electron.crashReporter.start({
   productName: 'Yhat Dev',
@@ -85,23 +83,80 @@ function onPDF() {
 }
 
 function onFileStats(filename) {
-  console.log('getting file stats', filename);
+  log('info', 'getting file stats', filename);
   return files.getStats(filename).tap(function (result) {
-    console.log('got file stats', result);
+    log('info', 'got file stats', result);
   });
 }
 
 function onGetFile(filename) {
-  console.log('getting file', filename);
+  log('info', 'getting file', filename);
   return files.readFile(filename).tap(function (result) {
-    console.log('got file', result);
+    log('info', 'got file', result);
   });
 }
 
 function onSaveFile(filename, contents) {
-  console.log('saving file', filename, contents);
+  log('info', 'saving file', filename, contents);
   return files.writeFile(filename, contents).tap(function (result) {
-    console.log('saved file', result);
+    log('info', 'saved file', result);
+  });
+}
+
+function replacePropertyWithTemporaryFile(extension, data, property) {
+  if (data[property]) {
+    return files.saveToTemporaryFile(extension, data[property]).then(function (filepath) {
+      let name = _.last(filepath.split('/')),
+        route = require('./services/server').addTemporaryFileRoute(filepath, '/' + name);
+
+      log('info', 'new plot served from', route);
+
+      data[property] = route;
+    });
+  } else {
+    log('info', 'no', property, 'on data');
+  }
+}
+
+/**
+ * Transform display data events to refer to a temporary file instead of passing raw data
+ * @param {object} event
+ * @returns {Promise}
+ */
+function displayDataTransform(event) {
+  const type = _.get(event, 'result.msg_type'),
+    data = _.get(event, 'result.content.data');
+
+  if (type === 'display_data' && data) {
+    if (data['image/png']) {
+      data['image/png'] = new Buffer(data['image/png'], 'base64');
+    }
+
+    return bluebird.all([
+      replacePropertyWithTemporaryFile('.html', data, 'text/html'),
+      replacePropertyWithTemporaryFile('.png', data, 'image/png'),
+      replacePropertyWithTemporaryFile('.svg', data, 'image/svg')
+    ]).then(function () {
+      return event;
+    });
+  }
+
+  return bluebird.resolve(event);
+}
+
+/**
+ * Forward these events along to a BrowserWindow (but only if the window exists)
+ * @param {string} windowName
+ * @param {EventEmitter} emitter
+ * @param {string} eventName
+ */
+function subscribeBrowserWindowToEvent(windowName, emitter, eventName) {
+  emitter.on(eventName, function (event) {
+    displayDataTransform(event).then(function (normalizedEvent) {
+      browserWindows.send.apply(browserWindows, [windowName, eventName].concat([normalizedEvent]));
+    }).catch(function (error) {
+      log('error', error);
+    });
   });
 }
 
@@ -144,7 +199,7 @@ function startMainWindow() {
 }
 
 function startStartupWindow() {
-  return new bluebird(function (resolve, reject) {
+  return new bluebird(function (resolve) {
     const startupWindow = browserWindows.createStartupWindow('startupWindow', {
       url: 'file://' + path.join(staticFileDir, 'startup.html')
     });
@@ -178,10 +233,8 @@ function onReady() {
 
     designWindow.show();
   } else {
-    let mainWindow;
-
     // start loading main window in background
-    mainWindow = browserWindows.createMainWindow('mainWindow', {
+    browserWindows.createMainWindow('mainWindow', {
       url: 'file://' + path.join(staticFileDir, 'desktop-index.html')
     });
 
@@ -212,6 +265,7 @@ function getKernelClient(language) {
 
     return clientFactory.create().then(function (client) {
       subscribeWindowToKernelEvents('mainWindow', client);
+      return client;
     });
   });
 }
@@ -222,7 +276,7 @@ function getKernelClient(language) {
  * @param {string} [kernelOptions.language]
  * @returns {Promise}
  */
-function onExecuteWithKernel(text, kernelOptions) {
+function onExecute(text, kernelOptions) {
   kernelOptions = kernelOptions || {};
   let language = kernelOptions.language || 'python';
 
@@ -232,18 +286,6 @@ function onExecuteWithKernel(text, kernelOptions) {
 
   return getKernelClient(language).then(function (clientInstance) {
     return clientInstance.execute(text);
-  });
-}
-
-/**
- * Forward these events along to a BrowserWindow (but only if the window exists)
- * @param {string} windowName
- * @param {EventEmitter} emitter
- * @param {string} eventName
- */
-function subscribeBrowserWindowToEvent(windowName, emitter, eventName) {
-  emitter.on(eventName, function () {
-    browserWindows.send.apply(browserWindows, [windowName, eventName].concat(_.slice(arguments)));
   });
 }
 
@@ -368,7 +410,7 @@ function attachIpcMainEvents() {
   const ipcMain = electron.ipcMain;
 
   ipcPromises.exposeElectronIpcEvents(ipcMain, [
-    onExecuteWithKernel,
+    onExecute,
     onFiles,
     onGetSystemFacts,
     onKnitHTML,
@@ -397,6 +439,8 @@ function attachAppEvents() {
     app.on('open-file', openFile);
     app.on('window-all-closed', onWindowAllClosed);
     app.on('ready', onReady);
+
+    require('./services/server').start(3000);
   }
 }
 
@@ -411,12 +455,10 @@ function attachApplicationMenu(ipcEmitter) {
   return menuDefinitions.getByName('application').then(function (definition) {
     return menuDefinitions.toElectronMenuTemplate(ipcEmitter, definition);
   }).then(function (menuTemplate) {
-    console.log('menuTemplate', menuTemplate);
-
     const menu = Menu.buildFromTemplate(menuTemplate);
 
     Menu.setApplicationMenu(menu);
-  })
+  });
 }
 
 module.exports.onCloseWindow = onCloseWindow;

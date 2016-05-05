@@ -4,18 +4,20 @@ import {connect} from 'react-redux';
 import SplitPane from './split-pane/split-pane.jsx';
 import TabbedPane from './tabbed-pane/tabbed-pane.jsx';
 import FileViewer from './file-viewer.jsx';
-import PlotViewer from './plot-viewer.jsx';
+import PlotViewer from './plot-viewer/plot-viewer.jsx';
 import PackageViewer from './package-viewer.jsx';
 import HelpViewer from './help-viewer.jsx';
 import PreferenceViewer from './preference-viewer.jsx';
 import EnvironmentViewer from './environment-viewer.jsx';
 import HistoryViewer from './history-viewer.jsx';
-import JupyterClientViewer from './jupyter-client-viewer.jsx';
 import TabbedPaneItem from './tabbed-pane/tabbed-pane-item.jsx';
 import AcePane from './ace-pane/ace-pane.jsx';
+import Terminal from './terminal/terminal.jsx';
 import './studio-layout.less';
 import _ from 'lodash';
-import {getParentNodeOf} from '../services/dom';
+import { getParentNodeOf } from '../services/dom';
+import { executeActiveFileInActiveConsole } from '../actions/kernel';
+import { execute } from '../actions/kernel';
 
 /**
  * @param {Element} el
@@ -29,7 +31,7 @@ function focusAcePaneInActiveElement(el) {
 }
 
 function mapStateToProps(state) {
-  return _.pick(state, ['acePanes', 'splitPanes']);
+  return _.pick(state, ['acePanes', 'splitPanes', 'terminals']);
 }
 
 function mapDispatchToProps(dispatch) {
@@ -37,7 +39,9 @@ function mapDispatchToProps(dispatch) {
     onAddAcePane: () => dispatch({ type: 'ADD_FILE' }),
     onFocusAcePane: (id) => dispatch({ type: 'FOCUS_FILE', id: id }),
     onRemoveAcePane: (id) => dispatch({ type: 'CLOSE_FILE', id: id }),
-    onSplitPaneDrag: () => dispatch({ type: 'SPLIT_PANE_DRAG' })
+    onRunActiveAcePane: () => dispatch(executeActiveFileInActiveConsole),
+    onSplitPaneDrag: () => dispatch({ type: 'SPLIT_PANE_DRAG' }),
+    onCommand: (text, id) => dispatch(execute(text, id))
   };
 }
 
@@ -59,9 +63,10 @@ export default connect(mapStateToProps, mapDispatchToProps)(React.createClass({
   },
   handleEditorTabChanged: function (oldTabId, newTabId) {
     // find the active ace-pane, and focus on it
-    const editorTabs = ReactDOM.findDOMNode(this.refs.editorTabs),
-      oldPane = _.find(this.props.acePanes, {tabId: oldTabId}),
-      newPane = _.find(this.props.acePanes, {tabId: newTabId});
+    const props = this.props,
+      editorTabs = ReactDOM.findDOMNode(this.refs.editorTabs),
+      oldPane = _.find(props.acePanes, {tabId: oldTabId}),
+      newPane = _.find(props.acePanes, {tabId: newTabId});
 
     if (this.props.onFocusAcePane) {
       this.props.onFocusAcePane(newPane.id);
@@ -111,7 +116,10 @@ export default connect(mapStateToProps, mapDispatchToProps)(React.createClass({
     event.dataTransfer.dropEffect = 'move';
   },
   render: function () {
-    let acePanes = this.props.acePanes.map(function (item) {
+    let acePanes, terminals,
+      props = this.props;
+
+    acePanes = this.props.acePanes.map(function (item) {
       return (
         <TabbedPaneItem icon={item.icon} id={item.tabId} isCloseable key={item.id} label={item.label} selected={item.hasFocus}>
           <AcePane key={item.id} {...item}/>
@@ -119,9 +127,17 @@ export default connect(mapStateToProps, mapDispatchToProps)(React.createClass({
       );
     });
 
+    terminals = this.props.terminals.map(function (item) {
+      return (
+        <TabbedPaneItem icon="terminal" id={item.tabId} key={item.id} label="Console">
+          <Terminal key={item.id} onCommand={props.onCommand} {...item} />
+        </TabbedPaneItem>
+      );
+    });
+
     return (
       <SplitPane direction="left-right" id="split-pane-center">
-        <SplitPane direction="top-bottom" id="split-pane-left" onDrag={this.props.onSplitPaneDrag}>
+        <SplitPane direction="top-bottom" id="split-pane-left" onDrag={props.onSplitPaneDrag}>
           <TabbedPane
             onChanged={this.handleEditorTabChanged}
             onTabClose={this.handleEditorTabClose}
@@ -134,11 +150,12 @@ export default connect(mapStateToProps, mapDispatchToProps)(React.createClass({
 
             {acePanes}
 
-            <a onClick={this.props.onAddAcePane}><span className="fa fa-plus-square-o"/></a>
+            <a onClick={props.onAddAcePane}><span className="fa fa-plus-square-o"/></a>
+            <a onClick={props.onRunActiveAcePane} title="Run script"><span className="fa fa-play-circle" /></a>
           </TabbedPane>
           <TabbedPane>
 
-            <TabbedPaneItem icon="terminal" label="Console"><JupyterClientViewer /></TabbedPaneItem>
+            {terminals}
 
           </TabbedPane>
         </SplitPane>

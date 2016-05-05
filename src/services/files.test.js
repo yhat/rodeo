@@ -113,4 +113,17 @@ describe(dirname + '/' + filename, function () {
       });
     });
   });
+
+  describe('saveToTemporaryFile', function () {
+    const fn = lib[this.title];
+
+    it('saves with extension', function () {
+      const extension = '.html',
+        data = 'abc';
+
+      return fn(extension, data).then(function (filePath) {
+        expect(filePath).to.match(/\.html$/);
+      });
+    });
+  });
 });

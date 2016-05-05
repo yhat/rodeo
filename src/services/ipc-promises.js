@@ -4,24 +4,24 @@ const _ = require('lodash'),
 
 /**
  * @param {string} name
- * @param {string} requestId
+ * @param {string} id
  * @param {Event} event
  * @returns {function}
  */
-function replyToEvent(name, requestId, event) {
+function replyToEvent(name, id, event) {
   const replyName = name + '_reply';
 
   return function (data) {
     try {
       if (_.isError(data)) {
-        log('error', 'event failed', name, data);
-        event.sender.send(replyName, requestId, {name: data.name, message: data.message});
+        log('error', 'event failed', id, name, data);
+        event.sender.send(replyName, id, {name: data.name, message: data.message});
       } else {
-        log('info', 'event succeeded', name, data);
-        event.sender.send(replyName, requestId, null, data);
+        log('info', 'event succeeded', id, name, data);
+        event.sender.send(replyName, id, null, data);
       }
     } catch (ex) {
-      log('error', 'failed to reply to event', name, data, ex);
+      log('error', 'failed to reply to event', id, name, data, ex);
     }
   };
 }
@@ -50,12 +50,12 @@ function exposeElectronIpcEvents(ipcEmitter, list) {
       try {
         const args = _.slice(arguments, 2);
 
-        log('info', 'responding to ipc event', name, args);
+        log('info', 'responding to ipc event', id, name, args);
         bluebird.method(fn.bind(event.sender)).apply(null, args)
           .then(replyToEvent(name, id, event))
           .catch(replyToEvent(name, id, event));
       } catch (ex) {
-        log('error', 'failed to wait for reply to event', name, event, ex);
+        log('error', 'failed to wait for reply to event', id, name, event, ex);
       }
     });
   });

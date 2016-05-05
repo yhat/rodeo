@@ -8,6 +8,7 @@ import * as ipc from '../services/ipc';
 import rootReducer from '../reducers';
 import { showSaveFileDialog, showOpenFileDialog, saveActiveFile } from '../actions/file';
 import { quit, toggleDevTools, checkForUpdates } from '../actions/application';
+import * as iopubActions from '../actions/iopub';
 
 const createStoreWithMiddleware = applyMiddleware(thunk)(createStore),
   store = createStoreWithMiddleware(rootReducer);
@@ -27,8 +28,49 @@ ipc.on('dispatch', function (event, action) {
   }
 });
 
-store.subscribe(() => console.log('store', store.getState()) );
+ipc.on('shell', function (event, data) {
+  const result = data.result;
 
+  if (result) {
+    switch (result.msg_type) {
+      case 'execute_reply': return console.log('shell', result.msg_type, result.content.status);
+      default: return console.log('shell', result, {event, data});
+    }
+  } else {
+    console.log('shell', {event, data});
+  }
+});
+
+ipc.on('iopub', function (event, data) {
+  const result = data.result,
+    dispatch = store.dispatch;
+
+  if (result) {
+    switch (result.msg_type) {
+      case 'status': return dispatch(iopubActions.setTerminalState(result.content.execution_state));
+      case 'execute_input': return dispatch(iopubActions.addTerminalExecutedInput(result.content.code));
+      case 'stream': return dispatch(iopubActions.addTerminalText(result.content.name, result.content.text));
+      case 'display_data': return dispatch(iopubActions.addDisplayData(result.content.data));
+      default: return console.log('iopub', result, {event, data});
+    }
+  } else {
+    console.log('iopub', {event, data});
+  }
+});
+
+ipc.on('stdin', function (event, data) {
+  const result = data.result;
+
+  if (result) {
+    switch (result.msg_type) {
+      default: return console.log('stdin', result, {event, data});
+    }
+  } else {
+    console.log('stdin', {event, data});
+  }
+});
+
+store.subscribe(() => console.log('store', store.getState()) );
 
 export default React.createClass({
   displayName: 'Main',

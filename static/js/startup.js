@@ -54,7 +54,7 @@
 	
 	var _reactDom2 = _interopRequireDefault(_reactDom);
 	
-	var _startup = __webpack_require__(425);
+	var _startup = __webpack_require__(429);
 	
 	var _startup2 = _interopRequireDefault(_startup);
 	
@@ -120,9 +120,6 @@
 	
 	var _electron = __webpack_require__(8);
 	
-	var registeredActions = {}; /* eslint no-console: 0 */
-	
-	
 	var cid = function () {
 	  var i = 0;
 	
@@ -136,6 +133,7 @@
 	 * @param {number} [num=0]
 	 * @returns {Array}
 	 */
+	/* eslint no-console: 0 */
 	function toArgs(obj, num) {
 	  return Array.prototype.slice.call(obj, num || 0);
 	}
@@ -148,17 +146,15 @@
 	function on(eventName, eventFn) {
 	  try {
 	    _electron.ipcRenderer.on(eventName, function (event, result) {
-	      var eventResult = void 0;
+	      var eventResult = eventFn.call(null, event, result);
 	
-	      eventResult = eventFn.call(null, event, result);
-	
-	      console.log('ipc event trigger completed', eventName, eventResult);
+	      console.log('ipc: completed', eventName, eventResult);
 	      return eventResult;
 	    });
-	    console.log('ipc event registered', eventName, eventFn.name);
+	    console.log('ipc: registered', eventName, eventFn.name);
 	    return this;
 	  } catch (ex) {
-	    console.error('ipc event error', eventName, ex);
+	    console.error('ipc: error', eventName, ex);
 	  }
 	}
 	
@@ -173,26 +169,33 @@
 	  return new Promise(function (resolve, reject) {
 	    // noinspection JSDuplicatedDeclaration
 	    var _response = void 0,
-	        eventReplyName = eventName + '_reply';
+	        eventReplyName = eventName + '_reply',
+	        timer = setInterval(function () {
+	      console.warn('ipc ' + eventId + ': still waiting');
+	    }, 1000);
 	
-	    console.log('ipc sending', [eventName, eventId].concat(args.slice(1)));
+	    console.log('ipc ' + eventId + ': sending', [eventName, eventId].concat(args.slice(1)));
 	    _electron.ipcRenderer.send.apply(_electron.ipcRenderer, [eventName, eventId].concat(args.slice(1)));
 	    _response = function response(event, id) {
 	      var result = void 0;
 	
 	      if (id === eventId) {
 	        _electron.ipcRenderer.removeListener(eventReplyName, _response);
+	        clearInterval(timer);
 	        result = toArgs(arguments).slice(2);
+	
 	        if (result[0]) {
+	          console.log('ipc ' + eventId + ': completed', result[0]);
 	          reject(new Error(result[0].message));
 	        } else {
+	          console.log('ipc ' + eventId + ': completed', result[1]);
 	          resolve(result[1]);
 	        }
 	      } else {
-	        console.log(eventName, eventId, 'passed on', arguments);
+	        console.log('ipc ' + eventId + ':', eventName, 'passed on', arguments);
 	      }
 	    };
-	    console.log('ipc waiting for ', eventName, eventId, 'on', eventReplyName);
+	    console.log('ipc ' + eventId + ': waiting for ', eventName, 'on', eventReplyName);
 	    _electron.ipcRenderer.on(eventReplyName, _response);
 	  });
 	}
@@ -20214,7 +20217,11 @@
 /* 422 */,
 /* 423 */,
 /* 424 */,
-/* 425 */
+/* 425 */,
+/* 426 */,
+/* 427 */,
+/* 428 */,
+/* 429 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -20227,23 +20234,23 @@
 	
 	var _react2 = _interopRequireDefault(_react);
 	
-	var _setupReady = __webpack_require__(426);
+	var _setupReady = __webpack_require__(430);
 	
 	var _setupReady2 = _interopRequireDefault(_setupReady);
 	
-	var _loadingWidget = __webpack_require__(427);
+	var _loadingWidget = __webpack_require__(431);
 	
 	var _loadingWidget2 = _interopRequireDefault(_loadingWidget);
 	
-	var _setupPython = __webpack_require__(428);
+	var _setupPython = __webpack_require__(432);
 	
 	var _setupPython2 = _interopRequireDefault(_setupPython);
 	
-	var _tour = __webpack_require__(429);
+	var _tour = __webpack_require__(433);
 	
 	var _tour2 = _interopRequireDefault(_tour);
 	
-	var _tourData = __webpack_require__(431);
+	var _tourData = __webpack_require__(435);
 	
 	var _tourData2 = _interopRequireDefault(_tourData);
 	
@@ -20253,7 +20260,7 @@
 	
 	var _ipc = __webpack_require__(7);
 	
-	__webpack_require__(432);
+	__webpack_require__(436);
 	
 	function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
 	
@@ -20392,7 +20399,7 @@
 	});
 
 /***/ },
-/* 426 */
+/* 430 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -20439,7 +20446,7 @@
 	});
 
 /***/ },
-/* 427 */
+/* 431 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -20484,7 +20491,7 @@
 	});
 
 /***/ },
-/* 428 */
+/* 432 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -20624,7 +20631,7 @@
 	});
 
 /***/ },
-/* 429 */
+/* 433 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -20643,7 +20650,7 @@
 	
 	var _reactDom2 = _interopRequireDefault(_reactDom);
 	
-	var _tourItem = __webpack_require__(430);
+	var _tourItem = __webpack_require__(434);
 	
 	var _tourItem2 = _interopRequireDefault(_tourItem);
 	
@@ -20692,7 +20699,7 @@
 	});
 
 /***/ },
-/* 430 */
+/* 434 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -20771,7 +20778,7 @@
 	});
 
 /***/ },
-/* 431 */
+/* 435 */
 /***/ function(module, exports) {
 
 	'use strict';
@@ -20837,13 +20844,13 @@
 	}];
 
 /***/ },
-/* 432 */
+/* 436 */
 /***/ function(module, exports, __webpack_require__) {
 
 	// style-loader: Adds some css to the DOM by adding a <style> tag
 	
 	// load the styles
-	var content = __webpack_require__(433);
+	var content = __webpack_require__(437);
 	if(typeof content === 'string') content = [[module.id, content, '']];
 	// add the styles to the DOM
 	var update = __webpack_require__(367)(content, {});
@@ -20863,7 +20870,7 @@
 	}
 
 /***/ },
-/* 433 */
+/* 437 */
 /***/ function(module, exports, __webpack_require__) {
 
 	exports = module.exports = __webpack_require__(366)();
