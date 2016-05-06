@@ -36,7 +36,12 @@ function add(state, action) {
   }
 
   // focus changed to new file
-  focusItem.hasFocus = false;
+
+  if (!focusItem.filename && focusIndex === 0 && state.length === 1) {
+    state = [];
+  } else {
+    focusItem.hasFocus = false;
+  }
 
   state.push(newItem);
 
@@ -92,7 +97,7 @@ function hasChanges(state, action) {
 
   targetItem.hasUnsavedChanges = true;
 
-  return statel
+  return state;
 }
 
 function save(state, action) {

@@ -54,7 +54,7 @@
 	
 	var _reactDom2 = _interopRequireDefault(_reactDom);
 	
-	var _startup = __webpack_require__(431);
+	var _startup = __webpack_require__(436);
 	
 	var _startup2 = _interopRequireDefault(_startup);
 	
@@ -20223,7 +20223,12 @@
 /* 428 */,
 /* 429 */,
 /* 430 */,
-/* 431 */
+/* 431 */,
+/* 432 */,
+/* 433 */,
+/* 434 */,
+/* 435 */,
+/* 436 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -20236,23 +20241,23 @@
 	
 	var _react2 = _interopRequireDefault(_react);
 	
-	var _setupReady = __webpack_require__(432);
+	var _setupReady = __webpack_require__(437);
 	
 	var _setupReady2 = _interopRequireDefault(_setupReady);
 	
-	var _loadingWidget = __webpack_require__(433);
+	var _loadingWidget = __webpack_require__(438);
 	
 	var _loadingWidget2 = _interopRequireDefault(_loadingWidget);
 	
-	var _setupPython = __webpack_require__(434);
+	var _setupPython = __webpack_require__(439);
 	
 	var _setupPython2 = _interopRequireDefault(_setupPython);
 	
-	var _tour = __webpack_require__(435);
+	var _tour = __webpack_require__(440);
 	
 	var _tour2 = _interopRequireDefault(_tour);
 	
-	var _tourData = __webpack_require__(437);
+	var _tourData = __webpack_require__(442);
 	
 	var _tourData2 = _interopRequireDefault(_tourData);
 	
@@ -20262,7 +20267,7 @@
 	
 	var _ipc = __webpack_require__(7);
 	
-	__webpack_require__(438);
+	__webpack_require__(443);
 	
 	function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
 	
@@ -20401,7 +20406,7 @@
 	});
 
 /***/ },
-/* 432 */
+/* 437 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -20448,7 +20453,7 @@
 	});
 
 /***/ },
-/* 433 */
+/* 438 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -20493,7 +20498,7 @@
 	});
 
 /***/ },
-/* 434 */
+/* 439 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -20633,7 +20638,7 @@
 	});
 
 /***/ },
-/* 435 */
+/* 440 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -20652,7 +20657,7 @@
 	
 	var _reactDom2 = _interopRequireDefault(_reactDom);
 	
-	var _tourItem = __webpack_require__(436);
+	var _tourItem = __webpack_require__(441);
 	
 	var _tourItem2 = _interopRequireDefault(_tourItem);
 	
@@ -20701,7 +20706,7 @@
 	});
 
 /***/ },
-/* 436 */
+/* 441 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -20780,7 +20785,7 @@
 	});
 
 /***/ },
-/* 437 */
+/* 442 */
 /***/ function(module, exports) {
 
 	'use strict';
@@ -20846,13 +20851,13 @@
 	}];
 
 /***/ },
-/* 438 */
+/* 443 */
 /***/ function(module, exports, __webpack_require__) {
 
 	// style-loader: Adds some css to the DOM by adding a <style> tag
 	
 	// load the styles
-	var content = __webpack_require__(439);
+	var content = __webpack_require__(444);
 	if(typeof content === 'string') content = [[module.id, content, '']];
 	// add the styles to the DOM
 	var update = __webpack_require__(367)(content, {"sourceMap":true});
@@ -20872,7 +20877,7 @@
 	}
 
 /***/ },
-/* 439 */
+/* 444 */
 /***/ function(module, exports, __webpack_require__) {
 
 	exports = module.exports = __webpack_require__(366)();

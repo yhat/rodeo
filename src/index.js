@@ -83,24 +83,15 @@ function onPDF() {
 }
 
 function onFileStats(filename) {
-  log('info', 'getting file stats', filename);
-  return files.getStats(filename).tap(function (result) {
-    log('info', 'got file stats', result);
-  });
+  return files.getStats(filename);
 }
 
 function onGetFile(filename) {
-  log('info', 'getting file', filename);
-  return files.readFile(filename).tap(function (result) {
-    log('info', 'got file', result);
-  });
+  return files.readFile(filename);
 }
 
 function onSaveFile(filename, contents) {
-  log('info', 'saving file', filename, contents);
-  return files.writeFile(filename, contents).tap(function (result) {
-    log('info', 'saved file', result);
-  });
+  return files.writeFile(filename, contents);
 }
 
 function replacePropertyWithTemporaryFile(extension, data, property) {
@@ -290,8 +281,6 @@ function onExecute(text, kernelOptions) {
 }
 
 function findPythons() {
-  log('info', 'findPythons', argv);
-
   if (argv.pythons === false) {
     return [];
   } else {
@@ -304,8 +293,6 @@ function findPythons() {
  * @returns {Promise<object>}
  */
 function onGetSystemFacts() {
-  log('info', 'getting system facts');
-
   return bluebird.props({
     availablePythonKernels: findPythons(),
     preferences: preferences.getPreferences(),

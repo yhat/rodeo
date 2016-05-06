@@ -21910,15 +21910,15 @@
 	
 	var ipc = _interopRequireWildcard(_ipc);
 	
-	var _reducers = __webpack_require__(393);
+	var _reducers = __webpack_require__(398);
 	
 	var _reducers2 = _interopRequireDefault(_reducers);
 	
-	var _file = __webpack_require__(428);
+	var _file = __webpack_require__(374);
 	
-	var _application = __webpack_require__(429);
+	var _application = __webpack_require__(434);
 	
-	var _iopub = __webpack_require__(430);
+	var _iopub = __webpack_require__(435);
 	
 	var iopubActions = _interopRequireWildcard(_iopub);
 	
@@ -23657,27 +23657,27 @@
 	
 	var _fileViewer2 = _interopRequireDefault(_fileViewer);
 	
-	var _plotViewer = __webpack_require__(372);
+	var _plotViewer = __webpack_require__(377);
 	
 	var _plotViewer2 = _interopRequireDefault(_plotViewer);
 	
-	var _packageViewer = __webpack_require__(378);
+	var _packageViewer = __webpack_require__(383);
 	
 	var _packageViewer2 = _interopRequireDefault(_packageViewer);
 	
-	var _helpViewer = __webpack_require__(379);
+	var _helpViewer = __webpack_require__(384);
 	
 	var _helpViewer2 = _interopRequireDefault(_helpViewer);
 	
-	var _preferenceViewer = __webpack_require__(380);
+	var _preferenceViewer = __webpack_require__(385);
 	
 	var _preferenceViewer2 = _interopRequireDefault(_preferenceViewer);
 	
-	var _environmentViewer = __webpack_require__(381);
+	var _environmentViewer = __webpack_require__(386);
 	
 	var _environmentViewer2 = _interopRequireDefault(_environmentViewer);
 	
-	var _historyViewer = __webpack_require__(382);
+	var _historyViewer = __webpack_require__(387);
 	
 	var _historyViewer2 = _interopRequireDefault(_historyViewer);
 	
@@ -23685,19 +23685,19 @@
 	
 	var _tabbedPaneItem2 = _interopRequireDefault(_tabbedPaneItem);
 	
-	var _acePane = __webpack_require__(383);
+	var _acePane = __webpack_require__(388);
 	
 	var _acePane2 = _interopRequireDefault(_acePane);
 	
-	var _terminal = __webpack_require__(389);
+	var _terminal = __webpack_require__(394);
 	
 	var _terminal2 = _interopRequireDefault(_terminal);
 	
-	__webpack_require__(390);
+	__webpack_require__(395);
 	
 	var _dom = __webpack_require__(368);
 	
-	var _kernel = __webpack_require__(392);
+	var _kernel = __webpack_require__(397);
 	
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 	
@@ -30533,72 +30533,101 @@
 	  value: true
 	});
 	
+	var _partial2 = __webpack_require__(328);
+	
+	var _partial3 = _interopRequireDefault(_partial2);
+	
+	var _noop2 = __webpack_require__(326);
+	
+	var _noop3 = _interopRequireDefault(_noop2);
+	
+	var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
+	
+	var _reactRedux = __webpack_require__(192);
+	
 	var _react = __webpack_require__(21);
 	
 	var _react2 = _interopRequireDefault(_react);
 	
-	var _fileList = __webpack_require__(370);
-	
-	var _fileList2 = _interopRequireDefault(_fileList);
-	
-	var _fileListItem = __webpack_require__(371);
+	var _fileListItem = __webpack_require__(370);
 	
 	var _fileListItem2 = _interopRequireDefault(_fileListItem);
 	
-	var _store = __webpack_require__(3);
+	var _fileViewer = __webpack_require__(371);
 	
-	var store = _interopRequireWildcard(_store);
-	
-	var _ipc = __webpack_require__(7);
-	
-	var ipc = _interopRequireWildcard(_ipc);
-	
-	function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
+	__webpack_require__(375);
 	
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 	
-	exports.default = _react2.default.createClass({
-	  displayName: 'FileViewer',
-	  getInitialState: function getInitialState() {
-	    var facts = store.get('systemFacts'),
-	        homedir = facts && facts.homedir;
+	function mapStateToProps(state) {
+	  return state.fileView;
+	}
 	
+	function mapDispatchToProps(dispatch) {
+	  return {
+	    onRefresh: function onRefresh(filePath) {
+	      return dispatch((0, _fileViewer.getViewedFiles)(filePath));
+	    },
+	    onClick: function onClick(file) {
+	      return dispatch((0, _fileViewer.selectViewedFile)(file));
+	    },
+	    onOpenFile: function onOpenFile(file) {
+	      return dispatch((0, _fileViewer.openViewedFile)(file));
+	    },
+	    onGoToParentDirectory: function onGoToParentDirectory(file) {
+	      return dispatch((0, _fileViewer.goToParentDirectory)(file));
+	    }
+	  };
+	}
+	
+	exports.default = (0, _reactRedux.connect)(mapStateToProps, mapDispatchToProps)(_react2.default.createClass({
+	  displayName: 'FileViewer',
+	  propTypes: {
+	    id: _react2.default.PropTypes.string,
+	    path: _react2.default.PropTypes.string,
+	    files: _react2.default.PropTypes.array,
+	    onRefresh: _react2.default.PropTypes.func,
+	    onSelect: _react2.default.PropTypes.func
+	  },
+	  getDefaultProps: function getDefaultProps() {
 	    return {
-	      currentDirectory: store.get('workingDirectory') || homedir
+	      onRefresh: _noop3.default,
+	      onSelect: _noop3.default
 	    };
 	  },
-	
 	  componentDidMount: function componentDidMount() {
-	    var currentDirectory = this.state.currentDirectory;
-	
-	    ipc.send('files', currentDirectory).then(function (files) {
-	      this.setState({ files: files });
-	    }.bind(this)).catch(function (error) {
-	      console.error(error);
-	    });
+	    this.props.onRefresh(this.props.path);
 	  },
 	  render: function render() {
-	    var fileItems = void 0;
+	    var props = this.props;
 	
-	    if (this.state.files) {
-	      fileItems = this.state.files.map(function (file, i) {
-	        return _react2.default.createElement(_fileListItem2.default, { filename: file.filename, isDirectory: file.isDirectory, key: i });
-	      });
-	    }
+	    console.log('hey', props);
 	
 	    return _react2.default.createElement(
 	      'div',
 	      null,
 	      _react2.default.createElement('div', { className: 'list-group', id: 'working-directory' }),
 	      _react2.default.createElement(
-	        _fileList2.default,
-	        { basePath: this.state.currentDirectory },
-	        _react2.default.createElement(_fileListItem2.default, { filename: '..' }),
-	        fileItems
+	        'div',
+	        { className: 'file-list' },
+	        _react2.default.createElement(_fileListItem2.default, {
+	          basePath: props.path,
+	          filename: '..',
+	          key: 0,
+	          onDoubleClick: props.onGoToParentDirectory
+	        }),
+	        props.files.map(function (file) {
+	          return _react2.default.createElement(_fileListItem2.default, _extends({
+	            basePath: props.path,
+	            key: file.id,
+	            onClick: (0, _partial3.default)(props.onClick, file),
+	            onDoubleClick: (0, _partial3.default)(props.onOpenFile, file)
+	          }, file));
+	        })
 	      )
 	    );
 	  }
-	});
+	}));
 
 /***/ },
 /* 370 */
@@ -30614,32 +30643,35 @@
 	
 	var _react2 = _interopRequireDefault(_react);
 	
-	var _fileListItem = __webpack_require__(371);
-	
-	var _fileListItem2 = _interopRequireDefault(_fileListItem);
-	
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 	
-	exports.default = _react2.default.createClass({
-	  displayName: 'FileList',
-	  propTypes: {
-	    basePath: _react2.default.PropTypes.string,
-	    onSelect: _react2.default.PropTypes.func
-	  },
+	var fileListItemClass = 'file-list-item',
+	    selectedClass = 'file-list-item-selected';
 	
+	exports.default = _react2.default.createClass({
+	  displayName: 'FileListItem',
+	  propTypes: {
+	    basePath: _react2.default.PropTypes.string.isRequired,
+	    filename: _react2.default.PropTypes.string.isRequired,
+	    isDirectory: _react2.default.PropTypes.bool,
+	    isSelected: _react2.default.PropTypes.bool,
+	    onClick: _react2.default.PropTypes.func,
+	    onDoubleClick: _react2.default.PropTypes.func,
+	    onContextMenu: _react2.default.PropTypes.func
+	  },
 	  render: function render() {
-	    var children = _react2.default.Children.map(this.props.children, function (child) {
-	      if (child && child.type === _fileListItem2.default) {
-	        return _react2.default.cloneElement(child, { basePath: this.props.basePath });
-	      } else {
-	        return child;
-	      }
-	    }.bind(this));
+	    var props = this.props,
+	        className = [fileListItemClass, props.isSelected ? selectedClass : ''].join(' '),
+	        nameClassName = ['fa', props.isDirectory ? 'fa-folder' : 'fa-file-o'].join(' ');
 	
 	    return _react2.default.createElement(
 	      'div',
-	      null,
-	      children
+	      { className: className, onClick: props.onClick, onDoubleClick: props.onDoubleClick, onContextMenu: props.onContextMenu },
+	      _react2.default.createElement(
+	        'span',
+	        { className: nameClassName },
+	        props.filename
+	      )
 	    );
 	  }
 	});
@@ -30654,38 +30686,316 @@
 	  value: true
 	});
 	
-	var _react = __webpack_require__(21);
+	var _dropRight2 = __webpack_require__(372);
 	
-	var _react2 = _interopRequireDefault(_react);
+	var _dropRight3 = _interopRequireDefault(_dropRight2);
+	
+	exports.openViewedFile = openViewedFile;
+	exports.selectViewedFile = selectViewedFile;
+	exports.getViewedFiles = getViewedFiles;
+	exports.goToParentDirectory = goToParentDirectory;
+	
+	var _ipc = __webpack_require__(7);
+	
+	var _file = __webpack_require__(374);
 	
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 	
-	exports.default = _react2.default.createClass({
-	  displayName: 'FileListItem',
-	  propTypes: {
-	    filename: _react2.default.PropTypes.string.isRequired,
-	    isDirectory: _react2.default.PropTypes.bool,
-	    onClick: _react2.default.PropTypes.func,
-	    onContextMenu: _react2.default.PropTypes.func
-	  },
-	  render: function render() {
-	    var isDirectory = !!this.props.isDirectory,
-	        className = ['fa', isDirectory ? 'fa-folder' : 'fa-file-o'].join(' ');
+	function openViewedFile(file) {
+	  return function (dispatch, getState) {
+	    var state = getState(),
+	        filename = state.fileView.path + '/' + file.filename;
 	
-	    return _react2.default.createElement(
-	      'div',
-	      { className: 'list-group-item', onClick: this.props.onClick, onContextMenu: this.props.onContextMenu },
-	      _react2.default.createElement(
-	        'span',
-	        { className: className },
-	        this.props.filename
-	      )
-	    );
-	  }
-	});
+	    console.log('openViewedFile', file, filename);
+	
+	    if (file.isDirectory) {
+	      return dispatch(getViewedFiles(filename));
+	    } else {
+	      return (0, _ipc.send)('file_stats', filename).then(function (stats) {
+	        return dispatch((0, _file.addFile)(filename, stats));
+	      });
+	    }
+	  };
+	}
+	
+	function selectViewedFile(file) {
+	  return { type: 'SELECT_VIEWED_FILE', file: file };
+	}
+	
+	function getViewedFiles(filePath) {
+	  return function (dispatch) {
+	    console.log('getViewedFiles', filePath);
+	
+	    return (0, _ipc.send)('files', filePath).then(function (files) {
+	      return dispatch({ type: 'LIST_VIEWED_FILES', path: filePath, files: files });
+	    }).catch(function (error) {
+	      return console.error(error);
+	    });
+	  };
+	}
+	
+	function goToParentDirectory() {
+	  return function (dispatch, getState) {
+	    var fileView = getState().fileView,
+	        newPath = (0, _dropRight3.default)(fileView.path.split('/'), 1).join('/');
+	
+	    console.log('goToParentDirectory');
+	
+	    dispatch(getViewedFiles(newPath));
+	  };
+	}
 
 /***/ },
 /* 372 */
+/***/ function(module, exports, __webpack_require__) {
+
+	var baseSlice = __webpack_require__(373),
+	    toInteger = __webpack_require__(307);
+	
+	/**
+	 * Creates a slice of `array` with `n` elements dropped from the end.
+	 *
+	 * @static
+	 * @memberOf _
+	 * @since 3.0.0
+	 * @category Array
+	 * @param {Array} array The array to query.
+	 * @param {number} [n=1] The number of elements to drop.
+	 * @param- {Object} [guard] Enables use as an iteratee for methods like `_.map`.
+	 * @returns {Array} Returns the slice of `array`.
+	 * @example
+	 *
+	 * _.dropRight([1, 2, 3]);
+	 * // => [1, 2]
+	 *
+	 * _.dropRight([1, 2, 3], 2);
+	 * // => [1]
+	 *
+	 * _.dropRight([1, 2, 3], 5);
+	 * // => []
+	 *
+	 * _.dropRight([1, 2, 3], 0);
+	 * // => [1, 2, 3]
+	 */
+	function dropRight(array, n, guard) {
+	  var length = array ? array.length : 0;
+	  if (!length) {
+	    return [];
+	  }
+	  n = (guard || n === undefined) ? 1 : toInteger(n);
+	  n = length - n;
+	  return baseSlice(array, 0, n < 0 ? 0 : n);
+	}
+	
+	module.exports = dropRight;
+
+
+/***/ },
+/* 373 */
+/***/ function(module, exports) {
+
+	/**
+	 * The base implementation of `_.slice` without an iteratee call guard.
+	 *
+	 * @private
+	 * @param {Array} array The array to slice.
+	 * @param {number} [start=0] The start position.
+	 * @param {number} [end=array.length] The end position.
+	 * @returns {Array} Returns the slice of `array`.
+	 */
+	function baseSlice(array, start, end) {
+	  var index = -1,
+	      length = array.length;
+	
+	  if (start < 0) {
+	    start = -start > length ? 0 : (length + start);
+	  }
+	  end = end > length ? length : end;
+	  if (end < 0) {
+	    end += length;
+	  }
+	  length = start > end ? 0 : ((end - start) >>> 0);
+	  start >>>= 0;
+	
+	  var result = Array(length);
+	  while (++index < length) {
+	    result[index] = array[index + start];
+	  }
+	  return result;
+	}
+	
+	module.exports = baseSlice;
+
+
+/***/ },
+/* 374 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+	
+	Object.defineProperty(exports, "__esModule", {
+	  value: true
+	});
+	
+	var _isArray2 = __webpack_require__(264);
+	
+	var _isArray3 = _interopRequireDefault(_isArray2);
+	
+	var _find2 = __webpack_require__(309);
+	
+	var _find3 = _interopRequireDefault(_find2);
+	
+	exports.addFile = addFile;
+	exports.fileIsSaved = fileIsSaved;
+	exports.saveActiveFileAs = saveActiveFileAs;
+	exports.saveActiveFile = saveActiveFile;
+	exports.showSaveFileDialog = showSaveFileDialog;
+	exports.showOpenFileDialog = showOpenFileDialog;
+	
+	var _ipc = __webpack_require__(7);
+	
+	var _store = __webpack_require__(3);
+	
+	var store = _interopRequireWildcard(_store);
+	
+	var _ace = __webpack_require__(11);
+	
+	var _ace2 = _interopRequireDefault(_ace);
+	
+	function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
+	
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+	
+	function addFile(filename, stats) {
+	  return { type: 'ADD_FILE', filename: filename, stats: stats };
+	}
+	
+	/**
+	 *
+	 * @param {string} id
+	 * @param {string} [filename]
+	 * @returns {{type: string, id: string, filename: string}}
+	 */
+	function fileIsSaved(id, filename) {
+	  return { type: 'FILE_IS_SAVED', id: id, filename: filename };
+	}
+	
+	function saveActiveFileAs(filename) {
+	  return function (dispatch, getState) {
+	    var state = getState(),
+	        focusedAce = state && (0, _find3.default)(state.acePanes, { hasFocus: true }),
+	        el = focusedAce && document.querySelector('#' + focusedAce.id),
+	        aceInstance = el && _ace2.default.edit(el),
+	        content = aceInstance && aceInstance.getSession().getValue();
+	
+	    console.log('Saving active file', { filename: filename, 'content.length': content.length });
+	
+	    return (0, _ipc.send)('save_file', filename, content).then(function () {
+	      dispatch(fileIsSaved(focusedAce.id, filename));
+	    }).catch(function (error) {
+	      console.error('errorrrr', error);
+	    });
+	  };
+	}
+	
+	function saveActiveFile(dispatch, getState) {
+	  var state = getState(),
+	      focusedAce = state && (0, _find3.default)(state.acePanes, { hasFocus: true }),
+	      el = focusedAce && document.querySelector('#' + focusedAce.id),
+	      aceInstance = el && _ace2.default.edit(el),
+	      filename = focusedAce.filename,
+	      content = aceInstance && aceInstance.getSession().getValue();
+	
+	  if (!filename) {
+	    return showSaveFileDialog(dispatch, getState);
+	  }
+	
+	  console.log('Saving active file', { filename: filename, 'content.length': content.length });
+	
+	  return (0, _ipc.send)('save_file', filename, content).then(function () {
+	    dispatch(fileIsSaved(focusedAce.id));
+	  }).catch(function (error) {
+	    console.error('errorrrr', error);
+	  });
+	}
+	
+	function showSaveFileDialog(dispatch, getState) {
+	  return (0, _ipc.send)('save_dialog', {
+	    title: 'Save File',
+	    defaultPath: store.get('workingDirectory')
+	  }).then(function (filename) {
+	    if ((0, _isArray3.default)(filename)) {
+	      filename = filename[0];
+	    }
+	
+	    return saveActiveFileAs(filename)(dispatch, getState);
+	  }).catch(function (error) {
+	    console.error('errorrrr', error);
+	  });
+	}
+	
+	function showOpenFileDialog(dispatch) {
+	  return (0, _ipc.send)('open_dialog', {
+	    title: 'Select a file to open',
+	    defaultPath: store.get('workingDirectory'),
+	    properties: ['openFile']
+	  }).then(function (filename) {
+	    console.log('received filename', filename);
+	
+	    if ((0, _isArray3.default)(filename)) {
+	      filename = filename[0];
+	    }
+	
+	    return (0, _ipc.send)('file_stats', filename).then(function (stats) {
+	      return dispatch(addFile(filename, stats));
+	    });
+	  }).catch(function (error) {
+	    console.error('errorrrr', error);
+	  });
+	}
+
+/***/ },
+/* 375 */
+/***/ function(module, exports, __webpack_require__) {
+
+	// style-loader: Adds some css to the DOM by adding a <style> tag
+	
+	// load the styles
+	var content = __webpack_require__(376);
+	if(typeof content === 'string') content = [[module.id, content, '']];
+	// add the styles to the DOM
+	var update = __webpack_require__(367)(content, {"sourceMap":true});
+	if(content.locals) module.exports = content.locals;
+	// Hot Module Replacement
+	if(false) {
+		// When the styles change, update the <style> tags
+		if(!content.locals) {
+			module.hot.accept("!!./../../../../node_modules/css-loader/index.js?sourceMap!./../../../../node_modules/less-loader/index.js?sourceMap!./file-viewer.less", function() {
+				var newContent = require("!!./../../../../node_modules/css-loader/index.js?sourceMap!./../../../../node_modules/less-loader/index.js?sourceMap!./file-viewer.less");
+				if(typeof newContent === 'string') newContent = [[module.id, newContent, '']];
+				update(newContent);
+			});
+		}
+		// When the module is disposed, remove the <style> tags
+		module.hot.dispose(function() { update(); });
+	}
+
+/***/ },
+/* 376 */
+/***/ function(module, exports, __webpack_require__) {
+
+	exports = module.exports = __webpack_require__(366)();
+	// imports
+	
+	
+	// module
+	exports.push([module.id, ".file-list {\n  position: relative;\n  overflow-x: scroll;\n  overflow-y: scroll;\n}\n.file-list-item {\n  padding: 2px 10px;\n  display: block;\n  cursor: pointer;\n}\n.file-list-item .fa-before:before {\n  padding-right: 6px;\n}\n.file-list-item:hover {\n  background-color: #dddddd;\n}\n.file-list-item.file-list-item-selected {\n  background-color: #95d7ff;\n}\n.file-list-item.selected:hover {\n  background-color: #b7e5ff;\n}\n", "", {"version":3,"sources":["/./jsx/components/file-viewer/file-viewer.less","/./jsx/components/file-viewer/file-viewer.less"],"names":[],"mappings":"AAAA;EACE,mBAAA;EACA,mBAAA;EACA,mBAAA;CCCD;ADED;EACE,kBAAA;EACA,eAAA;EACA,gBAAA;CCAD;ADGD;EACE,mBAAA;CCDD;ADID;EACE,0BAAA;CCFD;ADKD;EACE,0BAAA;CCHD;ADMD;EACE,0BAAA;CCJD","file":"file-viewer.less","sourcesContent":[".file-list {\n  position: relative;\n  overflow-x: scroll;\n  overflow-y: scroll;\n}\n\n.file-list-item {\n  padding: 2px 10px;\n  display: block;\n  cursor: pointer;\n}\n\n.file-list-item .fa-before:before {\n  padding-right: 6px;\n}\n\n.file-list-item:hover {\n  background-color: #dddddd;\n}\n\n.file-list-item.file-list-item-selected {\n  background-color: #95d7ff;\n}\n\n.file-list-item.selected:hover {\n  background-color: #b7e5ff;\n}",".file-list {\n  position: relative;\n  overflow-x: scroll;\n  overflow-y: scroll;\n}\n.file-list-item {\n  padding: 2px 10px;\n  display: block;\n  cursor: pointer;\n}\n.file-list-item .fa-before:before {\n  padding-right: 6px;\n}\n.file-list-item:hover {\n  background-color: #dddddd;\n}\n.file-list-item.file-list-item-selected {\n  background-color: #95d7ff;\n}\n.file-list-item.selected:hover {\n  background-color: #b7e5ff;\n}\n"],"sourceRoot":"webpack://"}]);
+	
+	// exports
+
+
+/***/ },
+/* 377 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -30716,17 +31026,17 @@
 	
 	var _reactRedux = __webpack_require__(192);
 	
-	var _unsafeHtml = __webpack_require__(373);
+	var _unsafeHtml = __webpack_require__(378);
 	
 	var _unsafeHtml2 = _interopRequireDefault(_unsafeHtml);
 	
-	__webpack_require__(374);
+	__webpack_require__(379);
 	
-	var _htmlFlat = __webpack_require__(376);
+	var _htmlFlat = __webpack_require__(381);
 	
 	var _htmlFlat2 = _interopRequireDefault(_htmlFlat);
 	
-	var _documentErrorFlat = __webpack_require__(377);
+	var _documentErrorFlat = __webpack_require__(382);
 	
 	var _documentErrorFlat2 = _interopRequireDefault(_documentErrorFlat);
 	
@@ -30906,7 +31216,7 @@
 	}));
 
 /***/ },
-/* 373 */
+/* 378 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -30947,13 +31257,13 @@
 	});
 
 /***/ },
-/* 374 */
+/* 379 */
 /***/ function(module, exports, __webpack_require__) {
 
 	// style-loader: Adds some css to the DOM by adding a <style> tag
 	
 	// load the styles
-	var content = __webpack_require__(375);
+	var content = __webpack_require__(380);
 	if(typeof content === 'string') content = [[module.id, content, '']];
 	// add the styles to the DOM
 	var update = __webpack_require__(367)(content, {"sourceMap":true});
@@ -30973,7 +31283,7 @@
 	}
 
 /***/ },
-/* 375 */
+/* 380 */
 /***/ function(module, exports, __webpack_require__) {
 
 	exports = module.exports = __webpack_require__(366)();
@@ -30987,19 +31297,19 @@
 
 
 /***/ },
-/* 376 */
+/* 381 */
 /***/ function(module, exports, __webpack_require__) {
 
 	module.exports = __webpack_require__.p + "html-flat.0fd55f20df93a34d6638c154745c3c3f.svg";
 
 /***/ },
-/* 377 */
+/* 382 */
 /***/ function(module, exports, __webpack_require__) {
 
 	module.exports = __webpack_require__.p + "document-error-flat.26662e27ff186d4aa1060f1ab61eba2d.svg";
 
 /***/ },
-/* 378 */
+/* 383 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -31091,7 +31401,7 @@
 	});
 
 /***/ },
-/* 379 */
+/* 384 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -31126,7 +31436,7 @@
 	});
 
 /***/ },
-/* 380 */
+/* 385 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -31149,7 +31459,7 @@
 	});
 
 /***/ },
-/* 381 */
+/* 386 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -31225,7 +31535,7 @@
 	});
 
 /***/ },
-/* 382 */
+/* 387 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -31276,7 +31586,7 @@
 	});
 
 /***/ },
-/* 383 */
+/* 388 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -31289,7 +31599,7 @@
 	
 	var _noop3 = _interopRequireDefault(_noop2);
 	
-	var _each2 = __webpack_require__(384);
+	var _each2 = __webpack_require__(389);
 	
 	var _each3 = _interopRequireDefault(_each2);
 	
@@ -31305,7 +31615,7 @@
 	
 	var _ace2 = _interopRequireDefault(_ace);
 	
-	__webpack_require__(387);
+	__webpack_require__(392);
 	
 	var _ipc = __webpack_require__(7);
 	
@@ -31399,17 +31709,17 @@
 	});
 
 /***/ },
-/* 384 */
+/* 389 */
 /***/ function(module, exports, __webpack_require__) {
 
-	module.exports = __webpack_require__(385);
+	module.exports = __webpack_require__(390);
 
 
 /***/ },
-/* 385 */
+/* 390 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var arrayEach = __webpack_require__(386),
+	var arrayEach = __webpack_require__(391),
 	    baseEach = __webpack_require__(310),
 	    baseIteratee = __webpack_require__(206),
 	    isArray = __webpack_require__(264);
@@ -31453,7 +31763,7 @@
 
 
 /***/ },
-/* 386 */
+/* 391 */
 /***/ function(module, exports) {
 
 	/**
@@ -31481,13 +31791,13 @@
 
 
 /***/ },
-/* 387 */
+/* 392 */
 /***/ function(module, exports, __webpack_require__) {
 
 	// style-loader: Adds some css to the DOM by adding a <style> tag
 	
 	// load the styles
-	var content = __webpack_require__(388);
+	var content = __webpack_require__(393);
 	if(typeof content === 'string') content = [[module.id, content, '']];
 	// add the styles to the DOM
 	var update = __webpack_require__(367)(content, {"sourceMap":true});
@@ -31507,7 +31817,7 @@
 	}
 
 /***/ },
-/* 388 */
+/* 393 */
 /***/ function(module, exports, __webpack_require__) {
 
 	exports = module.exports = __webpack_require__(366)();
@@ -31521,7 +31831,7 @@
 
 
 /***/ },
-/* 389 */
+/* 394 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -31622,13 +31932,13 @@
 	});
 
 /***/ },
-/* 390 */
+/* 395 */
 /***/ function(module, exports, __webpack_require__) {
 
 	// style-loader: Adds some css to the DOM by adding a <style> tag
 	
 	// load the styles
-	var content = __webpack_require__(391);
+	var content = __webpack_require__(396);
 	if(typeof content === 'string') content = [[module.id, content, '']];
 	// add the styles to the DOM
 	var update = __webpack_require__(367)(content, {"sourceMap":true});
@@ -31648,7 +31958,7 @@
 	}
 
 /***/ },
-/* 391 */
+/* 396 */
 /***/ function(module, exports, __webpack_require__) {
 
 	exports = module.exports = __webpack_require__(366)();
@@ -31662,7 +31972,7 @@
 
 
 /***/ },
-/* 392 */
+/* 397 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -31740,7 +32050,7 @@
 	}
 
 /***/ },
-/* 393 */
+/* 398 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -31751,21 +32061,25 @@
 	
 	var _redux = __webpack_require__(179);
 	
-	var _acePane = __webpack_require__(394);
+	var _acePane = __webpack_require__(399);
 	
 	var _acePane2 = _interopRequireDefault(_acePane);
 	
-	var _splitPane = __webpack_require__(425);
+	var _splitPane = __webpack_require__(430);
 	
 	var _splitPane2 = _interopRequireDefault(_splitPane);
 	
-	var _terminal = __webpack_require__(426);
+	var _terminal = __webpack_require__(431);
 	
 	var _terminal2 = _interopRequireDefault(_terminal);
 	
-	var _plotViewer = __webpack_require__(427);
+	var _plotViewer = __webpack_require__(432);
 	
 	var _plotViewer2 = _interopRequireDefault(_plotViewer);
+	
+	var _fileViewer = __webpack_require__(433);
+	
+	var _fileViewer2 = _interopRequireDefault(_fileViewer);
 	
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 	
@@ -31773,11 +32087,12 @@
 	  acePanes: _acePane2.default,
 	  splitPanes: _splitPane2.default,
 	  terminals: _terminal2.default,
-	  plots: _plotViewer2.default
+	  plots: _plotViewer2.default,
+	  fileView: _fileViewer2.default
 	});
 
 /***/ },
-/* 394 */
+/* 399 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -31786,7 +32101,7 @@
 	  value: true
 	});
 	
-	var _assign2 = __webpack_require__(395);
+	var _assign2 = __webpack_require__(400);
 	
 	var _assign3 = _interopRequireDefault(_assign2);
 	
@@ -31794,7 +32109,7 @@
 	
 	var _without3 = _interopRequireDefault(_without2);
 	
-	var _last2 = __webpack_require__(400);
+	var _last2 = __webpack_require__(405);
 	
 	var _last3 = _interopRequireDefault(_last2);
 	
@@ -31802,11 +32117,11 @@
 	
 	var _findIndex3 = _interopRequireDefault(_findIndex2);
 	
-	var _clone2 = __webpack_require__(401);
+	var _clone2 = __webpack_require__(406);
 	
 	var _clone3 = _interopRequireDefault(_clone2);
 	
-	var _throttle2 = __webpack_require__(423);
+	var _throttle2 = __webpack_require__(428);
 	
 	var _throttle3 = _interopRequireDefault(_throttle2);
 	
@@ -31838,7 +32153,7 @@
 	  }
 	};
 	
-	var _acePane = __webpack_require__(383);
+	var _acePane = __webpack_require__(388);
 	
 	var _acePane2 = _interopRequireDefault(_acePane);
 	
@@ -31884,7 +32199,12 @@
 	  }
 	
 	  // focus changed to new file
-	  focusItem.hasFocus = false;
+	
+	  if (!focusItem.filename && focusIndex === 0 && state.length === 1) {
+	    state = [];
+	  } else {
+	    focusItem.hasFocus = false;
+	  }
 	
 	  state.push(newItem);
 	
@@ -31940,7 +32260,7 @@
 	
 	  targetItem.hasUnsavedChanges = true;
 	
-	  return statel;
+	  return state;
 	}
 	
 	function save(state, action) {
@@ -31976,12 +32296,12 @@
 	}
 
 /***/ },
-/* 395 */
+/* 400 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var assignValue = __webpack_require__(396),
-	    copyObject = __webpack_require__(397),
-	    createAssigner = __webpack_require__(398),
+	var assignValue = __webpack_require__(401),
+	    copyObject = __webpack_require__(402),
+	    createAssigner = __webpack_require__(403),
 	    isArrayLike = __webpack_require__(260),
 	    isPrototype = __webpack_require__(267),
 	    keys = __webpack_require__(254);
@@ -32045,7 +32365,7 @@
 
 
 /***/ },
-/* 396 */
+/* 401 */
 /***/ function(module, exports, __webpack_require__) {
 
 	var eq = __webpack_require__(214);
@@ -32078,10 +32398,10 @@
 
 
 /***/ },
-/* 397 */
+/* 402 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var assignValue = __webpack_require__(396);
+	var assignValue = __webpack_require__(401);
 	
 	/**
 	 * Copies properties of `source` to `object`.
@@ -32115,10 +32435,10 @@
 
 
 /***/ },
-/* 398 */
+/* 403 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var isIterateeCall = __webpack_require__(399),
+	var isIterateeCall = __webpack_require__(404),
 	    rest = __webpack_require__(305);
 	
 	/**
@@ -32158,7 +32478,7 @@
 
 
 /***/ },
-/* 399 */
+/* 404 */
 /***/ function(module, exports, __webpack_require__) {
 
 	var eq = __webpack_require__(214),
@@ -32194,7 +32514,7 @@
 
 
 /***/ },
-/* 400 */
+/* 405 */
 /***/ function(module, exports) {
 
 	/**
@@ -32220,10 +32540,10 @@
 
 
 /***/ },
-/* 401 */
+/* 406 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var baseClone = __webpack_require__(402);
+	var baseClone = __webpack_require__(407);
 	
 	/**
 	 * Creates a shallow clone of `value`.
@@ -32258,23 +32578,23 @@
 
 
 /***/ },
-/* 402 */
+/* 407 */
 /***/ function(module, exports, __webpack_require__) {
 
 	var Stack = __webpack_require__(209),
-	    arrayEach = __webpack_require__(386),
-	    assignValue = __webpack_require__(396),
-	    baseAssign = __webpack_require__(403),
-	    cloneBuffer = __webpack_require__(404),
+	    arrayEach = __webpack_require__(391),
+	    assignValue = __webpack_require__(401),
+	    baseAssign = __webpack_require__(408),
+	    cloneBuffer = __webpack_require__(409),
 	    copyArray = __webpack_require__(350),
-	    copySymbols = __webpack_require__(405),
-	    getAllKeys = __webpack_require__(407),
+	    copySymbols = __webpack_require__(410),
+	    getAllKeys = __webpack_require__(412),
 	    getTag = __webpack_require__(268),
-	    initCloneArray = __webpack_require__(409),
-	    initCloneByTag = __webpack_require__(410),
-	    initCloneObject = __webpack_require__(420),
+	    initCloneArray = __webpack_require__(414),
+	    initCloneByTag = __webpack_require__(415),
+	    initCloneObject = __webpack_require__(425),
 	    isArray = __webpack_require__(264),
-	    isBuffer = __webpack_require__(421),
+	    isBuffer = __webpack_require__(426),
 	    isHostObject = __webpack_require__(183),
 	    isObject = __webpack_require__(227),
 	    keys = __webpack_require__(254);
@@ -32403,10 +32723,10 @@
 
 
 /***/ },
-/* 403 */
+/* 408 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var copyObject = __webpack_require__(397),
+	var copyObject = __webpack_require__(402),
 	    keys = __webpack_require__(254);
 	
 	/**
@@ -32426,7 +32746,7 @@
 
 
 /***/ },
-/* 404 */
+/* 409 */
 /***/ function(module, exports) {
 
 	/**
@@ -32450,11 +32770,11 @@
 
 
 /***/ },
-/* 405 */
+/* 410 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var copyObject = __webpack_require__(397),
-	    getSymbols = __webpack_require__(406);
+	var copyObject = __webpack_require__(402),
+	    getSymbols = __webpack_require__(411);
 	
 	/**
 	 * Copies own symbol properties of `source` to `object`.
@@ -32472,7 +32792,7 @@
 
 
 /***/ },
-/* 406 */
+/* 411 */
 /***/ function(module, exports) {
 
 	/** Built-in value references. */
@@ -32502,11 +32822,11 @@
 
 
 /***/ },
-/* 407 */
+/* 412 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var baseGetAllKeys = __webpack_require__(408),
-	    getSymbols = __webpack_require__(406),
+	var baseGetAllKeys = __webpack_require__(413),
+	    getSymbols = __webpack_require__(411),
 	    keys = __webpack_require__(254);
 	
 	/**
@@ -32524,7 +32844,7 @@
 
 
 /***/ },
-/* 408 */
+/* 413 */
 /***/ function(module, exports, __webpack_require__) {
 
 	var arrayPush = __webpack_require__(318),
@@ -32552,7 +32872,7 @@
 
 
 /***/ },
-/* 409 */
+/* 414 */
 /***/ function(module, exports) {
 
 	/** Used for built-in method references. */
@@ -32584,16 +32904,16 @@
 
 
 /***/ },
-/* 410 */
+/* 415 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var cloneArrayBuffer = __webpack_require__(411),
-	    cloneDataView = __webpack_require__(412),
-	    cloneMap = __webpack_require__(413),
-	    cloneRegExp = __webpack_require__(415),
-	    cloneSet = __webpack_require__(416),
-	    cloneSymbol = __webpack_require__(418),
-	    cloneTypedArray = __webpack_require__(419);
+	var cloneArrayBuffer = __webpack_require__(416),
+	    cloneDataView = __webpack_require__(417),
+	    cloneMap = __webpack_require__(418),
+	    cloneRegExp = __webpack_require__(420),
+	    cloneSet = __webpack_require__(421),
+	    cloneSymbol = __webpack_require__(423),
+	    cloneTypedArray = __webpack_require__(424);
 	
 	/** `Object#toString` result references. */
 	var boolTag = '[object Boolean]',
@@ -32670,7 +32990,7 @@
 
 
 /***/ },
-/* 411 */
+/* 416 */
 /***/ function(module, exports, __webpack_require__) {
 
 	var Uint8Array = __webpack_require__(249);
@@ -32692,10 +33012,10 @@
 
 
 /***/ },
-/* 412 */
+/* 417 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var cloneArrayBuffer = __webpack_require__(411);
+	var cloneArrayBuffer = __webpack_require__(416);
 	
 	/**
 	 * Creates a clone of `dataView`.
@@ -32714,10 +33034,10 @@
 
 
 /***/ },
-/* 413 */
+/* 418 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var addMapEntry = __webpack_require__(414),
+	var addMapEntry = __webpack_require__(419),
 	    arrayReduce = __webpack_require__(321),
 	    mapToArray = __webpack_require__(250);
 	
@@ -32739,7 +33059,7 @@
 
 
 /***/ },
-/* 414 */
+/* 419 */
 /***/ function(module, exports) {
 
 	/**
@@ -32760,7 +33080,7 @@
 
 
 /***/ },
-/* 415 */
+/* 420 */
 /***/ function(module, exports) {
 
 	/** Used to match `RegExp` flags from their coerced string values. */
@@ -32783,10 +33103,10 @@
 
 
 /***/ },
-/* 416 */
+/* 421 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var addSetEntry = __webpack_require__(417),
+	var addSetEntry = __webpack_require__(422),
 	    arrayReduce = __webpack_require__(321),
 	    setToArray = __webpack_require__(251);
 	
@@ -32808,7 +33128,7 @@
 
 
 /***/ },
-/* 417 */
+/* 422 */
 /***/ function(module, exports) {
 
 	/**
@@ -32828,7 +33148,7 @@
 
 
 /***/ },
-/* 418 */
+/* 423 */
 /***/ function(module, exports, __webpack_require__) {
 
 	var Symbol = __webpack_require__(248);
@@ -32852,10 +33172,10 @@
 
 
 /***/ },
-/* 419 */
+/* 424 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var cloneArrayBuffer = __webpack_require__(411);
+	var cloneArrayBuffer = __webpack_require__(416);
 	
 	/**
 	 * Creates a clone of `typedArray`.
@@ -32874,7 +33194,7 @@
 
 
 /***/ },
-/* 420 */
+/* 425 */
 /***/ function(module, exports, __webpack_require__) {
 
 	var baseCreate = __webpack_require__(334),
@@ -32898,10 +33218,10 @@
 
 
 /***/ },
-/* 421 */
+/* 426 */
 /***/ function(module, exports, __webpack_require__) {
 
-	/* WEBPACK VAR INJECTION */(function(module) {var constant = __webpack_require__(422),
+	/* WEBPACK VAR INJECTION */(function(module) {var constant = __webpack_require__(427),
 	    root = __webpack_require__(230);
 	
 	/** Used to determine if values are of the language type `Object`. */
@@ -32954,7 +33274,7 @@
 	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(231)(module)))
 
 /***/ },
-/* 422 */
+/* 427 */
 /***/ function(module, exports) {
 
 	/**
@@ -32984,10 +33304,10 @@
 
 
 /***/ },
-/* 423 */
+/* 428 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var debounce = __webpack_require__(424),
+	var debounce = __webpack_require__(429),
 	    isObject = __webpack_require__(227);
 	
 	/** Used as the `TypeError` message for "Functions" methods. */
@@ -33056,7 +33376,7 @@
 
 
 /***/ },
-/* 424 */
+/* 429 */
 /***/ function(module, exports, __webpack_require__) {
 
 	var isObject = __webpack_require__(227),
@@ -33248,7 +33568,7 @@
 
 
 /***/ },
-/* 425 */
+/* 430 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -33314,7 +33634,7 @@
 	}
 
 /***/ },
-/* 426 */
+/* 431 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -33323,7 +33643,7 @@
 	  value: true
 	});
 	
-	var _clone2 = __webpack_require__(401);
+	var _clone2 = __webpack_require__(406);
 	
 	var _clone3 = _interopRequireDefault(_clone2);
 	
@@ -33480,7 +33800,7 @@
 	}
 
 /***/ },
-/* 427 */
+/* 432 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -33493,7 +33813,7 @@
 	
 	var _without3 = _interopRequireDefault(_without2);
 	
-	var _clone2 = __webpack_require__(401);
+	var _clone2 = __webpack_require__(406);
 	
 	var _clone3 = _interopRequireDefault(_clone2);
 	
@@ -33575,7 +33895,7 @@
 	}
 
 /***/ },
-/* 428 */
+/* 433 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -33584,125 +33904,81 @@
 	  value: true
 	});
 	
-	var _isArray2 = __webpack_require__(264);
+	var _map2 = __webpack_require__(358);
 	
-	var _isArray3 = _interopRequireDefault(_isArray2);
+	var _map3 = _interopRequireDefault(_map2);
 	
-	var _find2 = __webpack_require__(309);
+	var _clone2 = __webpack_require__(406);
 	
-	var _find3 = _interopRequireDefault(_find2);
+	var _clone3 = _interopRequireDefault(_clone2);
 	
-	exports.addFile = addFile;
-	exports.fileIsSaved = fileIsSaved;
-	exports.saveActiveFileAs = saveActiveFileAs;
-	exports.saveActiveFile = saveActiveFile;
-	exports.showSaveFileDialog = showSaveFileDialog;
-	exports.showOpenFileDialog = showOpenFileDialog;
+	exports.default = function () {
+	  var state = arguments.length <= 0 || arguments[0] === undefined ? initialState : arguments[0];
+	  var action = arguments[1];
 	
-	var _ipc = __webpack_require__(7);
+	  switch (action.type) {
+	    case 'LIST_VIEWED_FILES':
+	      return setFileList(state, action);
+	    case 'SELECT_VIEWED_FILE':
+	      return selectFile(state, action);
+	    default:
+	      return state;
+	  }
+	};
+	
+	var _cid = __webpack_require__(202);
+	
+	var _cid2 = _interopRequireDefault(_cid);
 	
 	var _store = __webpack_require__(3);
 	
 	var store = _interopRequireWildcard(_store);
 	
-	var _ace = __webpack_require__(11);
-	
-	var _ace2 = _interopRequireDefault(_ace);
-	
 	function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
 	
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 	
-	function addFile(filename, stats) {
-	  return { type: 'ADD_FILE', filename: filename, stats: stats };
-	}
+	var initialState = getDefault();
 	
-	/**
-	 *
-	 * @param {string} id
-	 * @param {string} [filename]
-	 * @returns {{type: string, id: string, filename: string}}
-	 */
-	function fileIsSaved(id, filename) {
-	  return { type: 'FILE_IS_SAVED', id: id, filename: filename };
-	}
+	function getDefault() {
+	  var facts = store.get('systemFacts'),
+	      homedir = facts && facts.homedir;
 	
-	function saveActiveFileAs(filename) {
-	  return function (dispatch, getState) {
-	    var state = getState(),
-	        focusedAce = state && (0, _find3.default)(state.acePanes, { hasFocus: true }),
-	        el = focusedAce && document.querySelector('#' + focusedAce.id),
-	        aceInstance = el && _ace2.default.edit(el),
-	        content = aceInstance && aceInstance.getSession().getValue();
-	
-	    console.log('Saving active file', { filename: filename, 'content.length': content.length });
-	
-	    return (0, _ipc.send)('save_file', filename, content).then(function () {
-	      dispatch(fileIsSaved(focusedAce.id, filename));
-	    }).catch(function (error) {
-	      console.error('errorrrr', error);
-	    });
+	  return {
+	    id: (0, _cid2.default)(),
+	    path: store.get('workingDirectory') || homedir,
+	    files: []
 	  };
 	}
 	
-	function saveActiveFile(dispatch, getState) {
-	  var state = getState(),
-	      focusedAce = state && (0, _find3.default)(state.acePanes, { hasFocus: true }),
-	      el = focusedAce && document.querySelector('#' + focusedAce.id),
-	      aceInstance = el && _ace2.default.edit(el),
-	      filename = focusedAce.filename,
-	      content = aceInstance && aceInstance.getSession().getValue();
+	function setFileList(state, action) {
+	  state = (0, _clone3.default)(state);
+	  state.files = action.files;
+	  state.path = action.path;
 	
-	  if (!filename) {
-	    return showSaveFileDialog(dispatch, getState);
+	  return state;
+	}
+	
+	function selectFile(state, action) {
+	  var target = action.file;
+	
+	  console.log('selectFile', target);
+	
+	  if (target && !target.isSelected) {
+	    state = (0, _clone3.default)(state);
+	    state.files = (0, _map3.default)(state.files, function (item) {
+	      item.isSelected = item.filename === target.filename;
+	      return item;
+	    });
+	
+	    console.log('state.files after', state.files);
 	  }
 	
-	  console.log('Saving active file', { filename: filename, 'content.length': content.length });
-	
-	  return (0, _ipc.send)('save_file', filename, content).then(function () {
-	    dispatch(fileIsSaved(focusedAce.id));
-	  }).catch(function (error) {
-	    console.error('errorrrr', error);
-	  });
-	}
-	
-	function showSaveFileDialog(dispatch, getState) {
-	  return (0, _ipc.send)('save_dialog', {
-	    title: 'Save File',
-	    defaultPath: store.get('workingDirectory')
-	  }).then(function (filename) {
-	    if ((0, _isArray3.default)(filename)) {
-	      filename = filename[0];
-	    }
-	
-	    return saveActiveFileAs(filename)(dispatch, getState);
-	  }).catch(function (error) {
-	    console.error('errorrrr', error);
-	  });
-	}
-	
-	function showOpenFileDialog(dispatch) {
-	  return (0, _ipc.send)('open_dialog', {
-	    title: 'Select a file to open',
-	    defaultPath: store.get('workingDirectory'),
-	    properties: ['openFile']
-	  }).then(function (filename) {
-	    console.log('received filename', filename);
-	
-	    if ((0, _isArray3.default)(filename)) {
-	      filename = filename[0];
-	    }
-	
-	    return (0, _ipc.send)('file_stats', filename).then(function (stats) {
-	      dispatch(addFile(filename, stats));
-	    });
-	  }).catch(function (error) {
-	    console.error('errorrrr', error);
-	  });
+	  return state;
 	}
 
 /***/ },
-/* 429 */
+/* 434 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -33757,7 +34033,7 @@
 	}
 
 /***/ },
-/* 430 */
+/* 435 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';

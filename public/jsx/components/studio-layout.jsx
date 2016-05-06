@@ -3,7 +3,7 @@ import ReactDOM from 'react-dom';
 import {connect} from 'react-redux';
 import SplitPane from './split-pane/split-pane.jsx';
 import TabbedPane from './tabbed-pane/tabbed-pane.jsx';
-import FileViewer from './file-viewer.jsx';
+import FileViewer from './file-viewer/file-viewer.jsx';
 import PlotViewer from './plot-viewer/plot-viewer.jsx';
 import PackageViewer from './package-viewer.jsx';
 import HelpViewer from './help-viewer.jsx';

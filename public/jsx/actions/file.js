@@ -1,5 +1,5 @@
 import _ from 'lodash';
-import { send } from '../services/ipc';
+import {send} from '../services/ipc';
 import * as store from '../services/store';
 import ace from 'ace';
 
@@ -24,8 +24,6 @@ export function saveActiveFileAs(filename) {
       el = focusedAce && document.querySelector('#' + focusedAce.id),
       aceInstance = el && ace.edit(el),
       content = aceInstance && aceInstance.getSession().getValue();
-
-    console.log('Saving active file', {filename, 'content.length': content.length});
 
     return send('save_file', filename, content)
       .then(function () {
@@ -79,16 +77,12 @@ export function showOpenFileDialog(dispatch) {
     defaultPath: store.get('workingDirectory'),
     properties: ['openFile']
   }).then(function (filename) {
-    console.log('received filename', filename);
-
     if (_.isArray(filename)) {
       filename = filename[0];
     }
 
     return send('file_stats', filename)
-      .then(function (stats) {
-        dispatch(addFile(filename, stats));
-      });
+      .then(stats => dispatch(addFile(filename, stats)));
   }).catch(function (error) {
     console.error('errorrrr', error);
   });
