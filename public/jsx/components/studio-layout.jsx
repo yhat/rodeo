@@ -6,7 +6,6 @@ import TabbedPane from './tabbed-pane/tabbed-pane.jsx';
 import FileViewer from './file-viewer/file-viewer.jsx';
 import PlotViewer from './plot-viewer/plot-viewer.jsx';
 import PackageViewer from './package-viewer.jsx';
-import HelpViewer from './help-viewer.jsx';
 import PreferenceViewer from './preference-viewer.jsx';
 import EnvironmentViewer from './environment-viewer.jsx';
 import HistoryViewer from './history-viewer.jsx';
