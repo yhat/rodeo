@@ -21,6 +21,7 @@ export default React.createClass({
         props.isSelected ? selectedClass : ''
       ].join(' '),
       nameClassName = ['fa',
+        'fa-before',
         props.isDirectory ? 'fa-folder' : 'fa-file-o'
       ].join(' ');
 

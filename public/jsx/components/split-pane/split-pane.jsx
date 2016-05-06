@@ -26,7 +26,8 @@ export default React.createClass({
     };
   },
   componentDidMount: function () {
-    const $el = $(ReactDOM.findDOMNode(this)),
+    const el = ReactDOM.findDOMNode(this),
+      $el = $(el),
       state = this.context.store.getState(),
       id = this.props.id,
       limit = this.props.limit,
@@ -47,6 +48,16 @@ export default React.createClass({
       onDragEnd: _.over(this.props.onDragEnd || _.noop, this.handleDragEnd),
       onDrag: _.over(this.props.onDrag || $.noop, this.handleDrag)
     }).refresh();
+
+    // refresh the children split panes, if any
+
+    _.defer(function () {
+      console.log('refreshing children', el.querySelectorAll('.splitter_panel'));
+      _.each(el.querySelectorAll('.splitter_panel'), function (childEl) {
+        console.log('refreshing', childEl);
+        $(childEl).split().refresh();
+      });
+    });
   },
   handleDrag: function () {
     this.context.store.dispatch({type: 'SPLIT_PANE_DRAG', id: this.props.id});

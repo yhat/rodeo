@@ -9,8 +9,6 @@ const positions = store.get('split-pane-positions') || {
 };
 
 function savePosition(state, action) {
-  console.log('split-pane-reducer', state, action, 'savePosition');
-
   const el = document.querySelector('#' + action.id);
 
   if (el) {
@@ -25,7 +23,6 @@ function savePosition(state, action) {
     }
 
     if (position) {
-      console.log('split-pane-reducer saving', positions);
       positions[action.id] = position + 'px';
       store.set('split-pane-positions', positions);
     }

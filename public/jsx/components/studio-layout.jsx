@@ -171,7 +171,6 @@ export default connect(mapStateToProps, mapDispatchToProps)(React.createClass({
             <TabbedPaneItem icon="file-text-o" label="Files"><FileViewer /></TabbedPaneItem>
             <TabbedPaneItem icon="bar-chart" label="Plots"><PlotViewer /></TabbedPaneItem>
             <TabbedPaneItem icon="archive" label="Packages"><PackageViewer /></TabbedPaneItem>
-            <TabbedPaneItem icon="life-ring" label="Help"><HelpViewer /></TabbedPaneItem>
             <TabbedPaneItem icon="cogs" label="Preferences"><PreferenceViewer /></TabbedPaneItem>
 
           </TabbedPane>
