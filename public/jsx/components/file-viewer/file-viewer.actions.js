@@ -7,8 +7,6 @@ export function openViewedFile(file) {
     const state = getState(),
       filename = state.fileView.path + '/' + file.filename;
 
-    console.log('openViewedFile', file, filename);
-
     if (file.isDirectory) {
       return dispatch(getViewedFiles(filename));
     } else {
@@ -24,8 +22,6 @@ export function selectViewedFile(file) {
 
 export function getViewedFiles(filePath) {
   return function (dispatch) {
-    console.log('getViewedFiles', filePath);
-
     return send('files', filePath)
       .then(files => dispatch({type: 'LIST_VIEWED_FILES', path: filePath, files}))
       .catch(error => console.error(error));
@@ -36,8 +32,6 @@ export function goToParentDirectory() {
   return function (dispatch, getState) {
     const fileView = getState().fileView,
       newPath = _.dropRight(fileView.path.split('/'), 1).join('/');
-
-    console.log('goToParentDirectory');
 
     dispatch(getViewedFiles(newPath));
   };

@@ -63,7 +63,6 @@ export default React.createClass({
     this.startPrompt();
   },
   startPrompt: function () {
-    console.log('startPrompt', this, arguments);
     const jqConsole = this.jqConsole,
       id = this.props.id;
 

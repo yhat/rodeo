@@ -35,7 +35,7 @@ function onError(windowName, updateUrl, error) {
  * @param {object} data
  */
 function onUpdateAvailable(windowName, data) {
-  log('info', 'onUpdateAvailable', data);
+  log('debug', 'onUpdateAvailable', data);
 
   browserWindows.send(windowName, 'log', 'UPDATE AVAILABLE');
   browserWindows.send(windowName, 'log', JSON.stringify(data));
@@ -46,7 +46,7 @@ function onUpdateAvailable(windowName, data) {
  * @param {boolean} displayNoUpdate
  */
 function onUpdateNotAvailable(windowName, displayNoUpdate) {
-  log('info', 'onUpdateNotAvailable');
+  log('debug', 'onUpdateNotAvailable');
   if (displayNoUpdate == true) { // todo: remove this, we shouldn't decide this here
     browserWindows.send(windowName, 'no-update');
   }
@@ -54,7 +54,7 @@ function onUpdateNotAvailable(windowName, displayNoUpdate) {
 
 /* eslint max-params: ["error", 6] */
 function onUpdateDownloaded(windowName, evt, releaseNotes, releaseName, releaseDate, updateURL) {
-  log('info', 'onUpdateDownloaded', {evt, releaseNotes, releaseName, releaseDate, updateURL});
+  log('debug', 'onUpdateDownloaded', {evt, releaseNotes, releaseName, releaseDate, updateURL});
   browserWindows.send(windowName, 'log', releaseNotes + '---' + releaseName + '---' + releaseDate + '---' + updateURL);
   browserWindows.send(windowName, 'update-ready', { platform: 'osx' });  // ???
 }
@@ -102,7 +102,7 @@ function update(displayNoUpdate) {
  * Install updates
  */
 function install() {
-  log('info', 'quitAndInstall');
+  log('debug', 'install');
 
   const autoUpdater = electron.autoUpdater;
 

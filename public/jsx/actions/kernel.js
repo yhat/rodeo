@@ -9,7 +9,7 @@ export function interrupt(dispatch) {
     // maybe some visual artifact?
     dispatch({type: 'INTERRUPTED_KERNEL'});
   }).catch(function (error) {
-    console.error('errroror', error);
+    console.error(error);
   });
 }
 
@@ -36,7 +36,7 @@ export function executeActiveFileInActiveConsole(dispatch, getState) {
   send('execute', content).then(function () {
     dispatch({type: 'EXECUTED', id});
   }).catch(function (error) {
-    console.error('errroror', error);
+    console.error(error);
   });
 }
 
@@ -47,7 +47,7 @@ export function execute(text, id) {
     send('execute', text).then(function () {
       dispatch({type: 'EXECUTED', text, id});
     }).catch(function (error) {
-      console.error('errroror', error);
+      console.error(error);
     });
   };
 }

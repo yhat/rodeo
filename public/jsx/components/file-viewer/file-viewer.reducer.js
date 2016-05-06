@@ -26,16 +26,12 @@ function setFileList(state, action) {
 function selectFile(state, action) {
   const target = action.file;
 
-  console.log('selectFile', target);
-
   if (target && !target.isSelected) {
     state = _.clone(state);
     state.files = _.map(state.files, item => {
       item.isSelected = (item.filename === target.filename);
       return item;
     });
-
-    console.log('state.files after', state.files);
   }
 
   return state;

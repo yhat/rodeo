@@ -37,9 +37,7 @@ export default React.createClass({
     if (state.splitPanes[id]) {
       position = state.splitPanes[id];
     }
-
-    console.log('split-pane', {state, id, position, limit, direction});
-
+    
     $el.split({
       orientation: direction === 'top-bottom' ? 'horizontal' : 'vertical',
       limit: limit,
@@ -50,11 +48,8 @@ export default React.createClass({
     }).refresh();
 
     // refresh the children split panes, if any
-
     _.defer(function () {
-      console.log('refreshing children', el.querySelectorAll('.splitter_panel'));
       _.each(el.querySelectorAll('.splitter_panel'), function (childEl) {
-        console.log('refreshing', childEl);
         $(childEl).split().refresh();
       });
     });

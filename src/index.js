@@ -105,7 +105,7 @@ function replacePropertyWithTemporaryFile(extension, data, property) {
       data[property] = route;
     });
   } else {
-    log('info', 'no', property, 'on data');
+    log('debug', 'no', property, 'on data');
   }
 }
 
@@ -317,7 +317,7 @@ function onCheckForUpdates() {
 function onOpenExternal(url) {
   const shell = electron.shell;
 
-  log('info', 'opening in default browser', url);
+  log('debug', 'opening in default browser', url);
 
   shell.openExternal(url);
 }
@@ -329,7 +329,7 @@ function onOpenTerminal() {
   const shell = electron.shell,
     isWindows = process.platform === 'win32';
 
-  log('info', 'opening terminal');
+  log('debug', 'opening terminal');
 
   // todo: obviously, this may go badly on linux
   shell.openItem(isWindows ? 'cmd.exe' : '/Applications/Utilities/Terminal.app');

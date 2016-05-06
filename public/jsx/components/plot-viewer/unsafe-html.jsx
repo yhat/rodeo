@@ -12,6 +12,7 @@ export default React.createClass({
 
     if (el) {
       el.addEventListener('load', function () {
+        // todo: add timeout to detect iframe not loading
         console.log('el loaded', this, arguments);
       });
       el.setAttribute('src', this.props.src);

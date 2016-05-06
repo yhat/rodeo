@@ -26,17 +26,9 @@ export default React.createClass({
         <div className="row"><DocCode text={'$ conda install jupyter'} /></div>
         <p className="lead">{'For pip users:'}</p>
         <div className="row"><DocCode text={'$ pip install jupyter'} /></div>
-        <button className="btn btn-default"
-          onClick={this.props.onOpenDocs}
-        >{'Help'}</button>
-        &nbsp;
-        <button className="btn btn-info"
-          onClick={this.handleChangePath}
-        >{'Change Path'}</button>
-        &nbsp;
-        <button className="btn btn-primary"
-          onClick={this.handleTestPythonPath}
-        >{'Retry'}</button>
+        <button className="btn btn-default" onClick={this.props.onOpenDocs}>{'Help'}</button>
+        <button className="btn btn-info" onClick={this.handleChangePath}>{'Change Path'}</button>
+        <button className="btn btn-primary" onClick={this.handleTestPythonPath}>{'Retry'}</button>
       </div>
     );
   }

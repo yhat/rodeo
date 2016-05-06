@@ -14,13 +14,7 @@ export default React.createClass({
   },
   render: function () {
     let tourItems = this.props.tourData.map(function (item, i) {
-      const props = item;
-
-      return (
-        <TourItem {...props}
-          key={i}
-        />
-      );
+      return <TourItem {...item} key={i} />;
     });
 
     return (

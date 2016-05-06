@@ -5,14 +5,14 @@ let app, port;
 
 /**
  * @param {number} startPort
- * @param {number} [tries=5]
+ * @returns {Promise}
  */
-function start(startPort, tries) {
+function start(startPort) {
   return new bluebird(function (resolve, reject) {
     app = app || express();
 
     app.listen(startPort, function (err) {
-      if (err && tries === 0) {
+      if (err) {
         return reject(new Error('Failed to start server.'));
       }
 
@@ -30,7 +30,7 @@ function start(startPort, tries) {
 function addTemporaryFileRoute(filename, route) {
   const real = 'http://localhost:' + port + route;
 
-  log('info', 'addTemporaryFileRoute', {filename, route});
+  log('debug', 'addTemporaryFileRoute', {filename, route});
   app.get(route, function (req, res) {
     res.sendFile(filename, function (err) {
       if (err) {

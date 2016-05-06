@@ -39,8 +39,6 @@ export default connect(mapStateToProps, mapDispatchToProps)(React.createClass({
   render: function () {
     const props = this.props;
 
-    console.log('hey', props);
-
     return (
       <div>
         <div className="list-group" id="working-directory"></div>

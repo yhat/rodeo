@@ -16,24 +16,24 @@ export function quit(dispatch) {
     // maybe some visual artifact?
     dispatch({type: 'QUIT'});
   }).catch(function (error) {
-    console.error('errroror', error);
+    console.error(error);
   });
 }
 
-export function toogleDevTools(dispatch) {
+export function toggleDevTools(dispatch) {
   return ipc.send('toggle_dev_tools').then(function () {
     // maybe some visual artifact?  no?  maybe a bolt of lightning?
   }).catch(function (error) {
-    console.error('errroror', error);
+    console.error(error);
   });
 }
 
-export function checkForUpdates() {
+export function checkForUpdates(dispatch) {
   dispatch({type: 'CHECKING_FOR_APPLICATION_UPDATES'});
 
   return ipc.send('check_for_updates').then(function () {
     dispatch({type: 'NO_APPLICATION_UPDATES'});
   }).catch(function (error) {
-    console.error('errroror', error);
+    console.error(error);
   });
 }

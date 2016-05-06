@@ -91,8 +91,6 @@ function saveToTemporaryFile(suffix, data) {
     stream.write(data);
     stream.end();
 
-    log('info', 'saveToTemporaryFile', stream.path);
-
     resolve(stream.path);
   }).timeout(10000, 'Timed out trying to save temporary file with extension', suffix);
 }

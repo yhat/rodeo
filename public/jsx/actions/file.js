@@ -29,7 +29,7 @@ export function saveActiveFileAs(filename) {
       .then(function () {
         dispatch(fileIsSaved(focusedAce.id, filename));
       }).catch(function (error) {
-        console.error('errorrrr', error);
+        console.error(error);
       });
   };
 }
@@ -52,7 +52,7 @@ export function saveActiveFile(dispatch, getState) {
     .then(function () {
       dispatch(fileIsSaved(focusedAce.id));
     }).catch(function (error) {
-      console.error('errorrrr', error);
+      console.error(error);
     });
 }
 
@@ -67,7 +67,7 @@ export function showSaveFileDialog(dispatch, getState) {
 
     return saveActiveFileAs(filename)(dispatch, getState);
   }).catch(function (error) {
-    console.error('errorrrr', error);
+    console.error(error);
   });
 }
 
@@ -84,6 +84,6 @@ export function showOpenFileDialog(dispatch) {
     return send('file_stats', filename)
       .then(stats => dispatch(addFile(filename, stats)));
   }).catch(function (error) {
-    console.error('errorrrr', error);
+    console.error(error);
   });
 }
