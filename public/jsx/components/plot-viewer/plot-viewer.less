@@ -28,15 +28,43 @@
 
 .plot-viewer nav {
   display: flex;
+  flex-direction: column;
   background: #cbcbcb;
   flex: 1 0 100px;
-  justify-content: space-between;
+  justify-content: flex-start;
   align-items: stretch;
   align-content: stretch;
+  overflow-y: scroll;
+  overflow-x: hidden;
 }
 
-.plot-viewer nav > * {
-  flex: 1 0 100px;
+.plot-viewer .item {
+  background-repeat: no-repeat;
+  background-position: center;
+  background-size: auto 80%;
+  cursor: pointer;
+  flex: 0 0;
+  transition: all 0.2s ease-in-out;
+  min-height: 140px;
+}
+
+.plot-viewer .item.splash {
+  background-size: auto 50%;
+  opacity: 0.7;
+}
+
+.plot-viewer .item:hover {
+  background-color: #f3f3f3;
+}
+
+.plot-viewer .item.active {
+  background-color: #e3e3e3;
+  background-size: auto 90%;
+}
+
+.plot-viewer .item.active.splash {
+  background-size: auto 60%;
+  opacity: 0.8;
 }
 
 .suggestion {

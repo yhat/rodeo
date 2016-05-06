@@ -1,6 +1,7 @@
 import _ from 'lodash';
 import React from 'react';
 import {connect} from 'react-redux';
+import UnsafeHTML from './unsafe-html.jsx';
 import './plot-viewer.less';
 import htmlSplash from './html-flat.svg';
 import errorSplash from './document-error-flat.svg';
@@ -25,7 +26,8 @@ function mapDispatchToProps(dispatch) {
     onNext: () => dispatch({type: 'FOCUS_NEXT_PLOT'}),
     onPrev: () => dispatch({type: 'FOCUS_PREV_PLOT'}),
     onSave: () => dispatch({type: 'SAVE_ACTIVE_PLOT'}),
-    onOpen: () => dispatch({type: 'OPEN_ACTIVE_PLOT'})
+    onOpen: () => dispatch({type: 'OPEN_ACTIVE_PLOT'}),
+    onItemClick: (id) => dispatch({type: 'FOCUS_PLOT', id})
   };
 }
 
@@ -37,7 +39,8 @@ export default connect(mapStateToProps, mapDispatchToProps)(React.createClass({
     onNext: React.PropTypes.func,
     onPrev: React.PropTypes.func,
     onSave: React.PropTypes.func,
-    onZoomIn: React.PropTypes.func,
+    onOpen: React.PropTypes.func,
+    onItemClick: React.PropTypes.func,
     plots: React.PropTypes.array
   },
   getDefaultProps: function () {
@@ -50,7 +53,11 @@ export default connect(mapStateToProps, mapDispatchToProps)(React.createClass({
     };
   },
   render: function () {
-    const props = this.props;
+    const props = this.props,
+      focusedPlot = _.find(props.plots, {hasFocus: true}),
+      itemStyle = {
+        background: 'no-repeat center/50% url(js/html-flat.0fd55f20df93a34d6638c154745c3c3f.svg)'
+      };
 
     function getActivePlotComponent(plot) {
       let plotComponent,
@@ -58,11 +65,13 @@ export default connect(mapStateToProps, mapDispatchToProps)(React.createClass({
 
       if (data) {
         if (data['image/png']) {
-          plotComponent = <img src={data['image/png']}/>;
+          plotComponent = <div><img src={data['image/png']}/></div>;
         } else if (data['image/svg']) {
-          plotComponent = <img src={data['image/svg']}/>;
+          plotComponent = <div><img src={data['image/svg']}/></div>;
         } else if (data['text/html']) {
-          plotComponent = <iframe docsrc={data['text/html']} sandbox=""></iframe>;
+          let frameId = 'frame-' + plot.id;
+
+          plotComponent = <UnsafeHTML id={frameId} src={data['text/html']} />;
         } else {
           plotComponent = <div className="suggestion">{'Plot must be png, svg, html or javascript.'}</div>;
         }
@@ -70,25 +79,6 @@ export default connect(mapStateToProps, mapDispatchToProps)(React.createClass({
         plotComponent = <div className="suggestion">{'Select a plot.'}</div>;
       } else {
         plotComponent = <div className="suggestion">{'Create a plot.'}</div>;
-      }
-
-      return plotComponent;
-    }
-
-    function getMinimapPlotComponent(plot) {
-      let plotComponent,
-        data = plot && plot.data;
-
-      if (data) {
-        if (data['image/png']) {
-          plotComponent = <img src={data['image/png']}/>;
-        } else if (data['image/svg']) {
-          plotComponent = <img src={data['image/svg']}/>;
-        } else if (data) {
-          plotComponent = <img src={htmlSplash}/>;
-        } else {
-          plotComponent = <img src={errorSplash}/>;
-        }
       }
 
       return plotComponent;
@@ -114,10 +104,35 @@ export default connect(mapStateToProps, mapDispatchToProps)(React.createClass({
           </a>
         </header>
 
-        {getActivePlotComponent(_.find(props.plots, {hasFocus: true}))}
+        {getActivePlotComponent(focusedPlot)}
 
         <nav className="plot-viewer-minimap">
-          {getMinimapPlotComponent(props.plots)}
+          {props.plots.map((plot) => {
+            let itemStyle,
+              data = plot && plot.data,
+              className = [
+                'item',
+                plot.hasFocus ? 'active' : ''
+              ];
+
+            if (data) {
+              if (data['image/png']) {
+                itemStyle = { backgroundImage: 'url(' + data['image/png'] + ')' };
+              } else if (data['image/svg']) {
+                itemStyle = { backgroundImage: 'url(' + data['image/svg'] + ')' };
+              } else if (data['text/html']) {
+                className.push('splash');
+                itemStyle = { backgroundImage: 'url(' + htmlSplash + ')' };
+              } else {
+                className.push('splash');
+                itemStyle = { backgroundImage: 'url(' + errorSplash + ')' };
+              }
+            }
+
+            className = className.join(' ');
+
+            return <div className={className} key={plot.id} onClick={_.partial(props.onItemClick, plot.id)} style={itemStyle}></div>;
+          })}
         </nav>
       </section>
     );

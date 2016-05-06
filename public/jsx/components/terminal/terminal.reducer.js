@@ -104,7 +104,9 @@ function addTerminalDisplayData(state, action) {
     data = action.data;
 
   if (data['text/html']) {
-    appendIFrame(jqconsole, data);
+    if (store.get('allowIFrameInTerminal')) {
+      appendIFrame(jqconsole, data);
+    }
   } else if (data['image/png']) {
     appendPNG(jqconsole, data);
     // do nothing at the moment

@@ -1,10 +1,13 @@
 'use strict';
 
+const path = require('path');
+
 module.exports = {
+  context: path.join(__dirname, 'public'),
   devtool: 'source-map',
   entry: {
-    startup: './public/jsx/startup',
-    main: './public/jsx/main'
+    startup: './jsx/startup',
+    main: './jsx/main'
   },
   externals: {
     'ascii-table': 'AsciiTable',
@@ -18,10 +21,10 @@ module.exports = {
     //   {test: /\.js$/, loader: "eslint-loader", exclude: /node_modules/}
     // ],
     loaders: [
-      { test: /\.less$/, loader: 'style!css!less' },
-      { test: /\.css$/, loader: 'style!css?sourceMap' },
-      { test: /\.(png|jpg)$/, loader: 'url-loader?limit=8192' }, // inline base64 URLs for <=8k images, direct URLs for the rest
-      { test: /.*\.svg$/, loaders: ['file-loader', 'svgo-loader?useConfig=svgoConfig1'] },
+      { test: /\.less$/, loader: 'style?sourceMap!css?sourceMap!less?sourceMap' },
+      { test: /\.css$/, loader: 'style?sourceMap!css?sourceMap' },
+      { test: /\.(png|jpg)$/, loader: 'url?limit=8192' }, // inline base64 URLs for <=8k images, direct URLs for the rest
+      { test: /\.svg$/, loaders: ['file?name=[name].[hash].[ext]', 'svgo-loader?useConfig=svgoConfig1'] },
       {
         test: /\.jsx?$/,
         exclude: /(node_modules|bower_components)/,
@@ -40,7 +43,8 @@ module.exports = {
   },
   output: {
     filename: '[name].js',
-    path: __dirname + '/static/js'
+    path: path.join(__dirname, 'static/js'),
+    publicPath: 'js/'
   },
   stats: {
     colors: true

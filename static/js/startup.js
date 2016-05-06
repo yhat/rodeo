@@ -34,7 +34,7 @@
 /******/ 	__webpack_require__.c = installedModules;
 /******/
 /******/ 	// __webpack_public_path__
-/******/ 	__webpack_require__.p = "";
+/******/ 	__webpack_require__.p = "js/";
 /******/
 /******/ 	// Load entry module and return exports
 /******/ 	return __webpack_require__(0);
@@ -54,7 +54,7 @@
 	
 	var _reactDom2 = _interopRequireDefault(_reactDom);
 	
-	var _startup = __webpack_require__(429);
+	var _startup = __webpack_require__(431);
 	
 	var _startup2 = _interopRequireDefault(_startup);
 	
@@ -20221,7 +20221,9 @@
 /* 426 */,
 /* 427 */,
 /* 428 */,
-/* 429 */
+/* 429 */,
+/* 430 */,
+/* 431 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -20234,23 +20236,23 @@
 	
 	var _react2 = _interopRequireDefault(_react);
 	
-	var _setupReady = __webpack_require__(430);
+	var _setupReady = __webpack_require__(432);
 	
 	var _setupReady2 = _interopRequireDefault(_setupReady);
 	
-	var _loadingWidget = __webpack_require__(431);
+	var _loadingWidget = __webpack_require__(433);
 	
 	var _loadingWidget2 = _interopRequireDefault(_loadingWidget);
 	
-	var _setupPython = __webpack_require__(432);
+	var _setupPython = __webpack_require__(434);
 	
 	var _setupPython2 = _interopRequireDefault(_setupPython);
 	
-	var _tour = __webpack_require__(433);
+	var _tour = __webpack_require__(435);
 	
 	var _tour2 = _interopRequireDefault(_tour);
 	
-	var _tourData = __webpack_require__(435);
+	var _tourData = __webpack_require__(437);
 	
 	var _tourData2 = _interopRequireDefault(_tourData);
 	
@@ -20260,7 +20262,7 @@
 	
 	var _ipc = __webpack_require__(7);
 	
-	__webpack_require__(436);
+	__webpack_require__(438);
 	
 	function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
 	
@@ -20399,7 +20401,7 @@
 	});
 
 /***/ },
-/* 430 */
+/* 432 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -20446,7 +20448,7 @@
 	});
 
 /***/ },
-/* 431 */
+/* 433 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -20491,7 +20493,7 @@
 	});
 
 /***/ },
-/* 432 */
+/* 434 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -20631,7 +20633,7 @@
 	});
 
 /***/ },
-/* 433 */
+/* 435 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -20650,7 +20652,7 @@
 	
 	var _reactDom2 = _interopRequireDefault(_reactDom);
 	
-	var _tourItem = __webpack_require__(434);
+	var _tourItem = __webpack_require__(436);
 	
 	var _tourItem2 = _interopRequireDefault(_tourItem);
 	
@@ -20699,7 +20701,7 @@
 	});
 
 /***/ },
-/* 434 */
+/* 436 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -20778,7 +20780,7 @@
 	});
 
 /***/ },
-/* 435 */
+/* 437 */
 /***/ function(module, exports) {
 
 	'use strict';
@@ -20844,23 +20846,23 @@
 	}];
 
 /***/ },
-/* 436 */
+/* 438 */
 /***/ function(module, exports, __webpack_require__) {
 
 	// style-loader: Adds some css to the DOM by adding a <style> tag
 	
 	// load the styles
-	var content = __webpack_require__(437);
+	var content = __webpack_require__(439);
 	if(typeof content === 'string') content = [[module.id, content, '']];
 	// add the styles to the DOM
-	var update = __webpack_require__(367)(content, {});
+	var update = __webpack_require__(367)(content, {"sourceMap":true});
 	if(content.locals) module.exports = content.locals;
 	// Hot Module Replacement
 	if(false) {
 		// When the styles change, update the <style> tags
 		if(!content.locals) {
-			module.hot.accept("!!./../../../node_modules/css-loader/index.js!./../../../node_modules/less-loader/index.js!./startup.less", function() {
-				var newContent = require("!!./../../../node_modules/css-loader/index.js!./../../../node_modules/less-loader/index.js!./startup.less");
+			module.hot.accept("!!./../../../node_modules/css-loader/index.js?sourceMap!./../../../node_modules/less-loader/index.js?sourceMap!./startup.less", function() {
+				var newContent = require("!!./../../../node_modules/css-loader/index.js?sourceMap!./../../../node_modules/less-loader/index.js?sourceMap!./startup.less");
 				if(typeof newContent === 'string') newContent = [[module.id, newContent, '']];
 				update(newContent);
 			});
@@ -20870,7 +20872,7 @@
 	}
 
 /***/ },
-/* 437 */
+/* 439 */
 /***/ function(module, exports, __webpack_require__) {
 
 	exports = module.exports = __webpack_require__(366)();
@@ -20878,7 +20880,7 @@
 	
 	
 	// module
-	exports.push([module.id, "body {\n  margin: 0;\n}\n", ""]);
+	exports.push([module.id, "body {\n  margin: 0;\n}\n", "", {"version":3,"sources":["/./jsx/containers/startup.less","/./jsx/containers/startup.less"],"names":[],"mappings":"AAAA;EACE,UAAA;CCCD","file":"startup.less","sourcesContent":["body {\n  margin: 0;\n}","body {\n  margin: 0;\n}\n"],"sourceRoot":"webpack://"}]);
 	
 	// exports
 
