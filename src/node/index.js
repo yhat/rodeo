@@ -16,9 +16,14 @@ const _ = require('lodash'),
   yargs = require('yargs'),
   argv = yargs.argv,
   log = require('./services/log').asInternal(__filename),
-  staticFileDir = path.resolve('./static/'),
+  staticFileDir = path.resolve('./dist/'),
   allowedKernelLangauges = ['python'],
-  kernelClients = {};
+  kernelClients = {},
+  windowUrls = {
+    mainWindow: 'main.html',
+    startupWindow: 'startup.html',
+    designWindow: 'design.html'
+  };
 
 electron.crashReporter.start({
   productName: 'Yhat Dev',
@@ -71,7 +76,7 @@ function onPDF() {
   require('dialog').showSaveDialog({
     title: 'Save Report'
   }, function (destfile) {
-    if (! /\.pdf/.test(destfile)) {
+    if (!/\.pdf/.test(destfile)) {
       destfile += '.pdf';
     }
 
@@ -171,31 +176,49 @@ function onWindowAllClosed() {
   app.quit();
 }
 
+function preloadMainWindow() {
+  const windowName = 'mainWindow';
+
+  browserWindows.createMainWindow(windowName, {
+    url: 'file://' + path.join(staticFileDir, windowUrls[windowName])
+  });
+}
+
 function startMainWindow() {
-  const mainWindow = browserWindows.getByName('mainWindow');
+  return new bluebird(function (resolve) {
+    const windowName = 'mainWindow',
+      mainWindow = browserWindows.getByName(windowName) || browserWindows.createMainWindow(windowName, {
+        url: 'file://' + path.join(staticFileDir, windowUrls[windowName])
+      });
 
-  if (argv.dev === true) {
-    mainWindow.openDevTools();
-  }
+    if (argv.dev === true) {
+      mainWindow.openDevTools();
+    }
 
-  return attachApplicationMenu(mainWindow.webContents).then(function () {
-    mainWindow.show();
-    mainWindow.focus();
-  }).catch(function (error) {
-    log('error', error);
+    resolve(attachApplicationMenu(mainWindow.webContents).then(function () {
+      mainWindow.show();
+      mainWindow.focus();
+    }));
   });
 }
 
 function startStartupWindow() {
   return new bluebird(function (resolve) {
-    const startupWindow = browserWindows.createStartupWindow('startupWindow', {
-      url: 'file://' + path.join(staticFileDir, 'startup.html')
-    });
+    const windowName = 'startupWindow',
+      window = browserWindows.createStartupWindow(windowName, {
+        url: 'file://' + path.join(staticFileDir, windowUrls[windowName])
+      });
 
-    startupWindow.webContents.on('did-finish-load', function () {
-      startupWindow.show();
-      startupWindow.focus();
-      startupWindow.once('close', function () {
+    if (argv.dev === true) {
+      window.openDevTools();
+    }
+
+    preloadMainWindow();
+
+    window.webContents.on('did-finish-load', function () {
+      window.show();
+      window.focus();
+      window.once('close', function () {
         startMainWindow().catch(function (error) {
           log('error', error);
         });
@@ -215,18 +238,15 @@ function attemptAutoupdate() {
  * When Electron is ready, we can start making windows
  */
 function onReady() {
+  let windowName, window;
+
   if (argv.design) {
-    let designWindow = browserWindows.create('designWindow', {
-      url: 'file://' + path.join(staticFileDir, 'design.html')
+    windowName = 'designWindow';
+    window = browserWindows.create(windowName, {
+      url: 'file://' + path.join(staticFileDir, windowUrls[windowName])
     });
-
-    designWindow.show();
+    window.show();
   } else {
-    // start loading main window in background
-    browserWindows.createMainWindow('mainWindow', {
-      url: 'file://' + path.join(staticFileDir, 'desktop-index.html')
-    });
-
     (argv.startup === false ? startMainWindow() : startStartupWindow())
       .then(attachIpcMainEvents)
       .then(attemptAutoupdate)
@@ -285,7 +305,9 @@ function findPythons() {
 function onGetSystemFacts() {
   return bluebird.props({
     availablePythonKernels: findPythons(),
-    pythonStarts: getKernelClient().then(function () { return true; }),
+    pythonStarts: getKernelClient().then(function () {
+      return true;
+    }),
     python: require('./kernels/python/client').checkPython(),
     homedir: os.homedir(),
     pathSep: path.sep,

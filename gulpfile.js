@@ -107,13 +107,22 @@ gulp.task('html', function () {
   ]).pipe(gulp.dest('dist'));
 });
 
-gulp.task('themes', function () {
+/**
+ * I don't know why less doesn't do this automatically.
+ */
+gulp.task('fonts', function () {
+  return gulp.src([
+    'node_modules/font-awesome/fonts/**/*'
+  ]).pipe(gulp.dest('dist/fonts'));
+});
+
+gulp.task('themes', ['fonts'], function () {
   return gulp.src([
     'src/browser/themes/*.less'
   ]).pipe(sourcemaps.init())
     .pipe(less())
     .pipe(sourcemaps.write('.'))
-    .pipe(gulp.dest('dist'));
+    .pipe(gulp.dest('dist/themes'));
 });
 
 gulp.task('webpack', function () {

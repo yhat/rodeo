@@ -29,33 +29,50 @@ export default React.createClass({
     return {
       orientation: 'top-bottom',
       limit: 100,
-      position: '50%'
+      position: '50%',
+      onDragEnd: _.noop,
+      onDragStart: _.noop,
+      onDrag: _.noop
     };
   },
   componentDidMount: function () {
     const el = ReactDOM.findDOMNode(this),
       $el = $(el),
+      props = this.props,
       state = this.context.store.getState(),
-      id = this.props.id,
-      limit = this.props.limit,
-      direction = this.props.direction;
-    let position = this.props.position;
+      id = props.id,
+      limit = props.limit,
+      direction = props.direction;
+    let instance,
+      position = props.position;
 
     if (state.splitPanes[id]) {
       position = state.splitPanes[id];
     }
 
-    $el.split({
+    instance = $el.split({
       orientation: direction === 'top-bottom' ? 'horizontal' : 'vertical',
       limit: limit,
       position: position,
-      onDragStart: this.props.onDragStart || _.noop,
-      onDragEnd: _.over(this.props.onDragEnd || _.noop, this.handleDragEnd),
-      onDrag: _.over(this.props.onDrag || $.noop, this.handleDrag)
-    }).refresh();
+      onDragStart: props.onDragStart,
+      onDragEnd: _.over(this.props.onDragEnd, this.handleDragEnd),
+      onDrag: _.over(this.props.onDrag, this.handleDrag)
+    });
 
-    // refresh the children split panes, if any
+    instance.refresh();
+
+    window.onfocus = this.handleFocus.bind(this);
+    this.handleFocus();
+  },
+  /**
+   * Refresh the children split panes, if any.  React loads children first, so we need to tell them their height has
+   * changed.
+   */
+  handleFocus: function () {
+    const el = ReactDOM.findDOMNode(this);
+
     _.defer(function () {
+      $(el).data('splitter').refresh();
       _.each(el.querySelectorAll('.splitter_panel'), function (childEl) {
         $(childEl).split().refresh();
       });

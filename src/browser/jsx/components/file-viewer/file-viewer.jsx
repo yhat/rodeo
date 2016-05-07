@@ -51,7 +51,7 @@ export default connect(mapStateToProps, mapDispatchToProps)(React.createClass({
           <FileListItem
             basePath={props.path}
             filename=".."
-            key={0}
+            key={'..'}
             onDoubleClick={props.onGoToParentDirectory}
           />
           {props.files.map(function (file) {
