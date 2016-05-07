@@ -41,6 +41,10 @@ function chooseFirstKernel(component) {
   }
 }
 
+/**
+ * @class Startup
+ * @extends ReactComponent
+ */
 export default React.createClass({
   displayName: 'Startup',
   getInitialState: function () {

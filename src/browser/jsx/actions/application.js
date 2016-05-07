@@ -1,3 +1,8 @@
+/**
+ * Application-level actions that are no associated with any particular component
+ * @module
+ */
+
 import * as ipc from '../services/ipc';
 
 export function quit() {

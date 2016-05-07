@@ -32,7 +32,12 @@ function mapDispatchToProps(dispatch) {
   };
 }
 
-
+/**
+ * @class PlotViewer
+ * @extends ReactComponent
+ * @property props
+ * @property {Array} props.plots
+ */
 export default connect(mapStateToProps, mapDispatchToProps)(React.createClass({
   displayName: 'PlotViewer',
   propTypes: {
@@ -46,10 +51,7 @@ export default connect(mapStateToProps, mapDispatchToProps)(React.createClass({
   },
   render: function () {
     const props = this.props,
-      focusedPlot = _.find(props.plots, {hasFocus: true}),
-      itemStyle = {
-        background: 'no-repeat center/50% url(js/html-flat.0fd55f20df93a34d6638c154745c3c3f.svg)'
-      };
+      focusedPlot = _.find(props.plots, {hasFocus: true});
 
     function getActivePlotComponent(plot) {
       let plotComponent,

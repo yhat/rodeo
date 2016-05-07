@@ -1,5 +1,10 @@
 import React from 'react';
 
+/**
+ * @class EnvironmentViewer
+ * @extends ReactComponent
+ * @property props
+ */
 export default React.createClass({
   displayName: 'EnvironmentViewer',
   render: function () {

@@ -1,5 +1,9 @@
 import React from 'react';
 
+/**
+ * @class LoadingWidget
+ * @extends ReactComponent
+ */
 export default React.createClass({
   displayName: 'LoadingWidget',
   render: function () {

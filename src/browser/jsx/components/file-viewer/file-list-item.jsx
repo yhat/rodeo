@@ -3,6 +3,11 @@ import React from 'react';
 const fileListItemClass = 'file-list-item',
   selectedClass = 'file-list-item-selected';
 
+/**
+ * @class FileListItem
+ * @extends ReactComponent
+ * @property props
+ */
 export default React.createClass({
   displayName: 'FileListItem',
   propTypes: {

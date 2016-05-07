@@ -18,6 +18,11 @@ function mapDispatchToProps(dispatch) {
   };
 }
 
+/**
+ * @class FileViewer
+ * @extends ReactComponent
+ * @property props
+ */
 export default connect(mapStateToProps, mapDispatchToProps)(React.createClass({
   displayName: 'FileViewer',
   propTypes: {

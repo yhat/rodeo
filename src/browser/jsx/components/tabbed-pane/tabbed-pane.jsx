@@ -48,6 +48,12 @@ function getTabIds(children) {
 //  - grab focus when they click a tab
 //  - grab focus when they make a tab
 
+/**
+ * @class TabbedPane
+ * @extends ReactComponent
+ * @property props
+ * @property state
+ */
 export default React.createClass({
   displayName: 'TabbedPane',
   propTypes: {
@@ -190,9 +196,9 @@ export default React.createClass({
     let children, tabList;
 
     /**
-     * @param {React.Component} component
-     * @param {React.Component} child
-     * @returns {React.Component|undefined}
+     * @param {ReactComponent} component
+     * @param {ReactComponent} child
+     * @returns {ReactComponent|XML|undefined}
      */
     function getCloseable(component, child) {
       if (child.props.isCloseable && component.props.onTabClose) {

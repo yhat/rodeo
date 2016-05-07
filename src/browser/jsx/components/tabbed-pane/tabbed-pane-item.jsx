@@ -1,5 +1,10 @@
 import React from 'react';
 
+/**
+ * @class TabbedPaneItem
+ * @extends ReactComponent
+ * @property props
+ */
 export default React.createClass({
   displayName: 'TabbedPaneItem',
   propTypes: {

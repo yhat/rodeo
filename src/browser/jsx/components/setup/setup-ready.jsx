@@ -1,5 +1,9 @@
 import React from 'react';
 
+/**
+ * @class SetupReady
+ * @extends ReactComponent
+ */
 export default React.createClass({
   displayName: 'SetupReady',
   propTypes: {

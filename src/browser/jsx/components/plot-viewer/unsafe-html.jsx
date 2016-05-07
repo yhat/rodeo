@@ -1,8 +1,13 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
 
+/**
+ * @class UnsafeHTML
+ * @extends ReactComponent
+ * @property props
+ */
 export default React.createClass({
-  displayName: 'PlotViewer',
+  displayName: 'UnsafeHTML',
   propTypes: {
     id: React.PropTypes.string.isRequired,
     src: React.PropTypes.string.isRequired

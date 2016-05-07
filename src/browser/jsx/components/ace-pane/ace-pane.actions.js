@@ -53,7 +53,7 @@ export function saveActiveFile() {
       content = aceInstance && aceInstance.getSession().getValue();
 
     if (!filename) {
-      return showSaveFileDialog(dispatch, getState);
+      return showSaveFileDialogForActiveFile(dispatch, getState);
     }
 
     return send('save_file', filename, content)

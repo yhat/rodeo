@@ -1,6 +1,10 @@
 import React from 'react';
 import ReportChecklistItem from './report-checklist-item';
 
+/**
+ * @class ReportChecklist
+ * @extends ReactComponent
+ */
 function ReportChecklist({list}) {
   const elList = list.map((item, i) => <ReportChecklistItem {...item} key={i}/>);
 

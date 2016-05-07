@@ -1,5 +1,10 @@
 import React from 'react';
 
+/**
+ * @class HistoryViewer
+ * @extends ReactComponent
+ * @property props
+ */
 export default React.createClass({
   displayName: 'HistoryViewer',
   render: function () {

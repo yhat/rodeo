@@ -19,6 +19,10 @@ function getExamplePaths(platform) {
   return result;
 }
 
+/**
+ * @class SetupPython
+ * @extends ReactComponent
+ */
 export default React.createClass({
   displayName: 'SetupPython',
   propTypes: {

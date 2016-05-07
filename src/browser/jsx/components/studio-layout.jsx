@@ -29,10 +29,18 @@ function focusAcePaneInActiveElement(el) {
   }
 }
 
+/**
+ * @param {object} state
+ * @returns {object}
+ */
 function mapStateToProps(state) {
   return _.pick(state, ['acePanes', 'splitPanes', 'terminals']);
 }
 
+/**
+ * @param {function} dispatch
+ * @returns {object}
+ */
 function mapDispatchToProps(dispatch) {
   return {
     onAddAcePane: () => dispatch({ type: 'ADD_FILE' }),
@@ -44,6 +52,11 @@ function mapDispatchToProps(dispatch) {
   };
 }
 
+/**
+ * @class StudioLayout
+ * @extends ReactComponent
+ * @property props
+ */
 export default connect(mapStateToProps, mapDispatchToProps)(React.createClass({
   displayName: 'StudioLayout',
   propTypes: {
@@ -61,6 +74,7 @@ export default connect(mapStateToProps, mapDispatchToProps)(React.createClass({
     }
   },
   handleEditorTabChanged: function (oldTabId, newTabId) {
+    // todo: remove 'refs', we can find it by id instead
     // find the active ace-pane, and focus on it
     const props = this.props,
       editorTabs = ReactDOM.findDOMNode(this.refs.editorTabs),
@@ -75,7 +89,7 @@ export default connect(mapStateToProps, mapDispatchToProps)(React.createClass({
   },
   handleTabDragStart: function (event, key) {
     const targetEl = getParentNodeOf(event.target, 'li'),
-      targetAcePane = _.find(this.state.acePanes, {id: key});
+      targetAcePane = _.find(this.props.acePanes, {id: key});
 
     // prevent default in this case means to _deny_ the start of the drag
     // event.preventDefault();
@@ -93,11 +107,11 @@ export default connect(mapStateToProps, mapDispatchToProps)(React.createClass({
   handleTabListDrop: function (event) {
     const targetEl = getParentNodeOf(event.target, 'li'),
       targetId = targetEl && targetEl.getAttribute('data-child'),
-      targetAcePane = _.find(this.state.acePanes, {id: targetId}),
+      targetAcePane = _.find(this.props.acePanes, {id: targetId}),
       sourceId = event.dataTransfer.getData('rodeo/cid'),
-      sourceAcePane = _.find(this.state.acePanes, {id: sourceId});
+      sourceAcePane = _.find(this.props.acePanes, {id: sourceId});
 
-    let panes = _.without(this.state.acePanes, sourceAcePane),
+    let panes = _.without(this.props.acePanes, sourceAcePane),
       targetIndex = _.findIndex(panes, targetAcePane);
 
     if (sourceAcePane && targetIndex > -1) {

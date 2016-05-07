@@ -1,3 +1,9 @@
+/**
+ * IOPUB broadcasts may be consumed by multiple components, and are not associated with any particular part of the
+ * global application state.
+ * @module
+ */
+
 import _ from 'lodash';
 
 export function setTerminalState(status) {

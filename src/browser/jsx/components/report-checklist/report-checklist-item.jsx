@@ -1,5 +1,9 @@
 import React from 'react';
 
+/**
+ * @class ReportChecklistItem
+ * @extends ReactComponent
+ */
 function ReportChecklistItem({ok, label}) {
   return (
     <li className={ok ? 'list-group-item list-group-item-success' : 'list-group-item list-group-item-danger'}>

@@ -1,6 +1,10 @@
 import React from 'react';
 import { send } from '../../services/ipc';
 
+/**
+ * @class SetupError
+ * @extends ReactComponent
+ */
 export default React.createClass({
   displayName: 'SetupError',
   handleSendError: () => send('send-error'),

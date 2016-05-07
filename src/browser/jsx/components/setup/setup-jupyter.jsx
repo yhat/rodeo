@@ -1,6 +1,10 @@
 import React from 'react';
 import DocCode from './../doc-code';
 
+/**
+ * @class SetupJupyter
+ * @extends ReactComponent
+ */
 export default React.createClass({
   displayName: 'SetupJupyter',
   propTypes: {

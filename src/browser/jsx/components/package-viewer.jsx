@@ -1,5 +1,9 @@
 import React from 'react';
 
+/**
+ * @class PackagesViewer
+ * @extends ReactComponent
+ */
 export default React.createClass({
   displayName: 'PackagesViewer',
   render: function () {

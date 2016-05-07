@@ -88,6 +88,9 @@ store.subscribe(() => console.debug('store', store.getState()) );
  * Expose the global application state/store in two ways:
  * a) connect() from 'react-redux' (i.e. containers)
  * b) this.context.store for components that explictly ask for it (i.e., SplitPane component to broadcast)
+ * 
+ * @class Main
+ * @extends ReactComponent
  */
 export default React.createClass({
   displayName: 'Main',

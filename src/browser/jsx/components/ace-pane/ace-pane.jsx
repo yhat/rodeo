@@ -5,6 +5,11 @@ import './ace-pane.less';
 import _ from 'lodash';
 import { send } from '../../services/ipc';
 
+/**
+ * @class AcePane
+ * @extends ReactComponent
+ * @property props
+ */
 export default React.createClass({
   displayName: 'AcePane',
   propTypes: {
@@ -20,6 +25,10 @@ export default React.createClass({
     theme: React.PropTypes.string
   },
   statics: {
+    /**
+     * @methodOf AcePane
+     * @static
+     */
     resizeAll: function () {
       _.each(document.querySelectorAll('.ace-pane'), function (el) {
         ace.edit(el).resize();
@@ -27,6 +36,8 @@ export default React.createClass({
     },
     /**
      * @param {Element} el
+     * @methodOf AcePane
+     * @static
      */
     focusByElement: function (el) {
       ace.edit(el).focus();
@@ -70,8 +81,6 @@ export default React.createClass({
     });
     instance.$blockScrolling = Infinity;
 
-    this.instance = instance;
-
     // if filename, load filename into instance
     if (filename) {
       props.onLoading();
@@ -84,7 +93,9 @@ export default React.createClass({
     }
   },
   focus: function () {
-    this.instance.focus();
+    const instance = ace.edit(ReactDOM.findDOMNode(this));
+
+    instance.focus();
   },
   render: function () {
     return (

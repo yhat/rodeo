@@ -1,3 +1,8 @@
+/**
+ * Kernel events can be triggered from several different components that want to interact with the underlying kernel.
+ * @module
+ */
+
 import _ from 'lodash';
 import { send } from '../services/ipc';
 import ace from 'ace';

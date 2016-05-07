@@ -6,6 +6,11 @@ import './lib/owl.carousel.less';
 import './lib/owl.theme.less';
 import './lib/owl.carousel';
 
+/**
+ * @class Tour
+ * @extends ReactComponent
+ * @property props
+ */
 export default React.createClass({
   displayName: 'Tour',
   propTypes: {

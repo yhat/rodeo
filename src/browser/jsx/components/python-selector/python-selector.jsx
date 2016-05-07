@@ -1,6 +1,11 @@
 import React from 'react';
 import PythonSelectorItem from './python-selector-item';
 
+/**
+ * @class PythonSelector
+ * @extends ReactComponent
+ * @property props
+ */
 export default React.createClass({
   displayName: 'PythonSelector',
   propTypes: {

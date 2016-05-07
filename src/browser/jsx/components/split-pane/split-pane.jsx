@@ -5,6 +5,11 @@ import ReactDOM from 'react-dom';
 import './lib/jquery.splitter.css';
 import './lib/jquery.splitter-0.15.0';
 
+/**
+ * @class SplitPane
+ * @extends ReactComponent
+ * @property props
+ */
 export default React.createClass({
   displayName: 'SplitPane',
   propTypes: {
