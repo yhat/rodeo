@@ -12,3 +12,4 @@ build
 BETA.md
 .vagrant
 *.swp
+dist

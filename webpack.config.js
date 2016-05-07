@@ -3,18 +3,17 @@
 const path = require('path');
 
 module.exports = {
-  context: path.join(__dirname, 'public'),
+  context: path.join(__dirname, 'src/browser/jsx'),
   devtool: 'source-map',
   entry: {
-    startup: './jsx/startup',
-    main: './jsx/main'
+    startup: './src/browser/jsx/entry/startup',
+    main: './src/browser/jsx/entry/main'
   },
   externals: {
     'ascii-table': 'AsciiTable',
     jquery: 'jQuery',
     templates: 'templates',
-    ace: 'ace',
-    bootbox: 'bootbox'
+    ace: 'ace'
   },
   module: {
     // preLoaders: [
@@ -43,8 +42,7 @@ module.exports = {
   },
   output: {
     filename: '[name].js',
-    path: path.join(__dirname, 'static/js'),
-    publicPath: 'js/'
+    path: path.join(__dirname, 'dist')
   },
   stats: {
     colors: true

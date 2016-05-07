@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <title>Rodeo</title>
+  <link id="rodeo-theme" href="css/default.css" rel="stylesheet" />
+</head>
+<body>
+  <div class="container text-center" style="max-width: 400px;">
+    <br />
+    <img src="../img/rodeo-text-dark.png" style="max-height: 200px; width: 90%;"/>
+    <hr />
+    <p class="lead" id="app-name" class="text-info">Rodeo </p>
+    <hr />
+    <p class="lead">
+      Rodeo is built by <a onclick="require('electron').shell.openExternal('http://yhat.com/');"><span style="color: #ee5311;">&ycirc;</span><span class="color: #898989">hat</span></a>.
+    </p>
+    <p class="lead">
+      Rodeo includes other open source software components. Click below for a list of these components and their license agreements.
+    </p>
+    <button onclick="require('electron').shell.openItem(__dirname + '/../static/acknowledgements.txt');" class="btn btn-primary">Acknowledgments</button>
+
+    <br />
+    <hr />
+    <p class="text-muted">
+      <i>Note</i>: To help us improve Rodeo, we anonymously track usage metrics, such as # of opens/closes, shortcuts used, and current version. You can disable
+      these metrics at any time by visiting <strong>Preferences</strong> and unchecking the <i>Track Metrics</i> field.
+    </p>
+  </div>
+  <script type="text/javascript">
+    if (/^file:\/\//.test(window.location.href)) {
+      var rc = require('ipc').send('preferences-get');
+      console.log(rc);
+      document.getElementById('app-name').innerHTML = "Rodeo v" + rc.version;
+    } else {
+      var request = new XMLHttpRequest();
+      request.open('GET', 'preferences', true);
+
+      request.onload = function() {
+        if (request.status >= 200 && request.status < 400) {
+          var rc = JSON.parse(request.responseText);
+          document.getElementById('app-name').innerHTML = "Rodeo v" + rc.version;
+        }
+      };
+
+      request.send();
+    }
+  </script>
+</body>
+</html>
