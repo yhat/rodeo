@@ -2,8 +2,8 @@ import $ from 'jquery';
 import React from 'react';
 import ReactDOM from 'react-dom';
 import TourItem from './tour-item.jsx';
-import './lib/owl.carousel.less';
-import './lib/owl.theme.less';
+import './lib/owl.carousel.css';
+import './lib/owl.theme.css';
 import './lib/owl.carousel';
 
 /**

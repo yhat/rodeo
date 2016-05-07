@@ -1,18 +1,13 @@
 // Core variables and mixins
 @import "imported/default.less";
-@import "../../node_modules/bootstrap/less/bootstrap.less";
-@import "../../node_modules/font-awesome/less/font-awesome.less";
+@import "../../../node_modules/bootstrap/less/bootstrap.less";
+@import "../../../node_modules/font-awesome/less/font-awesome.less";
 
-////------- CUSTOM
-
-// jquery related things
-@import "../jsx/components/terminal/lib/console.less";
-@import "../jsx/components/split-pane/external/jquery.splitter.less";
+// structure
+@import "structure/jqconsole.less";
 @import "lib/jquery.dataTables.less";
 
 // misc stuff
-@import "../jsx/components/tour/lib/owl.carousel.less";
-@import "../jsx/components/tour/lib/owl.theme.less";
 @import "lib/misc.less";
 
 // bootswatch. this overrides certain things w/ default bootstrap

@@ -6,8 +6,8 @@ module.exports = {
   context: path.join(__dirname, 'src/browser/jsx'),
   devtool: 'source-map',
   entry: {
-    startup: './src/browser/jsx/entry/startup',
-    main: './src/browser/jsx/entry/main'
+    startup: './entry/startup',
+    main: './entry/main'
   },
   externals: {
     'ascii-table': 'AsciiTable',
