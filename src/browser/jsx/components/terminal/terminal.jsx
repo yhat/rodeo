@@ -42,7 +42,7 @@ export default React.createClass({
 
     // autocomplete
     jqConsole._IndentOld = jqConsole._Indent;
-    jqConsole._Indent = function () {
+    jqConsole._Indent = () => {
       const onAutoComplete = props.onAutoComplete;
 
       if (jqConsole.GetPromptText().trim() == '') {
@@ -58,7 +58,7 @@ export default React.createClass({
 
         // executeCommand(code, true, handleExecuteCommand(originalPrompt, code));
       }
-    }.bind(this);
+    };
 
     this.jqConsole = jqConsole;
     this.startPrompt();

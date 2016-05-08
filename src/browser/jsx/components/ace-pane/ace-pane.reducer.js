@@ -43,9 +43,7 @@ function add(state, action) {
 
   // focus changed to new file
 
-  if (!focusItem.filename && focusIndex === 0 && state.length === 1) {
-    state = [];
-  } else {
+  if (focusItem) {
     focusItem.hasFocus = false;
   }
 

@@ -72,23 +72,56 @@ export default React.createClass({
       active: ''
     };
   },
+  componentWillMount: function () {
+    console.log('componentWillMount');
+    const nextChildren = ensureTabChildrenHaveKeysAndIds(this.props.children),
+      nextChildrenIds = getTabIds(nextChildren);
+    let active, focusedChild;
+
+    console.log('tabs', nextChildren, nextChildrenIds);
+
+    focusedChild =  _.find(nextChildren, child => _.get(child, 'props.hasFocus'));
+    if (focusedChild) {
+      console.log('found child marked with focus');
+      // if some tab is marked as having focus, it becomes the active key
+      let maybeActive = focusedChild.props.id;
+
+      if (nextChildrenIds.indexOf(maybeActive) !== -1) {
+        active = maybeActive;
+      }
+    } else if (nextChildrenIds.length !== 0) {
+      console.log('defaulting to first child that is a tab');
+      // if no tab is active, then the first tab is active
+      active = nextChildrenIds[0];
+    }
+
+    if (nextChildrenIds.indexOf(active) !== -1) {
+      console.log('setting state to', active);
+      this.setState({active});
+    } else {
+      console.error('not setting state!');
+    }
+  },
   componentWillReceiveProps: function (nextProps) {
+    console.log('componentWillReceiveProps', nextProps);
     const state = this.state,
       nextChildren = ensureTabChildrenHaveKeysAndIds(nextProps.children),
       nextChildrenIds = getTabIds(nextChildren);
-    let selectedChild, activeChild,
+    let focusedChild, activeChild,
       active = state.active;
 
-    selectedChild =  _.find(nextChildren, child => _.get(child, 'props.selected'));
+    focusedChild =  _.find(nextChildren, child => _.get(child, 'props.hasFocus'));
     activeChild = _.find(nextChildren, child => _.get(child, 'props.id') === active);
-    if (selectedChild) {
-      // if some tab is marked as "selected", it becomes active
-      let maybeActive = selectedChild.props.id;
+    if (focusedChild) {
+      console.log('found child marked with focus');
+      // if some tab is marked as having focus, it becomes the active key
+      let maybeActive = focusedChild.props.id;
 
       if (nextChildrenIds.indexOf(maybeActive) !== -1) {
         active = maybeActive;
       }
     } else if (!activeChild && nextChildrenIds.length !== 0) {
+      console.log('defaulting to first child that is a tab');
       // if no tab is active, then the first tab is active
       active = nextChildrenIds[0];
     }
@@ -212,7 +245,7 @@ export default React.createClass({
 
     children = ensureTabChildrenHaveKeysAndIds(this.props.children);
 
-    tabList = React.Children.map(children, function (child, i) {
+    tabList = React.Children.map(children, (child, i) => {
       const cidTab = cid(), // this is specifically for the tabs, not items/children
         className = [
           tabClass,
@@ -239,11 +272,11 @@ export default React.createClass({
         // must be a list item, even if not a tab
         return <li key={cidTab}>{child}</li>;
       }
-    }.bind(this));
+    });
 
     children = React.Children.map(children, function (child, i) {
       if (child.type === TabbedPaneItem) {
-        return React.cloneElement(child, {active: isChildActive(child, active, i)});
+        return React.cloneElement(child, {hasFocus: isChildActive(child, active, i)});
       }
     });
 

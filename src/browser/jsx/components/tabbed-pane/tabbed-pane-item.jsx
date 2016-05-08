@@ -8,7 +8,7 @@ import React from 'react';
 export default React.createClass({
   displayName: 'TabbedPaneItem',
   propTypes: {
-    active: React.PropTypes.bool,
+    hasFocus: React.PropTypes.bool,
     icon: React.PropTypes.string,
     id: React.PropTypes.string,
     isCloseable: React.PropTypes.bool,
@@ -17,7 +17,7 @@ export default React.createClass({
   render: function () {
     const className = [
       'tab-pane',
-      this.props.active ? 'active' : ''
+      this.props.hasFocus ? 'active' : ''
     ].join(' ');
 
     return <div className={className} id={this.props.id}>{this.props.children}</div>;

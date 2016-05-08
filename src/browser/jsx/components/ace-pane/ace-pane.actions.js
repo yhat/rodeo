@@ -4,13 +4,28 @@ import ace from 'ace';
 import * as store from '../../services/store';
 
 /**
- *
- * @param {string} filename
- * @param {object} stats
- * @returns {{type: string, filename: *, stats: *}}
+ * @param {string} [filename]
+ * @param {object} [stats]
+ * @returns {{type: string, filename: string, stats: object}}
  */
 export function addFile(filename, stats) {
   return {type: 'ADD_FILE', filename, stats};
+}
+
+/**
+ * @param {string} id
+ * @returns {{type: string, id: string}}
+ */
+export function focusFile(id) {
+  return {type: 'FOCUS_FILE', id};
+}
+
+/**
+ * @param {string} id
+ * @returns {{type: string, id: string}}
+ */
+export function closeFile(id) {
+  return {type: 'CLOSE_FILE', id};
 }
 
 /**
@@ -106,6 +121,8 @@ export function showOpenFileDialogForActiveFile() {
 
 export default {
   addFile,
+  focusFile,
+  closeFile,
   fileIsSaved,
   saveActiveFile,
   showSaveFileDialogForActiveFile,

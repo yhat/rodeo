@@ -61,7 +61,7 @@ export default React.createClass({
 
     instance.refresh();
 
-    window.onfocus = this.handleFocus.bind(this);
+    window.onfocus = this.handleFocus;
     this.handleFocus();
   },
   /**

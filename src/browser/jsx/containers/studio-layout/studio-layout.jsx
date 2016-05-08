@@ -1,22 +1,23 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
 import {connect} from 'react-redux';
-import SplitPane from './split-pane/split-pane.jsx';
-import TabbedPane from './tabbed-pane/tabbed-pane.jsx';
-import FileViewer from './file-viewer/file-viewer.jsx';
-import PlotViewer from './plot-viewer/plot-viewer.jsx';
-import PackageViewer from './package-viewer.jsx';
-import PreferenceViewer from './preference-viewer.jsx';
-import EnvironmentViewer from './environment-viewer.jsx';
-import HistoryViewer from './history-viewer.jsx';
-import TabbedPaneItem from './tabbed-pane/tabbed-pane-item.jsx';
-import AcePane from './ace-pane/ace-pane.jsx';
-import Terminal from './terminal/terminal.jsx';
-import './studio-layout.less';
+import SplitPane from '../../components/split-pane/split-pane.jsx';
+import TabbedPane from '../../components/tabbed-pane/tabbed-pane.jsx';
+import FileViewer from '../../components/file-viewer/file-viewer.jsx';
+import PlotViewer from '../../components/plot-viewer/plot-viewer.jsx';
+import PackageViewer from '../../components/package-viewer.jsx';
+import PreferenceViewer from '../../components/preference-viewer.jsx';
+import EnvironmentViewer from '../../components/environment-viewer.jsx';
+import HistoryViewer from '../../components/history-viewer.jsx';
+import TabbedPaneItem from '../../components/tabbed-pane/tabbed-pane-item.jsx';
+import AcePane from '../../components/ace-pane/ace-pane.jsx';
+import Terminal from '../../components/terminal/terminal.jsx';
+import './studio-layout.css';
 import _ from 'lodash';
-import { getParentNodeOf } from '../services/dom';
-import { executeActiveFileInActiveConsole } from '../actions/kernel';
-import { execute } from '../actions/kernel';
+import { getParentNodeOf } from '../../services/dom';
+import kernelActions from '../../actions/kernel';
+import splitPaneActions from '../../components/split-pane/split-pane.actions';
+import acePaneActions from '../../components/ace-pane/ace-pane.actions';
 
 /**
  * @param {Element} el
@@ -43,12 +44,12 @@ function mapStateToProps(state) {
  */
 function mapDispatchToProps(dispatch) {
   return {
-    onAddAcePane: () => dispatch({ type: 'ADD_FILE' }),
-    onFocusAcePane: (id) => dispatch({ type: 'FOCUS_FILE', id: id }),
-    onRemoveAcePane: (id) => dispatch({ type: 'CLOSE_FILE', id: id }),
-    onRunActiveAcePane: () => dispatch(executeActiveFileInActiveConsole),
-    onSplitPaneDrag: () => dispatch({ type: 'SPLIT_PANE_DRAG' }),
-    onCommand: (text, id) => dispatch(execute(text, id))
+    onAddAcePane: () => dispatch(acePaneActions.addFile()),
+    onFocusAcePane: (id) => dispatch(acePaneActions.focusFile(id)),
+    onRemoveAcePane: (id) => dispatch(acePaneActions.closeFile(id)),
+    onRunActiveAcePane: () => dispatch(kernelActions.executeActiveFileInActiveConsole()),
+    onSplitPaneDrag: () => dispatch(splitPaneActions.splitPaneDrag()),
+    onCommand: (text, id) => dispatch(kernelActions.execute(text, id))
   };
 }
 
@@ -133,7 +134,7 @@ export default connect(mapStateToProps, mapDispatchToProps)(React.createClass({
 
     acePanes = this.props.acePanes.map(function (item) {
       return (
-        <TabbedPaneItem icon={item.icon} id={item.tabId} isCloseable key={item.id} label={item.label} selected={item.hasFocus}>
+        <TabbedPaneItem hasFocus={item.hasFocus} icon={item.icon} id={item.tabId} isCloseable key={item.id} label={item.label}>
           <AcePane key={item.id} {...item}/>
         </TabbedPaneItem>
       );
@@ -159,11 +160,12 @@ export default connect(mapStateToProps, mapDispatchToProps)(React.createClass({
             onTabListDrop={this.handleTabListDrop}
             ref="editorTabs"
           >
+            <a className="icon-overflowing not-tab" onClick={props.onRodeo}><span /></a>
 
             {acePanes}
 
-            <a onClick={props.onAddAcePane}><span className="fa fa-plus-square-o"/></a>
-            <a onClick={props.onRunActiveAcePane} title="Run script"><span className="fa fa-play-circle" /></a>
+            <a className="not-tab" onClick={props.onAddAcePane}><span className="fa fa-plus-square-o"/></a>
+            <a className="not-tab" onClick={props.onRunActiveAcePane} title="Run script"><span className="fa fa-play-circle" /></a>
           </TabbedPane>
           <TabbedPane>
 

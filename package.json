@@ -83,6 +83,7 @@
     "svgo": "^0.6.6",
     "svgo-loader": "^1.1.0",
     "uglify-js": "^2.4.24",
+    "url-loader": "^0.5.7",
     "webpack": "^1.13.0",
     "webpack-stream": "^3.2.0"
   },

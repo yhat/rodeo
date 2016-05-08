@@ -2,7 +2,7 @@ import React from 'react';
 import { createStore, applyMiddleware } from 'redux';
 import { Provider } from 'react-redux';
 import thunk from 'redux-thunk';
-import StudioLayout from '../components/studio-layout.jsx';
+import StudioLayout from './studio-layout/studio-layout.jsx';
 import * as ipc from '../services/ipc';
 import rootReducer from '../reducers';
 import acePaneActions from '../components/ace-pane/ace-pane.actions';
@@ -19,7 +19,7 @@ const createStoreWithMiddleware = applyMiddleware(thunk)(createStore),
  * node process could do something on its own, it _shouldn't_.
  */
 ipc.on('dispatch', function (event, action) {
-  console.debug('event dispatched', action);
+  console.log('event dispatched', action);
   const dispatch = store.dispatch;
 
   switch (action.type) {
@@ -38,11 +38,11 @@ ipc.on('shell', function (event, data) {
 
   if (result) {
     switch (result.msg_type) {
-      case 'execute_reply': return console.debug('shell', result.msg_type, result.content.status);
-      default: return console.debug('shell', result, {event, data});
+      case 'execute_reply': return console.log('shell', result.msg_type, result.content.status);
+      default: return console.log('shell', result, {event, data});
     }
   } else {
-    console.debug('shell', {event, data});
+    console.log('shell', {event, data});
   }
 });
 
@@ -60,10 +60,10 @@ ipc.on('iopub', function (event, data) {
       case 'execute_input': return dispatch(iopubActions.addTerminalExecutedInput(result.content.code));
       case 'stream': return dispatch(iopubActions.addTerminalText(result.content.name, result.content.text));
       case 'display_data': return dispatch(iopubActions.addDisplayData(result.content.data));
-      default: return console.debug('iopub', result, {event, data});
+      default: return console.log('iopub', result, {event, data});
     }
   } else {
-    console.debug('iopub', {event, data});
+    console.log('iopub', {event, data});
   }
 });
 
@@ -72,23 +72,23 @@ ipc.on('stdin', function (event, data) {
 
   if (result) {
     switch (result.msg_type) {
-      default: return console.debug('stdin', result, {event, data});
+      default: return console.log('stdin', result, {event, data});
     }
   } else {
-    console.debug('stdin', {event, data});
+    console.log('stdin', {event, data});
   }
 });
 
 /**
  * Log every change to the store (this has performance implications, of course).
  */
-store.subscribe(() => console.debug('store', store.getState()) );
+store.subscribe(() => console.log('store', store.getState()) );
 
 /**
  * Expose the global application state/store in two ways:
  * a) connect() from 'react-redux' (i.e. containers)
  * b) this.context.store for components that explictly ask for it (i.e., SplitPane component to broadcast)
- * 
+ *
  * @class Main
  * @extends ReactComponent
  */

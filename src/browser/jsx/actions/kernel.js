@@ -60,3 +60,11 @@ export function execute(text, id) {
     });
   };
 }
+
+export default {
+  execute,
+  executeActiveFileInActiveConsole,
+  isIdle,
+  isBusy,
+  interrupt
+};

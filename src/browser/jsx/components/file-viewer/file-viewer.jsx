@@ -54,10 +54,23 @@ export default connect(mapStateToProps, mapDispatchToProps)(React.createClass({
             key={'..'}
             onDoubleClick={props.onGoToParentDirectory}
           />
-          {props.files.map(function (file) {
+          {props.files.filter(file => file.isDirectory).map(file => {
             return (
               <FileListItem
                 basePath={props.path}
+                id={file.id}
+                key={file.id}
+                onClick={_.partial(props.onClick, file)}
+                onDoubleClick={_.partial(props.onOpenFile, file)}
+                {...file}
+              />
+            );
+          })}
+          {props.files.filter(file => !file.isDirectory).map(file => {
+            return (
+              <FileListItem
+                basePath={props.path}
+                id={file.id}
                 key={file.id}
                 onClick={_.partial(props.onClick, file)}
                 onDoubleClick={_.partial(props.onOpenFile, file)}
