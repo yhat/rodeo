@@ -2,7 +2,7 @@ import _ from 'lodash';
 import {connect} from 'react-redux';
 import React from 'react';
 import FileListItem from './file-list-item.jsx';
-import {selectViewedFile, getViewedFiles, openViewedFile, goToParentDirectory} from './file-viewer.actions';
+import fileViewerActions from './file-viewer.actions';
 import './file-viewer.less';
 
 function mapStateToProps(state) {
@@ -11,10 +11,10 @@ function mapStateToProps(state) {
 
 function mapDispatchToProps(dispatch) {
   return {
-    onRefresh: (filePath) => dispatch(getViewedFiles(filePath)),
-    onClick: (file) => dispatch(selectViewedFile(file)),
-    onOpenFile: (file) => dispatch(openViewedFile(file)),
-    onGoToParentDirectory: (file) => dispatch(goToParentDirectory(file))
+    onRefresh: (filePath) => dispatch(fileViewerActions.getViewedFiles(filePath)),
+    onClick: (file) => dispatch(fileViewerActions.selectViewedFile(file)),
+    onOpenFile: (file) => dispatch(fileViewerActions.openViewedFile(file)),
+    onGoToParentDirectory: (file) => dispatch(fileViewerActions.goToParentDirectory(file))
   };
 }
 
