@@ -3,10 +3,7 @@
 const sinon = require('sinon'),
   dirname = __dirname.split('/').pop(),
   filename = __filename.split('/').pop().split('.').shift(),
-  lib = require('./' + filename),
-  processes = require('../../services/processes'),
-  fs = require('fs'),
-  path = require('path');
+  lib = require('./' + filename);
 
 describe(dirname + '/' + filename, function () {
   let sandbox;

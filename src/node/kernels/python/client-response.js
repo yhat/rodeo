@@ -69,7 +69,6 @@ function isRequestToOutputLink(client, response) {
 }
 
 /**
- * @param {JupyterClient} client
  * @param {JupyterClientResponse} response
  * @returns {boolean}
  */
