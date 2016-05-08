@@ -1,6 +1,6 @@
 'use strict';
 
-const eslint = require('eslint/lib/cli'),
+const  eslint = require('eslint/lib/cli'),
   globby = require('globby'),
   gulp = require('gulp'),
   concat = require('gulp-concat'),
@@ -10,7 +10,7 @@ const eslint = require('eslint/lib/cli'),
   KarmaServer = karma.Server,
   path = require('path'),
   sourcemaps = require('gulp-sourcemaps'),
-  webpack = require('webpack-stream');
+  webpackStream = require('webpack-stream');
 
 gulp.task('eslint-browser', function () {
   return globby([
@@ -125,15 +125,22 @@ gulp.task('themes', ['fonts'], function () {
     .pipe(gulp.dest('dist/themes'));
 });
 
-gulp.task('webpack', function () {
+gulp.task('jsx', function () {
   return gulp.src([
     'src/browser/jsx/entry/*.js'
-  ]).pipe(webpack(require('./webpack.config.js')))
+  ]).pipe(webpackStream(require('./webpack.config.js')))
+    .pipe(gulp.dest('dist'));
+});
+
+gulp.task('hot', function () {
+  return gulp.src([
+    'src/browser/jsx/entry/*.js'
+  ]).pipe(webpackStream(require('./webpack.dev.config.js')))
     .pipe(gulp.dest('dist'));
 });
 
 gulp.task('test', ['eslint-node', 'eslint-browser', 'karma-browser', 'karma-node']);
-gulp.task('build', ['themes', 'external', 'ace', 'webpack', 'html']);
+gulp.task('build', ['themes', 'external', 'ace', 'jsx', 'html']);
 gulp.task('run', []);
 gulp.task('watch', function () {
   gulp.watch(['public/js/**/*.js'], ['js']);

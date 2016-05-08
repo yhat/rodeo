@@ -1,13 +1,21 @@
 'use strict';
 
-const path = require('path');
+const path = require('path'),
+  webpack = require('webpack');
 
 module.exports = {
   context: path.join(__dirname, 'src/browser/jsx'),
+  debug: true,
   devtool: 'source-map',
   entry: {
-    startup: ['./entry/startup'],
-    main: ['./entry/main']
+    startup: [
+      'webpack-hot-middleware/client?path=http://localhost:3001/__webpack_hmr',
+      './entry/startup'
+    ],
+    main: [
+      'webpack-hot-middleware/client?path=http://localhost:3001/__webpack_hmr',
+      './entry/main'
+    ]
   },
   externals: {
     'ascii-table': 'AsciiTable',
@@ -40,9 +48,21 @@ module.exports = {
     __filename: true,
     __dirname: true
   },
+  plugins: [
+    new webpack.optimize.OccurrenceOrderPlugin(),
+    new webpack.HotModuleReplacementPlugin(),
+    new webpack.NoErrorsPlugin(),
+    new webpack.DefinePlugin({
+      __DEV__: true,
+      'process.env': {
+        NODE_ENV: JSON.stringify('development')
+      }
+    })
+  ],
   output: {
     filename: '[name].js',
-    path: path.join(__dirname, 'dist')
+    path: path.join(__dirname, 'dist'),
+    publicPath: 'http://localhost:3001/dist/'
   },
   stats: {
     colors: true
