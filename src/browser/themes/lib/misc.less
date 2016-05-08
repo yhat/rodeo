@@ -1,0 +1,71 @@
+#bottom-left {
+    padding: 0 0 0 0;
+}
+
+a {
+  cursor: pointer;
+}
+
+.editor {
+  height: 100%;
+  position: absolute;
+}
+
+.tab-pane {
+    width: 100%;
+    overflow-y: scroll;
+}
+
+.navbar {
+  margin-bottom: 0;
+}
+
+.hat {
+  position: absolute;
+  left: 2px;
+  top: 10px;
+  width: 35px;
+  height: auto;
+  z-index: 100000;
+}
+.big-hat {
+  position: relative;
+  left: 295px;
+  top: 165px;
+  width: 200px;
+  height: auto;
+}
+
+#help-content {
+  background-color: @body-bg;
+  color: @text-color;
+}
+
+.selected {
+  font-size: 20px;
+}
+
+.filename {
+  text-decoration: none;
+}
+
+.selected:hover {
+  background-color: @brand-primary;
+  color: @gray-lighter;
+}
+
+.selected > a:hover {
+  background-color: @brand-primary;
+  color: @gray-lighter;
+}
+
+#plots-minimap > .active {
+  border: medium solid skyblue;
+}
+
+
+#history-trail {
+  > p:nth-child(odd) {
+    background: @table-bg-accent;
+  }
+}

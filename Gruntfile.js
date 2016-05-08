@@ -1,19 +1,28 @@
-var path = require('path');
-var pkg = require('./package.json')
+'use strict';
 
-module.exports = function(grunt) {
-  require('load-grunt-tasks')(grunt);
-
-  var ignoredDirectories = [
+const _ = require('lodash'),
+  path = require('path'),
+  pkg = require('./package.json'),
+  ignoredDirectories = [
     'node_modules/.bin',
     'node_modules/electron-compile/node_modules/electron-compilers',
     'public',
     'marketing',
     'scripts',
     'bin'
+  ],
+  lintedJS = [
+    'Gruntfile.js',
+    'build/**/*.js'
+    // 'src/**/*.js'
   ];
 
-  var defaultOptions = {
+/**
+ * @param {object} pkg
+ * @returns {object}
+ */
+function getDefaultOptions(pkg) {
+  return _.pickBy({
     name: pkg.productName,
     'app-version': pkg.version,
     'app-bundle-id': pkg.appBundleId,
@@ -25,78 +34,91 @@ module.exports = function(grunt) {
     arch: null,
     asar: true,
     prune: true,
-    icon: path.join("resources", "app.icns"),
+    icon: path.join('resources', 'app.icns'),
     ignore: ignoredDirectories
-  }
+  }, _.identity);
+}
 
-  var osxOptions = JSON.parse(JSON.stringify(defaultOptions));
-  osxOptions.out = path.join('dist', 'darwin', 'x64');
-  osxOptions.platform = 'darwin';
-  osxOptions.arch = 'x64';
+/**
+ * @param {object} pkg
+ * @returns {object}
+ */
+function getElectronConfig(pkg) {
+  return {
+    osxBuild: {
+      options: _.assign(getDefaultOptions(pkg), {
+        out: path.join('dist', 'darwin', 'x64'),
+        platform: 'darwin',
+        arch: 'x64'
+      })
+    },
+    windows32Build: {
+      options: _.assign(getDefaultOptions(pkg), {
+        out: path.join('dist', 'win32', 'ia32'),
+        platform: 'win32',
+        arch: 'ia32'
+      })
+    },
+    windows64Build: {
+      options: _.assign(getDefaultOptions(pkg), {
+        out: path.join('dist', 'win32', 'x64'),
+        platform: 'win32',
+        arch: 'x64'
+      })
+    }
+  };
+}
 
-  var windows32Options = JSON.parse(JSON.stringify(defaultOptions));;
-  windows32Options.out = path.join('dist', 'win32', 'ia32');
-  windows32Options.platform = 'win32';
-  windows32Options.arch = 'ia32';
-
-  var windows64Options = JSON.parse(JSON.stringify(defaultOptions));;
-  windows64Options.out = path.join('dist', 'win32', 'x64');
-  windows64Options.platform = 'win32';
-  windows64Options.arch = 'x64';
-
-  var linux32Options = JSON.parse(JSON.stringify(defaultOptions));;
-  linux32Options.out = path.join('dist', 'linux', 'x64');
-  linux32Options.platform = 'win32';
-  linux32Options.arch = 'x64';
-
-  grunt.initConfig({
-    electron: {
-      osxBuild: {
-        options: osxOptions
-      },
-      windows32Build: {
-        options: windows32Options
-      },
-      windows64Build: {
-        options: windows64Options
+/**
+ * @param {object} pkg
+ * @returns {object}
+ */
+function getElectronDebianInstallerConfig(pkg) {
+  return {
+    options: {
+      name: pkg.productName,
+      version: pkg.version,
+      productName: pkg.productName,
+      productDescription: pkg.productDescription,
+      section: 'devel',
+      priority: 'optional',
+      categories: ['Utility'],
+      rename: function (dest) {
+        return dest + '<%= name %>_<%= version %>_<%= arch %>.deb';
       }
     },
-    'electron-debian-installer': {
+    linux32: {
       options: {
-        name: pkg.productName,
-        version: pkg.version,
-        productName: pkg.productName,
-        productDescription: pkg.productDescription,
-        section: 'devel',
-        priority: 'optional',
-        categories: [
-          'Utility'
-        ],
-        rename: function (dest, src) {
-          return dest + '<%= name %>_<%= version %>_<%= arch %>.deb';
-        }
+        arch: 'i386',
+        depends: [] // i think python, ipython, etc. would go here (?)
       },
-      linux32: {
-        options: {
-          arch: 'i386',
-          depends: [] // i think python, ipython, etc. would go here (?)
-        },
-        src: 'build/linux/all/Rodeo-linux-ia32/',
-        dest: 'build/linux/all/Rodeo-linux-ia32/'
+      src: 'build/linux/all/Rodeo-linux-ia32/',
+      dest: 'build/linux/all/Rodeo-linux-ia32/'
+    },
+    linux64: {
+      options: {
+        arch: 'amd64',
+        depends: [] // i think python, ipython, etc. would go here (?)
       },
-      linux64: {
-        options: {
-          arch: 'amd64',
-          depends: [] // i think python, ipython, etc. would go here (?)
-        },
-        src: 'build/linux/all/Rodeo-linux-x64/',
-        dest: 'build/linux/all/Rodeo-linux-x64/'
-      }
+      src: 'build/linux/all/Rodeo-linux-x64/',
+      dest: 'build/linux/all/Rodeo-linux-x64/'
     }
+  };
+}
+
+/**
+ * @param {object} grunt
+ */
+module.exports = function (grunt) {
+  require('load-grunt-tasks')(grunt);
+
+  grunt.initConfig({
+    electron: getElectronConfig(pkg),
+    'electron-debian-installer': getElectronDebianInstallerConfig(pkg),
+    eslint: { files: lintedJS }
   });
 
   grunt.loadNpmTasks('grunt-electron-installer');
   grunt.loadNpmTasks('grunt-electron-debian-installer');
-  grunt.registerTask('default', ['electron-debian-installer']);
-
-}
+  grunt.registerTask('default', ['eslint', 'electron-debian-installer']);
+};

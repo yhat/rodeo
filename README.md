@@ -6,3 +6,5 @@
 ![](http://blog.yhathq.com/static/img/rodeo-install.png)
 
 ![](https://ga-beacon.appspot.com/UA-46996803-1/rodeo/README.md)
+
+[Contributing](http://github.com/yhat/rodeo/master/contributing.md)

@@ -1,0 +1,5 @@
+machine:
+  timezone:
+    America/New_York
+  node:
+    version: 5.0

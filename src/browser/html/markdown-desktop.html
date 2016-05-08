@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <title>Rodeo</title>
+  <link rel="stylesheet" href="css/default.css" />
+  <link rel="stylesheet" href="http://cdnjs.cloudflare.com/ajax/libs/highlight.js/8.9.1/styles/default.min.css">
+  <script src="http://cdnjs.cloudflare.com/ajax/libs/highlight.js/8.9.1/highlight.min.js"></script>
+  <script type="text/javascript">
+    window.$ = window.jQuery = require('jquery');
+  </script>
+  <script src="../../../static/js/external.min.js"></script>
+</head>
+<body>
+  <!-- start nav -->
+  <nav class="navbar navbar-default" style="margin-bottom: 2px;">
+    <div class="container-fluid">
+      <div class="navbar-header">
+        <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1">
+          <span class="sr-only">Toggle navigation</span>
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+        </button>
+      </div>
+
+      <ul class="nav navbar-nav navbar-right">
+        <li><a type="submit" id="pdf" class="btn btn-default">Export as PDF</a></li>
+      </ul>
+
+    </div>
+  </nav>
+  <!-- end nav -->
+  <div id="content" class="container">
+  </div>
+  <script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+  <script type="text/javascript">
+    $(document).ready(function() {
+      require('ipc').on('content', function(data) {
+        $("#content").html(data.html);
+      });
+    });
+    $("#pdf").click(function(e) {
+      e.preventDefault();
+      var ipc = require('electron').ipcRenderer;
+      ipc.send('pdf');
+      return false;
+    });
+  </script>
+</body>
