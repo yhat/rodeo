@@ -59,13 +59,13 @@ export default connect(mapStateToProps, mapDispatchToProps)(React.createClass({
 
           if (modal.contentType === 'MARKED') {
             contents = (
-              <ModalDialog id={modal.id} title={modal.title}>
+              <ModalDialog id={modal.id} onCancel={onCancel} onOK={onOK} title={modal.title}>
                 <Marked {...modal.options}>{modal.content}</Marked>
               </ModalDialog>
             );
           } else if (modal.contentType === 'STICKERS') {
             contents = (
-              <ModalDialog id={modal.id} title={modal.title}>
+              <ModalDialog id={modal.id} onCancel={onCancel} onOK={onOK}>
                 <StickersPane onOK={onOK} />
               </ModalDialog>
             );

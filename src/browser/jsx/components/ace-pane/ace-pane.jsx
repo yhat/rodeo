@@ -81,6 +81,8 @@ export default React.createClass({
     });
     instance.$blockScrolling = Infinity;
 
+    instance.resize();
+
     // if filename, load filename into instance
     if (filename) {
       props.onLoading();
@@ -95,7 +97,9 @@ export default React.createClass({
   focus: function () {
     const instance = ace.edit(ReactDOM.findDOMNode(this));
 
-    instance.focus();
+    _.defer(function () {
+      instance.focus();
+    });
   },
   render: function () {
     return (

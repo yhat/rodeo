@@ -70,12 +70,17 @@ export default React.createClass({
       nextPrompt = () => _.defer(this.startPrompt);
 
     jqConsole.Prompt(true, (input) => {
-      return props.onCommand(input, id)
-        .then(nextPrompt)
-        .catch(function (error) {
-          console.error(error);
-          nextPrompt();
-        });
+      let result = props.onCommand(input, id);
+
+      if (result && _.isFunction(result.then)) {
+        return result.then(nextPrompt)
+          .catch(function (error) {
+            console.error(error);
+            nextPrompt();
+          });
+      } else {
+        nextPrompt();
+      }
     });
   },
   render: function () {

@@ -88,8 +88,6 @@ export default React.createClass({
       nextChildrenIds = getTabIds(nextChildren);
     let active, focusedChild;
 
-    console.log('tabs', nextChildren, nextChildrenIds);
-
     focusedChild =  _.find(nextChildren, child => _.get(child, 'props.hasFocus'));
     if (focusedChild) {
       console.log('found child marked with focus');
@@ -255,8 +253,6 @@ export default React.createClass({
 
     children = ensureTabChildrenHaveKeysAndIds(this.props.children);
 
-    console.log('children', children);
-
     tabList = React.Children.map(children, (child, i) => {
       const cidTab = cid(), // this is specifically for the tabs, not items/children
         className = [
@@ -286,15 +282,11 @@ export default React.createClass({
       }
     });
 
-    console.log('tab-children', children, 'tabList', tabList);
-
     children = React.Children.map(children, function (child, i) {
       if (isComponentOfType(child, TabbedPaneItem)) {
         return React.cloneElement(child, {hasFocus: isChildActive(child, active, i)});
       }
     });
-
-    console.log('tab-content', children);
 
     return (
       <div className="tabbed-pane">
