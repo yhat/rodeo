@@ -1,12 +1,15 @@
 import React from 'react';
-import { createStore, applyMiddleware } from 'redux';
-import { Provider } from 'react-redux';
+import {createStore, applyMiddleware} from 'redux';
+import {Provider} from 'react-redux';
 import thunk from 'redux-thunk';
+import FullScreen from '../components/full-screen/full-screen.jsx';
 import StudioLayout from './studio-layout/studio-layout.jsx';
+import ModalDialogContainer from '../components/modal-dialog/modal-dialog-container.jsx';
 import * as ipc from '../services/ipc';
 import rootReducer from '../reducers';
 import acePaneActions from '../components/ace-pane/ace-pane.actions';
 import applicationActions from '../actions/application';
+import dialogActions from '../actions/dialogs';
 import * as iopubActions from '../actions/iopub';
 
 const createStoreWithMiddleware = applyMiddleware(thunk)(createStore),
@@ -20,16 +23,22 @@ const createStoreWithMiddleware = applyMiddleware(thunk)(createStore),
  */
 ipc.on('dispatch', function (event, action) {
   console.log('event dispatched', action);
-  const dispatch = store.dispatch;
+  const dispatch = store.dispatch,
+    dispatchMap = {
+      SHOW_ABOUT_RODEO: dialogActions.showAboutRodeo(),
+      SHOW_ABOUT_STICKER: dialogActions.showAboutStickers(),
+      CHECK_FOR_UPDATES: applicationActions.checkForUpdates(),
+      TOGGLE_DEV_TOOLS: applicationActions.toggleDevTools(),
+      QUIT: applicationActions.quit(),
+      SAVE_ACTIVE_FILE: acePaneActions.saveActiveFile(),
+      SHOW_SAVE_FILE_DIALOG: acePaneActions.showSaveFileDialogForActiveFile(),
+      SHOW_OPEN_FILE_DIALOG: acePaneActions.showOpenFileDialogForActiveFile()
+    };
 
-  switch (action.type) {
-    case 'CHECK_FOR_UPDATES': return dispatch(applicationActions.checkForUpdates());
-    case 'TOGGLE_DEV_TOOLS': return dispatch(applicationActions.toggleDevTools());
-    case 'QUIT': return dispatch(applicationActions.quit());
-    case 'SAVE_ACTIVE_FILE': return dispatch(acePaneActions.saveActiveFile());
-    case 'SHOW_SAVE_FILE_DIALOG': return dispatch(acePaneActions.showSaveFileDialogForActiveFile());
-    case 'SHOW_OPEN_FILE_DIALOG': return dispatch(acePaneActions.showOpenFileDialogForActiveFile());
-    default: return dispatch(action);
+  if (dispatchMap[action.type]) {
+    return dispatch(dispatchMap[action.type]);
+  } else {
+    return dispatch(action);
   }
 });
 
@@ -38,8 +47,10 @@ ipc.on('shell', function (event, data) {
 
   if (result) {
     switch (result.msg_type) {
-      case 'execute_reply': return console.log('shell', result.msg_type, result.content.status);
-      default: return console.log('shell', result, {event, data});
+      case 'execute_reply':
+        return console.log('shell', result.msg_type, result.content.status);
+      default:
+        return console.log('shell', result, {event, data});
     }
   } else {
     console.log('shell', {event, data});
@@ -56,11 +67,16 @@ ipc.on('iopub', function (event, data) {
 
   if (result) {
     switch (result.msg_type) {
-      case 'status': return dispatch(iopubActions.setTerminalState(result.content.execution_state));
-      case 'execute_input': return dispatch(iopubActions.addTerminalExecutedInput(result.content.code));
-      case 'stream': return dispatch(iopubActions.addTerminalText(result.content.name, result.content.text));
-      case 'display_data': return dispatch(iopubActions.addDisplayData(result.content.data));
-      default: return console.log('iopub', result, {event, data});
+      case 'status':
+        return dispatch(iopubActions.setTerminalState(result.content.execution_state));
+      case 'execute_input':
+        return dispatch(iopubActions.addTerminalExecutedInput(result.content.code));
+      case 'stream':
+        return dispatch(iopubActions.addTerminalText(result.content.name, result.content.text));
+      case 'display_data':
+        return dispatch(iopubActions.addDisplayData(result.content.data));
+      default:
+        return console.log('iopub', result, {event, data});
     }
   } else {
     console.log('iopub', {event, data});
@@ -72,7 +88,8 @@ ipc.on('stdin', function (event, data) {
 
   if (result) {
     switch (result.msg_type) {
-      default: return console.log('stdin', result, {event, data});
+      default:
+        return console.log('stdin', result, {event, data});
     }
   } else {
     console.log('stdin', {event, data});
@@ -82,7 +99,7 @@ ipc.on('stdin', function (event, data) {
 /**
  * Log every change to the store (this has performance implications, of course).
  */
-store.subscribe(() => console.log('store', store.getState()) );
+store.subscribe(() => console.log('store', store.getState()));
 
 /**
  * Expose the global application state/store in two ways:
@@ -98,12 +115,15 @@ export default React.createClass({
     store: React.PropTypes.object
   },
   getChildContext: function () {
-    return { store };
+    return {store};
   },
   render: function () {
     return (
       <Provider store={store}>
-        <StudioLayout />
+        <FullScreen>
+          <StudioLayout />
+          <ModalDialogContainer />
+        </FullScreen>
       </Provider>
     );
   }

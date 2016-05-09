@@ -3,10 +3,10 @@
   submenu:
   - label: About Rodeo
     click:
-      type: SHOW_ABOUT
+      type: SHOW_ABOUT_RODEO
   - label: Stickers
     click:
-      type: SHOW_MODAL_STICKER
+      type: SHOW_ABOUT_STICKER
   - type: separator
   - label: Preferences
     accelerator: CmdOrCtrl+,

@@ -5,8 +5,6 @@
  */
 export default function (reducerMap, initialState) {
   return function (state, action) {
-    console.log('action:', action);
-
     if (!state) {
       state = initialState;
     }

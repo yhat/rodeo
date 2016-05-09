@@ -11,12 +11,18 @@ const PORT = 3001;
 
 app.use(webpackDevMiddleware(compiler, {
   publicPath: config.output.publicPath,
+  hot: true,
+  historyApiFallback: true,
   stats: {
     colors: true
   }
 }));
 
-app.use(webpackHotMiddleware(compiler));
+app.use(webpackHotMiddleware(compiler, {
+  log: console.log,
+  path: '/__webpack_hmr',
+  heartbeat: 10 * 1000
+}));
 
 app.listen(PORT, 'localhost', err => {
   if (err) {

@@ -11,6 +11,16 @@ const tabClass = 'tabbed-pane-tab',
   draggableClass = 'tabbed-pane-draggable',
   dropableClass = 'tabbed-pane-droppable';
 
+/**
+ * @param {ReactElement} component
+ * @param {*} type
+ * @returns {boolean}
+ */
+function isComponentOfType(component, type) {
+  // react-hot-module mocks the type, but the displayNames are still okay
+  return component.type.displayName === type.displayName;
+}
+
 function isTabDraggable(component) {
   return !!component.props.onTabDragStart;
 }
@@ -21,7 +31,7 @@ function isChildActive(child, active, index) {
 
 function ensureTabChildrenHaveKeysAndIds(children) {
   return React.Children.map(children, function (child, i) {
-    if (child.type === TabbedPaneItem && !child.key) {
+    if (isComponentOfType(child, TabbedPaneItem) && !child.key) {
       if (!child.props.id) {
         child = React.cloneElement(child, {id: 'tab-' + i});
       }
@@ -77,8 +87,6 @@ export default React.createClass({
     const nextChildren = ensureTabChildrenHaveKeysAndIds(this.props.children),
       nextChildrenIds = getTabIds(nextChildren);
     let active, focusedChild;
-
-    console.log('tabs', nextChildren, nextChildrenIds);
 
     focusedChild =  _.find(nextChildren, child => _.get(child, 'props.hasFocus'));
     if (focusedChild) {
@@ -253,7 +261,7 @@ export default React.createClass({
         ].join(' '),
         iconClassName = child.props.icon && ['fa', 'fa-before', 'fa-' + child.props.icon].join(' ');
 
-      if (child.type === TabbedPaneItem) {
+      if (isComponentOfType(child, TabbedPaneItem)) {
         return (
           <li className={className} dataTab={child.props.id} key={cidTab}>
             <a
@@ -275,7 +283,7 @@ export default React.createClass({
     });
 
     children = React.Children.map(children, function (child, i) {
-      if (child.type === TabbedPaneItem) {
+      if (isComponentOfType(child, TabbedPaneItem)) {
         return React.cloneElement(child, {hasFocus: isChildActive(child, active, i)});
       }
     });

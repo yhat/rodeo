@@ -9,11 +9,15 @@ module.exports = {
   devtool: 'source-map',
   entry: {
     startup: [
+      'react-hot-loader/patch',
       'webpack-hot-middleware/client?path=http://localhost:3001/__webpack_hmr',
+      'webpack/hot/only-dev-server',
       './entry/startup'
     ],
     main: [
+      'react-hot-loader/patch',
       'webpack-hot-middleware/client?path=http://localhost:3001/__webpack_hmr',
+      'webpack/hot/only-dev-server',
       './entry/main'
     ]
   },
@@ -29,16 +33,17 @@ module.exports = {
     // ],
     loaders: [
       { test: /\.less$/, loader: 'style?sourceMap!css?sourceMap!less?sourceMap' },
-      { test: /\.css$/, loader: 'style!css' },
+      { test: /\.css$/, loader: 'style!css?sourceMap' },
       { test: /\.png$/, loader: 'url?name=[name].[hash].[ext]&limit=8192' }, // inline base64 URLs for <=8k images, direct URLs for the rest
       { test: /\.svg$/, loaders: ['file?name=[name].[hash].[ext]', 'svgo?useConfig=svgoConfig1'] },
+      { test: /\.md$/, loader: 'raw' }, // because we sometimes treat it differently based on the context (i.e., code)
       {
         test: /\.jsx?$/,
         exclude: /(node_modules|bower_components)/,
         loader: 'babel',
         cacheDirectory: true,
         query: {
-          plugins: ['lodash'],
+          plugins: ['react-hot-loader/babel', 'lodash'],
           presets: ['react', 'es2015']
         }
       }

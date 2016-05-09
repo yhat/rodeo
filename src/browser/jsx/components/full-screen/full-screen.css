@@ -1,0 +1,16 @@
+html {
+  height: 100%;
+}
+
+body {
+  height: 100%;
+}
+
+main,
+.full-screen {
+  height: 100%;
+}
+
+.splitter_panel {
+  height: 100%;
+}

@@ -1,0 +1,23 @@
+.modal-dialog-container {
+  position: fixed;
+  display: none;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  z-index: 1000; /* higher than split-panes */
+}
+
+.modal-dialog-background {
+  position: absolute;
+  display: block;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background-color: rgba(50, 50, 100, 0.5)
+}
+
+.modal-dialog-container.active {
+  display: block;
+}
