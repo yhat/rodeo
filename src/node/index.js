@@ -92,6 +92,17 @@ function onGetFile(filename) {
   return files.readFile(filename);
 }
 
+/**
+ * This is very specific to copy (noun) that will be presented in semi-rare dialogs / tutorials / help
+ * that really doesn't need to be part of the default app experience and therefore doesn't need to be loaded
+ * along with the read of the app at startup.
+ * @param name
+ * @returns {Promise}
+ */
+function onGetMarkdown(name) {
+  return files.readFile(path.join(__dirname, 'md', name + '.md'));
+}
+
 function onSaveFile(filename, contents) {
   return files.writeFile(filename, contents);
 }
@@ -416,6 +427,7 @@ function attachIpcMainEvents() {
     onKnitHTML,
     onQuitApplication,
     onPDF,
+    onGetMarkdown,
     onGetFile,
     onSaveFile,
     onFileStats,

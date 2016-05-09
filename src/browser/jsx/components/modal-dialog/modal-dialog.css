@@ -1,0 +1,23 @@
+.modal-dialog {
+  display: flex;
+  flex-direction: column;
+  min-width: 400px;
+  max-width: 800px;
+  z-index: 11;
+  background-color: white;
+  padding: 20px;
+}
+
+.modal-dialog > header {
+  flex: 0 0 10px;
+  position: relative;
+}
+
+.modal-dialog > footer {
+  flex: 0 0 40px;
+  position: relative;
+}
+
+.modal-dialog button {
+  margin-left: 10px;
+}

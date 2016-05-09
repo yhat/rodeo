@@ -139,6 +139,12 @@ gulp.task('hot', function () {
     .pipe(gulp.dest('dist'));
 });
 
+gulp.task('images', function () {
+  return gulp.src([
+    'src/browser/images/*.{svg,gif,png}'
+  ]).pipe(gulp.dest('dist/images'));
+});
+
 gulp.task('test', ['eslint-node', 'eslint-browser', 'karma-browser', 'karma-node']);
 gulp.task('build', ['themes', 'external', 'ace', 'jsx', 'html']);
 gulp.task('run', []);

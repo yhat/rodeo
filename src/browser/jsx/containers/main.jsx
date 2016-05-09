@@ -2,11 +2,14 @@ import React from 'react';
 import { createStore, applyMiddleware } from 'redux';
 import { Provider } from 'react-redux';
 import thunk from 'redux-thunk';
+import FullScreen from '../components/full-screen/full-screen.jsx';
 import StudioLayout from './studio-layout/studio-layout.jsx';
+import ModalDialogContainer from '../components/modal-dialog/modal-dialog-container.jsx';
 import * as ipc from '../services/ipc';
 import rootReducer from '../reducers';
 import acePaneActions from '../components/ace-pane/ace-pane.actions';
 import applicationActions from '../actions/application';
+import dialogActions from '../actions/dialogs';
 import * as iopubActions from '../actions/iopub';
 
 const createStoreWithMiddleware = applyMiddleware(thunk)(createStore),
@@ -23,6 +26,8 @@ ipc.on('dispatch', function (event, action) {
   const dispatch = store.dispatch;
 
   switch (action.type) {
+    case 'SHOW_ABOUT_RODEO': return dispatch(dialogActions.showAboutRodeo());
+    case 'SHOW_ABOUT_STICKER': return dispatch(dialogActions.showAboutStickers());
     case 'CHECK_FOR_UPDATES': return dispatch(applicationActions.checkForUpdates());
     case 'TOGGLE_DEV_TOOLS': return dispatch(applicationActions.toggleDevTools());
     case 'QUIT': return dispatch(applicationActions.quit());
@@ -103,7 +108,10 @@ export default React.createClass({
   render: function () {
     return (
       <Provider store={store}>
-        <StudioLayout />
+        <FullScreen>
+          <StudioLayout />
+          <ModalDialogContainer />
+        </FullScreen>
       </Provider>
     );
   }

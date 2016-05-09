@@ -11,6 +11,16 @@ const tabClass = 'tabbed-pane-tab',
   draggableClass = 'tabbed-pane-draggable',
   dropableClass = 'tabbed-pane-droppable';
 
+/**
+ * @param {ReactElement} component
+ * @param {*} type
+ * @returns {boolean}
+ */
+function isComponentOfType(component, type) {
+  // react-hot-module mocks the type, but the displayNames are still okay
+  return component.type.displayName === type.displayName;
+}
+
 function isTabDraggable(component) {
   return !!component.props.onTabDragStart;
 }
@@ -21,7 +31,7 @@ function isChildActive(child, active, index) {
 
 function ensureTabChildrenHaveKeysAndIds(children) {
   return React.Children.map(children, function (child, i) {
-    if (child.type === TabbedPaneItem && !child.key) {
+    if (isComponentOfType(child, TabbedPaneItem) && !child.key) {
       if (!child.props.id) {
         child = React.cloneElement(child, {id: 'tab-' + i});
       }
@@ -245,6 +255,8 @@ export default React.createClass({
 
     children = ensureTabChildrenHaveKeysAndIds(this.props.children);
 
+    console.log('children', children);
+
     tabList = React.Children.map(children, (child, i) => {
       const cidTab = cid(), // this is specifically for the tabs, not items/children
         className = [
@@ -253,7 +265,7 @@ export default React.createClass({
         ].join(' '),
         iconClassName = child.props.icon && ['fa', 'fa-before', 'fa-' + child.props.icon].join(' ');
 
-      if (child.type === TabbedPaneItem) {
+      if (isComponentOfType(child, TabbedPaneItem)) {
         return (
           <li className={className} dataTab={child.props.id} key={cidTab}>
             <a
@@ -274,11 +286,15 @@ export default React.createClass({
       }
     });
 
+    console.log('tab-children', children, 'tabList', tabList);
+
     children = React.Children.map(children, function (child, i) {
-      if (child.type === TabbedPaneItem) {
+      if (isComponentOfType(child, TabbedPaneItem)) {
         return React.cloneElement(child, {hasFocus: isChildActive(child, active, i)});
       }
     });
+
+    console.log('tab-content', children);
 
     return (
       <div className="tabbed-pane">
