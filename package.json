@@ -56,6 +56,7 @@
     "gulp-wrap": "^0.11.0",
     "handlebars": "^4.0.5",
     "html-entities": "^1.2.0",
+    "json-loader": "^0.5.4",
     "karma": "^0.13.22",
     "karma-babel-preprocessor": "^6.0.1",
     "karma-chai": "^0.1.0",
@@ -93,7 +94,8 @@
     "webpack-dev-middleware": "^1.6.1",
     "webpack-dev-server": "^1.14.1",
     "webpack-hot-middleware": "^2.10.0",
-    "webpack-stream": "^3.2.0"
+    "webpack-stream": "^3.2.0",
+    "yaml-loader": "^0.1.0"
   },
   "dependencies": {
     "async": "^1.4.2",

@@ -1,11 +1,21 @@
 .modal-dialog {
+  margin-left: auto;
+  margin-right: auto;
   display: flex;
   flex-direction: column;
   min-width: 400px;
   max-width: 800px;
+  max-height: 90%;
   z-index: 11;
   background-color: white;
-  padding: 20px;
+  box-shadow: 1px 1px 4px rgba(0, 0, 0, 0.4);
+  transition: all 0.8s;
+  opacity: 0;
+  border-radius: 5px;
+}
+
+.modal-dialog.modal-dialog-show {
+  opacity: 1;
 }
 
 .modal-dialog > header {

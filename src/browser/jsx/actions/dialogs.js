@@ -1,24 +1,24 @@
 import {send} from '../services/ipc';
 
 export function showAboutRodeo() {
-  return function (dispatch) {
-    dispatch({type: 'LOADING_MODAL_DIALOG'});
-    send('get_markdown', 'about-rodeo')
-      .then(content => dispatch({type: 'ADD_MODAL_DIALOG', contentType: 'MARKED', content}))
-      .catch(error => console.error(error));
-  };
+  return {type: 'ADD_MODAL_DIALOG', contentType: 'ABOUT_RODEO'};
 }
 
 export function showAboutStickers() {
-  return function (dispatch) {
-    dispatch({type: 'LOADING_MODAL_DIALOG'});
-    send('get_markdown', 'about-stickers')
-      .then(content => dispatch({type: 'ADD_MODAL_DIALOG', contentType: 'STICKERS', content}))
-      .catch(error => console.error(error));
-  };
+  return {type: 'ADD_MODAL_DIALOG', contentType: 'ABOUT_STICKERS'};
+}
+
+export function showPreferences() {
+  return {type: 'ADD_MODAL_DIALOG', contentType: 'PREFERENCES'};
+}
+
+export function showAcknowledgements() {
+  return {type: 'ADD_MODAL_DIALOG', contentType: 'ACKNOWLEDGEMENTS'};
 }
 
 export default {
   showAboutRodeo,
-  showAboutStickers
+  showAboutStickers,
+  showAcknowledgements,
+  showPreferences
 };

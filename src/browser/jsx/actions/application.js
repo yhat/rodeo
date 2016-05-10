@@ -25,11 +25,13 @@ export function quit() {
 }
 
 export function toggleDevTools() {
-  return ipc.send('toggle_dev_tools').then(function () {
-    // maybe some visual artifact?  no?  maybe a bolt of lightning?
-  }).catch(function (error) {
-    console.error(error);
-  });
+  return function () {
+    return ipc.send('toggle_dev_tools').then(function () {
+      // maybe some visual artifact?  no?  maybe a bolt of lightning?
+    }).catch(function (error) {
+      console.error(error);
+    });
+  }
 }
 
 export function checkForUpdates() {

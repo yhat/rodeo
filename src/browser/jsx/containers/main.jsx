@@ -27,6 +27,7 @@ ipc.on('dispatch', function (event, action) {
     dispatchMap = {
       SHOW_ABOUT_RODEO: dialogActions.showAboutRodeo(),
       SHOW_ABOUT_STICKER: dialogActions.showAboutStickers(),
+      SHOW_PREFERENCES: dialogActions.showPreferences(),
       CHECK_FOR_UPDATES: applicationActions.checkForUpdates(),
       TOGGLE_DEV_TOOLS: applicationActions.toggleDevTools(),
       QUIT: applicationActions.quit(),
