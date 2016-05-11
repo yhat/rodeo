@@ -8,30 +8,17 @@ import {connect} from 'react-redux';
  */
 function mapStateToProps(state) {
   // pick the first terminal (we can add more later to this view?)
-  return _.head(state.terminals) || {};
-}
-
-/**
- * @param {function} dispatch
- * @returns {object}
- */
-function mapDispatchToProps(dispatch) {
-  return {
-    onInstallPython: _.noop
-  };
+  return _.pick(_.head(state.terminals) || {}, ['history']);
 }
 
 /**
  * @class PackagesViewer
  * @extends ReactComponent
  */
-export default connect(mapStateToProps, mapDispatchToProps)(React.createClass({
-  displayName: 'PackagesViewer',
+export default connect(mapStateToProps)(React.createClass({
+  displayName: 'HistoryViewer',
   propTypes: {
-    hasJupyterInstalled: React.PropTypes.bool,
-    onInstallPython: React.PropTypes.func,
-    packages: React.PropTypes.array,
-    version: React.PropTypes.string
+    history: React.PropTypes.array
   },
   getInitialState: function () {
     return {
@@ -46,17 +33,12 @@ export default connect(mapStateToProps, mapDispatchToProps)(React.createClass({
   render: function () {
     const props = this.props,
       state = this.state,
-      packages = _.filter(props.packages, item => !state.filter || item.name.indexOf(state.filter) > -1);
+      history = _.filter(props.history, item => !state.filter || item.text.indexOf(state.filter) > -1);
 
     return (
       <div>
         <div className="row">
-          <div className="col-sm-4">
-            <button className="btn btn-primary btn-xs" onClick={props.onInstallPython}>
-              <span className="fa fa-download">{'Install Package'}</span>
-            </button>
-          </div>
-          <div className="col-sm-5 col-sm-offset-3">
+          <div className="col-sm-5 col-sm-offset-7">
             <div className="input-group">
               <div className="input-group-addon">
                 <span className="fa fa-search"/>
@@ -64,7 +46,6 @@ export default connect(mapStateToProps, mapDispatchToProps)(React.createClass({
               <input
                 className="form-control input-sm"
                 onChange={this.handleFilterChange}
-                placeholder="(i.e. pandas, Flask)"
                 ref="filter"
               />
             </div>
@@ -72,13 +53,12 @@ export default connect(mapStateToProps, mapDispatchToProps)(React.createClass({
         </div>
         <table className="table table-bordered">
           <thead>
-            <tr>
-              <th>{'package'}</th>
-              <th>{'version'}</th>
-            </tr>
+          <tr>
+            <th>{'executed'}</th>
+          </tr>
           </thead>
           <tbody>
-          {_.map(packages, item => <tr key={item.name}><td>{item.name}</td><td>{item.version}</td></tr>)}
+          {_.map(history, item => <tr key={item.id}><td><pre>{item.text}</pre></td></tr>)}
           </tbody>
         </table>
       </div>

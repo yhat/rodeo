@@ -28,6 +28,7 @@ import mapReducers from '../../services/map-reducers';
  * @property {string} icon
  * @property {number} fontSize
  * @property {string} status
+ * @property {[{id: string, text: string}]} history
  * @property {string} [executable]
  * @property {string} [cwd]
  * @property {Array} [packages]
@@ -47,7 +48,8 @@ function getDefault() {
     hasFocus: true,
     icon: 'terminal',
     fontSize: 12,
-    status: 'idle'
+    status: 'idle',
+    history: []
   };
 }
 
@@ -81,9 +83,24 @@ function setTerminalState(state, action) {
  * @returns {[TerminalState]}
  */
 function addTerminalExecutedInput(state, action) {
-  const jqconsole = getTerminalConsole(action);
+  const jqconsole = getTerminalConsole(action),
+    historyMaxSetting = store.get('terminal-history'),
+    historyMax = historyMaxSetting === null ? 5 : historyMaxSetting;
 
   jqconsole.Write(action.code + '\n');
+
+  console.log('addTerminalExecutedInput', historyMaxSetting, historyMax);
+
+  if (historyMax > 0) {
+    state = _.clone(state);
+    const instance = _.find(state, {id: action.id});
+
+    instance.history = _.clone(instance.history);
+    instance.history.push({id: cid(), text: action.code});
+    if (instance.history.length > historyMax) {
+      instance.history.shift();
+    }
+  }
 
   return state;
 }

@@ -8,7 +8,7 @@ import PlotViewer from '../../components/plot-viewer/plot-viewer.jsx';
 import PackageViewer from '../../components/package-viewer/package-viewer.jsx';
 import PreferenceViewer from '../../components/preference-viewer.jsx';
 import EnvironmentViewer from '../../components/environment-viewer.jsx';
-import HistoryViewer from '../../components/history-viewer.jsx';
+import HistoryViewer from '../../components/history-viewer/history-viewer.jsx';
 import TabbedPaneItem from '../../components/tabbed-pane/tabbed-pane-item.jsx';
 import AcePane from '../../components/ace-pane/ace-pane.jsx';
 import Terminal from '../../components/terminal/terminal.jsx';
