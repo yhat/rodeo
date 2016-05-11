@@ -19,8 +19,26 @@ import mapReducers from '../../services/map-reducers';
  jqconsole-prompt-text: the text entered in the current prompt
  */
 
+/**
+ * @typedef {object} TerminalState
+ * @property {string} label
+ * @property {string} id
+ * @property {string} tabId
+ * @property {boolean} hasFocus
+ * @property {string} icon
+ * @property {number} fontSize
+ * @property {string} status
+ * @property {string} [executable]
+ * @property {string} [cwd]
+ * @property {Array} [packages]
+ * @property {string} [version]
+ */
+
 const initialState = [getDefault()];
 
+/**
+ * @returns {[TerminalState]}
+ */
 function getDefault() {
   return {
     label: 'Console',
@@ -39,6 +57,12 @@ function getTerminalConsole(action) {
   return el && $(el).data('jqconsole');
 }
 
+/**
+ * Update the terminal with idle/busy
+ * @param {[TerminalState]} state
+ * @param {object} action
+ * @returns {[TerminalState]}
+ */
 function setTerminalState(state, action) {
   const instance = _.find(state, {id: action.id});
 
@@ -50,6 +74,12 @@ function setTerminalState(state, action) {
   return state;
 }
 
+/**
+ * Update the terminal with executed input
+ * @param {[TerminalState]} state
+ * @param {object} action
+ * @returns {[TerminalState]}
+ */
 function addTerminalExecutedInput(state, action) {
   const jqconsole = getTerminalConsole(action);
 
@@ -58,6 +88,12 @@ function addTerminalExecutedInput(state, action) {
   return state;
 }
 
+/**
+ * Update the terminal with text
+ * @param {[TerminalState]} state
+ * @param {object} action
+ * @returns {[TerminalState]}
+ */
 function addTerminalText(state, action) {
   const jqconsole = getTerminalConsole(action);
 
@@ -100,6 +136,12 @@ function appendSVG(jqconsole, data) {
   jqconsole.Write('\n');
 }
 
+/**
+ * Update the terminal with display data
+ * @param {[TerminalState]} state
+ * @param {object} action
+ * @returns {[TerminalState]}
+ */
 function addTerminalDisplayData(state, action) {
   const jqconsole = getTerminalConsole(action),
     data = action.data;
@@ -118,9 +160,24 @@ function addTerminalDisplayData(state, action) {
   return state;
 }
 
+/**
+ * Update the terminal with the new python options
+ * @param {[TerminalState]} state
+ * @param {object} action
+ * @returns {[TerminalState]}
+ */
+function updateFirstTerminal(state, action) {
+  const pythonOptions = action.pythonOptions;
+
+  let target = state.length ? state[0] : getDefault();
+
+  return [_.assign({}, target, pythonOptions)];
+}
+
 export default mapReducers({
   TERMINAL_STATE: setTerminalState,
   ADD_TERMINAL_EXECUTED_INPUT: addTerminalExecutedInput,
   ADD_TERMINAL_TEXT: addTerminalText,
-  ADD_DISPLAY_DATA: addTerminalDisplayData
+  ADD_DISPLAY_DATA: addTerminalDisplayData,
+  KERNEL_DETECTED: updateFirstTerminal
 }, initialState);

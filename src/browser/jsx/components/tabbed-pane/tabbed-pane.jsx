@@ -83,14 +83,12 @@ export default React.createClass({
     };
   },
   componentWillMount: function () {
-    console.log('componentWillMount');
     const nextChildren = ensureTabChildrenHaveKeysAndIds(this.props.children),
       nextChildrenIds = getTabIds(nextChildren);
     let active, focusedChild;
 
     focusedChild =  _.find(nextChildren, child => _.get(child, 'props.hasFocus'));
     if (focusedChild) {
-      console.log('found child marked with focus');
       // if some tab is marked as having focus, it becomes the active key
       let maybeActive = focusedChild.props.id;
 
@@ -98,20 +96,15 @@ export default React.createClass({
         active = maybeActive;
       }
     } else if (nextChildrenIds.length !== 0) {
-      console.log('defaulting to first child that is a tab');
       // if no tab is active, then the first tab is active
       active = nextChildrenIds[0];
     }
 
     if (nextChildrenIds.indexOf(active) !== -1) {
-      console.log('setting state to', active);
       this.setState({active});
-    } else {
-      console.error('not setting state!');
     }
   },
   componentWillReceiveProps: function (nextProps) {
-    console.log('componentWillReceiveProps', nextProps);
     const state = this.state,
       nextChildren = ensureTabChildrenHaveKeysAndIds(nextProps.children),
       nextChildrenIds = getTabIds(nextChildren);
@@ -121,7 +114,6 @@ export default React.createClass({
     focusedChild =  _.find(nextChildren, child => _.get(child, 'props.hasFocus'));
     activeChild = _.find(nextChildren, child => _.get(child, 'props.id') === active);
     if (focusedChild) {
-      console.log('found child marked with focus');
       // if some tab is marked as having focus, it becomes the active key
       let maybeActive = focusedChild.props.id;
 
@@ -129,7 +121,6 @@ export default React.createClass({
         active = maybeActive;
       }
     } else if (!activeChild && nextChildrenIds.length !== 0) {
-      console.log('defaulting to first child that is a tab');
       // if no tab is active, then the first tab is active
       active = nextChildrenIds[0];
     }

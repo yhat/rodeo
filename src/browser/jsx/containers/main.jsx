@@ -11,6 +11,7 @@ import acePaneActions from '../components/ace-pane/ace-pane.actions';
 import applicationActions from '../actions/application';
 import dialogActions from '../actions/dialogs';
 import * as iopubActions from '../actions/iopub';
+import kernelActions from '../actions/kernel';
 
 const createStoreWithMiddleware = applyMiddleware(thunk)(createStore),
   store = createStoreWithMiddleware(rootReducer);
@@ -96,6 +97,8 @@ ipc.on('stdin', function (event, data) {
     console.log('stdin', {event, data});
   }
 });
+
+store.dispatch(kernelActions.detectKernel());
 
 /**
  * Log every change to the store (this has performance implications, of course).

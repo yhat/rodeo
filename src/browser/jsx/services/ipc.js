@@ -51,7 +51,7 @@ export function send() {
     let response,
       eventReplyName = eventName + '_reply',
       timer = setInterval(function () {
-        console.warn('ipc ' + eventId + ': still waiting');
+        console.warn('ipc ' + eventId + ': still waiting for', eventName);
       }, 1000);
 
     console.log('ipc ' + eventId + ': sending', [eventName, eventId].concat(args.slice(1)));

@@ -5,7 +5,7 @@ import SplitPane from '../../components/split-pane/split-pane.jsx';
 import TabbedPane from '../../components/tabbed-pane/tabbed-pane.jsx';
 import FileViewer from '../../components/file-viewer/file-viewer.jsx';
 import PlotViewer from '../../components/plot-viewer/plot-viewer.jsx';
-import PackageViewer from '../../components/package-viewer.jsx';
+import PackageViewer from '../../components/package-viewer/package-viewer.jsx';
 import PreferenceViewer from '../../components/preference-viewer.jsx';
 import EnvironmentViewer from '../../components/environment-viewer.jsx';
 import HistoryViewer from '../../components/history-viewer.jsx';
@@ -51,6 +51,7 @@ function mapDispatchToProps(dispatch) {
     onRunActiveAcePane: () => dispatch(kernelActions.executeActiveFileInActiveConsole()),
     onSplitPaneDrag: () => dispatch(splitPaneActions.splitPaneDrag()),
     onCommand: (text, id) => dispatch(kernelActions.execute(text, id)),
+    onMissingTerminal: () => dispatch(kernelActions.detectKernel()),
     onRodeo: () => dispatch(dialogActions.showAboutRodeo())
   };
 }
@@ -67,6 +68,7 @@ export default connect(mapStateToProps, mapDispatchToProps)(React.createClass({
     onFocusAcePane: React.PropTypes.func,
     onRemoveAcePane: React.PropTypes.func,
     onSplitPaneDrag: React.PropTypes.func,
+    onMissingTerminal: React.PropTypes.func,
     panePositions: React.PropTypes.object
   },
   handleEditorTabClose: function (tabId) {
