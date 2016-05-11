@@ -15,7 +15,7 @@ function mapStateToProps(state) {
  * @param {function} dispatch
  * @returns {object}
  */
-function mapDispatchToProps(dispatch) {
+function mapDispatchToProps() {
   return {
     onInstallPython: _.noop
   };

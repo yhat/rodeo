@@ -59,9 +59,6 @@ export default connect(mapStateToProps, mapDispatchToProps)(React.createClass({
         'modal-dialog-container',
         props.modalDialogs.length ? 'active' : ''
       ].join(' '),
-      classNameBackground = [
-        'modal-dialog-background'
-      ].join(' '),
       background,
       last;
 

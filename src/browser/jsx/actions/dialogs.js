@@ -1,5 +1,3 @@
-import {send} from '../services/ipc';
-
 export function showAboutRodeo() {
   return {type: 'ADD_MODAL_DIALOG', contentType: 'ABOUT_RODEO'};
 }
