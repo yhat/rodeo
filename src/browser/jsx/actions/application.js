@@ -15,7 +15,7 @@ export function quit() {
     // probably ask whether to save files here
 
     // actually quit
-    return ipc.send('quit').then(function () {
+    return ipc.send('quit_application').then(function () {
       // maybe some visual artifact?
       dispatch({type: 'QUIT'});
     }).catch(function (error) {
@@ -31,7 +31,7 @@ export function toggleDevTools() {
     }).catch(function (error) {
       console.error(error);
     });
-  }
+  };
 }
 
 export function checkForUpdates() {

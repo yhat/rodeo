@@ -32,8 +32,8 @@ module.exports = {
     //   {test: /\.js$/, loader: "eslint-loader", exclude: /node_modules/}
     // ],
     loaders: [
-      { test: /\.less$/, loader: 'style?sourceMap!css?sourceMap!less?sourceMap' },
-      { test: /\.css$/, loader: 'style!css?sourceMap' },
+      { test: /\.less$/, loader: 'style!css!less' },
+      { test: /\.css$/, loader: 'style!css' },
       { test: /\.png$/, loader: 'url?name=[name].[hash].[ext]&limit=8192' }, // inline base64 URLs for <=8k images, direct URLs for the rest
       { test: /\.svg$/, loaders: ['file?name=[name].[hash].[ext]', 'svgo?useConfig=svgoConfig1'] },
       { test: /\.md$/, loader: 'raw' }, // because we sometimes treat it differently based on the context (i.e., code)

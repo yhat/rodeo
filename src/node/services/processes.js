@@ -44,6 +44,34 @@ function create(str, args, options) {
 }
 
 /**
+ * @param {string} str
+ * @param {Array} [args]
+ * @param {object} [options]
+ * @returns {Promise}
+ */
+function run(str, args, options) {
+  return new bluebird(function (resolve, reject) {
+    const child = create(str, args, options);
+    let stdout = [],
+      stderr = [],
+      errors = [];
+
+    child.stdout.on('data', data => stdout.push(data));
+    child.stderr.on('data', data => stderr.push(data));
+    child.on('error', data => errors.push(data));
+    child.on('close', function () {
+      if (errors.length) {
+        reject(_.first(errors));
+      } else if (stderr.length) {
+        reject(new Error(stderr.join('')));
+      } else {
+        resolve(stdout.join(''));
+      }
+    });
+  });
+}
+
+/**
  * @param {ChildProcess}childProcess
  * @returns {Promise}
  */
@@ -58,4 +86,5 @@ function kill(childProcess) {
 
 module.exports.getChildren = getChildren;
 module.exports.create = create;
+module.exports.run = run;
 module.exports.kill = kill;

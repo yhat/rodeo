@@ -18,6 +18,7 @@ import { getParentNodeOf } from '../../services/dom';
 import kernelActions from '../../actions/kernel';
 import splitPaneActions from '../../components/split-pane/split-pane.actions';
 import acePaneActions from '../../components/ace-pane/ace-pane.actions';
+import dialogActions from '../../actions/dialogs';
 
 /**
  * @param {Element} el
@@ -49,7 +50,8 @@ function mapDispatchToProps(dispatch) {
     onRemoveAcePane: (id) => dispatch(acePaneActions.closeFile(id)),
     onRunActiveAcePane: () => dispatch(kernelActions.executeActiveFileInActiveConsole()),
     onSplitPaneDrag: () => dispatch(splitPaneActions.splitPaneDrag()),
-    onCommand: (text, id) => dispatch(kernelActions.execute(text, id))
+    onCommand: (text, id) => dispatch(kernelActions.execute(text, id)),
+    onRodeo: () => dispatch(dialogActions.showAboutRodeo())
   };
 }
 

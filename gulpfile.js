@@ -146,7 +146,7 @@ gulp.task('images', function () {
 });
 
 gulp.task('test', ['eslint-node', 'eslint-browser', 'karma-browser', 'karma-node']);
-gulp.task('build', ['themes', 'external', 'ace', 'jsx', 'html']);
+gulp.task('build', ['themes', 'external', 'images', 'ace', 'jsx', 'html']);
 gulp.task('run', []);
 gulp.task('watch', function () {
   gulp.watch(['public/js/**/*.js'], ['js']);

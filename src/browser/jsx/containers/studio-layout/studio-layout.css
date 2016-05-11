@@ -36,7 +36,7 @@ main .form-horizontal .form-group {
   background-size: auto 60%;
   background-repeat: no-repeat;
   background-position: center;
-  background-image: url(rodeo-logo.4x.png);
+  background-image: url(./rodeo-logo.4x.png);
   position: absolute;
   display: block;
   top: 0;
@@ -47,7 +47,7 @@ main .form-horizontal .form-group {
 }
 
 .icon-overflowing:first-child {
-  margin-left: 15px;
+  margin-left: 5px;
 }
 
 .icon-overflowing span {

@@ -50,11 +50,8 @@ export function saveActiveFileAs(filename) {
       content = aceInstance && aceInstance.getSession().getValue();
 
     return send('save_file', filename, content)
-      .then(function () {
-        dispatch(fileIsSaved(focusedAce.id, filename));
-      }).catch(function (error) {
-        console.error(error);
-      });
+      .then(() => dispatch(fileIsSaved(focusedAce.id, filename)))
+      .catch(error => console.error(error));
   };
 }
 
@@ -68,15 +65,12 @@ export function saveActiveFile() {
       content = aceInstance && aceInstance.getSession().getValue();
 
     if (!filename) {
-      return showSaveFileDialogForActiveFile(dispatch, getState);
+      return dispatch(showSaveFileDialogForActiveFile());
     }
 
     return send('save_file', filename, content)
-      .then(function () {
-        dispatch(fileIsSaved(focusedAce.id));
-      }).catch(function (error) {
-        console.error(error);
-      });
+      .then(() => dispatch(fileIsSaved(focusedAce.id)))
+      .catch(error => console.error(error));
   };
 }
 
@@ -84,7 +78,7 @@ export function saveActiveFile() {
  * @returns {function}
  */
 export function showSaveFileDialogForActiveFile() {
-  return function (dispatch, getState) {
+  return function (dispatch) {
     return send('save_dialog', {
       title: 'Save File',
       defaultPath: store.get('workingDirectory')
@@ -93,10 +87,8 @@ export function showSaveFileDialogForActiveFile() {
         filename = filename[0];
       }
 
-      return saveActiveFileAs(filename)(dispatch, getState);
-    }).catch(function (error) {
-      console.error(error);
-    });
+      return dispatch(saveActiveFileAs(filename));
+    }).catch(error => console.error(error));
   };
 }
 
@@ -113,9 +105,7 @@ export function showOpenFileDialogForActiveFile() {
 
       return send('file_stats', filename)
         .then(stats => dispatch(addFile(filename, stats)));
-    }).catch(function (error) {
-      console.error(error);
-    });
+    }).catch(error => console.error(error));
   };
 }
 

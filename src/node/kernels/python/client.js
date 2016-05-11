@@ -200,6 +200,34 @@ class JupyterClient extends EventEmitter {
 }
 
 /**
+ * @param {object} [options]
+ * @returns {object}
+ */
+function getPythonCommandOptions(options) {
+  return _.assign({
+    env: pythonLanguage.setDefaultEnvVars(process.env),
+    stdio: ['pipe', 'pipe', 'pipe'],
+    encoding: 'UTF8'
+  }, _.pick(options || {}, ['shell']));
+}
+
+/**
+ * @param {string} targetFile
+ * @param {object} [options]
+ * @param {string} [options.shell=<default for OS>]
+ * @param {string} [options.cmd="python"]
+ * @returns {ChildProcess}
+ */
+function createPythonScriptProcess(targetFile, options) {
+  options = _.pick(options || {}, ['shell', 'cmd']);
+
+  const processOptions = getPythonCommandOptions(options),
+    cmd = options.cmd || 'python';
+
+  return processes.create(cmd, [targetFile], processOptions);
+}
+
+/**
  * @param {object} options
  * @returns {Promise<JupyterClient>}
  */
@@ -216,53 +244,22 @@ function create(options) {
 }
 
 /**
- * @param {string} targetFile
- * @param {object} [options]
- * @param {string} [options.shell=<default for OS>]
- * @param {string} [options.cmd="python"]
- * @returns {ChildProcess}
- */
-function createPythonScriptProcess(targetFile, options) {
-  options = _.pick(options || {}, ['shell', 'cmd']);
-
-  const processOptions = _.assign({
-      env: pythonLanguage.setDefaultEnvVars(process.env),
-      stdio: ['pipe', 'pipe', 'pipe'],
-      encoding: 'UTF8'
-    }, _.pick(options, ['shell'])),
-    cmd = options.cmd || 'python';
-
-  return processes.create(cmd, [targetFile], processOptions);
-}
-
-/**
  * Runs a script in python, returns the output with errors and stderr rejecting the results
  * @param {string} targetFile
  * @param {object} [options]
  * @returns {Promise}
  */
 function getPythonScriptResults(targetFile, options) {
-  return new bluebird(function (resolve, reject) {
-    const child = createPythonScriptProcess(targetFile, options);
-    let stdout = [],
-      stderr = [],
-      errors = [];
+  const processOptions = getPythonCommandOptions(options),
+    cmd = options.cmd || 'python';
 
-    child.stdout.on('data', data => stdout.push(data));
-    child.stderr.on('data', data => stderr.push(data));
-    child.on('error', data => errors.push(data));
-    child.on('close', function () {
-      if (errors.length) {
-        reject(_.first(errors));
-      } else if (stderr.length) {
-        reject(new Error(stderr.join('')));
-      } else {
-        resolve(stdout.join(''));
-      }
-    });
-  });
+  return processes.run(cmd, [targetFile], processOptions);
 }
 
+/**
+ * @param {object} options
+ * @returns {Promise}
+ */
 function checkPython(options) {
   const targetFile = path.resolve(path.join(__dirname, 'check_python.py'));
 

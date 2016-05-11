@@ -403,6 +403,22 @@ function onSaveDialog(options) {
   });
 }
 
+function onToggleDevTools() {
+  return new bluebird(function (resolve) {
+    electron.getCurrentWindow().toggleDevTools();
+    resolve();
+  });
+}
+
+function onToggleFullScreen() {
+  return new bluebird(function (resolve) {
+    const isFull = electron.getCurrentWindow().isFullScreen();
+
+    electron.getCurrentWindow().setFullScreen(!isFull);
+    resolve();
+  });
+}
+
 /**
  * Attaches events to the main process
  */
@@ -425,7 +441,9 @@ function attachIpcMainEvents() {
     onOpenExternal,
     onOpenTerminal,
     onOpenDialog,
-    onSaveDialog
+    onSaveDialog,
+    onToggleDevTools,
+    onToggleFullScreen
   ]);
 }
 

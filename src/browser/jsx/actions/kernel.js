@@ -41,7 +41,7 @@ export function executeActiveFileInActiveConsole() {
 
     dispatch({type: 'EXECUTING', filename, id});
 
-    send('execute', content).then(function () {
+    return send('execute', content).then(function () {
       dispatch({type: 'EXECUTED', id});
     }).catch(function (error) {
       console.error(error);
@@ -53,7 +53,7 @@ export function execute(text, id) {
   return function (dispatch) {
     dispatch({type: 'EXECUTING', text, id});
 
-    send('execute', text).then(function () {
+    return send('execute', text).then(function () {
       dispatch({type: 'EXECUTED', text, id});
     }).catch(function (error) {
       console.error(error);
