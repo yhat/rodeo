@@ -256,7 +256,7 @@ function onReady() {
 /**
  * Get a unique kernel based on the options they want
  * @param {string} options
- * @returns {Promise}
+ * @returns {Promise<JupyterClient>}
  */
 function getKernelClient(options) {
   const optionList = _.map(options, (str, key) => key + ':' + str);
@@ -305,6 +305,21 @@ function onCheckKernel(kernelOptions) {
   const clientFactory = require('./kernels/python/client');
 
   return clientFactory.checkPython(kernelOptions);
+}
+
+function onGetAutoComplete(text, cursorPos, kernelOptions) {
+  return getKernelClient(kernelOptions)
+    .then(client => client.getAutoComplete(text, cursorPos));
+}
+
+function onIsComplete(text, kernelOptions) {
+  return getKernelClient(kernelOptions)
+    .then(client => client.isComplete(text));
+}
+
+function onGetInspection(text, cursorPos, kernelOptions) {
+  return getKernelClient(kernelOptions)
+    .then(client => client.getInspection(text, cursorPos));
 }
 
 function findPythons() {
@@ -441,6 +456,9 @@ function attachIpcMainEvents() {
     onExecute,
     onGetResult,
     onCheckKernel,
+    onGetAutoComplete,
+    onIsComplete,
+    onGetInspection,
     onFiles,
     onGetSystemFacts,
     onKnitHTML,
