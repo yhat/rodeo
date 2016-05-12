@@ -213,7 +213,7 @@ class JupyterClient extends EventEmitter {
    * @param {number} cursorPos
    * @returns {Promise<JupyterAutoCompletionMessage>}
    */
-  getAutocomplete(code, cursorPos) {
+  getAutoComplete(code, cursorPos) {
     return request(this, {
       method: 'complete', // sends complete_request
       args: [code, cursorPos]

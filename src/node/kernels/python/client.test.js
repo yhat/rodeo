@@ -72,7 +72,7 @@ describe(dirname + '/' + filename, function () {
       }
     });
 
-    describe('getAutocomplete', function () {
+    describe('getAutoComplete', function () {
       const title = this.title;
       let fn;
 
