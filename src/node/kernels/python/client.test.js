@@ -1,6 +1,7 @@
 'use strict';
 
-const sinon = require('sinon'),
+const AsciiToHtml = require('ansi-to-html'),
+  sinon = require('sinon'),
   dirname = __dirname.split('/').pop(),
   filename = __filename.split('/').pop().split('.').shift(),
   lib = require('./' + filename),
@@ -69,6 +70,91 @@ describe(dirname + '/' + filename, function () {
       if (client) {
         return client.kill();
       }
+    });
+
+    describe('getAutocomplete', function () {
+      const title = this.title;
+      let fn;
+
+      before(function () {
+        fn = client[title].bind(client);
+      });
+
+      it('recognizes "print"', function () {
+        const code = 'print "Hello"',
+          cursorPos = 4;
+
+        return fn(code, cursorPos).then(function (result) {
+          expect(result).to.deep.equal({
+            matches: [ 'print' ],
+            status: 'ok',
+            cursor_start: 0,
+            cursor_end: 4,
+            metadata: {}
+          });
+        });
+      });
+    });
+
+    describe('getInspection', function () {
+      const title = this.title;
+      let fn;
+
+      before(function () {
+        fn = client[title].bind(client);
+      });
+
+      it('inspects', function () {
+        const convert = new AsciiToHtml(),
+          code = 'obj_or_dict = {"akey": "value", "another": "value2"}',
+          cursorPos = 0;
+
+        return client.execute(code).then(function () {
+          return fn(code, cursorPos);
+        }).then(function (result) {
+          const text = convert.toHtml(result.data['text/plain']);
+
+          expect(result).to.have.property('status', 'ok');
+          expect(result).to.have.property('found', true);
+          expect(text).to.match(/Type:/);
+          expect(text).to.match(/String form:/);
+          expect(text).to.match(/Length:/);
+          expect(text).to.match(/Docstring:/);
+        });
+      });
+    });
+
+    describe('isComplete', function () {
+      const title = this.title;
+      let fn;
+
+      before(function () {
+        fn = client[title].bind(client);
+      });
+
+      it('print "Hello" is complete with no extra information', function () {
+        const code = 'print "Hello"';
+
+        return fn(code).then(function (result) {
+          expect(result).to.deep.equal({ status: 'complete' });
+        });
+      });
+
+      it('print "Hello is invalid with no extra information', function () {
+        const code = 'print "Hello';
+
+        return fn(code).then(function (result) {
+          expect(result).to.deep.equal({ status: 'invalid' });
+        });
+      });
+
+      it('x = range(10 is incomplete with empty indent', function () {
+        const code = 'x = range(10';
+
+        return fn(code).then(function (result) {
+          expect(result).to.deep.equal({ status: 'incomplete', indent: '' });
+        });
+      });
     });
 
     describe('execute', function () {
