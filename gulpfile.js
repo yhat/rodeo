@@ -141,12 +141,12 @@ gulp.task('hot', function () {
 
 gulp.task('images', function () {
   return gulp.src([
-    'src/browser/images/*.{svg,gif,png}'
+    'src/browser/images/**/*.{svg,gif,png}'
   ]).pipe(gulp.dest('dist/images'));
 });
 
 gulp.task('test', ['eslint-node', 'eslint-browser', 'karma-browser', 'karma-node']);
-gulp.task('build', ['themes', 'external', 'ace', 'jsx', 'html']);
+gulp.task('build', ['themes', 'external', 'images', 'ace', 'jsx', 'html']);
 gulp.task('run', []);
 gulp.task('watch', function () {
   gulp.watch(['public/js/**/*.js'], ['js']);

@@ -1,0 +1,13 @@
+.about-rodeo {
+  padding: 20px;
+}
+
+.about-rodeo img {
+  max-height: 200px;
+  width: 90%;
+}
+
+.about-rodeo button {
+  margin: 20px;
+  margin-top: 0;
+}

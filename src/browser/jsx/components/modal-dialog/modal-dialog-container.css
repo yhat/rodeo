@@ -1,5 +1,5 @@
 .modal-dialog-container {
-  position: fixed;
+  position: absolute;
   display: none;
   top: 0;
   bottom: 0;
@@ -8,13 +8,16 @@
   z-index: 1000; /* higher than split-panes */
 }
 
-.modal-dialog-background {
+.modal-dialog-container .inner-container {
   position: absolute;
   display: block;
   top: 0;
   bottom: 0;
   left: 0;
   right: 0;
+}
+
+.modal-dialog-container .inner-container:last-child {
   background-color: rgba(50, 50, 100, 0.5)
 }
 

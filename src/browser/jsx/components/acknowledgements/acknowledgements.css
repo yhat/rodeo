@@ -1,0 +1,14 @@
+.acknowledgements {
+  display: flex;
+  flex-direction: column;
+  padding: 20px;
+}
+
+.acknowledgements img {
+  max-height: 200px;
+  width: 90%;
+}
+
+.acknowledgements .scrollable {
+  overflow-y: scroll;
+}

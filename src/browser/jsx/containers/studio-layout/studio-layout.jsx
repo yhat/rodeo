@@ -5,10 +5,10 @@ import SplitPane from '../../components/split-pane/split-pane.jsx';
 import TabbedPane from '../../components/tabbed-pane/tabbed-pane.jsx';
 import FileViewer from '../../components/file-viewer/file-viewer.jsx';
 import PlotViewer from '../../components/plot-viewer/plot-viewer.jsx';
-import PackageViewer from '../../components/package-viewer.jsx';
+import PackageViewer from '../../components/package-viewer/package-viewer.jsx';
 import PreferenceViewer from '../../components/preference-viewer.jsx';
 import EnvironmentViewer from '../../components/environment-viewer.jsx';
-import HistoryViewer from '../../components/history-viewer.jsx';
+import HistoryViewer from '../../components/history-viewer/history-viewer.jsx';
 import TabbedPaneItem from '../../components/tabbed-pane/tabbed-pane-item.jsx';
 import AcePane from '../../components/ace-pane/ace-pane.jsx';
 import Terminal from '../../components/terminal/terminal.jsx';
@@ -18,6 +18,7 @@ import { getParentNodeOf } from '../../services/dom';
 import kernelActions from '../../actions/kernel';
 import splitPaneActions from '../../components/split-pane/split-pane.actions';
 import acePaneActions from '../../components/ace-pane/ace-pane.actions';
+import dialogActions from '../../actions/dialogs';
 
 /**
  * @param {Element} el
@@ -49,7 +50,8 @@ function mapDispatchToProps(dispatch) {
     onRemoveAcePane: (id) => dispatch(acePaneActions.closeFile(id)),
     onRunActiveAcePane: () => dispatch(kernelActions.executeActiveFileInActiveConsole()),
     onSplitPaneDrag: () => dispatch(splitPaneActions.splitPaneDrag()),
-    onCommand: (text, id) => dispatch(kernelActions.execute(text, id))
+    onCommand: (text, id) => dispatch(kernelActions.execute(text, id)),
+    onRodeo: () => dispatch(dialogActions.showAboutRodeo())
   };
 }
 

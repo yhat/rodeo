@@ -1,5 +1,9 @@
+import _ from 'lodash';
 import React from 'react';
+import ReactDOM from 'react-dom';
 import './modal-dialog.css';
+
+const showClass = 'modal-dialog-show';
 
 /**
  * @class ModalDialog
@@ -15,6 +19,12 @@ export default React.createClass({
     onCancel: React.PropTypes.func,
     onOK: React.PropTypes.func,
     title: React.PropTypes.string
+  },
+  componentDidMount: function () {
+    const el = ReactDOM.findDOMNode(this);
+
+
+    _.defer(() => el.classList.add(showClass));
   },
   render: function () {
     const props = this.props;
@@ -43,13 +53,11 @@ export default React.createClass({
     }
 
     return (
-      <div>
-        <section className="modal-dialog">
-          {header}
-          {props.children}
-          {footer}
-        </section>
-      </div>
+      <section className="modal-dialog">
+        {header}
+        {props.children}
+        {footer}
+      </section>
     );
   }
 });

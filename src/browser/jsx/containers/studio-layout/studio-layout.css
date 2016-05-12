@@ -25,12 +25,18 @@ main {
   box-shadow: none;
 }
 
+/* override bootstrap because negative margins are evil */
+main .form-horizontal .form-group {
+  margin-left: 0;
+  margin-right: 0;
+}
+
 .icon-overflowing:before {
   /* 4x for retina: of all the icons, this should look the best */
   background-size: auto 60%;
   background-repeat: no-repeat;
   background-position: center;
-  background-image: url(rodeo-logo.4x.png);
+  background-image: url(./rodeo-logo.4x.png);
   position: absolute;
   display: block;
   top: 0;
@@ -41,7 +47,7 @@ main {
 }
 
 .icon-overflowing:first-child {
-  margin-left: 15px;
+  margin-left: 5px;
 }
 
 .icon-overflowing span {

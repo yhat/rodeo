@@ -15,7 +15,7 @@ export default React.createClass({
         <div className="row">
           <h2>{'Ready to Rodeo!'}</h2>
           <p className="lead">
-            <a onClick={this.props.onReady}>{'Yeehah!'}</a>
+            <a onClick={this.props.onReady}>{'Yeeeeeeeehah!'}</a>
           </p>
         </div>
       </div>

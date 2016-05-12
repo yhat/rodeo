@@ -11,6 +11,7 @@ import acePaneActions from '../components/ace-pane/ace-pane.actions';
 import applicationActions from '../actions/application';
 import dialogActions from '../actions/dialogs';
 import * as iopubActions from '../actions/iopub';
+import kernelActions from '../actions/kernel';
 
 const createStoreWithMiddleware = applyMiddleware(thunk)(createStore),
   store = createStoreWithMiddleware(rootReducer);
@@ -27,6 +28,7 @@ ipc.on('dispatch', function (event, action) {
     dispatchMap = {
       SHOW_ABOUT_RODEO: dialogActions.showAboutRodeo(),
       SHOW_ABOUT_STICKER: dialogActions.showAboutStickers(),
+      SHOW_PREFERENCES: dialogActions.showPreferences(),
       CHECK_FOR_UPDATES: applicationActions.checkForUpdates(),
       TOGGLE_DEV_TOOLS: applicationActions.toggleDevTools(),
       QUIT: applicationActions.quit(),
@@ -95,6 +97,8 @@ ipc.on('stdin', function (event, data) {
     console.log('stdin', {event, data});
   }
 });
+
+store.dispatch(kernelActions.detectKernel());
 
 /**
  * Log every change to the store (this has performance implications, of course).

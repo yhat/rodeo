@@ -1,0 +1,128 @@
+---
+  -
+    label: "Global"
+    items:
+      -
+        explanation: "globalSettingsText"
+      -
+        label: "I Want Stickers!"
+      -
+        label: "Blog!"
+      -
+        label: "Check For Updates"
+        button: true
+      -
+        key: "track-metrics"
+        label: "Track Metrics"
+        checkbox: true
+  -
+    label: "Python"
+    items:
+      -
+        explanation: "pythonSettingsText"
+      -
+        key: "working-directory"
+        label: "Working Directory"
+        text: true
+        examples:
+          linux:
+            - "~"
+          darwin:
+            - "~"
+          win32:
+            - "%HOME%"
+      -
+        key: "python-path"
+        label: "Python Path"
+        text: true
+        examples:
+          linux:
+            - "/usr/bin/python"
+          darwin:
+            - "/usr/local/bin/python"
+          win32:
+            - "???"
+      -
+        key: "shell"
+        label: "Shell"
+        text: true
+        examples:
+          linux:
+            - "/bin/bash"
+          darwin:
+            - "/bin/bash"
+          win32:
+            - "cmd.exe"
+      -
+        key: "global-environment-variables"
+        label: "Environment Variables"
+  -
+    label: "Editor"
+    items:
+      -
+        explanation: "aceEditorText"
+      -
+        key: "ace-font-size"
+        label: "Font Size"
+        text: true
+        examples:
+          all:
+            - "10px"
+            - "12px"
+            - "14px"
+            - "16px"
+      -
+        key: "ace-tab-spaces"
+        label: "Tab Spaces"
+        text: true
+      -
+        key: "ace-key-bindings"
+        label: "Key Bindings"
+        text: true
+  -
+    label: "Console"
+    items:
+      -
+        explanation: "consoleText"
+      -
+        key: "console-font-size"
+        label: "Font Size"
+        text: true
+        examples:
+          all:
+            - "10px"
+            - "12px"
+            - "14px"
+            - "16px"
+      -
+        key: "console-display-images"
+        label: "Display Images"
+        checkbox: true
+  -
+    label: "File Viewer"
+    items:
+      -
+        key: "files-display-dot-files"
+        label: "Display Dot Files"
+        checkbox: true,
+        examples:
+          all:
+            - "10px"
+            - "12px"
+            - "14px"
+            - "16px"
+  -
+    label: "Plots"
+    items:
+      -
+        notImplementedYet: "checkBackLaterPlotSettings"
+  -
+    label: "Git"
+    items:
+      -
+        notImplementedYet: "checkBackLaterGit"
+  -
+    label: "Project"
+    items:
+      -
+        notImplementedYet: "checkBackLaterProjectSettings"

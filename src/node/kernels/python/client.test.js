@@ -44,7 +44,7 @@ describe(dirname + '/' + filename, function () {
     it('checks', function () {
       this.timeout(10000);
 
-      return fn().then(function (result) {
+      return fn({}).then(function (result) {
         expect(result).to.have.property('hasJupyterKernel').that.is.a('boolean');
         expect(result).to.have.property('cwd').that.is.a('string');
         expect(result).to.have.property('version').that.is.a('string');

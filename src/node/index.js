@@ -17,7 +17,6 @@ const _ = require('lodash'),
   argv = yargs.argv,
   log = require('./services/log').asInternal(__filename),
   staticFileDir = path.resolve('./dist/'),
-  allowedKernelLangauges = ['python'],
   kernelClients = {},
   windowUrls = {
     mainWindow: 'main.html',
@@ -90,17 +89,6 @@ function onFileStats(filename) {
 
 function onGetFile(filename) {
   return files.readFile(filename);
-}
-
-/**
- * This is very specific to copy (noun) that will be presented in semi-rare dialogs / tutorials / help
- * that really doesn't need to be part of the default app experience and therefore doesn't need to be loaded
- * along with the read of the app at startup.
- * @param name
- * @returns {Promise}
- */
-function onGetMarkdown(name) {
-  return files.readFile(path.join(__dirname, 'md', name + '.md'));
 }
 
 function onSaveFile(filename, contents) {
@@ -266,16 +254,23 @@ function onReady() {
 }
 
 /**
- * Currently, named on language name.  We could make this more specific (python2.7) later.
- * @param {string} [language]
+ * Get a unique kernel based on the options they want
+ * @param {string} options
  * @returns {Promise}
  */
-function getKernelClient(language) {
-  language = language || 'python';
-  return promises.promiseOnlyOne(kernelClients, language, function () {
+function getKernelClient(options) {
+  const optionList = _.map(options, (str, key) => key + ':' + str);
+  let optionsKey;
+
+  optionList.sort();
+  optionsKey = optionList.join('; ');
+
+  // each set of options
+  return promises.promiseOnlyOne(kernelClients, optionsKey, function () {
     let clientFactory = require('./kernels/python/client');
 
-    return clientFactory.create().then(function (client) {
+    return clientFactory.create(options).then(function (client) {
+      log('info', 'created new python kernel process', optionsKey);
       subscribeWindowToKernelEvents('mainWindow', client);
       return client;
     });
@@ -285,20 +280,31 @@ function getKernelClient(language) {
 /**
  * @param {string} text
  * @param {object} [kernelOptions]
- * @param {string} [kernelOptions.language]
+ * @param {string} [kernelOptions.cmd]
+ * @param {string} [kernelOptions.shell]
  * @returns {Promise}
  */
 function onExecute(text, kernelOptions) {
-  kernelOptions = kernelOptions || {};
-  let language = kernelOptions.language || 'python';
+  return getKernelClient(kernelOptions)
+    .then(client => client.execute(text));
+}
 
-  if (!_.includes(allowedKernelLangauges, language)) {
-    throw new Error('options did not include valid kernel language: ' + language);
-  }
+/**
+ * @param {string} text
+ * @param {object} [kernelOptions]
+ * @param {string} [kernelOptions.cmd]
+ * @param {string} [kernelOptions.shell]
+ * @returns {Promise}
+ */
+function onGetResult(text, kernelOptions) {
+  return getKernelClient(kernelOptions)
+    .then(client => client.getResult(text));
+}
 
-  return getKernelClient(language).then(function (clientInstance) {
-    return clientInstance.execute(text);
-  });
+function onCheckKernel(kernelOptions) {
+  const clientFactory = require('./kernels/python/client');
+
+  return clientFactory.checkPython(kernelOptions);
 }
 
 function findPythons() {
@@ -316,10 +322,6 @@ function findPythons() {
 function onGetSystemFacts() {
   return bluebird.props({
     availablePythonKernels: findPythons(),
-    pythonStarts: getKernelClient().then(function () {
-      return true;
-    }),
-    python: require('./kernels/python/client').checkPython(),
     homedir: os.homedir(),
     pathSep: path.sep,
     delimiter: path.delimiter
@@ -364,7 +366,6 @@ function onOpenTerminal() {
  * @returns {Promise}
  */
 function onCloseWindow(windowName) {
-
   if (windowName) {
     const window = browserWindows.getByName(windowName);
 
@@ -414,6 +415,22 @@ function onSaveDialog(options) {
   });
 }
 
+function onToggleDevTools() {
+  return new bluebird(function (resolve) {
+    electron.getCurrentWindow().toggleDevTools();
+    resolve();
+  });
+}
+
+function onToggleFullScreen() {
+  return new bluebird(function (resolve) {
+    const isFull = electron.getCurrentWindow().isFullScreen();
+
+    electron.getCurrentWindow().setFullScreen(!isFull);
+    resolve();
+  });
+}
+
 /**
  * Attaches events to the main process
  */
@@ -422,12 +439,13 @@ function attachIpcMainEvents() {
 
   ipcPromises.exposeElectronIpcEvents(ipcMain, [
     onExecute,
+    onGetResult,
+    onCheckKernel,
     onFiles,
     onGetSystemFacts,
     onKnitHTML,
     onQuitApplication,
     onPDF,
-    onGetMarkdown,
     onGetFile,
     onSaveFile,
     onFileStats,
@@ -437,7 +455,9 @@ function attachIpcMainEvents() {
     onOpenExternal,
     onOpenTerminal,
     onOpenDialog,
-    onSaveDialog
+    onSaveDialog,
+    onToggleDevTools,
+    onToggleFullScreen
   ]);
 }
 
