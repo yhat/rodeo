@@ -51,7 +51,6 @@ function mapDispatchToProps(dispatch) {
     onRunActiveAcePane: () => dispatch(kernelActions.executeActiveFileInActiveConsole()),
     onSplitPaneDrag: () => dispatch(splitPaneActions.splitPaneDrag()),
     onCommand: (text, id) => dispatch(kernelActions.execute(text, id)),
-    onMissingTerminal: () => dispatch(kernelActions.detectKernel()),
     onRodeo: () => dispatch(dialogActions.showAboutRodeo())
   };
 }
@@ -66,7 +65,6 @@ export default connect(mapStateToProps, mapDispatchToProps)(React.createClass({
   propTypes: {
     onAddAcePane: React.PropTypes.func,
     onFocusAcePane: React.PropTypes.func,
-    onMissingTerminal: React.PropTypes.func,
     onRemoveAcePane: React.PropTypes.func,
     onSplitPaneDrag: React.PropTypes.func,
     panePositions: React.PropTypes.object

@@ -141,7 +141,7 @@ gulp.task('hot', function () {
 
 gulp.task('images', function () {
   return gulp.src([
-    'src/browser/images/*.{svg,gif,png}'
+    'src/browser/images/**/*.{svg,gif,png}'
   ]).pipe(gulp.dest('dist/images'));
 });
 
