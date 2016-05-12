@@ -81,7 +81,7 @@ export default React.createClass({
     });
     instance.$blockScrolling = Infinity;
 
-    instance.resize();
+    _.defer(() => instance.resize());
 
     // if filename, load filename into instance
     if (filename) {

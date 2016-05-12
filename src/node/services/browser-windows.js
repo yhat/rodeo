@@ -9,8 +9,7 @@ const _ = require('lodash'),
   log = require('./log').asInternal(__filename),
   util = require('util'),
   availableBrowserWindowOptions = [
-    'width', 'height', 'useContentSize', 'resizable', 'moveable', 'center', 'alwaysOnTop',
-    'show'
+    'width', 'height', 'useContentSize', 'resizable', 'moveable', 'center', 'alwaysOnTop', 'show', 'frame'
   ],
   windows = {};
 
@@ -211,7 +210,8 @@ function createStartupWindow(name, options) {
     moveable: false,
     center: true,
     alwaysOnTop: true,
-    show: false
+    show: false,
+    frame: false
   }, options));
 }
 
