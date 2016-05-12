@@ -73,8 +73,11 @@ def kernel(wd=None, verbose=0):
               target = kernel_client
 
             if method:
-                result = getattr(target, method)(*args, **kwargs)
-                sys.stdout.write(json.dumps({ "result": result, "id": uid }) + '\n')
+                if getattr(target, method, False):
+                    result = getattr(target, method)(*args, **kwargs)
+                    sys.stdout.write(json.dumps({ "result": result, "id": uid }) + '\n')
+                else:
+                    sys.stdout.write(json.dumps({ "error": "Missing method " + method, "id": uid }) + '\n')
 
         try:
             data = kernel_client.get_iopub_msg(timeout=0.1)

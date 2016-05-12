@@ -194,6 +194,77 @@ class JupyterClient extends EventEmitter {
     }, {successEvent: ['execute_results', 'display_data', 'stream']});
   }
 
+  /**
+   * @typedef {object} JupyterAutoCompletionMessage
+   * @property {'ok'|'error'} status
+   * @property {Array} matches
+   * @property {number} cursorStart
+   * @property {number} cursorEnd
+   * @property {object} metadata
+   */
+
+  /**
+   *
+   *
+   * We send msg_type: complete_request
+   * We get msg_type: complete_reply with content of
+   *   {status: ok|error, matches: Array, cursorStart: number, cursorEnd: number, metadata: map}
+   * @param {string} code
+   * @param {number} cursorPos
+   * @returns {Promise<JupyterAutoCompletionMessage>}
+   */
+  getAutocomplete(code, cursorPos) {
+    return request(this, {
+      method: 'complete', // sends complete_request
+      args: [code, cursorPos]
+    }, {successEvent: 'complete_reply'});
+  }
+
+  /**
+   * @typedef {object} JupyterInspectionMessage
+   * @property {'ok'|'error'} status
+   * @property {bool} found
+   * @property {object} data
+   * @property {object} metadata
+   */
+
+  /**
+   * @param {string} code
+   * @param {number} cursorPos
+   * @param {number} [detailLevel=0]  Equivalent in python would be 0 is x?, 1 is x??
+   * @returns {Promise<JupyterInspectionMessage>}
+   */
+  getInspection(code, cursorPos, detailLevel) {
+    detailLevel = detailLevel || 0;
+
+    return request(this, {
+      method: 'inspect', // sends inspect_request
+      args: [code, cursorPos, detailLevel]
+    }, {successEvent: 'inspect_reply'});
+  }
+
+  /**
+   * @typedef {object} JupyterCodeIsCompleteMessage
+   * @property {'complete'|'incomplete'|'invalid'|'unknown'} status
+   * @property {string} indent  Only for incomplete status
+   */
+
+  /**
+   * Is code likely to run successfully?
+   *
+   * @param {string} code
+   * @returns {Promise<JupyterCodeIsCompleteMessage>}
+   */
+  isComplete(code) {
+    return request(this, {
+      method: 'is_complete', // sends is_complete_request
+      args: [code]
+    }, {successEvent: 'is_complete_reply'});
+  }
+
+  /**
+   * @returns {Promise}
+   */
   kill() {
     return processes.kill(this.childProcess);
   }

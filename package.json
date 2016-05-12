@@ -96,6 +96,7 @@
     "yaml-loader": "^0.1.0"
   },
   "dependencies": {
+    "ansi-to-html": "^0.4.1",
     "async": "^1.4.2",
     "babel-register": "^6.8.0",
     "bluebird": "^3.3.4",
