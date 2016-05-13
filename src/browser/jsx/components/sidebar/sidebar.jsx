@@ -53,7 +53,7 @@ export default connect(mapStateToProps, mapDispatchToProps)(React.createClass({
       <section className="sidebar">
         <SlideoutDialog isExpanded={props.isExpanded} url={props.url} />
         <div className="sidebar-container">
-          <div className="sidebar-item" onClick={_.partial(props.onShowURL, 'http://yhat.com/blog')}></div>
+          <div className="sidebar-item" onClick={_.partial(props.onShowURL, 'http://blog.yhat.com/tutorials/index.html')}></div>
           <div className="sidebar-item"></div>
           <div className="sidebar-item"></div>
         </div>
