@@ -5,6 +5,7 @@ import terminals from './components/terminal/terminal.reducer';
 import plots from './components/plot-viewer/plot-viewer.reducer';
 import fileView from './components/file-viewer/file-viewer.reducer';
 import modalDialogs from './components/modal-dialog/modal-dialog.reducer';
+import sidebar from './components/sidebar/sidebar.reducer';
 
 /**
  * This is the global application state.  Each item here is a slice that is managed by particular reducer.
@@ -44,5 +45,10 @@ export default combineReducers({
   /**
    * stack! Modals are stacked up in order, and closed in order, FILO.
    */
-  modalDialogs
+  modalDialogs,
+  /**
+   * singleton! Only one sidebar should be active at a time, and if a new one wants to open, it should replace
+   * the old one.
+   */
+  sidebar
 });

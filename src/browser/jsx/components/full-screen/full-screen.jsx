@@ -8,7 +8,15 @@ import './full-screen.css';
  */
 export default React.createClass({
   displayName: 'FullScreen',
+  propTypes: {
+    row: React.PropTypes.bool
+  },
   render: function () {
-    return <div className="full-screen">{this.props.children}</div>;
+    const className = [
+      'full-screen',
+      this.props.row ? 'full-screen-row' : ''
+    ].join(' ');
+
+    return <div className={className}>{this.props.children}</div>;
   }
 });
