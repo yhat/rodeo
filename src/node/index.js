@@ -312,14 +312,6 @@ function onGetAutoComplete(text, cursorPos, kernelOptions) {
     .then(client => client.getAutoComplete(text, cursorPos));
 }
 
-function onGetRichAutoComplete(text, cursorPos, kernelOptions) {
-  return getKernelClient(kernelOptions)
-    .then(client => client.getAutoComplete(text, cursorPos))
-    .then(function (result) {
-      const matches = result;
-    });
-}
-
 function onIsComplete(text, kernelOptions) {
   return getKernelClient(kernelOptions)
     .then(client => client.isComplete(text));

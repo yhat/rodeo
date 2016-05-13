@@ -71,7 +71,7 @@ export function detectTerminalVariables() {
     return send('get_variables').then(function (variables) {
       return dispatch({type: 'VARIABLES_DETECTED', variables, id});
     }).catch(error => console.error(error));
-  }
+  };
 }
 
 export function addDisplayData(data) {

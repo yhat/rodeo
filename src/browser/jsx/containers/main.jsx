@@ -46,8 +46,7 @@ ipc.on('dispatch', function (event, action) {
 });
 
 ipc.on('shell', function (event, data) {
-  const result = data.result,
-    dispatch = store.dispatch;
+  const result = data.result;
 
   if (result) {
     switch (result.msg_type) {
