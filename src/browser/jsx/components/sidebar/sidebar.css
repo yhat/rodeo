@@ -1,0 +1,37 @@
+.sidebar {
+  width: 45px;
+  height: 100%;
+  flex: 0 0 45px;
+}
+
+.sidebar-container {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  align-items: stretch;
+  height: 100%;
+  background-color: #337ab7;
+}
+
+.sidebar-item {
+  cursor: pointer;
+  background-color: #3a8bd1;
+  flex: 0 0 60px;
+  border-top: solid 1px grey;
+  transition: all 0.4s;
+}
+
+.sidebar-item:last-child {
+  margin-bottom: 15px;
+}
+
+.sidebar-item:hover {
+  cursor: pointer;
+  background-color: #8DC8FB;
+}
+
+.sidebar-item:active {
+  cursor: pointer;
+  background-color: #D1EAFF;
+}

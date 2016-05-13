@@ -5,6 +5,7 @@ import {Provider} from 'react-redux';
 import thunk from 'redux-thunk';
 import FullScreen from '../components/full-screen/full-screen.jsx';
 import StudioLayout from './studio-layout/studio-layout.jsx';
+import Sidebar from '../components/sidebar/sidebar.jsx';
 import ModalDialogContainer from '../components/modal-dialog/modal-dialog-container.jsx';
 import * as ipc from '../services/ipc';
 import rootReducer from '../reducers';
@@ -145,8 +146,9 @@ export default React.createClass({
   render: function () {
     return (
       <Provider store={store}>
-        <FullScreen>
+        <FullScreen row>
           <StudioLayout />
+          <Sidebar />
           <ModalDialogContainer />
         </FullScreen>
       </Provider>
