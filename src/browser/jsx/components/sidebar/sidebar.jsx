@@ -2,7 +2,7 @@ import _ from 'lodash';
 import React from 'react';
 import ReactDOM from 'react-dom';
 import {connect} from 'react-redux';
-import SlideoutDialog from './slideout-dialog.jsx'
+import SlideoutDialog from './slideout-dialog.jsx';
 import './sidebar.css';
 import actions from './sidebar.actions';
 
