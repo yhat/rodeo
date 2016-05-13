@@ -322,6 +322,11 @@ function onGetInspection(text, cursorPos, kernelOptions) {
     .then(client => client.getInspection(text, cursorPos));
 }
 
+function onGetVariables(kernelOptions) {
+  return getKernelClient(kernelOptions)
+    .then(client => client.getVariables());
+}
+
 function findPythons() {
   if (argv.pythons === false) {
     return [];
@@ -459,6 +464,7 @@ function attachIpcMainEvents() {
     onGetAutoComplete,
     onIsComplete,
     onGetInspection,
+    onGetVariables,
     onFiles,
     onGetSystemFacts,
     onKnitHTML,

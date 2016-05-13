@@ -72,6 +72,66 @@ describe(dirname + '/' + filename, function () {
       }
     });
 
+    describe('getEval', function () {
+      const title = this.title;
+      let fn;
+
+      before(function () {
+        fn = client[title].bind(client);
+      });
+
+      it('evals', function () {
+        return fn('[]').then(function (result) {
+          expect(result).to.deep.equal([]);
+        });
+      });
+    });
+
+    describe('getDocStrings', function () {
+      const title = this.title;
+      let fn;
+
+      before(function () {
+        fn = client[title].bind(client);
+      });
+
+      it('gets docstrings when empty list', function () {
+        this.timeout(10000);
+        return fn([]).then(function (result) {
+          expect(result).to.deep.equal({
+            name: 'stdout',
+            text: '[]\n'
+          });
+        });
+      });
+
+      it('gets docstrings with global names', function () {
+        this.timeout(10000);
+        return fn(['sys']).then(function (result) {
+          expect(result).to.deep.equal({
+            name: 'stdout',
+            text: '[{\"text\": \"sys\", \"docstring\": \"no docstring provided\", \"dtype\": \"---\"}]\n'
+          });
+        });
+      });
+    });
+
+    describe('getVariables', function () {
+      const title = this.title;
+      let fn;
+
+      before(function () {
+        fn = client[title].bind(client);
+      });
+
+      it('gets variables when empty', function () {
+        this.timeout(10000);
+        return fn([]).then(function (result) {
+          expect(result).to.deep.equal({function: [], Series: [], list: [], DataFrame: [], other: [], dict: [], ndarray: []});
+        });
+      });
+    });
+
     describe('getAutoComplete', function () {
       const title = this.title;
       let fn;
@@ -166,7 +226,7 @@ describe(dirname + '/' + filename, function () {
       });
 
       it('example 1', function () {
-        this.timeout(10000);
+        this.timeout(20000);
         const expectedResult = {status: 'ok', user_expressions: {}};
 
         return fn.call(client, example1).then(function (result) {
@@ -223,7 +283,7 @@ describe(dirname + '/' + filename, function () {
       });
 
       it('example 1', function () {
-        this.timeout(10000);
+        this.timeout(20000);
 
         return fn.call(client, example1).then(function (result) {
           expect(result).to.have.property('data').that.is.an('object')

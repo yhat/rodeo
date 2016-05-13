@@ -7,7 +7,7 @@ import FileViewer from '../../components/file-viewer/file-viewer.jsx';
 import PlotViewer from '../../components/plot-viewer/plot-viewer.jsx';
 import PackageViewer from '../../components/package-viewer/package-viewer.jsx';
 import PreferenceViewer from '../../components/preference-viewer.jsx';
-import EnvironmentViewer from '../../components/environment-viewer.jsx';
+import VariableViewer from '../../components/variable-viewer/variable-viewer.jsx';
 import HistoryViewer from '../../components/history-viewer/history-viewer.jsx';
 import TabbedPaneItem from '../../components/tabbed-pane/tabbed-pane-item.jsx';
 import AcePane from '../../components/ace-pane/ace-pane.jsx';
@@ -178,7 +178,7 @@ export default connect(mapStateToProps, mapDispatchToProps)(React.createClass({
         <SplitPane direction="top-bottom"  id="split-pane-right">
           <TabbedPane>
 
-            <TabbedPaneItem icon="table" label="Environment"><EnvironmentViewer /></TabbedPaneItem>
+            <TabbedPaneItem icon="table" label="Environment"><VariableViewer /></TabbedPaneItem>
             <TabbedPaneItem icon="history" label="History"><HistoryViewer /></TabbedPaneItem>
 
           </TabbedPane>

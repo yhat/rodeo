@@ -1,3 +1,4 @@
+import _ from 'lodash';
 import React from 'react';
 import {createStore, applyMiddleware} from 'redux';
 import {Provider} from 'react-redux';
@@ -65,18 +66,38 @@ ipc.on('shell', function (event, data) {
  */
 ipc.on('iopub', function (event, data) {
   const result = data.result,
+    content = _.get(data, 'result.content'),
     dispatch = store.dispatch;
 
   if (result) {
     switch (result.msg_type) {
       case 'status':
-        return dispatch(iopubActions.setTerminalState(result.content.execution_state));
+        return dispatch(iopubActions.setTerminalState(content.execution_state));
       case 'execute_input':
-        return dispatch(iopubActions.addTerminalExecutedInput(result.content.code));
+        return Promise.all([
+          dispatch(iopubActions.addTerminalExecutedInput(content.code)),
+          dispatch(iopubActions.detectTerminalVariables())
+        ]);
       case 'stream':
-        return dispatch(iopubActions.addTerminalText(result.content.name, result.content.text));
+        return Promise.all([
+          dispatch(iopubActions.addTerminalText(content.name, content.text)),
+          dispatch(iopubActions.detectTerminalVariables())
+        ]);
+      case 'execute_result':
+        return Promise.all([
+          dispatch(iopubActions.addTerminalResult(content.data)),
+          dispatch(iopubActions.detectTerminalVariables())
+        ]);
       case 'display_data':
-        return dispatch(iopubActions.addDisplayData(result.content.data));
+        return Promise.all([
+          dispatch(iopubActions.addDisplayData(content.data)),
+          dispatch(iopubActions.detectTerminalVariables())
+        ]);
+      case 'error':
+        return Promise.all([
+          dispatch(iopubActions.addTerminalError(content.ename, content.evalue, content.traceback)),
+          dispatch(iopubActions.detectTerminalVariables())
+        ]);
       default:
         return console.log('iopub', result, {event, data});
     }
