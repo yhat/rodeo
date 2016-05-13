@@ -81,7 +81,7 @@ describe(dirname + '/' + filename, function () {
       fn(client, response);
 
       sinon.assert.calledWith(resolveSpy, content);
-      sinon.assert.calledWith(emitSpy, 'some source', response);
+      sinon.assert.notCalled(emitSpy);
       expect(lib.getOutputMap()).to.deep.equal({}); // empty because the request has been handle #no-memory-leaks
     });
 
@@ -98,6 +98,7 @@ describe(dirname + '/' + filename, function () {
       fn(client, response);
 
       sinon.assert.calledWith(resolveSpy, result);
+      sinon.assert.notCalled(emitSpy);
       expect(lib.getOutputMap()).to.deep.equal({}); // empty because the request has been handle #no-memory-leaks
     });
   });

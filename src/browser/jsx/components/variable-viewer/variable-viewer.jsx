@@ -16,9 +16,9 @@ function mapStateToProps(state) {
  * @extends ReactComponent
  */
 export default connect(mapStateToProps)(React.createClass({
-  displayName: 'HistoryViewer',
+  displayName: 'VariableViewer',
   propTypes: {
-    variables: React.PropTypes.array
+    variables: React.PropTypes.object
   },
   getInitialState: function () {
     return {
@@ -32,8 +32,27 @@ export default connect(mapStateToProps)(React.createClass({
   }, 300),
   render: function () {
     const props = this.props,
-      state = this.state,
-      items = _.filter(props.variables, item => !state.filter || item.text.indexOf(state.filter) > -1);
+      state = this.state;
+    let items;
+
+    // flatten type with the rest; give a unique id to use as the key
+    items = _.flatten(_.map(props.variables, function (list, type) {
+      type = _.startCase(type);
+      return _.map(list, function (variable) {
+        return _.assign({
+          type,
+          id: type + ' ' + variable.name
+        }, variable);
+      });
+    }));
+
+    console.log('items', items);
+
+    items = _.filter(items, item => !state.filter || (
+      item.name.toLowerCase().indexOf(state.filter.toLowerCase()) > -1 ||
+      item.type.toLowerCase().indexOf(state.filter.toLowerCase()) > -1 ||
+      item.repr.toLowerCase().indexOf(state.filter.toLowerCase()) > -1
+    ));
 
     return (
       <div>
@@ -54,11 +73,11 @@ export default connect(mapStateToProps)(React.createClass({
         <table className="table table-bordered">
           <thead>
           <tr>
-            <th>{'executed'}</th>
+            <th>{'Name'}</th><th>{'Type'}</th><th>{'REPR'}</th>
           </tr>
           </thead>
           <tbody>
-          {_.map(items, item => <tr key={item.id}><td><pre>{item.text}</pre></td></tr>)}
+          {_.map(items, item => <tr key={item.id}><td>{item.name}</td><td>{item.type}</td><td>{item.repr}</td></tr>)}
           </tbody>
         </table>
       </div>

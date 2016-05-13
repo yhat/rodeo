@@ -122,14 +122,10 @@ function request(client, invocation, options) {
     id = uuid.v4().toString(),
     inputPromise = write(childProcess, _.assign({id}, invocation)),
     deferred = new bluebird.defer(),
-    request = {
-      id: id,
-      deferred: deferred,
-      successEvent: options.successEvent
-    };
+    successEvent = options.successEvent,
+    hidden = options.hidden;
 
-  request.deferred = deferred;
-  requestMap[id] = request;
+  requestMap[id] = {id, invocation, deferred, successEvent, hidden};
 
   return inputPromise.then(function () {
     return deferred.promise;
@@ -191,7 +187,10 @@ class JupyterClient extends EventEmitter {
     return request(this, {
       method: 'execute',
       kwargs: _.assign({code}, pythonLanguage.toPythonArgs(args))
-    }, {successEvent: ['execute_results', 'display_data', 'stream']});
+    }, {
+      successEvent: ['execute_results', 'display_data', 'stream'],
+      emitOnly: []
+    });
   }
 
   /**
@@ -205,18 +204,36 @@ class JupyterClient extends EventEmitter {
   }
 
   getDocStrings(names) {
-    const code = '__get_docstrings(globals(), ' + JSON.stringify(names) + ', False)';
+    const code = '__get_docstrings(globals(), ' + JSON.stringify(names) + ', False)',
+      args = {
+        allowStdin: false,
+        stopOnError: true
+      };
 
-    return this.getResult(code, {
-      silent: true
+    return request(this, {
+      method: 'execute',
+      kwargs: _.assign({code}, pythonLanguage.toPythonArgs(args))
+    }, {
+      successEvent: ['stream'],
+      hidden: true
     });
   }
 
   getVariables() {
-    const code = '__get_variables(globals())';
+    const code = '__get_variables(globals())',
+      args = {
+        allowStdin: false,
+        stopOnError: true
+      };
 
-    return this.getResult(code, {
-      silent: true
+    return request(this, {
+      method: 'execute',
+      kwargs: _.assign({code}, pythonLanguage.toPythonArgs(args))
+    }, {
+      successEvent: ['stream'],
+      hidden: true
+    }).then(function (result) {
+      return JSON.parse(result.text);
     });
   }
 

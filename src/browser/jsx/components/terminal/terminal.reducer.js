@@ -91,7 +91,7 @@ function addTerminalExecutedInput(state, action) {
     jqconsole.Write(action.code + '\n');
   }
 
-  if (historyMax > 0) {
+  if (historyMax > 0 && _.isString(action.code) && action.code.trim().length > 0) {
     state = _.clone(state);
     const instance = _.find(state, {id: action.id});
 
@@ -190,7 +190,7 @@ function addTerminalResult(state, action) {
     data = action.data;
 
   if (data['text/plain']) {
-    jqconsole.Write(data['text/plain']+ '\n', 'jqconsole-output');
+    jqconsole.Write(data['text/plain'] + '\n', 'jqconsole-output');
   } else {
     console.warn('addTerminalResult', 'unknown data type', data);
   }
@@ -219,12 +219,26 @@ function addTerminalError(state, action) {
  * @param {object} action
  * @returns {[TerminalState]}
  */
-function updateFirstTerminal(state, action) {
-  const pythonOptions = action.pythonOptions;
-
+function updateFirstTerminalWithKernel(state, action) {
+  state = _.cloneDeep(state);
   let target = state.length ? state[0] : getDefault();
 
-  return [_.assign({}, target, pythonOptions)];
+  target.pythonOptions = action.pythonOptions;
+  return state;
+}
+
+/**
+ * Update the terminal with the new variable state
+ * @param {[TerminalState]} state
+ * @param {object} action
+ * @returns {[TerminalState]}
+ */
+function updateFirstTerminalWithVariables(state, action) {
+  state = _.cloneDeep(state);
+  let target = state.length ? state[0] : getDefault();
+
+  target.variables = action.variables;
+  return state;
 }
 
 export default mapReducers({
@@ -234,5 +248,6 @@ export default mapReducers({
   ADD_TERMINAL_RESULT: addTerminalResult,
   ADD_TERMINAL_ERROR: addTerminalError,
   ADD_DISPLAY_DATA: addTerminalDisplayData,
-  KERNEL_DETECTED: updateFirstTerminal
+  KERNEL_DETECTED: updateFirstTerminalWithKernel,
+  VARIABLES_DETECTED: updateFirstTerminalWithVariables
 }, initialState);

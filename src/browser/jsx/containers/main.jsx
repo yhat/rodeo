@@ -75,15 +75,30 @@ ipc.on('iopub', function (event, data) {
       case 'status':
         return dispatch(iopubActions.setTerminalState(content.execution_state));
       case 'execute_input':
-        return dispatch(iopubActions.addTerminalExecutedInput(content.code));
+        return Promise.all([
+          dispatch(iopubActions.addTerminalExecutedInput(content.code)),
+          dispatch(iopubActions.detectTerminalVariables())
+        ]);
       case 'stream':
-        return dispatch(iopubActions.addTerminalText(content.name, content.text));
+        return Promise.all([
+          dispatch(iopubActions.addTerminalText(content.name, content.text)),
+          dispatch(iopubActions.detectTerminalVariables())
+        ]);
       case 'execute_result':
-        return dispatch(iopubActions.addTerminalResult(content.data));
-      case 'error':
-        return dispatch(iopubActions.addTerminalError(content.ename, content.evalue, content.traceback));
+        return Promise.all([
+          dispatch(iopubActions.addTerminalResult(content.data)),
+          dispatch(iopubActions.detectTerminalVariables())
+        ]);
       case 'display_data':
-        return dispatch(iopubActions.addDisplayData(content.data));
+        return Promise.all([
+          dispatch(iopubActions.addDisplayData(content.data)),
+          dispatch(iopubActions.detectTerminalVariables())
+        ]);
+      case 'error':
+        return Promise.all([
+          dispatch(iopubActions.addTerminalError(content.ename, content.evalue, content.traceback)),
+          dispatch(iopubActions.detectTerminalVariables())
+        ]);
       default:
         return console.log('iopub', result, {event, data});
     }

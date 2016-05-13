@@ -163,7 +163,6 @@ function handle(client, response) {
     linkRequestToOutput(client, response);
   } else if (isExecutionResult(response)) {
     resolveExecutionResult(client, response);
-    client.emit(response.source, response);
   } else if (isEvalResult(response)) {
     resolveEvalResult(client, response);
   } else if (response.result && response.source) {
