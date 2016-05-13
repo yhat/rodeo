@@ -42,7 +42,7 @@ def kernel(wd=None, verbose=0):
     # apply patches
     dirname = os.path.dirname(os.path.abspath(__file__))
     python_patch_file = os.path.join(dirname, "langs", "python-patch.py")
-    kernel_client.execute("%run " + python_patch_file)
+    kernel_client.execute("%run " + python_patch_file, {"silent":True, "store_history":False})
 
     # set working directory
     if wd:
@@ -65,9 +65,10 @@ def kernel(wd=None, verbose=0):
             args = payload.get("args", [])
             kwargs = payload.get("kwargs", {})
             method = payload.get("method", False)
-            targetStr = payload.get("target", "client")
+            target_str = payload.get("target", "client")
+            exec_eval = payload.get("exec_eval", False)
 
-            if targetStr == "manager":
+            if target_str == "manager":
               target = kernel_manager
             else:
               target = kernel_client
@@ -75,9 +76,13 @@ def kernel(wd=None, verbose=0):
             if method:
                 if getattr(target, method, False):
                     result = getattr(target, method)(*args, **kwargs)
-                    sys.stdout.write(json.dumps({ "result": result, "id": uid }) + '\n')
+                    sys.stdout.write(json.dumps({"source": "link", "result": result, "id": uid }) + '\n')
                 else:
                     sys.stdout.write(json.dumps({ "error": "Missing method " + method, "id": uid }) + '\n')
+
+            if exec_eval:
+                result = eval(exec_eval)
+                sys.stdout.write(json.dumps({ "source": "eval", "result": result, "id": uid }) + '\n')
 
         try:
             data = kernel_client.get_iopub_msg(timeout=0.1)

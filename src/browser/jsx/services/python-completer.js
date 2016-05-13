@@ -13,23 +13,37 @@ export default {
    * @returns {Promise}
    */
   getCompletions: function (editor, session, pos, prefix, callback) {
+    session.$mode.$keywordList = [];
     const code = session.getValue(),
-    // get the line lengths up to the current position
-      lineLengths = _.dropRight(_.map(code.split('\n', pos.row), line => line.length), 1),
+      lineLengths = _.map(code.split('\n', pos.row), line => line.length + 1),
       cursorPos = _.sum(lineLengths) + pos.column;
-
-    console.log({lineLengths, cursorPos, pos, prefix});
 
     return send('get_auto_complete', code, cursorPos).then(function (result) {
       console.log('autocomplete', result);
       callback(null, _.map(result.matches, function (match) {
+        let value = match;
+
+        // if it's not a filename and there's a "." in the value, we want
+        // to set the value to just the last item in the list
+        if (value.indexOf("/")==-1 && value.indexOf(".") > -1) {
+          value = value.split(".").slice(value.split(".").length-1).join(".");
+        }
+
         return {
-          // snippet: 'snippet' + match, // thing that replaces section
-          caption: match // thing shown on left
-          // meta: 'meta' + match // thing shown on right
+          caption: match, // thing shown on left
+          value: value,
+          score: 100,
+          meta: null, // thing shown on right
+          docHTML: '<code>' + match + '</code>' + '<br/>' + '<br/>' + '<pre style=\'margin: 0; padding: 0;\'>' +
+            p.docstring + '</pre>' || '<p>' + match + '</p>'
+          // snippet: match, // thing that can replace section
         };
       }));
     }).catch(error => console.error(error));
+  },
+  insertMatch: function (editor, data) {
+    console.log(editor, data);
+    debugger;
   }
 };
 

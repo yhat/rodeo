@@ -1,22 +1,12 @@
-def __get_docstrings(session, names, is_function):
-    if is_function==True:
-        dtype = "function"
-    else:
-        dtype = "---"
+import sys
 
-    docstrings = []
-    for name in names:
-        try:
-            if name in session:
-                docstring = session[name].__doc__
-            else:
-                docstring = eval(name, session).__doc__
-        except:
-            docstring = "no docstring provided"
 
-        docstrings.append({
-            "text": name,
-            "dtype": dtype,
-            "docstring": docstring,
-        })
-    print(json.dumps(docstrings))
+matches = sys.argv[1].split(",")
+
+for completion in matches:
+    names.append("'" + completion + "'")
+
+names = "[%s]" % ", ".join(names)
+cmd = '__get_docstrings(globals(), %s, %r)' % (names, "." in code)
+msg_id = kernel_client.execute(cmd)
+

@@ -5,6 +5,9 @@
  */
 
 import _ from 'lodash';
+import AsciiToHtml from 'ansi-to-html';
+
+const convertor = new AsciiToHtml();
 
 export function setTerminalState(status) {
   return function (dispatch, getState) {
@@ -33,6 +36,28 @@ export function addTerminalText(name, text) {
       id = terminal.id;
 
     return dispatch({type: 'ADD_TERMINAL_TEXT', name, text, id});
+  };
+}
+
+export function addTerminalResult(data) {
+  return function (dispatch, getState) {
+    const state = getState(),
+      terminal = _.find(state.terminals, {hasFocus: true}),
+      id = terminal.id;
+
+    return dispatch({type: 'ADD_TERMINAL_RESULT', data, id});
+  };
+}
+
+export function addTerminalError(ename, evalue, traceback) {
+  return function (dispatch, getState) {
+    const state = getState(),
+      terminal = _.find(state.terminals, {hasFocus: true}),
+      id = terminal.id;
+
+    traceback = traceback && _.map(traceback, str => convertor.toHtml(str)).join('<br />');
+
+    return dispatch({type: 'ADD_TERMINAL_ERROR', ename, evalue, traceback, id});
   };
 }
 

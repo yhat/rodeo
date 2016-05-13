@@ -45,7 +45,7 @@ describe(dirname + '/' + filename, function () {
     it('links request to expected output', function () {
       const requestMap = {abc: {}},
         client = {emit: _.noop, requestMap},
-        response = {id: 'abc', result: 'def'},
+        response = {source: 'link', id: 'abc', result: 'def'},
         expectedRequestMap = {abc: {msg_id: 'def'}},
         expectedOutputMap = {def: {id: 'abc', msg_id: 'def'}};
 
@@ -77,11 +77,27 @@ describe(dirname + '/' + filename, function () {
         content = {someValue: 'something really important'},
         response = {source, result: {msg_type: successEvent, content, parent_header: {msg_id: 'def'}}};
 
-      fn(client, {id: 'abc', result: 'def'}); // request link
+      fn(client, {source: 'link', id: 'abc', result: 'def'}); // request link
       fn(client, response);
 
       sinon.assert.calledWith(resolveSpy, content);
       sinon.assert.calledWith(emitSpy, 'some source', response);
+      expect(lib.getOutputMap()).to.deep.equal({}); // empty because the request has been handle #no-memory-leaks
+    });
+
+    it('reports eval source results', function () {
+      const emitSpy = sinon.spy(),
+        resolveSpy = sinon.spy(),
+        deferred = {resolve: resolveSpy},
+        requestMap = {abc: {deferred}},
+        client = {emit: emitSpy, requestMap},
+        source = 'eval',
+        result = 'something really important',
+        response = {source, result: result, id: 'abc'};
+
+      fn(client, response);
+
+      sinon.assert.calledWith(resolveSpy, result);
       expect(lib.getOutputMap()).to.deep.equal({}); // empty because the request has been handle #no-memory-leaks
     });
   });

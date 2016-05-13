@@ -87,9 +87,9 @@ function addTerminalExecutedInput(state, action) {
     historyMaxSetting = store.get('terminal-history'),
     historyMax = historyMaxSetting === null ? 5 : historyMaxSetting;
 
-  jqconsole.Write(action.code + '\n');
-
-  console.log('addTerminalExecutedInput', historyMaxSetting, historyMax);
+  if (store.get('terminal-show-executed-input')) {
+    jqconsole.Write(action.code + '\n');
+  }
 
   if (historyMax > 0) {
     state = _.clone(state);
@@ -172,7 +172,43 @@ function addTerminalDisplayData(state, action) {
     // do nothing at the moment
   } else if (data['image/svg']) {
     appendSVG(jqconsole, data);
+  } else {
+    console.warn('addTerminalDisplayData', 'unknown data type', data);
   }
+
+  return state;
+}
+
+/**
+ * Update the terminal with display data
+ * @param {[TerminalState]} state
+ * @param {object} action
+ * @returns {[TerminalState]}
+ */
+function addTerminalResult(state, action) {
+  const jqconsole = getTerminalConsole(action),
+    data = action.data;
+
+  if (data['text/plain']) {
+    jqconsole.Write(data['text/plain']+ '\n', 'jqconsole-output');
+  } else {
+    console.warn('addTerminalResult', 'unknown data type', data);
+  }
+
+  return state;
+}
+
+/**
+ * Update the terminal with display data
+ * @param {[TerminalState]} state
+ * @param {object} action
+ * @returns {[TerminalState]}
+ */
+function addTerminalError(state, action) {
+  const jqconsole = getTerminalConsole(action),
+    htmlEscape = false;
+
+  jqconsole.Write(action.traceback + '\n', 'jqconsole-output', htmlEscape);
 
   return state;
 }
@@ -195,6 +231,8 @@ export default mapReducers({
   TERMINAL_STATE: setTerminalState,
   ADD_TERMINAL_EXECUTED_INPUT: addTerminalExecutedInput,
   ADD_TERMINAL_TEXT: addTerminalText,
+  ADD_TERMINAL_RESULT: addTerminalResult,
+  ADD_TERMINAL_ERROR: addTerminalError,
   ADD_DISPLAY_DATA: addTerminalDisplayData,
   KERNEL_DETECTED: updateFirstTerminal
 }, initialState);

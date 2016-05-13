@@ -63,9 +63,10 @@ function isStartComplete(obj) {
  */
 function isRequestToOutputLink(client, response) {
   const requestMap = client.requestMap,
-    result = response.result;
+    result = response.result,
+    source = response.source;
 
-  return !!(response.id && result && requestMap[response.id]);
+  return !!(source === 'link' && response.id && result && requestMap[response.id]);
 }
 
 /**
@@ -137,6 +138,20 @@ function resolveExecutionResult(client, response) {
   }
 }
 
+function isEvalResult(response) {
+  const source = response.source;
+
+  return source === 'eval' && _.isString(response.id);
+}
+
+function resolveEvalResult(client, response) {
+  const result = response.result,
+    request = client.requestMap[response.id];
+
+  // payload is deprecated, so don't even expose it
+  request.deferred.resolve(result);
+}
+
 /**
  * @param {JupyterClient} client
  * @param {JupyterClientResponse} response
@@ -149,6 +164,8 @@ function handle(client, response) {
   } else if (isExecutionResult(response)) {
     resolveExecutionResult(client, response);
     client.emit(response.source, response);
+  } else if (isEvalResult(response)) {
+    resolveEvalResult(client, response);
   } else if (response.result && response.source) {
     client.emit(response.source, response);
   } else if (response.id && response.result === null) {

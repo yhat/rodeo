@@ -195,6 +195,32 @@ class JupyterClient extends EventEmitter {
   }
 
   /**
+   * @param {string} str
+   * @returns {Promise}
+   */
+  getEval(str) {
+    return request(this, {
+      exec_eval: str
+    }, {successEvent: ['eval_results']});
+  }
+
+  getDocStrings(names) {
+    const code = '__get_docstrings(globals(), ' + JSON.stringify(names) + ', False)';
+
+    return this.getResult(code, {
+      silent: true
+    });
+  }
+
+  getVariables() {
+    const code = '__get_variables(globals())';
+
+    return this.getResult(code, {
+      silent: true
+    });
+  }
+
+  /**
    * @typedef {object} JupyterAutoCompletionMessage
    * @property {'ok'|'error'} status
    * @property {Array} matches

@@ -26,6 +26,7 @@ module.exports = {
     //   {test: /\.js$/, loader: "eslint-loader", exclude: /node_modules/}
     // ],
     loaders: [
+      { test: /\.json/, loader: 'json' },
       { test: /\.less$/, loader: 'style!css!less' },
       { test: /\.css$/, loader: 'style!css' },
       { test: /\.png$/, loader: 'url?name=[name].[hash].[ext]&limit=8192' }, // inline base64 URLs for <=8k images, direct URLs for the rest
