@@ -21,8 +21,6 @@
  * @property {'stdin'|'iopub'|'shell'} source
  */
 
-
-
 const _ = require('lodash'),
   bluebird = require('bluebird'),
   clientResponse = require('./client-response'),

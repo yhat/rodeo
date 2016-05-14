@@ -37,7 +37,7 @@ export default connect(mapStateToProps, mapDispatchToProps)(React.createClass({
   propTypes: {
     id: React.PropTypes.string,
     isExpanded: React.PropTypes.bool,
-    onShowURL: React.PropTypes.string,
+    onShowURL: React.PropTypes.func,
     url: React.PropTypes.string
   },
   componentDidMount: function () {

@@ -1,6 +1,6 @@
 import _ from 'lodash';
 import {send} from '../../services/ipc';
-import {addFile} from '../ace-pane/ace-pane.actions';
+import {addFile} from '../../components/ace-pane/ace-pane.actions';
 
 /**
  * @param {string} file

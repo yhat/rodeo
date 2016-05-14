@@ -12,64 +12,24 @@ function mapStateToProps(state) {
 }
 
 /**
- * @param {function} dispatch
- * @returns {object}
- */
-function mapDispatchToProps() {
-  return {
-    onInstallPython: _.noop
-  };
-}
-
-/**
  * @class PackagesViewer
  * @extends ReactComponent
+ * @property {object} props
  */
-export default connect(mapStateToProps, mapDispatchToProps)(React.createClass({
+export default connect(mapStateToProps)(React.createClass({
   displayName: 'PackagesViewer',
   propTypes: {
+    filter: React.PropTypes.string,
     hasJupyterInstalled: React.PropTypes.bool,
-    onInstallPython: React.PropTypes.func,
     packages: React.PropTypes.array,
     version: React.PropTypes.string
   },
-  getInitialState: function () {
-    return {
-      filter: ''
-    };
-  },
-  handleFilterChange: _.debounce(function () {
-    const value = this.refs.filter.value;
-
-    this.setState({filter: value ? value.toLowerCase() : ''});
-  }, 300),
   render: function () {
     const props = this.props,
-      state = this.state,
-      packages = _.filter(props.packages, item => !state.filter || item.name.indexOf(state.filter) > -1);
+      packages = _.filter(props.packages, item => !props.filter || item.name.indexOf(props.filter) > -1);
 
     return (
       <div>
-        <div className="row">
-          <div className="col-sm-4">
-            <button className="btn btn-primary btn-xs" onClick={props.onInstallPython}>
-              <span className="fa fa-download">{'Install Package'}</span>
-            </button>
-          </div>
-          <div className="col-sm-5 col-sm-offset-3">
-            <div className="input-group">
-              <div className="input-group-addon">
-                <span className="fa fa-search"/>
-              </div>
-              <input
-                className="form-control input-sm"
-                onChange={this.handleFilterChange}
-                placeholder="(i.e. pandas, Flask)"
-                ref="filter"
-              />
-            </div>
-          </div>
-        </div>
         <table className="table table-bordered">
           <thead>
             <tr>

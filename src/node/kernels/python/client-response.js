@@ -1,7 +1,7 @@
 'use strict';
 
-const _ = require('lodash'),
-  outputMap = {};
+const _ = require('lodash');
+let outputMap = {};
 
 /**
  *
@@ -120,7 +120,9 @@ function resolveExecutionResult(client, response) {
     outputMapId = _.get(result, 'parent_header.msg_id');
 
   let parent = outputMap[outputMapId],
-    child = _.omit(result, ['msg_id', 'parent_header']);
+    child = _.omit(result, ['msg_id', 'parent_header']),
+    requestId = parent.id,
+    request = client.requestMap[requestId];
 
   child.header = _.omit(child.header, ['version', 'msg_id', 'session', 'username', 'msg_type']);
   if (!parent.header) {
@@ -130,11 +132,15 @@ function resolveExecutionResult(client, response) {
   if (isInputRequestMessage(source, child)) {
     requestInputFromUser(client, result);
   } else if (isRequestResolution(parent, child, client)) {
-    let requestId = parent.id;
+    resolveRequest(request, result);
 
-    resolveRequest(client.requestMap[requestId], result);
+
   } else if (child.msg_type === 'status') {
     broadcastKernelStatus(client, result);
+  }
+
+  if (!request.hidden) {
+    client.emit(response.source, response);
   }
 }
 
@@ -178,5 +184,10 @@ function getOutputMap() {
   return _.cloneDeep(outputMap);
 }
 
+function resetOutputMap() {
+  outputMap = {};
+}
+
 module.exports.handle = handle;
 module.exports.getOutputMap = getOutputMap;
+module.exports.resetOutputMap = resetOutputMap;

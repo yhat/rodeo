@@ -1,6 +1,6 @@
 import React from 'react';
 import TabbedPaneItem from './tabbed-pane-item.jsx';
-import './tabbed-pane.less';
+import './tabbed-pane.css';
 import _ from 'lodash';
 import cid from '../../services/cid';
 import {getParentNodeOf} from '../../services/dom';
@@ -269,7 +269,7 @@ export default React.createClass({
         );
       } else {
         // must be a list item, even if not a tab
-        return <li key={cidTab}>{child}</li>;
+        return child;
       }
     });
 

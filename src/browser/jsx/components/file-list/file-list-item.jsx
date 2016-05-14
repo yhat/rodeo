@@ -1,3 +1,4 @@
+import _ from 'lodash';
 import React from 'react';
 
 const fileListItemClass = 'file-list-item',
@@ -5,19 +6,28 @@ const fileListItemClass = 'file-list-item',
 
 /**
  * @class FileListItem
+ * @description Visual representation of a file in a list
  * @extends ReactComponent
  * @property props
  */
 export default React.createClass({
   displayName: 'FileListItem',
   propTypes: {
-    basePath: React.PropTypes.string.isRequired,
     filename: React.PropTypes.string.isRequired,
     isDirectory: React.PropTypes.bool,
     isSelected: React.PropTypes.bool,
     onClick: React.PropTypes.func,
     onContextMenu: React.PropTypes.func,
     onDoubleClick: React.PropTypes.func
+  },
+  getDefaultProps: function () {
+    return {
+      onClick: _.noop,
+      onContextMenu: _.noop,
+      onDoubleClick: _.noop,
+      isSelected: false,
+      isDirectory: false
+    };
   },
   render: function () {
     const props = this.props,

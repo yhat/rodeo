@@ -18,21 +18,11 @@ function mapStateToProps(state) {
 export default connect(mapStateToProps)(React.createClass({
   displayName: 'VariableViewer',
   propTypes: {
+    filter: React.PropTypes.string,
     variables: React.PropTypes.object
   },
-  getInitialState: function () {
-    return {
-      filter: ''
-    };
-  },
-  handleFilterChange: _.debounce(function () {
-    const value = this.refs.filter.value;
-
-    this.setState({filter: value ? value.toLowerCase() : ''});
-  }, 300),
   render: function () {
-    const props = this.props,
-      state = this.state;
+    const props = this.props;
     let items;
 
     // flatten type with the rest; give a unique id to use as the key
@@ -48,33 +38,19 @@ export default connect(mapStateToProps)(React.createClass({
 
     console.log('items', items);
 
-    items = _.filter(items, item => !state.filter || (
-      item.name.toLowerCase().indexOf(state.filter.toLowerCase()) > -1 ||
-      item.type.toLowerCase().indexOf(state.filter.toLowerCase()) > -1 ||
-      item.repr.toLowerCase().indexOf(state.filter.toLowerCase()) > -1
+    items = _.filter(items, item => !props.filter || (
+      item.name.toLowerCase().indexOf(props.filter.toLowerCase()) > -1 ||
+      item.type.toLowerCase().indexOf(props.filter.toLowerCase()) > -1 ||
+      item.repr.toLowerCase().indexOf(props.filter.toLowerCase()) > -1
     ));
 
     return (
       <div>
-        <div className="row">
-          <div className="col-sm-5 col-sm-offset-7">
-            <div className="input-group">
-              <div className="input-group-addon">
-                <span className="fa fa-search"/>
-              </div>
-              <input
-                className="form-control input-sm"
-                onChange={this.handleFilterChange}
-                ref="filter"
-              />
-            </div>
-          </div>
-        </div>
         <table className="table table-bordered">
           <thead>
-          <tr>
-            <th>{'Name'}</th><th>{'Type'}</th><th>{'REPR'}</th>
-          </tr>
+            <tr>
+              <th>{'Name'}</th><th>{'Type'}</th><th>{'REPR'}</th>
+            </tr>
           </thead>
           <tbody>
           {_.map(items, item => <tr key={item.id}><td>{item.name}</td><td>{item.type}</td><td>{item.repr}</td></tr>)}

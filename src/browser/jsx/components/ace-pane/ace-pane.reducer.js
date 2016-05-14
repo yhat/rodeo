@@ -62,7 +62,8 @@ function remove(state, action) {
   const targetIndex = _.findIndex(state, {id: action.id}),
     targetItem = state[targetIndex];
 
-  if (targetItem) {
+  // only allow removal if they have more than one item
+  if (targetItem && state.length > 1) {
     state = _.without(state, targetItem);
 
     if (targetItem.hasFocus) {
