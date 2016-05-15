@@ -23,7 +23,9 @@
       -
         key: "working-directory"
         label: "Working Directory"
-        text: true
+        text: true,
+        valid:
+          - isPathReal
         examples:
           linux:
             - "~"
@@ -32,9 +34,11 @@
           win32:
             - "%HOME%"
       -
-        key: "python-path"
-        label: "Python Path"
+        key: "python-cmd"
+        label: "Python Command"
         text: true
+        valid:
+          - isPython
         examples:
           linux:
             - "/usr/bin/python"
@@ -42,17 +46,6 @@
             - "/usr/local/bin/python"
           win32:
             - "???"
-      -
-        key: "shell"
-        label: "Shell"
-        text: true
-        examples:
-          linux:
-            - "/bin/bash"
-          darwin:
-            - "/bin/bash"
-          win32:
-            - "cmd.exe"
       -
         key: "global-environment-variables"
         label: "Environment Variables"
@@ -65,6 +58,8 @@
         key: "ace-font-size"
         label: "Font Size"
         text: true
+        valid:
+          - isFontSize
         examples:
           all:
             - "10px"
@@ -75,6 +70,8 @@
         key: "ace-tab-spaces"
         label: "Tab Spaces"
         text: true
+        valid:
+          - isTabSpace
       -
         key: "ace-key-bindings"
         label: "Key Bindings"
@@ -88,6 +85,8 @@
         key: "console-font-size"
         label: "Font Size"
         text: true
+        valid:
+          - isFontSize
         examples:
           all:
             - "10px"
@@ -104,13 +103,7 @@
       -
         key: "files-display-dot-files"
         label: "Display Dot Files"
-        checkbox: true,
-        examples:
-          all:
-            - "10px"
-            - "12px"
-            - "14px"
-            - "16px"
+        checkbox: true
   -
     label: "Plots"
     items:

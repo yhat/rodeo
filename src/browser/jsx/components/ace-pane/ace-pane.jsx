@@ -14,9 +14,10 @@ import pythonCompleter from '../../services/python-completer';
 export default React.createClass({
   displayName: 'AcePane',
   propTypes: {
-    content: React.PropTypes.string,
+    disabled: React.PropTypes.bool,
     filename: React.PropTypes.string,
     fontSize: React.PropTypes.number,
+    highlightLine: React.PropTypes.bool,
     id: React.PropTypes.string,
     keyBindings: React.PropTypes.string,
     mode: React.PropTypes.string,
@@ -24,6 +25,7 @@ export default React.createClass({
     onLoaded: React.PropTypes.func,
     onLoading: React.PropTypes.func,
     onSave: React.PropTypes.func,
+    tabSize: React.PropTypes.number,
     theme: React.PropTypes.string
   },
   statics: {
@@ -47,10 +49,13 @@ export default React.createClass({
   },
   getDefaultProps: function () {
     return {
+      disabled: false,
       fontSize: 12,
+      highlightLine: true,
       keyBindings: 'default',
       theme: 'chrome',
       mode: 'python',
+      readOnly: false,
       onLoading: _.noop,
       onLoaded: _.noop,
       onLoadError: _.noop,
@@ -63,8 +68,12 @@ export default React.createClass({
       keyBindings = props.keyBindings,
       theme = props.theme,
       fontSize = props.fontSize,
+      tabSize = props.tabSize,
       mode = props.mode,
-      filename = props.filename;
+      filename = props.filename,
+      highlightLine = props.highlightLine,
+      disabled = props.disabled,
+      readOnly = props.readOnly;
     let session, langTools, Autocomplete;
 
     Autocomplete = ace.require('ace/autocomplete').Autocomplete;
@@ -85,7 +94,10 @@ export default React.createClass({
     instance.setKeyboardHandler(keyBindings === 'default' ? null : keyBindings);
     instance.setTheme('ace/theme/' + theme);
     instance.setFontSize(fontSize);
+    instance.setHighlightActiveLine(highlightLine);
+    instance.setReadOnly(readOnly);
     session = instance.getSession();
+    session.setTabSize(tabSize);
     session.setMode('ace/mode/' + mode);
     instance.setOptions({
       useSoftTabs: true,
@@ -95,6 +107,7 @@ export default React.createClass({
       enableLiveAutocompletion: true
     });
     instance.$blockScrolling = Infinity;
+    instance.textInput.getElement().disabled = props.disabled;
 
     // indent selection
     instance.commands.addCommand({
@@ -164,6 +177,31 @@ export default React.createClass({
       }).catch(function (error) {
         props.onLoadError(error);
       });
+    }
+  },
+  componentDidUpdate: function (oldProps) {
+    const props = this.props,
+      instance = ace.edit(ReactDOM.findDOMNode(this));
+
+    // if font size has changed
+    if (props.fontSize !== oldProps.fontSize) {
+      instance.setFontSize(props.fontSize);
+    }
+
+    if (props.tabSize !== oldProps.tabSize) {
+      instance.getSession().setTabSize(props.tabSize);
+    }
+
+    if (props.highlightLine !== oldProps.highlightLine) {
+      instance.setHighlightActiveLine(props.highlightLine);
+    }
+
+    if (props.readOnly !== oldProps.readOnly) {
+      instance.setReadOnly(props.disabled || props.readOnly);
+    }
+
+    if (props.disabled !== oldProps.disabled) {
+      instance.textInput.getElement().disabled = props.disabled;
     }
   },
   focus: function () {

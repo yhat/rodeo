@@ -36,7 +36,7 @@ function focusAcePaneInActiveElement(el) {
  * @returns {object}
  */
 function mapStateToProps(state) {
-  return _.pick(state, ['acePanes', 'splitPanes', 'terminals']);
+  return _.pick(state, ['acePanes', 'splitPanes', 'terminals', 'modalDialogs']);
 }
 
 /**
@@ -64,10 +64,11 @@ export default connect(mapStateToProps, mapDispatchToProps)(React.createClass({
   displayName: 'StudioLayout',
   propTypes: {
     onAddAcePane: React.PropTypes.func,
+    onCommand: React.PropTypes.func,
     onFocusAcePane: React.PropTypes.func,
     onRemoveAcePane: React.PropTypes.func,
-    onSplitPaneDrag: React.PropTypes.func,
-    panePositions: React.PropTypes.object
+    onRodeo: React.PropTypes.func,
+    onSplitPaneDrag: React.PropTypes.func
   },
   getInitialState: function () {
     return {
@@ -138,12 +139,13 @@ export default connect(mapStateToProps, mapDispatchToProps)(React.createClass({
   },
   render: function () {
     let acePanes, terminals,
-      props = this.props;
+      props = this.props,
+      isFocusable = !props.modalDialogs.length;
 
     acePanes = this.props.acePanes.map(function (item) {
       return (
         <TabbedPaneItem hasFocus={item.hasFocus} icon={item.icon} id={item.tabId} isCloseable key={item.id} label={item.label}>
-          <AcePane key={item.id} {...item}/>
+          <AcePane disabled={!isFocusable} key={item.id}  {...item}/>
         </TabbedPaneItem>
       );
     });
@@ -160,6 +162,7 @@ export default connect(mapStateToProps, mapDispatchToProps)(React.createClass({
       <SplitPane direction="left-right" id="split-pane-center">
         <SplitPane direction="top-bottom" id="split-pane-left" onDrag={props.onSplitPaneDrag}>
           <TabbedPane
+            focusable={isFocusable}
             onChanged={this.handleEditorTabChanged}
             onTabClose={this.handleEditorTabClose}
             onTabDragStart={this.handleTabDragStart}
@@ -183,14 +186,14 @@ export default connect(mapStateToProps, mapDispatchToProps)(React.createClass({
             {acePanes}
 
           </TabbedPane>
-          <TabbedPane>
+          <TabbedPane focusable={isFocusable}>
 
             {terminals}
 
           </TabbedPane>
         </SplitPane>
         <SplitPane direction="top-bottom" id="split-pane-right">
-          <TabbedPane>
+          <TabbedPane focusable={isFocusable}>
 
             <li className="right">
               <SearchTextBox onChange={(topRightSearch) => this.setState({topRightSearch})} />
@@ -200,7 +203,7 @@ export default connect(mapStateToProps, mapDispatchToProps)(React.createClass({
 
 
           </TabbedPane>
-          <TabbedPane>
+          <TabbedPane focusable={isFocusable}>
 
             <li className="right">
               <SearchTextBox onChange={(bottomRightSearch) => this.setState({bottomRightSearch})}/>

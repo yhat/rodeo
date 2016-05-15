@@ -87,6 +87,13 @@ function onFileStats(filename) {
   return files.getStats(filename);
 }
 
+function onExpandFilePath(filename) {
+  if (filename[0] === '~') {
+    return path.join(os.homedir(), filename.slice(1));
+  }
+  return path.resolve(filename);
+}
+
 function onGetFile(filename) {
   return files.readFile(filename);
 }
@@ -470,6 +477,7 @@ function attachIpcMainEvents() {
     onKnitHTML,
     onQuitApplication,
     onPDF,
+    onExpandFilePath,
     onGetFile,
     onSaveFile,
     onFileStats,

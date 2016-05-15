@@ -94,7 +94,7 @@ export default connect(mapStateToProps, mapDispatchToProps)(React.createClass({
       } else if (modal.contentType === 'PREFERENCES') {
         contents = (
           <ModalDialog id={modal.id} key={modal.id} onCancel={onCancel} onOK={onOK}>
-            <Preferences />
+            <Preferences onClose={onCancel} />
           </ModalDialog>
         );
       } else {
