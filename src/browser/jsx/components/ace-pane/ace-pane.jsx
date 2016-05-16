@@ -21,6 +21,7 @@ export default React.createClass({
     id: React.PropTypes.string,
     keyBindings: React.PropTypes.string,
     mode: React.PropTypes.string,
+    onExecute: React.PropTypes.func,
     onLoadError: React.PropTypes.func,
     onLoaded: React.PropTypes.func,
     onLoading: React.PropTypes.func,
@@ -56,6 +57,7 @@ export default React.createClass({
       theme: 'chrome',
       mode: 'python',
       readOnly: false,
+      onExecute: _.noop,
       onLoading: _.noop,
       onLoaded: _.noop,
       onLoadError: _.noop,
@@ -155,6 +157,12 @@ export default React.createClass({
           editor.insert('  ');
         }
       }
+    });
+
+    instance.commands.addCommand({
+      name: 'sendCommand',
+      bindKey: {win: 'ctrl-Enter', mac: 'Command-Enter'},
+      exec: this.props.onExecute
     });
 
     _.defer(() => instance.resize());

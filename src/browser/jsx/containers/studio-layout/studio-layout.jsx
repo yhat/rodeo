@@ -145,7 +145,7 @@ export default connect(mapStateToProps, mapDispatchToProps)(React.createClass({
     acePanes = this.props.acePanes.map(function (item) {
       return (
         <TabbedPaneItem hasFocus={item.hasFocus} icon={item.icon} id={item.tabId} isCloseable key={item.id} label={item.label}>
-          <AcePane disabled={!isFocusable} key={item.id}  {...item}/>
+          <AcePane disabled={!isFocusable} key={item.id} onExecute={props.onRunActiveAcePane} {...item}/>
         </TabbedPaneItem>
       );
     });
