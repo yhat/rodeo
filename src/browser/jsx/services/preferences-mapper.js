@@ -1,6 +1,5 @@
 import _ from 'lodash';
 import bluebird from 'bluebird';
-import cid from './cid';
 import {send} from './ipc';
 import * as store from './store';
 import validation from './validation';
