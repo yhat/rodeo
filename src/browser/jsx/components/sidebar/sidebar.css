@@ -1,7 +1,7 @@
 .sidebar {
-  width: 45px;
   height: 100%;
-  flex: 0 0 45px;
+  flex: 0 0 52px;
+  font-size: 10px;
 }
 
 .sidebar-container {
@@ -14,12 +14,38 @@
   background-color: #337ab7;
 }
 
+.sidebar-top {
+  flex: 1 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  align-items: stretch;
+}
+
 .sidebar-item {
   cursor: pointer;
-  background-color: #3a8bd1;
   flex: 0 0 60px;
-  border-top: solid 1px grey;
   transition: all 0.4s;
+  color: #efefef;
+  padding: 4px;
+  text-align: center;
+}
+
+.sidebar-top .sidebar-item {
+  /* things in the top have bigger names but better images */
+  font-size: 8px;
+}
+
+.sidebar-item span:first-child {
+  display: block;
+  font-size: 28px;
+  line-height: 28px;
+  padding-top: 3px;
+}
+
+.sidebar-item img {
+  max-width: 40px;
+  max-height: 40px;
 }
 
 .sidebar-item:last-child {

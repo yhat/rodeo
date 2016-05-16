@@ -59,7 +59,6 @@ export default connect(mapStateToProps, mapDispatchToProps)(React.createClass({
         'modal-dialog-container',
         props.modalDialogs.length ? 'active' : ''
       ].join(' '),
-      background,
       last;
 
     function getModal(modal) {
