@@ -13,13 +13,13 @@ const preferenceDetailsItem = 'preference-group-details-item';
 export default React.createClass({
   displayName: 'PreferencesItem',
   propTypes: {
-    changes: React.PropTypes.object,
     className: React.PropTypes.string,
-    defaultValue: React.PropTypes.oneOf([React.PropTypes.string, React.PropTypes.number]),
+    defaultValue: React.PropTypes.oneOfType([React.PropTypes.string, React.PropTypes.number]),
     explanation: React.PropTypes.string,
     id: React.PropTypes.string,
     keyName: React.PropTypes.string,
-    type: React.PropTypes.string
+    type: React.PropTypes.string,
+    value: React.PropTypes.oneOfType([React.PropTypes.string, React.PropTypes.number])
   },
   getDefaultProps: function () {
     return {

@@ -67,15 +67,16 @@
 
 .preferences-list .preference-group-details-item {
   display: block;
-  padding-left: 20px;
-  padding-right: 20px;
-  padding-bottom: 20px;
-  padding-top: 20px;
+  padding: 20px;
   border-bottom: #eee solid 1px;
   transition: all 0.2s;
 }
 
 .preferences-list .preference-group-details-item.changed {
+  background-color: #feff24;
+}
+
+.preferences-list .preference-group-details-item.valid {
   background-color: #feffb4;
 }
 
