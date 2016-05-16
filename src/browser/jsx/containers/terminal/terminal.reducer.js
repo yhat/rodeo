@@ -223,7 +223,8 @@ function updateFirstTerminalWithKernel(state, action) {
   state = _.cloneDeep(state);
   let target = state.length ? state[0] : getDefault();
 
-  target.pythonOptions = action.pythonOptions;
+  _.assign(target, action.pythonOptions);
+
   return state;
 }
 
@@ -264,8 +265,8 @@ function changeProperty(state, propertyName, value, transform) {
 function changePreference(state, action) {
   switch (action.key) {
     case 'fontSize': return changeProperty(state, 'fontSize', action.value, _.toNumber);
-    case 'pythonCmd': return changeProperty(state, 'pythonOptions.cmd', action.value);
-    case 'pythonShell': return changeProperty(state, 'pythonOptions.shell', action.value);
+    case 'pythonCmd': return changeProperty(state, 'cmd', action.value);
+    case 'pythonShell': return changeProperty(state, 'shell', action.value);
     default: return state;
   }
 }
