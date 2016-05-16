@@ -27,7 +27,9 @@ export function isIdle() {
 }
 
 export function kernelDetected(pythonOptions) {
+  // save over previous settings
   store.set('pythonOptions', pythonOptions);
+  store.set('pythonCmd', pythonOptions.cmd);
   return {type: 'KERNEL_DETECTED', pythonOptions};
 }
 
@@ -41,13 +43,13 @@ export function askForPythonOptions() {
  * @returns {Promise<object>}
  */
 function getPythonOptionsFromSystemFacts() {
-  return send('get_system_facts').then(function (facts) {
+  return send('getSystemFacts').then(function (facts) {
     const availablePythonKernels = facts && facts.availablePythonKernels,
       head = _.head(availablePythonKernels),
       pythonOptions = head && head.pythonOptions;
 
     store.set('systemFacts', facts);
-    return send('check_kernel', pythonOptions).then(function () {
+    return send('checkKernel', pythonOptions).then(function () {
       return pythonOptions;
     });
   });
@@ -65,7 +67,7 @@ export function detectKernel() {
 
     if (pythonOptions) {
       // verify anyway
-      promise = send('check_kernel', pythonOptions)
+      promise = send('checkKernel', pythonOptions)
         .catch(() => getPythonOptionsFromSystemFacts());
     } else {
       // get them

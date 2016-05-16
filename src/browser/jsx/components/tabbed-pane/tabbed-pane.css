@@ -1,0 +1,60 @@
+.tabbed-pane {
+  display: flex;
+  flex-direction: column;
+}
+
+.tabbed-pane .left {
+  float: left;
+  min-height: 40px;
+  min-width: 20px;
+}
+
+.tabbed-pane .right {
+  float: right;
+  min-height: 40px;
+  min-width: 20px;
+}
+
+.tabbed-pane .right .search-text-box {
+  margin-top: 7px;
+  margin-right: 7px;
+}
+
+.tabbed-pane .fa-before:before {
+  padding-right: 6px;
+}
+
+.tabbed-pane-tab {
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  min-width: 50px;
+}
+
+.tabbed-pane-close {
+  margin-left: 6px;
+  cursor: pointer;
+  color: #cccccc;
+  font-weight: 400;
+  transition: all 0.4s;
+}
+
+.tabbed-pane-close:hover {
+  color: #cc4736;
+  font-weight: 700;
+}
+
+.tab-content {
+  flex: 1 1;
+  position: relative;
+}
+
+.tab-pane {
+  display: block;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  position: absolute;
+  overflow: auto;
+}
+

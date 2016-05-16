@@ -2,9 +2,13 @@ import _ from 'lodash';
 import React from 'react';
 import ReactDOM from 'react-dom';
 import {connect} from 'react-redux';
+import SidebarItem from './sidebar-item.jsx';
 import SlideoutDialog from './slideout-dialog.jsx';
 import './sidebar.css';
+import logoPython from './logo-python.svg';
+import logoScienceOps from './logo-scienceops.png';
 import actions from './sidebar.actions';
+import dialogActions from '../../actions/dialogs';
 
 const showClass = 'sidebar-show';
 
@@ -23,7 +27,8 @@ function mapStateToProps(state) {
  */
 function mapDispatchToProps(dispatch) {
   return {
-    onShowURL: (url) => dispatch(actions.showURL(url))
+    onShowURL: (url) => dispatch(actions.showURL(url)),
+    onShowPreferences: () => dispatch(dialogActions.showPreferences())
   };
 }
 
@@ -37,7 +42,8 @@ export default connect(mapStateToProps, mapDispatchToProps)(React.createClass({
   propTypes: {
     id: React.PropTypes.string,
     isExpanded: React.PropTypes.bool,
-    onShowURL: React.PropTypes.string,
+    onShowPreferences: React.PropTypes.func,
+    onShowURL: React.PropTypes.func,
     url: React.PropTypes.string
   },
   componentDidMount: function () {
@@ -53,9 +59,24 @@ export default connect(mapStateToProps, mapDispatchToProps)(React.createClass({
       <section className="sidebar">
         <SlideoutDialog isExpanded={props.isExpanded} url={props.url} />
         <div className="sidebar-container">
-          <div className="sidebar-item" onClick={_.partial(props.onShowURL, 'http://blog.yhat.com/tutorials/index.html')}></div>
-          <div className="sidebar-item"></div>
-          <div className="sidebar-item"></div>
+          <div className="sidebar-top">
+            <SidebarItem onClick={_.partial(props.onShowURL, 'http://blog.yhat.com/')}>
+              <span><img src={logoScienceOps}/></span>
+              <span>{'ScienceOps'}</span>
+            </SidebarItem>
+            <SidebarItem onClick={_.partial(props.onShowURL, 'http://blog.yhat.com/tutorials/index.html')}>
+              <span><img src={logoPython}/></span>
+              <span>{'Tutorials'}</span>
+            </SidebarItem>
+          </div>
+          <SidebarItem onClick={_.partial(props.onShowURL, 'http://blog.yhat.com/tutorials/index.html')}>
+            <span className="fa fa-question" />
+            <span>{'Help'}</span>
+          </SidebarItem>
+          <SidebarItem onClick={props.onShowPreferences}>
+            <span className="fa fa-cogs" />
+            <span>{'Settings'}</span>
+          </SidebarItem>
         </div>
       </section>
     );

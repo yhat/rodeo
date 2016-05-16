@@ -11,6 +11,7 @@ describe(dirname + '/' + filename, function () {
 
   beforeEach(function () {
     sandbox = sinon.sandbox.create();
+    lib.resetOutputMap();
   });
 
   afterEach(function () {
@@ -66,7 +67,7 @@ describe(dirname + '/' + filename, function () {
       sinon.assert.calledWith(emitSpy, 'some source', response);
     });
 
-    it('reports output from request', function () {
+    it('reports output from request with broadcast (not silent)', function () {
       const emitSpy = sinon.spy(),
         resolveSpy = sinon.spy(),
         deferred = {resolve: resolveSpy},
@@ -81,8 +82,55 @@ describe(dirname + '/' + filename, function () {
       fn(client, response);
 
       sinon.assert.calledWith(resolveSpy, content);
+      sinon.assert.calledOnce(emitSpy);
+      expect(lib.getOutputMap()).to.deep.equal({}); // empty because the request has been handle #no-memory-leaks
+    });
+
+    it('reports output from request without broadcast (silent)', function () {
+      const emitSpy = sinon.spy(),
+        resolveSpy = sinon.spy(),
+        deferred = {resolve: resolveSpy},
+        successEvent = 'yay!',
+        requestMap = {abc: {deferred, successEvent, hidden: true}},
+        client = {emit: emitSpy, requestMap},
+        source = 'some source',
+        content = {someValue: 'something really important'},
+        response = {source, result: {msg_type: successEvent, content, parent_header: {msg_id: 'def'}}};
+
+      fn(client, {source: 'link', id: 'abc', result: 'def'}); // request link
+      fn(client, response);
+
+      sinon.assert.calledWith(resolveSpy, content);
       sinon.assert.notCalled(emitSpy);
       expect(lib.getOutputMap()).to.deep.equal({}); // empty because the request has been handle #no-memory-leaks
+    });
+
+    it('reports output from request that is not a resolution', function () {
+      const emitSpy = sinon.spy(),
+        resolveSpy = sinon.spy(),
+        deferred = {resolve: resolveSpy},
+        successEvent = 'yay!',
+        nonSuccessEvent = 'aww!',
+        requestMap = {abc: {deferred, successEvent}},
+        client = {emit: emitSpy, requestMap},
+        source = 'some source',
+        content = {someValue: 'something really important'},
+        response = {source, result: {msg_type: nonSuccessEvent, content, parent_header: {msg_id: 'def'}}};
+
+      fn(client, {source: 'link', id: 'abc', result: 'def'}); // request link
+      fn(client, response);
+
+      sinon.assert.notCalled(resolveSpy, content);
+      sinon.assert.calledOnce(emitSpy);
+      expect(lib.getOutputMap()).to.deep.equal({
+        def: {
+          header: {
+            msg_id: 'def'
+          },
+          id: 'abc',
+          msg_id: 'def'
+        }
+      }); // not empty, something hasn't resolved
     });
 
     it('reports eval source results', function () {

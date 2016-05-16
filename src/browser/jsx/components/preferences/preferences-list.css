@@ -1,0 +1,92 @@
+.preferences-list {
+  display: flex;
+  flex-direction: row;
+  align-content: stretch;
+  align-items: stretch;
+  min-height: 400px;
+}
+
+.preferences-list h1,
+.preferences-list h2,
+.preferences-list h2 {
+  margin-top: 0;
+}
+
+.preferences-list .preference-group-list {
+  flex: 0 0 120px;
+  overflow-y: scroll;
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  align-content: stretch;
+}
+
+.preferences-list .preferences-tab {
+  cursor: pointer;
+  padding: 10px 15px;
+}
+
+.preferences-list .preferences-tab:first-child {
+  border-top-left-radius: 5px;
+}
+
+.preferences-list .preferences-tab:hover {
+  background-color: #e1e1e1;
+}
+
+.preferences-list .preferences-tab.disabled {
+  background-color: inherit;
+  color: grey;
+  cursor: default;
+}
+
+.preferences-list .preferences-tab.disabled:hover {
+  background-color: inherit;
+}
+
+.preferences-list .preferences-tab.preferences-tab-active {
+  background-color: #cbcbcb;
+}
+
+.preferences-list .preference-group-details {
+  padding-right: 0;
+  padding-left: 0;
+  flex: 1 1 400px;
+  overflow: scroll;
+  display: flex;
+  flex-direction: column;
+  border-left: #eee solid 1px;
+}
+
+.preferences-list .preference-group-details > footer {
+  position: absolute;
+  bottom: 0;
+  right: 0;
+  margin: 20px;
+}
+
+.preferences-list .preference-group-details-item {
+  display: block;
+  padding-left: 20px;
+  padding-right: 20px;
+  padding-bottom: 20px;
+  padding-top: 20px;
+  border-bottom: #eee solid 1px;
+  transition: all 0.2s;
+}
+
+.preferences-list .preference-group-details-item.changed {
+  background-color: #feffb4;
+}
+
+.preferences-list .preference-group-details-item.invalid {
+  background-color: #ff8280;
+}
+
+.preferences-list .preference-group-details-item:last-child {
+  border-bottom: none;
+}
+
+.preferences-list .preference-group-details-item input {
+  margin-left: 20px;
+}

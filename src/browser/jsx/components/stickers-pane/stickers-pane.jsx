@@ -8,7 +8,7 @@ import thanksText from './thanks.md';
 import alreadyDoneText from './already-done.md';
 import * as store from '../../services/store';
 
-const storeKey = 'stickers-requested';
+const storeKey = 'stickersRequested';
 
 /**
  * @class StickersPane

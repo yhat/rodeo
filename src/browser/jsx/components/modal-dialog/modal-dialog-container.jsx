@@ -6,7 +6,7 @@ import Marked from '../marked/marked.jsx';
 import AboutRodeo from '../about-rodeo/about-rodeo.jsx';
 import StickersPane from '../stickers-pane/stickers-pane.jsx';
 import Acknowledgements from '../acknowledgements/acknowledgements.jsx';
-import Preferences from '../preferences/preferences.jsx';
+import PreferencesViewer from '../../containers/preferences-viewer/preferences-viewer.jsx';
 import actions from './modal-dialog.actions';
 import './modal-dialog-container.css';
 
@@ -59,7 +59,6 @@ export default connect(mapStateToProps, mapDispatchToProps)(React.createClass({
         'modal-dialog-container',
         props.modalDialogs.length ? 'active' : ''
       ].join(' '),
-      background,
       last;
 
     function getModal(modal) {
@@ -94,7 +93,7 @@ export default connect(mapStateToProps, mapDispatchToProps)(React.createClass({
       } else if (modal.contentType === 'PREFERENCES') {
         contents = (
           <ModalDialog id={modal.id} key={modal.id} onCancel={onCancel} onOK={onOK}>
-            <Preferences />
+            <PreferencesViewer onClose={onCancel} />
           </ModalDialog>
         );
       } else {
@@ -111,7 +110,6 @@ export default connect(mapStateToProps, mapDispatchToProps)(React.createClass({
     return (
       <div className={classNameContainer}>
         {_.map(_.dropRight(props.modalDialogs, 1), getModal)}
-        {background}
         {last}
       </div>
     );

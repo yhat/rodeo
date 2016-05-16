@@ -1,7 +1,7 @@
 import _ from 'lodash';
 import React from 'react';
 import {connect} from 'react-redux';
-import UnsafeHTML from './unsafe-html.jsx';
+import UnsafeHTML from '../unsafe-html.jsx';
 import './plot-viewer.less';
 import htmlSplash from './html-flat.svg';
 import errorSplash from './document-error-flat.svg';

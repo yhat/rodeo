@@ -14,16 +14,19 @@ import pythonCompleter from '../../services/python-completer';
 export default React.createClass({
   displayName: 'AcePane',
   propTypes: {
-    content: React.PropTypes.string,
+    disabled: React.PropTypes.bool,
     filename: React.PropTypes.string,
     fontSize: React.PropTypes.number,
+    highlightLine: React.PropTypes.bool,
     id: React.PropTypes.string,
     keyBindings: React.PropTypes.string,
     mode: React.PropTypes.string,
+    onExecute: React.PropTypes.func,
     onLoadError: React.PropTypes.func,
     onLoaded: React.PropTypes.func,
     onLoading: React.PropTypes.func,
     onSave: React.PropTypes.func,
+    tabSize: React.PropTypes.number,
     theme: React.PropTypes.string
   },
   statics: {
@@ -47,24 +50,24 @@ export default React.createClass({
   },
   getDefaultProps: function () {
     return {
+      disabled: false,
       fontSize: 12,
+      highlightLine: true,
       keyBindings: 'default',
       theme: 'chrome',
       mode: 'python',
+      readOnly: false,
+      onExecute: _.noop,
       onLoading: _.noop,
       onLoaded: _.noop,
       onLoadError: _.noop,
-      onSave: _.noop
+      onSave: _.noop,
+      tabSize: 4
     };
   },
   componentDidMount: function () {
     const props = this.props,
-      instance = ace.edit(ReactDOM.findDOMNode(this)),
-      keyBindings = props.keyBindings,
-      theme = props.theme,
-      fontSize = props.fontSize,
-      mode = props.mode,
-      filename = props.filename;
+      instance = ace.edit(ReactDOM.findDOMNode(this));
     let session, langTools, Autocomplete;
 
     Autocomplete = ace.require('ace/autocomplete').Autocomplete;
@@ -81,12 +84,14 @@ export default React.createClass({
     langTools.setCompleters([]);
     langTools.addCompleter(pythonCompleter);
 
-
-    instance.setKeyboardHandler(keyBindings === 'default' ? null : keyBindings);
-    instance.setTheme('ace/theme/' + theme);
-    instance.setFontSize(fontSize);
+    instance.setKeyboardHandler(props.keyBindings === 'default' ? null : props.keyBindings);
+    instance.setTheme('ace/theme/' + props.theme);
+    instance.setFontSize(props.fontSize);
+    instance.setHighlightActiveLine(props.highlightLine);
+    instance.setReadOnly(props.readOnly);
     session = instance.getSession();
-    session.setMode('ace/mode/' + mode);
+    session.setTabSize(props.tabSize);
+    session.setMode('ace/mode/' + props.mode);
     instance.setOptions({
       useSoftTabs: true,
       showPrintMargin: false,
@@ -95,6 +100,7 @@ export default React.createClass({
       enableLiveAutocompletion: true
     });
     instance.$blockScrolling = Infinity;
+    instance.textInput.getElement().disabled = props.disabled;
 
     // indent selection
     instance.commands.addCommand({
@@ -153,17 +159,48 @@ export default React.createClass({
       }
     });
 
+    instance.commands.addCommand({
+      name: 'sendCommand',
+      bindKey: {win: 'ctrl-Enter', mac: 'Command-Enter'},
+      exec: this.props.onExecute
+    });
+
     _.defer(() => instance.resize());
 
     // if filename, load filename into instance
-    if (filename) {
+    if (props.filename) {
       props.onLoading();
-      send('get_file', filename).then(function (content) {
+      send('getFile', props.filename).then(function (content) {
         props.onLoaded();
         session.setValue(content);
       }).catch(function (error) {
         props.onLoadError(error);
       });
+    }
+  },
+  componentDidUpdate: function (oldProps) {
+    const props = this.props,
+      instance = ace.edit(ReactDOM.findDOMNode(this));
+
+    // if font size has changed
+    if (props.fontSize !== oldProps.fontSize) {
+      instance.setFontSize(props.fontSize);
+    }
+
+    if (props.tabSize !== oldProps.tabSize) {
+      instance.getSession().setTabSize(props.tabSize);
+    }
+
+    if (props.highlightLine !== oldProps.highlightLine) {
+      instance.setHighlightActiveLine(props.highlightLine);
+    }
+
+    if (props.readOnly !== oldProps.readOnly) {
+      instance.setReadOnly(props.disabled || props.readOnly);
+    }
+
+    if (props.disabled !== oldProps.disabled) {
+      instance.textInput.getElement().disabled = props.disabled;
     }
   },
   focus: function () {

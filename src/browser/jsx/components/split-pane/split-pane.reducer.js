@@ -2,7 +2,7 @@ import $ from 'jquery';
 import * as store from '../../services/store';
 import mapReducers from '../../services/map-reducers';
 
-const positions = store.get('split-pane-positions') || {
+const positions = store.get('splitPanePositions') || {
   'split-pane-center': window.innerWidth / 2 + 'px',
   'split-pane-right': window.innerHeight / 2 + 'px',
   'split-pane-left': window.innerHeight / 2 + 'px'
@@ -24,7 +24,7 @@ function savePosition(state, action) {
 
     if (position) {
       positions[action.id] = position + 'px';
-      store.set('split-pane-positions', positions);
+      store.set('splitPanePositions', positions);
     }
   }
 

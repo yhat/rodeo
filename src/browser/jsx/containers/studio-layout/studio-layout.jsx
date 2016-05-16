@@ -3,15 +3,15 @@ import ReactDOM from 'react-dom';
 import {connect} from 'react-redux';
 import SplitPane from '../../components/split-pane/split-pane.jsx';
 import TabbedPane from '../../components/tabbed-pane/tabbed-pane.jsx';
-import FileViewer from '../../components/file-viewer/file-viewer.jsx';
+import FileViewer from '../file-viewer/file-viewer.jsx';
 import PlotViewer from '../../components/plot-viewer/plot-viewer.jsx';
-import PackageViewer from '../../components/package-viewer/package-viewer.jsx';
-import PreferenceViewer from '../../components/preference-viewer.jsx';
-import VariableViewer from '../../components/variable-viewer/variable-viewer.jsx';
-import HistoryViewer from '../../components/history-viewer/history-viewer.jsx';
+import PackageViewer from '../package-viewer.jsx';
+import VariableViewer from '../variable-viewer.jsx';
+import HistoryViewer from '../history-viewer.jsx';
 import TabbedPaneItem from '../../components/tabbed-pane/tabbed-pane-item.jsx';
 import AcePane from '../../components/ace-pane/ace-pane.jsx';
-import Terminal from '../../components/terminal/terminal.jsx';
+import Terminal from '../terminal/terminal.jsx';
+import SearchTextBox from '../../components/search-text-box/search-text-box.jsx';
 import './studio-layout.css';
 import _ from 'lodash';
 import { getParentNodeOf } from '../../services/dom';
@@ -36,7 +36,7 @@ function focusAcePaneInActiveElement(el) {
  * @returns {object}
  */
 function mapStateToProps(state) {
-  return _.pick(state, ['acePanes', 'splitPanes', 'terminals']);
+  return _.pick(state, ['acePanes', 'splitPanes', 'terminals', 'modalDialogs']);
 }
 
 /**
@@ -64,10 +64,17 @@ export default connect(mapStateToProps, mapDispatchToProps)(React.createClass({
   displayName: 'StudioLayout',
   propTypes: {
     onAddAcePane: React.PropTypes.func,
+    onCommand: React.PropTypes.func,
     onFocusAcePane: React.PropTypes.func,
     onRemoveAcePane: React.PropTypes.func,
-    onSplitPaneDrag: React.PropTypes.func,
-    panePositions: React.PropTypes.object
+    onRodeo: React.PropTypes.func,
+    onSplitPaneDrag: React.PropTypes.func
+  },
+  getInitialState: function () {
+    return {
+      topRightSearch: '',
+      bottomRightSearch: ''
+    };
   },
   handleEditorTabClose: function (tabId) {
     const targetPane = _.find(this.props.acePanes, {tabId});
@@ -132,12 +139,13 @@ export default connect(mapStateToProps, mapDispatchToProps)(React.createClass({
   },
   render: function () {
     let acePanes, terminals,
-      props = this.props;
+      props = this.props,
+      isFocusable = !props.modalDialogs.length;
 
     acePanes = this.props.acePanes.map(function (item) {
       return (
         <TabbedPaneItem hasFocus={item.hasFocus} icon={item.icon} id={item.tabId} isCloseable key={item.id} label={item.label}>
-          <AcePane key={item.id} {...item}/>
+          <AcePane disabled={!isFocusable} key={item.id} onExecute={props.onRunActiveAcePane} {...item}/>
         </TabbedPaneItem>
       );
     });
@@ -154,6 +162,7 @@ export default connect(mapStateToProps, mapDispatchToProps)(React.createClass({
       <SplitPane direction="left-right" id="split-pane-center">
         <SplitPane direction="top-bottom" id="split-pane-left" onDrag={props.onSplitPaneDrag}>
           <TabbedPane
+            focusable={isFocusable}
             onChanged={this.handleEditorTabChanged}
             onTabClose={this.handleEditorTabClose}
             onTabDragStart={this.handleTabDragStart}
@@ -162,32 +171,46 @@ export default connect(mapStateToProps, mapDispatchToProps)(React.createClass({
             onTabListDrop={this.handleTabListDrop}
             ref="editorTabs"
           >
-            <a className="icon-overflowing not-tab" onClick={props.onRodeo}><span /></a>
+            <li><a className="icon-overflowing not-tab" onClick={props.onRodeo}><span /></a></li>
+            <li className="right">
+              <a className="not-tab" onClick={props.onAddAcePane}>
+                <span className="fa fa-plus-square-o"/>
+              </a>
+            </li>
+            <li className="right">
+              <a className="not-tab" onClick={props.onRunActiveAcePane} title="Run script">
+                <span className="fa fa-play-circle" />
+              </a>
+            </li>
 
             {acePanes}
 
-            <a className="not-tab" onClick={props.onAddAcePane}><span className="fa fa-plus-square-o"/></a>
-            <a className="not-tab" onClick={props.onRunActiveAcePane} title="Run script"><span className="fa fa-play-circle" /></a>
           </TabbedPane>
-          <TabbedPane>
+          <TabbedPane focusable={isFocusable}>
 
             {terminals}
 
           </TabbedPane>
         </SplitPane>
-        <SplitPane direction="top-bottom"  id="split-pane-right">
-          <TabbedPane>
+        <SplitPane direction="top-bottom" id="split-pane-right">
+          <TabbedPane focusable={isFocusable}>
 
-            <TabbedPaneItem icon="table" label="Environment"><VariableViewer /></TabbedPaneItem>
-            <TabbedPaneItem icon="history" label="History"><HistoryViewer /></TabbedPaneItem>
+            <li className="right">
+              <SearchTextBox onChange={(topRightSearch) => this.setState({topRightSearch})} />
+            </li>
+            <TabbedPaneItem icon="table" label="Environment"><VariableViewer filter={this.state.topRightSearch} /></TabbedPaneItem>
+            <TabbedPaneItem icon="history" label="History"><HistoryViewer filter={this.state.topRightSearch} /></TabbedPaneItem>
+
 
           </TabbedPane>
-          <TabbedPane>
+          <TabbedPane focusable={isFocusable}>
 
-            <TabbedPaneItem icon="file-text-o" label="Files"><FileViewer /></TabbedPaneItem>
+            <li className="right">
+              <SearchTextBox onChange={(bottomRightSearch) => this.setState({bottomRightSearch})}/>
+            </li>
+            <TabbedPaneItem icon="file-text-o" label="Files"><FileViewer filter={this.state.bottomRightSearch}/></TabbedPaneItem>
             <TabbedPaneItem icon="bar-chart" label="Plots"><PlotViewer /></TabbedPaneItem>
-            <TabbedPaneItem icon="archive" label="Packages"><PackageViewer /></TabbedPaneItem>
-            <TabbedPaneItem icon="cogs" label="Preferences"><PreferenceViewer /></TabbedPaneItem>
+            <TabbedPaneItem icon="archive" label="Packages"><PackageViewer filter={this.state.bottomRightSearch} /></TabbedPaneItem>
 
           </TabbedPane>
         </SplitPane>

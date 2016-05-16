@@ -7,7 +7,7 @@ import {send} from '../services/ipc';
  */
 export default React.createClass({
   displayName: 'Yhat',
-  handleYhat: () => send('open_external', 'http://yhat.com/').catch(error => console.error(error)),
+  handleYhat: () => send('openExternal', 'http://yhat.com/').catch(error => console.error(error)),
   render: function () {
     return (
       <a onClick={this.handleYhat}>

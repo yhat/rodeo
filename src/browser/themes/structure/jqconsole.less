@@ -5,15 +5,13 @@
   background-color: @body-bg;
 }
 
-.jqconsole {
-  background-color: @body-bg;
-  font-size: 10px;
-}
-
 /* The inner console element. */
-.jqconsole {
+pre.jqconsole {
+  background-color: @body-bg;
   border: 0;
   color: @text-color;
+  /* Allow us to override the font from the user preferences */
+  font-size: inherit;
 }
 
 /* The cursor. */

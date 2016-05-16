@@ -68,7 +68,7 @@ export function detectTerminalVariables() {
       terminal = _.find(state.terminals, {hasFocus: true}),
       id = terminal.id;
 
-    return send('get_variables').then(function (variables) {
+    return send('getVariables').then(function (variables) {
       return dispatch({type: 'VARIABLES_DETECTED', variables, id});
     }).catch(error => console.error(error));
   };

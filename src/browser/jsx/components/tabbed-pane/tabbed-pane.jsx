@@ -1,6 +1,6 @@
 import React from 'react';
 import TabbedPaneItem from './tabbed-pane-item.jsx';
-import './tabbed-pane.less';
+import './tabbed-pane.css';
 import _ from 'lodash';
 import cid from '../../services/cid';
 import {getParentNodeOf} from '../../services/dom';
@@ -67,6 +67,7 @@ function getTabIds(children) {
 export default React.createClass({
   displayName: 'TabbedPane',
   propTypes: {
+    focusable: React.PropTypes.bool,
     onChange: React.PropTypes.func,
     onChanged: React.PropTypes.func,
     onTabClose: React.PropTypes.func, // should close tab if closeable
@@ -76,6 +77,11 @@ export default React.createClass({
     onTabListDragLeave: React.PropTypes.func,
     onTabListDragOver: React.PropTypes.func,
     onTabListDrop: React.PropTypes.func // when a tab is dropped here (maybe from other tab panes too!)
+  },
+  getDefaultProps: function () {
+    return {
+      focusable: true
+    };
   },
   getInitialState: function () {
     return {
@@ -261,6 +267,7 @@ export default React.createClass({
               onClick={_.partial(this.handleTabClick, child.props.id)}
               onDragEnd={_.partial(this.handleTabDragEnd, child.props.id)}
               onDragStart={_.partial(this.handleTabDragStart, child.props.id)}
+              tabIndex={this.props.focusable ? 0 : null}
             >
               <span className={iconClassName}>{child.props.label}</span>
               {getCloseable(this, child)}
@@ -269,7 +276,7 @@ export default React.createClass({
         );
       } else {
         // must be a list item, even if not a tab
-        return <li key={cidTab}>{child}</li>;
+        return child;
       }
     });
 
