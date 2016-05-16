@@ -26,21 +26,27 @@ function mapDispatchToProps(dispatch) {
 export default connect(mapStateToProps, mapDispatchToProps)(React.createClass({
   displayName: 'FileViewer',
   propTypes: {
-    files: React.PropTypes.array,
-    filter: React.PropTypes.string,
+    files: React.PropTypes.array.isRequired,
+    filter: React.PropTypes.string.isRequired,
     id: React.PropTypes.string,
     onRefresh: React.PropTypes.func,
     onSelect: React.PropTypes.func,
-    path: React.PropTypes.string
+    path: React.PropTypes.string.isRequired
   },
   getDefaultProps: function () {
     return {
       onRefresh: _.noop,
-      onSelect: _.noop
+      onSelect: _.noop,
+      path: '~',
+      filter: ''
     };
   },
   componentDidMount: function () {
-    this.props.onRefresh(this.props.path);
+    const props = this.props;
+
+    console.log('file-viewer', props.path, props);
+
+    this.props.onRefresh(props.path);
   },
   render: function () {
     const props = this.props,

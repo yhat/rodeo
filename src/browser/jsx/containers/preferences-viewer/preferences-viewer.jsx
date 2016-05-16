@@ -15,15 +15,8 @@ import checkBackLaterPlotSettings from './check-back-later-plot-settings.md';
 import checkBackLaterGit from './check-back-later-git.md';
 import checkBackLaterProjectSettings from './check-back-later-project-level-settings.md';
 
-const preferencesMap = preferencesMapper.define(preferencesMapDefinition, {
-  globalSettingsText,
-  pythonSettingsText,
-  aceEditorText,
-  consoleText,
-  checkBackLaterPlotSettings,
-  checkBackLaterGit,
-  checkBackLaterProjectSettings
-});
+// singleton
+let preferencesMap;
 
 /**
  * @param {object} state
@@ -67,6 +60,7 @@ export default connect(mapStateToProps, mapDispatchToProps)(React.createClass({
     };
   },
   componentWillMount: function () {
+    this.updatePreferenceMap();
     // set active tab to first item
     let activePreferenceGroup = _.head(preferencesMap),
       active = activePreferenceGroup.id;
@@ -85,6 +79,17 @@ export default connect(mapStateToProps, mapDispatchToProps)(React.createClass({
       this.setState({active});
     }
   },
+  updatePreferenceMap() {
+    preferencesMap = preferencesMapper.define(preferencesMapDefinition, {
+      globalSettingsText,
+      pythonSettingsText,
+      aceEditorText,
+      consoleText,
+      checkBackLaterPlotSettings,
+      checkBackLaterGit,
+      checkBackLaterProjectSettings
+    });
+  },
   /**
    * Remember change.
    * @param {object} item
@@ -100,19 +105,25 @@ export default connect(mapStateToProps, mapDispatchToProps)(React.createClass({
       // if they set it back to the current settings, remove it from the map of changes.
       this.setKeyUnchanged(key);
     } else if (changes[key] !== newValue) {
-      // if it's a new value than what we currently have, or if it wasn't changed yet, save it as a change.
-      preferencesMapper.isValid(item, newValue)
-      // if it's a new value than what we currently have, or if it wasn't changed yet, save it as a change.
-        .then((valid) => {
-          if (_.every(valid, result => !!result)) {
-            return this.setKeyChanged(key, newValue);
-          }
-          this.setKeyInvalid(key, newValue);
-        })
-        // if anything bad happens, it's invalid
-        .catch(_.partial(this.setKeyInvalid, key, newValue));
+      this.setKeyChanged(key, newValue);
+      this.validateKey(item, newValue);
     }
   },
+  validateKey: _.debounce(function (item, newValue) {
+    const key = item.key;
+
+    // if it's a new value than what we currently have, or if it wasn't changed yet, save it as a change.
+    preferencesMapper.isValid(item, newValue)
+    // if it's a new value than what we currently have, or if it wasn't changed yet, save it as a change.
+      .then((valid) => {
+        if (_.every(valid, result => !!result)) {
+          return this.setKeyValid(key, newValue);
+        }
+        this.setKeyInvalid(key, newValue);
+      })
+      // if anything bad happens, it's invalid
+      .catch(_.partial(this.setKeyInvalid, key, newValue));
+  }, 250),
   setKeyUnchanged: function (key) {
     let changes = this.state.changes;
 
@@ -127,31 +138,39 @@ export default connect(mapStateToProps, mapDispatchToProps)(React.createClass({
     changes[key] = {value: newValue, state: 'changed'};
     this.setState({changes});
   },
-  setKeyInvalid: function (key, newValue, error) {
+  setKeyValid: function (key, newValue) {
     let changes = this.state.changes;
 
-    if (error) {
-      console.warn('Invalid key', key, 'of', newValue, error);
+    // only mark valid the value that we were testing for
+    // the value may have changed since then
+    if (changes[key] && changes[key].value === newValue) {
+      changes = _.clone(changes);
+      changes[key] = {value: newValue, state: 'valid'};
+      this.setState({changes});
     }
+  },
+  setKeyInvalid: function (key, newValue) {
+    let changes = this.state.changes;
 
-    changes = _.clone(changes);
-    changes[key] = {value: newValue, state: 'invalid'};
-    this.setState({changes});
+    // only mark invalid the value that we were testing for
+    // the value may have changed since then
+    if (changes[key] && changes[key].value === newValue) {
+      changes = _.clone(changes);
+      changes[key] = {value: newValue, state: 'invalid'};
+      this.setState({changes});
+    }
   },
   canSave: function () {
     const state = this.state,
       changes = state.changes;
 
-    return _.every(changes, {state: 'changed'});
+    return _.every(changes, {state: 'valid'});
   },
   /**
-   * Discard changes, close.
+   * Discard changes, do not close.
    */
   handleCancel: function () {
-    const props = this.props;
-
     this.setState({changes: {}});
-    props.onClose();
   },
   /**
    * Save the changed keys, do not close.
@@ -165,6 +184,7 @@ export default connect(mapStateToProps, mapDispatchToProps)(React.createClass({
       _.each(changes, (item, key) => this.props.onPreferenceChange(key, item.value, item.original));
 
       this.setState({changes: {}});
+      this.updatePreferenceMap();
     }
   },
   /**
@@ -188,13 +208,11 @@ export default connect(mapStateToProps, mapDispatchToProps)(React.createClass({
   render: function () {
     const state = this.state;
 
-    console.log('preferencesMap', preferencesMap);
-
     return (
       <PreferencesList
         active={state.active}
+        canSave={this.canSave()}
         changes={state.changes}
-        isSaveEnabled={_.size(this.state.changes) > 0}
         onApply={this.handleSave}
         onCancel={this.handleCancel}
         onChange={this.handleChange}

@@ -7,7 +7,7 @@ import validation from './validation';
 
 
 let validators = {
-  isPathReal: value => send('expandFilePath', value)
+  isPathReal: value => send('resolveFilePath', value)
     .then(expandedFilename => send('fileStats', expandedFilename)),
   isPython: value => send('checkKernel', {cmd: value}),
   isFontSize: validation.isFontSize,
@@ -43,8 +43,8 @@ function isValid(item, value) {
  * @returns {Array}
  */
 function define(definition, explanations) {
-  return _.map(definition, function (preferenceGroup) {
-    const id = _.kebabCase(preferenceGroup.label) + '-' + cid();
+  return _.map(definition, function (preferenceGroup, index) {
+    const id = _.kebabCase(preferenceGroup.label) + '-' + index;
 
     let items = _.map(preferenceGroup.items, function (preference) {
       const item = _.clone(preference),

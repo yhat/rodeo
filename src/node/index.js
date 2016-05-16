@@ -87,7 +87,11 @@ function onFileStats(filename) {
   return files.getStats(filename);
 }
 
-function onExpandFilePath(filename) {
+function onResolveFilePath(filename) {
+  if (!_.isString(filename)) {
+    throw new TypeError('Expected first parameter to be a filename');
+  }
+
   if (filename[0] === '~') {
     return path.join(os.homedir(), filename.slice(1));
   }
@@ -443,8 +447,10 @@ function onSaveDialog(options) {
 }
 
 function onToggleDevTools() {
+  const currentWindow = this;
+
   return new bluebird(function (resolve) {
-    electron.getCurrentWindow().toggleDevTools();
+    currentWindow.toggleDevTools();
     resolve();
   });
 }
@@ -477,7 +483,7 @@ function attachIpcMainEvents() {
     onKnitHTML,
     onQuitApplication,
     onPDF,
-    onExpandFilePath,
+    onResolveFilePath,
     onGetFile,
     onSaveFile,
     onFileStats,

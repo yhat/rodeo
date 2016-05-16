@@ -11,7 +11,7 @@ function getDefault() {
 
   return {
     id: cid(),
-    path: store.get('workingDirectory') || homedir,
+    path: store.get('workingDirectory') || homedir || '~',
     files: []
   };
 }

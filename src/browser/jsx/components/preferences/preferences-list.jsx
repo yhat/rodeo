@@ -2,6 +2,7 @@ import _ from 'lodash';
 import React from 'react';
 import PreferencesTab from './preferences-tab.jsx';
 import PreferencesItem from './preferences-item.jsx';
+import SaveChangesButtonGroup from './save-changes-button-group.jsx';
 import './preferences-list.css';
 
 /**
@@ -13,10 +14,10 @@ export default React.createClass({
   displayName: 'PreferencesList',
   propTypes: {
     active: React.PropTypes.string,
+    canSave: React.PropTypes.bool,
     changes: React.PropTypes.object,
     className: React.PropTypes.string,
     id: React.PropTypes.string,
-    isSaveEnabled: React.PropTypes.bool,
     onApply: React.PropTypes.func,
     onCancel: React.PropTypes.func,
     onChange: React.PropTypes.func,
@@ -26,7 +27,7 @@ export default React.createClass({
   },
   getDefaultProps: function () {
     return {
-      isSaveEnabled: false,
+      canSave: false,
       onApply: _.noop,
       onCancel: _.noop,
       onChange: _.noop,
@@ -36,7 +37,6 @@ export default React.createClass({
   },
   render: function () {
     const props = this.props,
-      isSaveEnabled = _.size(props.changes) > 0,
       activePreferenceGroup = _.find(props.preferencesMap, {id: props.active});
 
     return (
@@ -65,18 +65,24 @@ export default React.createClass({
 
               return (
                 <PreferencesItem
-                  className={changeToken ? changeToken.state : ''}
+
+                  className={changeToken ? changeToken.state : null}
                   key={item.key}
                   onChange={_.partial(props.onChange, item)}
+                  value={changeToken ? changeToken.value : item.defaultValue}
                   {...item}
                 />
               );
             })}
           </div>
           <footer>
-            <button className="btn btn-default" onClick={props.onCancel}>{'Cancel'}</button>
-            <button className="btn btn-default" disabled={!isSaveEnabled} onClick={props.onApply}>{'Apply'}</button>
-            <button className="btn btn-default" disabled={!isSaveEnabled} onClick={props.onOK}>{'OK'}</button>
+            <SaveChangesButtonGroup
+              canSave={props.canSave}
+              hasChanges={_.size(props.changes) > 0}
+              onCancel={props.onCancel}
+              onOK={props.onOK}
+              onSave={props.onApply}
+            />
           </footer>
         </section>
       </div>

@@ -29,12 +29,15 @@ export function selectViewedFile(file) {
 }
 
 /**
+ * NOTE: Accepts ~ as a path start as well
+ *
  * @param {string} filePath
  * @returns {function}
  */
 export function getViewedFiles(filePath) {
   return function (dispatch) {
-    return send('files', filePath)
+    return send('resolveFilePath', filePath)
+      .then(expandedPath => send('files', expandedPath))
       .then(files => dispatch({type: 'LIST_VIEWED_FILES', path: filePath, files}))
       .catch(error => console.error(error));
   };
@@ -48,7 +51,9 @@ export function goToParentDirectory() {
     const fileView = getState().fileView,
       newPath = _.dropRight(fileView.path.split('/'), 1).join('/');
 
-    dispatch(getViewedFiles(newPath));
+    if (newPath) {
+      dispatch(getViewedFiles(newPath));
+    }
   };
 }
 

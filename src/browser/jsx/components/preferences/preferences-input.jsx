@@ -1,7 +1,7 @@
 import _ from 'lodash';
 import React from 'react';
 
-const allowedPropsOnInput = ['id', 'type', 'defaultValue'];
+const allowedPropsOnInput = ['id', 'type', 'defaultValue', 'value'];
 
 /**
  * @class DocCode
@@ -12,11 +12,12 @@ export default React.createClass({
   displayName: 'PreferencesItem',
   propTypes: {
     className: React.PropTypes.string,
-    defaultValue: React.PropTypes.string,
+    defaultValue: React.PropTypes.oneOfType([React.PropTypes.string, React.PropTypes.number]),
     id: React.PropTypes.string,
     onChange: React.PropTypes.func,
     placeholder: React.PropTypes.string,
-    type: React.PropTypes.string
+    type: React.PropTypes.string,
+    value: React.PropTypes.oneOfType([React.PropTypes.string, React.PropTypes.number])
   },
   getDefaultProps: function () {
     return {
