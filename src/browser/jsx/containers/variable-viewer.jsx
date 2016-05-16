@@ -36,8 +36,6 @@ export default connect(mapStateToProps)(React.createClass({
       });
     }));
 
-    console.log('items', items);
-
     items = _.filter(items, item => !props.filter || (
       item.name.toLowerCase().indexOf(props.filter.toLowerCase()) > -1 ||
       item.type.toLowerCase().indexOf(props.filter.toLowerCase()) > -1 ||

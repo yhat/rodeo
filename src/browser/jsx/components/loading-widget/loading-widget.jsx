@@ -1,4 +1,5 @@
 import React from 'react';
+import loadingWidget from './loading.gif';
 
 /**
  * @class LoadingWidget
@@ -19,7 +20,7 @@ export default React.createClass({
         <br />
         <br />
         <br />
-        <img src="img/loading.gif" style={style}/>
+        <img src={loadingWidget} style={style}/>
         <br />
         <br />
         <br />

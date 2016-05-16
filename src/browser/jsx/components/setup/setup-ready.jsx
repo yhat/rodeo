@@ -14,7 +14,7 @@ export default React.createClass({
   },
   render: function () {
     let files,
-      recentFiles = store.get('recent-files') || [];
+      recentFiles = store.get('recentFiles') || [];
 
     if (recentFiles) {
       files = (

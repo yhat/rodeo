@@ -1,7 +1,7 @@
 import _ from 'lodash';
 import $ from 'jquery';
 import cid from '../../services/cid';
-import * as store from '../../services/store';
+import store from '../../services/store';
 import mapReducers from '../../services/map-reducers';
 
 /*
@@ -47,7 +47,7 @@ function getDefault() {
     tabId: cid(),
     hasFocus: true,
     icon: 'terminal',
-    fontSize: 12,
+    fontSize: _.toNumber(store.get('fontSize')) || 12,
     status: 'idle',
     history: []
   };
@@ -84,10 +84,10 @@ function setTerminalState(state, action) {
  */
 function addTerminalExecutedInput(state, action) {
   const jqconsole = getTerminalConsole(action),
-    historyMaxSetting = store.get('terminal-history'),
+    historyMaxSetting = store.get('terminalHistory'),
     historyMax = historyMaxSetting === null ? 5 : historyMaxSetting;
 
-  if (store.get('terminal-show-executed-input')) {
+  if (store.get('terminalShowExecutedInput')) {
     jqconsole.Write(action.code + '\n');
   }
 
@@ -241,6 +241,35 @@ function updateFirstTerminalWithVariables(state, action) {
   return state;
 }
 
+/**
+ *
+ * @param {object} state
+ * @param {string} propertyName
+ * @param {*} value
+ * @param {function} [transform]
+ * @returns {object}
+ */
+function changeProperty(state, propertyName, value, transform) {
+  state = _.cloneDeep(state);
+
+  if (transform) {
+    value = transform(value);
+  }
+
+  _.each(state, (item) => _.set(item, propertyName, value));
+
+  return state;
+}
+
+function changePreference(state, action) {
+  switch (action.key) {
+    case 'fontSize': return changeProperty(state, 'fontSize', action.value, _.toNumber);
+    case 'pythonCmd': return changeProperty(state, 'pythonOptions.cmd', action.value);
+    case 'pythonShell': return changeProperty(state, 'pythonOptions.shell', action.value);
+    default: return state;
+  }
+}
+
 export default mapReducers({
   TERMINAL_STATE: setTerminalState,
   ADD_TERMINAL_EXECUTED_INPUT: addTerminalExecutedInput,
@@ -249,5 +278,6 @@ export default mapReducers({
   ADD_TERMINAL_ERROR: addTerminalError,
   ADD_DISPLAY_DATA: addTerminalDisplayData,
   KERNEL_DETECTED: updateFirstTerminalWithKernel,
-  VARIABLES_DETECTED: updateFirstTerminalWithVariables
+  VARIABLES_DETECTED: updateFirstTerminalWithVariables,
+  CHANGE_PREFERENCE: changePreference
 }, initialState);

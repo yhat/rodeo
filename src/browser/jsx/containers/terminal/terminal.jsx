@@ -2,7 +2,7 @@ import $ from 'jquery';
 import _ from 'lodash';
 import React from 'react';
 import ReactDOM from 'react-dom';
-import './lib/jqconsole.min';
+import './lib/jqconsole.min.js';
 
 let message = `
 IPython -- An enhanced Interactive Python.
@@ -20,6 +20,7 @@ object?   -> Details about 'object', use 'object??' for extra details.
 export default React.createClass({
   displayName: 'Terminal',
   propTypes: {
+    fontSize: React.PropTypes.number,
     id: React.PropTypes.string,
     indentWidth: React.PropTypes.number,
     message: React.PropTypes.string,
@@ -28,6 +29,7 @@ export default React.createClass({
   },
   getDefaultProps: function () {
     return {
+      fontSize: 12,
       indentWidth: 4,
       message: message,
       onAutoComplete: _.noop,
@@ -84,6 +86,10 @@ export default React.createClass({
     });
   },
   render: function () {
-    return <div className="terminal" id={this.props.id}></div>;
+    const style = {
+      fontSize: this.props.fontSize + 'px'
+    };
+
+    return <div className="terminal" id={this.props.id} style={style}></div>;
   }
 });

@@ -25,7 +25,6 @@ const createStoreWithMiddleware = applyMiddleware(thunk)(createStore),
  * node process could do something on its own, it _shouldn't_.
  */
 ipc.on('dispatch', function (event, action) {
-  console.log('event dispatched', action);
   const dispatch = store.dispatch,
     dispatchMap = {
       SHOW_ABOUT_RODEO: dialogActions.showAboutRodeo(),
@@ -47,18 +46,7 @@ ipc.on('dispatch', function (event, action) {
 });
 
 ipc.on('shell', function (event, data) {
-  const result = data.result;
-
-  if (result) {
-    switch (result.msg_type) {
-      case 'execute_reply':
-        return console.log('shell', result.msg_type, result.content.status);
-      default:
-        return console.log('shell', result, {event, data});
-    }
-  } else {
-    console.log('shell', {event, data});
-  }
+  console.log('shell', {data});
 });
 
 /**
@@ -125,7 +113,7 @@ store.dispatch(kernelActions.detectKernel());
 /**
  * Log every change to the store (this has performance implications, of course).
  */
-store.subscribe(() => console.log('store', store.getState()));
+store.subscribe(_.debounce(() => console.log('store', store.getState()), 500));
 
 /**
  * Expose the global application state/store in two ways:

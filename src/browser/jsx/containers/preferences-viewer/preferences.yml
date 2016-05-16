@@ -1,0 +1,95 @@
+---
+  -
+    label: "Global"
+    items:
+      -
+        explanation: "globalSettingsText"
+        type: "marked"
+      -
+        label: "Check For Updates"
+        type: "button"
+      -
+        key: "fontSize"
+        label: "Font Size"
+        type: "number"
+        valid:
+          - isFontSize
+      -
+        key: "trackMetrics"
+        label: "Track Metrics"
+        type: "checkbox"
+  -
+    label: "Python"
+    items:
+      -
+        explanation: "pythonSettingsText"
+        type: "marked"
+      -
+        key: "workingDirectory"
+        label: "Working Directory"
+        type: "text"
+        valid:
+          - isPathReal
+      -
+        key: "pythonCmd"
+        label: "Python Command"
+        type: "text"
+        valid:
+          - isPython
+      -
+        key: "environmentVariables"
+        label: "Environment Variables"
+  -
+    label: "Editor"
+    items:
+      -
+        explanation: "aceEditorText"
+        type: "marked"
+      -
+        key: "aceTabSpaces"
+        label: "Tab Spaces"
+        type: "number"
+        valid:
+          - isTabSpace
+      -
+        key: "aceKeyBindings"
+        label: "Key Bindings"
+        type: "text"
+  -
+    label: "Console"
+    items:
+      -
+        explanation: "consoleText"
+        type: "marked"
+      -
+        key: "consoleDisplayImages"
+        label: "Display Images"
+        type: "checkbox"
+  -
+    label: "File Viewer"
+    items:
+      -
+        key: "filesDisplayDotFiles"
+        label: "Display Dot Files"
+        type: "checkbox"
+  -
+    label: "Plots"
+    items:
+      -
+        explanation: "checkBackLaterPlotSettings"
+        className: "not-implemented-yet"
+        type: "marked"
+  -
+    label: "Git"
+    items:
+      -
+        explanation: "checkBackLaterGit"
+        className: "not-implemented-yet"
+        type: "marked"
+  -
+    label: "Project"
+    items:
+      -
+        explanation: "checkBackLaterProjectSettings"
+        className: "not-implemented-yet"
+        type: "marked"

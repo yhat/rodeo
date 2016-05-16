@@ -59,21 +59,13 @@ export default React.createClass({
       onLoading: _.noop,
       onLoaded: _.noop,
       onLoadError: _.noop,
-      onSave: _.noop
+      onSave: _.noop,
+      tabSize: 4
     };
   },
   componentDidMount: function () {
     const props = this.props,
-      instance = ace.edit(ReactDOM.findDOMNode(this)),
-      keyBindings = props.keyBindings,
-      theme = props.theme,
-      fontSize = props.fontSize,
-      tabSize = props.tabSize,
-      mode = props.mode,
-      filename = props.filename,
-      highlightLine = props.highlightLine,
-      disabled = props.disabled,
-      readOnly = props.readOnly;
+      instance = ace.edit(ReactDOM.findDOMNode(this));
     let session, langTools, Autocomplete;
 
     Autocomplete = ace.require('ace/autocomplete').Autocomplete;
@@ -90,15 +82,14 @@ export default React.createClass({
     langTools.setCompleters([]);
     langTools.addCompleter(pythonCompleter);
 
-
-    instance.setKeyboardHandler(keyBindings === 'default' ? null : keyBindings);
-    instance.setTheme('ace/theme/' + theme);
-    instance.setFontSize(fontSize);
-    instance.setHighlightActiveLine(highlightLine);
-    instance.setReadOnly(readOnly);
+    instance.setKeyboardHandler(props.keyBindings === 'default' ? null : props.keyBindings);
+    instance.setTheme('ace/theme/' + props.theme);
+    instance.setFontSize(props.fontSize);
+    instance.setHighlightActiveLine(props.highlightLine);
+    instance.setReadOnly(props.readOnly);
     session = instance.getSession();
-    session.setTabSize(tabSize);
-    session.setMode('ace/mode/' + mode);
+    session.setTabSize(props.tabSize);
+    session.setMode('ace/mode/' + props.mode);
     instance.setOptions({
       useSoftTabs: true,
       showPrintMargin: false,
@@ -169,9 +160,9 @@ export default React.createClass({
     _.defer(() => instance.resize());
 
     // if filename, load filename into instance
-    if (filename) {
+    if (props.filename) {
       props.onLoading();
-      send('get_file', filename).then(function (content) {
+      send('getFile', props.filename).then(function (content) {
         props.onLoaded();
         session.setValue(content);
       }).catch(function (error) {

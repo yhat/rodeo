@@ -44,7 +44,7 @@ function replyToEvent(name, id, event) {
  */
 function exposeElectronIpcEvents(ipcEmitter, list) {
   _.each(list, function (fn) {
-    const name = _.snakeCase(fn.name.replace(/^on/, ''));
+    const name = _.camelCase(fn.name.replace(/^on/, ''));
 
     log('debug', 'exposeElectronIpcEvents exposing', name);
 

@@ -1,6 +1,6 @@
 import React from 'react';
 import SetupReady from '../components/setup/setup-ready.jsx';
-import LoadingWidget from '../components/loading-widget.jsx';
+import LoadingWidget from '../components/loading-widget/loading-widget.jsx';
 import SetupPython from '../components/setup/setup-python.jsx';
 import Tour from '../components/tour/tour.jsx';
 import tourData from '../components/tour/tour-data';
@@ -12,7 +12,6 @@ import './startup.less';
  * @typedef {object} SystemFacts
  * @property {object} pythonOptions
  * @property {string} pythonOptions.cmd
- * @property {string} [pythonOptions.shell]
  * @property {Array} availablePythonKernels
  */
 
@@ -35,9 +34,12 @@ function chooseFirstKernel(component) {
     pythonOptions = first && first.pythonOptions;
 
   if (pythonOptions) {
+    let pythonCmd = pythonOptions.cmd;
+
     // just chose the first one, they can tell us we were wrong later
+    store.set('pythonCmd', pythonCmd);
     store.set('pythonOptions', pythonOptions);
-    component.setState({pythonOptions});
+    component.setState({pythonCmd});
   }
 }
 
@@ -50,16 +52,16 @@ export default React.createClass({
   getInitialState: function () {
     return {
       seenTour: store.get('seenTour'),
-      pythonOptions: store.get('pythonOptions'),
+      pythonCmd: store.get('pythonCmd'),
       systemFacts: store.get('systemFacts')
     };
   },
   componentDidMount: function () {
     const state = this.state;
 
-    if (!state.pythonOptions) {
+    if (!state.pythonCmd) {
       if (!state.systemFacts) {
-        send('get_system_facts')
+        send('getSystemFacts')
           .then((facts) => setSystemFacts(this, facts))
           .then(() => chooseFirstKernel(this))
           .catch(this.showError);
@@ -75,10 +77,10 @@ export default React.createClass({
     // todo: show something to user
     console.error(error);
   },
-  close: () => send('close_window', 'startupWindow'),
-  handleInstallPython: () => send('install_python'),
+  close: () => send('closeWindow', 'startupWindow'),
+  handleInstallPython: () => send('installPython'),
   handleSelectPythonDialog: function () {
-    return send('open_dialog', {
+    return send('openDialog', {
       title: 'Select your Python',
       properties: ['openFile']
     }).then(function (result) {
@@ -90,15 +92,13 @@ export default React.createClass({
     });
   },
   /**
-   * @param {string} pythonCommand
+   * @param {string} pythonCmd
    */
-  handleSetPython: function (pythonCommand) {
-    const pythonOptions = {cmd: pythonCommand};
+  handleSetPython: function (pythonCmd) {
+    console.log('setting state', pythonCmd);
 
-    console.log('setting state', pythonOptions);
-
-    this.setState({pythonOptions});
-    store.set('pythonOptions', pythonOptions);
+    this.setState({pythonCmd});
+    store.set('pythonCmd', pythonCmd);
   },
   handleExitTour: function () {
     store.set('seenTour', true);
@@ -111,7 +111,7 @@ export default React.createClass({
     const state = this.state;
     let content;
 
-    if (!state.pythonOptions) {
+    if (!state.pythonCmd) {
       if (!state.systemFacts) {
         // we're getting the system facts
         content = <LoadingWidget />;

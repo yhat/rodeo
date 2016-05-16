@@ -2,6 +2,7 @@ import _ from 'lodash';
 import AcePane from './ace-pane.jsx';
 import cid from '../../services/cid';
 import mapReducers from '../../services/map-reducers';
+import store from '../../services/store';
 
 const refreshPanes = _.throttle(() => AcePane.resizeAll(), 50),
   initialState = [getDefault()];
@@ -13,10 +14,11 @@ function getDefault() {
     id: cid(),
     tabId: cid(),
     hasFocus: true,
-    keyBindings: 'default',
+    keyBindings: store.get('aceKeyBindings') || 'default',
+    tabSpaces: _.toNumber(store.get('aceTabSpaces')) || 4,
     icon: 'file-code-o',
     isCloseable: true,
-    fontSize: 12,
+    fontSize: _.toNumber(store.get('fontSize')) || 12,
     theme: 'chrome'
   };
 }
@@ -172,6 +174,35 @@ function shiftFocus(state, action, move) {
   return state;
 }
 
+/**
+ *
+ * @param {object} state
+ * @param {string} propertyName
+ * @param {*} value
+ * @param {function} [transform]
+ * @returns {object}
+ */
+function changeProperty(state, propertyName, value, transform) {
+  state = _.cloneDeep(state);
+
+  if (transform) {
+    value = transform(value);
+  }
+
+  _.each(state, (item) => _.set(item, propertyName, value));
+
+  return state;
+}
+
+function changePreference(state, action) {
+  switch (action.key) {
+    case 'fontSize': return changeProperty(state, 'fontSize', action.value, _.toNumber);
+    case 'aceTabSpaces': return changeProperty(state, 'tabSpaces', action.value, _.toNumber);
+    case 'aceKeyBindings': return changeProperty(state, 'keyBindings', action.value);
+    default: return state;
+  }
+}
+
 export default mapReducers({
   ADD_FILE: add,
   CLOSE_FILE: remove,
@@ -181,5 +212,6 @@ export default mapReducers({
   CLOSE_ACTIVE_FILE: closeActive,
   SPLIT_PANE_DRAG: splitPaneDrag,
   MOVE_ONE_RIGHT: _.partialRight(shiftFocus, +1),
-  MOVE_ONE_LEFT: _.partialRight(shiftFocus, -1)
+  MOVE_ONE_LEFT: _.partialRight(shiftFocus, -1),
+  CHANGE_PREFERENCE: changePreference
 }, initialState);

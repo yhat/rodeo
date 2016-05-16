@@ -4,7 +4,6 @@ import React from 'react';
 import FileList from '../../components/file-list/file-list.jsx';
 import FileListItem from '../../components/file-list/file-list-item.jsx';
 import fileViewerActions from './file-viewer.actions.js';
-import './file-viewer.less';
 
 function mapStateToProps(state) {
   return state.fileView;

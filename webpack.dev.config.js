@@ -35,7 +35,7 @@ module.exports = {
       { test: /\.json/, loader: 'json' },
       { test: /\.less$/, loader: 'style!css!less' },
       { test: /\.css$/, loader: 'style!css' },
-      { test: /\.png$/, loader: 'url?name=[name].[hash].[ext]&limit=8192' }, // inline base64 URLs for <=8k images, direct URLs for the rest
+      { test: /\.(png|gif)$/, loader: 'url?name=[name].[hash].[ext]&limit=8192' }, // inline base64 URLs for <=8k images, direct URLs for the rest
       { test: /\.svg$/, loaders: ['file?name=[name].[hash].[ext]', 'svgo?useConfig=svgoConfig1'] },
       { test: /\.md$/, loader: 'raw' }, // because we sometimes treat it differently based on the context (i.e., code)
       { test: /\.ya?ml$/, loader: 'json!yaml' }, // some things we want to change often, so it goes in config files

@@ -49,7 +49,7 @@ export function saveActiveFileAs(filename) {
       aceInstance = el && ace.edit(el),
       content = aceInstance && aceInstance.getSession().getValue();
 
-    return send('save_file', filename, content)
+    return send('saveFile', filename, content)
       .then(() => dispatch(fileIsSaved(focusedAce.id, filename)))
       .catch(error => console.error(error));
   };
@@ -68,7 +68,7 @@ export function saveActiveFile() {
       return dispatch(showSaveFileDialogForActiveFile());
     }
 
-    return send('save_file', filename, content)
+    return send('saveFile', filename, content)
       .then(() => dispatch(fileIsSaved(focusedAce.id)))
       .catch(error => console.error(error));
   };
@@ -79,7 +79,7 @@ export function saveActiveFile() {
  */
 export function showSaveFileDialogForActiveFile() {
   return function (dispatch) {
-    return send('save_dialog', {
+    return send('saveDialog', {
       title: 'Save File',
       defaultPath: store.get('workingDirectory')
     }).then(function (filename) {
@@ -94,7 +94,7 @@ export function showSaveFileDialogForActiveFile() {
 
 export function showOpenFileDialogForActiveFile() {
   return function (dispatch) {
-    return send('open_dialog', {
+    return send('openDialog', {
       title: 'Select a file to open',
       defaultPath: store.get('workingDirectory'),
       properties: ['openFile']
@@ -103,7 +103,7 @@ export function showOpenFileDialogForActiveFile() {
         filename = filename[0];
       }
 
-      return send('file_stats', filename)
+      return send('fileStats', filename)
         .then(stats => dispatch(addFile(filename, stats)));
     }).catch(error => console.error(error));
   };

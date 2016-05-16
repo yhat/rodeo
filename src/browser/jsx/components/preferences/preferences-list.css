@@ -1,4 +1,4 @@
-.preferences {
+.preferences-list {
   display: flex;
   flex-direction: row;
   align-content: stretch;
@@ -6,13 +6,13 @@
   min-height: 400px;
 }
 
-.preferences h1,
-.preferences h2,
-.preferences h2 {
+.preferences-list h1,
+.preferences-list h2,
+.preferences-list h2 {
   margin-top: 0;
 }
 
-.preferences .preference-group-list {
+.preferences-list .preference-group-list {
   flex: 0 0 120px;
   overflow-y: scroll;
   display: flex;
@@ -21,34 +21,34 @@
   align-content: stretch;
 }
 
-.preferences .preferences-tab {
+.preferences-list .preferences-tab {
   cursor: pointer;
   padding: 10px 15px;
 }
 
-.preferences .preferences-tab:first-child {
+.preferences-list .preferences-tab:first-child {
   border-top-left-radius: 5px;
 }
 
-.preferences .preferences-tab:hover {
+.preferences-list .preferences-tab:hover {
   background-color: #e1e1e1;
 }
 
-.preferences .preferences-tab.disabled {
+.preferences-list .preferences-tab.disabled {
   background-color: inherit;
   color: grey;
   cursor: default;
 }
 
-.preferences .preferences-tab.disabled:hover {
+.preferences-list .preferences-tab.disabled:hover {
   background-color: inherit;
 }
 
-.preferences .preferences-tab.preferences-tab-active {
+.preferences-list .preferences-tab.preferences-tab-active {
   background-color: #cbcbcb;
 }
 
-.preferences .preference-group-details {
+.preferences-list .preference-group-details {
   padding-right: 0;
   padding-left: 0;
   flex: 1 1 400px;
@@ -58,14 +58,14 @@
   border-left: #eee solid 1px;
 }
 
-.preferences .preference-group-details > footer {
+.preferences-list .preference-group-details > footer {
   position: absolute;
   bottom: 0;
   right: 0;
   margin: 20px;
 }
 
-.preferences .preference-group-details-item {
+.preferences-list .preference-group-details-item {
   display: block;
   padding-left: 20px;
   padding-right: 20px;
@@ -75,18 +75,18 @@
   transition: all 0.2s;
 }
 
-.preferences .preference-group-details-item.changed {
+.preferences-list .preference-group-details-item.changed {
   background-color: #feffb4;
 }
 
-.preferences .preference-group-details-item.invalid {
+.preferences-list .preference-group-details-item.invalid {
   background-color: #ff8280;
 }
 
-.preferences .preference-group-details-item:last-child {
+.preferences-list .preference-group-details-item:last-child {
   border-bottom: none;
 }
 
-.preferences .preference-group-details-item input {
+.preferences-list .preference-group-details-item input {
   margin-left: 20px;
 }

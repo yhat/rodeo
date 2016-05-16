@@ -7,7 +7,7 @@ import { send } from '../../services/ipc';
  */
 export default React.createClass({
   displayName: 'SetupError',
-  handleSendError: () => send('send-error'),
+  handleSendError: () => send('sendError'),
   render: function () {
     return (
       <div className="setup-error container">

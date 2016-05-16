@@ -18,8 +18,7 @@ export default {
       lineLengths = _.map(code.split('\n', pos.row), line => line.length + 1),
       cursorPos = _.sum(lineLengths) + pos.column;
 
-    return send('get_auto_complete', code, cursorPos).then(function (result) {
-      console.log('autocomplete', result);
+    return send('getAutoComplete', code, cursorPos).then(function (result) {
       callback(null, _.map(result.matches, function (match) {
         let value = match;
 

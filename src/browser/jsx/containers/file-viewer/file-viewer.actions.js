@@ -14,7 +14,7 @@ export function openViewedFile(file) {
     if (file.isDirectory) {
       return dispatch(getViewedFiles(filename));
     } else {
-      return send('file_stats', filename)
+      return send('fileStats', filename)
         .then(stats => dispatch(addFile(filename, stats)));
     }
   };
