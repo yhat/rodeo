@@ -16,3 +16,9 @@ deployment:
       - gulp dist
       - mv dist/Rodeo-darwin-x64/* $CIRCLE_ARTIFACTS/Rodeo-darwin-x64/
       - mv dist/Rodeo-linux-x64/* $CIRCLE_ARTIFACTS/Rodeo-linux-x64/
+  build-test:
+    branch: build
+    commands:
+      - gulp dist
+      - mv dist/Rodeo-darwin-x64/* $CIRCLE_ARTIFACTS/Rodeo-darwin-x64/
+      - mv dist/Rodeo-linux-x64/* $CIRCLE_ARTIFACTS/Rodeo-linux-x64/
