@@ -3,3 +3,16 @@ machine:
     America/New_York
   node:
     version: 5.0
+deployment:
+  stable:
+    tag: /v[0-9]+(\.[0-9]+)*/
+    commands:
+      - gulp dist
+      - mv dist/Rodeo-darwin-x64/* $CIRCLE_ARTIFACTS/Rodeo-darwin-x64/
+      - mv dist/Rodeo-linux-x64/* $CIRCLE_ARTIFACTS/Rodeo-linux-x64/
+  outlaw:
+    tag: /nightly-.*/
+    commands:
+      - gulp dist
+      - mv dist/Rodeo-darwin-x64/* $CIRCLE_ARTIFACTS/Rodeo-darwin-x64/
+      - mv dist/Rodeo-linux-x64/* $CIRCLE_ARTIFACTS/Rodeo-linux-x64/

@@ -20,16 +20,19 @@ let logLevel = process.env.RODEO_LOG_LEVEL || 'info',
       humanReadableUnhandledException: true
     }),
     new winston.transports.File({
-      filename: 'rodeo.log',
+      filename: path.join(require('os').homedir(), 'rodeo.log'),
       level: logLevel,
       maxFiles: 2,
       maxsize: 1024 * 1024,
       tailable: true,
-      json: true
+      json: false,
+      colorize: false,
+      prettyPrint: true
     })
   ],
   logger = new winston.Logger({
-    transports: transports
+    transports: transports,
+    exitOnError: false
   });
 
 winston.handleExceptions(transports);
