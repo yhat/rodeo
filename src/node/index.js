@@ -12,11 +12,11 @@ const _ = require('lodash'),
   os = require('os'),
   promises = require('./services/promises'),
   steveIrwin = require('./kernels/python/steve-irwin'),
-  updater = require('./services/updater'),
+  // updater = require('./services/updater'),
   yargs = require('yargs'),
   argv = yargs.argv,
   log = require('./services/log').asInternal(__filename),
-  staticFileDir = path.resolve('./dist/'),
+  staticFileDir = path.resolve(__dirname, '../browser/'),
   kernelClients = {},
   windowUrls = {
     mainWindow: 'main.html',
@@ -24,18 +24,22 @@ const _ = require('lodash'),
     designWindow: 'design.html'
   };
 
-electron.crashReporter.start({
-  productName: 'Yhat Dev',
-  companyName: 'Yhat',
-  submitURL: 'https://rodeo-updates.yhat.com/crash',
-  autoSubmit: true
-});
+console.log('staticFileDir', staticFileDir);
+
+// electron.crashReporter.start({
+//   productName: 'Yhat Dev',
+//   companyName: 'Yhat',
+//   submitURL: 'http://localhost:4000',
+//   autoSubmit: true
+// });
 
 /**
  * Quit the application
  */
 function onQuitApplication() {
   const app = electron.app;
+
+  log('info', 'onQuitApplication');
 
   app.quit();
 }
@@ -175,13 +179,8 @@ function subscribeWindowToKernelEvents(windowName, client) {
 
 // Quit when all windows are closed.
 function onWindowAllClosed() {
+  log('info', 'onWindowAllClosed');
   const app = electron.app;
-
-  // On OS X it is common for applications and their menu bar
-  // to stay active until the user quits explicitly with Cmd + Q
-  // if (process.platform != 'darwin') {
-  //   app.quit();
-  // }
 
   app.quit();
 }
@@ -240,8 +239,8 @@ function startStartupWindow() {
 }
 
 function attemptAutoupdate() {
-  return updater.update(false)
-    .catch(err => log('warn', 'failed to initialize auto-update', err));
+  // return updater.update(false)
+  //   .catch(err => log('warn', 'failed to initialize auto-update', err));
 }
 
 /**
@@ -360,11 +359,11 @@ function onGetSystemFacts() {
 }
 
 function onUpdateAndInstall() {
-  return updater.install();
+  // return updater.install();
 }
 
 function onCheckForUpdates() {
-  return updater.update(true);
+  // return updater.update(true);
 }
 
 /**
@@ -506,10 +505,18 @@ function attachAppEvents() {
   const app = electron.app;
 
   if (app) {
+    app.on('will-finish-launching', function () { log('info', 'will-finish-launching'); });
+    app.on('will-quit', function () { log('info', 'will-quit'); });
+    app.on('before-quit', function () { log('info', 'before-quit'); });
+    app.on('quit', function (event, errorCode) { log('info', 'quit', {errorCode}); });
+    app.on('activate', function (hasVisibleWindows) { log('info', 'activate', {hasVisibleWindows}); });
+    app.on('gpu-process-crashed', function () { log('info', 'gpu-process-crashed'); });
+
     app.on('window-all-closed', onWindowAllClosed);
     app.on('ready', onReady);
 
-    require('./services/server').start(3000);
+    require('./services/server').start(3000)
+      .catch(error => log('error', error));
   }
 }
 

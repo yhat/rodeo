@@ -64,6 +64,7 @@ describe(dirname + '/' + filename, function () {
     let python;
 
     before(function () {
+      this.timeout(10000);
       return client.create().then(function (client) {
         python = client;
       });
