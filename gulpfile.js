@@ -182,7 +182,7 @@ gulp.task('package.json', function () {
  * Remember to set your CSC_NAME or CSC_LINK
  * i.e., CSC_NAME="Dane Stuckel" gulp dist
  */
-gulp.task('dist', ['test', 'build'], function () {
+gulp.task('dist:linux', ['test', 'build'], function () {
   return new Promise(function (resolve, reject) {
     npmInstall({path: tmpAppDirectory}, function (err) {
       if (err) {
@@ -193,8 +193,51 @@ gulp.task('dist', ['test', 'build'], function () {
   }).then(function () {
     return builder.build({
       platform: [
-        builder.Platform.OSX,
         builder.Platform.LINUX
+      ],
+      devMetadata: require('./package.json').build
+    });
+  });
+});
+
+/**
+ * Remember to set your CSC_NAME or CSC_LINK
+ * i.e., CSC_NAME="Dane Stuckel" gulp dist
+ */
+gulp.task('dist:darwin', ['test', 'build'], function () {
+  return new Promise(function (resolve, reject) {
+    npmInstall({path: tmpAppDirectory}, function (err) {
+      if (err) {
+        return reject(err);
+      }
+      resolve();
+    });
+  }).then(function () {
+    return builder.build({
+      platform: [
+        builder.Platform.OSX
+      ],
+      devMetadata: require('./package.json').build
+    });
+  });
+});
+
+/**
+ * Remember to set your CSC_NAME or CSC_LINK
+ * i.e., CSC_NAME="Dane Stuckel" gulp dist
+ */
+gulp.task('dist:win32', ['test', 'build'], function () {
+  return new Promise(function (resolve, reject) {
+    npmInstall({path: tmpAppDirectory}, function (err) {
+      if (err) {
+        return reject(err);
+      }
+      resolve();
+    });
+  }).then(function () {
+    return builder.build({
+      platform: [
+        builder.Platform.OSX
       ],
       devMetadata: require('./package.json').build
     });

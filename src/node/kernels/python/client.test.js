@@ -128,6 +128,7 @@ describe(dirname + '/' + filename, function () {
         this.timeout(10000);
         return fn([]).then(function (result) {
           expect(result).to.deep.equal({function: [], Series: [], list: [], DataFrame: [], other: [], dict: [], ndarray: []});
+          expect(result).to.deep.equal({function: [], Series: [], list: [], DataFrame: [], other: [], dict: [], ndarray: []});
         });
       });
     });
