@@ -20,105 +20,6 @@ const _ = require('lodash'),
   tmpBrowserDirectory = path.join(tmpAppDirectory, 'browser'),
   pkg = require('./package.json');
 
-class YhatS3Drop {
-  constructor(bucket) {
-    // this.client = require('s3').createClient({
-    //   s3Options: {
-    //     accessKeyId: process.env.YHAT_AWS_KEY,
-    //     secretAccessKey: process.env.YHAT_AWS_SECRET_KEY
-    //   }
-    // });
-
-    require('http').globalAgent.maxSockets = require('https').globalAgent.maxSockets = 20;
-
-    this.client = require('s3').createClient({
-      maxAsyncS3: 1,
-      s3Options: {
-        accessKeyId: process.env.AWS_ACCESS_KEY_ID,
-        secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
-        region: process.env.AWS_REGION
-      }
-    });
-    this.bucket = bucket;
-  }
-
-  getKeyFromFilenameVersion(filename, version) {
-    return `${version}/Rodeo-v${version}-darwin_64.dmg`;
-  }
-
-  /**
-   * Don't get the object; just get its information.
-   * @param {string} key
-   * @returns {*}
-   */
-  getObjectHeadByKey(key) {
-    const s3 = require('aws-promised').s3({
-      accessKeyId: process.env.AWS_ACCESS_KEY_ID,
-      secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
-      region: process.env.AWS_REGION
-    });
-
-    return s3.headObjectPromised({Bucket: this.bucket, Key: key});
-  }
-
-  /**
-   * Reject if the key in bucket already exists
-   * @param {string} filename
-   * @param {string} version
-   * @returns {Promise}
-   */
-  assertNotExists(filename, version) {
-    const key = this.getKeyFromFilenameVersion(filename, version);
-
-    return new Promise((resolve, reject) => {
-      this.getObjectHeadByKey(key).catch(function (err) {
-        if (err.statusCode === 404) {
-          resolve();
-        } else {
-          reject(new Error(err.statusCode + ': assertion failed'));
-        }
-      }).then(function () {
-        reject(new Error('File already exists'));
-      });
-    });
-  }
-
-  uploadFile(filename, version) {
-    const key = this.getKeyFromFilenameVersion(filename, version);
-
-    return new Promise((resolve, reject) => {
-      console.log('uploadFile', key);
-
-      const emitter = this.client.uploadFile({
-        localFile: filename,
-        s3Params: {Bucket: this.bucket, Key: key}
-      }).on('error', reject)
-        .on('progress', () => _.throttle(console.log(key, emitter.progressAmount + '/' + emitter.progressTotal), 1000))
-        .on('end', resolve);
-    });
-  }
-
-  uploadNewFile(filename, version) {
-    return this.assertNotExists(filename, version)
-      .then(() => this.uploadFile(filename, version));
-  }
-
-  uploadDir(localDir, prefix) {
-    return new Promise((resolve, reject) => {
-      console.log('uploadDir', {localDir, prefix});
-      const emitter = this.client.uploadDir({
-        localDir: localDir,
-        s3Params: {Bucket: this.bucket, Prefix: prefix}
-      }).on('error', (err) => console.error(err))
-        .on('progress', () => console.log(emitter.progressAmount + '/' + emitter.progressTotal))
-        .on('fileUploadStart', (localFilePath, s3Key) => console.log('fileUploadStart', {localFilePath, s3Key}))
-        .on('fileUploadEnd', (localFilePath, s3Key) => console.log('fileUploadStart', {localFilePath, s3Key}))
-        .on('end', resolve);
-    });
-  }
-}
-
-
 gulp.task('eslint-browser', function () {
   return globby([
     'src/browser/**/*.jsx',
@@ -128,8 +29,6 @@ gulp.task('eslint-browser', function () {
     '!src/browser/hbs/**/*',
     '!src/browser/ace/**/*'
   ]).then(function (paths) {
-    // additional CLI options can be added here
-
     let code = eslint.execute(['--config .eslintrc'].concat(paths).join(' '));
 
     if (code) {
@@ -316,36 +215,40 @@ gulp.task('dist:npm-install', ['dist:package.json'], function () {
  * @returns {Promise}
  */
 gulp.task('dist:build', ['build', 'dist:build-resources', 'dist:npm-install'], function () {
-  const platform = {
-    // can't build for linux because linux
-    // can't build for mac because we can't codesign
-    win32: [builder.Platform.WINDOWS],
-    // can't build for windows because Wine is finicky and requires cron/upstart, which won't happen on a CI server
-    // and can't build for mac because we can't codesign
-    linux: [builder.Platform.LINUX],
-    // we can build all of them?
-    // @see ./scripts/install-darwin-multiplatform-deps.sh
-    darwin: [builder.Platform.OSX, builder.Platform.LINUX, builder.Platform.WINDOWS]
-  }[process.platform];
-
-  return builder.build({platform, devMetadata: require('./package.json').build});
+  return builder.build({
+    asar: false,
+    prune: true,
+    platform: ['all'],
+    arch: 'all', // for all platforms and architectures
+    dist: true, // compile all that we can
+    devMetadata: require('./package.json').build
+  });
 });
 
 gulp.task('upload', function () {
-  // //const drop = new YhatS3Drop('yhat-build/rodeo/artifacts');
-  // const drop = new YhatS3Drop('rodeo-upload-test');
-  //
-  // return drop.uploadDir('./dist', 'v' + pkg.version);
-
   const s3 = require('gulp-s3'),
     version = pkg.version;
 
-  return gulp.src(['dist/**/*.{dmg,zip,exe}'])
+  return gulp.src(['dist/*/*.{dmg,zip,exe}'])
     .pipe(rename(function (obj) {
-      const arch =
+      let arch;
+
+      if (/darwin-x64\//.text(obj.dirname)) {
+        arch = 'darwin_64';
+      } else if (/linux-x64\//.text(obj.dirname)) {
+        arch = 'linux_64';
+      } else if (/linux-ia32\//.text(obj.dirname)) {
+        arch = 'linux_32';
+      } else if (/\/win-ia32\//.text(obj.dirname)) {
+        arch = 'win_32';
+      } else if (/\/win\//.text(obj.dirname)) {
+        arch = 'win_64';
+      } else {
+        arch = 'unknown';
+      }
 
       obj.dirname = path.join(version, obj.dirname);
-      obj.basename = `Rodeo-v${version}-${ARCH}`;
+      obj.basename = `Rodeo-v${version}-${arch}`;
     }))
     .pipe(s3({
       key: process.env.AWS_ACCESS_KEY_ID,
