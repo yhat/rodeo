@@ -79,3 +79,8 @@ export function send() {
     ipcRenderer.on(eventReplyName, response);
   });
 }
+
+export default {
+  on,
+  send
+}

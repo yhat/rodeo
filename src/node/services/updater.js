@@ -2,31 +2,34 @@
 
 const electron = require('electron'),
   browserWindows = require('./browser-windows'),
-  log = require('./log').asInternal(__filename);
+  log = require('./log').asInternal(__filename),
+  path = require('path'),
+  pkg = require(path.join(__dirname, '../../package.json'));
 
 /**
- * @param {string} eventName
+ * @param {string} type
  * @param {*} data
  */
-function dispatch(eventName, data) {
-  log('info', 'dispatch', eventName, arguments);
-  browserWindows.send('mainWindow', 'dispatch', eventName, data);
+function dispatch(type, data) {
+  log('info', 'dispatch', type, arguments);
+  browserWindows.send('mainWindow', 'dispatch', {type, data});
 }
 
 /**
  * @returns {string}
  */
 function getUpdateUrl() {
-  const pkg = require('../../../package.json');
-
+  let hostname;
   if (process.env.NODE_ENV && process.env.NODE_ENV.indexOf('dev') > -1) {
-    return 'http://localhost:3333';
+    hostname = process.env.RODEO_UPDATES || 'http://localhost:3333';
+  } else {
+    hostname = 'https://rodeo-updates.yhat.com';
   }
 
   if (process.platform === 'darwin') {
-    return `https://rodeo-updates.yhat.com/update/osx/${pkg.version}}`;
+    return hostname + `/update/osx/${pkg.version}}`;
   } else if (process.platform === 'win32') {
-    return `https://rodeo-updates.yhat.com/update/win32/${pkg.version}}`;
+    return hostname + `/update/osx/${pkg.version}}`;
   }
 }
 

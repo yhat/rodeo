@@ -225,11 +225,30 @@ gulp.task('dist:build', ['build', 'dist:build-resources', 'dist:npm-install'], f
   });
 });
 
+/**
+ * Regular build, plus extras needed to package and distribute app
+ *
+ * Remember to set your CSC_NAME or CSC_LINK for code signing!
+ * i.e., CSC_NAME="Dane Stuckel" <command>
+ *
+ * @returns {Promise}
+ */
+gulp.task('dist:osx', ['build', 'dist:build-resources', 'dist:npm-install'], function () {
+  return builder.build({
+    asar: false,
+    prune: true,
+    platform: ['darwin'],
+    arch: 'all', // for all platforms and architectures
+    dist: true, // compile all that we can
+    devMetadata: require('./package.json').build
+  });
+});
+
 gulp.task('upload', function () {
   const s3 = require('gulp-s3'),
     version = pkg.version;
 
-  return gulp.src(['dist/*/*.{dmg,zip,exe}'])
+  return gulp.src(['dist/*/*.{dmg,zip,exe}', 'dist/*.deb'])
     .pipe(rename(function (obj) {
       let arch;
 
@@ -243,12 +262,15 @@ gulp.task('upload', function () {
         arch = 'win_32';
       } else if (/\/win\//.text(obj.dirname)) {
         arch = 'win_64';
+      }
+
+      if (arch) {
+        obj.basename = `Rodeo-v${version}-${arch}`;
       } else {
-        arch = 'unknown';
+        obj.basename = `Rodeo-v${version}`;
       }
 
       obj.dirname = path.join(version, obj.dirname);
-      obj.basename = `Rodeo-v${version}-${arch}`;
     }))
     .pipe(s3({
       key: process.env.AWS_ACCESS_KEY_ID,

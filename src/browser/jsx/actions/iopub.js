@@ -83,3 +83,13 @@ export function addDisplayData(data) {
     return dispatch({type: 'ADD_DISPLAY_DATA', data, id});
   };
 }
+
+export default {
+  setTerminalState,
+  addTerminalExecutedInput,
+  addTerminalText,
+  addTerminalResult,
+  addTerminalError,
+  detectTerminalVariables,
+  addDisplayData
+}
