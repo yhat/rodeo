@@ -24,15 +24,6 @@ const _ = require('lodash'),
     designWindow: 'design.html'
   };
 
-console.log('staticFileDir', staticFileDir);
-
-// electron.crashReporter.start({
-//   productName: 'Yhat Dev',
-//   companyName: 'Yhat',
-//   submitURL: 'http://localhost:4000',
-//   autoSubmit: true
-// });
-
 /**
  * Quit the application
  */

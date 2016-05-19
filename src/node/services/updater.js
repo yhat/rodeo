@@ -1,112 +1,59 @@
 'use strict';
 
-const _ = require('lodash'),
-  bluebird = require('bluebird'),
-  electron = require('electron'),
+const electron = require('electron'),
   browserWindows = require('./browser-windows'),
-  log = require('./log').asInternal(__filename),
-  rest = require('./rest'),
-  os = require('os');
+  log = require('./log').asInternal(__filename);
+
+/**
+ * @param {string} eventName
+ * @param {*} data
+ */
+function dispatch(eventName, data) {
+  log('info', 'dispatch', eventName, arguments);
+  browserWindows.send('mainWindow', 'dispatch', eventName, data);
+}
 
 /**
  * @returns {string}
  */
 function getUpdateUrl() {
-  switch (process.env.NODE_ENV) {
-    case 'dev': return 'http://localhost:3000';
-    default: return 'https://rodeo-updates.yhat.com';
+  const pkg = require('../../../package.json');
+
+  if (process.env.NODE_ENV && process.env.NODE_ENV.indexOf('dev') > -1) {
+    return 'http://localhost:3333';
+  }
+
+  if (process.platform === 'darwin') {
+    return `https://rodeo-updates.yhat.com/update/osx/${pkg.version}}`;
+  } else if (process.platform === 'win32') {
+    return `https://rodeo-updates.yhat.com/update/win32/${pkg.version}}`;
   }
 }
 
 /**
- * @param {string} windowName
- * @param {string} updateUrl
- * @param {Error} error
  */
-function onError(windowName, updateUrl, error) {
-  log('warn', 'onError', updateUrl, error);
+function update() {
+  const autoUpdater = electron.autoUpdater,
+    updateUrl = getUpdateUrl();
 
-  browserWindows.send(windowName, 'log', '[ERROR]: ' + error);
-}
-
-/**
- *
- * @param {string} windowName
- * @param {object} data
- */
-function onUpdateAvailable(windowName, data) {
-  log('debug', 'onUpdateAvailable', data);
-
-  browserWindows.send(windowName, 'log', 'UPDATE AVAILABLE');
-  browserWindows.send(windowName, 'log', JSON.stringify(data));
-}
-
-/**
- * @param {string} windowName
- * @param {boolean} displayNoUpdate
- */
-function onUpdateNotAvailable(windowName, displayNoUpdate) {
-  log('debug', 'onUpdateNotAvailable');
-  if (displayNoUpdate == true) { // todo: remove this, we shouldn't decide this here
-    browserWindows.send(windowName, 'no-update');
+  if (updateUrl) {
+    /* eslint max-params: ["error", 6] */
+    autoUpdater.on('update-downloaded', (notes, name, date, url) => dispatch('AUTO_UPDATE_DOWNLOADED', {notes, name, date, url}));
+    autoUpdater.on('error', (error) => dispatch('AUTO_UPDATE_ERROR', error.message));
+    autoUpdater.on('update-available', (data) => dispatch('AUTO_UPDATE_AVAILABLE', data));
+    autoUpdater.on('update-not-available', () => dispatch('AUTO_UPDATE_NOT_AVAILABLE'));
+    autoUpdater.setFeedURL(updateUrl);
+    autoUpdater.checkForUpdates();
   }
-}
-
-/* eslint max-params: ["error", 6] */
-function onUpdateDownloaded(windowName, evt, releaseNotes, releaseName, releaseDate, updateURL) {
-  log('debug', 'onUpdateDownloaded', {evt, releaseNotes, releaseName, releaseDate, updateURL});
-  browserWindows.send(windowName, 'log', releaseNotes + '---' + releaseName + '---' + releaseDate + '---' + updateURL);
-  browserWindows.send(windowName, 'update-ready', { platform: 'osx' });  // ???
-}
-
-/**
- * @param {boolean} displayNoUpdate
- * @returns {Promise}
- */
-function update(displayNoUpdate) {
-  const windowName = 'mainWindow',
-    app = electron.app,
-    autoUpdater = electron.autoUpdater,
-    platform = os.platform() + '_' + os.arch(),
-    version = app.getVersion(),
-    updateUrl = getUpdateUrl() + '?platform=' + platform + '&version=' + version;
-
-  autoUpdater.on('error', _.partial(onError, windowName, updateUrl));
-  autoUpdater.on('update-available', _.partial(onUpdateAvailable, windowName));
-  autoUpdater.on('update-not-available', _.partial(onUpdateNotAvailable, windowName, displayNoUpdate));
-  autoUpdater.on('update-downloaded', _.partial(onUpdateDownloaded, windowName));
-
-  return bluebird.delay(2000)
-    .then(function () {
-      if (/win32/.test(platform)) {
-        return rest.get(updateUrl).then(function (res) {
-          if (res.statusCode != 204) {
-            browserWindows.send(windowName, 'update-ready', { platform: 'windows' });
-          }
-        }).catch('error', function (err) {
-          if (err) {
-            log('error', 'checkForUpdates::https.get:error', updateUrl, err);
-            return;
-          }
-
-          log('error', 'could not check for windows update', updateUrl);
-        });
-      } else {
-        autoUpdater.setFeedURL(updateUrl);
-        autoUpdater.checkForUpdates();
-      }
-    });
 }
 
 /**
  * Install updates
  */
 function install() {
-  log('debug', 'install');
+  log('info', 'install');
 
-  const autoUpdater = electron.autoUpdater;
-
-  autoUpdater.quitAndInstall();
+  electron.autoUpdater.quitAndInstall();
 }
 
 module.exports.update = update;
