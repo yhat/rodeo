@@ -1,0 +1,7 @@
+.notifications-container {
+  position: absolute;
+  display: block;
+  top: 0;
+  right: 0;
+  z-index: 1000; /* higher than split-panes */
+}

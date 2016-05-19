@@ -14,9 +14,14 @@ export function showAcknowledgements() {
   return {type: 'ADD_MODAL_DIALOG', contentType: 'ACKNOWLEDGEMENTS'};
 }
 
+export function showNotification(content) {
+  return {type: 'ADD_MODAL_DIALOG', contentType: 'MARKED', title: 'Notification', content};
+}
+
 export default {
   showAboutRodeo,
   showAboutStickers,
   showAcknowledgements,
-  showPreferences
+  showPreferences,
+  showNotification
 };

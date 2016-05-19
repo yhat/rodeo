@@ -1,35 +1,31 @@
 machine:
+  environment:
+    XCODE_WORKSPACE: "platforms/ios"
+    XCODE_PROJECT: "YourProject.xcodeproj"
+    XCODE_SCHEME: "test"
   timezone:
     America/New_York
-  node:
-    version: 5.0
-  python:
-    version: 2.7.10
 dependencies:
   cache_directories:
     - "app/node_modules"
-  pre:
-    - pip install -q --upgrade setuptools pip
-    - pip install -q jupyter
-    - pip install -q numpy matplotlib plotly toyplot ipywidgets==4.1.1 pandas
-    - jupyter nbextension enable --sys-prefix --py widgetsnbextension
-    - sudo apt-get install icnsutils graphicsmagick xz-utils
+  override:
+    - ./scripts/osx/install-deps.sh
+test:
+  override:
+    - npm test
 deployment:
   stable:
     tag: /v[0-9]+(\.[0-9]+)*/
     commands:
-      - gulp dist:linux
-      - mkdir $CIRCLE_ARTIFACTS/Rodeo-linux-x64
-      - mv dist/Rodeo-linux-x64/* $CIRCLE_ARTIFACTS/Rodeo-linux-x64/
+      - npm run dist
+      - cp -Rp dist/Rodeo-linux-x64/* $CIRCLE_ARTIFACTS
   outlaw:
     tag: /nightly-.*/
     commands:
-      - gulp dist:linux
-      - mkdir $CIRCLE_ARTIFACTS/Rodeo-linux-x64
-      - mv dist/Rodeo-linux-x64/* $CIRCLE_ARTIFACTS/Rodeo-linux-x64/
+      - npm run dist
+      - cp -Rp dist/Rodeo-linux-x64/* $CIRCLE_ARTIFACTS
   build-test:
-    branch: build
+    branch: build-all
     commands:
-      - gulp dist:linux
-      - mkdir $CIRCLE_ARTIFACTS/Rodeo-linux-x64
-      - mv dist/Rodeo-linux-x64/* $CIRCLE_ARTIFACTS/Rodeo-linux-x64/
+      - npm run dist
+      - cp -Rp dist/Rodeo-linux-x64/* $CIRCLE_ARTIFACTS

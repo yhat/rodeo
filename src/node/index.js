@@ -12,7 +12,7 @@ const _ = require('lodash'),
   os = require('os'),
   promises = require('./services/promises'),
   steveIrwin = require('./kernels/python/steve-irwin'),
-  // updater = require('./services/updater'),
+  updater = require('./services/updater'),
   yargs = require('yargs'),
   argv = yargs.argv,
   log = require('./services/log').asInternal(__filename),
@@ -23,15 +23,6 @@ const _ = require('lodash'),
     startupWindow: 'startup.html',
     designWindow: 'design.html'
   };
-
-console.log('staticFileDir', staticFileDir);
-
-// electron.crashReporter.start({
-//   productName: 'Yhat Dev',
-//   companyName: 'Yhat',
-//   submitURL: 'http://localhost:4000',
-//   autoSubmit: true
-// });
 
 /**
  * Quit the application
@@ -238,11 +229,6 @@ function startStartupWindow() {
   });
 }
 
-function attemptAutoupdate() {
-  // return updater.update(false)
-  //   .catch(err => log('warn', 'failed to initialize auto-update', err));
-}
-
 /**
  * When Electron is ready, we can start making windows
  */
@@ -258,7 +244,6 @@ function onReady() {
   } else {
     (argv.startup === false ? startMainWindow() : startStartupWindow())
       .then(attachIpcMainEvents)
-      .then(attemptAutoupdate)
       .catch(err => log('error', err));
   }
 }
@@ -359,11 +344,11 @@ function onGetSystemFacts() {
 }
 
 function onUpdateAndInstall() {
-  // return updater.install();
+  return bluebird.try(updater.install);
 }
 
 function onCheckForUpdates() {
-  // return updater.update(true);
+  return bluebird.try(updater.update);
 }
 
 /**

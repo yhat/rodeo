@@ -3,116 +3,26 @@ import React from 'react';
 import {createStore, applyMiddleware} from 'redux';
 import {Provider} from 'react-redux';
 import thunk from 'redux-thunk';
+import applicationActions from '../actions/application';
 import FullScreen from '../components/full-screen/full-screen.jsx';
 import StudioLayout from './studio-layout/studio-layout.jsx';
 import Sidebar from '../components/sidebar/sidebar.jsx';
 import ModalDialogContainer from '../components/modal-dialog/modal-dialog-container.jsx';
-import * as ipc from '../services/ipc';
+import NotificationsContainer from '../components/notifications/notifications-container.jsx';
 import rootReducer from '../reducers';
-import acePaneActions from '../components/ace-pane/ace-pane.actions';
-import applicationActions from '../actions/application';
-import dialogActions from '../actions/dialogs';
-import * as iopubActions from '../actions/iopub';
+import ipcDispatcher from '../services/ipc-dispatcher';
 import kernelActions from '../actions/kernel';
 
 const createStoreWithMiddleware = applyMiddleware(thunk)(createStore),
   store = createStoreWithMiddleware(rootReducer);
 
-/**
- * The node process will always forward events to the UI here to give a chance to respond to them.
- *
- * An application like this should be UI-driven, so even if the
- * node process could do something on its own, it _shouldn't_.
- */
-ipc.on('dispatch', function (event, action) {
-  const dispatch = store.dispatch,
-    dispatchMap = {
-      SHOW_ABOUT_RODEO: dialogActions.showAboutRodeo(),
-      SHOW_ABOUT_STICKER: dialogActions.showAboutStickers(),
-      SHOW_PREFERENCES: dialogActions.showPreferences(),
-      CHECK_FOR_UPDATES: applicationActions.checkForUpdates(),
-      TOGGLE_DEV_TOOLS: applicationActions.toggleDevTools(),
-      QUIT: applicationActions.quit(),
-      SAVE_ACTIVE_FILE: acePaneActions.saveActiveFile(),
-      SHOW_SAVE_FILE_DIALOG: acePaneActions.showSaveFileDialogForActiveFile(),
-      SHOW_OPEN_FILE_DIALOG: acePaneActions.showOpenFileDialogForActiveFile()
-    };
+ipcDispatcher(store.dispatch);
 
-  if (dispatchMap[action.type]) {
-    return dispatch(dispatchMap[action.type]);
-  } else {
-    return dispatch(action);
-  }
-});
-
-ipc.on('shell', function (event, data) {
-  console.log('shell', {data});
-});
-
-/**
- * Jupyter sends IOPUB events to broadcast to every client connected to a session.  Various components may be
- * listening and reacting to these independently, without connection to each other.
- */
-ipc.on('iopub', function (event, data) {
-  const result = data.result,
-    content = _.get(data, 'result.content'),
-    dispatch = store.dispatch;
-
-  if (result) {
-    switch (result.msg_type) {
-      case 'status':
-        return dispatch(iopubActions.setTerminalState(content.execution_state));
-      case 'execute_input':
-        return Promise.all([
-          dispatch(iopubActions.addTerminalExecutedInput(content.code)),
-          dispatch(iopubActions.detectTerminalVariables())
-        ]);
-      case 'stream':
-        return Promise.all([
-          dispatch(iopubActions.addTerminalText(content.name, content.text)),
-          dispatch(iopubActions.detectTerminalVariables())
-        ]);
-      case 'execute_result':
-        return Promise.all([
-          dispatch(iopubActions.addTerminalResult(content.data)),
-          dispatch(iopubActions.detectTerminalVariables())
-        ]);
-      case 'display_data':
-        return Promise.all([
-          dispatch(iopubActions.addDisplayData(content.data)),
-          dispatch(iopubActions.detectTerminalVariables())
-        ]);
-      case 'error':
-        return Promise.all([
-          dispatch(iopubActions.addTerminalError(content.ename, content.evalue, content.traceback)),
-          dispatch(iopubActions.detectTerminalVariables())
-        ]);
-      default:
-        return console.log('iopub', result, {event, data});
-    }
-  } else {
-    console.log('iopub', {event, data});
-  }
-});
-
-ipc.on('stdin', function (event, data) {
-  const result = data.result;
-
-  if (result) {
-    switch (result.msg_type) {
-      default:
-        return console.log('stdin', result, {event, data});
-    }
-  } else {
-    console.log('stdin', {event, data});
-  }
-});
-
+// find the kernel immediately
 store.dispatch(kernelActions.detectKernel());
+store.dispatch(applicationActions.checkForUpdates());
 
-/**
- * Log every change to the store (this has performance implications, of course).
- */
+// log every change to the store (this has performance implications, of course).
 store.subscribe(_.debounce(() => console.log('store', store.getState()), 500));
 
 /**
@@ -138,6 +48,7 @@ export default React.createClass({
           <StudioLayout />
           <Sidebar />
           <ModalDialogContainer />
+          <NotificationsContainer />
         </FullScreen>
       </Provider>
     );

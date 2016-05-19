@@ -5,19 +5,20 @@ const _ = require('lodash'),
   eslint = require('eslint/lib/cli'),
   globby = require('globby'),
   gulp = require('gulp'),
+  rename = require('gulp-rename'),
   concat = require('gulp-concat'),
   gulpUtil = require('gulp-util'),
   karma = require('karma'),
   less = require('gulp-less'),
   KarmaServer = karma.Server,
-  npmInstall = require('npm-i'),
   path = require('path'),
   sourcemaps = require('gulp-sourcemaps'),
   webpackStream = require('webpack-stream'),
   map = require('vinyl-map'),
   tmpBuildDirectory = 'build',
   tmpAppDirectory = 'app',
-  tmpBrowserDirectory = path.join(tmpAppDirectory, 'browser');
+  tmpBrowserDirectory = path.join(tmpAppDirectory, 'browser'),
+  pkg = require('./package.json');
 
 gulp.task('eslint-browser', function () {
   return globby([
@@ -28,8 +29,6 @@ gulp.task('eslint-browser', function () {
     '!src/browser/hbs/**/*',
     '!src/browser/ace/**/*'
   ]).then(function (paths) {
-    // additional CLI options can be added here
-
     let code = eslint.execute(['--config .eslintrc'].concat(paths).join(' '));
 
     if (code) {
@@ -152,6 +151,9 @@ gulp.task('images', function () {
   ]).pipe(gulp.dest(path.join(tmpBrowserDirectory, 'images')));
 });
 
+/**
+ * Copy the node-specific code over to the temp directory that will be distributed with a deployed app
+ */
 gulp.task('node', function () {
   // copy node program
   return gulp.src([
@@ -161,12 +163,20 @@ gulp.task('node', function () {
   ]).pipe(gulp.dest(path.join(tmpAppDirectory, 'node')));
 });
 
-gulp.task('build-resources', function () {
+/**
+ * Resources specific to the building of the app need to be in this arbitrary but partially hard-coded directory
+ * for electron-builder
+ */
+gulp.task('dist:build-resources', function () {
   return gulp.src(['src/build/**/*'])
     .pipe(gulp.dest(tmpBuildDirectory));
 });
 
-gulp.task('package.json', function () {
+/**
+ * Make an "app" version of the package.json according to electron-builder's arbitrary rules and put it in the
+ * temp directory to be consumed by them.
+ */
+gulp.task('dist:package.json', function () {
   return gulp.src('package.json')
     .pipe(map(function (chunk) {
       const pkg = JSON.parse(chunk.toString());
@@ -179,73 +189,100 @@ gulp.task('package.json', function () {
 });
 
 /**
- * Remember to set your CSC_NAME or CSC_LINK
- * i.e., CSC_NAME="Dane Stuckel" gulp dist
+ * Installs only the dependencies need to the run the app (not build the app) to the tmpAppDirectory
+ * @returns {Promise}
  */
-gulp.task('dist:linux', ['test', 'build'], function () {
+gulp.task('dist:npm-install', ['dist:package.json'], function () {
+  const path = tmpAppDirectory,
+    args = ['--production'];
+
   return new Promise(function (resolve, reject) {
-    npmInstall({path: tmpAppDirectory}, function (err) {
+    require('npm-i')({path, args}, function (err) {
       if (err) {
         return reject(err);
       }
       resolve();
-    });
-  }).then(function () {
-    return builder.build({
-      platform: [
-        builder.Platform.LINUX
-      ],
-      devMetadata: require('./package.json').build
     });
   });
 });
 
 /**
- * Remember to set your CSC_NAME or CSC_LINK
- * i.e., CSC_NAME="Dane Stuckel" gulp dist
+ * Regular build, plus extras needed to package and distribute app
+ *
+ * Remember to set your CSC_NAME or CSC_LINK for code signing!
+ * i.e., CSC_NAME="Dane Stuckel" <command>
+ *
+ * @returns {Promise}
  */
-gulp.task('dist:darwin', ['test', 'build'], function () {
-  return new Promise(function (resolve, reject) {
-    npmInstall({path: tmpAppDirectory}, function (err) {
-      if (err) {
-        return reject(err);
-      }
-      resolve();
-    });
-  }).then(function () {
-    return builder.build({
-      platform: [
-        builder.Platform.OSX
-      ],
-      devMetadata: require('./package.json').build
-    });
+gulp.task('dist:build', ['build', 'dist:build-resources', 'dist:npm-install'], function () {
+  return builder.build({
+    asar: false,
+    prune: true,
+    platform: ['all'],
+    arch: 'all', // for all platforms and architectures
+    dist: true, // compile all that we can
+    devMetadata: require('./package.json').build
   });
 });
 
 /**
- * Remember to set your CSC_NAME or CSC_LINK
- * i.e., CSC_NAME="Dane Stuckel" gulp dist
+ * Regular build, plus extras needed to package and distribute app
+ *
+ * Remember to set your CSC_NAME or CSC_LINK for code signing!
+ * i.e., CSC_NAME="Dane Stuckel" <command>
+ *
+ * @returns {Promise}
  */
-gulp.task('dist:win32', ['test', 'build'], function () {
-  return new Promise(function (resolve, reject) {
-    npmInstall({path: tmpAppDirectory}, function (err) {
-      if (err) {
-        return reject(err);
-      }
-      resolve();
-    });
-  }).then(function () {
-    return builder.build({
-      platform: [
-        builder.Platform.OSX
-      ],
-      devMetadata: require('./package.json').build
-    });
+gulp.task('dist:osx', ['build', 'dist:build-resources', 'dist:npm-install'], function () {
+  return builder.build({
+    asar: false,
+    prune: true,
+    platform: ['darwin'],
+    arch: 'all', // for all platforms and architectures
+    dist: true, // compile all that we can
+    devMetadata: require('./package.json').build
   });
 });
 
+gulp.task('upload', function () {
+  const s3 = require('gulp-s3'),
+    version = pkg.version;
+
+  return gulp.src(['dist/*/*.{dmg,zip,exe}', 'dist/*.deb'])
+    .pipe(rename(function (obj) {
+      let arch;
+
+      if (/darwin-x64\//.text(obj.dirname)) {
+        arch = 'darwin_64';
+      } else if (/linux-x64\//.text(obj.dirname)) {
+        arch = 'linux_64';
+      } else if (/linux-ia32\//.text(obj.dirname)) {
+        arch = 'linux_32';
+      } else if (/\/win-ia32\//.text(obj.dirname)) {
+        arch = 'win_32';
+      } else if (/\/win\//.text(obj.dirname)) {
+        arch = 'win_64';
+      }
+
+      if (arch) {
+        obj.basename = `Rodeo-v${version}-${arch}`;
+      } else {
+        obj.basename = `Rodeo-v${version}`;
+      }
+
+      obj.dirname = path.join(version, obj.dirname);
+    }))
+    .pipe(s3({
+      key: process.env.AWS_ACCESS_KEY_ID,
+      secret: process.env.AWS_SECRET_ACCESS_KEY,
+      region: process.env.AWS_REGION,
+      bucket: 'rodeo-upload-test'
+    }));
+});
+
+gulp.task('dist', ['build', 'dist:build']);
 gulp.task('test', ['eslint-node', 'eslint-browser', 'karma-browser', 'karma-node']);
-gulp.task('build', ['themes', 'external', 'images', 'ace', 'jsx', 'html', 'node', 'package.json', 'build-resources']);
+gulp.task('build', ['themes', 'external', 'images', 'ace', 'jsx', 'html', 'node']);
 gulp.task('run', []);
 gulp.task('watch', function () {
   gulp.watch(['public/js/**/*.js'], ['js']);

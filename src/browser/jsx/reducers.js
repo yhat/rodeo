@@ -6,6 +6,7 @@ import plots from './components/plot-viewer/plot-viewer.reducer';
 import fileView from './containers/file-viewer/file-viewer.reducer';
 import modalDialogs from './components/modal-dialog/modal-dialog.reducer';
 import sidebar from './components/sidebar/sidebar.reducer';
+import notifications from './components/notifications/notifications.reducer';
 
 /**
  * This is the global application state.  Each item here is a slice that is managed by particular reducer.
@@ -46,6 +47,10 @@ export default combineReducers({
    * stack! Modals are stacked up in order, and closed in order, FILO.
    */
   modalDialogs,
+  /**
+   * stack! Notifications are stacked up in order, but they can be closed in any order.
+   */
+  notifications,
   /**
    * singleton! Only one sidebar should be active at a time, and if a new one wants to open, it should replace
    * the old one.
