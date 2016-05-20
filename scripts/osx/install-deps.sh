@@ -33,7 +33,7 @@ npm install
 brew tap homebrew/dupes
 brew install libjpeg zlib
 brew link zlib --force
-pip install --upgrade setuptools pip
-pip install jupyter
-pip install numpy matplotlib plotly toyplot ipywidgets==4.1.1 pandas
+pip install -q --upgrade setuptools pip
+pip install -q jupyter
+pip install -q numpy matplotlib plotly toyplot ipywidgets==4.1.1 pandas
 
