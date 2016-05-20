@@ -30,7 +30,8 @@ npm install -g gulp
 npm install
 
 # so we can test the setup
-pip install -q --upgrade setuptools pip
-pip install -q jupyter
-pip install -q numpy matplotlib plotly toyplot ipywidgets==4.1.1 pandas
+brew install libjpeg zlib
+pip install --upgrade setuptools pip
+pip install jupyter
+pip install numpy matplotlib plotly toyplot ipywidgets==4.1.1 pandas
 
