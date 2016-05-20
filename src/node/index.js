@@ -24,6 +24,21 @@ const _ = require('lodash'),
     designWindow: 'design.html'
   };
 
+function getPkg() {
+  let dir = __dirname,
+    pkg;
+
+  while (dir.length > 1) {
+    dir = path.resolve(dir, '..');
+    pkg = files.getJSONFileSafeSync(path.join(dir, 'package.json'));
+    if (pkg) {
+      return pkg;
+    }
+  }
+
+  return false;
+}
+
 /**
  * Quit the application
  */
@@ -348,7 +363,19 @@ function onUpdateAndInstall() {
 }
 
 function onCheckForUpdates() {
-  return bluebird.try(updater.update);
+  const pkg = getPkg();
+
+  if (!pkg) {
+    log('error', 'Unable to find package.json');
+    return bluebird.resolve();
+  }
+
+  if (!pkg.version) {
+    log('error', 'Unable to find version in package.json', pkg);
+    return bluebird.resolve();
+  }
+
+  return bluebird.try(() => updater.update(pkg.version));
 }
 
 /**
@@ -441,9 +468,10 @@ function onToggleDevTools() {
 
 function onToggleFullScreen() {
   return new bluebird(function (resolve) {
-    const isFull = electron.getCurrentWindow().isFullScreen();
+    const currentWindow = this,
+      isFull = currentWindow.isFullScreen();
 
-    electron.getCurrentWindow().setFullScreen(!isFull);
+    currentWindow.setFullScreen(!isFull);
     resolve();
   });
 }

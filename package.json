@@ -17,12 +17,12 @@
     "start": "electron app",
     "hot-server": "node -r babel-register server.js",
     "test": "./node_modules/.bin/gulp test",
-    "pack": "./node_modules/.bin/gulp dist && ./node_modules/.bin/install-app-deps && ./node_modules/.bin/build",
-    "dist": "./node_modules/.bin/gulp dist && ./node_modules/.bin/build"
+    "dist:all": "./node_modules/.bin/gulp dist",
+    "dist:osx": "./node_modules/.bin/gulp dist:osx"
   },
   "build": {
-    "appBundleId": "com.yhat.rodeo",
-    "helperBundleId": "com.yhat.rodeo.helper",
+    "app-bundle-id": "com.yhat.rodeo",
+    "helper-bundle-id": "com.yhat.rodeo.helper",
     "publish": "always",
     "asar": false,
     "win": {

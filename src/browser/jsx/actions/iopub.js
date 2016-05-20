@@ -92,4 +92,4 @@ export default {
   addTerminalError,
   detectTerminalVariables,
   addDisplayData
-}
+};
