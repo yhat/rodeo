@@ -20,7 +20,7 @@ export PATH="$PYENV_ROOT/bin:$PATH"
 export PATH="$PYENV_ROOT/shims:$PATH"
 
 nvm install 4.2.3
-pyenv install 2.7.10
+pyenv install --skip-existing 2.7.10
 
 npm install -g gulp
 npm install
