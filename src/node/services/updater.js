@@ -20,10 +20,6 @@ function dispatch(type, data) {
 function getUpdateUrl(currentVersion) {
   let hostname;
 
-  if (process.env.NODE_ENV.indexOf('dev') > -1) {
-    return;
-  }
-
   // hostname = 'https://rodeo-updates.yhat.com';
   hostname = 'http://bareback.s.yhat.com';
 
@@ -38,6 +34,8 @@ function getUpdateUrl(currentVersion) {
  * @param {string} currentVersion
  */
 function update(currentVersion) {
+  log('info', 'checking for updates for', currentVersion);
+
   const autoUpdater = electron.autoUpdater,
     updateUrl = getUpdateUrl(currentVersion);
 
@@ -47,6 +45,7 @@ function update(currentVersion) {
     autoUpdater.on('error', (error) => dispatch('AUTO_UPDATE_ERROR', error.message));
     autoUpdater.on('update-available', (data) => dispatch('AUTO_UPDATE_AVAILABLE', data));
     autoUpdater.on('update-not-available', () => dispatch('AUTO_UPDATE_NOT_AVAILABLE'));
+    log('info', 'check for update at', updateUrl);
     autoUpdater.setFeedURL(updateUrl);
     autoUpdater.checkForUpdates();
   }
