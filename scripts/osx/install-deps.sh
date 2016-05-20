@@ -31,6 +31,8 @@ npm install
 
 # so we can test the setup
 brew install libjpeg zlib
+brew link zlib --force
+pip install pillow
 pip install --upgrade setuptools pip
 pip install jupyter
 pip install numpy matplotlib plotly toyplot ipywidgets==4.1.1 pandas
