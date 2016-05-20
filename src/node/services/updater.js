@@ -25,12 +25,12 @@ function getUpdateUrl(currentVersion) {
   }
 
   // hostname = 'https://rodeo-updates.yhat.com';
-  hostname = 'https://45.55.201.62';
+  hostname = 'http://bareback.s.yhat.com';
 
   if (process.platform === 'darwin') {
-    return hostname + `/update/osx/${currentVersion}}`;
+    return hostname + `/update/osx/'${currentVersion}`;
   } else if (process.platform === 'win32') {
-    return hostname + `/update/win32/${currentVersion}}`;
+    return hostname + `/update/win32/${currentVersion}`;
   }
 }
 

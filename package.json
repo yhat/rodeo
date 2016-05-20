@@ -21,8 +21,8 @@
     "dist:osx": "./node_modules/.bin/gulp dist:osx"
   },
   "build": {
-    "appBundleId": "com.yhat.rodeo",
-    "helperBundleId": "com.yhat.rodeo.helper",
+    "app-bundle-id": "com.yhat.rodeo",
+    "helper-bundle-id": "com.yhat.rodeo.helper",
     "publish": "always",
     "asar": false,
     "win": {
