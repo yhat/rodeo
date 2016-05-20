@@ -5,8 +5,8 @@
 if [[ ! -d ~/.nvm ]]; then
   touch ~/.bash_profile
   curl -o- https://raw.githubusercontent.com/creationix/nvm/v0.31.1/install.sh | bash
-  . ~/.nvm/nvm.sh
 fi
+. ~/.nvm/nvm.sh
 
 if [[ ! -d ~/.pyenv ]]; then
   touch ~/.bash_profile
@@ -14,10 +14,10 @@ if [[ ! -d ~/.pyenv ]]; then
   echo 'export PYENV_ROOT="$HOME/.pyenv"' >> ~/.bash_profile
   echo 'export PATH="$PYENV_ROOT/bin:$PATH"' >> ~/.bash_profile
   echo 'export PATH="$PYENV_ROOT/shims:$PATH"' >> ~/.bash_profile
-  export PYENV_ROOT="$HOME/.pyenv"
-  export PATH="$PYENV_ROOT/bin:$PATH"
-  export PATH="$PYENV_ROOT/shims:$PATH"
 fi
+export PYENV_ROOT="$HOME/.pyenv"
+export PATH="$PYENV_ROOT/bin:$PATH"
+export PATH="$PYENV_ROOT/shims:$PATH"
 
 nvm install 4.2.3
 pyenv install 2.7.10
