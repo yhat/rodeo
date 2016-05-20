@@ -18,7 +18,7 @@ test:
     - npm test
 deployment:
   stable:
-    branch: stable
+    branch: lawman
     commands:
       - ./scripts/osx/install-dist-deps.sh
       - npm run dist:stable

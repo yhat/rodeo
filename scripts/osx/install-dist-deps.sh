@@ -5,3 +5,8 @@ brew doctor
 brew update
 brew --version
 
+# so we can build windows on mac
+brew install Caskroom/cask/xquartz wine mono
+
+# so we can build linux on mac
+brew install gnu-tar libicns graphicsmagick
