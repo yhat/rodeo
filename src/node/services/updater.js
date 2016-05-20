@@ -2,9 +2,7 @@
 
 const electron = require('electron'),
   browserWindows = require('./browser-windows'),
-  log = require('./log').asInternal(__filename),
-  path = require('path'),
-  pkg = require(path.join(__dirname, '../../package.json'));
+  log = require('./log').asInternal(__filename);
 
 /**
  * @param {string} type
@@ -16,28 +14,32 @@ function dispatch(type, data) {
 }
 
 /**
+ * @param {string} currentVersion
  * @returns {string}
  */
-function getUpdateUrl() {
+function getUpdateUrl(currentVersion) {
   let hostname;
-  if (process.env.NODE_ENV && process.env.NODE_ENV.indexOf('dev') > -1) {
-    hostname = process.env.RODEO_UPDATES || 'http://localhost:3333';
-  } else {
-    hostname = 'https://rodeo-updates.yhat.com';
+
+  if (process.env.NODE_ENV.indexOf('dev') > -1) {
+    return;
   }
 
+  // hostname = 'https://rodeo-updates.yhat.com';
+  hostname = 'https://45.55.201.62';
+
   if (process.platform === 'darwin') {
-    return hostname + `/update/osx/${pkg.version}}`;
+    return hostname + `/update/osx/${currentVersion}}`;
   } else if (process.platform === 'win32') {
-    return hostname + `/update/osx/${pkg.version}}`;
+    return hostname + `/update/win32/${currentVersion}}`;
   }
 }
 
 /**
+ * @param {string} currentVersion
  */
-function update() {
+function update(currentVersion) {
   const autoUpdater = electron.autoUpdater,
-    updateUrl = getUpdateUrl();
+    updateUrl = getUpdateUrl(currentVersion);
 
   if (updateUrl) {
     /* eslint max-params: ["error", 6] */

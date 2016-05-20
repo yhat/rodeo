@@ -214,7 +214,7 @@ gulp.task('dist:npm-install', ['dist:package.json'], function () {
  *
  * @returns {Promise}
  */
-gulp.task('dist:build', ['build', 'dist:build-resources', 'dist:npm-install'], function () {
+gulp.task('dist:build', ['dist:build-resources', 'dist:npm-install'], function () {
   return builder.build({
     asar: false,
     prune: true,
@@ -233,7 +233,7 @@ gulp.task('dist:build', ['build', 'dist:build-resources', 'dist:npm-install'], f
  *
  * @returns {Promise}
  */
-gulp.task('dist:osx', ['build', 'dist:build-resources', 'dist:npm-install'], function () {
+gulp.task('dist:osx', ['dist:build-resources', 'dist:npm-install'], function () {
   return builder.build({
     asar: false,
     prune: true,
@@ -280,7 +280,7 @@ gulp.task('upload', function () {
     }));
 });
 
-gulp.task('dist', ['build', 'dist:build']);
+gulp.task('dist', ['dist:build']);
 gulp.task('test', ['eslint-node', 'eslint-browser', 'karma-browser', 'karma-node']);
 gulp.task('build', ['themes', 'external', 'images', 'ace', 'jsx', 'html', 'node']);
 gulp.task('run', []);

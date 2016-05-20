@@ -83,4 +83,4 @@ export function send() {
 export default {
   on,
   send
-}
+};

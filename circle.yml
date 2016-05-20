@@ -7,6 +7,9 @@ machine:
     America/New_York
 dependencies:
   cache_directories:
+    - "~/.nvm"
+    - "~/.pyenv"
+    - "node_modules"
     - "app/node_modules"
   override:
     - ./scripts/osx/install-deps.sh
@@ -14,18 +17,24 @@ test:
   override:
     - npm test
 deployment:
-  stable:
+  master:
     tag: /v[0-9]+(\.[0-9]+)*/
     commands:
       - npm run dist
       - cp -Rp dist/Rodeo-linux-x64/* $CIRCLE_ARTIFACTS
-  outlaw:
-    tag: /nightly-.*/
+  stable:
+    branch: stable
     commands:
-      - npm run dist
+      - npm run dist:stable
+      - cp -Rp dist/Rodeo-linux-x64/* $CIRCLE_ARTIFACTS
+  outlaw:
+    branch: outlaw
+    commands:
+      - npm run dist:outlaw
       - cp -Rp dist/Rodeo-linux-x64/* $CIRCLE_ARTIFACTS
   build-test:
-    branch: build-all
+    branch: builder
     commands:
-      - npm run dist
+      - ./scripts/osx/install-dist-deps.sh
+      - npm run dist:osx
       - cp -Rp dist/Rodeo-linux-x64/* $CIRCLE_ARTIFACTS

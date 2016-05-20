@@ -1,46 +1,27 @@
 #!/bin/bash
 # see https://github.com/electron-userland/electron-builder/wiki/Multi-Platform-Build
 
-cat ~/.bashrc
-cat ~/.bash_profile
-
-# for troubleshooting
-brew doctor
-brew update
-brew --version
-
-# so we can run node
-brew install nvm
-if grep -Fxq "export NVM_DIR=~/.nvm" ~/.bash_profile
-then
-    echo 'nvm already exists in bash_profile'
-    cat ~/.bash_profile
-else
-    touch ~/.bash_profile
-    mkdir ~/.nvm
-    echo 'export NVM_DIR=~/.nvm' >> ~/.bash_profile
-    echo '. "$(brew --prefix nvm)/nvm.sh"' >> ~/.bash_profile
-
-    export NVM_DIR=~/.nvm
-    [ -s "$NVM_DIR/nvm.sh" ] && . "$NVM_DIR/nvm.sh" # This loads nvm
-
-    cat ~/.bash_profile
-
-    source ~/.nvm/nvm.sh
-
-    nvm install 5
+# install nvm
+if [ ! -d "~/.nvm" ]; then
+  touch ~/.bash_profile
+  curl -o- https://raw.githubusercontent.com/creationix/nvm/v0.31.1/install.sh | bash
+  . ~/.nvm/nvm.sh
 fi
 
-# because the standard osx python is locked down for some reason
-brew install python
+if [ ! -d "~/.pyenv" ]; then
+  touch ~/.bash_profile
+  git clone https://github.com/yyuu/pyenv.git ~/.pyenv
+  echo 'export PYENV_ROOT="$HOME/.pyenv"' >> ~/.bash_profile
+  echo 'export PATH="$PYENV_ROOT/bin:$PATH"' >> ~/.bash_profile
+  echo 'export PATH="$PYENV_ROOT/shims:$PATH"' >> ~/.bash_profile
+  export PYENV_ROOT="$HOME/.pyenv"
+  export PATH="$PYENV_ROOT/bin:$PATH"
+  export PATH="$PYENV_ROOT/shims:$PATH"
+fi
 
-# so we can build windows on mac
-brew install Caskroom/cask/xquartz wine mono
+nvm install 4.2.3
+pyenv install 2.7.10
 
-# so we can build linux on mac
-brew install gnu-tar libicns graphicsmagick
+npm install -g gulp
+npm install
 
-# so we can test the setup
-pip install -q --upgrade setuptools pip
-pip install -q jupyter
-pip install -q numpy matplotlib plotly toyplot ipywidgets==4.1.1 pandas

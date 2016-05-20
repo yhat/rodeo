@@ -18,7 +18,7 @@
     "hot-server": "node -r babel-register server.js",
     "test": "./node_modules/.bin/gulp test",
     "pack": "./node_modules/.bin/gulp dist && ./node_modules/.bin/install-app-deps && ./node_modules/.bin/build",
-    "dist": "./node_modules/.bin/gulp dist && ./node_modules/.bin/build"
+    "dist": "./node_modules/.bin/gulp dist:osx && ./node_modules/.bin/build"
   },
   "build": {
     "appBundleId": "com.yhat.rodeo",
