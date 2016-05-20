@@ -17,24 +17,15 @@ test:
   override:
     - npm test
 deployment:
-  master:
-    tag: /v[0-9]+(\.[0-9]+)*/
-    commands:
-      - npm run dist
-      - cp -Rp dist/Rodeo-linux-x64/* $CIRCLE_ARTIFACTS
   stable:
     branch: stable
     commands:
+      - ./scripts/osx/install-dist-deps.sh
       - npm run dist:stable
       - cp -Rp dist/Rodeo-linux-x64/* $CIRCLE_ARTIFACTS
   outlaw:
     branch: outlaw
     commands:
-      - npm run dist:outlaw
-      - cp -Rp dist/Rodeo-linux-x64/* $CIRCLE_ARTIFACTS
-  build-test:
-    branch: builder
-    commands:
       - ./scripts/osx/install-dist-deps.sh
-      - npm run dist:osx
+      - npm run dist:outlaw
       - cp -Rp dist/Rodeo-linux-x64/* $CIRCLE_ARTIFACTS
