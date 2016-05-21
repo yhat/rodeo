@@ -134,7 +134,7 @@ export default React.createClass({
     }
 
     if (!content) {
-      content = <SetupReady onReady={this.handleReady}/>;
+      content = <SetupReady onOK={this.handleReady}/>;
     }
 
     return content;

@@ -207,9 +207,9 @@ function createStartupWindow(name, options) {
   return create(name, _.assign({
     useContentSize: true,
     resizable: false,
-    moveable: false,
+    moveable: true,
     center: true,
-    alwaysOnTop: true,
+    alwaysOnTop: false,
     show: false,
     frame: false
   }, options));
