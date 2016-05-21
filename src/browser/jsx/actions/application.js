@@ -18,9 +18,7 @@ export function quit() {
     return ipc.send('quitApplication').then(function () {
       // maybe some visual artifact?
       dispatch({type: 'QUIT'});
-    }).catch(function (error) {
-      console.error(error);
-    });
+    }).catch(error => console.error(error));
   };
 }
 
@@ -28,9 +26,7 @@ export function toggleDevTools() {
   return function () {
     return ipc.send('toggleDevTools').then(function () {
       // maybe some visual artifact?  no?  maybe a bolt of lightning?
-    }).catch(function (error) {
-      console.error(error);
-    });
+    }).catch(error => console.error(error));
   };
 }
 
@@ -40,14 +36,23 @@ export function checkForUpdates() {
 
     return ipc.send('checkForUpdates').then(function () {
       dispatch({type: 'NO_APPLICATION_UPDATES'});
-    }).catch(function (error) {
-      console.error(error);
-    });
+    }).catch(error => console.error(error));
+  };
+}
+
+export function quitAndInstallUpdates() {
+  console.log('quitAndInstallUpdates');
+  return function (dispatch) {
+    return ipc.send('quitAndInstall').then(function () {
+      console.log('sent quitAndInstallUpdates success!', arguments);
+      dispatch({type: 'QUITING_TO_INSTALL_UPDATES'});
+    }).catch(error => console.error(error));
   };
 }
 
 export default {
   quit,
   toggleDevTools,
-  checkForUpdates
+  checkForUpdates,
+  quitAndInstallUpdates
 };

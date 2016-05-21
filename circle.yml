@@ -14,9 +14,8 @@ dependencies:
   override:
     - ./scripts/osx/install-deps.sh
 test:
-  pre:
+  override:
     - ./scripts/osx/install-test-deps.sh
-  post:
     - npm test
 deployment:
   stable:

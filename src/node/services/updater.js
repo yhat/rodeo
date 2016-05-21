@@ -24,7 +24,7 @@ function getUpdateUrl(currentVersion) {
   hostname = 'http://bareback.s.yhat.com';
 
   if (process.platform === 'darwin') {
-    return hostname + `/update/osx/'${currentVersion}`;
+    return hostname + `/update/osx/${currentVersion}`;
   } else if (process.platform === 'win32') {
     return hostname + `/update/win32/${currentVersion}`;
   }
@@ -41,9 +41,9 @@ function update(currentVersion) {
 
   if (updateUrl) {
     /* eslint max-params: ["error", 6] */
-    autoUpdater.on('update-downloaded', (notes, name, date, url) => dispatch('AUTO_UPDATE_DOWNLOADED', {notes, name, date, url}));
+    autoUpdater.on('update-downloaded', (evt, notes, name, date, url) => dispatch('AUTO_UPDATE_DOWNLOADED', {notes, name, date, url}));
     autoUpdater.on('error', (error) => dispatch('AUTO_UPDATE_ERROR', error.message));
-    autoUpdater.on('update-available', (data) => dispatch('AUTO_UPDATE_AVAILABLE', data));
+    autoUpdater.on('update-available', () => dispatch('AUTO_UPDATE_AVAILABLE'));
     autoUpdater.on('update-not-available', () => dispatch('AUTO_UPDATE_NOT_AVAILABLE'));
     log('info', 'check for update at', updateUrl);
     autoUpdater.setFeedURL(updateUrl);
