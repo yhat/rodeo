@@ -2,6 +2,7 @@ import _ from 'lodash';
 import React from 'react';
 import {connect} from 'react-redux';
 import InfoNotification from './info-notification.jsx';
+import UpdateAvailableNotification from './update-available-notification.jsx';
 import Marked from '../marked/marked.jsx';
 import actions from './notifications.actions';
 import './notifications-container.css';
@@ -46,13 +47,20 @@ export default connect(mapStateToProps, mapDispatchToProps)(React.createClass({
       ].join(' ');
 
     function getItem(item) {
-      let onOK = _.partial(props.onOK, item);
+      let onOK = _.partial(props.onOK, item),
+        onCancel = _.partial(props.onCancel, item);
 
-      return (
-        <InfoNotification id={item.id} key={item.id} onOK={onOK}>
-          <Marked {...item.options}>{item.content}</Marked>
-        </InfoNotification>
-      );
+      if (item.type === 'AUTO_UPDATE_DOWNLOADED') {
+        return (
+          <UpdateAvailableNotification id={item.id} key={item.id} onCancel={onCancel} onOK={onOK} />
+        );
+      } else {
+        return (
+          <InfoNotification id={item.id} key={item.id} onOK={onOK}>
+            <Marked {...item.options}>{item.content}</Marked>
+          </InfoNotification>
+        );
+      }
     }
 
     return (

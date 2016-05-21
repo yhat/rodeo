@@ -358,7 +358,7 @@ function onGetSystemFacts() {
   });
 }
 
-function onUpdateAndInstall() {
+function onQuitAndInstall() {
   return bluebird.try(updater.install);
 }
 
@@ -499,7 +499,7 @@ function attachIpcMainEvents() {
     onGetFile,
     onSaveFile,
     onFileStats,
-    onUpdateAndInstall,
+    onQuitAndInstall,
     onCheckForUpdates,
     onCloseWindow,
     onOpenExternal,

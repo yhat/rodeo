@@ -1,0 +1,45 @@
+.update-available-notification {
+  margin: 7px;
+  padding: 9px;
+  display: block;
+  position: relative;
+  min-width: 250px;
+  max-width: 400px;
+  max-height: 90%;
+  z-index: 11;
+  background-color: white;
+  box-shadow: 4px 4px 16px rgba(0, 0, 0, 0.4);
+  transition: all 0.8s;
+  opacity: 0;
+  border-radius: 5px;
+  min-height: 50px;
+  text-align: center;
+}
+
+.update-available-notification .icon-container {
+  display: block;
+}
+
+.update-available-notification .icon-container img {
+  width: 80px;
+}
+
+.update-available-notification .info-notification-content {
+  margin-left: 20px;
+  margin-right: 20px;
+  min-height: 27px;
+  margin-top: 26px;
+}
+
+.update-available-notification.notification-show {
+  opacity: 1;
+}
+
+.update-available-notification > footer {
+  display: flex;
+  justify-content: space-around;
+}
+
+.info-notification button {
+  margin: 12px;
+}

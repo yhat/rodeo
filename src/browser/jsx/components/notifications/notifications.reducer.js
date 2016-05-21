@@ -20,7 +20,7 @@ function add(state, action) {
   state = _.clone(state);
   const modal = _.assign({
     id: cid()
-  }, _.omit(action, ['type']));
+  }, action);
 
   state.push(modal);
 
@@ -56,7 +56,7 @@ function showStaticMessage(content) {
   };
 }
 
-function showUpdateAvailable(state, action) {
+function showUpdateDownloaded(state, action) {
   return add(state, action);
 }
 
@@ -64,8 +64,7 @@ export default mapReducers({
   ADD_NOTIFICATION: add,
   CLOSE_NOTIFICATION: close,
   CLOSE_ALL_NOTIFICATIONS: closeAll,
-  AUTO_UPDATE_DOWNLOADED: showStaticMessage('Auto Update Downloaded!'),
+  AUTO_UPDATE_DOWNLOADED: showUpdateDownloaded,
   AUTO_UPDATE_ERROR: showStaticMessage('Auto Update Error!'),
-  AUTO_UPDATE_AVAILABLE: showUpdateAvailable,
   AUTO_UPDATE_NOT_AVAILABLE: showStaticMessage('Rodeo is current version!')
 }, initialState);
