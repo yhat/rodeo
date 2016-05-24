@@ -3,6 +3,10 @@ import React from 'react';
 import ReactDOM from 'react-dom';
 import App from './../containers/startup.jsx';
 
+/**
+ * Use #content because <main> is deeper.  There should be a header and footer for the page that will be
+ * consistent in all the setup screens.
+ */
 const rootEl = document.querySelector('main');
 
 ReactDOM.render(

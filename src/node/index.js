@@ -312,6 +312,7 @@ function onGetResult(text, kernelOptions) {
 }
 
 function onCheckKernel(kernelOptions) {
+  log('info', 'WHAT', argv);
   const clientFactory = require('./kernels/python/client');
 
   return clientFactory.checkPython(kernelOptions);

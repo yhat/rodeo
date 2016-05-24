@@ -7,6 +7,7 @@ import _ from 'lodash';
 import ace from 'ace';
 import { send } from '../services/ipc';
 import * as store from '../services/store';
+import systemFacts from '../services/system-facts';
 
 export function interrupt() {
   return function (dispatch) {
@@ -27,6 +28,10 @@ export function isIdle() {
 }
 
 export function kernelDetected(pythonOptions) {
+  // change executable to cmd
+  pythonOptions.cmd = pythonOptions.executable;
+  delete pythonOptions.executable;
+
   // save over previous settings
   store.set('pythonOptions', pythonOptions);
   store.set('pythonCmd', pythonOptions.cmd);
@@ -35,24 +40,6 @@ export function kernelDetected(pythonOptions) {
 
 export function askForPythonOptions() {
   return {type: 'ASK_FOR_PYTHON_OPTIONS'};
-}
-
-/**
- * Get the first set of working kernel options that was detected when gathering system facts
- * (by the by, also refreshes the known system facts.)
- * @returns {Promise<object>}
- */
-function getPythonOptionsFromSystemFacts() {
-  return send('getSystemFacts').then(function (facts) {
-    const availablePythonKernels = facts && facts.availablePythonKernels,
-      head = _.head(availablePythonKernels),
-      pythonOptions = head && head.pythonOptions;
-
-    store.set('systemFacts', facts);
-    return send('checkKernel', pythonOptions).then(function () {
-      return pythonOptions;
-    });
-  });
 }
 
 /**
@@ -68,10 +55,10 @@ export function detectKernel() {
     if (pythonOptions) {
       // verify anyway
       promise = send('checkKernel', pythonOptions)
-        .catch(() => getPythonOptionsFromSystemFacts());
+        .catch(() => systemFacts.getFreshPythonOptions());
     } else {
       // get them
-      promise = getPythonOptionsFromSystemFacts();
+      promise = systemFacts.getFreshPythonOptions();
     }
 
     return promise
@@ -121,10 +108,12 @@ export function execute(text, id) {
 }
 
 export default {
+  askForPythonOptions,
+  detectKernel,
   execute,
   executeActiveFileInActiveConsole,
-  isIdle,
   isBusy,
+  isIdle,
   interrupt,
-  detectKernel
+  kernelDetected
 };
