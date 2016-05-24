@@ -1,0 +1,119 @@
+import _ from 'lodash';
+import cid from '../../services/cid';
+import * as store from '../../services/store';
+import mapReducers from '../../services/map-reducers';
+
+const initialState = getDefault();
+
+function getDefault() {
+  const facts = store.get('systemFacts'),
+    homedir = facts && facts.homedir;
+
+  return _.assign({
+    facts,
+    homedir,
+    workingDirectory: store.get('workingDirectory') || homedir || '~'
+  }, store.get('pythonOptions') || {});
+}
+
+function askForPythonOptions(state) {
+  if (!state.ask) {
+    state = _.clone(state);
+    state.ask = 'MANUAL_OR_MISSING';
+    state.warning = '';
+  }
+
+  if (state.pythonValidity !== 'ugly') {
+    state = _.clone(state);
+    state.pythonValidity = 'ugly';
+  }
+
+  return state;
+}
+
+function kernelDetected(state, action) {
+  state = _.cloneDeep(state);
+
+  const pythonOptions = action.pythonOptions;
+
+  _.assign(state, action.pythonOptions);
+  state.pythonValidity = pythonOptions.cmd && pythonOptions.packages ? 'good' : 'bad';
+  delete state.ask;
+
+  return state;
+}
+
+function askQuestion(state, action) {
+  const question = action.question;
+
+  if (question) {
+    state = _.clone(state);
+    state.ask = question;
+    state.pythonTest = {};
+    state.warning = '';
+  }
+
+  return state;
+}
+
+function testingPythonCmd(state, action) {
+  state = _.clone(state);
+  state.pythonTest = {
+    cmd: action.cmd,
+    status: 'changed'
+  };
+
+  return state;
+}
+
+function testedPythonCmd(state, action) {
+  const pythonTest = state.pythonTest;
+
+  if (pythonTest && pythonTest.cmd === action.cmd) {
+    state = _.clone(state);
+    state.pythonTest = {
+      cmd: action.cmd,
+      status: action.error ? 'invalid' : 'valid'
+    };
+  }
+
+  return state;
+}
+
+function savePythonTest(state) {
+  const pythonTest = state.pythonTest;
+
+  if (pythonTest) {
+    state = _.clone(state);
+    state.pythonTest = {};
+    delete state.ask;
+  }
+
+  return state;
+}
+
+function installedPython(state) {
+  state = _.clone(state);
+  state.warning = '';
+  delete state.ask;
+
+  return state;
+}
+
+function installedPythonNotFound(state) {
+  state = _.clone(state);
+  state.warning = 'Installed Python not found';
+
+  return state;
+}
+
+export default mapReducers({
+  KERNEL_DETECTED: kernelDetected,
+  ASK_FOR_PYTHON_OPTIONS: askForPythonOptions,
+  TESTING_PYTHON_CMD: testingPythonCmd,
+  TESTED_PYTHON_CMD: testedPythonCmd,
+  SAVED_PYTHON_TEST: savePythonTest,
+  SETUP_QUESTION: askQuestion,
+  INSTALLED_PYTHON: installedPython,
+  INSTALLED_PYTHON_NOT_FOUND: installedPythonNotFound
+}, initialState);

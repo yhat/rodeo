@@ -1,5 +1,6 @@
 import React from 'react';
 import logo from './logo-rodeo-grey-text.svg';
+import './brand-splashes.css';
 
 /**
  * @class BrandSplash
@@ -9,6 +10,14 @@ import logo from './logo-rodeo-grey-text.svg';
 export default React.createClass({
   displayName: 'BrandSplash',
   render: function () {
-    return <img src={logo} />;
+    // const style = {
+    //   backgroundImage: `url(${logo})`,
+    //   backgroundRepeat: 'no-repeat',
+    //   backgroundSize: 'contain',
+    //   display: 'block',
+    //   height: '100%'
+    // };
+
+    return <img className="brand-splash" src={logo} />;
   }
 });

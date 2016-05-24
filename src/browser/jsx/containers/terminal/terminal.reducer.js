@@ -225,6 +225,7 @@ function updateFirstTerminalWithKernel(state, action) {
 
   _.assign(target, action.pythonOptions);
 
+
   return state;
 }
 
