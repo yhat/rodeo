@@ -60,7 +60,7 @@ export default connect(mapStateToProps, mapDispatchToProps)(React.createClass({
         <SlideoutDialog isExpanded={props.isExpanded} url={props.url} />
         <div className="sidebar-container">
           <div className="sidebar-top">
-            <SidebarItem onClick={_.partial(props.onShowURL, 'http://blog.yhat.com/')}>
+            <SidebarItem onClick={_.partial(props.onShowURL, 'https://www.yhat.com/ops-demo-within-rodeo')}>
               <span><img src={logoScienceOps}/></span>
               <span>{'ScienceOps'}</span>
             </SidebarItem>
