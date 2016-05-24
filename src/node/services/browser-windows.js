@@ -11,14 +11,15 @@ const _ = require('lodash'),
   availableBrowserWindowOptions = [
     'width', 'height', 'useContentSize', 'resizable', 'moveable', 'center', 'alwaysOnTop', 'show', 'frame'
   ],
-  windows = {};
+  windows = {},
+  os = require('os'),
+  homedir = os.homedir();
 
 /**
- * @param {Event} event
  * @this {BrowserWindow}
  */
-function onClose(event) {
-  log('info', 'onClose', event);
+function onClose() {
+  log('info', 'onClose');
 
   // remove reference from list of windows
   const key = _.findKey(windows, {id: this.id});
@@ -26,28 +27,11 @@ function onClose(event) {
   if (key) {
     delete windows[key];
   } else {
-    log('warn', 'unable to unreference window', this);
+    log('warn', 'unable to unreference window');
   }
 
   // remove the stuff inside it
   this.webContents.send('kill');
-}
-
-function onShow(event) {
-  log('info', 'onShow', event);
-}
-
-function onHide(event) {
-  log('info', 'onHide', event);
-}
-
-/**
- * Emitted when the navigation is done, i.e. the spinner of the tab has stopped spinning, and
- * the onload event was dispatched.
- * @param {Event} event
- */
-function onFinishLoad(event) {
-  log('info', 'onFinishLoad', event);
 }
 
 function getCommonErrors() {
@@ -66,23 +50,57 @@ function getCommonErrors() {
 }
 
 /**
- * @param {Event} event
- * @param {number} errorCode
- * @param {string} description
- * @param {string} validatedURL
  * @see https://code.google.com/p/chromium/codesearch#chromium/src/net/base/net_error_list.h
  */
-function onFailLoad(event, errorCode, description, validatedURL) {
-  const commonErrors = exports.getCommonErrors(),
-    name = _.findKey(commonErrors, {id: errorCode});
+function onFailLoad() {
+  const args = sanitizeArguments(arguments, ['event', 'code', 'description', 'url']),
+    commonErrors = exports.getCommonErrors(),
+    name = _.findKey(commonErrors, {id: args.code});
 
-  description = commonErrors[name] && commonErrors[name].description || description;
+  args.description = commonErrors[name] && commonErrors[name].description || args.description;
 
-  log('error', 'onFailLoad', event, _.pickBy({name, errorCode, description, validatedURL}, _.identity));
+  log('error', 'onFailLoad', event, _.pickBy(_.assign({name}, args), _.identity));
 }
 
-function onGetResponseDetails(event) {
-  log('info', 'onGetResponseDetails', event, _.slice(arguments, 1));
+function stripRedundantPathInformation(value) {
+  const self = '/rodeo/',
+    homeIndex = value.indexOf(homedir),
+    selfIndex = value.indexOf(self);
+
+  if (selfIndex > -1) {
+    value = value.substr(selfIndex + self.length);
+  } else if (homeIndex > -1) {
+    value = '~' + value.substr(homeIndex + homedir.length);
+  }
+
+  return value;
+}
+
+/**
+ * When a third-party is passing a billion arguments back, reporting that information can get insane fairly quickly.
+ *
+ * This method names each argument, and then tries to reduce any values that has redundant file strings.
+ * @param {Arguments} args
+ * @param {[string]} argumentNames
+ * @returns {object}
+ */
+function sanitizeArguments(args, argumentNames) {
+  return _.mapValues(_.zipObject(argumentNames, args), function (value) {
+    if (_.isString(value)) {
+      value = stripRedundantPathInformation(value);
+    }
+
+    return value;
+  });
+}
+
+function onGetResponseDetails() {
+  // ridiculous amount of arguments
+  const args = sanitizeArguments(arguments, [
+    'event', 'status', 'newURL', 'url', 'code', 'method', 'referrer', 'headers', 'type'
+  ]);
+
+  log('info', 'onGetResponseDetails', _.pick(args, ['code', 'url']));
 }
 
 function onCrashed(event) {
@@ -161,9 +179,9 @@ function create(name, options) {
 
   // default event handlers
   window.on('close', onClose);
-  window.on('show', onShow);
-  window.on('hide', onHide);
-  window.webContents.on('did-finish-load', onFinishLoad);
+  window.on('show', () => log('info', 'show'));
+  window.on('hide', () => log('info', 'show'));
+  window.webContents.on('did-finish-load', () => log('info', 'onFinishLoad'));
   window.webContents.on('did-fail-load', onFailLoad);
   window.webContents.on('did-get-response-details', onGetResponseDetails);
   window.webContents.on('crashed', onCrashed);

@@ -275,6 +275,10 @@ function getKernelClient(options) {
   optionList.sort();
   optionsKey = optionList.join('; ');
 
+  if (_.size(kernelClients) > 1) {
+    log('warn', 'more than one kernel:\n', Object.keys(kernelClients));
+  }
+
   // each set of options
   return promises.promiseOnlyOne(kernelClients, optionsKey, function () {
     let clientFactory = require('./kernels/python/client');
@@ -312,10 +316,7 @@ function onGetResult(text, kernelOptions) {
 }
 
 function onCheckKernel(kernelOptions) {
-  log('info', 'WHAT', argv);
-  const clientFactory = require('./kernels/python/client');
-
-  return clientFactory.checkPython(kernelOptions);
+  return require('./kernels/python/client').checkPython(kernelOptions);
 }
 
 function onGetAutoComplete(text, cursorPos, kernelOptions) {

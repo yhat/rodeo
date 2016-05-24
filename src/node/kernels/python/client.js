@@ -119,14 +119,13 @@ function request(client, invocation, options) {
     requestMap = client.requestMap,
     id = uuid.v4().toString(),
     inputPromise = write(childProcess, _.assign({id}, invocation)),
-    deferred = new bluebird.defer(),
     successEvent = options.successEvent,
     hidden = options.hidden;
 
-  requestMap[id] = {id, invocation, deferred, successEvent, hidden};
-
   return inputPromise.then(function () {
-    return deferred.promise;
+    return new Promise(function (resolve, reject) {
+      requestMap[id] = {id, invocation, successEvent, hidden, deferred: {resolve, reject}};
+    });
   }).finally(function () {
     // clean up reference, no matter what the result
     delete requestMap[id];
