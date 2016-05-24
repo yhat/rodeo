@@ -1,5 +1,4 @@
 import kernelActions from '../../actions/kernel';
-import applicationActions from '../../actions/application';
 import systemFacts from '../../services/system-facts';
 import {send} from '../../services/ipc';
 

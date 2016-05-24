@@ -1,5 +1,4 @@
 import _ from 'lodash';
-import cid from '../../services/cid';
 import * as store from '../../services/store';
 import mapReducers from '../../services/map-reducers';
 

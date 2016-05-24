@@ -316,6 +316,8 @@ class JupyterClient extends EventEmitter {
  * @returns {object}
  */
 function getPythonCommandOptions(options) {
+  options = resolveHomeDirectory(options);
+
   return _.assign({
     env: pythonLanguage.setDefaultEnvVars(process.env),
     stdio: ['pipe', 'pipe', 'pipe'],
@@ -376,6 +378,20 @@ function checkPython(options) {
   const targetFile = path.resolve(path.join(__dirname, 'check_python.py'));
 
   return exports.getPythonScriptResults(targetFile, options).then(JSON.parse);
+}
+
+/**
+ * @param {object} options
+ * @returns {object}  Modified options
+ */
+function resolveHomeDirectory(options) {
+  if (options && options.cmd && (_.startsWith(options.cmd, '~') || _.startsWith(options.cmd, '%HOME%'))) {
+    const home = require('os').homedir();
+
+    options.cmd = options.cmd.replace(/^~/, home).replace(/^%HOME%/, home);
+  }
+
+  return options;
 }
 
 module.exports.create = create;
