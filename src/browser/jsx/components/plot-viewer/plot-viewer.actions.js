@@ -19,10 +19,6 @@ export function openActivePlot() {
   return {type: 'OPEN_ACTIVE_PLOT'};
 }
 
-/**
- * @param {string} id
- * @returns {{type: string, id: string}}
- */
 export function focusPlot(id) {
   return {type: 'FOCUS_PLOT', id};
 }

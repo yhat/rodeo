@@ -1,5 +1,7 @@
 import _ from 'lodash';
 import {send} from './ipc';
+import store from './store';
+import client from './client';
 
 /* eslint max-params: 0 */
 export default {
@@ -18,7 +20,7 @@ export default {
       lineLengths = _.map(code.split('\n', pos.row), line => line.length + 1),
       cursorPos = _.sum(lineLengths) + pos.column;
 
-    return send('getAutoComplete', code, cursorPos).then(function (result) {
+    return client.getAutoComplete(code, cursorPos).then(function (result) {
       callback(null, _.map(result.matches, function (match) {
         let value = match;
 

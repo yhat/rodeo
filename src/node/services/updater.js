@@ -9,7 +9,7 @@ const electron = require('electron'),
  * @param {*} data
  */
 function dispatch(type, data) {
-  log('info', 'dispatch', type, arguments);
+  log('info', 'dispatch', {type, data});
   browserWindows.send('mainWindow', 'dispatch', {type, data});
 }
 
@@ -18,10 +18,7 @@ function dispatch(type, data) {
  * @returns {string}
  */
 function getUpdateUrl(currentVersion) {
-  let hostname;
-
-  // hostname = 'https://rodeo-updates.yhat.com';
-  hostname = 'http://bareback.s.yhat.com';
+  const hostname = 'http://bareback.s.yhat.com';
 
   if (process.platform === 'darwin') {
     return hostname + `/update/osx/${currentVersion}`;
@@ -55,8 +52,6 @@ function update(currentVersion) {
  * Install updates
  */
 function install() {
-  log('info', 'install');
-
   electron.autoUpdater.quitAndInstall();
 }
 

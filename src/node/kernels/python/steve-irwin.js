@@ -88,7 +88,7 @@ function setRuleSet(value) {
 /**
  * Return all paths that can run python successfully, along with the packages in each python setup
  * @param {object} facts
- * @returns {[string]}
+ * @returns {Promise}
  */
 function findPythons(facts) {
   if (!facts) {

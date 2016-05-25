@@ -103,14 +103,6 @@ function onGetResponseDetails() {
   log('info', 'onGetResponseDetails', _.pick(args, ['code', 'url']));
 }
 
-function onCrashed(event) {
-  log('error', 'onCrashed', event);
-}
-
-function onPluginCrashed(event, name, version) {
-  log('error', 'onPluginCrashed', event, {name, version});
-}
-
 function onDestroyed(event) {
   log('info', 'onDestroyed', event);
 
@@ -180,12 +172,12 @@ function create(name, options) {
   // default event handlers
   window.on('close', onClose);
   window.on('show', () => log('info', 'show'));
-  window.on('hide', () => log('info', 'show'));
+  window.on('hide', () => log('info', 'hide'));
   window.webContents.on('did-finish-load', () => log('info', 'onFinishLoad'));
   window.webContents.on('did-fail-load', onFailLoad);
   window.webContents.on('did-get-response-details', onGetResponseDetails);
-  window.webContents.on('crashed', onCrashed);
-  window.webContents.on('plugin-crashed', onPluginCrashed);
+  window.webContents.on('crashed', () => log('error', 'onCrashed'));
+  window.webContents.on('plugin-crashed', () => log('error', 'onPluginCrashed'));
   window.webContents.on('destroyed', onDestroyed);
 
   // how to log
