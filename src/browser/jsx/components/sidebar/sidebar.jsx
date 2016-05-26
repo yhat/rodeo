@@ -27,6 +27,7 @@ function mapStateToProps(state) {
  */
 function mapDispatchToProps(dispatch) {
   return {
+    onOpenURL: (url) => dispatch(actions.openURL(url)),
     onShowURL: (url) => dispatch(actions.showURL(url)),
     onShowPreferences: () => dispatch(dialogActions.showPreferences())
   };
@@ -42,6 +43,7 @@ export default connect(mapStateToProps, mapDispatchToProps)(React.createClass({
   propTypes: {
     id: React.PropTypes.string,
     isExpanded: React.PropTypes.bool,
+    onOpenURL: React.PropTypes.func,
     onShowPreferences: React.PropTypes.func,
     onShowURL: React.PropTypes.func,
     url: React.PropTypes.string
@@ -69,9 +71,17 @@ export default connect(mapStateToProps, mapDispatchToProps)(React.createClass({
               <span>{'Tutorials'}</span>
             </SidebarItem>
           </div>
-          <SidebarItem onClick={_.partial(props.onShowURL, 'http://blog.yhat.com/tutorials/index.html')}>
+          <SidebarItem onClick={_.partial(props.onOpenURL, 'http://rodeo.yhat.com/docs/')}>
             <span className="fa fa-question" />
-            <span>{'Help'}</span>
+            <span>{'Docs'}</span>
+          </SidebarItem>
+          <SidebarItem onClick={_.partial(props.onOpenURL, 'http://discuss.yhat.com/')}>
+            <span className="fa fa-users" />
+            <span>{'Feedback'}</span>
+          </SidebarItem>
+          <SidebarItem onClick={_.partial(props.onOpenURL, 'https://github.com/yhat/rodeo/')}>
+            <span className="fa fa-github" />
+            <span>{'Github'}</span>
           </SidebarItem>
           <SidebarItem onClick={props.onShowPreferences}>
             <span className="fa fa-cogs" />
