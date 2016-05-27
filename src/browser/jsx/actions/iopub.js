@@ -6,7 +6,8 @@
 
 import _ from 'lodash';
 import AsciiToHtml from 'ansi-to-html';
-import {send} from '../services/ipc';
+import store from '../services/store';
+import client from '../services/client';
 
 const convertor = new AsciiToHtml();
 
@@ -66,9 +67,10 @@ export function detectTerminalVariables() {
   return function (dispatch, getState) {
     const state = getState(),
       terminal = _.find(state.terminals, {hasFocus: true}),
-      id = terminal.id;
+      id = terminal.id,
+      pythonOptions = store.get('pythonOptions');
 
-    return send('getVariables').then(function (variables) {
+    return client.getVariables().then(function (variables) {
       return dispatch({type: 'VARIABLES_DETECTED', variables, id});
     }).catch(error => console.error(error));
   };

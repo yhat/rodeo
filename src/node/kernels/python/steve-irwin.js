@@ -29,6 +29,20 @@ let ruleSet = [
   },
   {
     when: _.overSome(_.matches({platform: 'linux'}), _.matches({platform: 'darwin'})),
+    then: {cmd: '/anaconda/bin/python', shell: '/bin/bash'}
+  },
+  {
+    when: _.overSome(_.matches({platform: 'linux'}), _.matches({platform: 'darwin'})),
+    then: function (facts) {
+      return {
+        cmd: path.join(facts.homedir, 'anaconda2/bin/python'),
+        shell: '/bin/bash',
+        label: '~/anaconda2/bin/python'
+      };
+    }
+  },
+  {
+    when: _.overSome(_.matches({platform: 'linux'}), _.matches({platform: 'darwin'})),
     then: {cmd: '/usr/bin/python', shell: '/bin/bash'}
   },
   {
@@ -42,20 +56,6 @@ let ruleSet = [
   {
     when: _.overSome(_.matches({platform: 'linux'}), _.matches({platform: 'darwin'})),
     then: {cmd: '/root/miniconda2/bin/python', shell: '/bin/bash'}
-  },
-  {
-    when: _.overSome(_.matches({platform: 'linux'}), _.matches({platform: 'darwin'})),
-    then: {cmd: '/anaconda/bin/python', shell: '/bin/bash'}
-  },
-  {
-    when: _.overSome(_.matches({platform: 'linux'}), _.matches({platform: 'darwin'})),
-    then: function (facts) {
-      return {
-        cmd: path.join(facts.homedir, 'anaconda2/bin/python'),
-        shell: '/bin/bash',
-        label: '~/anaconda2/bin/python'
-      };
-    }
   }
   // {
   //   when: _.overSome(_.matches({platform: 'linux'}), _.matches({platform: 'darwin'})),
@@ -88,7 +88,7 @@ function setRuleSet(value) {
 /**
  * Return all paths that can run python successfully, along with the packages in each python setup
  * @param {object} facts
- * @returns {[string]}
+ * @returns {Promise}
  */
 function findPythons(facts) {
   if (!facts) {

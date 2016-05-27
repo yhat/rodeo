@@ -1,6 +1,7 @@
 import kernelActions from '../../actions/kernel';
 import systemFacts from '../../services/system-facts';
 import {send} from '../../services/ipc';
+import clientDiscovery from '../../services/client-discovery';
 
 function closeWindow() {
   return function (dispatch) {
@@ -17,7 +18,7 @@ function ask(question) {
 
 function setCmd(cmd) {
   return function (dispatch) {
-    return send('checkKernel', {cmd})
+    return clientDiscovery.checkKernel({cmd})
       .then(pythonOptions => dispatch(kernelActions.kernelDetected(pythonOptions)))
       .catch(error => console.error(error));
   };
@@ -26,7 +27,7 @@ function setCmd(cmd) {
 function test(cmd) {
   return function (dispatch) {
     dispatch({type: 'TESTING_PYTHON_CMD', cmd});
-    return send('checkKernel', {cmd})
+    return clientDiscovery.checkKernel({cmd})
       .then(() => dispatch({type: 'TESTED_PYTHON_CMD', cmd}))
       .catch(error => dispatch({type: 'TESTED_PYTHON_CMD', cmd, error}));
   };
@@ -34,7 +35,7 @@ function test(cmd) {
 
 function saveTest(cmd) {
   return function (dispatch) {
-    return send('checkKernel', {cmd})
+    return clientDiscovery.checkKernel({cmd})
       .then(pythonOptions => dispatch(kernelActions.kernelDetected(pythonOptions)))
       .then(() => dispatch({type: 'SAVED_PYTHON_TEST'}))
       .catch(error => console.error(error));

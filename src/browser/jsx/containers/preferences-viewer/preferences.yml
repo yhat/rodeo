@@ -36,6 +36,8 @@
         type: "text"
         valid:
           - isPython
+        change:
+          - 'restartPython'
       -
         key: "environmentVariables"
         label: "Environment Variables"

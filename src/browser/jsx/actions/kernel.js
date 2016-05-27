@@ -8,6 +8,8 @@ import ace from 'ace';
 import { send } from '../services/ipc';
 import * as store from '../services/store';
 import systemFacts from '../services/system-facts';
+import client from '../services/client';
+import clientDiscovery from '../services/client-discovery';
 
 export function interrupt() {
   return function (dispatch) {
@@ -54,7 +56,7 @@ export function detectKernel() {
 
     if (pythonOptions) {
       // verify anyway
-      promise = send('checkKernel', pythonOptions)
+      promise = clientDiscovery.checkKernel(pythonOptions)
         .catch(() => systemFacts.getFreshPythonOptions());
     } else {
       // get them
@@ -76,13 +78,11 @@ export function executeActiveFileInActiveConsole() {
       filename = focusedAce.filename,
       focusedTerminal = state && _.find(state.terminals, {hasFocus: true}),
       id = focusedTerminal.id,
-      shell = focusedTerminal.shell,
-      cmd = focusedTerminal.cmd,
       content = aceInstance && aceInstance.getSession().getValue();
 
     dispatch({type: 'EXECUTING', filename, id});
 
-    return send('execute', content, {cmd, shell})
+    return client.execute(content)
       .then(() => dispatch({type: 'EXECUTED', id}))
       .catch(error => console.error(error));
   };
@@ -91,19 +91,24 @@ export function executeActiveFileInActiveConsole() {
 export function execute(text, id) {
   return function (dispatch, getState) {
     const state = getState(),
-      terminal = state && _.find(state.terminals, {id}),
-      shell =  terminal && terminal.shell,
-      cmd = terminal && terminal.cmd;
+      terminal = state && _.find(state.terminals, {id});
 
     if (terminal) {
       dispatch({type: 'EXECUTING', text, id});
 
-      return send('execute', text, {cmd, shell})
+      return client.execute(text)
         .then(() => dispatch({type: 'EXECUTED', text, id}))
         .catch(error => console.error(error));
     } else {
       console.error(new Error('No terminal with id ' + id));
     }
+  };
+}
+
+export function restart() {
+  return function () {
+    console.log('restarting python');
+    return client.restartInstance();
   };
 }
 
@@ -115,5 +120,6 @@ export default {
   isBusy,
   isIdle,
   interrupt,
-  kernelDetected
+  kernelDetected,
+  restart
 };

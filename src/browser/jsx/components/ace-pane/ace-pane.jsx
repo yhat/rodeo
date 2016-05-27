@@ -4,7 +4,8 @@ import ace from 'ace';
 import './ace-pane.less';
 import _ from 'lodash';
 import { send } from '../../services/ipc';
-import pythonCompleter from '../../services/python-completer';
+import aceShortcuts from '../../services/ace-shortcuts';
+import aceSettings from '../../services/ace-settings';
 
 /**
  * @class AcePane
@@ -21,7 +22,9 @@ export default React.createClass({
     id: React.PropTypes.string,
     keyBindings: React.PropTypes.string,
     mode: React.PropTypes.string,
-    onExecute: React.PropTypes.func,
+    onExecuteFile: React.PropTypes.func,
+    onExecuteLine: React.PropTypes.func,
+    onExecuteSelection: React.PropTypes.func,
     onLoadError: React.PropTypes.func,
     onLoaded: React.PropTypes.func,
     onLoading: React.PropTypes.func,
@@ -57,7 +60,7 @@ export default React.createClass({
       theme: 'chrome',
       mode: 'python',
       readOnly: false,
-      onExecute: _.noop,
+      onExecuteFile: _.noop,
       onLoading: _.noop,
       onLoaded: _.noop,
       onLoadError: _.noop,
@@ -68,106 +71,38 @@ export default React.createClass({
   componentDidMount: function () {
     const props = this.props,
       instance = ace.edit(ReactDOM.findDOMNode(this));
-    let session, langTools, Autocomplete;
 
-    Autocomplete = ace.require('ace/autocomplete').Autocomplete;
-    instance.completer = new Autocomplete(instance);
-
-    langTools = ace.require('ace/ext/language_tools');
-    /*
-     These are available, you know.
-
-     exports.textCompleter = textCompleter;
-     exports.keyWordCompleter = keyWordCompleter;
-     exports.snippetCompleter = snippetCompleter;
-     */
-    langTools.setCompleters([]);
-    langTools.addCompleter(pythonCompleter);
-
-    instance.setKeyboardHandler(props.keyBindings === 'default' ? null : props.keyBindings);
-    instance.setTheme('ace/theme/' + props.theme);
-    instance.setFontSize(props.fontSize);
-    instance.setHighlightActiveLine(props.highlightLine);
-    instance.setReadOnly(props.readOnly);
-    session = instance.getSession();
-    session.setTabSize(props.tabSize);
-    session.setMode('ace/mode/' + props.mode);
-    instance.setOptions({
-      useSoftTabs: true,
-      showPrintMargin: false,
-      enableBasicAutocompletion: true,
-      enableSnippets: false,
-      enableLiveAutocompletion: true
-    });
-    instance.$blockScrolling = Infinity;
-    instance.textInput.getElement().disabled = props.disabled;
+    aceSettings.applyStaticSettings(instance);
+    aceSettings.applyDynamicSettings(instance, props);
 
     // indent selection
-    instance.commands.addCommand({
-      name: 'indentSelection',
-      bindKey: {win: 'ctrl-\]', mac: 'Command-\]'},
-      exec: function (editor) {
-        if (editor.getSelectedText()) {
-          editor.blockIndent(editor.getSelectionRange());
-        } else {
-          editor.blockIndent(editor.getCursorPosition().row);
-        }
-      }
-    });
-
-    // outdent selection
-    instance.commands.addCommand({
-      name: 'outSelection',
-      bindKey: {win: 'ctrl-\[', mac: 'Command-\['},
-      exec: function (editor) {
-        if (editor.getSelectedText()) {
-          editor.blockOutdent(editor.getSelectionRange());
-        } else {
-          editor.blockOutdent(editor.getCursorPosition().row);
-        }
-      }
-    });
-
-    instance.commands.addCommand({
-      name: 'saveFile',
-      bindKey: {win: 'ctrl-s', mac: 'Command-s'},
-      exec: editor => props.onSave(editor)
-    });
-
-    instance.commands.addCommand({
-      name: 'autocomplete',
-      bindKey: {win: 'Tab', mac: 'Tab'},
-      exec: function (editor) {
-        const pos = editor.getCursorPosition(),
-          text = editor.session.getTextRange({
-            start: {
-              row: pos.row,
-              column: pos.column - 1
-            },
-            end: {
-              row: pos.row,
-              column: pos.column
-            }
-          }),
-          line = editor.session.getLine(editor.getCursorPosition().row);
-
-        if (/from /.test(line) || /import /.test(line) || (text != ' ' && text != '')) {
-          Autocomplete.startCommand.exec(editor);
-        } else {
-          editor.insert('  ');
-        }
-      }
-    });
-
-    instance.commands.addCommand({
-      name: 'sendCommand',
-      bindKey: {win: 'ctrl-Enter', mac: 'Command-Enter'},
-      exec: this.props.onExecute
-    });
+    aceShortcuts.indent(instance);
+    aceShortcuts.outdent(instance);
+    aceShortcuts.saveFile(instance, props.onSave);
+    aceShortcuts.autocomplete(instance, props.tabSize);
+    aceShortcuts.sendCommand(instance, props.onExecuteFile);
 
     _.defer(() => instance.resize());
 
     // if filename, load filename into instance
+    this.loadContentFromFile();
+  },
+  componentDidUpdate: function (oldProps) {
+    const props = this.props,
+      instance = ace.edit(ReactDOM.findDOMNode(this));
+
+    aceSettings.applyDynamicSettings(instance, props, oldProps);
+  },
+  focus: function () {
+    const instance = ace.edit(ReactDOM.findDOMNode(this));
+
+    _.defer(() =>instance.focus());
+  },
+  loadContentFromFile: function () {
+    const props = this.props,
+      instance = ace.edit(ReactDOM.findDOMNode(this)),
+      session = instance.getSession();
+
     if (props.filename) {
       props.onLoading();
       send('getFile', props.filename).then(function (content) {
@@ -177,38 +112,6 @@ export default React.createClass({
         props.onLoadError(error);
       });
     }
-  },
-  componentDidUpdate: function (oldProps) {
-    const props = this.props,
-      instance = ace.edit(ReactDOM.findDOMNode(this));
-
-    // if font size has changed
-    if (props.fontSize !== oldProps.fontSize) {
-      instance.setFontSize(props.fontSize);
-    }
-
-    if (props.tabSize !== oldProps.tabSize) {
-      instance.getSession().setTabSize(props.tabSize);
-    }
-
-    if (props.highlightLine !== oldProps.highlightLine) {
-      instance.setHighlightActiveLine(props.highlightLine);
-    }
-
-    if (props.readOnly !== oldProps.readOnly) {
-      instance.setReadOnly(props.disabled || props.readOnly);
-    }
-
-    if (props.disabled !== oldProps.disabled) {
-      instance.textInput.getElement().disabled = props.disabled;
-    }
-  },
-  focus: function () {
-    const instance = ace.edit(ReactDOM.findDOMNode(this));
-
-    _.defer(function () {
-      instance.focus();
-    });
   },
   render: function () {
     return (
