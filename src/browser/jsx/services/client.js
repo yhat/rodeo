@@ -11,17 +11,56 @@ let instancePromise;
  * @returns {Promise}
  */
 function createInstance(options) {
-  options = options || store.get('pythonOptions');
-  options = _.pick(options, ['cmd', 'cwd']);
+  let promise,
+    cmd = store.get('pythonCmd'),
+    cwd = store.get('workingDirectory'),
+    pythonOptions = store.get('pythonOptions');
 
-  return send('createKernelInstance', options).then(function (instanceId) {
+  options = _.defaults(options || {}, {cmd, cwd}, pythonOptions);
+
+  options = _.pickBy(_.pick(options, ['cmd', 'cwd']), _.identity);
+
+  if (!options.cmd) {
+    throw new Error('Cannot create python instance, missing cmd');
+  }
+
+  // they should kill first if they want a new one
+  if (instancePromise) {
+    return instancePromise;
+  }
+
+  promise = send('createKernelInstance', options).then(function (instanceId) {
     return {instanceId};
   });
+
+  // save results as immutable promise
+  instancePromise = promise;
+
+  return promise;
+}
+
+/**
+ * This is run before every active function call
+ * @returns {Promise}
+ */
+function guaranteeInstance() {
+  if (!instancePromise) {
+    instancePromise = createInstance();
+  }
+
+  return instancePromise;
 }
 
 function killInstance(instance) {
   return send('killKernelInstance', instance.instanceId).then(function () {
     instancePromise = false;
+  });
+}
+
+function restartInstance(instance) {
+  return send('killKernelInstance', instance.instanceId).then(function () {
+    instancePromise = false;
+    return createInstance();
   });
 }
 
@@ -53,18 +92,6 @@ function getVariables(instance) {
 }
 
 /**
- * This is run before every active function call
- * @returns {Promise}
- */
-function guaranteeInstance() {
-  if (!instancePromise) {
-    instancePromise = createInstance(store.get('pythonOptions'));
-  }
-
-  return instancePromise;
-}
-
-/**
  * Guarantee that an instance is created before we ever run anything.
  *
  * If it is ever deleted, guarantee a new one is created.
@@ -73,7 +100,8 @@ export default _.mapValues({
   execute,
   getAutoComplete,
   getVariables,
-  killInstance
+  killInstance,
+  restartInstance
 }, function (fn) {
   return function () {
     let args = _.toArray(arguments);

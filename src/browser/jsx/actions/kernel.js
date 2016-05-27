@@ -105,6 +105,13 @@ export function execute(text, id) {
   };
 }
 
+export function restart() {
+  return function () {
+    console.log('restarting python');
+    return client.restartInstance();
+  };
+}
+
 export default {
   askForPythonOptions,
   detectKernel,
@@ -113,5 +120,6 @@ export default {
   isBusy,
   isIdle,
   interrupt,
-  kernelDetected
+  kernelDetected,
+  restart
 };

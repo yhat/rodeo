@@ -60,7 +60,7 @@ export default React.createClass({
       theme: 'chrome',
       mode: 'python',
       readOnly: false,
-      onExecute: _.noop,
+      onExecuteFile: _.noop,
       onLoading: _.noop,
       onLoaded: _.noop,
       onLoadError: _.noop,
@@ -80,7 +80,7 @@ export default React.createClass({
     aceShortcuts.outdent(instance);
     aceShortcuts.saveFile(instance, props.onSave);
     aceShortcuts.autocomplete(instance, props.tabSize);
-    aceShortcuts.sendCommand(instance, props.onExecute);
+    aceShortcuts.sendCommand(instance, props.onExecuteFile);
 
     _.defer(() => instance.resize());
 
