@@ -9,5 +9,5 @@ BETA.md
 
 app
 dist
-build
+/build
 node_modules
