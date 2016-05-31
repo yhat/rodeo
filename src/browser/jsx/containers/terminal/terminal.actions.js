@@ -5,12 +5,42 @@ import store from '../../services/store';
 import cid from '../../services/cid';
 import AsciiToHtml from 'ansi-to-html';
 import {errorCaught} from '../../actions/application';
-const convertor = new AsciiToHtml();
+const convertor = new AsciiToHtml(),
+  inputBuffer = [];
 
 function getJQConsole(id) {
   const el = document.querySelector('#' + id);
 
   return el && $(el).data('jqconsole');
+}
+
+function startPrompt(jqConsole) {
+  return function (dispatch) {
+    const nextPrompt = () => _.defer(() => dispatch(startPrompt(jqConsole)));
+
+    jqConsole.Prompt(true, (input) => dispatch(execute(input, nextPrompt)));
+
+    _.defer(() => {
+      if (inputBuffer.length && jqConsole.GetState() === 'prompt') {
+        console.log('running buffer', _.map(inputBuffer, 'text'));
+        dispatch(addInputText(inputBuffer.shift()));
+      }
+    });
+  };
+}
+
+function execute(cmd, done) {
+  return function (dispatch) {
+    dispatch({type: 'TERMINAL_EXECUTING'});
+    return client.execute(cmd)
+      .then(function () {
+        return dispatch({type: 'TERMINAL_EXECUTED'});
+      })
+      .catch(function (error) {
+        return dispatch(errorCaught(error));
+      })
+      .nodeify(done);
+  };
 }
 
 function addInputText(context) {
@@ -19,22 +49,33 @@ function addInputText(context) {
       terminal = _.head(state.terminals),
       jqConsole = getJQConsole(terminal.id),
       text = context.text,
-      fullText = jqConsole.GetPromptText() + text;
+      consoleState = jqConsole.GetState();
 
-    // execute if able
-    if (context.isCodeComplete) {
-      jqConsole.SetPromptText(fullText);
-      jqConsole.Write(jqConsole.GetPromptText(true) + '\n');
-      jqConsole.ClearPromptText();
-      jqConsole.SetHistory(jqConsole.GetHistory().concat([fullText]));
-      return client.execute(fullText)
-        .catch(error => dispatch(errorCaught(error)));
+
+    // if a prompt is waiting for this input
+    if (consoleState === 'prompt') {
+      const fullText = jqConsole.GetPromptText() + text;
+
+      // execute if able
+      if (context.isCodeComplete) {
+        // pretend to run from the prompt: kill the prompt, run the code, start the prompt, lie
+        jqConsole.SetPromptText(fullText);
+        jqConsole.Write(fullText + '\n');
+        jqConsole.AbortPrompt();
+        jqConsole.SetHistory(jqConsole.GetHistory().concat([fullText]));
+        return client.execute(fullText)
+          .catch(error => dispatch(errorCaught(error)))
+          .then(() => _.defer(() => {
+            dispatch(startPrompt(jqConsole));
+          }));
+      } else {
+        jqConsole.ClearPromptText();
+        jqConsole.SetPromptText(fullText + '\n');
+      }
     } else {
-      jqConsole.ClearPromptText();
-      jqConsole.SetPromptText(fullText + '\n');
+      // buffer the command for when they're done
+      inputBuffer.push(context);
     }
-
-    return {type: 'TERMINAL_INPUT_TEXT_ADDED'};
   };
 }
 
@@ -132,20 +173,11 @@ function addDisplayData(data) {
   };
 }
 
-function execute(cmd, id, done) {
-  return function (dispatch) {
-    return client.execute(cmd)
-      .catch(function (error) {
-        dispatch(errorCaught(error));
-      })
-      .nodeify(done);
-  };
-}
-
 export default {
   addDisplayData,
   addInputText,
   addErrorText,
   addOutputText,
-  execute
+  execute,
+  startPrompt
 };

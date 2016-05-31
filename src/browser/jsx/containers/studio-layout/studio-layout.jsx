@@ -46,7 +46,7 @@ function mapStateToProps(state) {
 function mapDispatchToProps(dispatch) {
   return {
     onAddAcePane: () => dispatch(acePaneActions.addFile()),
-    onCommand: (text, id, done) => dispatch(terminalActions.execute(text, id, done)),
+    onTerminalStart: (jqConsole) => dispatch(terminalActions.startPrompt(jqConsole)),
     onFocusAcePane: (id) => dispatch(acePaneActions.focusFile(id)),
     onLiftText: (text, context) => dispatch(terminalActions.addInputText(context)),
     onOpenPreferences: () => dispatch(dialogActions.showPreferences()),
@@ -180,7 +180,7 @@ export default connect(mapStateToProps, mapDispatchToProps)(React.createClass({
             {props.terminals.map(function (item) {
               return (
                 <TabbedPaneItem icon="terminal" id={item.tabId} key={item.id} label="Console">
-                  <Terminal key={item.id} onCommand={props.onCommand} {...item} />
+                  <Terminal key={item.id} onStart={props.onTerminalStart} {...item} />
                 </TabbedPaneItem>
               );
             })}
