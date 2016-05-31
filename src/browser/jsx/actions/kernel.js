@@ -31,10 +31,15 @@ export function isIdle() {
 
 export function kernelDetected(pythonOptions) {
   // change executable to cmd
-  pythonOptions.cmd = pythonOptions.executable;
+  pythonOptions.cmd = pythonOptions.cmd || pythonOptions.executable;
   delete pythonOptions.executable;
 
   // save over previous settings
+  if (!pythonOptions.cmd) {
+    debugger;
+    throw new Error('WOAH!');
+  }
+
   store.set('pythonOptions', pythonOptions);
   store.set('pythonCmd', pythonOptions.cmd);
   return {type: 'KERNEL_DETECTED', pythonOptions};
