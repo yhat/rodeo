@@ -15,10 +15,10 @@ import SearchTextBox from '../../components/search-text-box/search-text-box.jsx'
 import './studio-layout.css';
 import _ from 'lodash';
 import { getParentNodeOf } from '../../services/dom';
-import kernelActions from '../../actions/kernel';
 import splitPaneActions from '../../components/split-pane/split-pane.actions';
 import acePaneActions from '../../components/ace-pane/ace-pane.actions';
 import dialogActions from '../../actions/dialogs';
+import terminalActions from '../terminal/terminal.actions';
 
 /**
  * @param {Element} el
@@ -46,12 +46,13 @@ function mapStateToProps(state) {
 function mapDispatchToProps(dispatch) {
   return {
     onAddAcePane: () => dispatch(acePaneActions.addFile()),
+    onTerminalStart: (jqConsole) => dispatch(terminalActions.startPrompt(jqConsole)),
     onFocusAcePane: (id) => dispatch(acePaneActions.focusFile(id)),
+    onLiftText: (text, context) => dispatch(terminalActions.addInputText(context)),
+    onOpenPreferences: () => dispatch(dialogActions.showPreferences()),
     onRemoveAcePane: (id) => dispatch(acePaneActions.closeFile(id)),
-    onRunActiveAcePane: () => dispatch(kernelActions.executeActiveFileInActiveConsole()),
-    onSplitPaneDrag: () => dispatch(splitPaneActions.splitPaneDrag()),
-    onCommand: (text, id) => dispatch(kernelActions.execute(text, id)),
-    onRodeo: () => dispatch(dialogActions.showAboutRodeo())
+    onRodeo: () => dispatch(dialogActions.showAboutRodeo()),
+    onSplitPaneDrag: () => dispatch(splitPaneActions.splitPaneDrag())
   };
 }
 
@@ -62,14 +63,6 @@ function mapDispatchToProps(dispatch) {
  */
 export default connect(mapStateToProps, mapDispatchToProps)(React.createClass({
   displayName: 'StudioLayout',
-  propTypes: {
-    onAddAcePane: React.PropTypes.func,
-    onCommand: React.PropTypes.func,
-    onFocusAcePane: React.PropTypes.func,
-    onRemoveAcePane: React.PropTypes.func,
-    onRodeo: React.PropTypes.func,
-    onSplitPaneDrag: React.PropTypes.func
-  },
   getInitialState: function () {
     return {
       topRightSearch: '',
@@ -142,29 +135,6 @@ export default connect(mapStateToProps, mapDispatchToProps)(React.createClass({
       props = this.props,
       isFocusable = !props.modalDialogs.length;
 
-    acePanes = this.props.acePanes.map(function (item) {
-      return (
-        <TabbedPaneItem hasFocus={item.hasFocus} icon={item.icon} id={item.tabId} isCloseable key={item.id} label={item.label}>
-          <AcePane
-            disabled={!isFocusable}
-            key={item.id}
-            onExecuteFile={props.onRunActiveAcePane}
-            onExecuteLine={props.onRunActiveAcePane}
-            onExecuteSelection={props.onRunActiveAcePane}
-            {...item}
-          />
-        </TabbedPaneItem>
-      );
-    });
-
-    terminals = this.props.terminals.map(function (item) {
-      return (
-        <TabbedPaneItem icon="terminal" id={item.tabId} key={item.id} label="Console">
-          <Terminal key={item.id} onCommand={props.onCommand} {...item} />
-        </TabbedPaneItem>
-      );
-    });
-
     return (
       <SplitPane direction="left-right" id="split-pane-center">
         <SplitPane direction="top-bottom" id="split-pane-left" onDrag={props.onSplitPaneDrag}>
@@ -190,12 +160,30 @@ export default connect(mapStateToProps, mapDispatchToProps)(React.createClass({
               </a>
             </li>
 
-            {acePanes}
+            {props.acePanes.map(function (item) {
+              return (
+                <TabbedPaneItem hasFocus={item.hasFocus} icon={item.icon} id={item.tabId} isCloseable key={item.id} label={item.label}>
+                  <AcePane
+                    disabled={!isFocusable}
+                    key={item.id}
+                    onLiftSelection={props.onLiftText}
+                    onOpenPreferences={props.onOpenPreferences}
+                    {...item}
+                  />
+                </TabbedPaneItem>
+              );
+            })}
 
           </TabbedPane>
           <TabbedPane focusable={isFocusable}>
 
-            {terminals}
+            {props.terminals.map(function (item) {
+              return (
+                <TabbedPaneItem icon="terminal" id={item.tabId} key={item.id} label="Console">
+                  <Terminal key={item.id} onStart={props.onTerminalStart} {...item} />
+                </TabbedPaneItem>
+              );
+            })}
 
           </TabbedPane>
         </SplitPane>

@@ -8,6 +8,16 @@ import modalDialogs from './components/modal-dialog/modal-dialog.reducer';
 import sidebar from './components/sidebar/sidebar.reducer';
 import notifications from './components/notifications/notifications.reducer';
 
+function broadcast(state, action) {
+  console.log(action.type, action);
+
+  if (!state) {
+    return {};
+  }
+
+  return state;
+}
+
 /**
  * This is the global application state.  Each item here is a slice that is managed by particular reducer.
  *
@@ -55,5 +65,6 @@ export default combineReducers({
    * singleton! Only one sidebar should be active at a time, and if a new one wants to open, it should replace
    * the old one.
    */
-  sidebar
+  sidebar,
+  broadcast
 });

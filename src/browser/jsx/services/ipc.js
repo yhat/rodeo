@@ -1,5 +1,6 @@
 /* eslint no-console: 0 */
 import { ipcRenderer } from 'electron';
+import Promise from 'bluebird';
 
 let cid = (function () {
   let i = 0;

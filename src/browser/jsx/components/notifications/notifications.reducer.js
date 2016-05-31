@@ -64,7 +64,7 @@ export default mapReducers({
   ADD_NOTIFICATION: add,
   CLOSE_NOTIFICATION: close,
   CLOSE_ALL_NOTIFICATIONS: closeAll,
-  AUTO_UPDATE_DOWNLOADED: showUpdateDownloaded,
-  AUTO_UPDATE_ERROR: showStaticMessage('Auto Update Error!'),
-  AUTO_UPDATE_NOT_AVAILABLE: showStaticMessage('Rodeo is current version!')
+  AUTO_UPDATE_DOWNLOADED: showUpdateDownloaded
+  // AUTO_UPDATE_ERROR: showStaticMessage('Auto Update Error!'),
+  // AUTO_UPDATE_NOT_AVAILABLE: showStaticMessage('Rodeo is current version!')
 }, initialState);

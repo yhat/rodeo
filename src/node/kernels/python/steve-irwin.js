@@ -25,11 +25,13 @@ let ruleSet = [
   // },
   {
     when: _.overSome(_.matches({platform: 'linux'}), _.matches({platform: 'darwin'})),
-    then: {cmd: 'python', shell: '/bin/bash'}
-  },
-  {
-    when: _.overSome(_.matches({platform: 'linux'}), _.matches({platform: 'darwin'})),
-    then: {cmd: '/anaconda/bin/python', shell: '/bin/bash'}
+    then: function (facts) {
+      return {
+        cmd: path.join(facts.homedir, 'anaconda/bin/python'),
+        shell: '/bin/bash',
+        label: '~/anaconda/bin/python'
+      };
+    }
   },
   {
     when: _.overSome(_.matches({platform: 'linux'}), _.matches({platform: 'darwin'})),
@@ -40,6 +42,20 @@ let ruleSet = [
         label: '~/anaconda2/bin/python'
       };
     }
+  },
+  {
+    when: _.overSome(_.matches({platform: 'linux'}), _.matches({platform: 'darwin'})),
+    then: function (facts) {
+      return {
+        cmd: path.join(facts.homedir, 'anaconda3/bin/python'),
+        shell: '/bin/bash',
+        label: '~/anaconda3/bin/python'
+      };
+    }
+  },
+  {
+    when: _.overSome(_.matches({platform: 'linux'}), _.matches({platform: 'darwin'})),
+    then: {cmd: 'python', shell: '/bin/bash'}
   },
   {
     when: _.overSome(_.matches({platform: 'linux'}), _.matches({platform: 'darwin'})),

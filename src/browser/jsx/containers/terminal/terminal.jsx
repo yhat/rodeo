@@ -2,7 +2,7 @@ import $ from 'jquery';
 import _ from 'lodash';
 import React from 'react';
 import ReactDOM from 'react-dom';
-import './lib/jqconsole.min.js';
+import './lib/jqconsole.js';
 
 let message = `
 IPython -- An enhanced Interactive Python.
@@ -25,7 +25,7 @@ export default React.createClass({
     indentWidth: React.PropTypes.number,
     message: React.PropTypes.string,
     onAutoComplete: React.PropTypes.func,
-    onCommand: React.PropTypes.func
+    onStart: React.PropTypes.func
   },
   getDefaultProps: function () {
     return {
@@ -33,12 +33,13 @@ export default React.createClass({
       indentWidth: 4,
       message: message,
       onAutoComplete: _.noop,
-      onCommand: _.noop
+      onStart: _.noop
     };
   },
   componentDidMount: function () {
     const props = this.props,
-      jqConsole = $(ReactDOM.findDOMNode(this)).jqconsole(props.message, '>>> ');
+      disableAutoFocus = true, // don't steal focus from other hard-working components
+      jqConsole = $(ReactDOM.findDOMNode(this)).jqconsole(props.message, '>>> ', '... ', disableAutoFocus);
 
     jqConsole.SetIndentWidth(this.props.indentWidth);
 
@@ -56,34 +57,11 @@ export default React.createClass({
 
         code = code.slice(0, jqConsole.GetColumn() - 4);
         jqConsole.ClearPromptText(true);
-        onAutoComplete(code); // ???
-
-        // executeCommand(code, true, handleExecuteCommand(originalPrompt, code));
+        onAutoComplete(code);
       }
     };
 
-    this.jqConsole = jqConsole;
-    this.startPrompt();
-  },
-  startPrompt: function () {
-    const jqConsole = this.jqConsole,
-      props = this.props,
-      id = props.id,
-      nextPrompt = () => _.defer(this.startPrompt);
-
-    jqConsole.Prompt(true, (input) => {
-      let result = props.onCommand(input, id);
-
-      if (result && _.isFunction(result.then)) {
-        return result.then(nextPrompt)
-          .catch(function (error) {
-            console.error(error);
-            nextPrompt();
-          });
-      } else {
-        nextPrompt();
-      }
-    });
+    props.onStart(jqConsole);
   },
   render: function () {
     const style = {

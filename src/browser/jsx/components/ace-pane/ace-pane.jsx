@@ -22,12 +22,11 @@ export default React.createClass({
     id: React.PropTypes.string,
     keyBindings: React.PropTypes.string,
     mode: React.PropTypes.string,
-    onExecuteFile: React.PropTypes.func,
-    onExecuteLine: React.PropTypes.func,
-    onExecuteSelection: React.PropTypes.func,
+    onLiftSelection: React.PropTypes.func,
     onLoadError: React.PropTypes.func,
     onLoaded: React.PropTypes.func,
     onLoading: React.PropTypes.func,
+    onOpenPreferences: React.PropTypes.func,
     onSave: React.PropTypes.func,
     tabSize: React.PropTypes.number,
     theme: React.PropTypes.string
@@ -60,7 +59,8 @@ export default React.createClass({
       theme: 'chrome',
       mode: 'python',
       readOnly: false,
-      onExecuteFile: _.noop,
+
+      onLiftSelection: _.noop,
       onLoading: _.noop,
       onLoaded: _.noop,
       onLoadError: _.noop,
@@ -80,7 +80,8 @@ export default React.createClass({
     aceShortcuts.outdent(instance);
     aceShortcuts.saveFile(instance, props.onSave);
     aceShortcuts.autocomplete(instance, props.tabSize);
-    aceShortcuts.sendCommand(instance, props.onExecuteFile);
+    aceShortcuts.liftSelection(instance, props.onLiftSelection);
+    aceShortcuts.openPreferences(instance, props.onOpenPreferences);
 
     _.defer(() => instance.resize());
 
