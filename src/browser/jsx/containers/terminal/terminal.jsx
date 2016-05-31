@@ -71,19 +71,7 @@ export default React.createClass({
       id = props.id,
       nextPrompt = () => _.defer(this.startPrompt);
 
-    jqConsole.Prompt(true, (input) => {
-      let result = props.onCommand(input, id);
-
-      if (result && _.isFunction(result.then)) {
-        return result.then(nextPrompt)
-          .catch(function (error) {
-            console.error(error);
-            nextPrompt();
-          });
-      } else {
-        nextPrompt();
-      }
-    });
+    jqConsole.Prompt(true, (input) => props.onCommand(input, id, nextPrompt));
   },
   render: function () {
     const style = {

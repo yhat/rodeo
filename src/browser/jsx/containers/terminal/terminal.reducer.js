@@ -53,12 +53,6 @@ function getDefault() {
   };
 }
 
-function getTerminalConsole(action) {
-  const el = document.querySelector('#' + action.id);
-
-  return el && $(el).data('jqconsole');
-}
-
 /**
  * Update the terminal with idle/busy
  * @param {[TerminalState]} state
@@ -77,19 +71,17 @@ function setTerminalState(state, action) {
 }
 
 /**
- * Update the terminal with executed input
+ * Update the terminal with executed input.
+ *
+ * This is code that supposedly ran.
+ *
  * @param {[TerminalState]} state
  * @param {object} action
  * @returns {[TerminalState]}
  */
-function addTerminalExecutedInput(state, action) {
-  const jqconsole = getTerminalConsole(action),
-    historyMaxSetting = store.get('terminalHistory'),
+function executedInput(state, action) {
+  const historyMaxSetting = store.get('terminalHistory'),
     historyMax = historyMaxSetting === null ? 5 : historyMaxSetting;
-
-  if (store.get('terminalShowExecutedInput')) {
-    jqconsole.Write(action.code + '\n');
-  }
 
   if (historyMax > 0 && _.isString(action.code) && action.code.trim().length > 0) {
     state = _.clone(state);
@@ -105,113 +97,24 @@ function addTerminalExecutedInput(state, action) {
   return state;
 }
 
-/**
- * Update the terminal with text
- * @param {[TerminalState]} state
- * @param {object} action
- * @returns {[TerminalState]}
- */
-function addTerminalText(state, action) {
-  const jqconsole = getTerminalConsole(action);
-
-  jqconsole.Write(action.text + '\n', 'jqconsole-output');
-
-  return state;
-}
-
-/**
- * @param {object} jqconsole
- * @param {object} data
- */
-function appendIFrame(jqconsole, data) {
-  let iframeId = cid(),
-    str = `<iframe style="resize: vertical; width: 100%" seamless id="${iframeId}" src="${data['text/html']}" sandbox="allow-scripts"></iframe>`;
-
-  jqconsole.Append(str);
-  jqconsole.Write('\n');
-}
-
-/**
- * @param {object} jqconsole
- * @param {object} data
- */
-function appendPNG(jqconsole, data) {
-  const src = data['image/png'];
-
-  jqconsole.Append(`<img src="${src}">`);
-  jqconsole.Write('\n');
-}
-
-/**
- * @param {object} jqconsole
- * @param {object} data
- */
-function appendSVG(jqconsole, data) {
-  const src = data['image/svg'];
-
-  jqconsole.Append(`<img src="${src}">`);
-  jqconsole.Write('\n');
-}
-
-/**
- * Update the terminal with display data
- * @param {[TerminalState]} state
- * @param {object} action
- * @returns {[TerminalState]}
- */
-function addTerminalDisplayData(state, action) {
-  const jqconsole = getTerminalConsole(action),
-    data = action.data;
-
-  if (data['text/html']) {
-    if (store.get('allowIFrameInTerminal')) {
-      appendIFrame(jqconsole, data);
-    }
-  } else if (data['image/png']) {
-    appendPNG(jqconsole, data);
-    // do nothing at the moment
-  } else if (data['image/svg']) {
-    appendSVG(jqconsole, data);
-  } else {
-    console.warn('addTerminalDisplayData', 'unknown data type', data);
-  }
-
-  return state;
-}
-
-/**
- * Update the terminal with display data
- * @param {[TerminalState]} state
- * @param {object} action
- * @returns {[TerminalState]}
- */
-function addTerminalResult(state, action) {
-  const jqconsole = getTerminalConsole(action),
-    data = action.data;
-
-  if (data['text/plain']) {
-    jqconsole.Write(data['text/plain'] + '\n', 'jqconsole-output');
-  } else {
-    console.warn('addTerminalResult', 'unknown data type', data);
-  }
-
-  return state;
-}
-
-/**
- * Update the terminal with display data
- * @param {[TerminalState]} state
- * @param {object} action
- * @returns {[TerminalState]}
- */
-function addTerminalError(state, action) {
-  const jqconsole = getTerminalConsole(action),
-    htmlEscape = false;
-
-  jqconsole.Write(action.traceback + '\n', 'jqconsole-output', htmlEscape);
-
-  return state;
-}
+// /**
+//  * Update the terminal with display data
+//  * @param {[TerminalState]} state
+//  * @param {object} action
+//  * @returns {[TerminalState]}
+//  */
+// function addTerminalResult(state, action) {
+//   const jqconsole = getTerminalConsole(action),
+//     data = action.data;
+//
+//   if (data['text/plain']) {
+//     jqconsole.Write(data['text/plain'] + '\n', 'jqconsole-output');
+//   } else {
+//     console.warn('addTerminalResult', 'unknown data type', data);
+//   }
+//
+//   return state;
+// }
 
 /**
  * Update the terminal with the new python options
@@ -224,7 +127,6 @@ function updateFirstTerminalWithKernel(state, action) {
   let target = state.length ? state[0] : getDefault();
 
   _.assign(target, action.pythonOptions);
-
 
   return state;
 }
@@ -274,11 +176,7 @@ function changePreference(state, action) {
 
 export default mapReducers({
   TERMINAL_STATE: setTerminalState,
-  ADD_TERMINAL_EXECUTED_INPUT: addTerminalExecutedInput,
-  ADD_TERMINAL_TEXT: addTerminalText,
-  ADD_TERMINAL_RESULT: addTerminalResult,
-  ADD_TERMINAL_ERROR: addTerminalError,
-  ADD_DISPLAY_DATA: addTerminalDisplayData,
+  IOPUB_EXECUTED_INPUT: executedInput,
   KERNEL_DETECTED: updateFirstTerminalWithKernel,
   VARIABLES_DETECTED: updateFirstTerminalWithVariables,
   CHANGE_PREFERENCE: changePreference

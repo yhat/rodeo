@@ -4,12 +4,12 @@
  */
 
 import _ from 'lodash';
-import ace from 'ace';
 import { send } from '../services/ipc';
 import * as store from '../services/store';
 import systemFacts from '../services/system-facts';
 import client from '../services/client';
 import clientDiscovery from '../services/client-discovery';
+import {errorCaught} from './application';
 
 export function interrupt() {
   return function (dispatch) {
@@ -17,7 +17,7 @@ export function interrupt() {
 
     return send('interrupt')
       .then(() => dispatch({type: 'INTERRUPTED_KERNEL'}))
-      .catch(error => console.error(error));
+      .catch(error => dispatch(errorCaught(error)));
   };
 }
 
@@ -69,54 +69,30 @@ export function detectKernel() {
   };
 }
 
-export function executeActiveFileInActiveConsole() {
-  return function (dispatch, getState) {
-    const state = getState(),
-      focusedAce = state && _.find(state.acePanes, {hasFocus: true}),
-      el = focusedAce && document.querySelector('#' + focusedAce.id),
-      aceInstance = el && ace.edit(el),
-      filename = focusedAce.filename,
-      focusedTerminal = state && _.find(state.terminals, {hasFocus: true}),
-      id = focusedTerminal.id,
-      content = aceInstance && aceInstance.getSession().getValue();
-
-    dispatch({type: 'EXECUTING', filename, id});
-
-    return client.execute(content)
-      .then(() => dispatch({type: 'EXECUTED', id}))
-      .catch(error => console.error(error));
-  };
-}
-
-export function execute(text, id) {
-  return function (dispatch, getState) {
-    const state = getState(),
-      terminal = state && _.find(state.terminals, {id});
-
-    if (terminal) {
-      dispatch({type: 'EXECUTING', text, id});
-
-      return client.execute(text)
-        .then(() => dispatch({type: 'EXECUTED', text, id}))
-        .catch(error => console.error(error));
-    } else {
-      console.error(new Error('No terminal with id ' + id));
-    }
-  };
-}
-
 export function restart() {
-  return function () {
-    console.log('restarting python');
-    return client.restartInstance();
+  return function (dispatch) {
+    return client.restartInstance()
+      .then(() => dispatch({type: 'KERNEL_RESTARTED'}))
+      .catch(error => dispatch(errorCaught(error)));
+  };
+}
+
+function detectKernelVariables() {
+  return function (dispatch, getState) {
+    const state = getState(),
+      terminal = _.find(state.terminals, {hasFocus: true}),
+      id = terminal.id;
+
+    return client.getVariables().then(function (variables) {
+      return dispatch({type: 'VARIABLES_DETECTED', variables, id});
+    }).catch(error => dispatch(errorCaught(error)));
   };
 }
 
 export default {
   askForPythonOptions,
   detectKernel,
-  execute,
-  executeActiveFileInActiveConsole,
+  detectKernelVariables,
   isBusy,
   isIdle,
   interrupt,
