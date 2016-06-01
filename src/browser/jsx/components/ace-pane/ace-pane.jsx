@@ -22,6 +22,7 @@ export default React.createClass({
     id: React.PropTypes.string,
     keyBindings: React.PropTypes.string,
     mode: React.PropTypes.string,
+    onInterrupt: React.PropTypes.func,
     onLiftSelection: React.PropTypes.func,
     onLoadError: React.PropTypes.func,
     onLoaded: React.PropTypes.func,
@@ -59,7 +60,7 @@ export default React.createClass({
       theme: 'chrome',
       mode: 'python',
       readOnly: false,
-
+      onInterrupt: _.noop,
       onLiftSelection: _.noop,
       onLoading: _.noop,
       onLoaded: _.noop,
@@ -77,6 +78,7 @@ export default React.createClass({
 
     // indent selection
     aceShortcuts.indent(instance);
+    aceShortcuts.interrupt(instance, props.onInterrupt);
     aceShortcuts.outdent(instance);
     aceShortcuts.saveFile(instance, props.onSave);
     aceShortcuts.autocomplete(instance, props.tabSize);

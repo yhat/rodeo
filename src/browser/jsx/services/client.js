@@ -92,12 +92,21 @@ function getVariables(instance) {
 }
 
 /**
+ * @param {{instanceId: string}} instance
+ * @returns {Promise}
+ */
+function interrupt(instance) {
+  return send('interrupt', instance);
+}
+
+/**
  * Guarantee that an instance is created before we ever run anything.
  *
  * If it is ever deleted, guarantee a new one is created.
  */
 export default _.mapValues({
   execute,
+  interrupt,
   getAutoComplete,
   getVariables,
   killInstance,

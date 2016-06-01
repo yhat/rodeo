@@ -172,6 +172,41 @@ function addDisplayData(data) {
   };
 }
 
+function interrupt() {
+  return function (dispatch, getState) {
+    const state = getState(),
+      terminal = _.head(state.terminals),
+      jqConsole = getJQConsole(terminal.id),
+      consoleState = jqConsole.GetState();
+
+    client.interrupt()
+      .catch(function (error) {
+        return dispatch(errorCaught(error));
+      });
+    if (consoleState !== 'output') {
+      jqConsole.ClearPromptText();
+    }
+  };
+}
+
+function restart() {
+  return function (dispatch, getState) {
+    const state = getState(),
+      terminal = _.head(state.terminals),
+      jqConsole = getJQConsole(terminal.id);
+
+    jqConsole.Focus();
+
+    client.restartInstance()
+      .then(function () {
+        jqConsole.Reset();
+      })
+      .catch(function (error) {
+        return dispatch(errorCaught(error));
+      });
+  };
+}
+
 function focus() {
   return function (dispatch, getState) {
     const state = getState(),
@@ -188,6 +223,8 @@ export default {
   addErrorText,
   addOutputText,
   execute,
+  interrupt,
   focus,
+  restart,
   startPrompt
 };

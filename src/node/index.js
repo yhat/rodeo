@@ -436,6 +436,11 @@ function onGetVariables(options) {
     .then(client => client.getVariables());
 }
 
+function onInterrupt(options) {
+  return getKernelInstanceById(options.instanceId)
+    .then(client => client.interrupt());
+}
+
 /**
  * To allow testing, the user can specific '--no-pythons' to prevent auto-detection of all the pythons
  * @returns {Promise}
@@ -617,6 +622,7 @@ function attachIpcMainEvents() {
     onCheckKernel,
     onGetAutoComplete,
     onIsComplete,
+    onInterrupt,
     onGetInspection,
     onGetVariables,
     onFiles,
