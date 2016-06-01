@@ -14,7 +14,7 @@ export default React.createClass({
   displayName: 'PreferencesItem',
   propTypes: {
     className: React.PropTypes.string,
-    defaultValue: React.PropTypes.oneOfType([React.PropTypes.string, React.PropTypes.number]),
+    defaultValue: React.PropTypes.oneOfType([React.PropTypes.string, React.PropTypes.number, React.PropTypes.bool]),
     explanation: React.PropTypes.string,
     id: React.PropTypes.string,
     keyName: React.PropTypes.string,

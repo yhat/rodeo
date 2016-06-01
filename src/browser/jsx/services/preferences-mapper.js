@@ -48,7 +48,8 @@ function define(definition, explanations) {
     let items = _.map(preferenceGroup.items, function (preference) {
       const item = _.clone(preference),
         explanation = explanations[preference.explanation],
-        defaultValue = store.get(preference.key) || preference.defaultValue;
+        storeValue = store.get(preference.key),
+        defaultValue = storeValue !== null ? storeValue : preference.defaultValue;
 
       if (explanation) {
         item.explanation = explanation;

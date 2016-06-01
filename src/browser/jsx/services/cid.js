@@ -1,3 +1,11 @@
+/**
+ * This has to be unique within a particular client, so simple counting will do.
+ * @module
+ */
+
+/**
+ * @returns {function}
+ */
 export default (function () {
   let i = 0;
 

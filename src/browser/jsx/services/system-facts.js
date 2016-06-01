@@ -1,6 +1,7 @@
 import _ from 'lodash';
 import store from './store';
 import clientDiscovery from './client-discovery';
+import guid from './guid';
 
 /**
  * Get the first set of working kernel options that was detected when gathering system facts
@@ -19,6 +20,32 @@ function getFreshPythonOptions() {
   });
 }
 
+function getSystemFacts() {
+  let systemFacts = store.get('systemFacts');
+
+  if (!systemFacts || !systemFacts.appVersion) {
+    return clientDiscovery.getSystemFacts().then(function (facts) {
+      store.set('systemFacts', facts);
+      return facts;
+    });
+  }
+
+  return Promise.resolve(systemFacts);
+}
+
+function getUserId() {
+  let userId = store.get('userId');
+
+  if (!userId) {
+    userId = guid();
+    store.set('userId', userId);
+  }
+
+  return userId;
+}
+
 export default {
-  getFreshPythonOptions
+  getSystemFacts,
+  getFreshPythonOptions,
+  getUserId
 };

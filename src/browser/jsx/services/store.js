@@ -14,7 +14,7 @@ export function get(key) {
   assertCamelCase(key);
   let result = window.localStorage.getItem(key);
 
-  if (result) {
+  if (typeof result === 'string') {
     try {
       result = JSON.parse(result);
     } catch (ex) {
