@@ -1,7 +1,9 @@
+import store from './store';
 import systemFacts from './system-facts';
 
 const appName = 'Rodeo',
   metricsUrl = 'http://rodeo-analytics.yhathq.com/?',
+  optOutMessage = 'Usage/Metric tracking is disabled.',
   errorMessage = 'Usage Metrics Error',
   successMessage = 'Thank you for using Rodeo! We use metrics to see how well we are doing. We could use these metrics to' +
     'justify new features or internationalization. To disable usage metrics, change the setting in the preferences menu.';
@@ -30,6 +32,10 @@ function reportError(error) {
   console.error(errorMessage, error);
 }
 
+function reportOptOut() {
+  console.log(optOutMessage);
+}
+
 /**
  * @param {string} eventCategory
  * @param {string} eventAction  subcategory
@@ -37,6 +43,10 @@ function reportError(error) {
  * @returns {Promise}
  */
 export default function track(eventCategory, eventAction, label) {
+  if (store.get('trackMetrics') === false) {
+    return reportOptOut();
+  }
+
   return Promise.all([
     systemFacts.getUserId(),
     systemFacts.getSystemFacts()
