@@ -46,6 +46,7 @@ function mapStateToProps(state) {
 function mapDispatchToProps(dispatch) {
   return {
     onAddAcePane: () => dispatch(acePaneActions.addFile()),
+    onInterrupt: () => dispatch(terminalActions.interrupt()),
     onTerminalStart: (jqConsole) => dispatch(terminalActions.startPrompt(jqConsole)),
     onFocusAcePane: (id) => dispatch(acePaneActions.focusFile(id)),
     onLiftText: (text, context) => dispatch(terminalActions.addInputText(context)),
@@ -131,8 +132,7 @@ export default connect(mapStateToProps, mapDispatchToProps)(React.createClass({
     event.dataTransfer.dropEffect = 'move';
   },
   render: function () {
-    let acePanes, terminals,
-      props = this.props,
+    let props = this.props,
       isFocusable = !props.modalDialogs.length;
 
     return (
@@ -166,6 +166,7 @@ export default connect(mapStateToProps, mapDispatchToProps)(React.createClass({
                   <AcePane
                     disabled={!isFocusable}
                     key={item.id}
+                    onInterrupt={props.onInterrupt}
                     onLiftSelection={props.onLiftText}
                     onOpenPreferences={props.onOpenPreferences}
                     {...item}
@@ -180,7 +181,12 @@ export default connect(mapStateToProps, mapDispatchToProps)(React.createClass({
             {props.terminals.map(function (item) {
               return (
                 <TabbedPaneItem icon="terminal" id={item.tabId} key={item.id} label="Console">
-                  <Terminal key={item.id} onStart={props.onTerminalStart} {...item} />
+                  <Terminal
+                    key={item.id}
+                    onInterrupt={props.onInterrupt}
+                    onStart={props.onTerminalStart}
+                    {...item}
+                  />
                 </TabbedPaneItem>
               );
             })}

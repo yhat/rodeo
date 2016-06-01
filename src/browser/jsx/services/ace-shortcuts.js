@@ -165,11 +165,20 @@ function indent(instance) {
   });
 }
 
+function interrupt(instance, fn) {
+  instance.commands.addCommand({
+    name: 'instance',
+    bindKey: {win: 'ctrl-shift-c', mac: 'ctrl-c'},
+    exec: editor => fn(editor)
+  });
+}
+
 export default {
   autocomplete,
+  indent,
+  interrupt,
   liftFile,
   liftSelection,
-  indent,
   openPreferences,
   outdent,
   saveFile

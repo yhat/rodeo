@@ -170,6 +170,14 @@ class JupyterClient extends EventEmitter {
     return request(this, {method: 'input', args: [str]}, {successEvent: 'execute_reply'});
   }
 
+  interrupt() {
+    const id = uuid.v4().toString(),
+      target = 'manager',
+      method = 'interrupt_kernel';
+
+    return write(this.childProcess, {method, target, id});
+  }
+
   /**
    * @param {string} code
    * @param {object} [args]

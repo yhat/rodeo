@@ -33,12 +33,14 @@ export default React.createClass({
       indentWidth: 4,
       message: message,
       onAutoComplete: _.noop,
+      onInterrupt: _.noop,
       onStart: _.noop
     };
   },
   componentDidMount: function () {
     const props = this.props,
       disableAutoFocus = true, // don't steal focus from other hard-working components
+      el = ReactDOM.findDOMNode(this),
       jqConsole = $(ReactDOM.findDOMNode(this)).jqconsole(props.message, '>>> ', '... ', disableAutoFocus);
 
     jqConsole.SetIndentWidth(this.props.indentWidth);
@@ -60,6 +62,39 @@ export default React.createClass({
         onAutoComplete(code);
       }
     };
+
+    /**
+     * If no prompt or input, the console doesn't receive events.
+     *
+     * We have to do it then.
+     * @param {KeyboardEvent} event
+     */
+    el.addEventListener('keydown', function (event) {
+      if (
+        (event.ctrlKey === true) &&
+        (event.code === 'KeyC' || event.keyCode === 67) &&
+        (jqConsole.GetState() !== 'prompt')
+      ) {
+        props.onInterrupt();
+      }
+    });
+
+    jqConsole.RegisterShortcut('c', function () {
+      jqConsole.ClearPromptText();
+    });
+
+    jqConsole.RegisterShortcut('l', function() {
+      jqConsole.Clear();
+    });
+
+    jqConsole.RegisterShortcut('a', function() {
+      jqConsole.MoveToStart();
+    });
+
+    jqConsole.RegisterShortcut('e', function() {
+      jqConsole.MoveToEnd();
+    });
+
 
     props.onStart(jqConsole);
   },

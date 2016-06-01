@@ -119,6 +119,15 @@
   - type: separator
   - label: Bring All to Front
     selector: 'arrangeInFront:'
+- label: Session
+  submenu:
+  - label: Interrupt Kernel
+    click:
+      type: TERMINAL_INTERRUPT
+  - label: Restart Kernel
+    accelerator: CmdOrCtrl+R
+    click:
+      type: TERMINAL_RESTART
 - label: Help
   submenu:
   - label: Check for Updates
