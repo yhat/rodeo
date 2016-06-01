@@ -22,7 +22,9 @@ const dispatchMap = {
     QUIT: applicationActions.quit(),
     SAVE_ACTIVE_FILE: acePaneActions.saveActiveFile(),
     SHOW_SAVE_FILE_DIALOG: acePaneActions.showSaveFileDialogForActiveFile(),
-    SHOW_OPEN_FILE_DIALOG: acePaneActions.showOpenFileDialogForActiveFile()
+    SHOW_OPEN_FILE_DIALOG: acePaneActions.showOpenFileDialogForActiveFile(),
+    FOCUS_ACTIVE_ACE_EDITOR: acePaneActions.focus(),
+    FOCUS_ACTIVE_TERMINAL: terminalActions.focus()
   },
   iopubDispatchMap = {
     execute_input: dispatchIOPubExecuteInput,
@@ -30,7 +32,10 @@ const dispatchMap = {
     execute_result: dispatchIOPubResult,
     display_data: dispatchIOPubDisplayData,
     error: dispatchIOPubError,
-    status: dispatchIOPubStatus
+    status: dispatchIOPubStatus,
+    comm_msg: dispatchNoop,
+    comm_open: dispatchNoop,
+    clear_output: dispatchNoop
   };
 
 /**
@@ -82,6 +87,10 @@ function dispatchIOPubExecuteInput(dispatch, content) {
 
 function dispatchIOPubStatus(dispatch, content) {
   dispatch(iopubActions.stateChanged(content.execution_state));
+}
+
+function dispatchNoop() {
+  // eat it; we don't care about these yet
 }
 
 /**

@@ -109,8 +109,22 @@ export function showOpenFileDialogForActiveFile() {
   };
 }
 
+function focus() {
+  return function (dispatch, getState) {
+    const state = getState(),
+      focusedAce = state && _.find(state.acePanes, {hasFocus: true}),
+      el = focusedAce && document.querySelector('#' + focusedAce.id),
+      aceInstance = el && ace.edit(el);
+
+    aceInstance.focus();
+
+    dispatch(focusFile(focusedAce.id));
+  };
+}
+
 export default {
   addFile,
+  focus,
   focusFile,
   closeFile,
   fileIsSaved,

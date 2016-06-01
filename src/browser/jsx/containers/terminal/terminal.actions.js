@@ -60,7 +60,6 @@ function addInputText(context) {
       if (context.isCodeComplete) {
         // pretend to run from the prompt: kill the prompt, run the code, start the prompt, lie
         jqConsole.SetPromptText(fullText);
-        jqConsole.Write(fullText + '\n');
         jqConsole.AbortPrompt();
         jqConsole.SetHistory(jqConsole.GetHistory().concat([fullText]));
         return client.execute(fullText)
@@ -173,11 +172,22 @@ function addDisplayData(data) {
   };
 }
 
+function focus() {
+  return function (dispatch, getState) {
+    const state = getState(),
+      terminal = _.head(state.terminals),
+      jqConsole = getJQConsole(terminal.id);
+
+    jqConsole.Focus();
+  };
+}
+
 export default {
   addDisplayData,
   addInputText,
   addErrorText,
   addOutputText,
   execute,
+  focus,
   startPrompt
 };

@@ -54,7 +54,7 @@ function focusById(state, action) {
 }
 
 export default mapReducers({
-  ADD_DISPLAY_DATA: add,
+  IOPUB_DATA_DISPLAYED: add,
   REMOVE_ACTIVE_PLOT: removeActive,
   FOCUS_PLOT: focusById
 }, initialState);

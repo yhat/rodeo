@@ -76,6 +76,16 @@
       accelerator: CmdOrCtrl+Alt+Right
       click:
         type: MOVE_ONE_RIGHT
+  - label: Focus
+    submenu:
+    - label: Editor
+      accelerator: CmdOrCtrl+1
+      click:
+        type: FOCUS_ACTIVE_ACE_EDITOR
+    - label: Console
+      accelerator: CmdOrCtrl+2
+      click:
+        type: FOCUS_ACTIVE_TERMINAL
   - label: Toggle Full Screen
     accelerator: Command+Shift+F
     click:
