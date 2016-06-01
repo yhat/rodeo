@@ -172,11 +172,22 @@ function addDisplayData(data) {
   };
 }
 
+function focus() {
+  return function (dispatch, getState) {
+    const state = getState(),
+      terminal = _.head(state.terminals),
+      jqConsole = getJQConsole(terminal.id);
+
+    jqConsole.Focus();
+  };
+}
+
 export default {
   addDisplayData,
   addInputText,
   addErrorText,
   addOutputText,
   execute,
+  focus,
   startPrompt
 };

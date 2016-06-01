@@ -22,7 +22,9 @@ const dispatchMap = {
     QUIT: applicationActions.quit(),
     SAVE_ACTIVE_FILE: acePaneActions.saveActiveFile(),
     SHOW_SAVE_FILE_DIALOG: acePaneActions.showSaveFileDialogForActiveFile(),
-    SHOW_OPEN_FILE_DIALOG: acePaneActions.showOpenFileDialogForActiveFile()
+    SHOW_OPEN_FILE_DIALOG: acePaneActions.showOpenFileDialogForActiveFile(),
+    FOCUS_ACTIVE_ACE_EDITOR: acePaneActions.focus(),
+    FOCUS_ACTIVE_TERMINAL: terminalActions.focus()
   },
   iopubDispatchMap = {
     execute_input: dispatchIOPubExecuteInput,
