@@ -8,7 +8,6 @@ const _ = require('lodash'),
   files = require('./services/files'),
   ipcPromises = require('./services/ipc-promises'),
   path = require('path'),
-  md = require('./services/md'),
   menuDefinitions = require('./services/menu-definitions'),
   os = require('os'),
   steveIrwin = require('./kernels/python/steve-irwin'),
@@ -458,12 +457,26 @@ function onGetSystemFacts() {
     availablePythonKernels: findPythons(),
     homedir: os.homedir(),
     pathSep: path.sep,
-    delimiter: path.delimiter
+    delimiter: path.delimiter,
+    appVersion: getVersion()
   });
 }
 
 function onQuitAndInstall() {
   return bluebird.try(updater.install);
+}
+
+/**
+ * @returns {string}
+ */
+function getVersion() {
+  const pkg = getPkg();
+
+  if (pkg) {
+    return pkg.version;
+  }
+
+  return '';
 }
 
 /**
