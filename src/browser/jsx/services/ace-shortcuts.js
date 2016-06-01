@@ -2,6 +2,18 @@ import _ from 'lodash';
 import ace from 'ace';
 const Autocomplete = ace.require('ace/autocomplete').Autocomplete;
 
+function getIndentLevel(session, content) {
+  content = _.trimEnd(content); // line of all spaces doesn't count
+  const tabSize = session.getTabSize();
+  let match = content.match(/(^[ \t]*)/),
+    indent = match && match[1] || '';
+
+  // replace tabs with spaces
+  indent = indent.replace('\t', _.repeat(' ', tabSize));
+
+  return indent.length;
+}
+
 /**
  * Likely, this doesn't belong here.
  *
@@ -12,16 +24,22 @@ const Autocomplete = ace.require('ace/autocomplete').Autocomplete;
 function isCodeComplete(editor) {
   const currentRow = editor.getSelectionRange().end.row,
     session = editor.session,
-    totalRows = session.getLength(),
-    nextRow = currentRow + 1,
-    currentRowContent = session.getLine(currentRow),
+    totalRows = session.getLength();
+
+  let nextRow = currentRow + 1,
+    nextRowContent = session.getLine(nextRow),
+    nextIndent = nextRowContent && getIndentLevel(session, nextRowContent);
+
+  // skip rows without content
+  while (nextRow < totalRows && nextRowContent.trim() === '') {
+    nextRow = nextRow + 1;
     nextRowContent = session.getLine(nextRow);
+    nextIndent = nextRowContent && getIndentLevel(session, nextRowContent);
+  }
 
   return !!(
-    (nextRow === totalRows) ||
-    (session.getLine(nextRow) === '') ||
-    (/return/.test(currentRowContent)) ||
-    (!/^ /.test(nextRowContent))
+    (nextRow === totalRows) || // end of file
+    (nextRow < totalRows && nextIndent === 0) // no indent for next line of content
   );
 }
 
@@ -60,10 +78,13 @@ function liftSelection(instance, callback) {
         text = editor.session.getLine(currentRow);
       }
 
-      callback(null, {
-        text,
-        isCodeComplete: isCodeComplete(editor)
-      });
+      // if there is actually content to run
+      if (_.trim(text) !== '') {
+        callback(null, {
+          text,
+          isCodeComplete: isCodeComplete(editor)
+        });
+      }
 
       // go to next line (even if we have to make a new line)
       forceGoToNextLine(editor);

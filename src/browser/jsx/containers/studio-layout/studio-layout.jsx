@@ -4,7 +4,7 @@ import {connect} from 'react-redux';
 import SplitPane from '../../components/split-pane/split-pane.jsx';
 import TabbedPane from '../../components/tabbed-pane/tabbed-pane.jsx';
 import FileViewer from '../file-viewer/file-viewer.jsx';
-import PlotViewer from '../../components/plot-viewer/plot-viewer.jsx';
+import PlotViewer from '../plot-viewer/plot-viewer.jsx';
 import PackageViewer from '../package-viewer.jsx';
 import VariableViewer from '../variable-viewer.jsx';
 import HistoryViewer from '../history-viewer.jsx';

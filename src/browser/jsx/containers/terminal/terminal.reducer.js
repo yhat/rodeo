@@ -1,5 +1,4 @@
 import _ from 'lodash';
-import $ from 'jquery';
 import cid from '../../services/cid';
 import store from '../../services/store';
 import mapReducers from '../../services/map-reducers';
@@ -60,7 +59,7 @@ function getDefault() {
  * @returns {[TerminalState]}
  */
 function setTerminalState(state, action) {
-  const instance = _.find(state, {id: action.id});
+  const instance = _.head(state);
 
   if (instance.status !== action.status) {
     state = _.clone(state);
@@ -83,12 +82,12 @@ function executedInput(state, action) {
   const historyMaxSetting = store.get('terminalHistory'),
     historyMax = historyMaxSetting === null ? 5 : historyMaxSetting;
 
-  if (historyMax > 0 && _.isString(action.code) && action.code.trim().length > 0) {
+  if (historyMax > 0 && _.isString(action.text) && action.text.trim().length > 0) {
     state = _.clone(state);
-    const instance = _.find(state, {id: action.id});
+    const instance = _.head(state);
 
     instance.history = _.clone(instance.history);
-    instance.history.push({id: cid(), text: action.code});
+    instance.history.push({id: cid(), text: action.text});
     if (instance.history.length > historyMax) {
       instance.history.shift();
     }

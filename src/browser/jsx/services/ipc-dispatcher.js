@@ -30,7 +30,10 @@ const dispatchMap = {
     execute_result: dispatchIOPubResult,
     display_data: dispatchIOPubDisplayData,
     error: dispatchIOPubError,
-    status: dispatchIOPubStatus
+    status: dispatchIOPubStatus,
+    comm_msg: dispatchNoop,
+    comm_open: dispatchNoop,
+    clear_output: dispatchNoop
   };
 
 /**
@@ -82,6 +85,10 @@ function dispatchIOPubExecuteInput(dispatch, content) {
 
 function dispatchIOPubStatus(dispatch, content) {
   dispatch(iopubActions.stateChanged(content.execution_state));
+}
+
+function dispatchNoop() {
+  // eat it; we don't care about these yet
 }
 
 /**

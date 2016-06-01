@@ -60,7 +60,6 @@ function addInputText(context) {
       if (context.isCodeComplete) {
         // pretend to run from the prompt: kill the prompt, run the code, start the prompt, lie
         jqConsole.SetPromptText(fullText);
-        jqConsole.Write(fullText + '\n');
         jqConsole.AbortPrompt();
         jqConsole.SetHistory(jqConsole.GetHistory().concat([fullText]));
         return client.execute(fullText)
