@@ -1,5 +1,4 @@
 import kernelActions from '../../actions/kernel';
-import systemFacts from '../../services/system-facts';
 import {send} from '../../services/ipc';
 import clientDiscovery from '../../services/client-discovery';
 
@@ -44,7 +43,7 @@ function saveTest(cmd) {
 
 function testInstall() {
   return function (dispatch) {
-    return systemFacts.getFreshPythonOptions()
+    return clientDiscovery.getFreshPythonOptions()
       .then(pythonOptions => dispatch(kernelActions.kernelDetected(pythonOptions)))
       .then(() => dispatch({type: 'INSTALLED_PYTHON'}))
       .catch(() => dispatch({type: 'INSTALLED_PYTHON_NOT_FOUND'}));

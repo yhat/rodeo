@@ -210,6 +210,8 @@ export default connect(mapStateToProps, mapDispatchToProps)(React.createClass({
   render: function () {
     const state = this.state;
 
+    console.log('preferencesMap', preferencesMap);
+
     return (
       <PreferencesList
         active={state.active}
