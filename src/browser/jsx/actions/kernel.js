@@ -6,7 +6,6 @@
 import _ from 'lodash';
 import { send } from '../services/ipc';
 import * as store from '../services/store';
-import systemFacts from '../services/system-facts';
 import client from '../services/client';
 import clientDiscovery from '../services/client-discovery';
 import {errorCaught} from './application';
@@ -62,10 +61,10 @@ export function detectKernel() {
     if (pythonOptions) {
       // verify anyway
       promise = clientDiscovery.checkKernel(pythonOptions)
-        .catch(() => systemFacts.getFreshPythonOptions());
+        .catch(() => clientDiscovery.getFreshPythonOptions());
     } else {
       // get them
-      promise = systemFacts.getFreshPythonOptions();
+      promise = clientDiscovery.getFreshPythonOptions();
     }
 
     return promise

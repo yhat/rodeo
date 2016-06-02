@@ -22,6 +22,8 @@ function add(state, action) {
     id: cid()
   }, _.omit(action, ['type']));
 
+  console.log('add modal', action, modal);
+
   state.push(modal);
 
   return state;

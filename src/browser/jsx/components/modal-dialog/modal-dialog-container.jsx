@@ -75,7 +75,7 @@ export default connect(mapStateToProps, mapDispatchToProps)(React.createClass({
       } else if (modal.contentType === 'ABOUT_RODEO') {
         contents = (
           <ModalDialog id={modal.id} key={modal.id} onCancel={onCancel} onOK={onOK} title={modal.title}>
-            <AboutRodeo />
+            <AboutRodeo appVersion={modal.appVersion} />
           </ModalDialog>
         );
       } else if (modal.contentType === 'ABOUT_STICKERS') {
@@ -86,13 +86,13 @@ export default connect(mapStateToProps, mapDispatchToProps)(React.createClass({
         );
       } else if (modal.contentType === 'ACKNOWLEDGEMENTS') {
         contents = (
-          <ModalDialog id={modal.id} key={modal.id} onCancel={onCancel} onOK={onOK}>
+          <ModalDialog key={modal.id} onCancel={onCancel} onOK={onOK} {...modal}>
             <Acknowledgements />
           </ModalDialog>
         );
       } else if (modal.contentType === 'PREFERENCES') {
         contents = (
-          <ModalDialog id={modal.id} key={modal.id} onCancel={onCancel} onOK={onOK}>
+          <ModalDialog key={modal.id} onCancel={onCancel} onOK={onOK} {...modal}>
             <PreferencesViewer onClose={onCancel} />
           </ModalDialog>
         );

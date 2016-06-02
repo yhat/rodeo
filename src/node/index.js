@@ -454,7 +454,11 @@ function findPythons() {
 }
 
 /**
- * Get system facts that the client-side hopefully caches and doesn't call repeatedly
+ * Get system facts that the client-side hopefully caches and doesn't call repeatedly.
+ *
+ * These values should remain somewhat static on a particular machine
+ * (unless something big has changed, like installing a new python or changing a home directory)
+ *
  * @returns {Promise<object>}
  */
 function onGetSystemFacts() {
@@ -462,9 +466,15 @@ function onGetSystemFacts() {
     availablePythonKernels: findPythons(),
     homedir: os.homedir(),
     pathSep: path.sep,
-    delimiter: path.delimiter,
-    appVersion: getVersion()
+    delimiter: path.delimiter
   });
+}
+
+/**
+ * @returns {Promise<string>}
+ */
+function onGetAppVersion() {
+  return bluebird.resolve(getVersion());
 }
 
 function onQuitAndInstall() {
@@ -627,6 +637,7 @@ function attachIpcMainEvents() {
     onGetVariables,
     onFiles,
     onGetSystemFacts,
+    onGetAppVersion,
     onKnitHTML,
     onQuitApplication,
     onPDF,

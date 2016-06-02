@@ -11,3 +11,10 @@
   margin: 20px;
   margin-top: 0;
 }
+
+.about-rodeo .version {
+  top: 0;
+  right: 0;
+  position: absolute;
+  margin: 10px 16px;
+}

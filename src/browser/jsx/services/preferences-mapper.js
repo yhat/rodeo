@@ -57,7 +57,7 @@ function define(definition, explanations) {
         delete item.explanation;
       }
 
-      if (defaultValue) {
+      if (defaultValue !== undefined) {
         item.defaultValue = defaultValue;
       } else {
         delete item.defaultValue;

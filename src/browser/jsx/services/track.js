@@ -1,5 +1,6 @@
 import store from './store';
-import systemFacts from './system-facts';
+import clientDiscovery from './client-discovery';
+import bluebird from 'bluebird';
 
 const appName = 'Rodeo',
   metricsUrl = 'http://rodeo-analytics.yhathq.com/?',
@@ -8,6 +9,10 @@ const appName = 'Rodeo',
   successMessage = 'Thank you for using Rodeo! We use metrics to see how well we are doing. We could use these metrics to' +
     'justify new features or internationalization. To disable usage metrics, change the setting in the preferences menu.';
 
+/**
+ * @param {object} obj
+ * @returns {string}
+ */
 function serialize(obj) {
   const str = [];
 
@@ -47,15 +52,13 @@ export default function track(eventCategory, eventAction, label) {
     return reportOptOut();
   }
 
-  return Promise.all([
-    systemFacts.getUserId(),
-    systemFacts.getSystemFacts()
-  ]).then(function (results) {
-    let userId = results[0],
-      facts = results[1],
-      metrics = {
+  return bluebird.all([
+    clientDiscovery.getUserId(),
+    clientDiscovery.getAppVersion()
+  ]).spread(function (userId, appVersion) {
+    let metrics = {
         an: appName,
-        av: facts.appVersion,
+        av: appVersion,
         cid: userId,
         ec: eventCategory,
         ea: eventAction,
