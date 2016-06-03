@@ -675,7 +675,7 @@ function attachAppEvents() {
     app.on('window-all-closed', onWindowAllClosed);
     app.on('ready', onReady);
 
-    require('./services/server').start(3000)
+    require('./services/server').start(9356)
       .catch(error => log('error', error));
   }
 }
