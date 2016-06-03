@@ -18,7 +18,9 @@ import { getParentNodeOf } from '../../services/dom';
 import splitPaneActions from '../../components/split-pane/split-pane.actions';
 import acePaneActions from '../../components/ace-pane/ace-pane.actions';
 import dialogActions from '../../actions/dialogs';
+import kernelActions from '../../actions/kernel';
 import terminalActions from '../terminal/terminal.actions';
+
 
 /**
  * @param {Element} el
@@ -52,6 +54,7 @@ function mapDispatchToProps(dispatch) {
     onLiftText: (text, context) => dispatch(terminalActions.addInputText(context)),
     onOpenPreferences: () => dispatch(dialogActions.showPreferences()),
     onRemoveAcePane: (id) => dispatch(acePaneActions.closeFile(id)),
+    onRunActiveAcePane: () => dispatch(kernelActions.executeActiveFileInActiveConsole()),
     onRodeo: () => dispatch(dialogActions.showAboutRodeo()),
     onSplitPaneDrag: () => dispatch(splitPaneActions.splitPaneDrag())
   };
@@ -150,11 +153,6 @@ export default connect(mapStateToProps, mapDispatchToProps)(React.createClass({
           >
             <li><a className="icon-overflowing not-tab" onClick={props.onRodeo}><span /></a></li>
             <li className="right">
-              <a className="not-tab" onClick={props.onAddAcePane}>
-                <span className="fa fa-plus-square-o"/>
-              </a>
-            </li>
-            <li className="right">
               <a className="not-tab" onClick={props.onRunActiveAcePane} title="Run script">
                 <span className="fa fa-play-circle" />
               </a>
@@ -167,6 +165,7 @@ export default connect(mapStateToProps, mapDispatchToProps)(React.createClass({
                     disabled={!isFocusable}
                     key={item.id}
                     onInterrupt={props.onInterrupt}
+                    onLiftFile={props.onRunActiveAcePane}
                     onLiftSelection={props.onLiftText}
                     onOpenPreferences={props.onOpenPreferences}
                     {...item}
@@ -174,6 +173,12 @@ export default connect(mapStateToProps, mapDispatchToProps)(React.createClass({
                 </TabbedPaneItem>
               );
             })}
+
+            <li>
+              <a className="not-tab" onClick={props.onAddAcePane}>
+                <span className="fa fa-plus-square-o"/>
+              </a>
+            </li>
 
           </TabbedPane>
           <TabbedPane focusable={isFocusable}>
