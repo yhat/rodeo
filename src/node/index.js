@@ -337,7 +337,7 @@ function onCheckKernel(options) {
     cwd: {type: 'string'}
   });
 
-  return require('./kernels/python/client').checkPython(options);
+  return require('./kernels/python/client').checkPython(options)
 }
 
 /**
@@ -467,7 +467,7 @@ function onGetSystemFacts() {
     homedir: os.homedir(),
     pathSep: path.sep,
     delimiter: path.delimiter
-  });
+  }).timeout(5000, 'Unable to call "get system facts" in under 5 seconds');
 }
 
 /**

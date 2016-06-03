@@ -46,7 +46,6 @@ export default connect(mapStateToProps, mapDispatchToProps)(React.createClass({
    * @param {MouseEvent} event
    */
   handleBackgroundClick: function (event) {
-    console.log('handleBackgroundClick', event.currentTarget, event.target, event.currentTarget === event.target);
     if (event.currentTarget === event.target) {
       this.props.onCancelAll();
       event.preventDefault();

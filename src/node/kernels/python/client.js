@@ -374,7 +374,7 @@ function getPythonScriptResults(targetFile, options) {
   const processOptions = getPythonCommandOptions(options),
     cmd = options.cmd || 'python';
 
-  return processes.run(cmd, [targetFile], processOptions);
+  return processes.exec(cmd, [targetFile], processOptions);
 }
 
 /**
@@ -384,7 +384,12 @@ function getPythonScriptResults(targetFile, options) {
 function checkPython(options) {
   const targetFile = path.resolve(path.join(__dirname, 'check_python.py'));
 
-  return exports.getPythonScriptResults(targetFile, options).then(JSON.parse);
+  return exports.getPythonScriptResults(targetFile, options)
+    .then(JSON.parse)
+    .then(function (pythonOptions) {
+      return _.assign({}, pythonOptions, options);
+    })
+    .timeout(10000, 'Unable to check python in under 10 seconds: ' + JSON.stringify(options));
 }
 
 /**

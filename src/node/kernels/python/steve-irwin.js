@@ -3,7 +3,9 @@
 const _ = require('lodash'),
   bluebird = require('bluebird'),
   client = require('./client'),
+  log = require('../../services/log').asInternal(__filename),
   path = require('path'),
+  processes = require('../../services/processes'),
   os = require('os'),
   rules = require('../../services/rules');
 
@@ -15,73 +17,56 @@ let ruleSet = [
     when: _.matches({platform: 'win32'}),
     then: {cmd: 'python', shell: 'cmd.exe'}
   },
-  // {
-  //   when: _.matches({platform: 'win32'}),
-  //   then: function () {
-  //     const child = processes.create('for %i in (python.exe) do @echo. %~$PATH:i');
-  //
-  //     child.kill();
-  //   }
-  // },
   {
-    when: _.overSome(_.matches({platform: 'linux'}), _.matches({platform: 'darwin'})),
-    then: function (facts) {
-      return {
-        cmd: path.join(facts.homedir, 'anaconda/bin/python'),
-        shell: '/bin/bash',
-        label: '~/anaconda/bin/python'
-      };
+    when: _.matches({platform: 'win32'}),
+    then: function () {
+      return processes.exec('for %i in (python.exe) do @echo. %~$PATH:i')
+        .then(function (results) {
+          return {cmd: results, shell: 'cmd.exe', label: 'all pythons in path'};
+        }).timeout(2000, 'Unable to run "all pythons in path" in under 2 seconds');
     }
   },
   {
     when: _.overSome(_.matches({platform: 'linux'}), _.matches({platform: 'darwin'})),
-    then: function (facts) {
-      return {
-        cmd: path.join(facts.homedir, 'anaconda2/bin/python'),
-        shell: '/bin/bash',
-        label: '~/anaconda2/bin/python'
-      };
+    then: {cmd: 'python', shell: '/bin/bash', label: 'python'}
+  },
+  {
+    when: _.overSome(_.matches({platform: 'linux'}), _.matches({platform: 'darwin'})),
+    then: function () {
+      // run 'which python' and use that result as their python instance
+      return processes.exec('which', ['python']).then(function (results) {
+        return {cmd: results, shell: '/bin/bash', label: 'which python'};
+      }).timeout(2000, 'Unable to run "which python" in under 2 seconds');
     }
   },
   {
     when: _.overSome(_.matches({platform: 'linux'}), _.matches({platform: 'darwin'})),
-    then: function (facts) {
-      return {
-        cmd: path.join(facts.homedir, 'anaconda3/bin/python'),
-        shell: '/bin/bash',
-        label: '~/anaconda3/bin/python'
-      };
-    }
+    then: {cmd: '~/anaconda/bin/python', shell: '/bin/bash', label: 'anaconda'}
   },
   {
     when: _.overSome(_.matches({platform: 'linux'}), _.matches({platform: 'darwin'})),
-    then: {cmd: 'python', shell: '/bin/bash'}
+    then: {cmd: '~/anaconda2/bin/python', shell: '/bin/bash', label: 'anaconda2'}
   },
   {
     when: _.overSome(_.matches({platform: 'linux'}), _.matches({platform: 'darwin'})),
-    then: {cmd: '/usr/bin/python', shell: '/bin/bash'}
+    then: {cmd: '~/anaconda3/bin/python', shell: '/bin/bash', label: 'anaconda3'}
   },
   {
     when: _.overSome(_.matches({platform: 'linux'}), _.matches({platform: 'darwin'})),
-    then: {cmd: '/usr/local/bin/python', shell: '/bin/bash'}
+    then: {cmd: '/usr/bin/python', shell: '/bin/bash', label: '/usr/bin/python'}
   },
   {
     when: _.overSome(_.matches({platform: 'linux'}), _.matches({platform: 'darwin'})),
-    then: {cmd: '//home/sciencecluster/.anaconda2/bin/python', shell: '/bin/bash'}
+    then: {cmd: '/usr/local/bin/python', shell: '/bin/bash', label: '/usr/local/bin/python'}
   },
   {
     when: _.overSome(_.matches({platform: 'linux'}), _.matches({platform: 'darwin'})),
-    then: {cmd: '/root/miniconda2/bin/python', shell: '/bin/bash'}
+    then: {cmd: '~/.anaconda2/bin/python', shell: '/bin/bash', label: '~/.anaconda2/bin/python'}
+  },
+  {
+    when: _.overSome(_.matches({platform: 'linux'}), _.matches({platform: 'darwin'})),
+    then: {cmd: '~/miniconda2/bin/python', shell: '/bin/bash', label: '~/miniconda2/bin/python'}
   }
-  // {
-  //   when: _.overSome(_.matches({platform: 'linux'}), _.matches({platform: 'darwin'})),
-  //   then: function () {
-  //     const child = processes.create('which python');
-  //
-  //     child.kill();
-  //     throw new Error('Not implemented');
-  //   }
-  // }
 ];
 
 /**
@@ -111,13 +96,27 @@ function findPythons(facts) {
     throw new TypeError('Missing first parameter');
   }
 
-  return bluebird.all(rules.all(ruleSet, facts)).map(function (pythonOptions) {
-    return client.checkPython(pythonOptions).then(function (checkResults) {
-      return {pythonOptions, checkResults};
-    }).reflect().then(function (inspection) {
-      return inspection.isFulfilled() && inspection.value();
-    });
-  }).filter(_.identity);
+  const ruleResults = rules.all(ruleSet, facts);
+
+  log('info', 'findPythons', {ruleResults});
+
+  return bluebird.all(ruleResults)
+    .then(function (resolveResults) {
+      log('info', 'findPythons', {resolveResults});
+      return resolveResults;
+    })
+    .map(function (pythonOptions) {
+      return client.checkPython(pythonOptions)
+        .then(function (checkResults) {
+          return {pythonOptions, checkResults};
+        })
+        .reflect()
+        .then(function (inspection) {
+          log('info', 'findPythons', {pythonOptions, inspection});
+          return inspection.isFulfilled() && inspection.value();
+        });
+    })
+    .filter(_.identity);
 }
 
 module.exports.findPythons = findPythons;
