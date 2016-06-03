@@ -23,6 +23,7 @@ export default React.createClass({
     keyBindings: React.PropTypes.string,
     mode: React.PropTypes.string,
     onInterrupt: React.PropTypes.func,
+    onLiftFile: React.PropTypes.func,
     onLiftSelection: React.PropTypes.func,
     onLoadError: React.PropTypes.func,
     onLoaded: React.PropTypes.func,
@@ -83,6 +84,7 @@ export default React.createClass({
     aceShortcuts.saveFile(instance, props.onSave);
     aceShortcuts.autocomplete(instance, props.tabSize);
     aceShortcuts.liftSelection(instance, props.onLiftSelection);
+    aceShortcuts.liftFile(instance, props.onLiftFile);
     aceShortcuts.openPreferences(instance, props.onOpenPreferences);
 
     _.defer(() => instance.resize());

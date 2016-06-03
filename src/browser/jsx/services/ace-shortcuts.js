@@ -94,7 +94,7 @@ function liftSelection(instance, callback) {
 
 function liftFile(instance, fn) {
   instance.commands.addCommand({
-    name: 'executeFile',
+    name: 'liftFile',
     bindKey: {win: 'shift-ctrl-Enter', mac: 'Shift-Command-Enter'},
     exec: editor => fn(editor)
   });
