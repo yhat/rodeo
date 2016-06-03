@@ -7,6 +7,7 @@ import AboutRodeo from '../about-rodeo/about-rodeo.jsx';
 import StickersPane from '../stickers-pane/stickers-pane.jsx';
 import Acknowledgements from '../acknowledgements/acknowledgements.jsx';
 import PreferencesViewer from '../../containers/preferences-viewer/preferences-viewer.jsx';
+import RegisterRodeo from '../register-rodeo/register-rodeo.jsx';
 import actions from './modal-dialog.actions';
 import './modal-dialog-container.css';
 
@@ -93,6 +94,12 @@ export default connect(mapStateToProps, mapDispatchToProps)(React.createClass({
         contents = (
           <ModalDialog key={modal.id} onCancel={onCancel} onOK={onOK} {...modal}>
             <PreferencesViewer onClose={onCancel} />
+          </ModalDialog>
+        );
+      } else if (modal.contentType === 'REGISTER_RODEO') {
+        contents = (
+          <ModalDialog key={modal.id} onCancel={onCancel} onOK={onOK} {...modal}>
+            <RegisterRodeo onClose={onCancel} />
           </ModalDialog>
         );
       } else {

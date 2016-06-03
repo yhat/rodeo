@@ -1,5 +1,5 @@
 import React from 'react';
-import logo from './logo-rodeo-grey-text.svg';
+import logo from './logo-rodeo-square-large.svg';
 import './brand-splashes.css';
 
 /**

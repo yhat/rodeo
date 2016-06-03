@@ -3,7 +3,8 @@ import React from 'react';
 import ReactDOM from 'react-dom';
 import './modal-dialog.css';
 
-const showClass = 'modal-dialog-show';
+const instanceClass = 'modal-dialog-instance',
+  showClass = 'modal-dialog-show';
 
 /**
  * @class ModalDialog
@@ -53,7 +54,7 @@ export default React.createClass({
     }
 
     return (
-      <section className="modal-dialog">
+      <section className={instanceClass}>
         {header}
         {props.children}
         {footer}

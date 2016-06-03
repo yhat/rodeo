@@ -1,0 +1,21 @@
+label: Areas of Interest
+items:
+- label: Machine Learning
+  name: machine-learning
+- label: Linear Programming
+  name: linear-programming
+- label: Optimization
+  name: optimization
+- label: Neural Networks
+  name: neural-networks
+- label: Risk/Financial Modeling
+  name: risk-and-finiancial-modeling
+- label: Simulation
+  name: simulation
+- label: Cryptozoology
+  name: cryptozoology
+- label: Naval History
+  name: naval-history
+- label: Urban Exploring
+  name: urban-exploring
+

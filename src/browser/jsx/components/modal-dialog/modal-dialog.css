@@ -1,4 +1,4 @@
-.modal-dialog {
+.modal-dialog-instance {
   margin-left: auto;
   margin-right: auto;
   display: flex;
@@ -14,20 +14,20 @@
   border-radius: 5px;
 }
 
-.modal-dialog.modal-dialog-show {
+.modal-dialog-instance.modal-dialog-show {
   opacity: 1;
 }
 
-.modal-dialog > header {
+.modal-dialog-instance > header {
   flex: 0 0 10px;
   position: relative;
 }
 
-.modal-dialog > footer {
+.modal-dialog-instance > footer {
   flex: 0 0 40px;
   position: relative;
 }
 
-.modal-dialog button {
+.modal-dialog-instance button {
   margin-left: 10px;
 }
