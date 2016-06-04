@@ -102,7 +102,7 @@ gulp.task('external', function () {
     'node_modules/bootstrap/dist/js/bootstrap.min.js',
     'node_modules/react/dist/react-with-addons.js',
     'node_modules/react-dom/dist/react-dom.js',
-    'public/js/lib/*.js'
+    'src/browser/jsx/lib/*.js'
   ]).pipe(concat('external.min.js'))
     .pipe(gulp.dest(tmpBrowserDirectory));
 });

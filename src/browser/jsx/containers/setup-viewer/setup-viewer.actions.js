@@ -1,5 +1,5 @@
 import kernelActions from '../../actions/kernel';
-import {send} from '../../services/ipc';
+import {send} from 'ipc';
 import clientDiscovery from '../../services/client-discovery';
 
 function closeWindow() {

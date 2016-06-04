@@ -22,7 +22,7 @@ let ruleSet = [
     then: function () {
       return processes.exec('for %i in (python.exe) do @echo. %~$PATH:i')
         .then(function (results) {
-          return {cmd: results, shell: 'cmd.exe', label: 'all pythons in path'};
+          return {cmd: _.trim(results), shell: 'cmd.exe', label: 'all pythons in path'};
         }).timeout(2000, 'Unable to run "all pythons in path" in under 2 seconds');
     }
   },
@@ -35,7 +35,7 @@ let ruleSet = [
     then: function () {
       // run 'which python' and use that result as their python instance
       return processes.exec('which', ['python']).then(function (results) {
-        return {cmd: results, shell: '/bin/bash', label: 'which python'};
+        return {cmd: _.trim(results), shell: '/bin/bash', label: 'which python'};
       }).timeout(2000, 'Unable to run "which python" in under 2 seconds');
     }
   },
@@ -61,7 +61,15 @@ let ruleSet = [
   },
   {
     when: _.overSome(_.matches({platform: 'linux'}), _.matches({platform: 'darwin'})),
+    then: {cmd: '~/.anaconda/bin/python', shell: '/bin/bash', label: '~/.anaconda/bin/python'}
+  },
+  {
+    when: _.overSome(_.matches({platform: 'linux'}), _.matches({platform: 'darwin'})),
     then: {cmd: '~/.anaconda2/bin/python', shell: '/bin/bash', label: '~/.anaconda2/bin/python'}
+  },
+  {
+    when: _.overSome(_.matches({platform: 'linux'}), _.matches({platform: 'darwin'})),
+    then: {cmd: '~/.anaconda3/bin/python', shell: '/bin/bash', label: '~/.anaconda3/bin/python'}
   },
   {
     when: _.overSome(_.matches({platform: 'linux'}), _.matches({platform: 'darwin'})),
@@ -98,8 +106,6 @@ function findPythons(facts) {
 
   const ruleResults = rules.all(ruleSet, facts);
 
-  log('info', 'findPythons', {ruleResults});
-
   return bluebird.all(ruleResults)
     .then(function (resolveResults) {
       log('info', 'findPythons', {resolveResults});
@@ -108,12 +114,28 @@ function findPythons(facts) {
     .map(function (pythonOptions) {
       return client.checkPython(pythonOptions)
         .then(function (checkResults) {
+          if (!checkResults.hasJupyterKernel) {
+            throw new Error('Missing Jupyter/IPython Kernel');
+          }
+
           return {pythonOptions, checkResults};
         })
         .reflect()
         .then(function (inspection) {
-          log('info', 'findPythons', {pythonOptions, inspection});
-          return inspection.isFulfilled() && inspection.value();
+          if (inspection.isRejected()) {
+            let rejected = inspection.reason();
+
+            if (rejected.message) {
+              rejected = rejected.message;
+            }
+
+            log('info', 'findPythons', {pythonOptions, rejected});
+          } else {
+            const value = inspection.value();
+
+            log('info', 'findPythons', {pythonOptions, value});
+            return value;
+          }
         });
     })
     .filter(_.identity);

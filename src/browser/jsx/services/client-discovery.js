@@ -7,7 +7,7 @@
  */
 
 import _ from 'lodash';
-import {send} from './ipc';
+import {send} from 'ipc';
 import store from './store';
 import session from './session';
 import guid from './guid';

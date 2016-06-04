@@ -39,6 +39,16 @@ def kernel(wd=None, verbose=0):
     # setup ipython kernel and configure it
     kernel_manager, kernel_client = manager.start_new_kernel(extra_arguments=["--matplotlib='inline'"])
 
+    acceptable_types = [
+      "execute_input",
+      "stream",
+      "display_data",
+      "error",
+      "execute_result",
+      "execute_reply",
+      "complete_reply"
+    ]
+
     # apply patches
     dirname = os.path.dirname(os.path.abspath(__file__))
     python_patch_file = os.path.join(dirname, "langs", "python-patch.py")
@@ -85,19 +95,22 @@ def kernel(wd=None, verbose=0):
                 sys.stdout.write(json.dumps({ "source": "eval", "result": result, "id": uid }) + '\n')
 
         try:
-            data = kernel_client.get_iopub_msg(timeout=0.1)
-            sys.stdout.write(json.dumps({"source": "iopub", "result": data}, default=json_serial) + '\n')
+            while True:
+                data = kernel_client.get_iopub_msg(timeout=0.0001)
+                if data.get("msg_type") in acceptable_types:
+                  sys.stdout.write(json.dumps({"source": "iopub", "result": data}, default=json_serial) + '\n')
+                  sys.stdout.flush()
         except Empty:
             pass
 
         try:
-            data = kernel_client.get_shell_msg(timeout=0.1)
+            data = kernel_client.get_shell_msg(timeout=0.0001)
             sys.stdout.write(json.dumps({"source": "shell", "result": data}, default=json_serial) + '\n')
         except Empty:
             pass
 
         try:
-            data = kernel_client.get_stdin_msg(timeout=0.1)
+            data = kernel_client.get_stdin_msg(timeout=0.0001)
             sys.stdout.write(json.dumps({"source": "stdin", "result": data}, default=json_serial) + '\n')
         except Empty:
             pass

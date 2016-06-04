@@ -5,7 +5,7 @@
 
 import _ from 'lodash';
 import ace from 'ace';
-import { send } from '../services/ipc';
+import { send } from 'ipc';
 import * as store from '../services/store';
 import client from '../services/client';
 import clientDiscovery from '../services/client-discovery';

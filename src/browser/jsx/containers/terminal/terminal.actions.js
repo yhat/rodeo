@@ -31,14 +31,8 @@ function startPrompt(jqConsole) {
 
 function execute(cmd, done) {
   return function (dispatch) {
-    dispatch({type: 'TERMINAL_EXECUTING'});
     return client.execute(cmd)
-      .then(function () {
-        return dispatch({type: 'TERMINAL_EXECUTED'});
-      })
-      .catch(function (error) {
-        return dispatch(errorCaught(error));
-      })
+      .catch(error => dispatch(errorCaught(error)))
       .nodeify(done);
   };
 }

@@ -1,8 +1,10 @@
 'use strict';
 
-const electron = require('electron'),
+const bluebird = require('bluebird'),
+  electron = require('electron'),
   browserWindows = require('./browser-windows'),
-  log = require('./log').asInternal(__filename);
+  log = require('./log').asInternal(__filename),
+  promises = require('./promises');
 
 /**
  * @param {string} type
@@ -29,23 +31,35 @@ function getUpdateUrl(currentVersion) {
 
 /**
  * @param {string} currentVersion
+ * @returns {Promise}
  */
 function update(currentVersion) {
-  log('info', 'checking for updates for', currentVersion);
+  return bluebird.try(function () {
+    log('info', 'checking for updates for', currentVersion);
 
-  const autoUpdater = electron.autoUpdater,
-    updateUrl = getUpdateUrl(currentVersion);
+    const autoUpdater = electron.autoUpdater,
+      updateUrl = getUpdateUrl(currentVersion);
 
-  if (updateUrl) {
-    /* eslint max-params: ["error", 6] */
-    autoUpdater.on('update-downloaded', (evt, notes, name, date, url) => dispatch('AUTO_UPDATE_DOWNLOADED', {notes, name, date, url}));
-    autoUpdater.on('error', (error) => dispatch('AUTO_UPDATE_ERROR', error.message));
-    autoUpdater.on('update-available', () => dispatch('AUTO_UPDATE_AVAILABLE'));
-    autoUpdater.on('update-not-available', () => dispatch('AUTO_UPDATE_NOT_AVAILABLE'));
-    log('info', 'check for update at', updateUrl);
-    autoUpdater.setFeedURL(updateUrl);
-    autoUpdater.checkForUpdates();
-  }
+    if (updateUrl) {
+      /* eslint max-params: ["error", 6] */
+      autoUpdater.on('update-downloaded', (evt, notes, name, date, url) => dispatch('AUTO_UPDATE_DOWNLOADED', {notes, name, date, url}));
+      autoUpdater.on('error', (error) => dispatch('AUTO_UPDATE_ERROR', error.message));
+      autoUpdater.on('update-available', () => dispatch('AUTO_UPDATE_AVAILABLE'));
+      autoUpdater.on('update-not-available', () => dispatch('AUTO_UPDATE_NOT_AVAILABLE'));
+      log('info', 'check for update at', updateUrl);
+
+      let promise =  promises.eventsToPromise(autoUpdater, {
+        resolve: ['update-available', 'update-not-available'],
+        resolveTransform: (data, name) => name,
+        reject: ['error']
+      });
+
+      autoUpdater.setFeedURL(updateUrl);
+      autoUpdater.checkForUpdates();
+
+      return promise;
+    }
+  });
 }
 
 /**

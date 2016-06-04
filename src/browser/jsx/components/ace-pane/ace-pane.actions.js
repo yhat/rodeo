@@ -1,5 +1,5 @@
 import _ from 'lodash';
-import {send} from '../../services/ipc';
+import {send} from 'ipc';
 import ace from 'ace';
 import * as store from '../../services/store';
 

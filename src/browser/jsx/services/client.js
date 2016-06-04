@@ -1,6 +1,7 @@
 import _ from 'lodash';
+import bluebird from 'bluebird';
 import store from './store';
-import {send} from './ipc';
+import {send} from 'ipc';
 
 let instancePromise;
 
@@ -70,7 +71,16 @@ function restartInstance(instance) {
  * @returns {Promise}
  */
 function execute(instance, content) {
-  return send('execute', instance, content);
+  const startTime = new Date().getTime();
+
+  return send('execute', instance, content).then(function () {
+    const ms = (new Date().getTime() - startTime);
+    if (ms > 250) {
+      console.warn('execution time', (new Date().getTime() - startTime) + 'ms');
+    } else {
+      console.log('execution time', (new Date().getTime() - startTime) + 'ms');
+    }
+  });
 }
 
 /**
@@ -115,9 +125,11 @@ export default _.mapValues({
   return function () {
     let args = _.toArray(arguments);
 
-    return guaranteeInstance().then(function (instance) {
-      args.unshift(instance);
-      return fn.apply(null, args);
+    return bluebird.try(function () {
+      return guaranteeInstance().then(function (instance) {
+        args.unshift(instance);
+        return fn.apply(null, args);
+      });
     });
   };
 });

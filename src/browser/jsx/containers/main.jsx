@@ -12,6 +12,7 @@ import NotificationsContainer from '../components/notifications/notifications-co
 import rootReducer from '../reducers';
 import ipcDispatcher from '../services/ipc-dispatcher';
 import kernelActions from '../actions/kernel';
+import applicationControl from '../services/application-control';
 
 const createStoreWithMiddleware = applyMiddleware(thunk)(createStore),
   store = createStoreWithMiddleware(rootReducer);
@@ -20,7 +21,9 @@ ipcDispatcher(store.dispatch);
 
 // find the kernel immediately
 store.dispatch(kernelActions.detectKernel());
-store.dispatch(applicationActions.checkForUpdates());
+
+// no visual for this please
+applicationControl.checkForUpdates();
 
 // log every change to the store (this has performance implications, of course).
 store.subscribe(_.debounce(() => console.log('store', store.getState()), 500));

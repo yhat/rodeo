@@ -1,5 +1,5 @@
 import _ from 'lodash';
-import ipc from './ipc';
+import ipc from 'ipc';
 
 import dialogActions from '../actions/dialogs';
 import applicationActions from '../actions/application';
@@ -38,7 +38,10 @@ const dispatchMap = {
     comm_msg: dispatchNoop,
     comm_open: dispatchNoop,
     clear_output: dispatchNoop
-  };
+  },
+  detectVariables = _.debounce(function (dispatch) {
+    dispatch(kernelActions.detectKernelVariables());
+  }, 500);
 
 /**
  * @param {function} dispatch
@@ -61,30 +64,30 @@ function dispatchIOPubResult(dispatch, content) {
   }
 
   dispatch(iopubActions.resultComputed(content.data));
-  dispatch(kernelActions.detectKernelVariables());
+  detectVariables(dispatch);
 }
 
 function dispatchIOPubDisplayData(dispatch, content) {
   dispatch(terminalActions.addDisplayData(content.data));
   dispatch(iopubActions.dataDisplayed(content.data));
-  dispatch(kernelActions.detectKernelVariables());
+  detectVariables(dispatch);
 }
 
 function dispatchIOPubError(dispatch, content) {
   dispatch(terminalActions.addErrorText(content.ename, content.evalue, content.traceback));
   dispatch(iopubActions.errorOccurred(content.ename, content.evalue, content.traceback));
-  dispatch(kernelActions.detectKernelVariables());
+  detectVariables(dispatch);
 }
 
 function dispatchIOPubStream(dispatch, content) {
   dispatch(terminalActions.addOutputText(content.text));
   dispatch(iopubActions.dataStreamed(content.name, content.text));
-  dispatch(kernelActions.detectKernelVariables());
+  detectVariables(dispatch);
 }
 
 function dispatchIOPubExecuteInput(dispatch, content) {
   dispatch(iopubActions.inputExecuted(content.code));
-  dispatch(kernelActions.detectKernelVariables());
+  detectVariables(dispatch);
 }
 
 function dispatchIOPubStatus(dispatch, content) {

@@ -1,49 +1,40 @@
 'use strict';
 
-const bluebird = require('bluebird');
+const _ = require('lodash'),
+  bluebird = require('bluebird');
 
 /**
- *
  * @param {EventEmitter} eventEmitter
- * @param {{resolve: string, reject: string}} events
+ * @param {{resolve: (string|Array), reject: (string|Array)}} events
+ * @param {function} [transform]
  * @returns {Promise}
  */
-function eventsToPromise(eventEmitter, events) {
+function eventsToPromise(eventEmitter, events, transform) {
+  const rejections = _.isString(events.reject) ? [events.reject] : events.reject,
+    resolutions = _.isString(events.resolve) ? [events.resolve] : events.resolve,
+    resolveTransform = events.resolveTransform || _.identity,
+    rejectTransform = events.rejectTransform || _.identity;
+
   return new bluebird(function (resolve, reject) {
     // noinspection JSDuplicatedDeclaration
-    let resolveReady, rejectError;
+    let resolveReady, rejectError,
+      removeListeners = function () {
+        rejections.map(name => eventEmitter.removeListener(name, rejectError));
+        resolutions.map(name => eventEmitter.removeListener(name, resolveReady));
+      };
 
-    resolveReady = function (data) {
-      resolve(data);
-      eventEmitter.removeListener(events.reject, rejectError);
+    resolveReady = function (data, name) {
+      resolve(resolveTransform(data, name));
+      removeListeners();
     };
-    rejectError = function (error) {
-      reject(error);
-      eventEmitter.removeListener(events.resolve, resolveReady);
+    rejectError = function (error, name) {
+      reject(rejectTransform(error, name));
+      removeListeners();
     };
-    eventEmitter.once(events.resolve, resolveReady);
-    eventEmitter.once(events.reject, rejectError);
+
+    rejections.map(name => eventEmitter.on(name, _.partial(rejectError, _, name)));
+    resolutions.map(name => eventEmitter.on(name, _.partial(resolveReady, _, name)));
   });
 }
 
-/**
- * Only one item per key will exist or can be requested.  If the item is being created, others will wait as well.
- * @param {object} list  list of items that can only exist once
- * @param {string} key  identifier
- * @param {function} fn  creation function
- * @returns {Promise}
- */
-function promiseOnlyOne(list, key, fn) {
-  let promise = list[key];
-
-  if (promise) {
-    return promise;
-  } else {
-    promise = bluebird.try(fn);
-    list[key] = promise;
-    return promise;
-  }
-}
-
 module.exports.eventsToPromise = eventsToPromise;
-module.exports.promiseOnlyOne = promiseOnlyOne;
