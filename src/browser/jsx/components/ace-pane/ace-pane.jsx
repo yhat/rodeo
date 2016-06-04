@@ -3,7 +3,7 @@ import ReactDOM from 'react-dom';
 import ace from 'ace';
 import './ace-pane.less';
 import _ from 'lodash';
-import { send } from '../../services/ipc';
+import { send } from 'ipc';
 import aceShortcuts from '../../services/ace-shortcuts';
 import aceSettings from '../../services/ace-settings';
 

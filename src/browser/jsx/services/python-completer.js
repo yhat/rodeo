@@ -1,6 +1,4 @@
 import _ from 'lodash';
-import {send} from './ipc';
-import store from './store';
 import client from './client';
 
 /* eslint max-params: 0 */

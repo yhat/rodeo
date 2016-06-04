@@ -13,8 +13,6 @@ export default React.createClass({
   render: function () {
     const props = this.props;
 
-    console.log('disabled', props.disabled);
-
     return (
       <li className="setup-list-item">
         <button className="btn btn-default" disabled={props.disabled} onClick={props.onClick}>

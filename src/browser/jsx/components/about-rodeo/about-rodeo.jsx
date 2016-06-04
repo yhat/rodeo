@@ -21,8 +21,6 @@ export default React.createClass({
     const props = this.props,
       version = props.appVersion && <div className="version">{props.appVersion}</div>;
 
-    console.log('props', props);
-
     return (
       <div className="about-rodeo">
         <img src="images/rodeo-text-dark.png"/>

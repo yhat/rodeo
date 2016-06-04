@@ -120,13 +120,18 @@ function request(client, invocation, options) {
     id = uuid.v4().toString(),
     inputPromise = write(childProcess, _.assign({id}, invocation)),
     successEvent = options.successEvent,
-    hidden = options.hidden;
+    hidden = options.hidden,
+    startTime = new Date().getTime();
 
   return inputPromise.then(function () {
     return new Promise(function (resolve, reject) {
       requestMap[id] = {id, invocation, successEvent, hidden, deferred: {resolve, reject}};
     });
   }).finally(function () {
+    const endTime = (new Date().getTime() - startTime) + 'ms';
+
+    log('info', 'request', invocation, endTime);
+
     // clean up reference, no matter what the result
     delete requestMap[id];
   });
@@ -193,7 +198,7 @@ class JupyterClient extends EventEmitter {
       method: 'execute',
       kwargs: _.assign({code}, pythonLanguage.toPythonArgs(args))
     }, {
-      successEvent: ['execute_results', 'display_data', 'stream'],
+      successEvent: ['execute_result', 'display_data', 'stream'],
       emitOnly: []
     });
   }
@@ -374,7 +379,7 @@ function getPythonScriptResults(targetFile, options) {
   const processOptions = getPythonCommandOptions(options),
     cmd = options.cmd || 'python';
 
-  return processes.run(cmd, [targetFile], processOptions);
+  return processes.exec(cmd, [targetFile], processOptions);
 }
 
 /**
@@ -384,7 +389,12 @@ function getPythonScriptResults(targetFile, options) {
 function checkPython(options) {
   const targetFile = path.resolve(path.join(__dirname, 'check_python.py'));
 
-  return exports.getPythonScriptResults(targetFile, options).then(JSON.parse);
+  return exports.getPythonScriptResults(targetFile, options)
+    .then(JSON.parse)
+    .then(function (pythonOptions) {
+      return _.assign({}, pythonOptions, options);
+    })
+    .timeout(10000, 'Unable to check python in under 10 seconds: ' + JSON.stringify(options));
 }
 
 /**

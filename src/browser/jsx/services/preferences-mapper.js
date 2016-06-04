@@ -1,6 +1,6 @@
 import _ from 'lodash';
 import bluebird from 'bluebird';
-import {send} from './ipc';
+import {send} from 'ipc';
 import * as store from './store';
 import validation from './validation';
 import clientDiscovery from './client-discovery';

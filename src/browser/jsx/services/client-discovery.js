@@ -7,7 +7,7 @@
  */
 
 import _ from 'lodash';
-import {send} from './ipc';
+import {send} from 'ipc';
 import store from './store';
 import session from './session';
 import guid from './guid';
@@ -20,6 +20,10 @@ import guid from './guid';
  */
 function checkKernel(options) {
   options = _.pick(options, ['cmd', 'cwd']);
+
+  if (!options.cmd) {
+    throw new Error('Missing cmd for checkKernel');
+  }
 
   return send('checkKernel', options);
 }
@@ -77,7 +81,8 @@ function getFreshPythonOptions() {
 
     store.set('systemFacts', facts);
     return checkKernel(pythonOptions)
-      .then(() => pythonOptions);
+      .then(() => pythonOptions)
+      .timeout(5000, 'Timed out getting new python options');
   });
 }
 

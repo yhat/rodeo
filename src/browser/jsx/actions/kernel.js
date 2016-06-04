@@ -5,7 +5,7 @@
 
 import _ from 'lodash';
 import ace from 'ace';
-import { send } from '../services/ipc';
+import { send } from 'ipc';
 import * as store from '../services/store';
 import client from '../services/client';
 import clientDiscovery from '../services/client-discovery';
@@ -30,14 +30,9 @@ export function isIdle() {
 }
 
 export function kernelDetected(pythonOptions) {
-  // change executable to cmd
-  pythonOptions.cmd = pythonOptions.cmd || pythonOptions.executable;
-  delete pythonOptions.executable;
-
   // save over previous settings
   if (!pythonOptions.cmd) {
-    debugger;
-    throw new Error('WOAH!');
+    throw new Error('Unacceptable python options without cmd that created it');
   }
 
   store.set('pythonOptions', pythonOptions);
@@ -56,12 +51,12 @@ export function askForPythonOptions() {
  */
 export function detectKernel() {
   return function (dispatch) {
-    const pythonOptions = store.get('pythonOptions');
+    const pythonCmd = store.get('pythonCmd');
     let promise;
 
-    if (pythonOptions) {
+    if (pythonCmd) {
       // verify anyway
-      promise = clientDiscovery.checkKernel(pythonOptions)
+      promise = clientDiscovery.checkKernel({cmd: pythonCmd})
         .catch(() => clientDiscovery.getFreshPythonOptions());
     } else {
       // get them
@@ -93,6 +88,7 @@ function detectKernelVariables() {
     }).catch(error => dispatch(errorCaught(error)));
   };
 }
+
 export function executeActiveFileInActiveConsole() {
   return function (dispatch, getState) {
     const state = getState(),
