@@ -65,7 +65,11 @@ export function detectKernel() {
 
     return promise
       .then(pythonOptions => dispatch(kernelDetected(pythonOptions)))
-      .catch(() => dispatch(askForPythonOptions()));
+      .catch(error => {
+        console.warn('error using detected python', error);
+
+        return dispatch(askForPythonOptions());
+      });
   };
 }
 

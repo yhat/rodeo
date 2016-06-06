@@ -41,7 +41,7 @@ export default React.createClass({
     const props = this.props,
       disableAutoFocus = true, // don't steal focus from other hard-working components
       el = ReactDOM.findDOMNode(this),
-      jqConsole = $(ReactDOM.findDOMNode(this)).jqconsole(props.message, '>>> ', '... ', disableAutoFocus);
+      jqConsole = $(el).jqconsole(props.message, '>>> ', '... ', disableAutoFocus);
 
     jqConsole.SetIndentWidth(this.props.indentWidth);
 
@@ -83,15 +83,24 @@ export default React.createClass({
       jqConsole.ClearPromptText();
     });
 
-    jqConsole.RegisterShortcut('l', function() {
+    jqConsole.RegisterShortcut('l', function () {
       jqConsole.Clear();
+      const extras = el.querySelectorAll('img,iframe');
+
+      _.each(extras, function (extra) {
+        const parent = extra.parentNode;
+
+        console.log('removing', extra, parent);
+
+        parent.removeChild(extra);
+      });
     });
 
-    jqConsole.RegisterShortcut('a', function() {
+    jqConsole.RegisterShortcut('a', function () {
       jqConsole.MoveToStart();
     });
 
-    jqConsole.RegisterShortcut('e', function() {
+    jqConsole.RegisterShortcut('e', function () {
       jqConsole.MoveToEnd();
     });
 

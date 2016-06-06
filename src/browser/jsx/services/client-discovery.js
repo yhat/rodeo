@@ -7,6 +7,7 @@
  */
 
 import _ from 'lodash';
+import bluebird from 'bluebird';
 import {send} from 'ipc';
 import store from './store';
 import session from './session';
@@ -25,7 +26,7 @@ function checkKernel(options) {
     throw new Error('Missing cmd for checkKernel');
   }
 
-  return send('checkKernel', options);
+  return bluebird.try(() => send('checkKernel', options));
 }
 
 function getSystemFacts() {

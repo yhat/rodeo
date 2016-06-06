@@ -9,8 +9,19 @@ import kernelActions from '../actions/kernel';
 import setupReducer from './setup-viewer/setup-viewer.reducer';
 import './startup.less';
 
+function broadcast(state, action) {
+  console.log(action.type, action);
+
+  if (!state) {
+    return {};
+  }
+
+  return state;
+}
+
 const rootReducer = combineReducers({
-    setup: setupReducer
+    setup: setupReducer,
+    broadcast
   }),
   createStoreWithMiddleware = applyMiddleware(thunk)(createStore),
   store = createStoreWithMiddleware(rootReducer);

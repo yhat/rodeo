@@ -73,7 +73,10 @@ export default React.createClass({
       content = (
         <div className="setup-content">
           <ul>
-            <SetupListItem onClick={props.onReady}>{'Ready to Rodeo!'}</SetupListItem>
+            <SetupListItem
+              disabled={props.pythonValidity !== 'good'}
+              onClick={props.onReady}
+            >{'Ready to Rodeo!'}</SetupListItem>
           </ul>
         </div>
       );
