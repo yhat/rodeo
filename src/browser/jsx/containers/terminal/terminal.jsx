@@ -83,7 +83,7 @@ export default React.createClass({
       jqConsole.ClearPromptText();
     });
 
-    jqConsole.RegisterShortcut('l', function() {
+    jqConsole.RegisterShortcut('l', function () {
       jqConsole.Clear();
       const extras = el.querySelectorAll('img,iframe');
 
@@ -96,11 +96,11 @@ export default React.createClass({
       });
     });
 
-    jqConsole.RegisterShortcut('a', function() {
+    jqConsole.RegisterShortcut('a', function () {
       jqConsole.MoveToStart();
     });
 
-    jqConsole.RegisterShortcut('e', function() {
+    jqConsole.RegisterShortcut('e', function () {
       jqConsole.MoveToEnd();
     });
 
