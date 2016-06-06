@@ -29,10 +29,9 @@ function askForPythonOptions(state) {
 }
 
 /**
- *
  * @param {object} state
  * @param {object} action
- * @returns {*}
+ * @returns {object}
  */
 function kernelDetected(state, action) {
   state = _.cloneDeep(state);
