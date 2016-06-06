@@ -1,18 +1,16 @@
 import _ from 'lodash';
-import * as store from '../../services/store';
+import store from '../../services/store';
 import mapReducers from '../../services/map-reducers';
 
 const initialState = getDefault();
 
 function getDefault() {
   const facts = store.get('systemFacts'),
-    homedir = facts && facts.homedir;
+    homedir = facts && facts.homedir,
+    pythonValidity = store.get('pythonCmd') ? 'good' : 'bad',
+    workingDirectory = store.get('workingDirectory') || homedir || '~';
 
-  return _.assign({
-    facts,
-    homedir,
-    workingDirectory: store.get('workingDirectory') || homedir || '~'
-  }, store.get('pythonOptions') || {});
+  return _.assign({facts, homedir, workingDirectory, pythonValidity}, store.get('pythonOptions') || {});
 }
 
 function askForPythonOptions(state) {
@@ -30,13 +28,19 @@ function askForPythonOptions(state) {
   return state;
 }
 
+/**
+ *
+ * @param {object} state
+ * @param {object} action
+ * @returns {*}
+ */
 function kernelDetected(state, action) {
   state = _.cloneDeep(state);
 
   const pythonOptions = action.pythonOptions;
 
   _.assign(state, action.pythonOptions);
-  state.pythonValidity = pythonOptions.cmd && pythonOptions.packages ? 'good' : 'bad';
+  state.pythonValidity = pythonOptions.cmd ? 'good' : 'bad';
   delete state.ask;
 
   return state;

@@ -1,6 +1,7 @@
 import kernelActions from '../../actions/kernel';
 import {send} from 'ipc';
 import clientDiscovery from '../../services/client-discovery';
+import {errorCaught} from '../../actions/application';
 
 function closeWindow() {
   return function (dispatch) {
@@ -19,7 +20,7 @@ function setCmd(cmd) {
   return function (dispatch) {
     return clientDiscovery.checkKernel({cmd})
       .then(pythonOptions => dispatch(kernelActions.kernelDetected(pythonOptions)))
-      .catch(error => console.error(error));
+      .catch(error => dispatch(errorCaught(error)));
   };
 }
 
@@ -37,7 +38,7 @@ function saveTest(cmd) {
     return clientDiscovery.checkKernel({cmd})
       .then(pythonOptions => dispatch(kernelActions.kernelDetected(pythonOptions)))
       .then(() => dispatch({type: 'SAVED_PYTHON_TEST'}))
-      .catch(error => console.error(error));
+      .catch(error => dispatch(errorCaught(error)));
   };
 }
 
