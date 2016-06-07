@@ -27,7 +27,8 @@ function mapDispatchToProps(dispatch) {
   return {
     onCancel: id => dispatch(actions.cancel(id)),
     onCancelAll: () => dispatch(actions.cancelAll()),
-    onOK: (id, result) => dispatch(actions.ok(id, result))
+    onOK: (id, result) => dispatch(actions.ok(id, result)),
+    onRegister: () => dispatch(actions.register())
   };
 }
 
@@ -41,7 +42,9 @@ export default connect(mapStateToProps, mapDispatchToProps)(React.createClass({
   propTypes: {
     onCancel: React.PropTypes.func.isRequired,
     onCancelAll: React.PropTypes.func.isRequired,
-    onOK: React.PropTypes.func.isRequired
+    onOK: React.PropTypes.func.isRequired,
+    onRegister: React.PropTypes.func,
+    onRegisterError: React.PropTypes.func
   },
   /**
    * @param {MouseEvent} event

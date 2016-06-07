@@ -1,9 +1,9 @@
 import _ from 'lodash';
 import $ from 'jquery';
+import registration from '../../services/registration';
 import React from 'react';
 import ReactDOM from 'react-dom';
 import Marked from '../marked/marked.jsx';
-import ActionButton from '../action-button.jsx';
 import Logo from '../brand-splashes/logo-rodeo-square-large.jsx';
 import LabelInput from '../label-input.jsx';
 import LabelChecklist from '../label-checklist.jsx';
@@ -20,8 +20,7 @@ import './register-rodeo.css';
 export default React.createClass({
   displayName: 'RegisterRodeo',
   propTypes: {
-    onClose: React.PropTypes.func,
-    userId: React.PropTypes.string
+    onClose: React.PropTypes.func.isRequired
   },
   contextTypes: {
     store: React.PropTypes.object
@@ -35,22 +34,17 @@ export default React.createClass({
     event.preventDefault();
 
     const props = this.props,
-      el = ReactDOM.findDOMNode(this),
-      request = new XMLHttpRequest();
-
-    formData.append('rodeoId', props.userId);
+      el = ReactDOM.findDOMNode(this);
 
     // until Chrome 50 is out and we can use FormData
-    let data = $(el.querySelector('form')).serialize();
+    let data = _.reduce($(el.querySelector('form')).serializeArray(), function (result, item) {
+      result[item.name] = item.value;
+      return result;
+    }, {});
 
-    data['rodeoId'] = props.userId;
-
-    let queryString = _.map(data, function (value, key) {
-      return encodeURIComponent(key) + '=' + encodeURIComponent(value);
-    }, []).join('&');
-
-    request.open('GET', 'http://yhat.com/rodeo/register?' + queryString);
-    request.send(formData);
+    return registration.register(data)
+      .then(props.onClose)
+      .catch(props.onError);
   },
   handleRegister: function () {
     const el = ReactDOM.findDOMNode(this),
@@ -74,7 +68,6 @@ export default React.createClass({
         parent.removeChild(p);
       }
     });
-
   },
   render: function () {
     return (
@@ -85,9 +78,9 @@ export default React.createClass({
           <form className="column" onSubmit={this.handleSubmit}>
             <div className="row-wide">
               <div className="row-wide-item">
-                <LabelInput label="First Name" name="first-name" required/>
-                <LabelInput label="Last Name" name="last-name" required/>
-                <LabelInput label="Email" name="email" required type="email"/>
+                <LabelInput label="First Name" name="firstName" required/>
+                <LabelInput label="Last Name" name="lastName" required/>
+                <LabelInput label="Email" name="emailAddress" required type="email"/>
                 <LabelInput label="Company" name="company"/>
               </div>
               <div className="row-wide-item">
