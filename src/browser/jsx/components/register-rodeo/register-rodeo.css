@@ -1,0 +1,99 @@
+.register-rodeo {
+  padding: 20px;
+  position: relative;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+}
+
+.register-rodeo img {
+  max-height: 150px;
+  width: 90%;
+}
+
+.register-rodeo button {
+  margin: 20px;
+  margin-top: 0;
+}
+
+.register-rodeo .container {
+  width: 100%;
+  overflow-y: auto;
+}
+
+.register-rodeo form {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: nowrap;
+  justify-content: space-between;
+  text-align: left;
+}
+
+.register-rodeo .row-wide-item {
+  flex: 1 0 300px;
+  margin: 30px;
+  margin-right: 50px;
+  margin-left: 50px;
+}
+
+.register-rodeo .row-wide {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: nowrap;
+  justify-content: space-between;
+}
+
+.register-rodeo .row-thin {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: nowrap;
+  justify-content: center;
+}
+
+.register-rodeo .column {
+  display: flex;
+  flex-direction: column;
+  flex-wrap: nowrap;
+  justify-content: center;
+}
+
+.register-rodeo input {
+  transition: all 0.4s;
+}
+
+.register-rodeo .label-input {
+  position: relative;
+}
+
+.register-rodeo .label-input.required label:after {
+  content: '*';
+  top: 0;
+  right: 0;
+  color: #d14f4a;
+  margin-left: 4px;
+}
+
+.register-rodeo input[type="text"],
+.register-rodeo input[type="email"]{
+  box-shadow: 0 0 5px #ffa453;
+  padding: 2px;
+}
+
+/* Sure would like it if I didn't have to override Bootstrap */
+.register-rodeo textarea:focus,
+.register-rodeo textarea.form-control:focus,
+.register-rodeo input.form-control:focus,
+.register-rodeo input[type=text]:focus,
+.register-rodeo input[type=password]:focus,
+.register-rodeo input[type=email]:focus,
+.register-rodeo input[type=number]:focus,
+.register-rodeo [type=text].form-control:focus,
+.register-rodeo [type=password].form-control:focus,
+.register-rodeo [type=email].form-control:focus,
+.register-rodeo [type=tel].form-control:focus,
+.register-rodeo [contenteditable].form-control:focus {
+  -webkit-box-shadow: 0 0 5px #ffa453;
+  box-shadow: 0 0 5px #ffa453;
+  padding: 2px;
+}
+

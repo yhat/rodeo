@@ -7,6 +7,7 @@ import AboutRodeo from '../about-rodeo/about-rodeo.jsx';
 import StickersPane from '../stickers-pane/stickers-pane.jsx';
 import Acknowledgements from '../acknowledgements/acknowledgements.jsx';
 import PreferencesViewer from '../../containers/preferences-viewer/preferences-viewer.jsx';
+import RegisterRodeo from '../register-rodeo/register-rodeo.jsx';
 import actions from './modal-dialog.actions';
 import './modal-dialog-container.css';
 
@@ -26,7 +27,8 @@ function mapDispatchToProps(dispatch) {
   return {
     onCancel: id => dispatch(actions.cancel(id)),
     onCancelAll: () => dispatch(actions.cancelAll()),
-    onOK: (id, result) => dispatch(actions.ok(id, result))
+    onOK: (id, result) => dispatch(actions.ok(id, result)),
+    onRegister: () => dispatch(actions.register())
   };
 }
 
@@ -40,7 +42,9 @@ export default connect(mapStateToProps, mapDispatchToProps)(React.createClass({
   propTypes: {
     onCancel: React.PropTypes.func.isRequired,
     onCancelAll: React.PropTypes.func.isRequired,
-    onOK: React.PropTypes.func.isRequired
+    onOK: React.PropTypes.func.isRequired,
+    onRegister: React.PropTypes.func,
+    onRegisterError: React.PropTypes.func
   },
   /**
    * @param {MouseEvent} event
@@ -93,6 +97,12 @@ export default connect(mapStateToProps, mapDispatchToProps)(React.createClass({
         contents = (
           <ModalDialog key={modal.id} onCancel={onCancel} onOK={onOK} {...modal}>
             <PreferencesViewer onClose={onCancel} />
+          </ModalDialog>
+        );
+      } else if (modal.contentType === 'REGISTER_RODEO') {
+        contents = (
+          <ModalDialog key={modal.id} onCancel={onCancel} onOK={onOK} {...modal}>
+            <RegisterRodeo onClose={onCancel} />
           </ModalDialog>
         );
       } else {

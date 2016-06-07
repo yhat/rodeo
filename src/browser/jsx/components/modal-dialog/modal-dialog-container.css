@@ -10,11 +10,13 @@
 
 .modal-dialog-container .inner-container {
   position: absolute;
-  display: block;
+  display: flex;
   top: 0;
   bottom: 0;
   left: 0;
   right: 0;
+  justify-content: center;
+  flex-direction: column;
 }
 
 .modal-dialog-container .inner-container:last-child {

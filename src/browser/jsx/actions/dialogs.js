@@ -1,5 +1,6 @@
 import clientDiscovery from '../services/client-discovery';
 import {errorCaught} from './application';
+import registration from '../services/registration';
 
 export function showAboutRodeo() {
   const type = 'ADD_MODAL_DIALOG',
@@ -28,10 +29,20 @@ export function showNotification(content) {
   return {type: 'ADD_MODAL_DIALOG', contentType: 'MARKED', content};
 }
 
+export function showRegisterRodeo(content) {
+  return function (dispatch) {
+    if (registration.shouldShowDialog()) {
+      registration.rememberShowedDialog();
+      dispatch({type: 'ADD_MODAL_DIALOG', contentType: 'REGISTER_RODEO', content});
+    }
+  };
+}
+
 export default {
   showAboutRodeo,
   showAboutStickers,
   showAcknowledgements,
   showPreferences,
-  showNotification
+  showNotification,
+  showRegisterRodeo
 };
