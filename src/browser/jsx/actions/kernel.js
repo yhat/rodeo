@@ -96,7 +96,8 @@ function detectKernelVariables() {
 export function executeActiveFileInActiveConsole() {
   return function (dispatch, getState) {
     const state = getState(),
-      focusedAce = state && _.find(state.acePanes, {hasFocus: true}),
+      items = _.head(state.editorTabGroups).items,
+      focusedAce = state && _.find(items, {hasFocus: true}),
       el = focusedAce && document.querySelector('#' + focusedAce.id),
       aceInstance = el && ace.edit(el),
       filename = focusedAce.filename,
@@ -104,11 +105,13 @@ export function executeActiveFileInActiveConsole() {
       id = focusedTerminal.id,
       content = aceInstance && aceInstance.getSession().getValue();
 
-    dispatch({type: 'EXECUTING', filename, id});
+    if (content) {
+      dispatch({type: 'EXECUTING', filename, id});
 
-    return client.execute(content)
-      .then(() => dispatch({type: 'EXECUTED', id}))
-      .catch(error => dispatch(errorCaught(error)));
+      return client.execute(content)
+        .then(() => dispatch({type: 'EXECUTED', id}))
+        .catch(error => dispatch(errorCaught(error)));
+    }
   };
 }
 

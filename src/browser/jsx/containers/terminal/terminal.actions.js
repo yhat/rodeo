@@ -58,9 +58,7 @@ function addInputText(context) {
         jqConsole.SetHistory(jqConsole.GetHistory().concat([fullText]));
         return client.execute(fullText)
           .catch(error => dispatch(errorCaught(error)))
-          .then(() => _.defer(() => {
-            dispatch(startPrompt(jqConsole));
-          }));
+          .then(() => _.defer(() => dispatch(startPrompt(jqConsole))));
       } else {
         jqConsole.ClearPromptText();
         jqConsole.SetPromptText(fullText + '\n');
@@ -194,6 +192,7 @@ function restart() {
     client.restartInstance()
       .then(function () {
         jqConsole.Reset();
+        _.defer(() => dispatch(startPrompt(jqConsole)));
       })
       .catch(function (error) {
         return dispatch(errorCaught(error));

@@ -418,7 +418,8 @@ function onGetResult(options, text) {
 
 function onGetAutoComplete(options, text, cursorPos) {
   return getKernelInstanceById(options.instanceId)
-    .then(client => client.getAutoComplete(text, cursorPos));
+    .then(client => client.getAutoComplete(text, cursorPos))
+    .timeout(5000, 'AutoComplete failed to finish in 5 seconds');
 }
 
 function onIsComplete(options, text) {

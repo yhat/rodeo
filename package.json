@@ -120,6 +120,7 @@
     "fs-extra": "^0.23.1",
     "handlebars": "^4.0.5",
     "highlight.js": "^8.9.1",
+    "immutable": "^3.8.1",
     "jquery": "^2.2.3",
     "js-yaml": "^3.5.5",
     "lodash": "^4.11",
