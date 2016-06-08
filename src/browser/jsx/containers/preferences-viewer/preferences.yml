@@ -1,27 +1,5 @@
 ---
   -
-    label: Global
-    items:
-      -
-        explanation: globalSettingsText
-        type: marked
-      -
-        label: Check For Updates
-        type: button
-      -
-        key: fontSize
-        label: Font Size
-        type: number
-        size: 4
-        valid:
-          - isFontSize
-        defaultValue: 12
-      -
-        key: trackMetrics
-        label: Track Metrics
-        type: checkbox
-        defaultValue: true
-  -
     label: Python
     items:
       -
@@ -29,16 +7,16 @@
         type: marked
       -
         key: workingDirectory
-        label: Working Directory
+        label: Default Working Directory
         type: text
-        size: 30
+        inputWidth: 300px
         valid:
           - isPathReal
       -
         key: pythonCmd
         label: Python Command
         type: text
-        size: 30
+        inputWidth: 300px
         valid:
           - isPython
         change:
@@ -57,14 +35,21 @@
         key: aceTabSpaces
         label: Tab Spaces
         type: number
-        size: 4
+        inputWidth: 40px
         valid:
           - isTabSpace
         defaultValue: 4
       -
         key: aceKeyBindings
         label: Key Bindings
-        type: text
+        type: select
+        options:
+          - label: default
+            value: default
+          - label: emacs
+            value: emacs
+          - label: vim
+            value: vim
   -
     label: Console
     items:
@@ -102,6 +87,28 @@
         explanation: checkBackLaterGit
         className: not-implemented-yet
         type: marked
+  -
+    label: Global
+    items:
+      -
+        explanation: globalSettingsText
+        type: marked
+      -
+        label: Check For Updates
+        type: button
+      -
+        key: fontSize
+        label: Font Size
+        type: number
+        inputWidth: 40px
+        valid:
+          - isFontSize
+        defaultValue: 12
+      -
+        key: trackMetrics
+        label: Track Metrics
+        type: checkbox
+        defaultValue: true
   -
     label: Project
     items:

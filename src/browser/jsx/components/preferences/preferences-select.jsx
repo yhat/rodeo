@@ -14,11 +14,9 @@ export default React.createClass({
     className: React.PropTypes.string,
     defaultValue: React.PropTypes.oneOfType([React.PropTypes.string, React.PropTypes.number, React.PropTypes.bool]),
     id: React.PropTypes.string,
-    inputWidth: React.PropTypes.string,
     onChange: React.PropTypes.func,
-    placeholder: React.PropTypes.string,
-    type: React.PropTypes.string,
-    value: React.PropTypes.oneOfType([React.PropTypes.string, React.PropTypes.number, React.PropTypes.bool])
+    options: React.PropTypes.array,
+    value: React.PropTypes.oneOfType([React.PropTypes.string])
   },
   getDefaultProps: function () {
     return {
@@ -34,34 +32,23 @@ export default React.createClass({
       inputStyle = {},
       className = [props.className];
 
-    if (props.type === 'checkbox') {
-      inputProps.checked = inputProps.value;
-      inputProps.defaultChecked = inputProps.defaultValue;
-      delete inputProps.value;
-      delete inputProps.defaultValue;
-    } else {
-      className.push('form-control');
-    }
-
     className = className.join(' ');
 
     if (props.label) {
       label = <label className="control-label" htmlFor={props.id}>{_.startCase(props.label)}</label>;
     }
 
-    if (props.inputWidth) {
-      inputStyle.width = props.inputWidth;
-    }
-
     return (
       <div className="form-group">
         {label}
-        <input
+        <select
           className={className}
           onChange={props.onChange}
           style={inputStyle}
           {...inputProps}
-        />
+        >
+          {props.options.map(option => <option value={option.value}>{option.label}</option>)}
+        </select>
       </div>
     );
   }

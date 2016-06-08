@@ -14,7 +14,7 @@ dynamicSettingMap = {
     instance.setFontSize(value);
   },
   keyBindings: function (instance, value) {
-    instance.setKeyboardHandler(value === 'default' ? null : value);
+    instance.setKeyboardHandler('ace/keyboard/' + (value === 'default' ? null : value));
   },
   highlightLine: function (instance, value) {
     instance.setHighlightActiveLine(value);
