@@ -63,3 +63,8 @@ main .row {
 .icon-overflowing span {
   display: inline-block;
 }
+
+.right-icon-text {
+  display: inline-block;
+  margin-left:4px;
+}
