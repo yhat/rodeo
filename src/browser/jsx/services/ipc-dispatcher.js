@@ -73,7 +73,7 @@ function dispatchIOPubResult(dispatch, content) {
 function dispatchIOPubDisplayData(dispatch, content) {
   dispatch(terminalActions.addDisplayData(content.data));
   dispatch(iopubActions.dataDisplayed(content.data));
-  if (store.get('plotsFocusOnNew')) {
+  if (store.get('plotsFocusOnNew') !== false) {
     dispatch(plotViewerActions.focusNewestPlot());
   }
   detectVariables(dispatch);

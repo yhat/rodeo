@@ -1,5 +1,5 @@
 import _ from 'lodash';
-
+import freeTabGroupAction from '../free-tab-group/free-tab-group.actions';
 
 function removeActivePlot() {
   return {type: 'REMOVE_ACTIVE_PLOT'};
@@ -32,6 +32,7 @@ function focusNewestPlot() {
       newestPlot = _.head(_.sortBy(plots, ['createdAt']));
 
     if (newestPlot) {
+      dispatch(freeTabGroupAction.focusFirstTabByType('plot-viewer'));
       dispatch(focusPlot(newestPlot.id));
     }
   };

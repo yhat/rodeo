@@ -389,7 +389,7 @@ function onKillKernelInstance(id) {
 }
 
 /**
- * @param id
+ * @param {string} id
  * @returns {Promise}
  */
 function getKernelInstanceById(id) {
@@ -413,7 +413,6 @@ function onExecute(options, text) {
   if (!text) {
     throw Error('Missing text to execute');
   }
-
 
   return getKernelInstanceById(options.instanceId)
     .then(client => client.execute(text));

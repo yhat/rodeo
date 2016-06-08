@@ -78,7 +78,7 @@ export default connect(mapStateToProps, mapDispatchToProps)(React.createClass({
 
         {items.map(item => {
           return (
-            <TabbedPaneItem icon={item.icon} id={item.tabId} key={item.tabId} label={item.label}>
+            <TabbedPaneItem hasFocus={item.hasFocus} icon={item.icon} id={item.tabId} key={item.tabId} label={item.label}>
               {types[item.contentType]()}
             </TabbedPaneItem>
           );
