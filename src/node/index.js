@@ -352,19 +352,22 @@ function onCreateKernelInstance(options) {
     cwd: {type: 'string'}
   });
 
-  let clientFactory = require('./kernels/python/client'),
-    instanceId = cuid();
-
   if (!options) {
     throw new Error('Must provide kernel options to run python');
   } else if (!options.cmd) {
     throw new Error('Must provide cmd to create python instance, i.e., {cmd: "python"}');
   }
 
-  return clientFactory.create(options).then(function (client) {
-    log('info', 'created new python kernel process', options);
+  let clientFactory = require('./kernels/python/client'),
+    instanceId = cuid(),
+    promise = clientFactory.create(options);
+
+  kernelClients[instanceId] = promise;
+
+  log('info', 'created new python kernel process', instanceId, options);
+
+  return promise.then(function (client) {
     subscribeWindowToKernelEvents('mainWindow', client);
-    kernelClients[instanceId] = client;
     return instanceId;
   });
 }
@@ -374,18 +377,29 @@ function onKillKernelInstance(id) {
     throw new Error('Kernel with that id does not exist.');
   }
 
-  return kernelClients[id].kill().then(function () {
-    delete kernelClients[id];
-  });
+  let promise = kernelClients[id];
+
+  delete kernelClients[id];
+  log('info', 'deleted python kernel process reference', id);
+
+  return promise
+    .then(client => client.kill()).then(function () {
+      log('info', 'successfully killed python kernel process reference', id);
+    });
 }
 
+/**
+ * @param id
+ * @returns {Promise}
+ */
 function getKernelInstanceById(id) {
-  return bluebird.try(function () {
-    if (!kernelClients[id]) {
-      throw new Error('Kernel with that id does not exist.');
-    }
-    return kernelClients[id];
-  });
+  log('info', 'getKernelInstanceById', id);
+
+  if (!kernelClients[id]) {
+    throw new Error('Kernel with this id does not exist: ' + id);
+  }
+
+  return kernelClients[id];
 }
 
 /**

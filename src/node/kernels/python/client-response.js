@@ -1,6 +1,7 @@
 'use strict';
 
-const _ = require('lodash');
+const _ = require('lodash'),
+  log = require('../../services/log').asInternal(__filename);
 let outputMap = {};
 
 /**
@@ -74,9 +75,17 @@ function isRequestToOutputLink(client, response) {
  * @returns {boolean}
  */
 function isExecutionResult(response) {
-  const parentMessageId = _.get(response, 'result.parent_header.msg_id');
+  const parentMessageId = _.get(response, 'result.parent_header.msg_id'),
+    msg_type = _.get(response, 'result.msg_type'),
+    isReply = msg_type && _.endsWith(msg_type, '_reply');
 
-  return !!(outputMap[parentMessageId]);
+  if (_.size(outputMap) === 0 && isReply) {
+    log('warn', msg_type, 'without anyone waiting for output', outputMap, response);
+  } else if (isReply && !!outputMap[parentMessageId]) {
+    log('warn', msg_type, 'without parent waiting for output', outputMap, response);
+  }
+
+  return !!outputMap[parentMessageId];
 }
 
 /**
@@ -144,12 +153,20 @@ function resolveExecutionResult(client, response) {
   }
 }
 
+/**
+ * @param {JupyterClientResponse} response
+ */
 function isEvalResult(response) {
   const source = response.source;
 
   return source === 'eval' && _.isString(response.id);
 }
 
+/**
+ *
+ * @param {JupyterClient} client
+ * @param {JupyterClientResponse} response
+ */
 function resolveEvalResult(client, response) {
   const result = response.result,
     request = client.requestMap[response.id];
@@ -180,7 +197,11 @@ function handle(client, response) {
   }
 }
 
+/**
+ * @returns {object}
+ */
 function getOutputMap() {
+  // outside people are not allowed to modify this
   return _.cloneDeep(outputMap);
 }
 
