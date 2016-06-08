@@ -171,6 +171,18 @@ function changeProperty(state, propertyName, value, transform) {
   return state;
 }
 
+function fileSaved(state, action) {
+  state = _.cloneDeep(state);
+
+  const items = _.head(state).items,
+    focusedAce = state && _.find(items, {hasFocus: true});
+
+  focusedAce.filename = action.filename;
+  focusedAce.label = _.last(action.filename.split(/[\\\/]/));
+
+  return state;
+}
+
 function changePreference(state, action) {
   switch (action.key) {
     case 'fontSize': return changeProperty(state, 'fontSize', action.value, _.toNumber);
@@ -184,6 +196,7 @@ export default mapReducers({
   ADD_FILE: add,
   CLOSE_FILE: remove,
   FOCUS_FILE: focus,
+  FILE_IS_SAVED: fileSaved,
   CLOSE_ACTIVE_FILE: closeActive,
   SPLIT_PANE_DRAG: splitPaneDrag,
   MOVE_ONE_RIGHT: _.partialRight(shiftFocus, +1),

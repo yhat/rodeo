@@ -187,11 +187,14 @@ function restart() {
       terminal = _.head(state.terminals),
       jqConsole = getJQConsole(terminal.id);
 
-    jqConsole.Focus();
+    if (jqConsole.GetState() === 'prompt') {
+      jqConsole.AbortPrompt();
+    }
+    jqConsole.Write('restarting terminal... ');
 
     client.restartInstance()
       .then(function () {
-        jqConsole.Reset();
+        jqConsole.Write('done\n');
         _.defer(() => dispatch(startPrompt(jqConsole)));
       })
       .catch(function (error) {

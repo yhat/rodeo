@@ -75,7 +75,7 @@ export function saveActiveFile() {
 
     if (content) {
       return send('saveFile', filename, content)
-        .then(() => dispatch(fileIsSaved(focusedAce.id)))
+        .then(() => dispatch(fileIsSaved(focusedAce.id, focusedAce.filename)))
         .catch(error => dispatch(errorCaught(error)));
     }
   };
@@ -85,17 +85,22 @@ export function saveActiveFile() {
  * @returns {function}
  */
 export function showSaveFileDialogForActiveFile() {
-  return function (dispatch) {
-    return send('saveDialog', {
-      title: 'Save File',
-      defaultPath: store.get('workingDirectory')
-    }).then(function (filename) {
-      if (_.isArray(filename)) {
-        filename = filename[0];
-      }
+  return function (dispatch, getState) {
+    const state = getState(),
+      items = _.head(state.editorTabGroups).items,
+      focusedAce = state && _.find(items, {hasFocus: true}),
+      title = 'Save File',
+      defaultPath = focusedAce && focusedAce.filename ? focusedAce.filename : store.get('workingDirectory');
 
-      return dispatch(saveActiveFileAs(filename));
-    }).catch(error => dispatch(errorCaught(error)));
+    return send('saveDialog', {title, defaultPath})
+      .then(function (filename) {
+        if (_.isArray(filename)) {
+          filename = filename[0];
+        }
+
+        return dispatch(saveActiveFileAs(filename));
+      })
+      .catch(error => dispatch(errorCaught(error)));
   };
 }
 
