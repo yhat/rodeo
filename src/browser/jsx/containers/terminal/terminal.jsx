@@ -90,8 +90,6 @@ export default React.createClass({
       _.each(extras, function (extra) {
         const parent = extra.parentNode;
 
-        console.log('removing', extra, parent);
-
         parent.removeChild(extra);
       });
     });

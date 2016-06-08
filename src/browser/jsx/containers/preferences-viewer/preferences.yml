@@ -12,6 +12,7 @@
         key: fontSize
         label: Font Size
         type: number
+        size: 4
         valid:
           - isFontSize
         defaultValue: 12
@@ -30,12 +31,14 @@
         key: workingDirectory
         label: Working Directory
         type: text
+        size: 30
         valid:
           - isPathReal
       -
         key: pythonCmd
         label: Python Command
         type: text
+        size: 30
         valid:
           - isPython
         change:
@@ -54,6 +57,7 @@
         key: aceTabSpaces
         label: Tab Spaces
         type: number
+        size: 4
         valid:
           - isTabSpace
         defaultValue: 4
@@ -84,9 +88,13 @@
     label: Plots
     items:
       -
-        explanation: checkBackLaterPlotSettings
-        className: not-implemented-yet
+        explanation: plotSettingsText
         type: marked
+      -
+        key: plotsFocusOnNew
+        label: Focus On Created Plots
+        type: checkbox
+        defaultValue: true
   -
     label: Git
     items:

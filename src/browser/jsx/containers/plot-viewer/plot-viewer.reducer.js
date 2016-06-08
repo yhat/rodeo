@@ -7,10 +7,18 @@ const initialState = [];
 function getDefault() {
   return {
     id: cid(),
-    hasFocus: true
+    hasFocus: true,
+    createdAt: new Date().getTime()
   };
 }
 
+/**
+ * Create a new plot
+ * @param {Array} state
+ * @param {object} action
+ * @param {object|string} action.data
+ * @returns {Array}
+ */
 function add(state, action) {
   const item = getDefault(),
     activePlot = _.find(state, { hasFocus: true });
@@ -18,6 +26,7 @@ function add(state, action) {
   // put data into an element (not in global state!), return id.
   state = _.clone(state);
   item.data = action.data;
+  item.hasFocus = true;
   state.push(item);
 
   if (activePlot) {

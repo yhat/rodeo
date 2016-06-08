@@ -75,6 +75,7 @@ function execute(instance, content) {
 
   return send('execute', instance, content).then(function () {
     const ms = (new Date().getTime() - startTime);
+
     if (ms > 250) {
       console.warn('execution time', (new Date().getTime() - startTime) + 'ms');
     } else {

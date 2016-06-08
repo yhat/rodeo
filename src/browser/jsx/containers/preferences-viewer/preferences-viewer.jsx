@@ -11,7 +11,7 @@ import globalSettingsText from './global-settings.md';
 import pythonSettingsText from './python-settings.md';
 import aceEditorText from './ace-editor.md';
 import consoleText from './console.md';
-import checkBackLaterPlotSettings from './check-back-later-plot-settings.md';
+import plotSettingsText from './plot-settings.md';
 import checkBackLaterGit from './check-back-later-git.md';
 import checkBackLaterProjectSettings from './check-back-later-project-level-settings.md';
 
@@ -85,7 +85,7 @@ export default connect(mapStateToProps, mapDispatchToProps)(React.createClass({
       pythonSettingsText,
       aceEditorText,
       consoleText,
-      checkBackLaterPlotSettings,
+      plotSettingsText,
       checkBackLaterGit,
       checkBackLaterProjectSettings
     });
@@ -209,8 +209,6 @@ export default connect(mapStateToProps, mapDispatchToProps)(React.createClass({
   },
   render: function () {
     const state = this.state;
-
-    console.log('preferencesMap', preferencesMap);
 
     return (
       <PreferencesList

@@ -1,6 +1,6 @@
 import _ from 'lodash';
 import {send} from 'ipc';
-import {addFile} from '../../components/ace-pane/ace-pane.actions';
+import {addFile} from '../../containers/editor-tab-group/editor-tab-group.actions';
 
 /**
  * @param {string} file

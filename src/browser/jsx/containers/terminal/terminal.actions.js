@@ -58,9 +58,7 @@ function addInputText(context) {
         jqConsole.SetHistory(jqConsole.GetHistory().concat([fullText]));
         return client.execute(fullText)
           .catch(error => dispatch(errorCaught(error)))
-          .then(() => _.defer(() => {
-            dispatch(startPrompt(jqConsole));
-          }));
+          .then(() => _.defer(() => dispatch(startPrompt(jqConsole))));
       } else {
         jqConsole.ClearPromptText();
         jqConsole.SetPromptText(fullText + '\n');
@@ -189,11 +187,15 @@ function restart() {
       terminal = _.head(state.terminals),
       jqConsole = getJQConsole(terminal.id);
 
-    jqConsole.Focus();
+    if (jqConsole.GetState() === 'prompt') {
+      jqConsole.AbortPrompt();
+    }
+    jqConsole.Write('restarting terminal... ');
 
     client.restartInstance()
       .then(function () {
-        jqConsole.Reset();
+        jqConsole.Write('done\n');
+        _.defer(() => dispatch(startPrompt(jqConsole)));
       })
       .catch(function (error) {
         return dispatch(errorCaught(error));

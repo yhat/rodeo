@@ -80,7 +80,7 @@ function setTerminalState(state, action) {
  */
 function executedInput(state, action) {
   const historyMaxSetting = store.get('terminalHistory'),
-    historyMax = historyMaxSetting === null ? 5 : historyMaxSetting;
+    historyMax = historyMaxSetting === null ? 50 : historyMaxSetting;
 
   if (historyMax > 0 && _.isString(action.text) && action.text.trim().length > 0) {
     state = _.clone(state);

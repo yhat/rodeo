@@ -1,7 +1,8 @@
 import _ from 'lodash';
 import {send} from 'ipc';
 import ace from 'ace';
-import * as store from '../../services/store';
+import store from '../../services/store';
+import {errorCaught} from '../../actions/application';
 
 /**
  * @param {string} [filename]
@@ -44,21 +45,25 @@ export function fileIsSaved(id, filename) {
 export function saveActiveFileAs(filename) {
   return function (dispatch, getState) {
     const state = getState(),
-      focusedAce = state && _.find(state.acePanes, {hasFocus: true}),
+      items = _.head(state.editorTabGroups).items,
+      focusedAce = state && _.find(items, {hasFocus: true}),
       el = focusedAce && document.querySelector('#' + focusedAce.id),
       aceInstance = el && ace.edit(el),
       content = aceInstance && aceInstance.getSession().getValue();
 
-    return send('saveFile', filename, content)
-      .then(() => dispatch(fileIsSaved(focusedAce.id, filename)))
-      .catch(error => console.error(error));
+    if (content) {
+      return send('saveFile', filename, content)
+        .then(() => dispatch(fileIsSaved(focusedAce.id, filename)))
+        .catch(error => dispatch(errorCaught(error)));
+    }
   };
 }
 
 export function saveActiveFile() {
   return function (dispatch, getState) {
     const state = getState(),
-      focusedAce = state && _.find(state.acePanes, {hasFocus: true}),
+      items = _.head(state.editorTabGroups).items,
+      focusedAce = state && _.find(items, {hasFocus: true}),
       el = focusedAce && document.querySelector('#' + focusedAce.id),
       aceInstance = el && ace.edit(el),
       filename = focusedAce.filename,
@@ -68,9 +73,11 @@ export function saveActiveFile() {
       return dispatch(showSaveFileDialogForActiveFile());
     }
 
-    return send('saveFile', filename, content)
-      .then(() => dispatch(fileIsSaved(focusedAce.id)))
-      .catch(error => console.error(error));
+    if (content) {
+      return send('saveFile', filename, content)
+        .then(() => dispatch(fileIsSaved(focusedAce.id, focusedAce.filename)))
+        .catch(error => dispatch(errorCaught(error)));
+    }
   };
 }
 
@@ -78,17 +85,22 @@ export function saveActiveFile() {
  * @returns {function}
  */
 export function showSaveFileDialogForActiveFile() {
-  return function (dispatch) {
-    return send('saveDialog', {
-      title: 'Save File',
-      defaultPath: store.get('workingDirectory')
-    }).then(function (filename) {
-      if (_.isArray(filename)) {
-        filename = filename[0];
-      }
+  return function (dispatch, getState) {
+    const state = getState(),
+      items = _.head(state.editorTabGroups).items,
+      focusedAce = state && _.find(items, {hasFocus: true}),
+      title = 'Save File',
+      defaultPath = focusedAce && focusedAce.filename ? focusedAce.filename : store.get('workingDirectory');
 
-      return dispatch(saveActiveFileAs(filename));
-    }).catch(error => console.error(error));
+    return send('saveDialog', {title, defaultPath})
+      .then(function (filename) {
+        if (_.isArray(filename)) {
+          filename = filename[0];
+        }
+
+        return dispatch(saveActiveFileAs(filename));
+      })
+      .catch(error => dispatch(errorCaught(error)));
   };
 }
 
@@ -105,14 +117,15 @@ export function showOpenFileDialogForActiveFile() {
 
       return send('fileStats', filename)
         .then(stats => dispatch(addFile(filename, stats)));
-    }).catch(error => console.error(error));
+    }).catch(error => dispatch(errorCaught(error)));
   };
 }
 
 function focus() {
   return function (dispatch, getState) {
     const state = getState(),
-      focusedAce = state && _.find(state.acePanes, {hasFocus: true}),
+      items = _.head(state.editorTabGroups).items,
+      focusedAce = state && _.find(items, {hasFocus: true}),
       el = focusedAce && document.querySelector('#' + focusedAce.id),
       aceInstance = el && ace.edit(el);
 

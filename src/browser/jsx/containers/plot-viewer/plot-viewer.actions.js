@@ -1,33 +1,49 @@
+import _ from 'lodash';
+import freeTabGroupAction from '../free-tab-group/free-tab-group.actions';
 
-export function removeActivePlot() {
+function removeActivePlot() {
   return {type: 'REMOVE_ACTIVE_PLOT'};
 }
 
-export function focusNextPlot() {
+function focusNextPlot() {
   return {type: 'FOCUS_NEXT_PLOT'};
 }
 
-export function focusPrevPlot() {
+function focusPrevPlot() {
   return {type: 'FOCUS_PREV_PLOT'};
 }
 
-export function saveActivePlot() {
+function saveActivePlot() {
   return {type: 'SAVE_ACTIVE_PLOT'};
 }
 
-export function openActivePlot() {
+function openActivePlot() {
   return {type: 'OPEN_ACTIVE_PLOT'};
 }
 
-export function focusPlot(id) {
+function focusPlot(id) {
   return {type: 'FOCUS_PLOT', id};
 }
 
+function focusNewestPlot() {
+  return function (dispatch, getState) {
+    const state = getState(),
+      plots = state.plots,
+      newestPlot = _.head(_.sortBy(plots, ['createdAt']));
+
+    if (newestPlot) {
+      dispatch(freeTabGroupAction.focusFirstTabByType('plot-viewer'));
+      dispatch(focusPlot(newestPlot.id));
+    }
+  };
+}
+
 export default {
-  removeActivePlot,
+  focusPlot,
+  focusNewestPlot,
   focusNextPlot,
   focusPrevPlot,
-  saveActivePlot,
   openActivePlot,
-  focusPlot
+  removeActivePlot,
+  saveActivePlot
 };

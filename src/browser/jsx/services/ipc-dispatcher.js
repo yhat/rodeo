@@ -1,12 +1,14 @@
 import _ from 'lodash';
 import ipc from 'ipc';
+import store from './store';
 
 import dialogActions from '../actions/dialogs';
 import applicationActions from '../actions/application';
-import acePaneActions from '../components/ace-pane/ace-pane.actions';
+import editorTabGroupActions from '../containers/editor-tab-group/editor-tab-group.actions';
 import terminalActions from '../containers/terminal/terminal.actions';
 import iopubActions from '../actions/iopub';
 import kernelActions from '../actions/kernel';
+import plotViewerActions from '../containers/plot-viewer/plot-viewer.actions';
 
 /**
  * These are dispatched from the server, usually from interaction with native menus.
@@ -20,11 +22,12 @@ const dispatchMap = {
     CHECK_FOR_UPDATES: applicationActions.checkForUpdates(),
     TOGGLE_DEV_TOOLS: applicationActions.toggleDevTools(),
     QUIT: applicationActions.quit(),
-    SAVE_ACTIVE_FILE: acePaneActions.saveActiveFile(),
-    SHOW_SAVE_FILE_DIALOG: acePaneActions.showSaveFileDialogForActiveFile(),
-    SHOW_OPEN_FILE_DIALOG: acePaneActions.showOpenFileDialogForActiveFile(),
-    FOCUS_ACTIVE_ACE_EDITOR: acePaneActions.focus(),
+    SAVE_ACTIVE_FILE: editorTabGroupActions.saveActiveFile(),
+    SHOW_SAVE_FILE_DIALOG: editorTabGroupActions.showSaveFileDialogForActiveFile(),
+    SHOW_OPEN_FILE_DIALOG: editorTabGroupActions.showOpenFileDialogForActiveFile(),
+    FOCUS_ACTIVE_ACE_EDITOR: editorTabGroupActions.focus(),
     FOCUS_ACTIVE_TERMINAL: terminalActions.focus(),
+    FOCUS_NEWEST_PLOT: plotViewerActions.focusNewestPlot(),
     TERMINAL_INTERRUPT: terminalActions.interrupt(),
     TERMINAL_RESTART: terminalActions.restart()
   },
@@ -70,6 +73,9 @@ function dispatchIOPubResult(dispatch, content) {
 function dispatchIOPubDisplayData(dispatch, content) {
   dispatch(terminalActions.addDisplayData(content.data));
   dispatch(iopubActions.dataDisplayed(content.data));
+  if (store.get('plotsFocusOnNew') !== false) {
+    dispatch(plotViewerActions.focusNewestPlot());
+  }
   detectVariables(dispatch);
 }
 

@@ -1,16 +1,17 @@
 import _ from 'lodash';
-import AcePane from './ace-pane.jsx';
+import AcePane from '../../components/ace-pane/ace-pane.jsx';
 import cid from '../../services/cid';
 import mapReducers from '../../services/map-reducers';
 import store from '../../services/store';
 
 const refreshPanes = _.throttle(() => AcePane.resizeAll(), 50),
-  initialState = [getDefault()];
+  initialState = [{groupId: 'top-left', items: [getDefault()]}];
 
 function getDefault() {
   return {
     label: 'New File',
     mode: 'python',
+    contentType: 'ace-pane',
     id: cid(),
     tabId: cid(),
     hasFocus: true,
@@ -29,9 +30,10 @@ function getDefault() {
  * @returns {Array}
  */
 function add(state, action) {
-  state = _.clone(state);
-  const focusIndex = _.findIndex(state, {hasFocus: true}),
-    focusItem = state[focusIndex],
+  state = _.cloneDeep(state);
+  let items = _.head(state).items,
+    focusIndex = _.findIndex(items, {hasFocus: true}),
+    focusItem = items[focusIndex],
     newItem = getDefault();
 
   if (action.filename) {
@@ -49,7 +51,7 @@ function add(state, action) {
     focusItem.hasFocus = false;
   }
 
-  state.push(newItem);
+  items.push(newItem);
 
   return state;
 }
@@ -60,19 +62,20 @@ function add(state, action) {
  * @returns {Array}
  */
 function remove(state, action) {
-  state = _.clone(state);
-  const targetIndex = _.findIndex(state, {id: action.id}),
-    targetItem = state[targetIndex];
+  state = _.cloneDeep(state);
+  let items = _.head(state).items,
+    targetIndex = _.findIndex(items, {id: action.id}),
+    targetItem = items[targetIndex];
 
   // only allow removal if they have more than one item
-  if (targetItem && state.length > 1) {
-    state = _.without(state, targetItem);
+  if (targetItem && items.length > 1) {
+    items = _.pull(items, targetItem);
 
     if (targetItem.hasFocus) {
-      if (targetIndex === 0 && state[0]) {
-        state[0].hasFocus = true;
+      if (targetIndex === 0 && items[0]) {
+        items[0].hasFocus = true;
       } else {
-        state[targetIndex - 1].hasFocus = true;
+        items[targetIndex - 1].hasFocus = true;
       }
     }
   }
@@ -86,16 +89,16 @@ function remove(state, action) {
  * @returns {Array}
  */
 function focus(state, action) {
-  state = _.clone(state);
-  const focusIndex = _.findIndex(state, {hasFocus: true}),
-    focusItem = state[focusIndex],
-    targetIndex = _.findIndex(state, {id: action.id}),
-    targetItem = state[targetIndex];
+  state = _.cloneDeep(state);
+  const items = _.head(state).items,
+    focusIndex = _.findIndex(items, {hasFocus: true}),
+    focusItem = items[focusIndex],
+    targetIndex = _.findIndex(items, {id: action.id}),
+    targetItem = items[targetIndex];
 
   if (targetItem.hasFocus) {
     return state;
   } else {
-    state = _.clone(state);
     targetItem.hasFocus = true;
     focusItem.hasFocus = false;
     return state;
@@ -116,39 +119,10 @@ function splitPaneDrag(state) {
  * @param {object} action
  * @returns {Array}
  */
-function hasChanges(state, action) {
-  state = _.clone(state);
-  const targetIndex = _.findIndex(state, {id: action.id}),
-    targetItem = state[targetIndex];
-
-  targetItem.hasUnsavedChanges = true;
-
-  return state;
-}
-
-/**
- * @param {Array} state
- * @param {object} action
- * @returns {Array}
- */
-function save(state, action) {
-  state = _.clone(state);
-  const targetIndex = _.findIndex(state, {id: action.id}),
-    targetItem = state[targetIndex];
-
-  targetItem.hasUnsavedChanges = false;
-
-  return state;
-}
-
-/**
- * @param {Array} state
- * @param {object} action
- * @returns {Array}
- */
 function closeActive(state, action) {
-  const focusIndex = _.findIndex(state, {hasFocus: true}),
-    focusItem = state[focusIndex];
+  const items = _.head(state).items,
+    focusIndex = _.findIndex(items, {hasFocus: true}),
+    focusItem = items[focusIndex];
 
   return remove(state, _.assign({id: focusItem.id}, action));
 }
@@ -160,11 +134,12 @@ function closeActive(state, action) {
  * @returns {Array}
  */
 function shiftFocus(state, action, move) {
-  state = _.clone(state);
-  const focusIndex = _.findIndex(state, {hasFocus: true}),
-    focusItem = state[focusIndex],
+  state = _.cloneDeep(state);
+  const items = _.head(state).items,
+    focusIndex = _.findIndex(items, {hasFocus: true}),
+    focusItem = items[focusIndex],
     newFocusIndex = focusIndex + move,
-    newFocusItem = state[newFocusIndex];
+    newFocusItem = items[newFocusIndex];
 
   if (newFocusItem) {
     focusItem.hasFocus = false;
@@ -189,7 +164,21 @@ function changeProperty(state, propertyName, value, transform) {
     value = transform(value);
   }
 
-  _.each(state, (item) => _.set(item, propertyName, value));
+  const items = _.head(state).items;
+
+  _.each(items, (item) => _.set(item, propertyName, value));
+
+  return state;
+}
+
+function fileSaved(state, action) {
+  state = _.cloneDeep(state);
+
+  const items = _.head(state).items,
+    focusedAce = state && _.find(items, {hasFocus: true});
+
+  focusedAce.filename = action.filename;
+  focusedAce.label = _.last(action.filename.split(/[\\\/]/));
 
   return state;
 }
@@ -207,8 +196,7 @@ export default mapReducers({
   ADD_FILE: add,
   CLOSE_FILE: remove,
   FOCUS_FILE: focus,
-  FILE_IS_SAVED: save,
-  FILE_HAS_CHANGES: hasChanges,
+  FILE_IS_SAVED: fileSaved,
   CLOSE_ACTIVE_FILE: closeActive,
   SPLIT_PANE_DRAG: splitPaneDrag,
   MOVE_ONE_RIGHT: _.partialRight(shiftFocus, +1),
