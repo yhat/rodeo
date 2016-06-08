@@ -53,7 +53,7 @@ function exposeElectronIpcEvents(ipcEmitter, list) {
         const args = _.slice(arguments, 2);
 
         log('info', 'responding to ipc event', id, name, args);
-        bluebird.method(fn.bind(event.sender)).apply(null, args)
+        bluebird.try(() => fn.apply(event.sender, args))
           .then(replyToEvent(name, id, event))
           .catch(replyToEvent(name, id, event));
       } catch (ex) {

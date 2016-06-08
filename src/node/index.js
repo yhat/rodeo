@@ -380,11 +380,11 @@ function onKillKernelInstance(id) {
 }
 
 function getKernelInstanceById(id) {
-  return new bluebird(function (resolve) {
+  return bluebird.try(function () {
     if (!kernelClients[id]) {
       throw new Error('Kernel with that id does not exist.');
     }
-    resolve(kernelClients[id]);
+    return kernelClients[id];
   });
 }
 
