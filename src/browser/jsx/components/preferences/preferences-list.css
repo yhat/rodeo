@@ -92,3 +92,8 @@
 .preferences-list .preference-group-details-item input {
   margin-left: 20px;
 }
+
+.preferences-list .preference-group-details-item select {
+  margin-left: 20px;
+  padding: 1px 30px 1px 15px;
+}
