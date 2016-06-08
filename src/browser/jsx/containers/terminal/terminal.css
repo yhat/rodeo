@@ -1,0 +1,11 @@
+.jqconsole img, iframe {
+  max-width: 100px;
+  margin: 15px;
+  cursor: pointer;
+}
+
+.jqconsole-prompt,
+.jqconsole-old-prompt,
+.jqconsole-output {
+  display: block;
+}

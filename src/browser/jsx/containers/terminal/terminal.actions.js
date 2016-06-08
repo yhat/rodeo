@@ -5,6 +5,7 @@ import store from '../../services/store';
 import cid from '../../services/cid';
 import AsciiToHtml from 'ansi-to-html';
 import {errorCaught} from '../../actions/application';
+import plotViewerActions from '../plot-viewer/plot-viewer.actions';
 const convertor = new AsciiToHtml(),
   inputBuffer = [];
 
@@ -117,25 +118,41 @@ function appendIFrame(jqConsole, data) {
 }
 
 /**
+ * @param {function} dispatch
  * @param {object} jqConsole
  * @param {object} data
  */
-function appendPNG(jqConsole, data) {
-  const src = data['image/png'];
+function appendPNG(dispatch, jqConsole, data) {
+  const src = data['image/png'],
+    id = cid();
 
-  jqConsole.Append(`<img src="${src}">`);
-  jqConsole.Write('\n');
+  jqConsole.Append(`<img id=${id} src="${src}">`);
+
+  _.defer(function () {
+    document.querySelector('#' + id)
+      .addEventListener('click', function () {
+        dispatch(plotViewerActions.focusNewestPlot());
+      });
+  });
 }
 
 /**
+ * @param {function} dispatch
  * @param {object} jqConsole
  * @param {object} data
  */
-function appendSVG(jqConsole, data) {
-  const src = data['image/svg'];
+function appendSVG(dispatch, jqConsole, data) {
+  const src = data['image/svg'],
+    id = cid();
 
-  jqConsole.Append(`<img src="${src}">`);
-  jqConsole.Write('\n');
+  jqConsole.Append(`<img id=${id} src="${src}">`);
+
+  _.defer(function () {
+    document.querySelector('#' + id)
+      .addEventListener('click', function () {
+        dispatch(plotViewerActions.focusNewestPlot());
+      });
+  });
 }
 
 /**
@@ -154,10 +171,10 @@ function addDisplayData(data) {
         appendIFrame(jqConsole, data);
       }
     } else if (data['image/png']) {
-      appendPNG(jqConsole, data);
+      appendPNG(dispatch, jqConsole, data);
       // do nothing at the moment
     } else if (data['image/svg']) {
-      appendSVG(jqConsole, data);
+      appendSVG(dispatch, jqConsole, data);
     } else {
       console.warn('addDisplayData', 'unknown data type', data);
     }

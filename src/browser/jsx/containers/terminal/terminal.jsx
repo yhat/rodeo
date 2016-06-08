@@ -3,6 +3,7 @@ import _ from 'lodash';
 import React from 'react';
 import ReactDOM from 'react-dom';
 import './lib/jqconsole.js';
+import './terminal.css';
 
 let message = `
 IPython -- An enhanced Interactive Python.
@@ -101,8 +102,7 @@ export default React.createClass({
     jqConsole.RegisterShortcut('e', function () {
       jqConsole.MoveToEnd();
     });
-
-
+    
     props.onStart(jqConsole);
   },
   render: function () {

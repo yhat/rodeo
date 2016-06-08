@@ -24,6 +24,11 @@
   align-content: center;
   align-items: center;
   justify-content: center;
+  max-width: 80%;
+}
+
+.plot-viewer img {
+  max-width: 100%;
 }
 
 .plot-viewer nav {

@@ -18,6 +18,10 @@ function mapDispatchToProps(dispatch) {
   };
 }
 
+function isDotFile(filename) {
+  return _.startsWith(_.last(filename.split(/[\/\\]/)), '.');
+}
+
 /**
  * @class FileViewer
  * @extends ReactComponent
@@ -31,26 +35,34 @@ export default connect(mapStateToProps, mapDispatchToProps)(React.createClass({
     id: React.PropTypes.string,
     onRefresh: React.PropTypes.func,
     onSelect: React.PropTypes.func,
-    path: React.PropTypes.string.isRequired
+    path: React.PropTypes.string.isRequired,
+    showDotFiles: React.PropTypes.string
   },
   getDefaultProps: function () {
     return {
       onRefresh: _.noop,
       onSelect: _.noop,
       path: '~',
-      filter: ''
+      filter: '',
+      showDotFiles: false
     };
   },
   componentDidMount: function () {
     const props = this.props;
 
-    console.log('file-viewer', props.path, props);
-
     this.props.onRefresh(props.path);
   },
   render: function () {
-    const props = this.props,
-      files = _.filter(props.files, item => !props.filter || item.filename.indexOf(props.filter) > -1);
+    const props = this.props;
+    let files = props.files;
+
+    if (props.filter) {
+      files = _.filter(files, item => item.filename.indexOf(props.filter) > -1);
+    }
+
+    if (!props.showDotFiles) {
+      files = _.filter(files, item => !isDotFile(item.filename));
+    }
 
     return (
       <FileList onGoToParent={props.onGoToParentDirectory}>
