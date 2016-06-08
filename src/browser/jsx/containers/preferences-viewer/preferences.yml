@@ -65,10 +65,10 @@
     label: File Viewer
     items:
       -
-        key: filesDisplayDotFiles
+        key: showDotFiles
         label: Display Dot Files
         type: checkbox
-        defaultValue: true
+        defaultValue: false
   -
     label: Plots
     items:

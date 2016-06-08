@@ -150,7 +150,6 @@ function shiftFocus(state, action, move) {
 }
 
 /**
- *
  * @param {object} state
  * @param {string} propertyName
  * @param {*} value
