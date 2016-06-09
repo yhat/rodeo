@@ -160,6 +160,7 @@ export default connect(mapStateToProps, mapDispatchToProps)(React.createClass({
         <li className="right">
           <a className="not-tab" onClick={props.onRunActiveAcePane} title="Run script">
             <span className="fa fa-play-circle" />
+            <span className="icon-text-right">{'Run Script'}</span>
           </a>
         </li>
 
