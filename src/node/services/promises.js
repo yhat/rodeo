@@ -5,11 +5,10 @@ const _ = require('lodash'),
 
 /**
  * @param {EventEmitter} eventEmitter
- * @param {{resolve: (string|Array), reject: (string|Array)}} events
- * @param {function} [transform]
+ * @param {{resolve: (string|Array), reject: (string|Array), resolveTransform: function, rejectTransform: function}} events
  * @returns {Promise}
  */
-function eventsToPromise(eventEmitter, events, transform) {
+function eventsToPromise(eventEmitter, events) {
   const rejections = _.isString(events.reject) ? [events.reject] : events.reject,
     resolutions = _.isString(events.resolve) ? [events.resolve] : events.resolve,
     resolveTransform = events.resolveTransform || _.identity,

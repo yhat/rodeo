@@ -6,8 +6,7 @@ const _ = require('lodash'),
   sinon = require('sinon'),
   dirname = __dirname.split('/').pop(),
   filename = __filename.split('/').pop().split('.').shift(),
-  lib = require('./' + filename),
-  log = require('../../services/log').asInternal(__filename);
+  lib = require('./' + filename);
 
 describe(dirname + '/' + filename, function () {
   let sandbox,
@@ -45,40 +44,37 @@ describe(dirname + '/' + filename, function () {
   describe('findPythons', function () {
     const fn = lib[this.title];
 
-    it('returns "python" on darwin', function () {
-      const platform = 'darwin';
+    it('returns "python" on darwin does not return results without jupyter', function () {
+      const platform = 'darwin',
+        providedEvidence = {homedir: fakeHomedir, cwd: fakeCwd, platform},
+        targetRule = {cmd: 'python', shell: '/bin/bash'},
+        checkPythonResult = {},
+        expectedResults = [];
 
-      client.checkPython.withArgs(sinon.match({cmd: 'python', shell: '/bin/bash'}))
-        .returns(bluebird.resolve({}));
+      // one rule to test
+      client.checkPython.withArgs(sinon.match(targetRule)).returns(bluebird.resolve(checkPythonResult));
+      // all other rules will auto-fail
       client.checkPython.returns(bluebird.reject(new Error('some error')));
 
-      return fn({homedir: fakeHomedir, cwd: fakeCwd, platform}).then(function (results) {
-        expect(results).to.deep.equal([{pythonOptions: {cmd: 'python', shell: '/bin/bash'}, checkResults: {}}]);
+      return fn(providedEvidence).then(function (results) {
+        expect(results).to.deep.equal(expectedResults);
       });
     });
 
-    it('returns "python" on linux', function () {
-      const platform = 'linux';
+    it('returns "python" on darwin with jupyter', function () {
+      const platform = 'darwin',
+        providedEvidence = {homedir: fakeHomedir, cwd: fakeCwd, platform},
+        targetRule = {cmd: 'python', shell: '/bin/bash'},
+        checkPythonResult = {hasJupyterKernel: true},
+        expectedResults = [{pythonOptions: targetRule, checkResults: checkPythonResult}];
 
-      client.checkPython.withArgs(sinon.match({cmd: 'python', shell: '/bin/bash'}))
-        .returns(bluebird.resolve({}));
+      // one rule to test
+      client.checkPython.withArgs(sinon.match(targetRule)).returns(bluebird.resolve(checkPythonResult));
+      // all other rules will auto-fail
       client.checkPython.returns(bluebird.reject(new Error('some error')));
 
-      return fn({homedir: fakeHomedir, cwd: fakeCwd, platform}).then(function (results) {
-        log('info', results);
-        expect(results).to.deep.equal([{pythonOptions: {cmd: 'python', shell: '/bin/bash'}, checkResults: {}}]);
-      });
-    });
-
-    it('returns "python" on windows', function () {
-      const platform = 'win32';
-
-      client.checkPython.withArgs(sinon.match({cmd: 'python', shell: 'cmd.exe'}))
-        .returns(bluebird.resolve({}));
-      client.checkPython.returns(bluebird.reject(new Error('some error')));
-
-      return fn({homedir: fakeHomedir, cwd: fakeCwd, platform}).then(function (results) {
-        expect(results).to.deep.equal([{pythonOptions: {cmd: 'python', shell: 'cmd.exe'}, checkResults: {}}]);
+      return fn(providedEvidence).then(function (results) {
+        expect(results).to.deep.equal(expectedResults);
       });
     });
   });

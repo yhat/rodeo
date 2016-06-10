@@ -1,6 +1,5 @@
 import _ from 'lodash';
 import React from 'react';
-import ReactDOM from 'react';
 import {connect} from 'react-redux';
 import TabbedPane from '../../components/tabbed-pane/tabbed-pane.jsx';
 import TabbedPaneItem from '../../components/tabbed-pane/tabbed-pane-item.jsx';

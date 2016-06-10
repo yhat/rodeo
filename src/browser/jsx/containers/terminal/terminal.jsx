@@ -102,7 +102,7 @@ export default React.createClass({
     jqConsole.RegisterShortcut('e', function () {
       jqConsole.MoveToEnd();
     });
-    
+
     props.onStart(jqConsole);
   },
   render: function () {

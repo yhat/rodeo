@@ -4,7 +4,6 @@ const _ = require('lodash'),
   bluebird = require('bluebird'),
   client = require('./client'),
   log = require('../../services/log').asInternal(__filename),
-  path = require('path'),
   processes = require('../../services/processes'),
   os = require('os'),
   rules = require('../../services/rules');

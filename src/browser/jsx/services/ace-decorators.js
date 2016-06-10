@@ -1,4 +1,3 @@
-import _ from 'lodash';
 import ace from 'ace';
 
 function applyLogging(instance) {
@@ -94,7 +93,7 @@ function applyLineRunner(instance) {
 
     /**
      * @param {[string]} html
-     * @param markerLayer
+     * @param {object} markerLayer
      * @param {EditSession} session
      * @param {*} config
      * @see https://github.com/ajaxorg/ace/blob/master/lib/ace/layer/marker.js

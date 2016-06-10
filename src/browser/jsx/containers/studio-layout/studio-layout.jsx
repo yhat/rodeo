@@ -1,5 +1,4 @@
 import React from 'react';
-import ReactDOM from 'react-dom';
 import {connect} from 'react-redux';
 import SplitPane from '../../components/split-pane/split-pane.jsx';
 import TabbedPane from '../../components/tabbed-pane/tabbed-pane.jsx';

@@ -337,7 +337,7 @@ function onCheckKernel(options) {
     cwd: {type: 'string'}
   });
 
-  return require('./kernels/python/client').checkPython(options)
+  return require('./kernels/python/client').checkPython(options);
 }
 
 /**
@@ -419,9 +419,9 @@ function onExecute(options, text) {
 }
 
 /**
- * @param {string} text
  * @param {object} [options]
  * @param {string} [options.instanceId]
+ * @param {string} text
  * @returns {Promise}
  */
 function onGetResult(options, text) {
