@@ -155,6 +155,7 @@ function resolveExecutionResult(client, response) {
 
 /**
  * @param {JupyterClientResponse} response
+ * @returns {boolean}
  */
 function isEvalResult(response) {
   const source = response.source;

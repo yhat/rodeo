@@ -66,8 +66,12 @@ function runKarma(configFile) {
     const server = new KarmaServer({
       configFile: path.join(__dirname, configFile),
       singleRun: true
-    }, function () {
-      reject();
+    }, function (result) {
+      if (result > 0) {
+        return reject(new Error(`Karma exited with status code ${result}`));
+      }
+
+      resolve();
     });
 
     server.start();
@@ -281,7 +285,7 @@ gulp.task('upload', function () {
 });
 
 gulp.task('dist', ['dist:build']);
-gulp.task('test', ['eslint-node', 'eslint-browser', 'karma-browser', 'karma-node']);
+gulp.task('test', ['eslint-node', 'eslint-browser', 'karma-node']);
 gulp.task('build', ['themes', 'external', 'images', 'ace', 'jsx', 'html', 'node']);
 gulp.task('run', []);
 gulp.task('watch', function () {

@@ -30,7 +30,7 @@ export default React.createClass({
   },
   componentWillMount: function () {
     const props = this.props;
-    console.log('componentWillMount', props);
+
     this.setState({innerId: props.name + '-' + cid()});
   },
   render: function () {
@@ -55,8 +55,6 @@ export default React.createClass({
     if (props.type !== 'checkbox') {
       inputClassName.push('form-control');
     }
-
-    console.log({state, props});
 
     return (
       <div className={className.join(' ')}>
