@@ -27,6 +27,9 @@
     "asar": false,
     "win": {
       "msi": true
+    },
+    "linux": {
+      "target": ["deb", "rpm"]
     }
   },
   "devDependencies": {
