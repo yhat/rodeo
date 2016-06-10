@@ -66,8 +66,12 @@ function runKarma(configFile) {
     const server = new KarmaServer({
       configFile: path.join(__dirname, configFile),
       singleRun: true
-    }, function () {
-      reject();
+    }, function (result) {
+      if (result > 0) {
+        return reject(new Error(`Karma exited with status code ${result}`));
+      }
+
+      resolve();
     });
 
     server.start();
