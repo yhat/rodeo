@@ -5,6 +5,9 @@ sudo: required
 dist: trusty
 language: c
 language: node_js
+language: python
+python:
+  - "2.7"
 node_js:
   - '4.2.3'
 matrix:
