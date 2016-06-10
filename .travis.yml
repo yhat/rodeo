@@ -44,3 +44,4 @@ before_script:
   - sleep 3 # give xvfb some time to start
 script:
   - npm run test
+  - npm run dist:osx
