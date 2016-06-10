@@ -35,7 +35,9 @@ install:
   - npm install npm -g
   - npm install
   - npm prune
-  - pip install jupyter
+  - pip install -q --upgrade setuptools pip
+  - pip install -q jupyter
+  - pip install -q numpy matplotlib plotly toyplot ipywidgets==4.1.1 pandas
 before_script:
   - "export DISPLAY=:99.0"
   - "sh -e /etc/init.d/xvfb start"
