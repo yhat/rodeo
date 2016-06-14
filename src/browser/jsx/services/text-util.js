@@ -1,7 +1,4 @@
-/**
- * Try to use only native functions here if you can.  :)
- * @module
- */
+import _ from 'lodash';
 
 /**
  * @param {string} str
@@ -26,7 +23,17 @@ function spliceString(str, index, count, add) {
   return str.slice(0, index) + (add || '') + str.slice(index + count);
 }
 
+function longestLength(strArray) {
+  return strArray.reduce((longest, str) => Math.max(str.length, longest), 0);
+}
+
+function padRight(str, length) {
+  return str + _.repeat(' ', length - str.length);
+}
+
 export default {
   getCursorPosFromRowColumn,
-  spliceString
+  spliceString,
+  longestLength,
+  padRight
 };

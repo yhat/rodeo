@@ -267,15 +267,25 @@ function autoComplete() {
         .then(function (result) {
           const matches = result.matches,
             start = result.cursor_start,
-            len = result.cursor_end - start;
-          console.log('terminal autoComplete', code, cursorPos, result);
+            len = result.cursor_end - start,
+            className = 'jqconsole-output',
+            htmlEscape = false,
+            longestLen = textUtil.longestLength(matches);
+          let paddedMatches, suggestions;
 
           if (matches.length === 1) {
             // if only a single match, just replace it
             return jqConsole.SetPromptText(textUtil.spliceString(code, start, len, matches[0]));
-          }
+          } else if (matches.length > 0) {
+            paddedMatches = matches.map(match => textUtil.padRight(match, longestLen));
+            suggestions = paddedMatches.map(function (match) {
+              match = $(jqConsole.ansi.stylize($('<span />').text(match).html()))[0];
+              match.classList.add('terminal-item');
+              return match.outerHTML;
+            }).join('');
 
-          jqConsole.Write(matches.join('\t'));
+            jqConsole.Write('<span class="terminal-list">' + suggestions + '</span>', className, htmlEscape);
+          }
         })
         .catch(error => dispatch(errorCaught(error)));
     });
