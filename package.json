@@ -24,13 +24,7 @@
     "app-bundle-id": "com.yhat.rodeo",
     "helper-bundle-id": "com.yhat.rodeo.helper",
     "publish": "always",
-    "asar": false,
-    "win": {
-      "msi": true
-    },
-    "linux": {
-      "target": ["deb", "rpm"]
-    }
+    "asar": false
   },
   "devDependencies": {
     "aws-promised": "^2.13.0",
@@ -44,7 +38,7 @@
     "chai": "^3.5.0",
     "css-loader": "^0.23.1",
     "diff": "^2.2.2",
-    "electron-builder": "^3.23",
+    "electron-builder": "^4.2.6",
     "eslint": "^2.7.0",
     "eslint-loader": "^1.3.0",
     "eslint-plugin-react": "^5.0.1",
@@ -117,7 +111,7 @@
     "cuid": "^1.3.8",
     "dialogs": "^1.1.2",
     "docopt": "^0.6.2",
-    "electron-prebuilt": "^0.37.8",
+    "electron-prebuilt": "^1.2.2",
     "express": "^4.13.4",
     "fix-path": "^1.1.0",
     "fs-extra": "^0.23.1",
