@@ -30,6 +30,7 @@ function mapDispatchToProps(dispatch) {
   return {
     onAddAcePane: () => dispatch(editorTabGroupActions.addFile()),
     onInterrupt: () => dispatch(terminalActions.interrupt()),
+    onTerminalAutoComplete: (code, cursorPos) => dispatch(terminalActions.autoComplete(code, cursorPos)),
     onTerminalStart: (jqConsole) => dispatch(terminalActions.startPrompt(jqConsole)),
     onFocusAcePane: (id) => dispatch(editorTabGroupActions.focusFile(id)),
     onLiftText: (text, context) => dispatch(terminalActions.addInputText(context)),
@@ -69,6 +70,7 @@ export default connect(mapStateToProps, mapDispatchToProps)(React.createClass({
                 <TabbedPaneItem icon="terminal" id={item.tabId} key={item.id} label="Console">
                   <Terminal
                     key={item.id}
+                    onAutoComplete={props.onTerminalAutoComplete}
                     onInterrupt={props.onInterrupt}
                     onStart={props.onTerminalStart}
                     {...item}
