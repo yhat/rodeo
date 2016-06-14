@@ -1,5 +1,6 @@
 import _ from 'lodash';
 import client from './client';
+import textUtil from './text-util';
 
 /* eslint max-params: 0 */
 export default {
@@ -15,8 +16,7 @@ export default {
   getCompletions: function (editor, session, pos, prefix, callback) {
     session.$mode.$keywordList = [];
     const code = session.getValue(),
-      lineLengths = _.map(code.split('\n', pos.row), line => line.length + 1),
-      cursorPos = _.sum(lineLengths) + pos.column;
+      cursorPos = textUtil.getCursorPosFromRowColumn(code, pos.row, pos.column);
 
     return client.getAutoComplete(code, cursorPos).then(function (result) {
       callback(null, _.map(result.matches, function (match) {

@@ -4,6 +4,7 @@ import React from 'react';
 import ReactDOM from 'react-dom';
 import './lib/jqconsole.js';
 import './terminal.css';
+import textUtil from '../../services/text-util';
 
 let message = `
 IPython -- An enhanced Interactive Python.
@@ -56,11 +57,7 @@ export default React.createClass({
       } else if (jqConsole.GetPromptText().slice(-1) == '\n') {
         jqConsole._IndentOld();
       } else {
-        let code = jqConsole.GetPromptText();
-
-        code = code.slice(0, jqConsole.GetColumn() - 4);
-        jqConsole.ClearPromptText(true);
-        onAutoComplete(code);
+        onAutoComplete();
       }
     };
 

@@ -17,5 +17,5 @@ if [ -d dist/Rodeo-darwin-x64/Rodeo.app ]; then
   codesign -vvvv --deep --force --sign "5D0C1D5ED6B38D0F63D63D0159422EA1544E8AE1" dist/Rodeo-darwin-x64/Rodeo-1.3.2.dmg
   # --verify   the action to take
   codesign --verify -vvvv dist/Rodeo-darwin-x64/Rodeo.app
-  spctl -a -vvvv dist/Rodeo-darwin-x64/Rodeo.app/
+  spctl -a -vvvv --ignore-cache --no-cache dist/Rodeo-darwin-x64/Rodeo.app/
 fi

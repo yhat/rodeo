@@ -1,6 +1,6 @@
 import _ from 'lodash';
 import ace from 'ace';
-import pythonCompleter from './python-completer';
+import pythonCompleter from './ace-python-completer';
 
 const Autocomplete = ace.require('ace/autocomplete').Autocomplete,
   langTools = ace.require('ace/ext/language_tools');

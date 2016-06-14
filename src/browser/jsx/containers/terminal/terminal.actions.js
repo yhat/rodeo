@@ -1,11 +1,12 @@
 import $ from 'jquery';
 import _ from 'lodash';
-import client from '../../services/client';
-import store from '../../services/store';
-import cid from '../../services/cid';
 import AsciiToHtml from 'ansi-to-html';
+import client from '../../services/client';
+import cid from '../../services/cid';
 import {errorCaught} from '../../actions/application';
 import plotViewerActions from '../plot-viewer/plot-viewer.actions';
+import store from '../../services/store';
+import textUtil from '../../services/text-util';
 const convertor = new AsciiToHtml(),
   inputBuffer = [];
 
@@ -214,9 +215,7 @@ function restart() {
         jqConsole.Write('done\n');
         _.defer(() => dispatch(startPrompt(jqConsole)));
       })
-      .catch(function (error) {
-        return dispatch(errorCaught(error));
-      });
+      .catch(error => dispatch(errorCaught(error)));
   };
 }
 
@@ -230,6 +229,69 @@ function focus() {
   };
 }
 
+function withContentAndPosition(jqConsole, fn) {
+  let after, before, currentLeft, current, cursorPos;
+  const NEWLINE = '\n',
+    getPromptLines = function (node) {
+      let buffer = [];
+
+      node.children().each(function () {
+        return buffer.push($(this).children().last().text());
+      });
+      return buffer.join(NEWLINE);
+    };
+
+  before = getPromptLines(jqConsole.$prompt_before);
+  if (before) {
+    before += NEWLINE;
+  }
+  currentLeft = jqConsole.$prompt_left.text();
+  cursorPos = before.length + currentLeft.length;
+  current = currentLeft + jqConsole.$prompt_right.text();
+  after = getPromptLines(jqConsole.$prompt_after);
+  if (after) {
+    after = NEWLINE + after;
+  }
+
+  return fn(before + current + after, cursorPos);
+}
+
+function autoComplete() {
+  return function (dispatch, getState) {
+    const state = getState(),
+      terminal = _.head(state.terminals),
+      jqConsole = getJQConsole(terminal.id);
+
+    withContentAndPosition(jqConsole, function (code, cursorPos) {
+      client.getAutoComplete(code, cursorPos)
+        .then(function (result) {
+          const matches = result.matches,
+            start = result.cursor_start,
+            len = result.cursor_end - start,
+            className = 'jqconsole-output',
+            htmlEscape = false,
+            longestLen = textUtil.longestLength(matches);
+          let paddedMatches, suggestions;
+
+          if (matches.length === 1) {
+            // if only a single match, just replace it
+            return jqConsole.SetPromptText(textUtil.spliceString(code, start, len, matches[0]));
+          } else if (matches.length > 0) {
+            paddedMatches = matches.map(match => textUtil.padRight(match, longestLen));
+            suggestions = paddedMatches.map(function (match) {
+              match = $(jqConsole.ansi.stylize($('<span />').text(match).html()))[0];
+              match.classList.add('terminal-item');
+              return match.outerHTML;
+            }).join('');
+
+            jqConsole.Write('<span class="terminal-list">' + suggestions + '</span>', className, htmlEscape);
+          }
+        })
+        .catch(error => dispatch(errorCaught(error)));
+    });
+  };
+}
+
 export default {
   addDisplayData,
   addInputText,
@@ -239,5 +301,6 @@ export default {
   interrupt,
   focus,
   restart,
-  startPrompt
+  startPrompt,
+  autoComplete
 };
