@@ -101,9 +101,44 @@ function focusTab(state, action) {
     }
   });
 }
+/**
+ * Move the tab to a different group
+ * @param {object} state
+ * @param {object} action
+ * @param {string} action.toGroupId
+ * @param {string} action.fromGroupId
+ * @param {string} action.id
+ * @returns {object}
+ */
+function moveTab(state, action) {
+  state = _.cloneDeep(state);
+  const toGroup = state[_.findIndex(state, {groupId: action.toGroupId})],
+    fromGroup = state[_.findIndex(state, {groupId: action.fromGroupId})],
+    fromGroupItemIndex = _.findIndex(fromGroup.items, {id: action.id}),
+    removedItems = fromGroup.items.splice(fromGroupItemIndex, 1);
 
+  toGroup.items = toGroup.items.concat(removedItems);
+
+  // dragged item takes focus in the new location
+  toGroup.items = toGroup.items.map(function (item) {
+    item.hasFocus = item.id === action.id;
+    return item;
+  });
+
+  // if item had focus, move focus to left item
+  if (removedItems.length && removedItems[0].hasFocus) {
+    if (fromGroupItemIndex === 0 && fromGroup.items.length) {
+      fromGroup.items[0].hasFocus = true;
+    } else if (fromGroup.items[fromGroupItemIndex - 1]) {
+      fromGroup.items[fromGroupItemIndex - 1].hasFocus = true;
+    }
+  }
+
+  return state;
+}
 
 export default mapReducers({
   FOCUS_PLOT: focusPlot,
-  FOCUS_TAB: focusTab
+  FOCUS_TAB: focusTab,
+  MOVE_TAB: moveTab
 }, initialState);

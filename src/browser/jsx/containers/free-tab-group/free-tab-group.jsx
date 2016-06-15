@@ -9,6 +9,7 @@ import PlotViewer from '../plot-viewer/plot-viewer.jsx';
 import FileViewer from '../file-viewer/file-viewer.jsx';
 import VariableViewer from '../variable-viewer.jsx';
 import PackageViewer from '../package-viewer.jsx';
+import { getParentNodeOf } from '../../services/dom';
 import freeTabActions from './free-tab-group.actions';
 
 /**
@@ -29,7 +30,8 @@ function mapDispatchToProps(dispatch, ownProps) {
   const groupId = ownProps.id;
 
   return {
-    onFocusTab: id => dispatch(freeTabActions.focusTab(groupId, id))
+    onFocusTab: id => dispatch(freeTabActions.focusTab(groupId, id)),
+    onMoveTab: id => dispatch(freeTabActions.moveTab(groupId, id))
   };
 }
 
@@ -58,6 +60,65 @@ export default connect(mapStateToProps, mapDispatchToProps)(React.createClass({
 
     props.onFocusTab(newPane.id);
   },
+  /**
+   * NOTE: preventDefault to reject drag
+   * @param {MouseEvent} event
+   * @param {string} tabId
+   */
+  handleTabDragStart: function (event, tabId) {
+    const el = getParentNodeOf(event.target, 'li'),
+      item = _.find(this.props.items, {tabId});
+
+    if (item) {
+      event.dataTransfer.effectAllowed = 'move';
+      event.dataTransfer.setData('text/html', el.outerHTML);
+      event.dataTransfer.setData('application/json', JSON.stringify(item));
+    } else {
+      // prevent default in this case means to _deny_ the start of the drag
+      event.preventDefault();
+    }
+  },
+  /**
+   * NOTE: preventDefault to allow drop
+   * @param {MouseEvent} event
+   */
+  handleTabListDragOver: function (event) {
+    const itemStr = event.dataTransfer.getData('application/json');
+    let item;
+
+    if (_.isString(itemStr)) {
+      try {
+        item = JSON.parse(itemStr);
+      } catch (ex) {
+        console.log(ex);
+      }
+    }
+
+    if (item) {
+      event.preventDefault();
+    }
+  },
+  handleTabListDragEnter: function (event) {
+    // accept all
+    event.preventDefault();
+    event.dataTransfer.dropEffect = 'move';
+  },
+  handleTabListDrop: function (event) {
+    const itemStr = event.dataTransfer.getData('application/json');
+    let item;
+
+    if (_.isString(itemStr)) {
+      try {
+        item = JSON.parse(itemStr);
+
+        this.props.onMoveTab(item.id);
+
+        console.log(item);
+      } catch (ex) {
+        console.log(ex);
+      }
+    }
+  },
   render: function () {
     const props = this.props,
       items = props.items,
@@ -70,14 +131,26 @@ export default connect(mapStateToProps, mapDispatchToProps)(React.createClass({
       };
 
     return (
-      <TabbedPane onChanged={this.handleTabChanged}>
+      <TabbedPane
+        onChanged={this.handleTabChanged}
+        onTabDragStart={this.handleTabDragStart}
+        onTabListDragEnter={this.handleTabListDragEnter}
+        onTabListDragOver={this.handleTabListDragOver}
+        onTabListDrop={this.handleTabListDrop}
+      >
         <li className="right">
           <SearchTextBox onChange={searchFilter => this.setState({searchFilter})}/>
         </li>
 
         {items.map(item => {
           return (
-            <TabbedPaneItem hasFocus={item.hasFocus} icon={item.icon} id={item.tabId} key={item.tabId} label={item.label}>
+            <TabbedPaneItem
+              hasFocus={item.hasFocus}
+              icon={item.icon}
+              id={item.tabId}
+              key={item.tabId}
+              label={item.label}
+            >
               {types[item.contentType]()}
             </TabbedPaneItem>
           );

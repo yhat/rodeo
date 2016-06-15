@@ -6,7 +6,7 @@
 /**
  * @param {Node} node
  * @param {string} nodeName
- * @returns {Node|false}
+ * @returns {Element|Node|false}
  */
 export function getParentNodeOf(node, nodeName) {
   nodeName = nodeName.toUpperCase();
