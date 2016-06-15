@@ -10,8 +10,8 @@
 }
 
 .about-rodeo button {
-  margin: 20px;
-  margin-top: 0;
+  margin: 10px auto 10px auto;
+  display: block;
 }
 
 .about-rodeo .version {
