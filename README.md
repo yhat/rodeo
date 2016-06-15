@@ -11,4 +11,4 @@
 Check [bareback.s.yhat.com](http://bareback.s.yhat.com) for the latest release. Download it!
 
 
-[Contributing](http://github.com/yhat/rodeo/master/contributing.md)
+[Contributing](https://github.com/yhat/rodeo/blob/master/contributing.md)
