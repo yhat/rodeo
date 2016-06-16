@@ -45,34 +45,92 @@ function isError(obj) {
   return _.isError(obj) || (_.isObject(obj) && obj.stack && _.endsWith(obj.name, 'Error'));
 }
 
-function isElectronEvent(obj) {
-  return _.isObject(obj) && _.isFunction(obj.preventDefault) && !!obj.sender;
-}
-
 function isEventEmitter(obj) {
   return _.isObject(obj) && _.isFunction(obj.on);
 }
 
-function isBrowserWindow(obj) {
-  return _.isObject(obj) && _.isObject(obj.webContents) && _.isFunction(obj.webContents.send);
+function isBluebirdPromise(obj) {
+  return _.isFunction(obj.then) && _.isFunction(obj.reflect);
 }
 
-function isWebContent(obj) {
-  return _.isObject(obj) && _.isFunction(obj.send && _.isFunction(obj.printToPDF));
+function isBluebirdPromiseInspection(obj) {
+  return _.isFunction(obj.isPending) &&
+    _.isFunction(obj.isRejected) &&
+    _.isFunction(obj.isFulfilled) &&
+    _.isFunction(obj.isCancelled);
 }
 
-function printElectronEvent(obj) {
-  return 'ElectronEvent ' + util.inspect({sender: obj.sender}, {colors: true});
+function transformBluebirdPromise(obj) {
+  const fake = {};
+
+  fake.inspect = function () {
+    const state = {
+      pending: obj.isPending(),
+      rejected: obj.isRejected(),
+      fulfilled: obj.isFulfilled(),
+      cancelled: obj.isCancelled()
+    };
+
+    if (state.fulfilled) {
+      state.value = obj.value();
+    } else if (state.rejected) {
+      state.reason = obj.reason();
+    }
+
+    return 'Bluebird Promise ' + printObject(state);
+  };
+
+  return fake;
 }
 
-function printEventEmitter(obj) {
-  return 'EventEmitter ' + util.inspect({events: _.pickBy(obj._events, function (value, key) {
-    return !_.startsWith(key, 'ATOM');
-  })}, {colors: true});
+function isElectronEvent(obj) {
+  return _.isObject(obj) && _.isFunction(obj.preventDefault) && !!obj.sender;
+}
+
+function transformElectronEvent(obj) {
+  const fake = {};
+
+  fake.inspect = function () {
+    return 'ElectronEvent ' + printObject({sender: obj.sender});
+  };
+
+  return fake;
+}
+
+function transformEventEmitter(obj) {
+  const fake = {};
+
+  fake.inspect = function () {
+    return 'EventEmitter ' + printObject({events: _.pickBy(obj._events, function (value, key) {
+      return !_.startsWith(key, 'ATOM');
+    })});
+  };
+
+  return fake;
 }
 
 function printObject(obj) {
   return util.inspect(obj, {depth: 10, colors: true});
+}
+
+function sanitizeObject(value) {
+  if (_.isObject(value)) {
+    if (isBluebirdPromise(value) || isBluebirdPromiseInspection(value)) {
+      return transformBluebirdPromise(value);
+    } else if (_.isBuffer(value)) {
+      return value.toString();
+    } else if (isError(value)) {
+      return value.stack;
+    } else if (isElectronEvent(value)) {
+      return transformElectronEvent(value);
+    } else if (isEventEmitter(value)) {
+      return transformEventEmitter(value);
+    } else {
+      return _.mapValues(value, sanitizeObject);
+    }
+  } else {
+    return value;
+  }
 }
 
 /**
@@ -86,19 +144,7 @@ function asInternal(dirname) {
   return function (type) {
     exports.log(type, _.reduce(_.slice(arguments, 1), function (list, value) {
       if (_.isObject(value)) {
-        if (_.isBuffer(value)) {
-          list.push(value.toString());
-        } else if (isError(value)) {
-          list.push(value.stack);
-        } else if (isBrowserWindow(value) || isWebContent(value)) {
-          list.push(printObject(value));
-        } else if (isElectronEvent(value)) {
-          list.push(printElectronEvent(value));
-        } else if (isEventEmitter(value)) {
-          list.push(printEventEmitter(value));
-        }  else {
-          list.push(printObject(value));
-        }
+        list.push(printObject(sanitizeObject(value)));
       } else {
         list.push(value + '');
       }

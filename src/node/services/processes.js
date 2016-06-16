@@ -49,7 +49,7 @@ function create(str, args, options) {
  * @param {object} [options]
  * @returns {Promise}
  */
-function run(str, args, options) {
+function exec(str, args, options) {
   return new bluebird(function (resolve, reject) {
     const child = create(str, args, options);
     let stdout = [],
@@ -86,5 +86,5 @@ function kill(childProcess) {
 
 module.exports.getChildren = getChildren;
 module.exports.create = create;
-module.exports.run = run;
+module.exports.exec = exec;
 module.exports.kill = kill;

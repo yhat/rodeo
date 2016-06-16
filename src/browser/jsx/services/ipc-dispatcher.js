@@ -1,22 +1,50 @@
 import _ from 'lodash';
-import ipc from './ipc';
+import ipc from 'ipc';
+import store from './store';
 
 import dialogActions from '../actions/dialogs';
 import applicationActions from '../actions/application';
-import acePaneActions from '../components/ace-pane/ace-pane.actions';
+import editorTabGroupActions from '../containers/editor-tab-group/editor-tab-group.actions';
+import terminalActions from '../containers/terminal/terminal.actions';
 import iopubActions from '../actions/iopub';
+import kernelActions from '../actions/kernel';
+import plotViewerActions from '../containers/plot-viewer/plot-viewer.actions';
 
+/**
+ * These are dispatched from the server, usually from interaction with native menus.
+ *
+ * @namespace
+ */
 const dispatchMap = {
-  SHOW_ABOUT_RODEO: dialogActions.showAboutRodeo(),
-  SHOW_ABOUT_STICKER: dialogActions.showAboutStickers(),
-  SHOW_PREFERENCES: dialogActions.showPreferences(),
-  CHECK_FOR_UPDATES: applicationActions.checkForUpdates(),
-  TOGGLE_DEV_TOOLS: applicationActions.toggleDevTools(),
-  QUIT: applicationActions.quit(),
-  SAVE_ACTIVE_FILE: acePaneActions.saveActiveFile(),
-  SHOW_SAVE_FILE_DIALOG: acePaneActions.showSaveFileDialogForActiveFile(),
-  SHOW_OPEN_FILE_DIALOG: acePaneActions.showOpenFileDialogForActiveFile()
-};
+    SHOW_ABOUT_RODEO: dialogActions.showAboutRodeo(),
+    SHOW_ABOUT_STICKER: dialogActions.showAboutStickers(),
+    SHOW_PREFERENCES: dialogActions.showPreferences(),
+    CHECK_FOR_UPDATES: applicationActions.checkForUpdates(),
+    TOGGLE_DEV_TOOLS: applicationActions.toggleDevTools(),
+    QUIT: applicationActions.quit(),
+    SAVE_ACTIVE_FILE: editorTabGroupActions.saveActiveFile(),
+    SHOW_SAVE_FILE_DIALOG: editorTabGroupActions.showSaveFileDialogForActiveFile(),
+    SHOW_OPEN_FILE_DIALOG: editorTabGroupActions.showOpenFileDialogForActiveFile(),
+    FOCUS_ACTIVE_ACE_EDITOR: editorTabGroupActions.focus(),
+    FOCUS_ACTIVE_TERMINAL: terminalActions.focus(),
+    FOCUS_NEWEST_PLOT: plotViewerActions.focusNewestPlot(),
+    TERMINAL_INTERRUPT: terminalActions.interrupt(),
+    TERMINAL_RESTART: terminalActions.restart()
+  },
+  iopubDispatchMap = {
+    execute_input: dispatchIOPubExecuteInput,
+    stream: dispatchIOPubStream,
+    execute_result: dispatchIOPubResult,
+    display_data: dispatchIOPubDisplayData,
+    error: dispatchIOPubError,
+    status: dispatchIOPubStatus,
+    comm_msg: dispatchNoop,
+    comm_open: dispatchNoop,
+    clear_output: dispatchNoop
+  },
+  detectVariables = _.debounce(function (dispatch) {
+    dispatch(kernelActions.detectKernelVariables());
+  }, 500);
 
 /**
  * @param {function} dispatch
@@ -31,6 +59,51 @@ function internalDispatcher(dispatch) {
   });
 }
 
+function dispatchIOPubResult(dispatch, content) {
+  let text = _.get(content, 'data["text/plain"]');
+
+  if (text) {
+    dispatch(terminalActions.addOutputText(text));
+  }
+
+  dispatch(iopubActions.resultComputed(content.data));
+  detectVariables(dispatch);
+}
+
+function dispatchIOPubDisplayData(dispatch, content) {
+  dispatch(terminalActions.addDisplayData(content.data));
+  dispatch(iopubActions.dataDisplayed(content.data));
+  if (store.get('plotsFocusOnNew') !== false) {
+    dispatch(plotViewerActions.focusNewestPlot());
+  }
+  detectVariables(dispatch);
+}
+
+function dispatchIOPubError(dispatch, content) {
+  dispatch(terminalActions.addErrorText(content.ename, content.evalue, content.traceback));
+  dispatch(iopubActions.errorOccurred(content.ename, content.evalue, content.traceback));
+  detectVariables(dispatch);
+}
+
+function dispatchIOPubStream(dispatch, content) {
+  dispatch(terminalActions.addOutputText(content.text));
+  dispatch(iopubActions.dataStreamed(content.name, content.text));
+  detectVariables(dispatch);
+}
+
+function dispatchIOPubExecuteInput(dispatch, content) {
+  dispatch(iopubActions.inputExecuted(content.code));
+  detectVariables(dispatch);
+}
+
+function dispatchIOPubStatus(dispatch, content) {
+  dispatch(iopubActions.stateChanged(content.execution_state));
+}
+
+function dispatchNoop() {
+  // eat it; we don't care about these yet
+}
+
 /**
  * Jupyter sends IOPUB events to broadcast to every client connected to a session.  Various components may be
  * listening and reacting to these independently, without connection to each other.
@@ -41,41 +114,11 @@ function iopubDispatcher(dispatch) {
     const result = data.result,
       content = _.get(data, 'result.content');
 
-    if (result) {
-      switch (result.msg_type) {
-        case 'status':
-          return dispatch(iopubActions.setTerminalState(content.execution_state));
-        case 'execute_input':
-          return Promise.all([
-            dispatch(iopubActions.addTerminalExecutedInput(content.code)),
-            dispatch(iopubActions.detectTerminalVariables())
-          ]);
-        case 'stream':
-          return Promise.all([
-            dispatch(iopubActions.addTerminalText(content.name, content.text)),
-            dispatch(iopubActions.detectTerminalVariables())
-          ]);
-        case 'execute_result':
-          return Promise.all([
-            dispatch(iopubActions.addTerminalResult(content.data)),
-            dispatch(iopubActions.detectTerminalVariables())
-          ]);
-        case 'display_data':
-          return Promise.all([
-            dispatch(iopubActions.addDisplayData(content.data)),
-            dispatch(iopubActions.detectTerminalVariables())
-          ]);
-        case 'error':
-          return Promise.all([
-            dispatch(iopubActions.addTerminalError(content.ename, content.evalue, content.traceback)),
-            dispatch(iopubActions.detectTerminalVariables())
-          ]);
-        default:
-          return console.log('iopub', result, {event, data});
-      }
-    } else {
-      console.log('iopub', {event, data});
+    if (result && iopubDispatchMap[result.msg_type]) {
+      return iopubDispatchMap[result.msg_type](dispatch, content);
     }
+
+    return dispatch(iopubActions.unknownEventOccurred(data));
   });
 }
 
@@ -84,18 +127,10 @@ function shellDispatcher() {
     console.log('shell', {data});
   });
 }
+
 function stdinDispatcher() {
   ipc.on('stdin', function (event, data) {
-    const result = data.result;
-
-    if (result) {
-      switch (result.msg_type) {
-        default:
-          return console.log('stdin', result, {event, data});
-      }
-    } else {
-      console.log('stdin', {event, data});
-    }
+    console.log('stdin', {event, data});
   });
 }
 

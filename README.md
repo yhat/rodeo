@@ -7,4 +7,8 @@
 
 ![](https://ga-beacon.appspot.com/UA-46996803-1/rodeo/README.md)
 
-[Contributing](http://github.com/yhat/rodeo/master/contributing.md)
+## Install
+Check [bareback.s.yhat.com](http://bareback.s.yhat.com) for the latest release. Download it!
+
+
+[Contributing](https://github.com/yhat/rodeo/blob/master/contributing.md)

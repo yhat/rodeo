@@ -19,7 +19,8 @@ module.exports = {
     'ascii-table': 'AsciiTable',
     jquery: 'jQuery',
     templates: 'templates',
-    ace: 'ace'
+    ace: 'ace',
+    ipc: 'ipc'
   },
   module: {
     // preLoaders: [

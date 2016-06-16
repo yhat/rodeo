@@ -11,8 +11,7 @@ except:
 
 def get_packages():
     if not pip:
-        print('[]')
-        return
+        return []
     installed_packages = pip.get_installed_distributions()
     packages = [{ "name": i.key, "version": i.version} for i in installed_packages]
     installed_packages_list = sorted(packages, key=lambda x: x['name'])

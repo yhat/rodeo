@@ -1,0 +1,90 @@
+/* Most things drag the window around. */
+body {
+  -webkit-app-region: drag;
+  -webkit-user-select: none;
+  padding: 30px 5px;
+  text-align: center;
+}
+
+/* Buttons and inputs don't drag the window around */
+button, input {
+  -webkit-app-region: no-drag;
+}
+
+main {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-around;
+}
+
+ul {
+  list-style-type: none;
+  margin: 0;
+  padding: 0;
+}
+
+li {
+  margin: 20px;
+}
+
+ul.horizontal {
+  display: block;
+}
+
+ul.horizontal li {
+  display: inline-block;
+}
+
+.setup {
+  font-size: 18px;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-around;
+  align-items: center;
+}
+
+.setup > * {
+  flex: 1;
+}
+
+.setup button {
+  font-size: 16px;
+}
+
+.setup > header {
+  max-height: 33%; /* thirds */
+}
+
+.setup-content {
+  position: relative;
+  height: 100%;
+  width: 50%;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-around;
+}
+
+.setup .marked {
+  color: #888888;
+}
+
+.setup .warning {
+  color: #ffab72;
+}
+
+.python-test-input input {
+  transition: background-color 0.4s;
+}
+
+.python-test-input .changed {
+  background-color: #feff24;
+}
+
+.python-test-input .valid {
+  background-color: #feffb4;
+}
+
+.python-test-input .invalid {
+  background-color: #ffd3cf;
+}

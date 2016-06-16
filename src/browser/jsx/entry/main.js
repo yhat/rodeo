@@ -1,7 +1,10 @@
 import { AppContainer } from 'react-hot-loader';
 import React from 'react';
 import ReactDOM from 'react-dom';
-import App from './../containers/main.jsx';
+import App from '../containers/main.jsx';
+import track from '../services/track';
+
+track('application', 'editor');
 
 const rootEl = document.querySelector('main');
 

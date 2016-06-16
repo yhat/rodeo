@@ -1,58 +1,60 @@
 # Rodeo
 
-## Installation
-Check [rodeo-updates.yhat.com/latest](http://rodeo-updates.yhat.com/latest) for the latest release. Download it, unzip, and double-click Rodeo!
-
-## Dev
+## To run the project
 You need the following to run Rodeo in dev mode:
 - node.js
 - electron (npm install electron-prebuilt -g)
 
-You need the following to actually develop Rodeo:
-- electron-packager (npm install electron-packager -g)
-- electron-builder (npm install electron-builder -g)
-- handlebars (npm install handlebars -g)
-- uglifyjs (npm install uglify-js -g)
-- lessc (npm install -g less)
-
-To run Rodeo in dev mode, clone the repo and run:
-```
-$ electron .
+Then from the root directory of the project:
+```bash
+npm install  # to install the dependences
+gulp  # to build the project
+npm start  # to run Rodeo
 ```
 
-To updated static assets are you change them, run `watch.sh`:
-
+## To run the project with hot-swapping modules
+```bash
+npm install  # to install the dependences
+gulp  # to build the project
+gulp hot # to opt-in to hot-swapping modules
+npm start  # to run Rodeo
 ```
-$ ./watch.sh
+and then in another console
+```
+npm run hot-server
 ```
 
 ## Distribution
 
-### Executables (.exe, .app)
-This will cross-compile apps...
-```
-# build for just your OS
-$ node scripts/build.js
-# build for OSX, Windows, and Linux
-$ node scripts/build.js --all
-```
-
-### Installers
-This will create installers...
-```
-$ ./scripts/release.sh
-```
-
-- https://github.com/sindresorhus/grunt-electron
-- https://github.com/atom/grunt-electron-installer
-- https://www.npmjs.com/package/grunt-electron-debian-installer
-- https://github.com/maxogden/electron-packager
-
-
-### Release everything
+### To cut a new version
 ```bash
-# release an RC version
-$ ./scripts/build-and-release.sh rc
-# release a real version
-$ ./scripts/build-and-release push
+npm version patch # to update the version for patches; use minor only for new features
+git push && git push --tags # to give the new tag to github
 ```
+
+Note that the update server doesn't like versions without downloadable parts, so everyone auto-update will
+not working until the builds are uploaded to the release.
+
+### To create for windows, linux and mac
+Install the dependencies:
+```bash
+brew doctor
+brew update
+brew --version
+
+# so we can build windows on mac
+brew install Caskroom/cask/xquartz wine mono
+
+# so we can build linux on mac
+brew install gnu-tar libicns graphicsmagick
+```
+Then:
+```bash
+CSC_NAME=<some key sha identifier for signing> npm run dist:all
+```
+
+## To create only for mac
+```bash
+CSC_NAME=<some key sha identifier for signing> npm run dist:osx
+```
+

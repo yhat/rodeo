@@ -3,7 +3,7 @@ import React from 'react';
 import {connect} from 'react-redux';
 import PreferencesList from '../../components/preferences/preferences-list.jsx';
 import preferenceActions from './preferences.actions';
-import * as store from '../../services/store';
+import store from '../../services/store';
 import preferencesMapDefinition from './preferences.yml';
 import preferencesMapper from '../../services/preferences-mapper';
 
@@ -11,7 +11,7 @@ import globalSettingsText from './global-settings.md';
 import pythonSettingsText from './python-settings.md';
 import aceEditorText from './ace-editor.md';
 import consoleText from './console.md';
-import checkBackLaterPlotSettings from './check-back-later-plot-settings.md';
+import plotSettingsText from './plot-settings.md';
 import checkBackLaterGit from './check-back-later-git.md';
 import checkBackLaterProjectSettings from './check-back-later-project-level-settings.md';
 
@@ -32,7 +32,7 @@ function mapStateToProps(state) {
  */
 function mapDispatchToProps(dispatch) {
   return {
-    onPreferenceChange: (key, value, original) => dispatch(preferenceActions.changePreference(key, value, original))
+    onPreferenceChange: (item, value) => dispatch(preferenceActions.changePreference(item, value))
   };
 }
 
@@ -85,7 +85,7 @@ export default connect(mapStateToProps, mapDispatchToProps)(React.createClass({
       pythonSettingsText,
       aceEditorText,
       consoleText,
-      checkBackLaterPlotSettings,
+      plotSettingsText,
       checkBackLaterGit,
       checkBackLaterProjectSettings
     });
@@ -98,65 +98,67 @@ export default connect(mapStateToProps, mapDispatchToProps)(React.createClass({
    */
   handleChange: function (item, event) {
     let changes = this.state.changes,
-      newValue = event.target.value,
+      newValue = item.type === 'checkbox' ? event.target.checked : event.target.value,
       key = item.key;
 
     if (store.get(key) === newValue && changes[key]) {
       // if they set it back to the current settings, remove it from the map of changes.
-      this.setKeyUnchanged(key);
+      this.setKeyUnchanged(item);
     } else if (changes[key] !== newValue) {
-      this.setKeyChanged(key, newValue);
+      this.setKeyChanged(item, newValue);
       this.validateKey(item, newValue);
     }
   },
   validateKey: _.debounce(function (item, newValue) {
-    const key = item.key;
-
     // if it's a new value than what we currently have, or if it wasn't changed yet, save it as a change.
     preferencesMapper.isValid(item, newValue)
     // if it's a new value than what we currently have, or if it wasn't changed yet, save it as a change.
       .then((valid) => {
         if (_.every(valid, result => !!result)) {
-          return this.setKeyValid(key, newValue);
+          return this.setKeyValid(item, newValue);
         }
-        this.setKeyInvalid(key, newValue);
+        this.setKeyInvalid(item, newValue);
       })
       // if anything bad happens, it's invalid
-      .catch(_.partial(this.setKeyInvalid, key, newValue));
+      .catch(_.partial(this.setKeyInvalid, item, newValue));
   }, 250),
-  setKeyUnchanged: function (key) {
-    let changes = this.state.changes;
+  setKeyUnchanged: function (item) {
+    let changes = this.state.changes,
+      key = item.key;
 
     changes = _.clone(changes);
     delete changes[key];
     this.setState({changes});
   },
-  setKeyChanged: function (key, newValue) {
-    let changes = this.state.changes;
+  setKeyChanged: function (item, newValue) {
+    let changes = this.state.changes,
+      key = item.key;
 
     changes = _.clone(changes);
-    changes[key] = {value: newValue, state: 'changed'};
+    changes[key] = {value: newValue, state: 'changed', item};
     this.setState({changes});
   },
-  setKeyValid: function (key, newValue) {
-    let changes = this.state.changes;
+  setKeyValid: function (item, newValue) {
+    let changes = this.state.changes,
+      key = item.key;
 
     // only mark valid the value that we were testing for
     // the value may have changed since then
     if (changes[key] && changes[key].value === newValue) {
       changes = _.clone(changes);
-      changes[key] = {value: newValue, state: 'valid'};
+      changes[key] = {value: newValue, state: 'valid', item};
       this.setState({changes});
     }
   },
-  setKeyInvalid: function (key, newValue) {
-    let changes = this.state.changes;
+  setKeyInvalid: function (item, newValue) {
+    let changes = this.state.changes,
+      key = item.key;
 
     // only mark invalid the value that we were testing for
     // the value may have changed since then
     if (changes[key] && changes[key].value === newValue) {
       changes = _.clone(changes);
-      changes[key] = {value: newValue, state: 'invalid'};
+      changes[key] = {value: newValue, state: 'invalid', item};
       this.setState({changes});
     }
   },
@@ -181,7 +183,7 @@ export default connect(mapStateToProps, mapDispatchToProps)(React.createClass({
 
     // only save if there are no invalid entries
     if (this.canSave()) {
-      _.each(changes, (item, key) => this.props.onPreferenceChange(key, item.value, item.original));
+      _.each(changes, (change) => this.props.onPreferenceChange(change.item, change.value));
 
       this.setState({changes: {}});
       this.updatePreferenceMap();

@@ -2,6 +2,7 @@ import _ from 'lodash';
 import React from 'react';
 import Marked from '../marked/marked.jsx';
 import PreferencesInput from './preferences-input.jsx';
+import PreferencesSelect from './preferences-select.jsx';
 
 const preferenceDetailsItem = 'preference-group-details-item';
 
@@ -14,7 +15,7 @@ export default React.createClass({
   displayName: 'PreferencesItem',
   propTypes: {
     className: React.PropTypes.string,
-    defaultValue: React.PropTypes.oneOfType([React.PropTypes.string, React.PropTypes.number]),
+    defaultValue: React.PropTypes.oneOfType([React.PropTypes.string, React.PropTypes.number, React.PropTypes.bool]),
     explanation: React.PropTypes.string,
     id: React.PropTypes.string,
     keyName: React.PropTypes.string,
@@ -41,8 +42,10 @@ export default React.createClass({
 
     if (props.type === 'marked' && props.explanation) {
       content = <Marked>{props.explanation}</Marked>;
+    } else if (props.type === 'select' && _.isArray(props.options)) {
+      content = <PreferencesSelect onChange={props.onChange} {...props} />;
     } else if (props.type) {
-      content = <PreferencesInput onChange={props.onChange}{...props} />;
+      content = <PreferencesInput onChange={props.onChange} {...props} />;
     }
 
     return <div className={contentClass}>{content}</div>;

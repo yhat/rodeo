@@ -1,12 +1,23 @@
 import { combineReducers } from 'redux';
-import acePanes from './components/ace-pane/ace-pane.reducer';
 import splitPanes from './components/split-pane/split-pane.reducer';
 import terminals from './containers/terminal/terminal.reducer';
-import plots from './components/plot-viewer/plot-viewer.reducer';
+import plots from './containers/plot-viewer/plot-viewer.reducer';
 import fileView from './containers/file-viewer/file-viewer.reducer';
 import modalDialogs from './components/modal-dialog/modal-dialog.reducer';
 import sidebar from './components/sidebar/sidebar.reducer';
 import notifications from './components/notifications/notifications.reducer';
+import freeTabGroups from './containers/free-tab-group/free-tab-group.reducer';
+import editorTabGroups from './containers/editor-tab-group/editor-tab-group.reducer';
+
+function broadcast(state, action) {
+  console.log(action.type, action);
+
+  if (!state) {
+    return {};
+  }
+
+  return state;
+}
 
 /**
  * This is the global application state.  Each item here is a slice that is managed by particular reducer.
@@ -16,12 +27,6 @@ import notifications from './components/notifications/notifications.reducer';
  * functions, symbols, null, and other things that do not translate to JSON are not allowed and will not be persisted.
  */
 export default combineReducers({
-  /**
-   * list! It is _really_ useful to have every Ace Pane in one spot, even if in the future they're in different tab groups.
-   * The tab and the Ace Pane are tightly coupled so the tab can change its look based on the state of the file
-   * in the Ace Pane.
-   */
-  acePanes,
   /**
    * list! These need to be persisted between application loads.  They also have to broadcast changes to themselves to
    * other components so they know to handle resizing in the case of badly written external jquery libraries.
@@ -55,5 +60,20 @@ export default combineReducers({
    * singleton! Only one sidebar should be active at a time, and if a new one wants to open, it should replace
    * the old one.
    */
-  sidebar
+  sidebar,
+  /**
+   * list! There are many free tab groups, and potentially more created or destroyed as panes are moved around
+   */
+  freeTabGroups,
+  /**
+   * list! There are many editor tab groups, and potentially more created or destroyed as panes are moved around. It is
+   * _really_ useful to have every editor in one spot, even if in the future they're in different tab groups.
+   * The tab and the editor are tightly coupled so the tab can change its look based on the state of the file
+   * in the editor.
+   */
+  editorTabGroups,
+  /**
+   * Unneeded. This just logs all the actions that pass through.
+   */
+  broadcast
 });

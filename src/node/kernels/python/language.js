@@ -5,7 +5,8 @@
 
 'use strict';
 
-const _ = require('lodash');
+const _ = require('lodash'),
+  fs = require('fs');
 
 /**
  * @param {object} args
@@ -18,7 +19,25 @@ function toPythonArgs(args) {
   }, {});
 }
 
+function addPath(envs, path) {
+  if (!_.includes(envs, path) && fs.existsSync(path)) {
+    envs.push(path);
+  }
+}
+
 function setDefaultEnvVars(env) {
+  if (process.platform === 'darwin' && _.isString(env.PATH)) {
+    if (_.isString(env.PATH)) {
+      const envs = env.PATH.split(':');
+
+      addPath(envs, '/sbin');
+      addPath(envs, '/usr/sbin');
+      addPath(envs, '/usr/local/bin');
+
+      env.PATH = envs.join(':');
+    }
+  }
+
   return _.assign({
     PYTHONUNBUFFERED: '1'
   }, env);

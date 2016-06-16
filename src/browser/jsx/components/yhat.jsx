@@ -1,5 +1,5 @@
 import React from 'react';
-import {send} from '../services/ipc';
+import {send} from 'ipc';
 
 /**
  * @class Yhat

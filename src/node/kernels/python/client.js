@@ -61,7 +61,7 @@ function createObjectEmitter(stream) {
  * @param {object} data
  */
 function handleProcessStreamEvent(client, source, data) {
-  log('error', source, data);
+  log('info', 'client event', source, data);
   client.emit('event', source, data);
 }
 
@@ -119,18 +119,23 @@ function request(client, invocation, options) {
     requestMap = client.requestMap,
     id = uuid.v4().toString(),
     inputPromise = write(childProcess, _.assign({id}, invocation)),
-    deferred = new bluebird.defer(),
     successEvent = options.successEvent,
-    hidden = options.hidden;
+    hidden = options.hidden,
+    startTime = new Date().getTime(),
+    outputPromise = new Promise(function (resolve, reject) {
+      requestMap[id] = {id, invocation, successEvent, hidden, deferred: {resolve, reject}};
+    });
 
-  requestMap[id] = {id, invocation, deferred, successEvent, hidden};
+  return inputPromise
+    .then(() => outputPromise)
+    .finally(function () {
+      const endTime = (new Date().getTime() - startTime) + 'ms';
 
-  return inputPromise.then(function () {
-    return deferred.promise;
-  }).finally(function () {
-    // clean up reference, no matter what the result
-    delete requestMap[id];
-  });
+      log('info', 'request', invocation, endTime);
+
+      // clean up reference, no matter what the result
+      delete requestMap[id];
+    });
 }
 
 /**
@@ -171,6 +176,14 @@ class JupyterClient extends EventEmitter {
     return request(this, {method: 'input', args: [str]}, {successEvent: 'execute_reply'});
   }
 
+  interrupt() {
+    const id = uuid.v4().toString(),
+      target = 'manager',
+      method = 'interrupt_kernel';
+
+    return write(this.childProcess, {method, target, id});
+  }
+
   /**
    * @param {string} code
    * @param {object} [args]
@@ -186,7 +199,7 @@ class JupyterClient extends EventEmitter {
       method: 'execute',
       kwargs: _.assign({code}, pythonLanguage.toPythonArgs(args))
     }, {
-      successEvent: ['execute_results', 'display_data', 'stream'],
+      successEvent: ['execute_result', 'display_data', 'stream'],
       emitOnly: []
     });
   }
@@ -316,6 +329,8 @@ class JupyterClient extends EventEmitter {
  * @returns {object}
  */
 function getPythonCommandOptions(options) {
+  options = resolveHomeDirectory(options);
+
   return _.assign({
     env: pythonLanguage.setDefaultEnvVars(process.env),
     stdio: ['pipe', 'pipe', 'pipe'],
@@ -365,7 +380,7 @@ function getPythonScriptResults(targetFile, options) {
   const processOptions = getPythonCommandOptions(options),
     cmd = options.cmd || 'python';
 
-  return processes.run(cmd, [targetFile], processOptions);
+  return processes.exec(cmd, [targetFile], processOptions);
 }
 
 /**
@@ -375,7 +390,26 @@ function getPythonScriptResults(targetFile, options) {
 function checkPython(options) {
   const targetFile = path.resolve(path.join(__dirname, 'check_python.py'));
 
-  return exports.getPythonScriptResults(targetFile, options).then(JSON.parse);
+  return exports.getPythonScriptResults(targetFile, options)
+    .then(JSON.parse)
+    .then(function (pythonOptions) {
+      return _.assign({}, pythonOptions, options);
+    })
+    .timeout(10000, 'Unable to check python in under 10 seconds: ' + JSON.stringify(options));
+}
+
+/**
+ * @param {object} options
+ * @returns {object}  Modified options
+ */
+function resolveHomeDirectory(options) {
+  if (options && options.cmd && (_.startsWith(options.cmd, '~') || _.startsWith(options.cmd, '%HOME%'))) {
+    const home = require('os').homedir();
+
+    options.cmd = options.cmd.replace(/^~/, home).replace(/^%HOME%/, home);
+  }
+
+  return options;
 }
 
 module.exports.create = create;

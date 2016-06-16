@@ -4,92 +4,68 @@
  * @module
  */
 
-import _ from 'lodash';
-import AsciiToHtml from 'ansi-to-html';
-import {send} from '../services/ipc';
-
-const convertor = new AsciiToHtml();
-
-export function setTerminalState(status) {
-  return function (dispatch, getState) {
-    const state = getState(),
-      terminal = _.find(state.terminals, {hasFocus: true}),
-      id = terminal.id;
-
-    return dispatch({type: 'TERMINAL_STATE', status, id});
-  };
+/**
+ * @param {string} ename
+ * @param {string} evalue
+ * @param {[string]} traceback
+ * @returns {{type: string, ename: string, evalue: string, traceback: [string]}}
+ */
+function errorOccurred(ename, evalue, traceback) {
+  return {type: 'IOPUB_ERROR_OCCURRED', ename, evalue, traceback};
 }
 
-export function addTerminalExecutedInput(code) {
-  return function (dispatch, getState) {
-    const state = getState(),
-      terminal = _.find(state.terminals, {hasFocus: true}),
-      id = terminal.id;
-
-    return dispatch({type: 'ADD_TERMINAL_EXECUTED_INPUT', code, id});
-  };
+/**
+ * @param {object} data
+ * @returns {{type: string, data: object}}
+ */
+function dataDisplayed(data) {
+  return {type: 'IOPUB_DATA_DISPLAYED', data};
 }
 
-export function addTerminalText(name, text) {
-  return function (dispatch, getState) {
-    const state = getState(),
-      terminal = _.find(state.terminals, {hasFocus: true}),
-      id = terminal.id;
-
-    return dispatch({type: 'ADD_TERMINAL_TEXT', name, text, id});
-  };
+/**
+ * @param {object} data
+ * @returns {{type: string, data: object}}
+ */
+function resultComputed(data) {
+  return {type: 'IOPUB_RESULT_COMPUTED', data};
 }
 
-export function addTerminalResult(data) {
-  return function (dispatch, getState) {
-    const state = getState(),
-      terminal = _.find(state.terminals, {hasFocus: true}),
-      id = terminal.id;
-
-    return dispatch({type: 'ADD_TERMINAL_RESULT', data, id});
-  };
+/**
+ *
+ * @param {string} name
+ * @param {string} text
+ * @returns {{type: string, name: string, text: string}}
+ */
+function dataStreamed(name, text) {
+  return {type: 'IOPUB_DATA_STREAMED', name, text};
 }
 
-export function addTerminalError(ename, evalue, traceback) {
-  return function (dispatch, getState) {
-    const state = getState(),
-      terminal = _.find(state.terminals, {hasFocus: true}),
-      id = terminal.id;
-
-    traceback = traceback && _.map(traceback, str => convertor.toHtml(str)).join('<br />');
-
-    return dispatch({type: 'ADD_TERMINAL_ERROR', ename, evalue, traceback, id});
-  };
+/**
+ * @param {string} text
+ * @returns {{type: string, text: string}}
+ */
+function inputExecuted(text) {
+  return {type: 'IOPUB_EXECUTED_INPUT', text};
 }
 
-export function detectTerminalVariables() {
-  return function (dispatch, getState) {
-    const state = getState(),
-      terminal = _.find(state.terminals, {hasFocus: true}),
-      id = terminal.id;
-
-    return send('getVariables').then(function (variables) {
-      return dispatch({type: 'VARIABLES_DETECTED', variables, id});
-    }).catch(error => console.error(error));
-  };
+/**
+ * @param {string} executionState
+ * @returns {{type: string, executionState: string}}
+ */
+function stateChanged(executionState) {
+  return {type: 'IOPUB_STATE_CHANGED', executionState};
 }
 
-export function addDisplayData(data) {
-  return function (dispatch, getState) {
-    const state = getState(),
-      terminal = _.find(state.terminals, {hasFocus: true}),
-      id = terminal.id;
-
-    return dispatch({type: 'ADD_DISPLAY_DATA', data, id});
-  };
+function unknownEventOccurred(event) {
+  return {type: 'IOPUB_UNKNOWN_EVENT_OCCURRED', event};
 }
 
 export default {
-  setTerminalState,
-  addTerminalExecutedInput,
-  addTerminalText,
-  addTerminalResult,
-  addTerminalError,
-  detectTerminalVariables,
-  addDisplayData
+  dataDisplayed,
+  dataStreamed,
+  resultComputed,
+  errorOccurred,
+  inputExecuted,
+  stateChanged,
+  unknownEventOccurred
 };

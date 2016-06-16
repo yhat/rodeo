@@ -1,5 +1,7 @@
 .about-rodeo {
   padding: 20px;
+  max-width: 600px;
+  position: relative;
 }
 
 .about-rodeo img {
@@ -8,6 +10,13 @@
 }
 
 .about-rodeo button {
-  margin: 20px;
-  margin-top: 0;
+  margin: 10px auto 10px auto;
+  display: block;
+}
+
+.about-rodeo .version {
+  top: 0;
+  right: 0;
+  position: absolute;
+  margin: 10px 16px;
 }

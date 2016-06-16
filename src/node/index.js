@@ -2,15 +2,14 @@
 
 const _ = require('lodash'),
   bluebird = require('bluebird'),
+  cuid = require('cuid'),
   electron = require('electron'),
   browserWindows = require('./services/browser-windows'),
   files = require('./services/files'),
   ipcPromises = require('./services/ipc-promises'),
   path = require('path'),
-  md = require('./services/md'),
   menuDefinitions = require('./services/menu-definitions'),
   os = require('os'),
-  promises = require('./services/promises'),
   steveIrwin = require('./kernels/python/steve-irwin'),
   updater = require('./services/updater'),
   yargs = require('yargs'),
@@ -24,6 +23,56 @@ const _ = require('lodash'),
     designWindow: 'design.html'
   };
 
+/**
+ * @param {object} obj
+ * @param {object} validOptions
+ * @throws if the obj does not match the validOptions
+ */
+function assertValidObject(obj, validOptions) {
+  const bannedProperties = _.omit(obj, Object.keys(validOptions)),
+    validators = {
+      string: _.isString,
+      object: _.isPlainObject,
+      number: _.isNumber,
+      boolean: _.isBoolean
+    };
+
+  if (_.size(bannedProperties) > 0) {
+    throw new Error('Properties ' + Object.keys(bannedProperties) + ' are not allowed');
+  }
+
+  _.each(validOptions, function (definition, key) {
+    const value = obj[key];
+    let expectedType, isRequired;
+
+    if (_.isObject(definition)) {
+      expectedType = definition.type;
+      isRequired = definition.required;
+    } else if (_.isString(definition)) {
+      expectedType = definition;
+      isRequired = false;
+    } else {
+      throw new Error('Bad definition of object type assertion: ' + definition + ' for ' + key);
+    }
+
+    if (!validators[expectedType]) {
+      throw new Error('Missing validator type ' + expectedType + ' for property ' + key);
+    }
+
+    if (isRequired && value === undefined) {
+      throw new Error('Missing required property ' + key);
+    }
+
+    if (value !== undefined && !validators[expectedType](value)) {
+      throw new Error('Invalid property ' + key + ': expected ' + expectedType + ' but got ' + value);
+    }
+  });
+}
+
+/**
+ * Find a package.json, hopefully ours.
+ * @returns {object|false}
+ */
 function getPkg() {
   let dir = __dirname,
     pkg;
@@ -69,16 +118,17 @@ function onFiles(dir) {
  * @returns {Promise}
  */
 function onKnitHTML(event, data) {
-  const doc = data.doc;
-
-  return getKernelClient('python').then(function (pythonInstance) {
-    return md.knitHTML(doc, pythonInstance);
-  }).then(function (html) {
-    return md.applyReportTemplate(html);
-  }).then(function (html) {
-    event.returnValue = html; // this isn't sync anymore, so this won't work, if it ever did
-    return html;
-  });
+  // const doc = data.doc;
+  //
+  // return getKernelClient('python').then(function (pythonInstance) {
+  //   return md.knitHTML(doc, pythonInstance);
+  // }).then(function (html) {
+  //   return md.applyReportTemplate(html);
+  // }).then(function (html) {
+  //   event.returnValue = html; // this isn't sync anymore, so this won't work, if it ever did
+  //   return html;
+  // });
+  return bluebird.resolve({event, data});
 }
 
 function onPDF() {
@@ -105,6 +155,7 @@ function onResolveFilePath(filename) {
   if (filename[0] === '~') {
     return path.join(os.homedir(), filename.slice(1));
   }
+
   return path.resolve(filename);
 }
 
@@ -181,6 +232,7 @@ function subscribeWindowToKernelEvents(windowName, client) {
   subscribeBrowserWindowToEvent(windowName, client, 'shell');
   subscribeBrowserWindowToEvent(windowName, client, 'iopub');
   subscribeBrowserWindowToEvent(windowName, client, 'stdin');
+  subscribeBrowserWindowToEvent(windowName, client, 'event');
 }
 
 // Quit when all windows are closed.
@@ -191,14 +243,21 @@ function onWindowAllClosed() {
   app.quit();
 }
 
+/**
+ * It's nice to start loading the main window in the background while other windows are keeping the user busy.
+ * @returns {BrowserWindow}
+ */
 function preloadMainWindow() {
   const windowName = 'mainWindow';
 
-  browserWindows.createMainWindow(windowName, {
+  return browserWindows.createMainWindow(windowName, {
     url: 'file://' + path.join(staticFileDir, windowUrls[windowName])
   });
 }
 
+/**
+ * @returns {Promise}
+ */
 function startMainWindow() {
   return new bluebird(function (resolve) {
     const windowName = 'mainWindow',
@@ -217,6 +276,9 @@ function startMainWindow() {
   });
 }
 
+/**
+ * @returns {Promise}
+ */
 function startStartupWindow() {
   return new bluebird(function (resolve) {
     const windowName = 'startupWindow',
@@ -264,79 +326,140 @@ function onReady() {
 }
 
 /**
- * Get a unique kernel based on the options they want
- * @param {string} options
- * @returns {Promise<JupyterClient>}
+ * This runs in a short-lived python instance that is killed immediately after success or failure.
+ * @param {object} options
+ * @param {string} options.cmd
+ * @param {string} options.cwd
+ * @returns {Promise}
  */
-function getKernelClient(options) {
-  const optionList = _.map(options, (str, key) => key + ':' + str);
-  let optionsKey;
-
-  optionList.sort();
-  optionsKey = optionList.join('; ');
-
-  // each set of options
-  return promises.promiseOnlyOne(kernelClients, optionsKey, function () {
-    let clientFactory = require('./kernels/python/client');
-
-    return clientFactory.create(options).then(function (client) {
-      log('info', 'created new python kernel process', optionsKey);
-      subscribeWindowToKernelEvents('mainWindow', client);
-      return client;
-    });
+function onCheckKernel(options) {
+  assertValidObject(options, {
+    cmd: {type: 'string', isRequired: true},
+    cwd: {type: 'string'}
   });
+
+  return require('./kernels/python/client').checkPython(options);
 }
 
 /**
- * @param {string} text
- * @param {object} [kernelOptions]
- * @param {string} [kernelOptions.cmd]
- * @param {string} [kernelOptions.shell]
+ * @param {object} options
+ * @param {string} options.cmd
+ * @param {string} [options.cwd]
  * @returns {Promise}
  */
-function onExecute(text, kernelOptions) {
-  return getKernelClient(kernelOptions)
+function onCreateKernelInstance(options) {
+  assertValidObject(options, {
+    cmd: {type: 'string', isRequired: true},
+    cwd: {type: 'string'}
+  });
+
+  if (!options) {
+    throw new Error('Must provide kernel options to run python');
+  } else if (!options.cmd) {
+    throw new Error('Must provide cmd to create python instance, i.e., {cmd: "python"}');
+  }
+
+  let clientFactory = require('./kernels/python/client'),
+    instanceId = cuid(),
+    promise = clientFactory.create(options);
+
+  kernelClients[instanceId] = promise;
+
+  log('info', 'created new python kernel process', instanceId, options);
+
+  return promise.then(function (client) {
+    subscribeWindowToKernelEvents('mainWindow', client);
+    return instanceId;
+  });
+}
+
+function onKillKernelInstance(id) {
+  if (!kernelClients[id]) {
+    throw new Error('Kernel with that id does not exist.');
+  }
+
+  let promise = kernelClients[id];
+
+  delete kernelClients[id];
+  log('info', 'deleted python kernel process reference', id);
+
+  return promise
+    .then(client => client.kill()).then(function () {
+      log('info', 'successfully killed python kernel process reference', id);
+    });
+}
+
+/**
+ * @param {string} id
+ * @returns {Promise}
+ */
+function getKernelInstanceById(id) {
+  log('info', 'getKernelInstanceById', id);
+
+  if (!kernelClients[id]) {
+    throw new Error('Kernel with this id does not exist: ' + id);
+  }
+
+  return kernelClients[id];
+}
+
+/**
+
+ * @param {object} options
+ * @param {string} options.instanceId
+ * @param {string} text
+ * @returns {Promise}
+ */
+function onExecute(options, text) {
+  if (!text) {
+    throw Error('Missing text to execute');
+  }
+
+  return getKernelInstanceById(options.instanceId)
     .then(client => client.execute(text));
 }
 
 /**
+ * @param {object} [options]
+ * @param {string} [options.instanceId]
  * @param {string} text
- * @param {object} [kernelOptions]
- * @param {string} [kernelOptions.cmd]
- * @param {string} [kernelOptions.shell]
  * @returns {Promise}
  */
-function onGetResult(text, kernelOptions) {
-  return getKernelClient(kernelOptions)
+function onGetResult(options, text) {
+  return getKernelInstanceById(options.instanceId)
     .then(client => client.getResult(text));
 }
 
-function onCheckKernel(kernelOptions) {
-  const clientFactory = require('./kernels/python/client');
-
-  return clientFactory.checkPython(kernelOptions);
+function onGetAutoComplete(options, text, cursorPos) {
+  return getKernelInstanceById(options.instanceId)
+    .then(client => client.getAutoComplete(text, cursorPos))
+    .timeout(5000, 'AutoComplete failed to finish in 5 seconds');
 }
 
-function onGetAutoComplete(text, cursorPos, kernelOptions) {
-  return getKernelClient(kernelOptions)
-    .then(client => client.getAutoComplete(text, cursorPos));
-}
-
-function onIsComplete(text, kernelOptions) {
-  return getKernelClient(kernelOptions)
+function onIsComplete(options, text) {
+  return getKernelInstanceById(options.instanceId)
     .then(client => client.isComplete(text));
 }
 
-function onGetInspection(text, cursorPos, kernelOptions) {
-  return getKernelClient(kernelOptions)
+function onGetInspection(options, text, cursorPos) {
+  return getKernelInstanceById(options.instanceId)
     .then(client => client.getInspection(text, cursorPos));
 }
 
-function onGetVariables(kernelOptions) {
-  return getKernelClient(kernelOptions)
+function onGetVariables(options) {
+  return getKernelInstanceById(options.instanceId)
     .then(client => client.getVariables());
 }
 
+function onInterrupt(options) {
+  return getKernelInstanceById(options.instanceId)
+    .then(client => client.interrupt());
+}
+
+/**
+ * To allow testing, the user can specific '--no-pythons' to prevent auto-detection of all the pythons
+ * @returns {Promise}
+ */
 function findPythons() {
   if (argv.pythons === false) {
     return [];
@@ -346,7 +469,11 @@ function findPythons() {
 }
 
 /**
- * Get system facts that the client-side hopefully caches and doesn't call repeatedly
+ * Get system facts that the client-side hopefully caches and doesn't call repeatedly.
+ *
+ * These values should remain somewhat static on a particular machine
+ * (unless something big has changed, like installing a new python or changing a home directory)
+ *
  * @returns {Promise<object>}
  */
 function onGetSystemFacts() {
@@ -355,13 +482,37 @@ function onGetSystemFacts() {
     homedir: os.homedir(),
     pathSep: path.sep,
     delimiter: path.delimiter
-  });
+  }).timeout(30000, 'Unable to call "get system facts" in under 30 seconds');
+}
+
+/**
+ * @returns {Promise<string>}
+ */
+function onGetAppVersion() {
+  return bluebird.resolve(getVersion());
 }
 
 function onQuitAndInstall() {
   return bluebird.try(updater.install);
 }
 
+/**
+ * @returns {string}
+ */
+function getVersion() {
+  const pkg = getPkg();
+
+  if (pkg) {
+    return pkg.version;
+  }
+
+  return '';
+}
+
+/**
+ * We must be able to discover our current version to determine if we should update.
+ * @returns {Promise}
+ */
 function onCheckForUpdates() {
   const pkg = getPkg();
 
@@ -457,6 +608,10 @@ function onSaveDialog(options) {
   });
 }
 
+/**
+ * Toggles the dev tools
+ * @returns {Promise}
+ */
 function onToggleDevTools() {
   const currentWindow = this;
 
@@ -466,6 +621,10 @@ function onToggleDevTools() {
   });
 }
 
+/**
+ * Toggles full screen mode
+ * @returns {Promise}
+ */
 function onToggleFullScreen() {
   return new bluebird(function (resolve) {
     const currentWindow = this,
@@ -488,10 +647,12 @@ function attachIpcMainEvents() {
     onCheckKernel,
     onGetAutoComplete,
     onIsComplete,
+    onInterrupt,
     onGetInspection,
     onGetVariables,
     onFiles,
     onGetSystemFacts,
+    onGetAppVersion,
     onKnitHTML,
     onQuitApplication,
     onPDF,
@@ -507,7 +668,9 @@ function attachIpcMainEvents() {
     onOpenDialog,
     onSaveDialog,
     onToggleDevTools,
-    onToggleFullScreen
+    onToggleFullScreen,
+    onCreateKernelInstance,
+    onKillKernelInstance
   ]);
 }
 
@@ -522,13 +685,12 @@ function attachAppEvents() {
     app.on('will-quit', function () { log('info', 'will-quit'); });
     app.on('before-quit', function () { log('info', 'before-quit'); });
     app.on('quit', function (event, errorCode) { log('info', 'quit', {errorCode}); });
-    app.on('activate', function (hasVisibleWindows) { log('info', 'activate', {hasVisibleWindows}); });
+    app.on('activate', function (event, hasVisibleWindows) { log('info', 'activate', {hasVisibleWindows}); });
     app.on('gpu-process-crashed', function () { log('info', 'gpu-process-crashed'); });
-
     app.on('window-all-closed', onWindowAllClosed);
     app.on('ready', onReady);
 
-    require('./services/server').start(3000)
+    require('./services/server').start(9356)
       .catch(error => log('error', error));
   }
 }

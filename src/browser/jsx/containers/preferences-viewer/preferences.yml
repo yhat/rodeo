@@ -1,95 +1,118 @@
 ---
   -
-    label: "Global"
+    label: Python
     items:
       -
-        explanation: "globalSettingsText"
-        type: "marked"
+        explanation: pythonSettingsText
+        type: marked
       -
-        label: "Check For Updates"
-        type: "button"
-      -
-        key: "fontSize"
-        label: "Font Size"
-        type: "number"
-        valid:
-          - isFontSize
-      -
-        key: "trackMetrics"
-        label: "Track Metrics"
-        type: "checkbox"
-  -
-    label: "Python"
-    items:
-      -
-        explanation: "pythonSettingsText"
-        type: "marked"
-      -
-        key: "workingDirectory"
-        label: "Working Directory"
-        type: "text"
+        key: workingDirectory
+        label: Default Working Directory
+        type: text
+        inputWidth: 300px
         valid:
           - isPathReal
       -
-        key: "pythonCmd"
-        label: "Python Command"
-        type: "text"
+        key: pythonCmd
+        label: Python Command
+        type: text
+        inputWidth: 300px
         valid:
           - isPython
+        change:
+          - restartPython
+        defaultValue: python
       -
-        key: "environmentVariables"
-        label: "Environment Variables"
+        key: environmentVariables
+        label: Environment Variables
   -
-    label: "Editor"
+    label: Editor
     items:
       -
-        explanation: "aceEditorText"
-        type: "marked"
+        explanation: aceEditorText
+        type: marked
       -
-        key: "aceTabSpaces"
-        label: "Tab Spaces"
-        type: "number"
+        key: aceTabSpaces
+        label: Tab Spaces
+        type: number
+        inputWidth: 40px
         valid:
           - isTabSpace
+        defaultValue: 4
       -
-        key: "aceKeyBindings"
-        label: "Key Bindings"
-        type: "text"
+        key: aceKeyBindings
+        label: Key Bindings
+        type: select
+        options:
+          - label: default
+            value: default
+          - label: emacs
+            value: emacs
+          - label: vim
+            value: vim
   -
-    label: "Console"
+    label: Console
     items:
       -
-        explanation: "consoleText"
-        type: "marked"
+        explanation: consoleText
+        type: marked
       -
-        key: "consoleDisplayImages"
-        label: "Display Images"
-        type: "checkbox"
+        key: consoleDisplayImages
+        label: Display Images
+        type: checkbox
+        defaultValue: true
   -
-    label: "File Viewer"
+    label: File Viewer
     items:
       -
-        key: "filesDisplayDotFiles"
-        label: "Display Dot Files"
-        type: "checkbox"
+        key: showDotFiles
+        label: Display Dot Files
+        type: checkbox
+        defaultValue: false
   -
-    label: "Plots"
+    label: Plots
     items:
       -
-        explanation: "checkBackLaterPlotSettings"
-        className: "not-implemented-yet"
-        type: "marked"
+        explanation: plotSettingsText
+        type: marked
+      -
+        key: plotsFocusOnNew
+        label: Focus On Created Plots
+        type: checkbox
+        defaultValue: true
   -
-    label: "Git"
+    label: Git
     items:
       -
-        explanation: "checkBackLaterGit"
-        className: "not-implemented-yet"
-        type: "marked"
+        explanation: checkBackLaterGit
+        className: not-implemented-yet
+        type: marked
   -
-    label: "Project"
+    label: Global
     items:
       -
-        explanation: "checkBackLaterProjectSettings"
-        className: "not-implemented-yet"
-        type: "marked"
+        explanation: globalSettingsText
+        type: marked
+      -
+        label: Check For Updates
+        type: button
+      -
+        key: fontSize
+        label: Font Size
+        type: number
+        inputWidth: 40px
+        valid:
+          - isFontSize
+        defaultValue: 12
+      -
+        key: trackMetrics
+        label: Track Metrics
+        type: checkbox
+        defaultValue: true
+  -
+    label: Project
+    items:
+      -
+        explanation: checkBackLaterProjectSettings
+        className: not-implemented-yet
+        type: marked

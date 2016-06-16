@@ -5,8 +5,11 @@
 
 import _ from 'lodash';
 import ace from 'ace';
-import { send } from '../services/ipc';
+import { send } from 'ipc';
 import * as store from '../services/store';
+import client from '../services/client';
+import clientDiscovery from '../services/client-discovery';
+import {errorCaught} from './application';
 
 export function interrupt() {
   return function (dispatch) {
@@ -14,7 +17,7 @@ export function interrupt() {
 
     return send('interrupt')
       .then(() => dispatch({type: 'INTERRUPTED_KERNEL'}))
-      .catch(error => console.error(error));
+      .catch(error => dispatch(errorCaught(error)));
   };
 }
 
@@ -28,6 +31,10 @@ export function isIdle() {
 
 export function kernelDetected(pythonOptions) {
   // save over previous settings
+  if (!pythonOptions.cmd) {
+    throw new Error('Unacceptable python options without cmd that created it');
+  }
+
   store.set('pythonOptions', pythonOptions);
   store.set('pythonCmd', pythonOptions.cmd);
   return {type: 'KERNEL_DETECTED', pythonOptions};
@@ -38,93 +45,85 @@ export function askForPythonOptions() {
 }
 
 /**
- * Get the first set of working kernel options that was detected when gathering system facts
- * (by the by, also refreshes the known system facts.)
- * @returns {Promise<object>}
- */
-function getPythonOptionsFromSystemFacts() {
-  return send('getSystemFacts').then(function (facts) {
-    const availablePythonKernels = facts && facts.availablePythonKernels,
-      head = _.head(availablePythonKernels),
-      pythonOptions = head && head.pythonOptions;
-
-    store.set('systemFacts', facts);
-    return send('checkKernel', pythonOptions).then(function () {
-      return pythonOptions;
-    });
-  });
-}
-
-/**
  * Detect if the information we have about their kernel is good, and if it isn't,
  * try to auto-detect a working kernel
  * @returns {Function}
  */
 export function detectKernel() {
   return function (dispatch) {
-    const pythonOptions = store.get('pythonOptions');
+    const pythonCmd = store.get('pythonCmd');
     let promise;
 
-    if (pythonOptions) {
+    if (pythonCmd) {
       // verify anyway
-      promise = send('checkKernel', pythonOptions)
-        .catch(() => getPythonOptionsFromSystemFacts());
+      promise = clientDiscovery.checkKernel({cmd: pythonCmd})
+        .catch(() => clientDiscovery.getFreshPythonOptions());
     } else {
       // get them
-      promise = getPythonOptionsFromSystemFacts();
+      promise = clientDiscovery.getFreshPythonOptions();
     }
 
     return promise
       .then(pythonOptions => dispatch(kernelDetected(pythonOptions)))
-      .catch(() => dispatch(askForPythonOptions()));
+      .catch(error => {
+        console.warn('error using detected python', error);
+
+        return dispatch(askForPythonOptions());
+      });
+  };
+}
+
+export function restart() {
+  return function (dispatch) {
+    return client.restartInstance()
+      .then(() => dispatch({type: 'KERNEL_RESTARTED'}))
+      .catch(error => dispatch(errorCaught(error)));
+  };
+}
+
+function detectKernelVariables() {
+  return function (dispatch, getState) {
+    const state = getState(),
+      terminal = _.find(state.terminals, {hasFocus: true}),
+      id = terminal.id;
+
+    return client.getVariables().then(function (variables) {
+      return dispatch({type: 'VARIABLES_DETECTED', variables, id});
+    }).catch(error => dispatch(errorCaught(error)));
   };
 }
 
 export function executeActiveFileInActiveConsole() {
   return function (dispatch, getState) {
     const state = getState(),
-      focusedAce = state && _.find(state.acePanes, {hasFocus: true}),
+      items = _.head(state.editorTabGroups).items,
+      focusedAce = state && _.find(items, {hasFocus: true}),
       el = focusedAce && document.querySelector('#' + focusedAce.id),
       aceInstance = el && ace.edit(el),
       filename = focusedAce.filename,
       focusedTerminal = state && _.find(state.terminals, {hasFocus: true}),
       id = focusedTerminal.id,
-      shell = focusedTerminal.shell,
-      cmd = focusedTerminal.cmd,
       content = aceInstance && aceInstance.getSession().getValue();
 
-    dispatch({type: 'EXECUTING', filename, id});
+    if (content) {
+      dispatch({type: 'EXECUTING', filename, id});
 
-    return send('execute', content, {cmd, shell})
-      .then(() => dispatch({type: 'EXECUTED', id}))
-      .catch(error => console.error(error));
-  };
-}
-
-export function execute(text, id) {
-  return function (dispatch, getState) {
-    const state = getState(),
-      terminal = state && _.find(state.terminals, {id}),
-      shell =  terminal && terminal.shell,
-      cmd = terminal && terminal.cmd;
-
-    if (terminal) {
-      dispatch({type: 'EXECUTING', text, id});
-
-      return send('execute', text, {cmd, shell})
-        .then(() => dispatch({type: 'EXECUTED', text, id}))
-        .catch(error => console.error(error));
-    } else {
-      console.error(new Error('No terminal with id ' + id));
+      return client.execute(content)
+        .then(() => dispatch({type: 'EXECUTED', id}))
+        .catch(error => dispatch(errorCaught(error)));
     }
   };
 }
 
+
 export default {
-  execute,
+  askForPythonOptions,
+  detectKernel,
+  detectKernelVariables,
   executeActiveFileInActiveConsole,
-  isIdle,
   isBusy,
+  isIdle,
   interrupt,
-  detectKernel
+  kernelDetected,
+  restart
 };

@@ -1,14 +1,14 @@
 import _ from 'lodash';
 import bluebird from 'bluebird';
-import {send} from './ipc';
+import {send} from 'ipc';
 import * as store from './store';
 import validation from './validation';
-
+import clientDiscovery from './client-discovery';
 
 let validators = {
   isPathReal: value => send('resolveFilePath', value)
     .then(expandedFilename => send('fileStats', expandedFilename)),
-  isPython: value => send('checkKernel', {cmd: value}),
+  isPython: value => clientDiscovery.checkKernel({cmd: value}),
   isFontSize: validation.isFontSize,
   isTabSpace: validation.isTabSpace
 };
@@ -48,7 +48,8 @@ function define(definition, explanations) {
     let items = _.map(preferenceGroup.items, function (preference) {
       const item = _.clone(preference),
         explanation = explanations[preference.explanation],
-        defaultValue = store.get(preference.key) || preference.defaultValue;
+        storeValue = store.get(preference.key),
+        defaultValue = storeValue !== null ? storeValue : preference.defaultValue;
 
       if (explanation) {
         item.explanation = explanation;
@@ -56,7 +57,7 @@ function define(definition, explanations) {
         delete item.explanation;
       }
 
-      if (defaultValue) {
+      if (defaultValue !== undefined) {
         item.defaultValue = defaultValue;
       } else {
         delete item.defaultValue;

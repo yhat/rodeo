@@ -3,9 +3,9 @@
  * @module
  */
 
-import * as ipc from '../services/ipc';
+import applicationControl from '../services/application-control';
 
-export function quit() {
+function quit() {
   return function (dispatch) {
     // probably save a bunch of stuff here to localStorage
 
@@ -15,42 +15,52 @@ export function quit() {
     // probably ask whether to save files here
 
     // actually quit
-    return ipc.send('quitApplication').then(function () {
+    return applicationControl.quit().then(function () {
       // maybe some visual artifact?
       dispatch({type: 'QUIT'});
-    }).catch(error => console.error(error));
+    }).catch(error => dispatch(errorCaught(error)));
   };
 }
 
-export function toggleDevTools() {
-  return function () {
-    return ipc.send('toggleDevTools').then(function () {
+function toggleDevTools() {
+  return function (dispatch) {
+    return applicationControl.toggleDevTools().then(function () {
       // maybe some visual artifact?  no?  maybe a bolt of lightning?
-    }).catch(error => console.error(error));
+    }).catch(error => dispatch(errorCaught(error)));
   };
 }
 
-export function checkForUpdates() {
+function checkForUpdates() {
   return function (dispatch) {
-    dispatch({type: 'CHECKING_FOR_APPLICATION_UPDATES'});
+    dispatch({type: 'CHECKING_FOR_UPDATE'});
 
-    return ipc.send('checkForUpdates').then(function () {
-      dispatch({type: 'NO_APPLICATION_UPDATES'});
-    }).catch(error => console.error(error));
+    return applicationControl.checkForUpdates().then(function (result) {
+      if (result === 'update-available') {
+        dispatch({type: 'CHECKED_FOR_UPDATE_DOWNLOAD_AVAILABLE'});
+      } else {
+        dispatch({type: 'CHECKED_FOR_UPDATE_DOWNLOAD_NOT_AVAILABLE', result});
+      }
+    }).catch(function (error) {
+      dispatch({type: 'CHECK_FOR_UPDATE_FAILED', error});
+    });
   };
 }
 
-export function quitAndInstallUpdates() {
-  console.log('quitAndInstallUpdates');
+function quitAndInstallUpdates() {
   return function (dispatch) {
-    return ipc.send('quitAndInstall').then(function () {
-      console.log('sent quitAndInstallUpdates success!', arguments);
-      dispatch({type: 'QUITING_TO_INSTALL_UPDATES'});
-    }).catch(error => console.error(error));
+    return applicationControl.quitAndInstall()
+      .catch(error => dispatch(errorCaught(error)));
   };
+}
+
+export function errorCaught(error) {
+  /* eslint no-console: 0 */
+  console.error(error);
+  return {type: 'ERROR_CAUGHT', error};
 }
 
 export default {
+  errorCaught,
   quit,
   toggleDevTools,
   checkForUpdates,
