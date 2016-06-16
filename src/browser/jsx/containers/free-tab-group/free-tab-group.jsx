@@ -62,7 +62,7 @@ export default connect(mapStateToProps, mapDispatchToProps)(React.createClass({
   },
   /**
    * NOTE: preventDefault to reject drag
-   * @param {MouseEvent} event
+   * @param {DragEvent} event
    * @param {string} tabId
    */
   handleTabDragStart: function (event, tabId) {
@@ -80,7 +80,7 @@ export default connect(mapStateToProps, mapDispatchToProps)(React.createClass({
   },
   /**
    * NOTE: preventDefault to allow drop
-   * @param {MouseEvent} event
+   * @param {DragEvent} event
    */
   handleTabListDragOver: function (event) {
     const itemStr = event.dataTransfer.getData('application/json');
@@ -112,12 +112,13 @@ export default connect(mapStateToProps, mapDispatchToProps)(React.createClass({
         item = JSON.parse(itemStr);
 
         this.props.onMoveTab(item.id);
-
-        console.log(item);
       } catch (ex) {
         console.log(ex);
       }
     }
+  },
+  handleTabDragEnd: function (event) {
+    console.log('handleTabDragEnd', event);
   },
   render: function () {
     const props = this.props,
@@ -133,6 +134,7 @@ export default connect(mapStateToProps, mapDispatchToProps)(React.createClass({
     return (
       <TabbedPane
         onChanged={this.handleTabChanged}
+        onTabDragEnd={this.handleTabDragEnd}
         onTabDragStart={this.handleTabDragStart}
         onTabListDragEnter={this.handleTabListDragEnter}
         onTabListDragOver={this.handleTabListDragOver}
@@ -148,7 +150,7 @@ export default connect(mapStateToProps, mapDispatchToProps)(React.createClass({
               hasFocus={item.hasFocus}
               icon={item.icon}
               id={item.tabId}
-              key={item.tabId}
+              key={item.id}
               label={item.label}
             >
               {types[item.contentType]()}

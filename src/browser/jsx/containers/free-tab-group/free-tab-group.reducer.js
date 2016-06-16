@@ -125,8 +125,8 @@ function moveTab(state, action) {
     return item;
   });
 
-  // if item had focus, move focus to left item
-  if (removedItems.length && removedItems[0].hasFocus) {
+  // if moving to new group and item had focus, move focus to left item
+  if (toGroup !== fromGroup && removedItems.length && removedItems[0].hasFocus) {
     if (fromGroupItemIndex === 0 && fromGroup.items.length) {
       fromGroup.items[0].hasFocus = true;
     } else if (fromGroup.items[fromGroupItemIndex - 1]) {

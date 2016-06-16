@@ -204,6 +204,14 @@ export default React.createClass({
       fn = this.props.onTabDragStart;
 
     if (fn) {
+      event.persist();
+      let endFn = function (newEvent) {
+        newEvent.target.removeEventListener('dragend', endFn, false);
+        this.handleTabDragEnd(tabId, event);
+      }.bind(this);
+
+      event.target.addEventListener('dragend', endFn, false);
+
       fn(event, tabId);
 
       // preventing default in this case means preventing the drag
@@ -216,7 +224,8 @@ export default React.createClass({
     this.setActiveKey(key);
   },
   setActiveKey: function (value) {
-    const keys = this.getIds();
+    const keys = this.getIds(),
+      oldActive = this.state.active;
 
     if (!value) {
       throw new TypeError('Missing first parameter');
@@ -224,7 +233,9 @@ export default React.createClass({
       throw new TypeError('Tab with key ' + value + ' does not exist');
     }
 
-    this.setState({active: value});
+    if (value !== oldActive) {
+      this.setState({active: value});
+    }
   },
   getIds: function () {
     return getTabIds(this.props.children);
