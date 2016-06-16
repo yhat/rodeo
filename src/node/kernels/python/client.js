@@ -61,7 +61,7 @@ function createObjectEmitter(stream) {
  * @param {object} data
  */
 function handleProcessStreamEvent(client, source, data) {
-  log('error', source, data);
+  log('info', 'client event', source, data);
   client.emit('event', source, data);
 }
 

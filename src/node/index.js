@@ -232,6 +232,7 @@ function subscribeWindowToKernelEvents(windowName, client) {
   subscribeBrowserWindowToEvent(windowName, client, 'shell');
   subscribeBrowserWindowToEvent(windowName, client, 'iopub');
   subscribeBrowserWindowToEvent(windowName, client, 'stdin');
+  subscribeBrowserWindowToEvent(windowName, client, 'event');
 }
 
 // Quit when all windows are closed.

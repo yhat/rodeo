@@ -27,16 +27,16 @@ let ruleSet = [
   },
   {
     when: _.overSome(_.matches({platform: 'linux'}), _.matches({platform: 'darwin'})),
-    then: {cmd: 'python', shell: '/bin/bash', label: 'python'}
-  },
-  {
-    when: _.overSome(_.matches({platform: 'linux'}), _.matches({platform: 'darwin'})),
     then: function () {
       // run 'which python' and use that result as their python instance
       return processes.exec('which', ['python']).then(function (results) {
         return {cmd: _.trim(results), shell: '/bin/bash', label: 'which python'};
       }).timeout(2000, 'Unable to run "which python" in under 2 seconds');
     }
+  },
+  {
+    when: _.overSome(_.matches({platform: 'linux'}), _.matches({platform: 'darwin'})),
+    then: {cmd: 'python', shell: '/bin/bash', label: 'python'}
   },
   {
     when: _.overSome(_.matches({platform: 'linux'}), _.matches({platform: 'darwin'})),
