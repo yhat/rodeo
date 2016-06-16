@@ -38,6 +38,9 @@ def add_input(input_queue):
 def kernel(wd=None, verbose=0):
     # setup ipython kernel and configure it
     kernel_manager, kernel_client = manager.start_new_kernel(extra_arguments=["--matplotlib='inline'"])
+    current_timeout_min = 0.0005
+    current_timeout_max = 0.01
+    current_timeout = current_timeout_max
 
     acceptable_types = [
       "execute_input",
@@ -69,6 +72,7 @@ def kernel(wd=None, verbose=0):
 
     while True:
         if not input_queue.empty():
+            current_timeout = current_timeout_min
             line = input_queue.get().strip()
             payload = json.loads(line)
             uid = payload["id"]
@@ -96,24 +100,29 @@ def kernel(wd=None, verbose=0):
 
         try:
             while True:
-                data = kernel_client.get_iopub_msg(timeout=0.0001)
+                data = kernel_client.get_iopub_msg(timeout=current_timeout)
                 if data.get("msg_type") in acceptable_types:
                   sys.stdout.write(json.dumps({"source": "iopub", "result": data}, default=json_serial) + '\n')
                   sys.stdout.flush()
+                  current_timeout = current_timeout_min
         except Empty:
             pass
 
         try:
-            data = kernel_client.get_shell_msg(timeout=0.0001)
+            data = kernel_client.get_shell_msg(timeout=current_timeout)
             sys.stdout.write(json.dumps({"source": "shell", "result": data}, default=json_serial) + '\n')
+            current_timeout = current_timeout_min
         except Empty:
             pass
 
         try:
-            data = kernel_client.get_stdin_msg(timeout=0.0001)
+            data = kernel_client.get_stdin_msg(timeout=current_timeout)
             sys.stdout.write(json.dumps({"source": "stdin", "result": data}, default=json_serial) + '\n')
+            current_timeout = current_timeout_min
         except Empty:
             pass
+
+        current_timeout = min(current_timeout * 1.1, current_timeout_max)
 
 if __name__=="__main__":
     wd = None
