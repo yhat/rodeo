@@ -11,7 +11,6 @@ import dialogActions from '../../actions/dialogs';
 import kernelActions from '../../actions/kernel';
 import terminalActions from '../terminal/terminal.actions';
 
-
 /**
  * @param {Element} el
  */
@@ -93,25 +92,37 @@ export default connect(mapStateToProps, mapDispatchToProps)(React.createClass({
     // if there is an active editor tab, focus on the ace pane inside of it
     focusAcePaneInActiveElement(editorTabs);
   },
-  handleTabDragStart: function (event, id) {
-    const targetEl = getParentNodeOf(event.target, 'li'),
-      props = this.props,
-      items = props.items,
-      targetAcePane = _.find(items, {id});
+  /**
+   * NOTE: preventDefault to reject drag
+   * @param {MouseEvent} event
+   * @param {string} tabId
+   */
+  handleTabDragStart: function (event, tabId) {
+    const el = getParentNodeOf(event.target, 'li'),
+      item = _.find(this.props.items, {tabId});
 
-    // prevent default in this case means to _deny_ the start of the drag
-    // event.preventDefault();
-    event.dataTransfer.effectAllowed = 'move';
-    event.dataTransfer.setData('text/html', targetEl.outerHTML);
-    event.dataTransfer.setData('rodeo/cid', id);
-
-    // if the tab has a place where it is saved
-    if (targetAcePane.path) {
-      event.dataTransfer.setData('text/uri-list', targetAcePane.path);
-      event.dataTransfer.setData('text/plain', targetAcePane.path);
+    if (item && item.filename) {
+      event.dataTransfer.effectAllowed = 'move';
+      event.dataTransfer.setData('text/html', el.outerHTML);
+      event.dataTransfer.setData('text/uri-list', item.filename);  // used by outside file system viewers
+      event.dataTransfer.setData('text/plain', item.filename);  //  used by outside file system viewers
+    } else {
+      // prevent default in this case means to _deny_ the start of the drag
+      event.preventDefault();
     }
   },
-  handleTabListDragOver: (event) => event.preventDefault(),
+  /**
+   * NOTE: preventDefault to allow drop
+   * @param {MouseEvent} event
+   */
+  handleTabListDragOver: function (event) {
+    const textUriList = event.dataTransfer.getData('text/uri-list'),
+      textPlain = event.dataTransfer.getData('text/plain');
+
+    if (textUriList && textPlain) {
+      event.preventDefault();
+    }
+  },
   handleTabListDrop: function (event) {
     const targetEl = getParentNodeOf(event.target, 'li'),
       targetId = targetEl && targetEl.getAttribute('data-child'),
