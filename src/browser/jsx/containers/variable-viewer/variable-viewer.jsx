@@ -1,6 +1,7 @@
 import _ from 'lodash';
 import React from 'react';
 import {connect} from 'react-redux';
+import variableViewerActions from './variable-viewer.actions';
 
 /**
  * @param {object} state
@@ -12,10 +13,20 @@ function mapStateToProps(state) {
 }
 
 /**
+ * @param {function} dispatch
+ * @returns {object}
+ */
+function mapDispatchToProps(dispatch) {
+  return {
+    onShowDataFrame: item => dispatch(variableViewerActions.showDataFrame(item))
+  };
+}
+
+/**
  * @class PackagesViewer
  * @extends ReactComponent
  */
-export default connect(mapStateToProps)(React.createClass({
+export default connect(mapStateToProps, mapDispatchToProps)(React.createClass({
   displayName: 'VariableViewer',
   propTypes: {
     filter: React.PropTypes.string,
@@ -47,11 +58,31 @@ export default connect(mapStateToProps)(React.createClass({
         <table className="table table-bordered">
           <thead>
             <tr>
-              <th>{'Name'}</th><th>{'Type'}</th><th>{'REPR'}</th>
+              <th>{'Name'}</th>
+              <th>{'Type'}</th>
+              <th>{'REPR'}</th>
+              <th>{'Value'}</th>
             </tr>
           </thead>
           <tbody>
-          {_.map(items, item => <tr key={item.id}><td>{item.name}</td><td>{item.type}</td><td>{item.repr}</td></tr>)}
+          {_.map(items, item => {
+            let value;
+
+            console.log('variableViewer', 'item', item);
+
+            if (item.type === 'List') {
+              value = <button className="btn btn-default" onClick={_.partial(this.props.onShowDataFrame, item)}>{'View'}</button>;
+            }
+
+            return (
+              <tr key={item.id}>
+                <td>{item.name}</td>
+                <td>{item.type}</td>
+                <td>{item.repr}</td>
+                <td>{value}</td>
+              </tr>
+            );
+          })}
           </tbody>
         </table>
       </div>

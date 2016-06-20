@@ -20,7 +20,8 @@ const _ = require('lodash'),
   windowUrls = {
     mainWindow: 'main.html',
     startupWindow: 'startup.html',
-    designWindow: 'design.html'
+    designWindow: 'design.html',
+    freeTabsOnlyWindow: 'free-tabs-only.html'
   };
 
 /**
@@ -650,6 +651,27 @@ function onToggleFullScreen() {
   });
 }
 
+function onCreateWindow(name, options) {
+  // prefix url with our location
+  if (!options.url) {
+    throw new Error('Missing url for createWindow');
+  }
+
+  if (!windowUrls[options.url]) {
+    throw new Error('Cannot find window entry point for ' + options.url);
+  }
+
+  options.url = 'file://' + path.join(staticFileDir, windowUrls[options.url]);
+
+  const window = browserWindows.create(name, options);
+
+  if (argv.dev === true) {
+    window.openDevTools();
+  }
+
+  return window;
+}
+
 /**
  * Attaches events to the main process
  */
@@ -659,7 +681,12 @@ function attachIpcMainEvents() {
   ipcPromises.exposeElectronIpcEvents(ipcMain, [
     onExecute,
     onGetResult,
+    onCheckForUpdates,
     onCheckKernel,
+    onCloseWindow,
+    onCreateKernelInstance,
+    onCreateWindow,
+    onFileStats,
     onGetAutoComplete,
     onIsComplete,
     onInterrupt,
@@ -674,17 +701,13 @@ function attachIpcMainEvents() {
     onResolveFilePath,
     onGetFile,
     onSaveFile,
-    onFileStats,
     onQuitAndInstall,
-    onCheckForUpdates,
-    onCloseWindow,
     onOpenExternal,
     onOpenTerminal,
     onOpenDialog,
     onSaveDialog,
     onToggleDevTools,
     onToggleFullScreen,
-    onCreateKernelInstance,
     onKillKernelInstance
   ]);
 }

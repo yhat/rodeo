@@ -59,7 +59,7 @@ function onFailLoad() {
 
   args.description = commonErrors[name] && commonErrors[name].description || args.description;
 
-  log('error', 'onFailLoad', event, _.pickBy(_.assign({name}, args), _.identity));
+  log('error', 'onFailLoad', _.pickBy(_.assign({name}, args), _.identity));
 }
 
 function stripRedundantPathInformation(value) {

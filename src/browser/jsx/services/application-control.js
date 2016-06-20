@@ -22,8 +22,19 @@ function quit() {
   return send('quitApplication');
 }
 
+/**
+ *
+ * @param {string} name
+ * @param {object} options
+ * @returns {*}
+ */
+function createWindow(name, options) {
+  return send('createWindow', name, options);
+}
+
 export default {
   checkForUpdates,
+  createWindow,
   toggleDevTools,
   quitAndInstall,
   quit
