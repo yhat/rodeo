@@ -33,6 +33,12 @@ const _ = require('lodash'),
   pythonLanguage = require('./language'),
   uuid = require('uuid');
 
+/**
+ * The default environment variables that all clients will assume
+ * @type object
+ */
+let defaultEnv = process.env;
+
 function createObjectEmitter(stream) {
   const streamSplitter = new StreamSplitter('\n'),
     emitter = new EventEmitter();
@@ -332,7 +338,7 @@ function getPythonCommandOptions(options) {
   options = resolveHomeDirectory(options);
 
   return _.assign({
-    env: pythonLanguage.setDefaultEnvVars(process.env),
+    env: pythonLanguage.setDefaultEnvVars(defaultEnv),
     stdio: ['pipe', 'pipe', 'pipe'],
     encoding: 'UTF8'
   }, _.pick(options || {}, ['shell']));
@@ -415,3 +421,6 @@ function resolveHomeDirectory(options) {
 module.exports.create = create;
 module.exports.getPythonScriptResults = getPythonScriptResults;
 module.exports.checkPython = checkPython;
+
+module.exports.setDefaultEnv = value => defaultEnv = value;
+module.exports.getDefaultEnv = () => defaultEnv;

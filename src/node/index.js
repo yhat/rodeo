@@ -262,8 +262,8 @@ function startMainWindow() {
   return new bluebird(function (resolve) {
     const windowName = 'mainWindow',
       mainWindow = browserWindows.getByName(windowName) || browserWindows.createMainWindow(windowName, {
-        url: 'file://' + path.join(staticFileDir, windowUrls[windowName])
-      });
+          url: 'file://' + path.join(staticFileDir, windowUrls[windowName])
+        });
 
     if (argv.dev === true) {
       mainWindow.openDevTools();
@@ -312,17 +312,22 @@ function startStartupWindow() {
 function onReady() {
   let windowName, window;
 
-  if (argv.design) {
-    windowName = 'designWindow';
-    window = browserWindows.create(windowName, {
-      url: 'file://' + path.join(staticFileDir, windowUrls[windowName])
+  require('./services/env').getEnv()
+    .then(function (env) {
+      require('./kernels/python/client').setDefaultEnv(env);
+
+      if (argv.design) {
+        windowName = 'designWindow';
+        window = browserWindows.create(windowName, {
+          url: 'file://' + path.join(staticFileDir, windowUrls[windowName])
+        });
+        window.show();
+      } else {
+        (argv.startup === false ? startMainWindow() : startStartupWindow())
+          .then(attachIpcMainEvents)
+          .catch(err => log('error', err));
+      }
     });
-    window.show();
-  } else {
-    (argv.startup === false ? startMainWindow() : startStartupWindow())
-      .then(attachIpcMainEvents)
-      .catch(err => log('error', err));
-  }
 }
 
 /**
@@ -681,12 +686,24 @@ function attachAppEvents() {
   const app = electron.app;
 
   if (app) {
-    app.on('will-finish-launching', function () { log('info', 'will-finish-launching'); });
-    app.on('will-quit', function () { log('info', 'will-quit'); });
-    app.on('before-quit', function () { log('info', 'before-quit'); });
-    app.on('quit', function (event, errorCode) { log('info', 'quit', {errorCode}); });
-    app.on('activate', function (event, hasVisibleWindows) { log('info', 'activate', {hasVisibleWindows}); });
-    app.on('gpu-process-crashed', function () { log('info', 'gpu-process-crashed'); });
+    app.on('will-finish-launching', function () {
+      log('info', 'will-finish-launching');
+    });
+    app.on('will-quit', function () {
+      log('info', 'will-quit');
+    });
+    app.on('before-quit', function () {
+      log('info', 'before-quit');
+    });
+    app.on('quit', function (event, errorCode) {
+      log('info', 'quit', {errorCode});
+    });
+    app.on('activate', function (event, hasVisibleWindows) {
+      log('info', 'activate', {hasVisibleWindows});
+    });
+    app.on('gpu-process-crashed', function () {
+      log('info', 'gpu-process-crashed');
+    });
     app.on('window-all-closed', onWindowAllClosed);
     app.on('ready', onReady);
 
