@@ -27,6 +27,10 @@ li {
   margin: 20px;
 }
 
+.marked li {
+  margin: 0;
+}
+
 ul.horizontal {
   display: block;
 }
@@ -59,13 +63,13 @@ ul.horizontal li {
 .setup-content {
   position: relative;
   height: 100%;
-  width: 50%;
+  width: 80%;
   display: flex;
   flex-direction: column;
   justify-content: space-around;
 }
 
-.setup .marked {
+.setup .faded {
   color: #888888;
 }
 
