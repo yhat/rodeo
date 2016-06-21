@@ -10,8 +10,10 @@ import * as store from '../services/store';
 import client from '../services/client';
 import clientDiscovery from '../services/client-discovery';
 import {errorCaught} from './application';
+import track from '../services/track';
 
 export function interrupt() {
+  track('kernel','interrupt');
   return function (dispatch) {
     dispatch({type: 'INTERRUPTING_KERNEL'});
 
@@ -30,6 +32,7 @@ export function isIdle() {
 }
 
 export function kernelDetected(pythonOptions) {
+  track('kernel','kernel_detected');
   // save over previous settings
   if (!pythonOptions.cmd) {
     throw new Error('Unacceptable python options without cmd that created it');
@@ -41,6 +44,7 @@ export function kernelDetected(pythonOptions) {
 }
 
 export function askForPythonOptions() {
+  track('kernel','ask_for_python_options');
   return {type: 'ASK_FOR_PYTHON_OPTIONS'};
 }
 

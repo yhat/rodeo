@@ -1,6 +1,7 @@
 import _ from 'lodash';
 import ipc from 'ipc';
 import store from './store';
+import track from './track';
 
 import dialogActions from '../actions/dialogs';
 import applicationActions from '../actions/application';
@@ -60,6 +61,7 @@ function internalDispatcher(dispatch) {
 }
 
 function dispatchIOPubResult(dispatch, content) {
+  track('iopub','execute_result');
   let text = _.get(content, 'data["text/plain"]');
 
   if (text) {
@@ -71,6 +73,7 @@ function dispatchIOPubResult(dispatch, content) {
 }
 
 function dispatchIOPubDisplayData(dispatch, content) {
+  track('iopub','display_data');
   dispatch(terminalActions.addDisplayData(content.data));
   dispatch(iopubActions.dataDisplayed(content.data));
   if (store.get('plotsFocusOnNew') !== false) {
@@ -80,23 +83,27 @@ function dispatchIOPubDisplayData(dispatch, content) {
 }
 
 function dispatchIOPubError(dispatch, content) {
+  track('iopub','error');
   dispatch(terminalActions.addErrorText(content.ename, content.evalue, content.traceback));
   dispatch(iopubActions.errorOccurred(content.ename, content.evalue, content.traceback));
   detectVariables(dispatch);
 }
 
 function dispatchIOPubStream(dispatch, content) {
+  track('iopub','stream');
   dispatch(terminalActions.addOutputText(content.text));
   dispatch(iopubActions.dataStreamed(content.name, content.text));
   detectVariables(dispatch);
 }
 
 function dispatchIOPubExecuteInput(dispatch, content) {
+  track('iopub','execute_input');
   dispatch(iopubActions.inputExecuted(content.code));
   detectVariables(dispatch);
 }
 
 function dispatchIOPubStatus(dispatch, content) {
+  track('iopub','status');
   dispatch(iopubActions.stateChanged(content.execution_state));
 }
 
