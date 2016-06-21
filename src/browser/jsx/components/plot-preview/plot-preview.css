@@ -50,7 +50,8 @@
   cursor: pointer;
   flex: 0 0;
   transition: all 0.2s ease-in-out;
-  min-height: 140px;
+  min-height: 120px;
+  transform: rotate(0.01deg);
 }
 
 .plot-viewer .item.splash {
