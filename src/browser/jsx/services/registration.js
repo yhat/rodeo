@@ -18,20 +18,6 @@ function rememberShowedDialog() {
   store.set(lastRegisterReminderKey, new Date().getTime());
 }
 
-/**
- * @param {object} obj
- * @returns {string}
- * @throws if object contains keys that are symbols or values that are not strings. Convert them first please.
- */
-function createQueryString(obj) {
-  return _.map(obj, function (value, key) {
-    if (!_.isString(value) || !_.isString(key)) {
-      throw new Error('Expected key and value to be strings');
-    }
-
-    return encodeURIComponent(key) + '=' + encodeURIComponent(value);
-  }, []).join('&');
-}
 
 /**
  * @param {object} data
@@ -40,7 +26,7 @@ function createQueryString(obj) {
 function register(data) {
   data['rodeoId'] = store.get('userId');
 
-  return fetch('http://yhat.com/rodeo/register?' + createQueryString(data)).then(function () {
+  return fetch('https://www.yhat.com/rodeo/register', {method: 'POST', body: JSON.stringify(data), 'Content-Type':'application/json'}).then(function () {
     // Use a timestamp so we know _when_ they registered
     store.set(hasRegisteredKey, new Date().getTime());
   });
