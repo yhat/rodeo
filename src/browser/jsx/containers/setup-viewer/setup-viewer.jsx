@@ -5,6 +5,7 @@ import setupActions from './setup-viewer.actions';
 import unixExamples from './unix-examples.md';
 import win32Examples from './win32-examples.md';
 import installInstructions from './install-instructions.md';
+import rejectedInstructions from './rejected-instructions.md';
 
 function mapStateToProps(state) {
   return state.setup;
@@ -45,7 +46,8 @@ export default connect(mapStateToProps, mapDispatchToProps)(React.createClass({
   getDefaultProps: function () {
     return {
       examples: process.platform === 'win32' ?  win32Examples : unixExamples,
-      installInstructions
+      installInstructions,
+      rejectedInstructions
     };
   },
   render: function () {

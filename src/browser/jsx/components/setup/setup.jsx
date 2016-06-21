@@ -47,10 +47,11 @@ export default React.createClass({
         content = (
           <div className="setup-content">
             <p>{'Where is python?'}</p>
-            <Marked>{'Examples:\n\n' + props.examples}</Marked>
+            <Marked className="faded">{props.examples}</Marked>
             <ul className="horizontal">
               <PythonTestInput onTest={props.onTest} {...props.pythonTest} />
               <SetupListItem onClick={_.partial(props.onAsk, 'MANUAL_OR_MISSING')}>{'Back'}</SetupListItem>
+              <SetupListItem disabled={props.pythonTest.status === 'valid'} onClick={_.partial(props.onAsk, 'MISSING')}>{'Still not working'}</SetupListItem>
               <SetupListItem
                 disabled={props.pythonTest.status !== 'valid'}
                 onClick={_.partial(props.onSaveTest, props.pythonTest.cmd)}
@@ -61,7 +62,7 @@ export default React.createClass({
       } else {
         content = (
           <div className="setup-content">
-            <p>{'Looks like we can\'t find python.'}</p>
+            <Marked>{props.rejectedInstructions}</Marked>
             <ul>
               <SetupListItem onClick={_.partial(props.onAsk, 'MANUAL')}>{'Let me set the path manually'}</SetupListItem>
               <SetupListItem onClick={_.partial(props.onAsk, 'MISSING')}>{'I don\'t have python installed'}</SetupListItem>

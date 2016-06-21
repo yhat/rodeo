@@ -21,6 +21,9 @@ export default React.createClass({
     this.props.onTest(e.target.value);
     e.preventDefault();
   },
+  handleSubmit: function (e) {
+    e.preventDefault();
+  },
   render: function () {
     const props = this.props,
       className = [
@@ -38,7 +41,7 @@ export default React.createClass({
     }
 
     return (
-      <form className="form python-test-input">
+      <form className="form python-test-input" onSubmit={this.handleSubmit}>
         <div className="form-group">
           {label}
           <input className={'form-control ' + props.status} id="python-test-input" onChange={this.handleChange} value={props.cmd} />
