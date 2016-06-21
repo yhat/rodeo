@@ -47,7 +47,6 @@ function addInputText(context) {
       text = context.text,
       consoleState = jqConsole.GetState();
 
-
     // if a prompt is waiting for this input
     if (consoleState === 'prompt') {
       const fullText = jqConsole.GetPromptText() + text;

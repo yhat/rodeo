@@ -1,4 +1,3 @@
-import _ from 'lodash';
 import store from './store';
 
 const minute = 1000 * 60,
@@ -17,7 +16,6 @@ function shouldShowDialog() {
 function rememberShowedDialog() {
   store.set(lastRegisterReminderKey, new Date().getTime());
 }
-
 
 /**
  * @param {object} data

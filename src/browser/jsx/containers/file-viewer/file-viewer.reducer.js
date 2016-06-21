@@ -64,7 +64,6 @@ function changePreference(state, action) {
   }
 }
 
-
 export default mapReducers({
   LIST_VIEWED_FILES: setFileList,
   SELECT_VIEWED_FILE: selectFile,

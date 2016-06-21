@@ -61,7 +61,7 @@ function internalDispatcher(dispatch) {
 }
 
 function dispatchIOPubResult(dispatch, content) {
-  track('iopub','execute_result');
+  track('iopub', 'execute_result');
   let text = _.get(content, 'data["text/plain"]');
 
   if (text) {
@@ -73,7 +73,7 @@ function dispatchIOPubResult(dispatch, content) {
 }
 
 function dispatchIOPubDisplayData(dispatch, content) {
-  track('iopub','display_data');
+  track('iopub', 'display_data');
   dispatch(terminalActions.addDisplayData(content.data));
   dispatch(iopubActions.dataDisplayed(content.data));
   if (store.get('plotsFocusOnNew') !== false) {
@@ -83,27 +83,27 @@ function dispatchIOPubDisplayData(dispatch, content) {
 }
 
 function dispatchIOPubError(dispatch, content) {
-  track('iopub','error');
+  track('iopub', 'error');
   dispatch(terminalActions.addErrorText(content.ename, content.evalue, content.traceback));
   dispatch(iopubActions.errorOccurred(content.ename, content.evalue, content.traceback));
   detectVariables(dispatch);
 }
 
 function dispatchIOPubStream(dispatch, content) {
-  track('iopub','stream');
+  track('iopub', 'stream');
   dispatch(terminalActions.addOutputText(content.text));
   dispatch(iopubActions.dataStreamed(content.name, content.text));
   detectVariables(dispatch);
 }
 
 function dispatchIOPubExecuteInput(dispatch, content) {
-  track('iopub','execute_input');
+  track('iopub', 'execute_input');
   dispatch(iopubActions.inputExecuted(content.code));
   detectVariables(dispatch);
 }
 
 function dispatchIOPubStatus(dispatch, content) {
-  track('iopub','status');
+  track('iopub', 'status');
   dispatch(iopubActions.stateChanged(content.execution_state));
 }
 
@@ -140,7 +140,6 @@ function stdinDispatcher() {
     console.log('stdin', {event, data});
   });
 }
-
 
 /**
  * The node process will always forward events to the UI here to give a chance to respond to them.

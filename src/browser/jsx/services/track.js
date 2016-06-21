@@ -1,3 +1,4 @@
+import _ from 'lodash';
 import store from './store';
 import clientDiscovery from './client-discovery';
 import bluebird from 'bluebird';
@@ -44,7 +45,7 @@ function reportOptOut() {
 /**
  * @param {string} eventCategory
  * @param {string} eventAction  subcategory
- * @param {string} label
+ * @param {string} [label]
  * @returns {Promise}
  */
 export default function track(eventCategory, eventAction, label) {
@@ -56,14 +57,14 @@ export default function track(eventCategory, eventAction, label) {
     clientDiscovery.getUserId(),
     clientDiscovery.getAppVersion()
   ]).spread(function (userId, appVersion) {
-    let metrics = {
+    let metrics = _.pickBy({
         an: appName,
         av: appVersion,
         cid: userId,
         ec: eventCategory,
         ea: eventAction,
         el: label
-      },
+      }, _.identity),
       url = metricsUrl + serialize(metrics);
 
     if (navigator.onLine === true) {
