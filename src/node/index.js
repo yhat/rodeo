@@ -255,23 +255,33 @@ function preloadMainWindow() {
   });
 }
 
+function getMainWindow() {
+  const windowName = 'mainWindow';
+  let window = browserWindows.getByName(windowName);
+
+  if (!window) {
+    window = browserWindows.createMainWindow(windowName, {
+      url: 'file://' + path.join(staticFileDir, windowUrls[windowName])
+    });
+  }
+
+  return window;
+}
+
 /**
  * @returns {Promise}
  */
 function startMainWindow() {
   return new bluebird(function (resolve) {
-    const windowName = 'mainWindow',
-      mainWindow = browserWindows.getByName(windowName) || browserWindows.createMainWindow(windowName, {
-          url: 'file://' + path.join(staticFileDir, windowUrls[windowName])
-        });
+    const window = getMainWindow();
 
     if (argv.dev === true) {
-      mainWindow.openDevTools();
+      window.openDevTools();
     }
 
-    resolve(attachApplicationMenu(mainWindow.webContents).then(function () {
-      mainWindow.show();
-      mainWindow.focus();
+    resolve(attachApplicationMenu(window.webContents).then(function () {
+      window.show();
+      window.focus();
     }));
   });
 }
