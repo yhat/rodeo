@@ -29,10 +29,13 @@ function focusNewestPlot() {
   return function (dispatch, getState) {
     const state = getState(),
       plots = state.plots,
-      newestPlot = _.head(_.sortBy(plots, ['createdAt']));
+      sortedPlots = _.reverse(_.sortBy(plots, ['createdAt'])),
+      newestPlot = _.head(sortedPlots);
 
+    sortedPlots.reverse();
+
+    dispatch(freeTabGroupAction.focusFirstTabByType('plot-viewer'));
     if (newestPlot) {
-      dispatch(freeTabGroupAction.focusFirstTabByType('plot-viewer'));
       dispatch(focusPlot(newestPlot.id));
     }
   };

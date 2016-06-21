@@ -2,7 +2,8 @@ import _ from 'lodash';
 import cid from '../../services/cid';
 import mapReducers from '../../services/map-reducers';
 
-const initialState = [];
+const initialState = [],
+  maxPlots = 50;
 
 function getDefault() {
   return {
@@ -27,7 +28,12 @@ function add(state, action) {
   state = _.clone(state);
   item.data = action.data;
   item.hasFocus = true;
-  state.push(item);
+  state.unshift(item);
+
+  // if more than max plots, remove oldest plot
+  if (state.length > maxPlots) {
+    state.pop();
+  }
 
   if (activePlot) {
     activePlot.hasFocus = false;

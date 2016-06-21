@@ -86,6 +86,10 @@
       accelerator: CmdOrCtrl+2
       click:
         type: FOCUS_ACTIVE_TERMINAL
+    - label: Newest Plot
+      accelerator: CmdOrCtrl+4
+      click:
+        type: FOCUS_NEWEST_PLOT
   - label: Toggle Full Screen
     accelerator: Command+Shift+F
     click:
