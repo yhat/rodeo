@@ -1,33 +1,18 @@
 import _ from 'lodash';
 import React from 'react';
-import {createStore, applyMiddleware, combineReducers} from 'redux';
+import {createStore, applyMiddleware} from 'redux';
 import {Provider} from 'react-redux';
 import thunk from 'redux-thunk';
 
+import cid from '../services/cid';
 import FullScreen from '../components/full-screen/full-screen.jsx';
 import FreeTabGroup from './free-tab-group/free-tab-group.jsx';
-import ModalDialogContainer from '../components/modal-dialog/modal-dialog-container.jsx';
-import NotificationsContainer from '../components/notifications/notifications-container.jsx';
 import ipcDispatcher from '../services/ipc-dispatcher';
-import freeTabGroups from './free-tab-group/free-tab-group.reducer';
+import rootReducer from './free-tabs-only.reducer';
 
-function broadcast(state, action) {
-  console.log(action.type, action);
-
-  if (!state) {
-    return {};
-  }
-
-  return state;
-}
-
-
-const rootReducer = combineReducers({
-    freeTabGroups,
-    broadcast
-  }),
+const groupId = cid(),
   createStoreWithMiddleware = applyMiddleware(thunk)(createStore),
-  store = createStoreWithMiddleware(rootReducer);
+  store = createStoreWithMiddleware(rootReducer, {freeTabGroups: [{groupId: groupId, items: []}]});
 
 ipcDispatcher(store.dispatch);
 
@@ -54,9 +39,7 @@ export default React.createClass({
     return (
       <Provider store={store}>
         <FullScreen row>
-          <FreeTabGroup id="only-one" />
-          <ModalDialogContainer />
-          <NotificationsContainer />
+          <FreeTabGroup id={groupId} />
         </FullScreen>
       </Provider>
     );

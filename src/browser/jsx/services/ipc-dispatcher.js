@@ -141,6 +141,24 @@ function stdinDispatcher() {
   });
 }
 
+function otherDispatcher(dispatch) {
+  ipc.on('event', function (event, data) {
+    console.log('event', {event, data});
+  });
+
+  ipc.on('error', function (event, data) {
+    console.log('error', {event, data});
+  });
+
+  ipc.on('sharedAction', function (event, action) {
+    console.log('received sharedAction', {event, action});
+    if (action.senderName) {
+      console.log('dispatching sharedAction', action.senderName, {event, action});
+      dispatch(action);
+    }
+  });
+}
+
 /**
  * The node process will always forward events to the UI here to give a chance to respond to them.
  *
@@ -153,4 +171,5 @@ export default function (dispatch) {
   shellDispatcher();
   stdinDispatcher();
   internalDispatcher(dispatch);
+  otherDispatcher(dispatch);
 }

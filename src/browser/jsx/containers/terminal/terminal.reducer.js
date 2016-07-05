@@ -34,23 +34,7 @@ import mapReducers from '../../services/map-reducers';
  * @property {string} [version]
  */
 
-const initialState = [getDefault()];
-
-/**
- * @returns {[TerminalState]}
- */
-function getDefault() {
-  return {
-    label: 'Console',
-    id: cid(),
-    tabId: cid(),
-    hasFocus: true,
-    icon: 'terminal',
-    fontSize: _.toNumber(store.get('fontSize')) || 12,
-    status: 'idle',
-    history: []
-  };
-}
+const initialState = [];
 
 /**
  * Update the terminal with idle/busy
@@ -96,25 +80,6 @@ function executedInput(state, action) {
   return state;
 }
 
-// /**
-//  * Update the terminal with display data
-//  * @param {[TerminalState]} state
-//  * @param {object} action
-//  * @returns {[TerminalState]}
-//  */
-// function addTerminalResult(state, action) {
-//   const jqconsole = getTerminalConsole(action),
-//     data = action.data;
-//
-//   if (data['text/plain']) {
-//     jqconsole.Write(data['text/plain'] + '\n', 'jqconsole-output');
-//   } else {
-//     console.warn('addTerminalResult', 'unknown data type', data);
-//   }
-//
-//   return state;
-// }
-
 /**
  * Update the terminal with the new python options
  * @param {[TerminalState]} state
@@ -123,9 +88,11 @@ function executedInput(state, action) {
  */
 function updateFirstTerminalWithKernel(state, action) {
   state = _.cloneDeep(state);
-  let target = state.length ? state[0] : getDefault();
+  let target = state && state[0];
 
-  _.assign(target, action.pythonOptions);
+  if (target) {
+    _.assign(target, action.pythonOptions);
+  }
 
   return state;
 }
@@ -138,9 +105,12 @@ function updateFirstTerminalWithKernel(state, action) {
  */
 function updateFirstTerminalWithVariables(state, action) {
   state = _.cloneDeep(state);
-  let target = state.length ? state[0] : getDefault();
+  let target = state && state[0];
 
-  target.variables = action.variables;
+  if (target) {
+    target.variables = action.variables;
+  }
+
   return state;
 }
 

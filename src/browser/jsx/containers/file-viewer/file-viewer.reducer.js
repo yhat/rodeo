@@ -3,19 +3,12 @@ import cid from '../../services/cid';
 import * as store from '../../services/store';
 import mapReducers from '../../services/map-reducers';
 
-const initialState = getDefault();
-
-function getDefault() {
-  const facts = store.get('systemFacts'),
-    homedir = facts && facts.homedir;
-
-  return {
-    id: cid(),
-    path: store.get('workingDirectory') || homedir || '~',
-    files: [],
-    showDotFiles: store.get('displayDotFiles') || false
-  };
-}
+const initialState = {
+  id: cid(),
+  path: '~',
+  files: [],
+  showDotFiles: false
+};
 
 function setFileList(state, action) {
   state = _.clone(state);

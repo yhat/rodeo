@@ -234,6 +234,8 @@ function subscribeWindowToKernelEvents(windowName, client) {
   subscribeBrowserWindowToEvent(windowName, client, 'iopub');
   subscribeBrowserWindowToEvent(windowName, client, 'stdin');
   subscribeBrowserWindowToEvent(windowName, client, 'event');
+  subscribeBrowserWindowToEvent(windowName, client, 'input_request');
+  subscribeBrowserWindowToEvent(windowName, client, 'error');
 }
 
 // Quit when all windows are closed.
@@ -673,6 +675,28 @@ function onCreateWindow(name, options) {
 }
 
 /**
+ * Share an action with every window except the window that send the action.
+ * @param {object} action
+ */
+function onShareAction(action) {
+  const names = browserWindows.getWindowNames(),
+    sender = this,
+    senderName = _.find(names, function (name) {
+      const window = browserWindows.getByName(name);
+
+      return window && window.webContents === sender;
+    });
+
+  action.senderName = senderName;
+
+  _.each(names, function (name) {
+    if (name !== senderName) {
+      browserWindows.send(name, 'sharedAction', action);
+    }
+  });
+}
+
+/**
  * Attaches events to the main process
  */
 function attachIpcMainEvents() {
@@ -686,21 +710,22 @@ function attachIpcMainEvents() {
     onCloseWindow,
     onCreateKernelInstance,
     onCreateWindow,
+    onFiles,
     onFileStats,
+    onGetAppVersion,
     onGetAutoComplete,
+    onGetFile,
+    onGetInspection,
+    onGetSystemFacts,
+    onGetVariables,
     onIsComplete,
     onInterrupt,
-    onGetInspection,
-    onGetVariables,
-    onFiles,
-    onGetSystemFacts,
-    onGetAppVersion,
     onKnitHTML,
     onQuitApplication,
     onPDF,
     onResolveFilePath,
-    onGetFile,
     onSaveFile,
+    onShareAction,
     onQuitAndInstall,
     onOpenExternal,
     onOpenTerminal,

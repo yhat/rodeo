@@ -29,8 +29,10 @@ const ipc = (function () {
    * @returns {*}}
    */
   function on(eventName, eventFn) {
+    var eventReplyName = eventName + '_reply';
+
     try {
-      ipcRenderer.on(eventName, function (event, result) {
+      ipcRenderer.on(eventName, function (event, eventId, result) {
         var endTime,
           startTime = new Date().getTime();
 
@@ -39,7 +41,8 @@ const ipc = (function () {
         endTime = (new Date().getTime() - startTime);
 
         console.log('ipc: completed', endTime + 'ms', eventName, event, eventResult);
-        return eventResult;
+
+        ipcRenderer.send(eventReplyName, eventId, eventResult);
       });
       console.log('ipc: registered', eventName, eventFn.name);
       return this;

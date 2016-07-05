@@ -60,7 +60,6 @@ export default connect(mapStateToProps, mapDispatchToProps)(React.createClass({
             <tr>
               <th>{'Name'}</th>
               <th>{'Type'}</th>
-              <th>{'REPR'}</th>
               <th>{'Value'}</th>
             </tr>
           </thead>
@@ -72,12 +71,13 @@ export default connect(mapStateToProps, mapDispatchToProps)(React.createClass({
 
             if (item.type === 'List') {
               value = <button className="btn btn-default" onClick={_.partial(this.props.onShowDataFrame, item)}>{'View'}</button>;
+            } else if (item.type === 'Other') {
+              value = item.value.toString();
             }
 
             return (
               <tr key={item.id}>
                 <td>{item.name}</td>
-                <td>{item.type}</td>
                 <td>{item.repr}</td>
                 <td>{value}</td>
               </tr>

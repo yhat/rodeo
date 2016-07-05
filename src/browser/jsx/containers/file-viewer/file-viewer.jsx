@@ -36,7 +36,7 @@ export default connect(mapStateToProps, mapDispatchToProps)(React.createClass({
     onRefresh: React.PropTypes.func,
     onSelect: React.PropTypes.func,
     path: React.PropTypes.string.isRequired,
-    showDotFiles: React.PropTypes.string
+    showDotFiles: React.PropTypes.bool
   },
   getDefaultProps: function () {
     return {

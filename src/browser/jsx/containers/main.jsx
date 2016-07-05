@@ -9,14 +9,15 @@ import StudioLayout from './studio-layout/studio-layout.jsx';
 import Sidebar from '../components/sidebar/sidebar.jsx';
 import ModalDialogContainer from '../components/modal-dialog/modal-dialog-container.jsx';
 import NotificationsContainer from '../components/notifications/notifications-container.jsx';
-import rootReducer from '../reducers';
+import rootReducer from './main.reducer';
+import initialState from './main.initial';
 import ipcDispatcher from '../services/ipc-dispatcher';
 import kernelActions from '../actions/kernel';
 import dialogActions from '../actions/dialogs';
 import applicationControl from '../services/application-control';
 
 const createStoreWithMiddleware = applyMiddleware(thunk)(createStore),
-  store = createStoreWithMiddleware(rootReducer);
+  store = createStoreWithMiddleware(rootReducer, initialState.getState());
 
 ipcDispatcher(store.dispatch);
 

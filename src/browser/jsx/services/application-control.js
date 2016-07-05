@@ -26,15 +26,28 @@ function quit() {
  *
  * @param {string} name
  * @param {object} options
- * @returns {*}
+ * @returns {Promise}
  */
 function createWindow(name, options) {
   return send('createWindow', name, options);
 }
 
+/**
+ * @param {object} action
+ * @returns {Promise}
+ */
+function shareAction(action) {
+  // only share action if we're the original creator
+  if (!action.senderName) {
+    console.log('shareAction', action.type, action);
+    return send('shareAction', action);
+  }
+}
+
 export default {
   checkForUpdates,
   createWindow,
+  shareAction,
   toggleDevTools,
   quitAndInstall,
   quit

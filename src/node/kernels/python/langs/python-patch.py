@@ -102,7 +102,7 @@ def __get_variables(session):
             variables["function"].append({ "name": variable_name, "repr": variable_repr })
         else:
             variable_repr = str(type(variable))
-            v = { "name": variable_name, "repr": variable_repr }
+            v = { "name": variable_name, "repr": variable_repr, "value": str(variable)}
             variables["other"].append(v)
 
     for key in variables:
