@@ -17,20 +17,20 @@ import plotViewerActions from '../containers/plot-viewer/plot-viewer.actions';
  * @namespace
  */
 const dispatchMap = {
-    SHOW_ABOUT_RODEO: dialogActions.showAboutRodeo(),
-    SHOW_ABOUT_STICKER: dialogActions.showAboutStickers(),
-    SHOW_PREFERENCES: dialogActions.showPreferences(),
-    CHECK_FOR_UPDATES: applicationActions.checkForUpdates(),
-    TOGGLE_DEV_TOOLS: applicationActions.toggleDevTools(),
-    QUIT: applicationActions.quit(),
-    SAVE_ACTIVE_FILE: editorTabGroupActions.saveActiveFile(),
-    SHOW_SAVE_FILE_DIALOG: editorTabGroupActions.showSaveFileDialogForActiveFile(),
-    SHOW_OPEN_FILE_DIALOG: editorTabGroupActions.showOpenFileDialogForActiveFile(),
-    FOCUS_ACTIVE_ACE_EDITOR: editorTabGroupActions.focus(),
-    FOCUS_ACTIVE_TERMINAL: terminalActions.focus(),
-    FOCUS_NEWEST_PLOT: plotViewerActions.focusNewestPlot(),
-    TERMINAL_INTERRUPT: terminalActions.interrupt(),
-    TERMINAL_RESTART: terminalActions.restart()
+    SHOW_ABOUT_RODEO: () => dialogActions.showAboutRodeo(),
+    SHOW_ABOUT_STICKER: () => dialogActions.showAboutStickers(),
+    SHOW_PREFERENCES: () => dialogActions.showPreferences(),
+    CHECK_FOR_UPDATES: () => applicationActions.checkForUpdates(),
+    TOGGLE_DEV_TOOLS: () => applicationActions.toggleDevTools(),
+    QUIT: () => applicationActions.quit(),
+    SAVE_ACTIVE_FILE: () => editorTabGroupActions.saveActiveFile(),
+    SHOW_SAVE_FILE_DIALOG: () => editorTabGroupActions.showSaveFileDialogForActiveFile(),
+    SHOW_OPEN_FILE_DIALOG: () => editorTabGroupActions.showOpenFileDialogForActiveFile(),
+    FOCUS_ACTIVE_ACE_EDITOR: () => editorTabGroupActions.focus(),
+    FOCUS_ACTIVE_TERMINAL: () => terminalActions.focus(),
+    FOCUS_NEWEST_PLOT: () => plotViewerActions.focusNewestPlot(),
+    TERMINAL_INTERRUPT: () => terminalActions.interrupt(),
+    TERMINAL_RESTART: () => terminalActions.restart()
   },
   iopubDispatchMap = {
     execute_input: dispatchIOPubExecuteInput,
@@ -56,7 +56,7 @@ const dispatchMap = {
 function internalDispatcher(dispatch) {
   ipc.on('dispatch', function (event, action) {
     if (dispatchMap[action.type]) {
-      return dispatch(dispatchMap[action.type]);
+      return dispatch(dispatchMap[action.type]());
     } else {
       return dispatch(action);
     }
@@ -125,7 +125,7 @@ function dispatchIOPubExecuteInput(dispatch, content) {
 }
 
 function dispatchIOPubStatus(dispatch, content) {
-  track('iopub', 'status');
+  // track('iopub', 'status'); // TOO MANY!~
   dispatch(iopubActions.stateChanged(content.execution_state));
 }
 

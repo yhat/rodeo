@@ -381,7 +381,7 @@ function checkPython(options) {
     .then(function (pythonOptions) {
       return _.assign({}, pythonOptions, options);
     })
-    .timeout(10000, 'Unable to check python in under 10 seconds: ' + JSON.stringify(options));
+    .timeout(30000, 'Unable to check python in under 10 seconds: ' + JSON.stringify(options));
 }
 
 /**

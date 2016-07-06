@@ -57,15 +57,28 @@ export default function track(eventCategory, eventAction, label) {
     clientDiscovery.getUserId(),
     clientDiscovery.getAppVersion()
   ]).spread(function (userId, appVersion) {
-    let metrics = _.pickBy({
+    let url,
+      metrics = _.pickBy({
         an: appName,
         av: appVersion,
         cid: userId,
         ec: eventCategory,
-        ea: eventAction,
-        el: label
-      }, _.identity),
-      url = metricsUrl + serialize(metrics);
+        ea: eventAction
+      }, _.identity);
+
+    if (label) {
+      if (typeof label === 'object') {
+        try {
+          metrics.blob = JSON.stringify(label);
+        } catch (ex) {
+          metrics.blob = '{"error": "Unable to stringify object"}';
+        }
+      } else {
+        metrics.el = label;
+      }
+    }
+
+    url = metricsUrl + serialize(metrics)
 
     if (navigator.onLine === true) {
       const request = new XMLHttpRequest();

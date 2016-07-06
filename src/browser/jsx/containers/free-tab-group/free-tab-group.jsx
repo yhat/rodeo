@@ -29,9 +29,6 @@ function mapStateToProps(state, ownProps) {
 function mapDispatchToProps(dispatch, ownProps) {
   const groupId = ownProps.id;
 
-  console.log('free-tab-group', 'mapDispatchToProps', arguments);
-  debugger;
-
   return {
     onFocusTab: id => dispatch(freeTabActions.focusTab(groupId, id)),
     onMoveTab: id => dispatch(freeTabActions.moveTab(groupId, id))
