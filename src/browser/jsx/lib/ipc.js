@@ -80,14 +80,14 @@ const ipc = (function () {
           endTime = (new Date().getTime() - startTime);
 
           if (result[0]) {
-            console.log('ipc ' + eventId + ': completed', endTime + 'ms', result[0]);
+            console.log('ipc ' + eventId + ': error', endTime + 'ms', result[0]);
             reject(new Error(result[0].message));
           } else {
             console.log('ipc ' + eventId + ': completed', endTime + 'ms', result[1]);
             resolve(result[1]);
           }
         } else {
-          console.log('ipc ' + eventId + ':', eventName, 'passed on', arguments);
+          console.log('ipc ' + eventId + ':', eventName, id, 'is not for us.');
         }
       };
       console.log('ipc ' + eventId + ': waiting for ', eventName, 'on', eventReplyName);

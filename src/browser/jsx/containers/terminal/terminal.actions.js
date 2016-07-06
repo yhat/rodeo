@@ -72,6 +72,7 @@ function addInputText(context) {
 }
 
 /**
+ * Free-flowing text output (no color, no html)
  * @param {string} text
  * @returns {function}
  */
@@ -82,6 +83,24 @@ function addOutputText(text) {
       jqConsole = getJQConsole(terminal.id);
 
     jqConsole.Write(text + '\n', 'jqconsole-output');
+  };
+}
+
+/**
+ * Text output put into an HTML container
+ * Converts colored ANSI to HTML.
+ * @param {string} text
+ * @returns {function}
+ */
+function addOutputBlock(text) {
+  return function (dispatch, getState) {
+    const state = getState(),
+      terminal = _.head(state.terminals),
+      className = 'jqconsole-output',
+      jqConsole = getJQConsole(terminal.id),
+      htmlEscape = false;
+
+    jqConsole.Write('<span class="terminal-block">' + convertor.toHtml(text) + '</span>\n', className, htmlEscape);
   };
 }
 
@@ -296,6 +315,7 @@ export default {
   addInputText,
   addErrorText,
   addOutputText,
+  addOutputBlock,
   execute,
   interrupt,
   focus,

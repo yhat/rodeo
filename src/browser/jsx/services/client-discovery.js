@@ -50,9 +50,9 @@ function getAppVersion() {
   let systemFacts = session.get('appVersion');
 
   if (!systemFacts || !systemFacts.appVersion) {
-    return send('getAppVersion').then(function (facts) {
-      store.set('appVersion', facts);
-      return facts;
+    return send('getAppVersion').then(function (version) {
+      store.set('appVersion', version);
+      return version;
     });
   }
 

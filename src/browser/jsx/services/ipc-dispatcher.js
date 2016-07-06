@@ -43,6 +43,9 @@ const dispatchMap = {
     comm_open: dispatchNoop,
     clear_output: dispatchNoop
   },
+  shellDispatchMap = {
+    execute_reply: dispatchShellExecuteReply
+  },
   detectVariables = _.debounce(function (dispatch) {
     dispatch(kernelActions.detectKernelVariables());
   }, 500);
@@ -60,12 +63,31 @@ function internalDispatcher(dispatch) {
   });
 }
 
+function dispatchShellExecuteReply(dispatch, content) {
+  let payload = content && content.payload;
+
+  // it's okay if lots of things have no payloads.  Ones that have payloads are really important though.
+  _.each(payload, function (result) {
+    const text = _.get(result, 'data["text/plain"]');
+
+    if (text) {
+      // this text includes ANSI color
+      dispatch(terminalActions.addOutputBlock(text));
+    } else {
+      console.log('dispatchShellExecuteReply', 'unknown content type', result);
+    }
+  });
+}
+
 function dispatchIOPubResult(dispatch, content) {
   track('iopub', 'execute_result');
-  let text = _.get(content, 'data["text/plain"]');
+  let data = content && content.data,
+    text = data && data['text/plain'];
 
   if (text) {
     dispatch(terminalActions.addOutputText(text));
+  } else {
+    console.log('dispatchIOPubResult', 'unknown content type', data);
   }
 
   dispatch(iopubActions.resultComputed(content.data));
@@ -129,8 +151,15 @@ function iopubDispatcher(dispatch) {
   });
 }
 
-function shellDispatcher() {
+function shellDispatcher(dispatch) {
   ipc.on('shell', function (event, data) {
+    const result = data.result,
+      content = _.get(data, 'result.content');
+
+    if (result && shellDispatchMap[result.msg_type]) {
+      return shellDispatchMap[result.msg_type](dispatch, content);
+    }
+
     console.log('shell', {data});
   });
 }
@@ -168,7 +197,7 @@ function otherDispatcher(dispatch) {
  */
 export default function (dispatch) {
   iopubDispatcher(dispatch);
-  shellDispatcher();
+  shellDispatcher(dispatch);
   stdinDispatcher();
   internalDispatcher(dispatch);
   otherDispatcher(dispatch);

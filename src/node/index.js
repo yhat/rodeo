@@ -437,17 +437,6 @@ function onExecute(options, text) {
     .then(client => client.execute(text));
 }
 
-/**
- * @param {object} [options]
- * @param {string} [options.instanceId]
- * @param {string} text
- * @returns {Promise}
- */
-function onGetResult(options, text) {
-  return getKernelInstanceById(options.instanceId)
-    .then(client => client.getResult(text));
-}
-
 function onGetAutoComplete(options, text, cursorPos) {
   return getKernelInstanceById(options.instanceId)
     .then(client => client.getAutoComplete(text, cursorPos))
@@ -704,7 +693,6 @@ function attachIpcMainEvents() {
 
   ipcPromises.exposeElectronIpcEvents(ipcMain, [
     onExecute,
-    onGetResult,
     onCheckForUpdates,
     onCheckKernel,
     onCloseWindow,

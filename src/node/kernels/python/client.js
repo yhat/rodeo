@@ -191,26 +191,6 @@ class JupyterClient extends EventEmitter {
   }
 
   /**
-   * @param {string} code
-   * @param {object} [args]
-   * @param {boolean} [args.silent]
-   * @param {boolean} [args.storeHistory]
-   * @param {object} [args.userExpressions]
-   * @param {boolean} [args.allowStdin]
-   * @param {boolean} [args.stopOnError]
-   * @returns {Promise<object>}
-   */
-  getResult(code, args) {
-    return request(this, {
-      method: 'execute',
-      kwargs: _.assign({code}, pythonLanguage.toPythonArgs(args))
-    }, {
-      successEvent: ['execute_result', 'display_data', 'stream'],
-      emitOnly: []
-    });
-  }
-
-  /**
    * @param {string} str
    * @returns {Promise}
    */

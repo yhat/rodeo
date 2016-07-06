@@ -101,10 +101,9 @@ def kernel(wd=None, verbose=0):
         try:
             while True:
                 data = kernel_client.get_iopub_msg(timeout=current_timeout)
-                if data.get("msg_type") in acceptable_types:
-                  sys.stdout.write(json.dumps({"source": "iopub", "result": data}, default=json_serial) + '\n')
-                  sys.stdout.flush()
-                  current_timeout = current_timeout_min
+                sys.stdout.write(json.dumps({"source": "iopub", "result": data}, default=json_serial) + '\n')
+                sys.stdout.flush()
+                current_timeout = current_timeout_min
         except Empty:
             pass
 
