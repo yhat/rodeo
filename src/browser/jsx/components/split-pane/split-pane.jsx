@@ -61,8 +61,11 @@ export default React.createClass({
 
     instance.refresh();
 
-    window.onfocus = this.handleFocus;
+    window.addEventListener('focus', this.handleFocus);
     this.handleFocus();
+  },
+  componentWillUnmount: function () {
+    window.removeEventListener('focus', this.handleFocus);
   },
   /**
    * Refresh the children split panes, if any.  React loads children first, so we need to tell them their height has

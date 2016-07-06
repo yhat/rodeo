@@ -1,6 +1,9 @@
 import _ from 'lodash';
 import React from 'react';
+import ReactDOM from 'react-dom';
 import {connect} from 'react-redux';
+import {Table, Column, Cell} from 'fixed-data-table-2';
+import 'fixed-data-table-2/dist/fixed-data-table.min.css';
 import variableViewerActions from './variable-viewer.actions';
 
 /**
@@ -9,7 +12,11 @@ import variableViewerActions from './variable-viewer.actions';
  */
 function mapStateToProps(state) {
   // pick the first terminal (we can add more later to this view?)
-  return _.pick(_.head(state.terminals) || {}, ['variables']);
+  const terminal = _.head(state.terminals),
+    variables = terminal && terminal.variables,
+    splitPanes = state.splitPanes;
+
+  return _.pickBy({variables, splitPanes}, _.identity);
 }
 
 /**
@@ -30,10 +37,47 @@ export default connect(mapStateToProps, mapDispatchToProps)(React.createClass({
   displayName: 'VariableViewer',
   propTypes: {
     filter: React.PropTypes.string,
+    splitPanes: React.PropTypes.object.isRequired,
     variables: React.PropTypes.object
   },
+  getInitialState: function () {
+    return {
+      height: 30,
+      rowHeight: 30,
+      width: 30
+    };
+  },
+  componentDidMount: function () {
+    window.addEventListener('focus', this.onResize);
+    _.defer(() => this.onResize());
+  },
+  componentWillReceiveProps: function () {
+    this.onResize();
+  },
+  shouldComponentUpdate: function (nextState) {
+    const state = this.state;
+
+    return !(state.height === nextState.height && state.width === nextState.width);
+  },
+  componentWillUnmount: function () {
+    window.removeEventListener('focus', this.onResize);
+  },
+  onResize: _.throttle(function () {
+    const el = ReactDOM.findDOMNode(this),
+      height = el.parentNode.offsetHeight,
+      width = el.offsetWidth;
+
+    this.setState({
+      height,
+      width
+    });
+  }, 50),
   render: function () {
-    const props = this.props;
+    const props = this.props,
+      state = this.state,
+      style = {
+        height: '100%'
+      };
     let items;
 
     // flatten type with the rest; give a unique id to use as the key
@@ -54,37 +98,36 @@ export default connect(mapStateToProps, mapDispatchToProps)(React.createClass({
     ));
 
     return (
-      <div>
-        <table className="table table-bordered">
-          <thead>
-            <tr>
-              <th>{'Name'}</th>
-              <th>{'Type'}</th>
-              <th>{'Value'}</th>
-            </tr>
-          </thead>
-          <tbody>
-          {_.map(items, item => {
-            let value;
-
-            console.log('variableViewer', 'item', item);
-
-            if (item.type === 'List') {
-              value = <button className="btn btn-default" onClick={_.partial(this.props.onShowDataFrame, item)}>{'View'}</button>;
-            } else if (item.type === 'Other') {
-              value = item.value.toString();
-            }
-
-            return (
-              <tr key={item.id}>
-                <td>{item.name}</td>
-                <td>{item.repr}</td>
-                <td>{value}</td>
-              </tr>
-            );
-          })}
-          </tbody>
-        </table>
+      <div style={style}>
+        <Table
+          headerHeight={state.rowHeight}
+          height={state.height}
+          rowHeight={state.rowHeight}
+          rowsCount={items.length}
+          width={state.width}
+        >
+          <Column
+            cell={({rowIndex}) => (
+              <Cell {...props}>{items[rowIndex].name}</Cell>
+            )}
+            header={<Cell>{'Name'}</Cell>}
+            width={state.width / 4}
+          />
+          <Column
+            cell={({rowIndex}) => (
+              <Cell {...props}>{items[rowIndex].repr}</Cell>
+            )}
+            header={<Cell>{'Type'}</Cell>}
+            width={state.width / 4}
+          />
+          <Column
+            cell={({rowIndex}) => (
+              <Cell>{items[rowIndex].value}</Cell>
+            )}
+            header={<Cell>{'Value'}</Cell>}
+            width={state.width / 2}
+          />
+        </Table>
       </div>
     );
   }

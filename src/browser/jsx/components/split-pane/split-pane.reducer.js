@@ -1,5 +1,6 @@
+import _ from 'lodash';
 import $ from 'jquery';
-import * as store from '../../services/store';
+import store from '../../services/store';
 import mapReducers from '../../services/map-reducers';
 
 function savePosition(state, action) {
@@ -19,6 +20,7 @@ function savePosition(state, action) {
     if (position) {
       state[action.id] = position + 'px';
       store.set('splitPanePositions', state);
+      state = _.clone(state);
     }
   }
 
@@ -26,5 +28,5 @@ function savePosition(state, action) {
 }
 
 export default mapReducers({
-  SPLIT_PANE_DRAG_END: savePosition
+  SPLIT_PANE_DRAG: savePosition
 }, {});
