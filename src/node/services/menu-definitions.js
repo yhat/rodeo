@@ -6,6 +6,7 @@
 
 const _ = require('lodash'),
   bluebird = require('bluebird'),
+  cuid = require('cuid'),
   files = require('./files'),
   jsYaml = require('js-yaml'),
   path = require('path'),
@@ -31,7 +32,7 @@ function convertMenu(ipcEmitter, definition) {
     }
 
     if (_.isString(clickActionType)) {
-      item.click = ipcEmitter.send.bind(ipcEmitter, 'dispatch', clickAction);
+      item.click = ipcEmitter.send.bind(ipcEmitter, 'dispatch', cuid(), clickAction);
     }
 
     return item;

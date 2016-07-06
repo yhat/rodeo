@@ -13,6 +13,10 @@ module.exports = {
     main: [
       'react-hot-loader/patch',
       './entry/main'
+    ],
+    'free-tabs-only': [
+      'react-hot-loader/patch',
+      './entry/free-tabs-only'
     ]
   },
   externals: {

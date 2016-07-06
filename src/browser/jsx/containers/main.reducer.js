@@ -1,16 +1,17 @@
 import { combineReducers } from 'redux';
-import splitPanes from './components/split-pane/split-pane.reducer';
-import terminals from './containers/terminal/terminal.reducer';
-import plots from './containers/plot-viewer/plot-viewer.reducer';
-import fileView from './containers/file-viewer/file-viewer.reducer';
-import modalDialogs from './components/modal-dialog/modal-dialog.reducer';
-import sidebar from './components/sidebar/sidebar.reducer';
-import notifications from './components/notifications/notifications.reducer';
-import freeTabGroups from './containers/free-tab-group/free-tab-group.reducer';
-import editorTabGroups from './containers/editor-tab-group/editor-tab-group.reducer';
+import applicationControl from '../services/application-control';
+import splitPanes from '../components/split-pane/split-pane.reducer';
+import terminals from './terminal/terminal.reducer';
+import plots from './plot-viewer/plot-viewer.reducer';
+import fileView from './file-viewer/file-viewer.reducer';
+import modalDialogs from '../components/modal-dialog/modal-dialog.reducer';
+import sidebar from '../components/sidebar/sidebar.reducer';
+import notifications from '../components/notifications/notifications.reducer';
+import freeTabGroups from './free-tab-group/free-tab-group.reducer';
+import editorTabGroups from './editor-tab-group/editor-tab-group.reducer';
 
 function broadcast(state, action) {
-  console.log(action.type, action);
+  applicationControl.shareAction(action);
 
   if (!state) {
     return {};

@@ -1,3 +1,5 @@
+import applicationControl from '../../services/application-control';
+
 /**
  * @param {[object]} groups
  * @param {string} tabId
@@ -63,8 +65,13 @@ function moveTab(toGroupId, id) {
     const state = getState(),
       groups = state.freeTabGroups,
       fromGroupId = findGroupIdByTabId(groups, id);
-
-    dispatch({type: 'MOVE_TAB', toGroupId, fromGroupId, id});
+    
+    if (fromGroupId !== undefined) {
+      // tab is local to this window, move it
+      dispatch({type: 'MOVE_TAB', toGroupId, fromGroupId, id});
+    } else {
+      applicationControl.takeTab(id);
+    }
   };
 }
 

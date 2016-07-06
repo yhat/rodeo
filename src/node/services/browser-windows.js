@@ -2,6 +2,7 @@
 
 const _ = require('lodash'),
   chalk = require('chalk'),
+  cuid = require('cuid'),
   electron = require('electron'),
   fs = require('fs'),
   path = require('path'),
@@ -59,7 +60,7 @@ function onFailLoad() {
 
   args.description = commonErrors[name] && commonErrors[name].description || args.description;
 
-  log('error', 'onFailLoad', event, _.pickBy(_.assign({name}, args), _.identity));
+  log('error', 'onFailLoad', _.pickBy(_.assign({name}, args), _.identity));
 }
 
 function stripRedundantPathInformation(value) {
@@ -235,19 +236,30 @@ function getByName(name) {
 
 /**
  * Only if the named window exists, send arguments.
- * @param {string} name
+ * @param {string} windowName
+ * @param {string} eventName
  *
  * NOTE:  This function exists to prevent a race-condition where the window is closed or destroyed before some
  * asynchronous task completes and tries to contact a window at the end (for logging, next step, etc.)
  */
-function send(name) {
-  const target = getByName(name);
+function send(windowName, eventName) {
+  const target = getByName(windowName),
+    eventId = cuid(),
+    args = _.slice(arguments, 2);
 
   if (target) {
     let webContents = target.webContents;
 
-    webContents.send.apply(webContents, _.slice(arguments, 1));
+    webContents.send.apply(webContents, [eventName, eventId].concat(args));
   }
+}
+
+/**
+ * Don't let people outside of this module access windows directly
+ * @returns {Array}
+ */
+function getWindowNames() {
+  return Object.keys(windows);
 }
 
 module.exports.create = create;
@@ -256,3 +268,4 @@ module.exports.createStartupWindow = createStartupWindow;
 module.exports.getByName = getByName;
 module.exports.send = send;
 module.exports.getCommonErrors = _.memoize(getCommonErrors);
+module.exports.getWindowNames = getWindowNames;

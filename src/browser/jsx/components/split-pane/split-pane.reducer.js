@@ -1,12 +1,7 @@
+import _ from 'lodash';
 import $ from 'jquery';
-import * as store from '../../services/store';
+import store from '../../services/store';
 import mapReducers from '../../services/map-reducers';
-
-const positions = store.get('splitPanePositions') || {
-  'split-pane-center': window.innerWidth / 2 + 'px',
-  'split-pane-right': window.innerHeight / 2 + 'px',
-  'split-pane-left': window.innerHeight / 2 + 'px'
-};
 
 function savePosition(state, action) {
   const el = document.querySelector('#' + action.id);
@@ -23,8 +18,9 @@ function savePosition(state, action) {
     }
 
     if (position) {
-      positions[action.id] = position + 'px';
-      store.set('splitPanePositions', positions);
+      state[action.id] = position + 'px';
+      store.set('splitPanePositions', state);
+      state = _.clone(state);
     }
   }
 
@@ -32,5 +28,5 @@ function savePosition(state, action) {
 }
 
 export default mapReducers({
-  SPLIT_PANE_DRAG_END: savePosition
-}, positions);
+  SPLIT_PANE_DRAG: savePosition
+}, {});

@@ -12,6 +12,7 @@ import {send} from 'ipc';
 import store from './store';
 import session from './session';
 import guid from './guid';
+import track from './track';
 
 /**
  * @param {object} options
@@ -50,9 +51,9 @@ function getAppVersion() {
   let systemFacts = session.get('appVersion');
 
   if (!systemFacts || !systemFacts.appVersion) {
-    return send('getAppVersion').then(function (facts) {
-      store.set('appVersion', facts);
-      return facts;
+    return send('getAppVersion').then(function (version) {
+      store.set('appVersion', version);
+      return version;
     });
   }
 
@@ -80,10 +81,23 @@ function getFreshPythonOptions() {
       head = _.head(availablePythonKernels),
       pythonOptions = head && head.pythonOptions;
 
+    try {
+      _.each(availablePythonKernels, function (kernel) {
+        kernel = _.cloneDeep(kernel);
+        if (kernel.checkResults) {
+          delete kernel.checkResults.packages;
+        }
+
+        track('client_discovery', 'available_python_kernel', kernel);
+      });
+    } catch (ex) {
+      // pass
+    }
+
     store.set('systemFacts', facts);
     return checkKernel(pythonOptions)
       .then(() => pythonOptions)
-      .timeout(5000, 'Timed out getting new python options');
+      .timeout(30000, 'Timed out getting new python options');
   });
 }
 

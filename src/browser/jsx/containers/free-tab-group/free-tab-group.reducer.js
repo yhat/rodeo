@@ -2,53 +2,7 @@ import _ from 'lodash';
 import cid from '../../services/cid';
 import mapReducers from '../../services/map-reducers';
 
-const initialState = [
-  {
-    groupId: 'top-right',
-    items: [
-      {
-        contentType: 'variable-viewer',
-        icon: 'table',
-        label: 'Environment',
-        tabId: cid(),
-        id: cid()
-      },
-      {
-        contentType: 'history-viewer',
-        icon: 'history',
-        label: 'History',
-        tabId: cid(),
-        id: cid()
-      }
-    ]
-  },
-  {
-    groupId: 'bottom-right',
-    items: [
-      {
-        contentType: 'file-viewer',
-        icon: 'file-text-o',
-        label: 'Files',
-        tabId: cid(),
-        id: cid()
-      },
-      {
-        contentType: 'plot-viewer',
-        icon: 'bar-chart',
-        label: 'Plots',
-        tabId: cid(),
-        id: cid()
-      },
-      {
-        contentType: 'package-viewer',
-        icon: 'archive',
-        label: 'Packages',
-        tabId: cid(),
-        id: cid()
-      }
-    ]
-  }
-];
+const initialState = [];
 
 function updateIn(state, list, fn) {
   list = _.clone(list);
@@ -81,11 +35,11 @@ function focusTab(state, action) {
   const groupId = action.groupId,
     groupIndex = _.findIndex(state, {groupId}),
     group = state[groupIndex],
-    items = group.items,
+    items = group && group.items,
     targetIndex = _.findIndex(items, {id: action.id}),
-    targetItem = targetIndex && items[targetIndex];
+    targetItem = targetIndex && items && items[targetIndex];
 
-  if (targetItem.hasFocus) {
+  if (!targetItem || targetItem.hasFocus) {
     return state;
   }
 
@@ -103,19 +57,23 @@ function focusTab(state, action) {
 }
 /**
  * Move the tab to a different group
- * @param {object} state
+ * @param {object} oldState
  * @param {object} action
  * @param {string} action.toGroupId
  * @param {string} action.fromGroupId
  * @param {string} action.id
  * @returns {object}
  */
-function moveTab(state, action) {
-  state = _.cloneDeep(state);
-  const toGroup = state[_.findIndex(state, {groupId: action.toGroupId})],
+function moveTab(oldState, action) {
+  const state = _.cloneDeep(oldState),
+    toGroup = state[_.findIndex(state, {groupId: action.toGroupId})],
     fromGroup = state[_.findIndex(state, {groupId: action.fromGroupId})],
-    fromGroupItemIndex = _.findIndex(fromGroup.items, {id: action.id}),
-    removedItems = fromGroup.items.splice(fromGroupItemIndex, 1);
+    fromGroupItemIndex = fromGroup && _.findIndex(fromGroup.items, {id: action.id}),
+    removedItems = fromGroup && fromGroup.items.splice(fromGroupItemIndex, 1);
+
+  if (!toGroup) {
+    return oldState;
+  }
 
   toGroup.items = toGroup.items.concat(removedItems);
 
@@ -126,7 +84,7 @@ function moveTab(state, action) {
   });
 
   // if moving to new group and item had focus, move focus to left item
-  if (toGroup !== fromGroup && removedItems.length && removedItems[0].hasFocus) {
+  if (toGroup !== fromGroup && removedItems && removedItems.length && removedItems[0].hasFocus) {
     if (fromGroupItemIndex === 0 && fromGroup.items.length) {
       fromGroup.items[0].hasFocus = true;
     } else if (fromGroup.items[fromGroupItemIndex - 1]) {

@@ -19,6 +19,12 @@ module.exports = {
       'webpack-hot-middleware/client?path=http://localhost:3001/__webpack_hmr',
       'webpack/hot/only-dev-server',
       './entry/main'
+    ],
+    'free-tabs-only': [
+      'react-hot-loader/patch',
+      'webpack-hot-middleware/client?path=http://localhost:3001/__webpack_hmr',
+      'webpack/hot/only-dev-server',
+      './entry/free-tabs-only'
     ]
   },
   externals: {

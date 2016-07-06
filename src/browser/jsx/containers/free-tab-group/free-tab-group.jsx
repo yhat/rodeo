@@ -7,7 +7,7 @@ import SearchTextBox from '../../components/search-text-box/search-text-box.jsx'
 import HistoryViewer from '../history-viewer.jsx';
 import PlotViewer from '../plot-viewer/plot-viewer.jsx';
 import FileViewer from '../file-viewer/file-viewer.jsx';
-import VariableViewer from '../variable-viewer.jsx';
+import VariableViewer from '../variable-viewer/variable-viewer.jsx';
 import PackageViewer from '../package-viewer.jsx';
 import { getParentNodeOf } from '../../services/dom';
 import freeTabActions from './free-tab-group.actions';

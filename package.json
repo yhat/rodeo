@@ -114,6 +114,7 @@
     "electron-prebuilt": "^1.2.2",
     "express": "^4.13.4",
     "fix-path": "^1.1.0",
+    "fixed-data-table-2": "^0.6.6",
     "fs-extra": "^0.23.1",
     "handlebars": "^4.0.5",
     "highlight.js": "^8.9.1",

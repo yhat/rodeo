@@ -9,6 +9,12 @@ try:
 except:
     pip = None
 
+if pip:
+    try:
+        pip.main(['install', '--disable-pip-version-check', '-qq', 'jupyter', 'numpy', 'scipy', 'ggplot'])
+    except:
+        pass
+
 def get_packages():
     if not pip:
         return []
@@ -25,7 +31,13 @@ except:
     try:
         from IPython.kernel import manager
     except:
-        has_jupyter_kernel = False
+        if pip:
+            try:
+                pip.main(['install', 'jupyter', 'numpy', 'scipy', 'ggplot'])
+            except:
+                has_jupyter_kernel = False
+        else:
+            has_jupyter_kernel = False
 
 # may fail
 try:

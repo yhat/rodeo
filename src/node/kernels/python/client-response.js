@@ -45,6 +45,7 @@ function resolveRequest(request, result) {
   request.deferred.resolve(_.omit(result.content, 'payload', 'engine_info', 'execution_count'));
 
   // we're done reporting about this topic
+  log('warn', 'resolved', request.msg_id, result);
   delete outputMap[request.msg_id];
 }
 
@@ -81,8 +82,8 @@ function isExecutionResult(response) {
 
   if (_.size(outputMap) === 0 && isReply) {
     log('warn', msg_type, 'without anyone waiting for output', outputMap, response);
-  } else if (isReply && !!outputMap[parentMessageId]) {
-    log('warn', msg_type, 'without parent waiting for output', outputMap, response);
+  } else if (isReply && !outputMap[parentMessageId]) {
+    log('warn', msg_type, parentMessageId, 'without parent waiting for output', outputMap, response);
   }
 
   return !!outputMap[parentMessageId];

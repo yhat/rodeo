@@ -17,20 +17,20 @@ import plotViewerActions from '../containers/plot-viewer/plot-viewer.actions';
  * @namespace
  */
 const dispatchMap = {
-    SHOW_ABOUT_RODEO: dialogActions.showAboutRodeo(),
-    SHOW_ABOUT_STICKER: dialogActions.showAboutStickers(),
-    SHOW_PREFERENCES: dialogActions.showPreferences(),
-    CHECK_FOR_UPDATES: applicationActions.checkForUpdates(),
-    TOGGLE_DEV_TOOLS: applicationActions.toggleDevTools(),
-    QUIT: applicationActions.quit(),
-    SAVE_ACTIVE_FILE: editorTabGroupActions.saveActiveFile(),
-    SHOW_SAVE_FILE_DIALOG: editorTabGroupActions.showSaveFileDialogForActiveFile(),
-    SHOW_OPEN_FILE_DIALOG: editorTabGroupActions.showOpenFileDialogForActiveFile(),
-    FOCUS_ACTIVE_ACE_EDITOR: editorTabGroupActions.focus(),
-    FOCUS_ACTIVE_TERMINAL: terminalActions.focus(),
-    FOCUS_NEWEST_PLOT: plotViewerActions.focusNewestPlot(),
-    TERMINAL_INTERRUPT: terminalActions.interrupt(),
-    TERMINAL_RESTART: terminalActions.restart()
+    SHOW_ABOUT_RODEO: () => dialogActions.showAboutRodeo(),
+    SHOW_ABOUT_STICKER: () => dialogActions.showAboutStickers(),
+    SHOW_PREFERENCES: () => dialogActions.showPreferences(),
+    CHECK_FOR_UPDATES: () => applicationActions.checkForUpdates(),
+    TOGGLE_DEV_TOOLS: () => applicationActions.toggleDevTools(),
+    QUIT: () => applicationActions.quit(),
+    SAVE_ACTIVE_FILE: () => editorTabGroupActions.saveActiveFile(),
+    SHOW_SAVE_FILE_DIALOG: () => editorTabGroupActions.showSaveFileDialogForActiveFile(),
+    SHOW_OPEN_FILE_DIALOG: () => editorTabGroupActions.showOpenFileDialogForActiveFile(),
+    FOCUS_ACTIVE_ACE_EDITOR: () => editorTabGroupActions.focus(),
+    FOCUS_ACTIVE_TERMINAL: () => terminalActions.focus(),
+    FOCUS_NEWEST_PLOT: () => plotViewerActions.focusNewestPlot(),
+    TERMINAL_INTERRUPT: () => terminalActions.interrupt(),
+    TERMINAL_RESTART: () => terminalActions.restart()
   },
   iopubDispatchMap = {
     execute_input: dispatchIOPubExecuteInput,
@@ -43,6 +43,9 @@ const dispatchMap = {
     comm_open: dispatchNoop,
     clear_output: dispatchNoop
   },
+  shellDispatchMap = {
+    execute_reply: dispatchShellExecuteReply
+  },
   detectVariables = _.debounce(function (dispatch) {
     dispatch(kernelActions.detectKernelVariables());
   }, 500);
@@ -53,19 +56,38 @@ const dispatchMap = {
 function internalDispatcher(dispatch) {
   ipc.on('dispatch', function (event, action) {
     if (dispatchMap[action.type]) {
-      return dispatch(dispatchMap[action.type]);
+      return dispatch(dispatchMap[action.type]());
     } else {
       return dispatch(action);
     }
   });
 }
 
+function dispatchShellExecuteReply(dispatch, content) {
+  let payload = content && content.payload;
+
+  // it's okay if lots of things have no payloads.  Ones that have payloads are really important though.
+  _.each(payload, function (result) {
+    const text = _.get(result, 'data["text/plain"]');
+
+    if (text) {
+      // this text includes ANSI color
+      dispatch(terminalActions.addOutputBlock(text));
+    } else {
+      console.log('dispatchShellExecuteReply', 'unknown content type', result);
+    }
+  });
+}
+
 function dispatchIOPubResult(dispatch, content) {
   track('iopub', 'execute_result');
-  let text = _.get(content, 'data["text/plain"]');
+  let data = content && content.data,
+    text = data && data['text/plain'];
 
   if (text) {
     dispatch(terminalActions.addOutputText(text));
+  } else {
+    console.log('dispatchIOPubResult', 'unknown content type', data);
   }
 
   dispatch(iopubActions.resultComputed(content.data));
@@ -103,7 +125,7 @@ function dispatchIOPubExecuteInput(dispatch, content) {
 }
 
 function dispatchIOPubStatus(dispatch, content) {
-  track('iopub', 'status');
+  // track('iopub', 'status'); // TOO MANY!~
   dispatch(iopubActions.stateChanged(content.execution_state));
 }
 
@@ -129,8 +151,15 @@ function iopubDispatcher(dispatch) {
   });
 }
 
-function shellDispatcher() {
+function shellDispatcher(dispatch) {
   ipc.on('shell', function (event, data) {
+    const result = data.result,
+      content = _.get(data, 'result.content');
+
+    if (result && shellDispatchMap[result.msg_type]) {
+      return shellDispatchMap[result.msg_type](dispatch, content);
+    }
+
     console.log('shell', {data});
   });
 }
@@ -138,6 +167,24 @@ function shellDispatcher() {
 function stdinDispatcher() {
   ipc.on('stdin', function (event, data) {
     console.log('stdin', {event, data});
+  });
+}
+
+function otherDispatcher(dispatch) {
+  ipc.on('event', function (event, data) {
+    console.log('event', {event, data});
+  });
+
+  ipc.on('error', function (event, data) {
+    console.log('error', {event, data});
+  });
+
+  ipc.on('sharedAction', function (event, action) {
+    console.log('received sharedAction', {event, action});
+    if (action.senderName) {
+      console.log('dispatching sharedAction', action.senderName, {event, action});
+      dispatch(action);
+    }
   });
 }
 
@@ -150,7 +197,8 @@ function stdinDispatcher() {
  */
 export default function (dispatch) {
   iopubDispatcher(dispatch);
-  shellDispatcher();
+  shellDispatcher(dispatch);
   stdinDispatcher();
   internalDispatcher(dispatch);
+  otherDispatcher(dispatch);
 }

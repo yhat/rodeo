@@ -20,7 +20,8 @@ const _ = require('lodash'),
   windowUrls = {
     mainWindow: 'main.html',
     startupWindow: 'startup.html',
-    designWindow: 'design.html'
+    designWindow: 'design.html',
+    freeTabsOnlyWindow: 'free-tabs-only.html'
   };
 
 /**
@@ -233,6 +234,8 @@ function subscribeWindowToKernelEvents(windowName, client) {
   subscribeBrowserWindowToEvent(windowName, client, 'iopub');
   subscribeBrowserWindowToEvent(windowName, client, 'stdin');
   subscribeBrowserWindowToEvent(windowName, client, 'event');
+  subscribeBrowserWindowToEvent(windowName, client, 'input_request');
+  subscribeBrowserWindowToEvent(windowName, client, 'error');
 }
 
 // Quit when all windows are closed.
@@ -432,17 +435,6 @@ function onExecute(options, text) {
 
   return getKernelInstanceById(options.instanceId)
     .then(client => client.execute(text));
-}
-
-/**
- * @param {object} [options]
- * @param {string} [options.instanceId]
- * @param {string} text
- * @returns {Promise}
- */
-function onGetResult(options, text) {
-  return getKernelInstanceById(options.instanceId)
-    .then(client => client.getResult(text));
 }
 
 function onGetAutoComplete(options, text, cursorPos) {
@@ -650,6 +642,49 @@ function onToggleFullScreen() {
   });
 }
 
+function onCreateWindow(name, options) {
+  // prefix url with our location
+  if (!options.url) {
+    throw new Error('Missing url for createWindow');
+  }
+
+  if (!windowUrls[options.url]) {
+    throw new Error('Cannot find window entry point for ' + options.url);
+  }
+
+  options.url = 'file://' + path.join(staticFileDir, windowUrls[options.url]);
+
+  const window = browserWindows.create(name, options);
+
+  if (argv.dev === true) {
+    window.openDevTools();
+  }
+
+  return window;
+}
+
+/**
+ * Share an action with every window except the window that send the action.
+ * @param {object} action
+ */
+function onShareAction(action) {
+  const names = browserWindows.getWindowNames(),
+    sender = this,
+    senderName = _.find(names, function (name) {
+      const window = browserWindows.getByName(name);
+
+      return window && window.webContents === sender;
+    });
+
+  action.senderName = senderName;
+
+  _.each(names, function (name) {
+    if (name !== senderName) {
+      browserWindows.send(name, 'sharedAction', action);
+    }
+  });
+}
+
 /**
  * Attaches events to the main process
  */
@@ -658,33 +693,34 @@ function attachIpcMainEvents() {
 
   ipcPromises.exposeElectronIpcEvents(ipcMain, [
     onExecute,
-    onGetResult,
+    onCheckForUpdates,
     onCheckKernel,
+    onCloseWindow,
+    onCreateKernelInstance,
+    onCreateWindow,
+    onFiles,
+    onFileStats,
+    onGetAppVersion,
     onGetAutoComplete,
+    onGetFile,
+    onGetInspection,
+    onGetSystemFacts,
+    onGetVariables,
     onIsComplete,
     onInterrupt,
-    onGetInspection,
-    onGetVariables,
-    onFiles,
-    onGetSystemFacts,
-    onGetAppVersion,
     onKnitHTML,
     onQuitApplication,
     onPDF,
     onResolveFilePath,
-    onGetFile,
     onSaveFile,
-    onFileStats,
+    onShareAction,
     onQuitAndInstall,
-    onCheckForUpdates,
-    onCloseWindow,
     onOpenExternal,
     onOpenTerminal,
     onOpenDialog,
     onSaveDialog,
     onToggleDevTools,
     onToggleFullScreen,
-    onCreateKernelInstance,
     onKillKernelInstance
   ]);
 }

@@ -4,29 +4,17 @@ import {createStore, applyMiddleware} from 'redux';
 import {Provider} from 'react-redux';
 import thunk from 'redux-thunk';
 
+import cid from '../services/cid';
 import FullScreen from '../components/full-screen/full-screen.jsx';
-import StudioLayout from './studio-layout/studio-layout.jsx';
-import Sidebar from '../components/sidebar/sidebar.jsx';
-import ModalDialogContainer from '../components/modal-dialog/modal-dialog-container.jsx';
-import NotificationsContainer from '../components/notifications/notifications-container.jsx';
-import rootReducer from './main.reducer';
-import initialState from './main.initial';
+import FreeTabGroup from './free-tab-group/free-tab-group.jsx';
 import ipcDispatcher from '../services/ipc-dispatcher';
-import kernelActions from '../actions/kernel';
-import dialogActions from '../actions/dialogs';
-import applicationControl from '../services/application-control';
+import rootReducer from './free-tabs-only.reducer';
 
-const createStoreWithMiddleware = applyMiddleware(thunk)(createStore),
-  store = createStoreWithMiddleware(rootReducer, initialState.getState());
+const groupId = cid(),
+  createStoreWithMiddleware = applyMiddleware(thunk)(createStore),
+  store = createStoreWithMiddleware(rootReducer, {freeTabGroups: [{groupId: groupId, items: []}]});
 
 ipcDispatcher(store.dispatch);
-
-// find the kernel immediately
-store.dispatch(kernelActions.detectKernel());
-store.dispatch(dialogActions.showRegisterRodeo());
-
-// no visual for this please
-applicationControl.checkForUpdates();
 
 // log every change to the store (this has performance implications, of course).
 store.subscribe(_.debounce(() => console.log('store', store.getState()), 500));
@@ -36,11 +24,11 @@ store.subscribe(_.debounce(() => console.log('store', store.getState()), 500));
  * a) connect() from 'react-redux' (i.e. containers)
  * b) this.context.store for components that explictly ask for it (i.e., SplitPane component to broadcast)
  *
- * @class Main
+ * @class FreeTabsOnly
  * @extends ReactComponent
  */
 export default React.createClass({
-  displayName: 'Main',
+  displayName: 'FreeTabsOnly',
   childContextTypes: {
     store: React.PropTypes.object
   },
@@ -51,10 +39,7 @@ export default React.createClass({
     return (
       <Provider store={store}>
         <FullScreen row>
-          <StudioLayout />
-          <Sidebar />
-          <ModalDialogContainer />
-          <NotificationsContainer />
+          <FreeTabGroup id={groupId} />
         </FullScreen>
       </Provider>
     );
