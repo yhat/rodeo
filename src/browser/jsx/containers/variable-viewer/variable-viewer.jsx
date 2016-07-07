@@ -44,7 +44,12 @@ export default connect(mapStateToProps, mapDispatchToProps)(React.createClass({
     return {
       height: 30,
       rowHeight: 30,
-      width: 30
+      width: 100 * 3,
+      columnWidths: {
+        name: 100,
+        type: 100,
+        value: 100
+      }
     };
   },
   componentDidMount: function () {
@@ -61,6 +66,15 @@ export default connect(mapStateToProps, mapDispatchToProps)(React.createClass({
   },
   componentWillUnmount: function () {
     window.removeEventListener('focus', this.onResize);
+  },
+  handleColumnResize: function (newColumnWidth, columnKey) {
+    const columnWidths = this.state.columnWidths;
+
+    columnWidths[columnKey] = newColumnWidth;
+
+    this.setState({
+      columnWidths
+    });
   },
   onResize: _.throttle(function () {
     const el = ReactDOM.findDOMNode(this),
@@ -102,30 +116,45 @@ export default connect(mapStateToProps, mapDispatchToProps)(React.createClass({
         <Table
           headerHeight={state.rowHeight}
           height={state.height}
+          isColumnResizing={false}
+          onColumnResizeEndCallback={this.handleColumnResize}
           rowHeight={state.rowHeight}
           rowsCount={items.length}
           width={state.width}
         >
           <Column
+            allowCellsRecycling
             cell={({rowIndex}) => (
               <Cell {...props}>{items[rowIndex].name}</Cell>
             )}
+            columnKey="name"
             header={<Cell>{'Name'}</Cell>}
-            width={state.width / 4}
+            isResizable
+            minWidth={70}
+            width={state.columnWidths.name}
           />
           <Column
+            allowCellsRecycling
             cell={({rowIndex}) => (
               <Cell {...props}>{items[rowIndex].repr}</Cell>
             )}
+            columnKey="type"
             header={<Cell>{'Type'}</Cell>}
-            width={state.width / 4}
+            isResizable
+            minWidth={70}
+            width={state.columnWidths.type}
           />
           <Column
+            allowCellsRecycling
             cell={({rowIndex}) => (
               <Cell>{items[rowIndex].value}</Cell>
             )}
+            columnKey="value"
+            flexGrow
             header={<Cell>{'Value'}</Cell>}
-            width={state.width / 2}
+            isResizable
+            minWidth={70}
+            width={state.columnWidths.value}
           />
         </Table>
       </div>
