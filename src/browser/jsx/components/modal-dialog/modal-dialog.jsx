@@ -24,7 +24,6 @@ export default React.createClass({
   componentDidMount: function () {
     const el = ReactDOM.findDOMNode(this);
 
-
     _.defer(() => el.classList.add(showClass));
   },
   render: function () {

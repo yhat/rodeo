@@ -14,6 +14,8 @@ import session from './session';
 import guid from './guid';
 import track from './track';
 
+const pythonOptionsTimeout = 2 * 60 * 1000;
+
 /**
  * @param {object} options
  * @param {string} options.cmd
@@ -96,8 +98,9 @@ function getFreshPythonOptions() {
 
     store.set('systemFacts', facts);
     return checkKernel(pythonOptions)
-      .then(() => pythonOptions)
-      .timeout(30000, 'Timed out getting new python options');
+      // add any extra information it came back with
+      .then(checkedPythonOptions => _.defaults(pythonOptions, checkedPythonOptions))
+      .timeout(pythonOptionsTimeout, 'Timed out getting new python options');
   });
 }
 

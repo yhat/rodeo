@@ -78,7 +78,7 @@ export default function track(eventCategory, eventAction, label) {
       }
     }
 
-    url = metricsUrl + serialize(metrics)
+    url = metricsUrl + serialize(metrics);
 
     if (navigator.onLine === true) {
       const request = new XMLHttpRequest();

@@ -11,7 +11,7 @@ except:
 
 if pip:
     try:
-        pip.main(['install', '--disable-pip-version-check', '-qq', 'jupyter', 'numpy', 'scipy', 'ggplot'])
+        pip.main(['install', '--disable-pip-version-check', '-qq', 'jupyter'])
     except:
         pass
 

@@ -5,6 +5,8 @@ import * as store from './store';
 import validation from './validation';
 import clientDiscovery from './client-discovery';
 
+const validationTimeout = 2000;
+
 let validators = {
   isPathReal: value => send('resolveFilePath', value)
     .then(expandedFilename => send('fileStats', expandedFilename)),
@@ -32,7 +34,7 @@ function isValid(item, value) {
     }
 
     return bluebird.reject(new Error('Validator' + key + 'does not exist'));
-  })).timeout(2000);
+  })).timeout(validationTimeout);
 }
 
 /**

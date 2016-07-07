@@ -1,6 +1,5 @@
 import _ from 'lodash';
 import cid from '../../services/cid';
-import * as store from '../../services/store';
 import mapReducers from '../../services/map-reducers';
 
 const initialState = {
@@ -41,11 +40,7 @@ function selectFile(state, action) {
 function changeProperty(state, propertyName, value) {
   state = _.cloneDeep(state);
 
-  console.log('file-viewer:before', state, propertyName, value);
-
   _.set(state, propertyName, value);
-
-  console.log('file-viewer:after', state, propertyName, value);
 
   return state;
 }

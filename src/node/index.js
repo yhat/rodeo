@@ -22,7 +22,10 @@ const _ = require('lodash'),
     startupWindow: 'startup.html',
     designWindow: 'design.html',
     freeTabsOnlyWindow: 'free-tabs-only.html'
-  };
+  },
+  systemFactTimeout = 120,
+  autoCompleteTimeout = 5,
+  second = 1000;
 
 /**
  * @param {object} obj
@@ -440,7 +443,7 @@ function onExecute(options, text) {
 function onGetAutoComplete(options, text, cursorPos) {
   return getKernelInstanceById(options.instanceId)
     .then(client => client.getAutoComplete(text, cursorPos))
-    .timeout(5000, 'AutoComplete failed to finish in 5 seconds');
+    .timeout(autoCompleteTimeout * second, 'AutoComplete failed to finish in ' + autoCompleteTimeout + ' seconds');
 }
 
 function onIsComplete(options, text) {
@@ -489,7 +492,7 @@ function onGetSystemFacts() {
     homedir: os.homedir(),
     pathSep: path.sep,
     delimiter: path.delimiter
-  }).timeout(30000, 'Unable to call "get system facts" in under 30 seconds');
+  }).timeout(systemFactTimeout * second, 'Unable to call "get system facts" in under ' + systemFactTimeout + ' seconds');
 }
 
 /**

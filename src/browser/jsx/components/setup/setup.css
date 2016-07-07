@@ -92,3 +92,7 @@ ul.horizontal li {
 .python-test-input .invalid {
   background-color: #ffd3cf;
 }
+
+.setup-loading-icon {
+  transition: opacity 2s;
+}

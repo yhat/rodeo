@@ -4,7 +4,6 @@ import React from 'react';
 import ReactDOM from 'react-dom';
 import './lib/jqconsole.js';
 import './terminal.css';
-import textUtil from '../../services/text-util';
 
 let message = `
 IPython -- An enhanced Interactive Python.
