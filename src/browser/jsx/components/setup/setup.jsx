@@ -4,6 +4,7 @@ import Marked from '../marked/marked.jsx';
 import PythonTestInput from './python-test-input.jsx';
 import SetupListItem from './setup-list-item.jsx';
 import LogoRodeoLarge from '../brand-splashes/logo-rodeo-large.jsx';
+import SetupLoadingIcon from './setup-loading-icon.jsx';
 import './setup.css';
 
 /**
@@ -73,6 +74,7 @@ export default React.createClass({
     } else {
       content = (
         <div className="setup-content">
+          <SetupLoadingIcon isLoading={props.pythonValidity !== 'good'} label="Detecting and Configuring Jupyter"/>
           <ul>
             <SetupListItem
               disabled={props.pythonValidity !== 'good'}

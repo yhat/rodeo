@@ -65,7 +65,7 @@ function moveTab(toGroupId, id) {
     const state = getState(),
       groups = state.freeTabGroups,
       fromGroupId = findGroupIdByTabId(groups, id);
-    
+
     if (fromGroupId !== undefined) {
       // tab is local to this window, move it
       dispatch({type: 'MOVE_TAB', toGroupId, fromGroupId, id});

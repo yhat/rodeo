@@ -31,7 +31,9 @@ const _ = require('lodash'),
   processes = require('../../services/processes'),
   promises = require('../../services/promises'),
   pythonLanguage = require('./language'),
-  uuid = require('uuid');
+  uuid = require('uuid'),
+  checkPythonTimeout = 60,
+  second = 1000;
 
 /**
  * The default environment variables that all clients will assume
@@ -381,7 +383,7 @@ function checkPython(options) {
     .then(function (pythonOptions) {
       return _.assign({}, pythonOptions, options);
     })
-    .timeout(30000, 'Unable to check python in under 10 seconds: ' + JSON.stringify(options));
+    .timeout(checkPythonTimeout * second, 'Unable to check python in under ' + checkPythonTimeout + ' seconds: ' + JSON.stringify(options));
 }
 
 /**

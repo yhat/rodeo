@@ -150,7 +150,7 @@ export default connect(mapStateToProps, mapDispatchToProps)(React.createClass({
               <Cell>{items[rowIndex].value}</Cell>
             )}
             columnKey="value"
-            flexGrow
+            flexGrow={1}
             header={<Cell>{'Value'}</Cell>}
             isResizable
             minWidth={70}

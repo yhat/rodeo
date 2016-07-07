@@ -4,7 +4,8 @@ const _ = require('lodash'),
   bluebird = require('bluebird'),
   childProcess = require('child_process'),
   log = require('./log').asInternal(__filename),
-  children = [];
+  children = [],
+  killTimeout = 5000;
 
 /**
  * @param {ChildProcess} child
@@ -81,7 +82,7 @@ function kill(childProcess) {
       resolve({code, signal});
     });
     childProcess.kill();
-  }).timeout(5000, 'failed to kill child process ' + childProcess.pid);
+  }).timeout(killTimeout, 'failed to kill child process ' + childProcess.pid);
 }
 
 module.exports.getChildren = getChildren;

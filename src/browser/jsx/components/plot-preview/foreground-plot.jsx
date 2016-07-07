@@ -18,7 +18,6 @@ export default React.createClass({
       data = props.data;
     let plotComponent;
 
-
     if (data['image/png']) {
       plotComponent = <div><img src={data['image/png']}/></div>;
     } else if (data['image/svg']) {

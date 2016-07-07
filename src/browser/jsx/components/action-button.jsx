@@ -8,7 +8,7 @@ import React from 'react';
 export default React.createClass({
   displayName: 'DocCode',
   propTypes: {
-    action: React.PropTypes.oneOfType([React.PropTypes.func,React.PropTypes.object]),
+    action: React.PropTypes.oneOfType([React.PropTypes.func, React.PropTypes.object]),
     className: React.PropTypes.string
   },
   contextTypes: {

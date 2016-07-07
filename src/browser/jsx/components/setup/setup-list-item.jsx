@@ -1,11 +1,11 @@
 import React from 'react';
 
 /**
- * @class SetupChoice
+ * @class SetupListItem
  * @extends ReactComponent
  */
 export default React.createClass({
-  displayName: 'SetupChoice',
+  displayName: 'SetupListItem',
   propTypes: {
     disabled: React.PropTypes.bool,
     onClick: React.PropTypes.func
