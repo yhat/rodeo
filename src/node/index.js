@@ -380,20 +380,29 @@ function onCreateKernelInstance(options) {
     throw new Error('Must provide cmd to create python instance, i.e., {cmd: "python"}');
   }
 
-  let clientFactory = require('./kernels/python/client'),
-    instanceId = cuid(),
-    promise = clientFactory.create(options);
+  return new bluebird(function (resolveInstanceId) {
+    let clientFactory = require('./kernels/python/client'),
+      instanceId = cuid(),
+      client = clientFactory.create(options);
 
-  kernelClients[instanceId] = promise;
-
-  log('info', 'created new python kernel process', instanceId, options);
-
-  return promise.then(function (client) {
+    log('info', 'created new python kernel process', instanceId, options);
     subscribeWindowToKernelEvents('mainWindow', client);
-    return instanceId;
+
+    kernelClients[instanceId] = new bluebird(function (resolveClient) {
+      client.on('ready', function () {
+        log('info', 'new python kernel process is ready', instanceId, options);
+        resolveClient(client);
+      });
+    });
+
+    resolveInstanceId(instanceId);
   });
 }
 
+/**
+ * @param {string} id
+ * @returns {Promise}
+ */
 function onKillKernelInstance(id) {
   if (!kernelClients[id]) {
     throw new Error('Kernel with that id does not exist.');
@@ -425,7 +434,6 @@ function getKernelInstanceById(id) {
 }
 
 /**
-
  * @param {object} options
  * @param {string} options.instanceId
  * @param {string} text

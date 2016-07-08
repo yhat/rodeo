@@ -29,10 +29,9 @@ const _ = require('lodash'),
   log = require('../../services/log').asInternal(__filename),
   path = require('path'),
   processes = require('../../services/processes'),
-  promises = require('../../services/promises'),
   pythonLanguage = require('./language'),
   uuid = require('uuid'),
-  checkPythonTimeout = 60,
+  checkPythonTimeout = 60000,
   second = 1000;
 
 /**
@@ -344,18 +343,13 @@ function createPythonScriptProcess(targetFile, options) {
 
 /**
  * @param {object} options
- * @returns {Promise<JupyterClient>}
+ * @returns {JupyterClient}
  */
 function create(options) {
-  const targetFile = path.resolve(path.join(__dirname, 'start_kernel.py'));
+  const targetFile = path.resolve(path.join(__dirname, 'start_kernel.py')),
+    child = createPythonScriptProcess(targetFile, options);
 
-  return bluebird.try(function () {
-    const child = createPythonScriptProcess(targetFile, options),
-      client = new JupyterClient(child);
-
-    return promises.eventsToPromise(client, {resolve: 'ready', reject: 'error'})
-      .then(_.constant(client));
-  });
+  return new JupyterClient(child);
 }
 
 /**
@@ -372,6 +366,48 @@ function getPythonScriptResults(targetFile, options) {
 }
 
 /**
+ * Try to parse json.  Trim to be within outer { or {.
+ *
+ * If fails, try again starting from the next { or [.  Repeat.
+ *
+ * Assumes the JSON, when found, will continue to the end.
+ *
+ * @param {string} str
+ * @returns {object}
+ */
+function seekJson(str) {
+  let result, match;
+
+  // trim the front and back of the text to the brackets
+  match = /(\{.*\}|\[.*\])/m.exec(str);
+  if (!match) {
+    return null;
+  }
+
+  str = match[0];
+  while (!result && str.length) {
+    try {
+      result = JSON.parse(str);
+    } catch (ex) {
+      let firstBound;
+
+      // move slightly ahead
+      str = str.substr(1);
+
+      // find the next { or [
+      firstBound = Math.min(str.indexOf('{'), str.indexOf('['));
+      if (firstBound === -1) {
+        str = '';
+      } else {
+        str = str.substr(firstBound);
+      }
+    }
+  }
+
+  return result;
+}
+
+/**
  * @param {object} options
  * @returns {Promise}
  */
@@ -379,11 +415,23 @@ function checkPython(options) {
   const targetFile = path.resolve(path.join(__dirname, 'check_python.py'));
 
   return exports.getPythonScriptResults(targetFile, options)
-    .then(JSON.parse)
-    .then(function (pythonOptions) {
-      return _.assign({}, pythonOptions, options);
+    .then(function (results) {
+      let stdout = results.stdout, checkResult;
+
+      _.each(results.errors, error => log('error', 'checkPython', options, error));
+      if (results.stderr) {
+        log('warn', 'checkPython', options, results.stderr);
+      }
+
+      checkResult = seekJson(stdout);
+      if (!checkResult) {
+        throw new Error('Python check failed to return result.');
+      }
+
+      return checkResult;
     })
-    .timeout(checkPythonTimeout * second, 'Unable to check python in under ' + checkPythonTimeout + ' seconds: ' + JSON.stringify(options));
+    .timeout(checkPythonTimeout, 'Unable to check python with options ' + JSON.stringify(options))
+    .then(pythonOptions => _.assign({}, pythonOptions, options));
 }
 
 /**

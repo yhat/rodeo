@@ -21,7 +21,7 @@ let ruleSet = [
     then: function () {
       return processes.exec('for %i in (python.exe) do @echo. %~$PATH:i')
         .then(function (results) {
-          return {cmd: _.trim(results), shell: 'cmd.exe', label: 'all pythons in path'};
+          return {cmd: _.trim(results.stdout), shell: 'cmd.exe', label: 'all pythons in path'};
         }).timeout(2000, 'Unable to run "all pythons in path" in under 2 seconds');
     }
   },
@@ -30,7 +30,7 @@ let ruleSet = [
     then: function () {
       // run 'which python' and use that result as their python instance
       return processes.exec('which', ['python']).then(function (results) {
-        return {cmd: _.trim(results), shell: '/bin/bash', label: 'which python'};
+        return {cmd: _.trim(results.stdout), shell: '/bin/bash', label: 'which python'};
       }).timeout(2000, 'Unable to run "which python" in under 2 seconds');
     }
   },
