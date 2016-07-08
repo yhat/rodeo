@@ -48,10 +48,10 @@ function create(str, args, options) {
  * @param {string} str
  * @param {Array} [args]
  * @param {object} [options]
- * @returns {Promise}
+ * @returns {Promise<{errors: [Error], stderr: string, stdout: string}>}
  */
 function exec(str, args, options) {
-  return new bluebird(function (resolve, reject) {
+  return new bluebird(function (resolve) {
     const child = create(str, args, options);
     let stdout = [],
       stderr = [],
@@ -61,13 +61,11 @@ function exec(str, args, options) {
     child.stderr.on('data', data => stderr.push(data));
     child.on('error', data => errors.push(data));
     child.on('close', function () {
-      if (errors.length) {
-        reject(_.first(errors));
-      } else if (stderr.length) {
-        reject(new Error(stderr.join('')));
-      } else {
-        resolve(stdout.join(''));
-      }
+      resolve({
+        errors,
+        stderr: stderr.join(''),
+        stdout: stdout.join('')
+      });
     });
   });
 }
