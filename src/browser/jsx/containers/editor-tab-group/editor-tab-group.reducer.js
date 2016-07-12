@@ -3,9 +3,20 @@ import AcePane from '../../components/ace-pane/ace-pane.jsx';
 import cid from '../../services/cid';
 import mapReducers from '../../services/map-reducers';
 import store from '../../services/store';
+import initialStory from 'raw!./initial-story.py';
 
 const refreshPanes = _.throttle(() => AcePane.resizeAll(), 50),
-  initialState = [{groupId: 'top-left', items: [getDefault()]}];
+  initialState = [{groupId: 'top-left', items: [getFirst()]}];
+
+function getFirst() {
+  const first = getDefault();
+
+  first.initialValue = initialStory;
+
+  console.log('first', first);
+
+  return first;
+}
 
 function getDefault() {
   return {

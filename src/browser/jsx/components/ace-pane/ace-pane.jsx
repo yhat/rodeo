@@ -20,6 +20,7 @@ export default React.createClass({
     fontSize: React.PropTypes.number,
     highlightLine: React.PropTypes.bool,
     id: React.PropTypes.string,
+    initialValue: React.PropTypes.string,
     keyBindings: React.PropTypes.string,
     mode: React.PropTypes.string,
     onInterrupt: React.PropTypes.func,
@@ -116,6 +117,8 @@ export default React.createClass({
       }).catch(function (error) {
         props.onLoadError(error);
       });
+    } else if (props.initialValue) {
+      session.setValue(props.initialValue);
     }
   },
   render: function () {

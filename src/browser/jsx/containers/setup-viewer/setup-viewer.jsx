@@ -31,12 +31,12 @@ export default connect(mapStateToProps, mapDispatchToProps)(React.createClass({
   displayName: 'SetupViewer',
   propTypes: {
     ask: React.PropTypes.string,
-    onAsk: React.PropTypes.func.isRequired,
-    onCmd: React.PropTypes.func.isRequired,
-    onInstall: React.PropTypes.func.isRequired,
-    onReady: React.PropTypes.func.isRequired,
-    onSaveTest: React.PropTypes.func.isRequired,
-    onTest: React.PropTypes.func.isRequired,
+    onAsk: React.PropTypes.func,
+    onCmd: React.PropTypes.func,
+    onInstall: React.PropTypes.func,
+    onReady: React.PropTypes.func,
+    onSaveTest: React.PropTypes.func,
+    onTest: React.PropTypes.func,
     pythonTest: React.PropTypes.shape({
       cmd: React.PropTypes.string,
       status: React.PropTypes.string
