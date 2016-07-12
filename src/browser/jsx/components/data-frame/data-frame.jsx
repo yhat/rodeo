@@ -20,19 +20,15 @@ export default React.createClass({
       columnWidths: {}
     };
   },
+  componentWillMount: function () {
+    this.onNewData();
+    this.onResize();
+  },
   componentDidMount: function () {
     globalObserver.on('resize', this.onResize, this);
   },
   componentWillReceiveProps: function (newProps) {
-    const columns = _.get(newProps, 'data.columns'),
-      columnWidths = this.state.columnWidths;
-
-    _.each(columns, function (columnName) {
-      // guarantee a width of something or 100
-      columnWidths[columnName] = columnWidths[columnName] || 100;
-    });
-
-    this.setState({columnWidths});
+    this.onNewData();
     this.onResize();
   },
   shouldComponentUpdate: function (nextState) {
@@ -51,6 +47,17 @@ export default React.createClass({
     this.setState({
       columnWidths
     });
+  },
+  onNewData: function () {
+    const columns = _.get(this.props, 'data.columns'),
+      columnWidths = this.state.columnWidths;
+
+    _.each(columns, function (columnName) {
+      // guarantee a width of something or 100
+      columnWidths[columnName] = columnWidths[columnName] || 100;
+    });
+
+    this.setState({columnWidths});
   },
   onResize: _.throttle(function () {
     const el = ReactDOM.findDOMNode(this),
