@@ -119,11 +119,24 @@ export function executeActiveFileInActiveConsole() {
   };
 }
 
+export function executeActiveFileSelectionInActiveConsole() {
+  return function (dispatch, getState) {
+    const state = getState(),
+      items = _.head(state.editorTabGroups).items,
+      focusedAce = state && _.find(items, {hasFocus: true}),
+      el = focusedAce && document.querySelector('#' + focusedAce.id),
+      aceInstance = el && ace.edit(el);
+
+    aceInstance.commands.exec('liftSelection', aceInstance);
+  };
+}
+
 export default {
   askForPythonOptions,
   detectKernel,
   detectKernelVariables,
   executeActiveFileInActiveConsole,
+  executeActiveFileSelectionInActiveConsole,
   isBusy,
   isIdle,
   interrupt,
