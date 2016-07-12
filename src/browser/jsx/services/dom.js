@@ -15,3 +15,4 @@ export function getParentNodeOf(node, nodeName) {
   }
   return node.nodeName === nodeName && node;
 }
+

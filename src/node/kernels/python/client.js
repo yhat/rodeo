@@ -31,8 +31,7 @@ const _ = require('lodash'),
   processes = require('../../services/processes'),
   pythonLanguage = require('./language'),
   uuid = require('uuid'),
-  checkPythonTimeout = 60000,
-  second = 1000;
+  checkPythonTimeout = 60000;
 
 /**
  * The default environment variables that all clients will assume
@@ -203,6 +202,42 @@ class JupyterClient extends EventEmitter {
 
   getDocStrings(names) {
     const code = '__get_docstrings(globals(), ' + JSON.stringify(names) + ', False)',
+      args = {
+        allowStdin: false,
+        stopOnError: true
+      };
+
+    return request(this, {
+      method: 'execute',
+      kwargs: _.assign({code}, pythonLanguage.toPythonArgs(args))
+    }, {
+      successEvent: ['stream'],
+      hidden: true
+    });
+  }
+
+  /**
+   * @param {string} code
+   * @param {string|[string]} successEvent
+   * @returns {Promise}
+   */
+  executeHidden(code, successEvent) {
+    const args = {
+      allowStdin: false,
+      stopOnError: true
+    };
+
+    return request(this, {
+      method: 'execute',
+      kwargs: _.assign({code}, pythonLanguage.toPythonArgs(args))
+    }, {
+      successEvent: successEvent,
+      hidden: true
+    });
+  }
+
+  getVariableDetails(name) {
+    const code = '__get_variable_details(globals(), "' + name + '")',
       args = {
         allowStdin: false,
         stopOnError: true

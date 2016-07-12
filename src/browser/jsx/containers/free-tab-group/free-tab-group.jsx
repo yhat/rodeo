@@ -8,6 +8,7 @@ import HistoryViewer from '../history-viewer.jsx';
 import PlotViewer from '../plot-viewer/plot-viewer.jsx';
 import FileViewer from '../file-viewer/file-viewer.jsx';
 import VariableViewer from '../variable-viewer/variable-viewer.jsx';
+import VariableTableViewer from '../variable-table-viewer.jsx';
 import PackageViewer from '../package-viewer.jsx';
 import { getParentNodeOf } from '../../services/dom';
 import freeTabActions from './free-tab-group.actions';
@@ -30,6 +31,7 @@ function mapDispatchToProps(dispatch, ownProps) {
   const groupId = ownProps.id;
 
   return {
+    onCloseTab: id => dispatch(freeTabActions.closeTab(groupId, id)),
     onFocusTab: id => dispatch(freeTabActions.focusTab(groupId, id)),
     onMoveTab: id => dispatch(freeTabActions.moveTab(groupId, id))
   };
@@ -59,6 +61,13 @@ export default connect(mapStateToProps, mapDispatchToProps)(React.createClass({
       newPane = _.find(items, {tabId});
 
     props.onFocusTab(newPane.id);
+  },
+  handleTabClose: function (tabId) {
+    const props = this.props,
+      items = props.items,
+      targetPane = _.find(items, {tabId});
+
+    props.onCloseTab(targetPane.id);
   },
   /**
    * NOTE: preventDefault to reject drag
@@ -124,16 +133,18 @@ export default connect(mapStateToProps, mapDispatchToProps)(React.createClass({
     const props = this.props,
       items = props.items,
       types = {
-        'history-viewer': () => <HistoryViewer filter={this.state.searchFilter}/>,
-        'plot-viewer': () => <PlotViewer />,
-        'file-viewer': () => <FileViewer filter={this.state.searchFilter}/>,
-        'variable-viewer': () => <VariableViewer filter={this.state.searchFilter}/>,
-        'package-viewer': () => <PackageViewer filter={this.state.searchFilter}/>
+        'history-viewer': options => <HistoryViewer filter={this.state.searchFilter} options={options}/>,
+        'plot-viewer': options => <PlotViewer options={options}/>,
+        'file-viewer': options => <FileViewer filter={this.state.searchFilter} options={options}/>,
+        'variable-viewer': options => <VariableViewer filter={this.state.searchFilter} options={options}/>,
+        'variable-table-viewer': options => <VariableTableViewer filter={this.state.searchFilter} options={options}/>,
+        'package-viewer': options => <PackageViewer filter={this.state.searchFilter} options={options}/>
       };
 
     return (
       <TabbedPane
         onChanged={this.handleTabChanged}
+        onTabClose={this.handleTabClose}
         onTabDragEnd={this.handleTabDragEnd}
         onTabDragStart={this.handleTabDragStart}
         onTabListDragEnter={this.handleTabListDragEnter}
@@ -150,10 +161,11 @@ export default connect(mapStateToProps, mapDispatchToProps)(React.createClass({
               hasFocus={item.hasFocus}
               icon={item.icon}
               id={item.tabId}
+              isCloseable={item.isCloseable}
               key={item.id}
               label={item.label}
             >
-              {types[item.contentType]()}
+              {types[item.contentType](item.options)}
             </TabbedPaneItem>
           );
         })}

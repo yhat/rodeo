@@ -1,14 +1,27 @@
 import cid from '../../services/cid';
 import applicationControl from '../../services/application-control';
 
-function showDataFrame() {
-  return function () {
+function showDataFrame(item) {
+  return function (dispatch) {
     const name = cid(),
-      options = {
+      dataFrameOptions = {item},
+      windowOptions = {
         url: 'freeTabsOnlyWindow'
       };
 
-    return applicationControl.createWindow(name, options);
+    dispatch({
+      type: 'CREATE_TAB',
+      hasFocus: true,
+      id: cid(),
+      isCloseable: true,
+      tabId: cid(),
+      options: dataFrameOptions,
+      contentType: 'variable-table-viewer',
+      icon: 'table',
+      label: item.name || 'Table'
+    });
+
+    // return applicationControl.createWindow(name, windowOptions);
   };
 }
 

@@ -112,6 +112,7 @@
     "dialogs": "^1.1.2",
     "docopt": "^0.6.2",
     "electron-prebuilt": "^1.2.2",
+    "eventify": "^2.0.0",
     "express": "^4.13.4",
     "fix-path": "^1.1.0",
     "fixed-data-table-2": "^0.6.6",

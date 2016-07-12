@@ -75,7 +75,12 @@ function moveTab(toGroupId, id) {
   };
 }
 
+function closeTab(groupId, id) {
+  return {type: 'CLOSE_TAB', groupId, id};
+}
+
 export default {
+  closeTab,
   focusTab,
   focusFirstTabByType,
   moveTab

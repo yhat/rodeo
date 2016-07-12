@@ -73,7 +73,7 @@ function restartInstance(instance) {
 function execute(instance, content) {
   const startTime = new Date().getTime();
 
-  return send('execute', instance, content).then(function () {
+  return send('execute', instance, content).then(function (result) {
     const ms = (new Date().getTime() - startTime);
 
     if (ms > 250) {
@@ -81,6 +81,22 @@ function execute(instance, content) {
     } else {
       console.log('execution time', (new Date().getTime() - startTime) + 'ms');
     }
+    return result;
+  });
+}
+
+function executeHidden(instance, code, successEvent) {
+  const startTime = new Date().getTime();
+
+  return send('executeHidden', instance, code, successEvent).then(function (result) {
+    const ms = (new Date().getTime() - startTime);
+
+    if (ms > 250) {
+      console.warn('execution time', (new Date().getTime() - startTime) + 'ms');
+    } else {
+      console.log('execution time', (new Date().getTime() - startTime) + 'ms');
+    }
+    return result;
   });
 }
 
@@ -117,6 +133,7 @@ function interrupt(instance) {
  */
 export default _.mapValues({
   execute,
+  executeHidden,
   interrupt,
   getAutoComplete,
   getVariables,

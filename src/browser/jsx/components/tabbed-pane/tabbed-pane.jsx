@@ -4,6 +4,7 @@ import './tabbed-pane.css';
 import _ from 'lodash';
 import cid from '../../services/cid';
 import {getParentNodeOf} from '../../services/dom';
+import globalObserver from '../../services/global-observer';
 
 const tabClass = 'tabbed-pane-tab',
   activeTabClass = 'active',
@@ -235,6 +236,8 @@ export default React.createClass({
 
     if (value !== oldActive) {
       this.setState({active: value});
+      // things in the new tab content might need to resize
+      _.defer(() => globalObserver.trigger('resize'));
     }
   },
   getIds: function () {
