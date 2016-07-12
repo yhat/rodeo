@@ -13,8 +13,6 @@ function getFirst() {
 
   first.initialValue = initialStory;
 
-  console.log('first', first);
-
   return first;
 }
 

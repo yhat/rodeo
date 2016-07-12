@@ -44,6 +44,7 @@ function mapDispatchToProps(dispatch) {
     onOpenPreferences: () => dispatch(dialogActions.showPreferences()),
     onRemoveAcePane: (id) => dispatch(editorTabGroupActions.closeFile(id)),
     onRunActiveAcePane: () => dispatch(kernelActions.executeActiveFileInActiveConsole()),
+    onRunActiveAcePaneSelection: () => dispatch(kernelActions.executeActiveFileSelectionInActiveConsole()),
     onRodeo: () => dispatch(dialogActions.showAboutRodeo())
   };
 }
@@ -167,9 +168,15 @@ export default connect(mapStateToProps, mapDispatchToProps)(React.createClass({
       >
         <li><a className="icon-overflowing not-tab" onClick={props.onRodeo}><span /></a></li>
         <li className="right">
-          <a className="not-tab" onClick={props.onRunActiveAcePane} title="Run script">
+          <a className="not-tab" onClick={props.onRunActiveAcePane} title="Run Script">
             <span className="fa fa-play-circle" />
             <span className="icon-text-right">{'Run Script'}</span>
+          </a>
+        </li>
+        <li className="right">
+          <a className="not-tab" onClick={props.onRunActiveAcePaneSelection} title="Run Line">
+            <span className="fa fa-play" />
+            <span className="icon-text-right">{'Run Line'}</span>
           </a>
         </li>
 
