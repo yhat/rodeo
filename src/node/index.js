@@ -469,6 +469,16 @@ function onGetVariables(options) {
     .then(client => client.getVariables());
 }
 
+function onExecuteHidden(options, code, successEvent) {
+  return getKernelInstanceById(options.instanceId)
+    .then(client => client.executeHidden(code, successEvent));
+}
+
+function onEval(options, text) {
+  return getKernelInstanceById(options.instanceId)
+    .then(client => client.getEval(text));
+}
+
 function onInterrupt(options) {
   return getKernelInstanceById(options.instanceId)
     .then(client => client.interrupt());
@@ -709,6 +719,8 @@ function attachIpcMainEvents() {
     onCloseWindow,
     onCreateKernelInstance,
     onCreateWindow,
+    onEval,
+    onExecuteHidden,
     onFiles,
     onFileStats,
     onGetAppVersion,

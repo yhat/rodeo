@@ -94,7 +94,31 @@ function moveTab(oldState, action) {
   return state;
 }
 
+/**
+ *
+ * @param {object} oldState
+ * @param {object} action
+ * @returns {object}
+ */
+function createTab(oldState, action) {
+  const state = _.cloneDeep(oldState);
+  let group = state[_.findIndex(state, {groupId: action.groupId})];
+
+  if (!group) {
+    group = _.head(state);
+  }
+
+  if (group) {
+    const item = _.omit(action, 'type');
+
+    group.items.push(item);
+  }
+
+  return state;
+}
+
 export default mapReducers({
+  CREATE_TAB: createTab,
   FOCUS_PLOT: focusPlot,
   FOCUS_TAB: focusTab,
   MOVE_TAB: moveTab

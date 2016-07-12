@@ -4,6 +4,7 @@ import React from 'react';
 import ReactDOM from 'react-dom';
 import './lib/jquery.splitter.css';
 import './lib/jquery.splitter-0.15.0';
+import globalObserver from '../../services/global-observer';
 
 /**
  * @class SplitPane
@@ -83,9 +84,11 @@ export default React.createClass({
   },
   handleDrag: function () {
     this.context.store.dispatch({type: 'SPLIT_PANE_DRAG', id: this.props.id});
+    globalObserver.trigger('resize');
   },
   handleDragEnd: function () {
     this.context.store.dispatch({type: 'SPLIT_PANE_DRAG_END', id: this.props.id});
+    globalObserver.trigger('resize');
   },
   render: function () {
     return (

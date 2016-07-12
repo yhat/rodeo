@@ -5,6 +5,9 @@ import {connect} from 'react-redux';
 import {Table, Column, Cell} from 'fixed-data-table-2';
 import 'fixed-data-table-2/dist/fixed-data-table.min.css';
 import variableViewerActions from './variable-viewer.actions';
+import globalObserver from '../../services/global-observer';
+
+const structuredVariableTypes = ['DataFrame', 'Series', 'List', 'Dict', 'Array'];
 
 /**
  * @param {object} state
@@ -53,11 +56,7 @@ export default connect(mapStateToProps, mapDispatchToProps)(React.createClass({
     };
   },
   componentDidMount: function () {
-    window.addEventListener('focus', this.onResize);
-    _.defer(() => this.onResize());
-  },
-  componentWillReceiveProps: function () {
-    this.onResize();
+    globalObserver.on('resize', this.onResize, this);
   },
   shouldComponentUpdate: function (nextState) {
     const state = this.state;
@@ -65,7 +64,7 @@ export default connect(mapStateToProps, mapDispatchToProps)(React.createClass({
     return !(state.height === nextState.height && state.width === nextState.width);
   },
   componentWillUnmount: function () {
-    window.removeEventListener('focus', this.onResize);
+    globalObserver.off(null, null, this);
   },
   handleColumnResize: function (newColumnWidth, columnKey) {
     const columnWidths = this.state.columnWidths;
@@ -96,7 +95,6 @@ export default connect(mapStateToProps, mapDispatchToProps)(React.createClass({
 
     // flatten type with the rest; give a unique id to use as the key
     items = _.flatten(_.map(props.variables, function (list, type) {
-      type = _.startCase(type);
       return _.map(list, function (variable) {
         return _.assign({
           type,
@@ -108,7 +106,8 @@ export default connect(mapStateToProps, mapDispatchToProps)(React.createClass({
     items = _.filter(items, item => !props.filter || (
       item.name.toLowerCase().indexOf(props.filter.toLowerCase()) > -1 ||
       item.type.toLowerCase().indexOf(props.filter.toLowerCase()) > -1 ||
-      item.repr.toLowerCase().indexOf(props.filter.toLowerCase()) > -1
+      item.repr.toLowerCase().indexOf(props.filter.toLowerCase()) > -1 ||
+      (item && item.value && item.value.toString().indexOf(props.filter.toLowerCase()) > -1)
     ));
 
     return (
@@ -146,9 +145,18 @@ export default connect(mapStateToProps, mapDispatchToProps)(React.createClass({
           />
           <Column
             allowCellsRecycling
-            cell={({rowIndex}) => (
-              <Cell>{items[rowIndex].value}</Cell>
-            )}
+            cell={({rowIndex}) => {
+              let value,
+                item = items[rowIndex];
+
+              if (item.value) {
+                value = item.value;
+              } else if (_.includes(structuredVariableTypes, item.type)) {
+                value = <button className="actionest fa fa-table" onClick={_.partial(props.onShowDataFrame, item)} />;
+              }
+
+              return <Cell>{value}</Cell>;
+            }}
             columnKey="value"
             flexGrow={1}
             header={<Cell>{'Value'}</Cell>}
