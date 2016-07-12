@@ -7,7 +7,7 @@ import 'fixed-data-table-2/dist/fixed-data-table.min.css';
 import variableViewerActions from './variable-viewer.actions';
 import globalObserver from '../../services/global-observer';
 
-const structuredVariableTypes = ['DataFrame', 'Series', 'List', 'Dict', 'Array'];
+const structuredVariableTypes = ['DataFrame'];
 
 /**
  * @param {object} state

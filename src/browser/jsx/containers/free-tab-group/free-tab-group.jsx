@@ -31,6 +31,7 @@ function mapDispatchToProps(dispatch, ownProps) {
   const groupId = ownProps.id;
 
   return {
+    onCloseTab: id => dispatch(freeTabActions.closeTab(groupId, id)),
     onFocusTab: id => dispatch(freeTabActions.focusTab(groupId, id)),
     onMoveTab: id => dispatch(freeTabActions.moveTab(groupId, id))
   };
@@ -60,6 +61,13 @@ export default connect(mapStateToProps, mapDispatchToProps)(React.createClass({
       newPane = _.find(items, {tabId});
 
     props.onFocusTab(newPane.id);
+  },
+  handleTabClose: function (tabId) {
+    const props = this.props,
+      items = props.items,
+      targetPane = _.find(items, {tabId});
+
+    props.onCloseTab(targetPane.id);
   },
   /**
    * NOTE: preventDefault to reject drag
@@ -136,6 +144,7 @@ export default connect(mapStateToProps, mapDispatchToProps)(React.createClass({
     return (
       <TabbedPane
         onChanged={this.handleTabChanged}
+        onTabClose={this.handleTabClose}
         onTabDragEnd={this.handleTabDragEnd}
         onTabDragStart={this.handleTabDragStart}
         onTabListDragEnter={this.handleTabListDragEnter}

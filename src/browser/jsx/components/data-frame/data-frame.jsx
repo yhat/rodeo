@@ -27,11 +27,11 @@ export default React.createClass({
   componentDidMount: function () {
     globalObserver.on('resize', this.onResize, this);
   },
-  componentWillReceiveProps: function (newProps) {
+  componentWillReceiveProps: function () {
     this.onNewData();
     this.onResize();
   },
-  shouldComponentUpdate: function (nextState) {
+  shouldComponentUpdate: function (nextProps, nextState) {
     const state = this.state;
 
     return !(state.height === nextState.height && state.width === nextState.width);
@@ -59,16 +59,18 @@ export default React.createClass({
 
     this.setState({columnWidths});
   },
-  onResize: _.throttle(function () {
+  onResize: function () {
     const el = ReactDOM.findDOMNode(this),
       height = el.parentNode.offsetHeight,
       width = el.parentNode.offsetWidth;
+
+    console.log('DATAFRAME TABLE', width, height, el.parentNode, this);
 
     this.setState({
       height,
       width
     });
-  }, 50),
+  },
   render: function () {
     const props = this.props,
       state = this.state,
@@ -87,7 +89,7 @@ export default React.createClass({
       >
         {_.map(columns, (column, columnIndex) => {
           if (column && state.columnWidths[column]) {
-            const flexGrow = columns.length - 1=== columnIndex ? 1 : 0
+            const flexGrow = (columns.length - 1) === columnIndex ? 1 : 0;
 
             return (
               <Column
@@ -109,7 +111,6 @@ export default React.createClass({
             );
           }
         })}
-
       </Table>
     );
   }

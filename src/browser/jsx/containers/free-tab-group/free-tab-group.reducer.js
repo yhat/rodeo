@@ -22,6 +22,15 @@ function updateIn(state, list, fn) {
 }
 
 /**
+ * @param {Array} items
+ */
+function removeFocusFromAll(items) {
+  _.each(items, function (item) {
+    item.hasFocus = false;
+  });
+}
+
+/**
  * Focus the tab that has a certain plot in it
  * @param {object} state
  * @returns {object}
@@ -95,7 +104,6 @@ function moveTab(oldState, action) {
 }
 
 /**
- *
  * @param {object} oldState
  * @param {object} action
  * @returns {object}
@@ -111,13 +119,46 @@ function createTab(oldState, action) {
   if (group) {
     const item = _.omit(action, 'type');
 
+    if (item.hasFocus) {
+      removeFocusFromAll(group.items);
+    }
+
     group.items.push(item);
   }
 
   return state;
 }
 
+/**
+ * @param {object} oldState
+ * @param {object} action
+ * @returns {object}
+ */
+function closeTab(oldState, action) {
+  const state = _.cloneDeep(oldState);
+  let groupIndex = _.findIndex(state, {groupId: action.groupId}),
+    group = state[groupIndex],
+    itemIndex = group && _.findIndex(group.items, {id: action.id});
+
+  if (groupIndex > -1 && itemIndex > -1) {
+    const item = _.find(group.items, {id: action.id});
+
+    if (item.hasFocus && group.items.length > 1) {
+      if (itemIndex === 0) {
+        group.items[1].hasFocus = true;
+      } else {
+        group.items[itemIndex - 1].hasFocus = true;
+      }
+    }
+
+    _.pull(group.items, item);
+  }
+
+  return state;
+}
+
 export default mapReducers({
+  CLOSE_TAB: closeTab,
   CREATE_TAB: createTab,
   FOCUS_PLOT: focusPlot,
   FOCUS_TAB: focusTab,

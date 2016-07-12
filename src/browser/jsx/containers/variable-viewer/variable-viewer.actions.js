@@ -11,14 +11,14 @@ function showDataFrame(item) {
 
     dispatch({
       type: 'CREATE_TAB',
-      hasFocus: false,
+      hasFocus: true,
       id: cid(),
       isCloseable: true,
       tabId: cid(),
       options: dataFrameOptions,
       contentType: 'variable-table-viewer',
       icon: 'table',
-      label: 'Table'
+      label: item.name || 'Table'
     });
 
     // return applicationControl.createWindow(name, windowOptions);
