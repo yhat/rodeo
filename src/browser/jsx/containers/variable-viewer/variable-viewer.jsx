@@ -35,6 +35,8 @@ function mapDispatchToProps(dispatch) {
 /**
  * @class PackagesViewer
  * @extends ReactComponent
+ * @property {object} state
+ * @property {object} props
  */
 export default connect(mapStateToProps, mapDispatchToProps)(React.createClass({
   displayName: 'VariableViewer',
@@ -49,19 +51,17 @@ export default connect(mapStateToProps, mapDispatchToProps)(React.createClass({
       rowHeight: 30,
       width: 100 * 3,
       columnWidths: {
-        name: 100,
-        type: 100,
-        value: 100
+        name: 150,
+        type: 150,
+        value: 150
       }
     };
   },
   componentDidMount: function () {
     globalObserver.on('resize', this.onResize, this);
   },
-  shouldComponentUpdate: function (nextState) {
-    const state = this.state;
-
-    return !(state.height === nextState.height && state.width === nextState.width);
+  shouldComponentUpdate: function () {
+    return true;
   },
   componentWillUnmount: function () {
     globalObserver.off(null, null, this);
@@ -71,9 +71,7 @@ export default connect(mapStateToProps, mapDispatchToProps)(React.createClass({
 
     columnWidths[columnKey] = newColumnWidth;
 
-    this.setState({
-      columnWidths
-    });
+    this.setState({columnWidths});
   },
   onResize: _.throttle(function () {
     const el = ReactDOM.findDOMNode(this),

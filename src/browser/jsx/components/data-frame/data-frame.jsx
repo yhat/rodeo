@@ -5,6 +5,12 @@ import {Table, Column, Cell} from 'fixed-data-table-2';
 import 'fixed-data-table-2/dist/fixed-data-table.min.css';
 import globalObserver from '../../services/global-observer';
 
+/**
+ * @class PackagesViewer
+ * @extends ReactComponent
+ * @property {object} state
+ * @property {object} props
+ */
 export default React.createClass({
   displayName: 'DataFrameViewer',
   propTypes: {
@@ -31,16 +37,18 @@ export default React.createClass({
     this.onNewData();
     this.onResize();
   },
-  shouldComponentUpdate: function (nextProps, nextState) {
-    const state = this.state;
-
-    return !(state.height === nextState.height && state.width === nextState.width);
+  shouldComponentUpdate: function () {
+    return true;
   },
   componentWillUnmount: function () {
     globalObserver.off(null, null, this);
   },
   handleColumnResize: function (newColumnWidth, columnKey) {
     const columnWidths = this.state.columnWidths;
+
+    if (newColumnWidth < 70) {
+      newColumnWidth = 70;
+    }
 
     columnWidths[columnKey] = newColumnWidth;
 
@@ -64,12 +72,12 @@ export default React.createClass({
       height = el.parentNode.offsetHeight,
       width = el.parentNode.offsetWidth;
 
-    console.log('DATAFRAME TABLE', width, height, el.parentNode, this);
-
-    this.setState({
-      height,
-      width
-    });
+    if (this.state.height !== height || this.state.width !== width) {
+      this.setState({
+        height,
+        width
+      });
+    }
   },
   render: function () {
     const props = this.props,
@@ -79,6 +87,7 @@ export default React.createClass({
 
     return (
       <Table
+        className="data-frame-table"
         headerHeight={state.rowHeight}
         height={state.height}
         isColumnResizing={false}
@@ -89,7 +98,7 @@ export default React.createClass({
       >
         {_.map(columns, (column, columnIndex) => {
           if (column && state.columnWidths[column]) {
-            const flexGrow = (columns.length - 1) === columnIndex ? 1 : 0;
+            const flexGrow = (columns.length - 1) === columnIndex;
 
             return (
               <Column
