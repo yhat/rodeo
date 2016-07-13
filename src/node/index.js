@@ -663,6 +663,11 @@ function onToggleFullScreen() {
   });
 }
 
+/**
+ * @param {string} name
+ * @param {object} options
+ * @returns {BrowserWindow}
+ */
 function onCreateWindow(name, options) {
   // prefix url with our location
   if (!options.url) {

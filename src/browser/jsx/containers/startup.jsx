@@ -7,7 +7,7 @@ import thunk from 'redux-thunk';
 import FullScreen from '../components/full-screen/full-screen.jsx';
 import kernelActions from '../actions/kernel';
 import rootReducer from './startup.reducer';
-import './startup.less';
+import './startup.css';
 
 const createStoreWithMiddleware = applyMiddleware(thunk)(createStore),
   store = createStoreWithMiddleware(rootReducer);
