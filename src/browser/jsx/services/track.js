@@ -24,6 +24,19 @@ function serialize(obj) {
   return str.join('&');
 }
 
+function getRandomCharacters(size) {
+  let str = '';
+
+  while (str.length < size) {
+    let sub = Math.floor((Math.random() * (Number.MAX_SAFE_INTEGER / 36 * 10))).toString(36);
+
+    str += sub.substr(1); // remove the first character, which is less random than the others
+  }
+
+  // cut down to the exact size
+  return str.substr(Math.max(str.length - size, 0));
+}
+
 /**
  * @param {object} metrics
  */
@@ -63,7 +76,8 @@ export default function track(eventCategory, eventAction, label) {
         av: appVersion,
         cid: userId,
         ec: eventCategory,
-        ea: eventAction
+        ea: eventAction,
+        r: getRandomCharacters(20) // bust any caches between us and the metrics server
       }, _.identity);
 
     if (label) {
