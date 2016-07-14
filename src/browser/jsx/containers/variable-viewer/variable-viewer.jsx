@@ -6,6 +6,7 @@ import {Table, Column, Cell} from 'fixed-data-table-2';
 import 'fixed-data-table-2/dist/fixed-data-table.min.css';
 import variableViewerActions from './variable-viewer.actions';
 import globalObserver from '../../services/global-observer';
+import './variable-viewer.css';
 
 const structuredVariableTypes = ['DataFrame'];
 
@@ -109,7 +110,7 @@ export default connect(mapStateToProps, mapDispatchToProps)(React.createClass({
     ));
 
     return (
-      <div style={style}>
+      <div style={style} className="variable-viewer">
         <Table
           headerHeight={state.rowHeight}
           height={state.height}

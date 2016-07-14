@@ -1,8 +1,12 @@
-.data-frame-loading-icon {
+.data-frame-container .data-frame-loading-icon {
   position: absolute;
   top: calc(50% - 20px);
   left: calc(50% - 65px);
   text-align: center;
   transition: opacity 0.2s;
+}
+
+.data-frame-container .public_fixedDataTableCell_cellContent {
+  white-space: nowrap;
 }
 
