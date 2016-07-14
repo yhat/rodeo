@@ -3,15 +3,6 @@ import React from 'react';
 import client from '../services/client';
 import DataFrame from '../components/data-frame/data-frame.jsx';
 
-function removeWrappedSingleQuotes(text) {
-  // sometimes ipython throws things in single quotes, and single quotes are not valid JSON.
-  if (text && text[0] === '\'' && text[text.length - 1] === '\'') {
-    text = text.substr(1, text.length - 2);
-  }
-
-  return text;
-}
-
 /**
  * @class DataFrameViewer
  * @extends ReactComponent
@@ -35,13 +26,10 @@ export default React.createClass({
       setError = this.setError;
 
     if (item && item.name) {
-      client.executeHidden(item.name + '.to_json(orient="split")', ['stream', 'execute_reply', 'display_data', 'execute_result', 'error']).then(function (result) {
+      client.executeHidden('print(' + item.name + '.to_json(orient="split"))', ['stream', 'execute_reply', 'display_data', 'execute_result', 'error']).then(function (result) {
         console.log(result);
         let obj,
-          text = _.get(result, 'data["text/plain"]');
-
-        // sometimes ipython throws things in single quotes, and single quotes are not valid JSON.
-        text = removeWrappedSingleQuotes(text);
+          text = result && result.text;
 
         try {
           obj = JSON.parse(text);
