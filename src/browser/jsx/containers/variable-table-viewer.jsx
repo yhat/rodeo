@@ -15,9 +15,7 @@ export default React.createClass({
     options: React.PropTypes.object.isRequired
   },
   getInitialState: function () {
-    return {
-
-    };
+    return {};
   },
   componentDidMount: function () {
     const props = this.props,
@@ -26,8 +24,8 @@ export default React.createClass({
       setError = this.setError;
 
     if (item && item.name) {
-      client.executeHidden('print(' + item.name + '.to_json(orient="split"))', ['stream', 'execute_reply', 'display_data', 'execute_result', 'error']).then(function (result) {
-        console.log(result);
+      this.showLoading();
+      client.executeHidden('print(' + item.name + '.to_json(orient="split"))', ['stream', 'error']).then(function (result) {
         let obj,
           text = result && result.text;
 
@@ -42,7 +40,7 @@ export default React.createClass({
         }
       }).catch(function (error) {
         setError(error);
-      });
+      }).finally(() => this.showLoading(false));
     }
   },
   setData: function (data) {
@@ -51,15 +49,21 @@ export default React.createClass({
   setError: function (error) {
     this.setState({error});
   },
+  /**
+   * @param {boolean} [isLoading=true]
+   */
+  showLoading(isLoading) {
+    isLoading = isLoading !== false;
+
+    this.setState({isLoading});
+  },
   render: function () {
     const props = this.props,
       state = this.state;
     let content;
 
-    if (props.options.item && state.data) {
-      if (props.options.item.type == 'DataFrame') {
-        content = <DataFrame data={state.data} />;
-      }
+    if (props.options.item && props.options.item.type == 'DataFrame') {
+      content = <DataFrame data={state.data} isLoading={state.isLoading} />;
     }
 
     if (!content) {
