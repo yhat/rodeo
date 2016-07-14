@@ -4,19 +4,22 @@ import ReactDOM from 'react-dom';
 import {Table, Column, Cell} from 'fixed-data-table-2';
 import 'fixed-data-table-2/dist/fixed-data-table.min.css';
 import globalObserver from '../../services/global-observer';
+import DataFrameLoadingIcon from './data-frame-loading-icon.jsx';
+import './data-frame.css';
 
 /**
- * @class PackagesViewer
+ * @class DataFrame
  * @extends ReactComponent
  * @property {object} state
  * @property {object} props
  */
 export default React.createClass({
-  displayName: 'DataFrameViewer',
+  displayName: 'DataFrame',
   propTypes: {
     data: React.PropTypes.object,
     filter: React.PropTypes.string,
-    id: React.PropTypes.string
+    id: React.PropTypes.string,
+    isLoading: React.PropTypes.bool
   },
   getInitialState: function () {
     return {
@@ -28,9 +31,9 @@ export default React.createClass({
   },
   componentWillMount: function () {
     this.onNewData();
-    this.onResize();
   },
   componentDidMount: function () {
+    this.onResize();
     globalObserver.on('resize', this.onResize, this);
   },
   componentWillReceiveProps: function () {
@@ -57,15 +60,19 @@ export default React.createClass({
     });
   },
   onNewData: function () {
-    const columns = _.get(this.props, 'data.columns'),
+    const props = this.props,
+      data = props.data,
+      columns = data && data.columns,
       columnWidths = this.state.columnWidths;
 
-    _.each(columns, function (columnName) {
-      // guarantee a width of something or 100
-      columnWidths[columnName] = columnWidths[columnName] || 100;
-    });
+    if (props.data) {
+      _.each(columns, function (columnName) {
+        // guarantee a width of something or 100
+        columnWidths[columnName] = columnWidths[columnName] || 100;
+      });
 
-    this.setState({columnWidths});
+      this.setState({columnWidths});
+    }
   },
   onResize: function () {
     const el = ReactDOM.findDOMNode(this),
@@ -82,45 +89,49 @@ export default React.createClass({
   render: function () {
     const props = this.props,
       state = this.state,
-      columns = props.data && props.data.columns,
-      rows = props.data && props.data.data;
+      data = props.data,
+      columns = data && data.columns || [],
+      rows = data && data.data || [];
 
     return (
-      <Table
-        className="data-frame-table"
-        headerHeight={state.rowHeight}
-        height={state.height}
-        isColumnResizing={false}
-        onColumnResizeEndCallback={this.handleColumnResize}
-        rowHeight={state.rowHeight}
-        rowsCount={rows.length}
-        width={state.width}
-      >
-        {_.map(columns, (column, columnIndex) => {
-          if (column && state.columnWidths[column]) {
-            const flexGrow = (columns.length - 1) === columnIndex;
+      <div className="data-frame-container">
+        <Table
+          className="data-frame-table"
+          headerHeight={state.rowHeight}
+          height={state.height}
+          isColumnResizing={false}
+          onColumnResizeEndCallback={this.handleColumnResize}
+          rowHeight={state.rowHeight}
+          rowsCount={rows.length}
+          width={state.width}
+        >
+          {_.map(columns, (column, columnIndex) => {
+            if (column && state.columnWidths[column]) {
+              const flexGrow = (columns.length - 1) === columnIndex;
 
-            return (
-              <Column
-                allowCellsRecycling
-                cell={({rowIndex}) => {
-                  const value = rows[rowIndex][columnIndex];
+              return (
+                <Column
+                  allowCellsRecycling
+                  cell={({rowIndex}) => {
+                    const value = rows[rowIndex][columnIndex];
 
-                  return (
-                    <Cell {...props}>{value}</Cell>
-                  );
-                }}
-                columnKey={column}
-                flexGrow={flexGrow}
-                header={<Cell>{column}</Cell>}
-                isResizable
-                minWidth={70}
-                width={state.columnWidths[column]}
-              />
-            );
-          }
-        })}
-      </Table>
+                    return (
+                      <Cell {...props}>{value}</Cell>
+                    );
+                  }}
+                  columnKey={column}
+                  flexGrow={flexGrow}
+                  header={<Cell>{column}</Cell>}
+                  isResizable
+                  minWidth={70}
+                  width={state.columnWidths[column]}
+                />
+              );
+            }
+          })}
+        </Table>
+        <DataFrameLoadingIcon isLoading={props.isLoading} label="Loading DataFrame" />
+      </div>
     );
   }
 });

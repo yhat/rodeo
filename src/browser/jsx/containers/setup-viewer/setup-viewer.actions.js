@@ -14,7 +14,7 @@ function closeWindow() {
 }
 
 function ask(question) {
-  track('setup-viewer', 'ask', question);
+  track({category: 'setup-viewer', action: 'ask', label: question});
   return {type: 'SETUP_QUESTION', question};
 }
 
@@ -36,7 +36,7 @@ function test(cmd) {
 }
 
 function saveTest(cmd) {
-  track('setup-viewer', 'saveTest');
+  track({category: 'setup-viewer', action: 'saveTest'});
   return function (dispatch) {
     return clientDiscovery.checkKernel({cmd})
       .then(pythonOptions => dispatch(kernelActions.kernelDetected(pythonOptions)))
