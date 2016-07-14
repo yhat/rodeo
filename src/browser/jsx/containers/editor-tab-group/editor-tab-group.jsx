@@ -141,6 +141,8 @@ export default connect(mapStateToProps, mapDispatchToProps)(React.createClass({
   render: function () {
     const props = this.props,
       items = props.items,
+      runLineTitle = process.platform === 'darwin' ? '⌘ + Enter' : 'Alt + Enter',
+      runScriptTitle = process.platform === 'darwin' ? '⌘ + Shift + Enter' : 'Alt + Shift + Enter',
       types = {
         'ace-pane': item => (
           <AcePane
@@ -168,13 +170,13 @@ export default connect(mapStateToProps, mapDispatchToProps)(React.createClass({
       >
         <li><a className="icon-overflowing not-tab" onClick={props.onRodeo}><span /></a></li>
         <li className="right">
-          <a className="not-tab" onClick={props.onRunActiveAcePane} title="Run Script">
+          <a className="not-tab" onClick={props.onRunActiveAcePane} title={runScriptTitle}>
             <span className="fa fa-play-circle" />
             <span className="icon-text-right">{'Run Script'}</span>
           </a>
         </li>
         <li className="right">
-          <a className="not-tab" onClick={props.onRunActiveAcePaneSelection} title="Run Line">
+          <a className="not-tab" onClick={props.onRunActiveAcePaneSelection} title={runLineTitle}>
             <span className="fa fa-play" />
             <span className="icon-text-right">{'Run Line'}</span>
           </a>
