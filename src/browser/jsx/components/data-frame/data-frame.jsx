@@ -107,7 +107,6 @@ export default React.createClass({
         >
           {_.map(columns, (column, columnIndex) => {
             if (column && state.columnWidths[column]) {
-              const flexGrow = (columns.length - 1) === columnIndex;
 
               return (
                 <Column
@@ -120,7 +119,6 @@ export default React.createClass({
                     );
                   }}
                   columnKey={column}
-                  flexGrow={flexGrow}
                   header={<Cell>{column}</Cell>}
                   isResizable
                   minWidth={70}
