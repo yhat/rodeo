@@ -90,7 +90,9 @@ function getFreshPythonOptions() {
           delete kernel.checkResults.packages;
         }
 
-        track('client_discovery', 'available_python_kernel', kernel);
+        if (kernel.label || kernel.cmd) {
+          track({category: 'client_discovery', action: 'available_python_kernel', label: kernel.label || kernel.cmd});
+        }
       });
     } catch (ex) {
       // pass

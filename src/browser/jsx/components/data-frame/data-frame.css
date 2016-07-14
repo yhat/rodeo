@@ -3,5 +3,6 @@
   top: calc(50% - 20px);
   left: calc(50% - 65px);
   text-align: center;
+  transition: opacity 0.2s;
 }
 
