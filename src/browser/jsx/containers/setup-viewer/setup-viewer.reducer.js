@@ -1,16 +1,16 @@
 import _ from 'lodash';
-import store from '../../services/store';
+import {local} from '../../services/store';
 import mapReducers from '../../services/map-reducers';
 
 const initialState = getDefault();
 
 function getDefault() {
-  const facts = store.get('systemFacts'),
+  const facts = local.get('systemFacts'),
     homedir = facts && facts.homedir,
-    pythonValidity = store.get('pythonCmd') ? 'good' : 'bad',
-    workingDirectory = store.get('workingDirectory') || homedir || '~';
+    pythonValidity = local.get('pythonCmd') ? 'good' : 'bad',
+    workingDirectory = local.get('workingDirectory') || homedir || '~';
 
-  return _.assign({facts, homedir, workingDirectory, pythonValidity}, store.get('pythonOptions') || {});
+  return _.assign({facts, homedir, workingDirectory, pythonValidity}, local.get('pythonOptions') || {});
 }
 
 function askForPythonOptions(state) {

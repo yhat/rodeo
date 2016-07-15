@@ -1,5 +1,5 @@
 import _ from 'lodash';
-import store from './store';
+import {local} from './store';
 import clientDiscovery from './client-discovery';
 import bluebird from 'bluebird';
 
@@ -89,7 +89,7 @@ function reportOptOut() {
 export default function track(event) {
   event = _.pick(event, ['category', 'action', 'label', 'value']);
 
-  if (store.get('trackMetrics') === false && event.force !== true) {
+  if (local.get('trackMetrics') === false && event.force !== true) {
     if (event.force !== true) {
       return reportOptOut();
     } else {

@@ -2,7 +2,7 @@ import _ from 'lodash';
 import AcePane from '../../components/ace-pane/ace-pane.jsx';
 import cid from '../../services/cid';
 import mapReducers from '../../services/map-reducers';
-import store from '../../services/store';
+import {local} from '../../services/store';
 import initialStory from 'raw!./initial-story.py';
 
 const refreshPanes = _.throttle(() => AcePane.resizeAll(), 50),
@@ -24,11 +24,11 @@ function getDefault() {
     id: cid(),
     tabId: cid(),
     hasFocus: true,
-    keyBindings: store.get('aceKeyBindings') || 'default',
-    tabSpaces: _.toNumber(store.get('aceTabSpaces')) || 4,
+    keyBindings: local.get('aceKeyBindings') || 'default',
+    tabSpaces: _.toNumber(local.get('aceTabSpaces')) || 4,
     icon: 'file-code-o',
     isCloseable: true,
-    fontSize: _.toNumber(store.get('fontSize')) || 12,
+    fontSize: _.toNumber(local.get('fontSize')) || 12,
     theme: 'chrome'
   };
 }
