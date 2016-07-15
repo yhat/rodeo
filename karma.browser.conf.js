@@ -3,12 +3,12 @@
 module.exports = function (karma) {
   karma.set({
     autoWatch: false,
-    browsers: ['CustomElectron'],
+    browsers: ['Chrome'],
     browserDisconnectTimeout: 1000 * 60 * 2,
     browserNoActivityTimeout: 1000 * 60 * 5,
     colors: true,
     singleRun: true,
-    // logLevel: karma.LOG_DEBUG,
+    logLevel: karma.LOG_DEBUG,
     reporters: [
       'mocha'
     ],
@@ -26,27 +26,18 @@ module.exports = function (karma) {
       harmony: true,
       es6module: true
     },
-    customLaunchers: {
-      CustomElectron: {
-        base: 'Electron',
-        flags: ['--enable-logging']
-      }
-    },
     files: [
       'node_modules/react/dist/react-with-addons.js',
       'test/**/*.js',
-      'src/browser/jsx/**/*.js',
-      'src/browser/jsx/**/*.jsx'
+      'src/browser/jsx/entry**/*.js'
     ],
     frameworks: ['mocha', 'chai'],
     preprocessors: {
-      '**/*.js': ['electron'],
-      '**/*.jsx': ['babel', 'electron']
+      '**/*.jsx': ['babel']
     },
     plugins: [
       'karma-babel-preprocessor',
       'karma-mocha-reporter',
-      'karma-electron',
       'karma-mocha',
       'karma-chai'
     ]

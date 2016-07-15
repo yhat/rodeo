@@ -24,7 +24,10 @@
     "app-bundle-id": "com.yhat.rodeo",
     "helper-bundle-id": "com.yhat.rodeo.helper",
     "publish": "always",
-    "asar": false
+    "asar": false,
+    "linux": {
+      "target": ["deb", "rpm", "zip"]
+    }
   },
   "devDependencies": {
     "aws-promised": "^2.13.0",

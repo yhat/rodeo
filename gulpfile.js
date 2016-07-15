@@ -223,7 +223,7 @@ gulp.task('dist:build', ['dist:build-resources', 'dist:npm-install'], function (
     asar: false,
     prune: true,
     platform: ['all'],
-    arch: 'all', // for all platforms and architectures
+    arch: 'x64', // for all platforms and architectures
     dist: true, // compile all that we can
     devMetadata: require('./package.json').build
   });
@@ -242,7 +242,7 @@ gulp.task('dist:osx', ['dist:build-resources', 'dist:npm-install'], function () 
     asar: false,
     prune: true,
     platform: ['darwin'],
-    arch: 'all', // for all platforms and architectures
+    arch: 'x64',
     dist: true, // compile all that we can
     devMetadata: require('./package.json').build
   });
