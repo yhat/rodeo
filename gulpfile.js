@@ -134,6 +134,6 @@ gulp.task('npm-install', function () {
 });
 
 gulp.task('test', ['lint', 'karma']);
-gulp.task('build', ['themes', 'external', 'images', 'ace', 'jsx', 'html', 'node', 'package.json', 'npm-install']);
+gulp.task('build', ['themes', 'external', 'images', 'ace', 'jsx', 'html', 'node', 'package.json']);
 gulp.task('dist', ['dist:all']);
 gulp.task('default', ['test', 'build']);
