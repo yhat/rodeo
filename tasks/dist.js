@@ -11,7 +11,7 @@ module.exports.importTasks = function (gulp) {
    *
    * @returns {Promise}
    */
-  gulp.task('dist:all', ['dist:npm-install'], function () {
+  gulp.task('dist:all', function () {
     return builder.build({
       asar: false,
       prune: true,
@@ -30,7 +30,7 @@ module.exports.importTasks = function (gulp) {
    *
    * @returns {Promise}
    */
-  gulp.task('dist:osx', ['dist:npm-install'], function () {
+  gulp.task('dist:osx', function () {
     return builder.build({
       asar: false,
       prune: true,

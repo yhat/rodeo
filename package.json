@@ -17,8 +17,8 @@
     "start": "electron app",
     "hot-server": "node -r babel-register server.js",
     "test": "./node_modules/.bin/gulp test",
-    "dist:all": "./node_modules/.bin/gulp build && ./node_modules/.bin/gulp dist",
-    "dist:osx": "./node_modules/.bin/gulp build && ./node_modules/.bin/gulp dist:osx"
+    "dist:all": "./scripts/osx/dist-all.sh",
+    "dist:osx": "./scripts/osx/dist-osx.sh"
   },
   "build": {
     "app-bundle-id": "com.yhat.rodeo",
