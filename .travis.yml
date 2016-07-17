@@ -31,3 +31,10 @@ install:
 script:
   - npm run test
   - npm run dist:all
+addons:
+  artifacts:
+    # set ARTIFACTS_KEY=(AWS access key id) ARTIFACTS_SECRET=(AWS secret access key) ARTIFACTS_BUCKET=(S3 bucket name)
+    paths:
+      - $(git ls-files -o | tr "\n" ":")
+    debug: true
+    s3_region: "us-west-1" # defaults to "us-east-1"

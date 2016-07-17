@@ -1,13 +1,8 @@
 import cid from '../../services/cid';
-import applicationControl from '../../services/application-control';
 
 function showDataFrame(item) {
   return function (dispatch) {
-    const name = cid(),
-      dataFrameOptions = {item},
-      windowOptions = {
-        url: 'freeTabsOnlyWindow'
-      };
+    const dataFrameOptions = {item};
 
     dispatch({
       type: 'CREATE_TAB',
@@ -20,8 +15,6 @@ function showDataFrame(item) {
       icon: 'table',
       label: item.name || 'Table'
     });
-
-    // return applicationControl.createWindow(name, windowOptions);
   };
 }
 
