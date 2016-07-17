@@ -10,9 +10,6 @@ matrix:
       osx_image: xcode7.3
       # language: python  # does not work on travis osx, so we install with brew...
 
-branches:
-  only:
-    - master
 cache:
   directories:
     - node_modules
