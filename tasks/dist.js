@@ -40,4 +40,23 @@ module.exports.importTasks = function (gulp) {
       devMetadata: require('../package.json').build
     });
   });
+
+  /**
+   * Regular build, plus extras needed to package and distribute app
+   *
+   * Remember to set your CSC_NAME or CSC_LINK for code signing!
+   * i.e., CSC_NAME="Dane Stuckel" <command>
+   *
+   * @returns {Promise}
+   */
+  gulp.task('dist:win', function () {
+    return builder.build({
+      asar: false,
+      prune: true,
+      platform: ['win'],
+      arch: 'x64',
+      dist: true, // compile all that we can
+      devMetadata: require('../package.json').build
+    });
+  });
 };
