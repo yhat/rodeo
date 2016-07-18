@@ -110,7 +110,7 @@ export default connect(mapStateToProps, mapDispatchToProps)(React.createClass({
     ));
 
     return (
-      <div style={style} className="variable-viewer">
+      <div className="variable-viewer" style={style}>
         <Table
           headerHeight={state.rowHeight}
           height={state.height}

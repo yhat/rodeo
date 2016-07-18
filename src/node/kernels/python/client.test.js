@@ -15,6 +15,7 @@ const AsciiToHtml = require('ansi-to-html'),
   example5 = fs.readFileSync(path.resolve('./test/mocks/jupyter_examples/example_5.py'), {encoding: 'UTF8'});
 
 describe(dirname + '/' + filename, function () {
+  this.timeout(10000);
   let sandbox;
 
   beforeEach(function () {
@@ -29,10 +30,13 @@ describe(dirname + '/' + filename, function () {
     const fn = lib[this.title];
 
     it('creates', function () {
-      this.timeout(10000);
-      return fn().then(function (client) {
-        expect(processes.getChildren().length).to.equal(1);
-        return client.kill();
+      return new Promise(function (resolve) {
+        const client = fn();
+
+        client.on('ready', function () {
+          expect(processes.getChildren().length).to.equal(1);
+          resolve(client.kill());
+        });
       }).then(function () {
         expect(processes.getChildren().length).to.equal(0);
       });
@@ -43,8 +47,6 @@ describe(dirname + '/' + filename, function () {
     const fn = lib[this.title];
 
     it('checks', function () {
-      this.timeout(10000);
-
       return fn({}).then(function (result) {
         expect(result).to.have.property('hasJupyterKernel').that.is.a('boolean');
         expect(result).to.have.property('cwd').that.is.a('string');
@@ -60,16 +62,17 @@ describe(dirname + '/' + filename, function () {
     let client;
 
     before(function () {
-      this.timeout(10000);
-      return lib.create().then(function (newClient) {
-        client = newClient;
+      return new Promise(function (resolve) {
+        client = lib.create();
+
+        client.on('ready', function () {
+          resolve();
+        });
       });
     });
 
     after(function () {
-      if (client) {
-        return client.kill();
-      }
+      return client.kill();
     });
 
     describe('getEval', function () {
@@ -96,7 +99,6 @@ describe(dirname + '/' + filename, function () {
       });
 
       it('gets docstrings when empty list', function () {
-        this.timeout(10000);
         return fn([]).then(function (result) {
           expect(result).to.deep.equal({
             name: 'stdout',
@@ -106,7 +108,6 @@ describe(dirname + '/' + filename, function () {
       });
 
       it('gets docstrings with global names', function () {
-        this.timeout(10000);
         return fn(['sys']).then(function (result) {
           expect(result).to.deep.equal({
             name: 'stdout',
@@ -125,7 +126,6 @@ describe(dirname + '/' + filename, function () {
       });
 
       it('gets variables when empty', function () {
-        this.timeout(10000);
         return fn([]).then(function (result) {
           expect(result).to.deep.equal({function: [], Series: [], list: [], DataFrame: [], other: [], dict: [], ndarray: []});
           expect(result).to.deep.equal({function: [], Series: [], list: [], DataFrame: [], other: [], dict: [], ndarray: []});
@@ -227,7 +227,6 @@ describe(dirname + '/' + filename, function () {
       });
 
       it('example 1', function () {
-        this.timeout(20000);
         const expectedResult = {status: 'ok', user_expressions: {}};
 
         return fn.call(client, example1).then(function (result) {
@@ -236,7 +235,6 @@ describe(dirname + '/' + filename, function () {
       });
 
       it('example 2', function () {
-        this.timeout(10000);
         const expectedResult = {status: 'ok', user_expressions: {}};
 
         return fn.call(client, example2).then(function (result) {
@@ -245,7 +243,6 @@ describe(dirname + '/' + filename, function () {
       });
 
       it('example 3', function () {
-        this.timeout(10000);
         const expectedResult = {status: 'ok', user_expressions: {}};
 
         return fn.call(client, example3).then(function (result) {

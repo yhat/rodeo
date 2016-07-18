@@ -29,7 +29,7 @@ module.exports = function (karma) {
       }
     },
     files: [
-      'test/**/*.js',
+      'test/node/**/*.js',
       'src/node/**/*.js'
     ],
     frameworks: ['mocha', 'chai'],

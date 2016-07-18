@@ -5,7 +5,7 @@ import client from '../../services/client';
 import cid from '../../services/cid';
 import {errorCaught} from '../../actions/application';
 import plotViewerActions from '../plot-viewer/plot-viewer.actions';
-import store from '../../services/store';
+import {local} from '../../services/store';
 import textUtil from '../../services/text-util';
 const convertor = new AsciiToHtml(),
   inputBuffer = [];
@@ -186,7 +186,7 @@ function addDisplayData(data) {
       jqConsole = getJQConsole(terminal.id);
 
     if (data['text/html']) {
-      if (store.get('allowIFrameInTerminal')) {
+      if (local.get('allowIFrameInTerminal')) {
         appendIFrame(jqConsole, data);
       }
     } else if (data['image/png']) {

@@ -1,6 +1,6 @@
 import _ from 'lodash';
 import ipc from 'ipc';
-import store from './store';
+import {local} from './store';
 import track from './track';
 
 import dialogActions from '../actions/dialogs';
@@ -98,7 +98,7 @@ function dispatchIOPubDisplayData(dispatch, content) {
   track({category:'iopub', action: 'display_data'});
   dispatch(terminalActions.addDisplayData(content.data));
   dispatch(iopubActions.dataDisplayed(content.data));
-  if (store.get('plotsFocusOnNew') !== false) {
+  if (local.get('plotsFocusOnNew') !== false) {
     dispatch(plotViewerActions.focusNewestPlot());
   }
   detectVariables(dispatch);

@@ -6,7 +6,7 @@
 import _ from 'lodash';
 import ace from 'ace';
 import { send } from 'ipc';
-import * as store from '../services/store';
+import {local} from '../services/store';
 import client from '../services/client';
 import clientDiscovery from '../services/client-discovery';
 import {errorCaught} from './application';
@@ -38,8 +38,8 @@ export function kernelDetected(pythonOptions) {
     throw new Error('Unacceptable python options without cmd that created it');
   }
 
-  store.set('pythonOptions', pythonOptions);
-  store.set('pythonCmd', pythonOptions.cmd);
+  local.set('pythonOptions', pythonOptions);
+  local.set('pythonCmd', pythonOptions.cmd);
   return {type: 'KERNEL_DETECTED', pythonOptions};
 }
 
@@ -55,7 +55,7 @@ export function askForPythonOptions() {
  */
 export function detectKernel() {
   return function (dispatch) {
-    const pythonCmd = store.get('pythonCmd');
+    const pythonCmd = local.get('pythonCmd');
     let promise;
 
     if (pythonCmd) {

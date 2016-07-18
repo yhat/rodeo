@@ -1,7 +1,7 @@
 import _ from 'lodash';
 import {send} from 'ipc';
 import ace from 'ace';
-import store from '../../services/store';
+import {local} from '../../services/store';
 import {errorCaught} from '../../actions/application';
 
 /**
@@ -90,7 +90,7 @@ export function showSaveFileDialogForActiveFile() {
       items = _.head(state.editorTabGroups).items,
       focusedAce = state && _.find(items, {hasFocus: true}),
       title = 'Save File',
-      defaultPath = focusedAce && focusedAce.filename ? focusedAce.filename : store.get('workingDirectory');
+      defaultPath = focusedAce && focusedAce.filename ? focusedAce.filename : local.get('workingDirectory');
 
     return send('saveDialog', {title, defaultPath})
       .then(function (filename) {
@@ -108,7 +108,7 @@ export function showOpenFileDialogForActiveFile() {
   return function (dispatch) {
     return send('openDialog', {
       title: 'Select a file to open',
-      defaultPath: store.get('workingDirectory'),
+      defaultPath: local.get('workingDirectory'),
       properties: ['openFile']
     }).then(function (filename) {
       if (_.isArray(filename)) {

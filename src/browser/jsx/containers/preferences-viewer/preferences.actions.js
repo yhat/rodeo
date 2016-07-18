@@ -1,5 +1,5 @@
 import _ from 'lodash';
-import store from '../../services/store';
+import {local} from '../../services/store';
 import kernel from '../../actions/kernel';
 
 /**
@@ -10,11 +10,11 @@ import kernel from '../../actions/kernel';
 export function changePreference(item, value) {
   return function (dispatch) {
     const key = item.key,
-      oldValue = store.get(key);
+      oldValue = local.get(key);
 
     console.log('changed', key, 'from', oldValue, 'to', value);
 
-    store.set(key, value);
+    local.set(key, value);
 
     dispatch({type: 'CHANGE_PREFERENCE', key, value, oldValue});
 

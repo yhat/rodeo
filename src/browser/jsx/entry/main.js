@@ -3,13 +3,13 @@ import React from 'react';
 import ReactDOM from 'react-dom';
 import App from '../containers/main.jsx';
 import track from '../services/track';
-import store from '../services/store';
+import {local} from '../services/store';
 
 track({
   category: 'application',
   action: 'editor',
   label: 'tracking',
-  value: store.get('trackMetrics') !== false ? 1 : 0,
+  value: local.get('trackMetrics') !== false ? 1 : 0,
   force: true,
   sessionControl: 'start'
 });

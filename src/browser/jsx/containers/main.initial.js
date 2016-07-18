@@ -1,9 +1,9 @@
 import _ from 'lodash';
 import cid from '../services/cid';
-import store from '../services/store';
+import {local} from '../services/store';
 
 function getSplitState() {
-  return store.get('splitPanePositions') || {
+  return local.get('splitPanePositions') || {
     'split-pane-center': window.innerWidth / 2 + 'px',
     'split-pane-right': window.innerHeight / 2 + 'px',
     'split-pane-left': window.innerHeight / 2 + 'px'
@@ -17,7 +17,7 @@ function getTerminalState() {
     tabId: cid(),
     hasFocus: true,
     icon: 'terminal',
-    fontSize: _.toNumber(store.get('fontSize')) || 12,
+    fontSize: _.toNumber(local.get('fontSize')) || 12,
     status: 'idle',
     history: []
   }];
@@ -28,14 +28,14 @@ function getPlotsState() {
 }
 
 function getFileViewState() {
-  const facts = store.get('systemFacts'),
+  const facts = local.get('systemFacts'),
     homedir = facts && facts.homedir;
 
   return {
     id: cid(),
-    path: store.get('workingDirectory') || homedir || '~',
+    path: local.get('workingDirectory') || homedir || '~',
     files: [],
-    showDotFiles: store.get('displayDotFiles') || false
+    showDotFiles: local.get('displayDotFiles') || false
   };
 }
 

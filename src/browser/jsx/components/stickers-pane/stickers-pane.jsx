@@ -6,7 +6,7 @@ import './stickers-pane.css';
 import wantAFreeStickerText from './want-a-free-sticker.md';
 import thanksText from './thanks.md';
 import alreadyDoneText from './already-done.md';
-import * as store from '../../services/store';
+import {local} from '../../services/store';
 
 const storeKey = 'stickersRequested';
 
@@ -20,7 +20,7 @@ export default React.createClass({
   displayName: 'StickersPane',
   getInitialState: function () {
     return {
-      hasRegistered: store.get(storeKey),
+      hasRegistered: local.get(storeKey),
       justRegistered: false,
       error: ''
     };
@@ -32,8 +32,8 @@ export default React.createClass({
 
     if (validation.isEmail(email)) {
       this.setState({justRegistered: true});
-      store.set(storeKey, true);
-      if (!window.__DEV__) {
+      local.set(storeKey, true);
+      if (!window.__DEV__ && window.Intercom) {
         window.Intercom('update', { email: email });
       }
     } else {

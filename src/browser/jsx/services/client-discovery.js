@@ -9,8 +9,7 @@
 import _ from 'lodash';
 import bluebird from 'bluebird';
 import {send} from 'ipc';
-import store from './store';
-import session from './session';
+import {local, session} from './store';
 import guid from './guid';
 import track from './track';
 
@@ -33,11 +32,11 @@ function checkKernel(options) {
 }
 
 function getSystemFacts() {
-  let systemFacts = store.get('systemFacts');
+  let systemFacts = local.get('systemFacts');
 
   if (!systemFacts || !systemFacts.appVersion) {
     return send('getSystemFacts').then(function (facts) {
-      store.set('systemFacts', facts);
+      local.set('systemFacts', facts);
       return facts;
     });
   }
@@ -54,7 +53,7 @@ function getAppVersion() {
 
   if (!systemFacts || !systemFacts.appVersion) {
     return send('getAppVersion').then(function (version) {
-      store.set('appVersion', version);
+      local.set('appVersion', version);
       return version;
     });
   }
@@ -63,11 +62,11 @@ function getAppVersion() {
 }
 
 function getUserId() {
-  let userId = store.get('userId');
+  let userId = local.get('userId');
 
   if (!userId) {
     userId = guid();
-    store.set('userId', userId);
+    local.set('userId', userId);
   }
 
   return userId;
@@ -98,7 +97,7 @@ function getFreshPythonOptions() {
       // pass
     }
 
-    store.set('systemFacts', facts);
+    local.set('systemFacts', facts);
     return checkKernel(pythonOptions)
       // add any extra information it came back with
       .then(checkedPythonOptions => _.defaults(pythonOptions, checkedPythonOptions))

@@ -132,6 +132,8 @@ export default connect(mapStateToProps, mapDispatchToProps)(React.createClass({
       targetAcePane = _.find(items, {id: targetId}),
       sourceId = event.dataTransfer.getData('rodeo/cid'),
       sourceAcePane = _.find(items, {id: sourceId});
+
+    console.log('handleTabListDrop', {targetAcePane, sourceAcePane});
   },
   handleTabListDragEnter: function (event) {
     // accept all

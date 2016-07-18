@@ -1,6 +1,6 @@
 import _ from 'lodash';
 import bluebird from 'bluebird';
-import store from './store';
+import {local} from './store';
 import {send} from 'ipc';
 
 let instancePromise;
@@ -13,9 +13,9 @@ let instancePromise;
  */
 function createInstance(options) {
   let promise,
-    cmd = store.get('pythonCmd'),
-    cwd = store.get('workingDirectory'),
-    pythonOptions = store.get('pythonOptions');
+    cmd = local.get('pythonCmd'),
+    cwd = local.get('workingDirectory'),
+    pythonOptions = local.get('pythonOptions');
 
   options = _.defaults(options || {}, {cmd, cwd}, pythonOptions);
 

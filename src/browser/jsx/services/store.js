@@ -10,29 +10,38 @@ function assertCamelCase(key) {
   }
 }
 
-export function get(key) {
-  assertCamelCase(key);
-  let result = window.localStorage.getItem(key);
+class Store {
+  constructor(source) {
+    this.source = source;
+  }
 
-  if (typeof result === 'string') {
-    try {
-      result = JSON.parse(result);
-    } catch (ex) {
-      // we're okay with this
+  get(key) {
+    assertCamelCase(key);
+    let result = this.source.getItem(key);
+
+    if (typeof result === 'string') {
+      try {
+        result = JSON.parse(result);
+      } catch (ex) {
+        // we're okay with this
+      }
     }
+    return result;
   }
-  return result;
+
+  set(key, value) {
+    assertCamelCase(key);
+    if (typeof value === 'object') {
+      value = JSON.stringify(value);
+    }
+    this.source.setItem(key, value);
+  }
 }
 
-export function set(key, value) {
-  assertCamelCase(key);
-  if (typeof value === 'object') {
-    value = JSON.stringify(value);
-  }
-  window.localStorage.setItem(key, value);
-}
-
+export const local = new Store(window.localStorage),
+  session = new Store(window.sessionStorage);
 export default {
-  get,
-  set
+  local,
+  session,
+  Store
 };

@@ -3,7 +3,7 @@ import React from 'react';
 import {connect} from 'react-redux';
 import PreferencesList from '../../components/preferences/preferences-list.jsx';
 import preferenceActions from './preferences.actions';
-import store from '../../services/store';
+import {local} from '../../services/store';
 import preferencesMapDefinition from './preferences.yml';
 import preferencesMapper from '../../services/preferences-mapper';
 
@@ -101,7 +101,7 @@ export default connect(mapStateToProps, mapDispatchToProps)(React.createClass({
       newValue = item.type === 'checkbox' ? event.target.checked : event.target.value,
       key = item.key;
 
-    if (store.get(key) === newValue && changes[key]) {
+    if (local.get(key) === newValue && changes[key]) {
       // if they set it back to the current settings, remove it from the map of changes.
       this.setKeyUnchanged(item);
     } else if (changes[key] !== newValue) {

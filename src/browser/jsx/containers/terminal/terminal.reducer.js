@@ -1,6 +1,6 @@
 import _ from 'lodash';
 import cid from '../../services/cid';
-import store from '../../services/store';
+import {local} from '../../services/store';
 import mapReducers from '../../services/map-reducers';
 
 /*
@@ -63,7 +63,7 @@ function setTerminalState(state, action) {
  * @returns {[TerminalState]}
  */
 function executedInput(state, action) {
-  const historyMaxSetting = store.get('terminalHistory'),
+  const historyMaxSetting = local.get('terminalHistory'),
     historyMax = historyMaxSetting === null ? 50 : historyMaxSetting;
 
   if (historyMax > 0 && _.isString(action.text) && action.text.trim().length > 0) {
