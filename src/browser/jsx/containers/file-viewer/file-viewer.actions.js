@@ -1,4 +1,5 @@
 import _ from 'lodash';
+import path from 'path';
 import {send} from 'ipc';
 import {addFile} from '../../containers/editor-tab-group/editor-tab-group.actions';
 
@@ -9,7 +10,7 @@ import {addFile} from '../../containers/editor-tab-group/editor-tab-group.action
 export function openViewedFile(file) {
   return function (dispatch, getState) {
     const state = getState(),
-      filename = state.fileView.path + '/' + file.filename;
+      filename = path.join(state.fileView.path, file.filename);
 
     if (file.isDirectory) {
       return dispatch(getViewedFiles(filename));
@@ -49,7 +50,7 @@ export function getViewedFiles(filePath) {
 export function goToParentDirectory() {
   return function (dispatch, getState) {
     const fileView = getState().fileView,
-      newPath = _.dropRight(fileView.path.split('/'), 1).join('/');
+      newPath = _.dropRight(fileView.path.split(path.sep), 1).join(path.sep);
 
     if (newPath) {
       dispatch(getViewedFiles(newPath));
