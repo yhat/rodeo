@@ -4,6 +4,7 @@ import React from 'react';
 import ReactDOM from 'react-dom';
 import './lib/jqconsole.js';
 import './terminal.css';
+import terminalShortcuts from '../../services/terminal-shortcuts';
 
 let message = `
 IPython -- An enhanced Interactive Python.
@@ -46,66 +47,21 @@ export default React.createClass({
 
     jqConsole.SetIndentWidth(this.props.indentWidth);
 
-    // autocomplete
-    jqConsole._IndentOld = jqConsole._Indent;
-    jqConsole._Indent = () => {
-      const onAutoComplete = props.onAutoComplete;
-
-      if (jqConsole.GetPromptText().trim() == '') {
-        jqConsole._IndentOld();
-      } else if (jqConsole.GetPromptText().slice(-1) == '\n') {
-        jqConsole._IndentOld();
-      } else {
-        onAutoComplete();
-      }
-    };
-
-    /**
-     * If no prompt or input, the console doesn't receive events.
-     *
-     * We have to do it then.
-     * @param {KeyboardEvent} event
-     */
-    el.addEventListener('keydown', function (event) {
-      if (
-        (event.ctrlKey === true) &&
-        (event.code === 'KeyC' || event.keyCode === 67) &&
-        (jqConsole.GetState() !== 'prompt')
-      ) {
-        props.onInterrupt();
-      }
-    });
-
-    jqConsole.RegisterShortcut('c', function () {
-      jqConsole.ClearPromptText();
-    });
-
-    jqConsole.RegisterShortcut('l', function () {
-      jqConsole.Clear();
-      const extras = el.querySelectorAll('img,iframe');
-
-      _.each(extras, function (extra) {
-        const parent = extra.parentNode;
-
-        parent.removeChild(extra);
-      });
-    });
-
-    jqConsole.RegisterShortcut('a', function () {
-      jqConsole.MoveToStart();
-    });
-
-    jqConsole.RegisterShortcut('e', function () {
-      jqConsole.MoveToEnd();
-    });
+    terminalShortcuts.autoComplete(jqConsole, props.onAutoComplete);
+    terminalShortcuts.clearBuffer(jqConsole, el);
+    terminalShortcuts.clearPrompt(jqConsole);
+    terminalShortcuts.interrupt(jqConsole, el, props.onInterrupt);
+    terminalShortcuts.moveCursorToEnd(jqConsole);
+    terminalShortcuts.moveCursorToStart(jqConsole);
 
     props.onStart(jqConsole);
   },
   render: function () {
-    const style = {
-      fontSize: this.props.fontSize + 'px'
-    };
+    const props = this.props,
+      style = {
+        fontSize: props.fontSize + 'px'
+      };
 
-    return <div className="terminal" id={this.props.id} style={style}></div>;
+    return <div className="terminal" id={props.id} style={style}></div>;
   }
 });

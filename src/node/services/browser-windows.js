@@ -172,9 +172,12 @@ function create(name, options) {
 
   // default event handlers
   window.on('close', onClose);
-  window.on('show', () => log('info', 'show'));
-  window.on('hide', () => log('info', 'hide'));
-  window.webContents.on('did-finish-load', () => log('info', 'onFinishLoad'));
+  window.on('show', () => log('info', 'show', name));
+  window.on('hide', () => log('info', 'hide', name));
+  window.on('focus', () => log('info', 'focus', name));
+  window.on('blur', () => log('info', 'blur', name));
+  window.on('ready-to-show', () => log('info', 'ready-to-show', name));
+  window.webContents.on('did-finish-load', () => log('info', 'onFinishLoad', name));
   window.webContents.on('did-fail-load', onFailLoad);
   window.webContents.on('did-get-response-details', onGetResponseDetails);
   window.webContents.on('crashed', () => log('error', 'onCrashed'));

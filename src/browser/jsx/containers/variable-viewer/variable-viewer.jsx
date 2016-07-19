@@ -59,6 +59,7 @@ export default connect(mapStateToProps, mapDispatchToProps)(React.createClass({
     };
   },
   componentDidMount: function () {
+    _.defer(() => this.onResize());
     globalObserver.on('resize', this.onResize, this);
   },
   shouldComponentUpdate: function () {
@@ -74,7 +75,7 @@ export default connect(mapStateToProps, mapDispatchToProps)(React.createClass({
 
     this.setState({columnWidths});
   },
-  onResize: _.throttle(function () {
+  onResize: function () {
     const el = ReactDOM.findDOMNode(this),
       height = el.parentNode.offsetHeight,
       width = el.offsetWidth;
@@ -83,7 +84,7 @@ export default connect(mapStateToProps, mapDispatchToProps)(React.createClass({
       height,
       width
     });
-  }, 50),
+  },
   render: function () {
     const props = this.props,
       state = this.state,

@@ -287,7 +287,6 @@ function startMainWindow() {
 
     resolve(attachApplicationMenu(window.webContents).then(function () {
       window.show();
-      window.focus();
     }));
   });
 }
@@ -310,7 +309,6 @@ function startStartupWindow() {
 
     window.webContents.on('did-finish-load', function () {
       window.show();
-      window.focus();
       window.once('close', function () {
         startMainWindow().catch(function (error) {
           log('error', error);

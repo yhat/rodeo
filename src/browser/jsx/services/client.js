@@ -127,11 +127,33 @@ function interrupt(instance) {
 }
 
 /**
+ * Run the prepended function before the original function.
+ * @param {function} prependedFn
+ * @returns {function}
+ */
+function prependPromiseFunction(prependedFn) {
+  return function (originalFn) {
+    return function () {
+      let args = _.toArray(arguments);
+
+      return bluebird.try(function () {
+        return prependedFn().then(function (instance) {
+          args.unshift(instance);
+          return originalFn.apply(null, args);
+        });
+      });
+    };
+  };
+}
+
+/**
  * Guarantee that an instance is created before we ever run anything.
  *
  * If it is ever deleted, guarantee a new one is created.
  */
-export default _.mapValues({
+export default _.assign({
+  guaranteeInstance
+}, _.mapValues({
   execute,
   executeHidden,
   interrupt,
@@ -139,15 +161,4 @@ export default _.mapValues({
   getVariables,
   killInstance,
   restartInstance
-}, function (fn) {
-  return function () {
-    let args = _.toArray(arguments);
-
-    return bluebird.try(function () {
-      return guaranteeInstance().then(function (instance) {
-        args.unshift(instance);
-        return fn.apply(null, args);
-      });
-    });
-  };
-});
+}, prependPromiseFunction(guaranteeInstance)));

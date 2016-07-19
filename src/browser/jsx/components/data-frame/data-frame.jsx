@@ -33,7 +33,7 @@ export default React.createClass({
     this.onNewData();
   },
   componentDidMount: function () {
-    this.onResize();
+    _.defer(() => this.onResize());
     globalObserver.on('resize', this.onResize, this);
   },
   componentWillReceiveProps: function () {
