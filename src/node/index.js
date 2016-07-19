@@ -174,7 +174,7 @@ function onSaveFile(filename, contents) {
 function replacePropertyWithTemporaryFile(extension, data, property) {
   if (data[property]) {
     return files.saveToTemporaryFile(extension, data[property]).then(function (filepath) {
-      let name = _.last(filepath.split('/')),
+      let name = _.last(filepath.split(path.sep)),
         route = require('./services/server').addTemporaryFileRoute(filepath, '/' + name);
 
       log('info', 'new plot served from', route);
