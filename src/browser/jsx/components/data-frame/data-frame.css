@@ -1,3 +1,7 @@
+.data-frame-container {
+  overflow: hidden;
+}
+
 .data-frame-container .data-frame-loading-icon {
   position: absolute;
   top: calc(50% - 20px);
