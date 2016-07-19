@@ -14,7 +14,7 @@ Eventify.enable(observer);
  * Other things that resize should trigger this observer event as well
  */
 function triggerOnResize() {
-  window.addEventListener('focus', () => observer.trigger('resize'));
+  window.addEventListener('focus', () =>  observer.trigger('resize'));
   window.addEventListener('resize', () => observer.trigger('resize'));
 }
 

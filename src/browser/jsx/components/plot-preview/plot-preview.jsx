@@ -35,10 +35,10 @@ export default React.createClass({
     }
 
     return (
-      <section className="plot-viewer">
+      <section className="plot-preview">
         {getActivePlotComponent(focusedPlot)}
 
-        <nav className="plot-viewer-minimap">
+        <nav>
           {props.plots.map((plot) => {
             return <BackgroundPlot key={plot.id} onClick={props.onItemClick} {...plot} />;
           })}

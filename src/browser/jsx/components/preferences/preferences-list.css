@@ -53,7 +53,7 @@
   padding-right: 0;
   padding-left: 0;
   flex: 1 1 400px;
-  overflow: scroll;
+  overflow: auto;
   display: flex;
   flex-direction: column;
   border-left: #eee solid 1px;

@@ -22,6 +22,9 @@ function startPrompt(jqConsole) {
 
     jqConsole.Prompt(true, (input) => dispatch(execute(input, nextPrompt)));
 
+    client.guaranteeInstance()
+      .catch(error => dispatch(errorCaught(error)));
+
     _.defer(() => {
       if (inputBuffer.length && jqConsole.GetState() === 'prompt') {
         console.log('running buffer', _.map(inputBuffer, 'text'));
