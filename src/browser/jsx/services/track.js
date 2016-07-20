@@ -146,7 +146,7 @@ trackPiwik = (function () {
   const piwikApiVersion = 1,
     idSite = 1,
     mockUrl = 'http://rodeo.yhat.com',
-    metricsUrl = 'http://lasso.s.yhat.com/piwik.php';
+    metricsUrl = 'https://lasso.s.yhat.com/piwik.php';
 
   /**
    * @param {TrackingEvent} event
