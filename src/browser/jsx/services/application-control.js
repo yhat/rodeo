@@ -39,7 +39,6 @@ function createWindow(name, options) {
 function shareAction(action) {
   // only share action if we're the original creator
   if (!action.senderName) {
-    console.log('shareAction', action.type, action);
     return send('shareAction', action);
   }
 }
