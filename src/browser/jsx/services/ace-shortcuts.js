@@ -110,9 +110,12 @@ function autocomplete(instance, tabSize) {
           start: {row: pos.row, column: pos.column - 1},
           end: {row: pos.row, column: pos.column}
         }),
+        selectedText = editor.getSelectedText(),
         line = editor.session.getLine(editor.getCursorPosition().row);
 
-      if (/from /.test(line) || /import /.test(line) || (text != ' ' && text != '')) {
+      if (selectedText) {
+        editor.blockIndent(editor.getSelectionRange());
+      } else if (/from /.test(line) || /import /.test(line) || (text != ' ' && text != '')) {
         Autocomplete.startCommand.exec(editor);
       } else {
         editor.insert(_.repeat(' ', tabSize));
@@ -140,7 +143,7 @@ function saveFile(instance, fn) {
 function outdent(instance) {
   instance.commands.addCommand({
     name: 'outSelection',
-    bindKey: {win: 'ctrl-\[', mac: 'Command-\['},
+    bindKey: {win: 'ctrl-\[|Shift-Tab', mac: 'Command-\[|Shift-Tab'},
     exec: function (editor) {
       if (editor.getSelectedText()) {
         editor.blockOutdent(editor.getSelectionRange());
