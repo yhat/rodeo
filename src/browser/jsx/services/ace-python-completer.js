@@ -22,8 +22,6 @@ export default {
     const code = session.getValue(),
       cursorPos = textUtil.getCursorPosFromRowColumn(code, pos.row, pos.column);
 
-    console.log({editor, session, pos, prefix, callback});
-
     return client.getAutoComplete(code, cursorPos).then(function (result) {
 
       const matchLen = result.cursor_end - result.cursor_start,
@@ -35,8 +33,6 @@ export default {
           row: pos.row,
           column: pos.column + matchLen
         }});
-
-      console.log({prefix, matchPrefix, postfix, result, callback});
 
       // remove matches that are not really matches
       if (prefix) {
@@ -96,9 +92,7 @@ export default {
     client.executeHidden('?' + item.caption, 'execute_reply').then(function (result) {
       const text = _.get(result, 'payload[0].data["text/plain"]'),
         el = document.querySelector('#' + id);
-
-      console.log('executeHidden', '?' + item.caption, 'execute_reply', result);
-
+      
       if (text && el) {
         el.style.display = 'block';
         el.style.opacity = 0;

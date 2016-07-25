@@ -45,8 +45,6 @@ describe(__filename, function () {
       client.getAutoComplete.mockReturnValueOnce(bluebird.resolve(result));
 
       return lib.getCompletions(editor, session, pos, prefix, callback).then(function () {
-        console.log('callback call', callback.mock.calls[0]);
-
         expect(callback.mock.calls[0]).toEqual([null, [{ caption: 'hi', value: 'hi', score: 100, meta: null }]]);
       });
     });
