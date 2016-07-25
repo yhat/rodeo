@@ -1,19 +1,17 @@
-/* globals describe, it */
-import { expect } from 'chai';
-import lib from '../../../src/browser/jsx/services/store';
-import sinon from 'sinon';
-import MockStorage from '../../mocks/classes/storage';
+/* globals describe, it, expect, jest */
+
+jest.unmock('../../src/browser/jsx/services/store');
+import lib from '../../src/browser/jsx/services/store';
+import MockStorage from 'storage';
 
 describe(__filename, function () {
-  let sandbox, mockStorage;
+  let mockStorage;
 
   beforeEach(function () {
-    sandbox = sinon.sandbox.create();
     mockStorage = new MockStorage();
   });
 
   afterEach(function () {
-    sandbox.restore();
   });
 
   describe('get', function () {
@@ -21,27 +19,27 @@ describe(__filename, function () {
       mockStorage.setStore({});
       const store = new lib.Store(mockStorage);
 
-      expect(store.get('hi')).to.equal(null);
+      expect(store.get('hi')).toEqual(null);
     });
 
     it('returns string when key with string is found', function () {
       mockStorage.setStore({thing: 'thing value'});
       const store = new lib.Store(mockStorage);
 
-      expect(store.get('thing')).to.equal('thing value');
+      expect(store.get('thing')).toEqual('thing value');
     });
 
     it('returns object when key with string is JSON', function () {
       mockStorage.setStore({thing: '{}'});
       const store = new lib.Store(mockStorage);
 
-      expect(store.get('thing')).to.deep.equal({});
+      expect(store.get('thing')).toEqual({});
     });
 
     it('throws if key is not camelCase', function () {
       expect(function () {
         lib.get('hey there');
-      }).to.throw();
+      }).toThrow();
     });
   });
 
@@ -49,7 +47,7 @@ describe(__filename, function () {
     it('returns undefined', function () {
       const store = new lib.Store(mockStorage);
 
-      expect(store.set('hi', 'hi again')).to.equal(undefined);
+      expect(store.set('hi', 'hi again')).toEqual(undefined);
     });
 
     it('sets key with value', function () {
@@ -59,7 +57,7 @@ describe(__filename, function () {
       store = new lib.Store(mockStorage);
 
       store.set('thing', 'thing value');
-      expect(data).to.deep.equal({thing: 'thing value'});
+      expect(data).toEqual({thing: 'thing value'});
     });
 
     it('converts objects to JSON', function () {
@@ -69,7 +67,7 @@ describe(__filename, function () {
       store = new lib.Store(mockStorage);
 
       store.set('thing', {a: 'b'});
-      expect(data).to.deep.equal({thing: '{"a":"b"}'});
+      expect(data).toEqual({thing: '{"a":"b"}'});
     });
 
     it('throws if key is not camelCase', function () {
@@ -77,7 +75,7 @@ describe(__filename, function () {
 
       expect(function () {
         store.set('hey there');
-      }).to.throw();
+      }).toThrow();
     });
   });
 });

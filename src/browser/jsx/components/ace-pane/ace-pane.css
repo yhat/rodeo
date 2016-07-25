@@ -1,3 +1,25 @@
 .ace-pane {
   height: 100%;
 }
+
+div.ace_tooltip {
+  background: initial;
+  border: 0;
+  padding: 0;
+  margin: 0;
+  box-shadow: none;
+}
+
+div.ace_editor.ace_autocomplete {
+  box-shadow: 2px 5px 10px rgba(0, 0, 0, .2);
+  width: 320px;
+}
+
+.rodeo-ace-pane-docstring {
+  background: #f3f9ff;
+  border: 1px solid #cde7fe;
+  padding: 3px;
+  margin-left: 3px;
+  box-shadow: 2px 5px 10px #aaafb3;
+  transition: opacity 0.2s;
+}

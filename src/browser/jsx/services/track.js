@@ -120,7 +120,7 @@ function reportError(error) {
  * @returns {Promise}
  */
 function send(metricsUrl, metrics) {
-  return new Promise(function (resolve, reject) {
+  return new bluebird(function (resolve, reject) {
     const url = metricsUrl + '?' + serialize(metrics);
 
     if (navigator.onLine === true) {

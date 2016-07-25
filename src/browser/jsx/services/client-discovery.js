@@ -41,7 +41,7 @@ function getSystemFacts() {
     });
   }
 
-  return Promise.resolve(systemFacts);
+  return bluebird.resolve(systemFacts);
 }
 
 /**
@@ -58,7 +58,7 @@ function getAppVersion() {
     });
   }
 
-  return Promise.resolve(systemFacts);
+  return bluebird.resolve(systemFacts);
 }
 
 function getUserId() {

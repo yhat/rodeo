@@ -170,7 +170,7 @@ function indent(instance) {
 
 function interrupt(instance, fn) {
   instance.commands.addCommand({
-    name: 'instance',
+    name: 'interrupt',
     bindKey: {win: 'ctrl-shift-c', mac: 'ctrl-c'},
     exec: editor => fn(editor)
   });

@@ -1,8 +1,5 @@
-import _ from 'lodash';
 import React from 'react';
-import {createStore, applyMiddleware} from 'redux';
 import {Provider} from 'react-redux';
-import thunk from 'redux-thunk';
 
 import FullScreen from '../components/full-screen/full-screen.jsx';
 import StudioLayout from './studio-layout/studio-layout.jsx';
@@ -15,9 +12,9 @@ import ipcDispatcher from '../services/ipc-dispatcher';
 import kernelActions from '../actions/kernel';
 import dialogActions from '../actions/dialogs';
 import applicationControl from '../services/application-control';
+import reduxStore from '../services/redux-store';
 
-const createStoreWithMiddleware = applyMiddleware(thunk)(createStore),
-  store = createStoreWithMiddleware(rootReducer, initialState.getState());
+const store = reduxStore.create(rootReducer, initialState.getState());
 
 ipcDispatcher(store.dispatch);
 
@@ -27,9 +24,6 @@ store.dispatch(dialogActions.showRegisterRodeo());
 
 // no visual for this please
 applicationControl.checkForUpdates();
-
-// log every change to the store (this has performance implications, of course).
-store.subscribe(_.debounce(() => console.log('store', store.getState()), 500));
 
 /**
  * Expose the global application state/store in two ways:

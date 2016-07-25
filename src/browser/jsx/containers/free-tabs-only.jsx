@@ -1,23 +1,17 @@
-import _ from 'lodash';
 import React from 'react';
-import {createStore, applyMiddleware} from 'redux';
 import {Provider} from 'react-redux';
-import thunk from 'redux-thunk';
 
 import cid from '../services/cid';
 import FullScreen from '../components/full-screen/full-screen.jsx';
 import FreeTabGroup from './free-tab-group/free-tab-group.jsx';
 import ipcDispatcher from '../services/ipc-dispatcher';
 import rootReducer from './free-tabs-only.reducer';
+import reduxReducer from '../services/redux-store';
 
 const groupId = cid(),
-  createStoreWithMiddleware = applyMiddleware(thunk)(createStore),
-  store = createStoreWithMiddleware(rootReducer, {freeTabGroups: [{groupId: groupId, items: []}]});
+  store = reduxReducer.create(rootReducer, {freeTabGroups: [{groupId: groupId, items: []}]});
 
 ipcDispatcher(store.dispatch);
-
-// log every change to the store (this has performance implications, of course).
-store.subscribe(_.debounce(() => console.log('store', store.getState()), 500));
 
 /**
  * Expose the global application state/store in two ways:
