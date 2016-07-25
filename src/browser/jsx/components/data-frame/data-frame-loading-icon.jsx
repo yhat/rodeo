@@ -1,3 +1,4 @@
+import _ from 'lodash';
 import React from 'react';
 
 /**
@@ -14,15 +15,20 @@ export default React.createClass({
     return {};
   },
   componentDidMount: function () {
+    _.defer(() => this.setState({
+      hasRendered: true
+    }));
+  },
+  hasRendered: function () {
     this.setState({
-      hasRenderedBefore: true
+      hasRendered: true
     });
   },
   render: function () {
     const props = this.props,
       state = this.state,
       style = {
-        opacity: props.isLoading && state.hasRenderedBefore ? 1 : 0
+        opacity: props.isLoading && state.hasRendered ? 1 : 0
       };
 
     return (

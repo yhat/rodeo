@@ -1,21 +1,15 @@
-import _ from 'lodash';
 import React from 'react';
 import SetupViewer from './setup-viewer/setup-viewer.jsx';
-import {createStore, applyMiddleware} from 'redux';
 import {Provider} from 'react-redux';
-import thunk from 'redux-thunk';
 import FullScreen from '../components/full-screen/full-screen.jsx';
 import kernelActions from '../actions/kernel';
 import rootReducer from './startup.reducer';
+import reduxStore from '../services/redux-store';
 import './startup.css';
 
-const createStoreWithMiddleware = applyMiddleware(thunk)(createStore),
-  store = createStoreWithMiddleware(rootReducer);
+const store = reduxStore.create(rootReducer);
 
 store.dispatch(kernelActions.detectKernel());
-
-// log every change to the store (this has performance implications, of course).
-store.subscribe(_.debounce(() => console.log('store', store.getState()), 500));
 
 /**
  * @class Startup
@@ -23,6 +17,13 @@ store.subscribe(_.debounce(() => console.log('store', store.getState()), 500));
  */
 export default React.createClass({
   displayName: 'Startup',
+  getInitialState: function () {
+    const store = reduxStore.create(rootReducer);
+
+    store.dispatch(kernelActions.detectKernel());
+
+    return {store};
+  },
   render: function () {
     return (
       <Provider store={store}>

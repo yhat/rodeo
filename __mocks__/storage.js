@@ -24,12 +24,4 @@ class MockStorage {
   }
 }
 
-Object.defineProperty(window, 'localStorage', {
-  value: new MockStorage()
-});
-
-Object.defineProperty(window, 'sessionStorage', {
-  value: new MockStorage()
-});
-
 export default MockStorage;

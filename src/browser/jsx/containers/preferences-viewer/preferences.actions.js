@@ -1,4 +1,5 @@
 import _ from 'lodash';
+import bluebird from 'bluebird';
 import {local} from '../../services/store';
 import kernel from '../../actions/kernel';
 
@@ -23,7 +24,7 @@ export function changePreference(item, value) {
     if (item && _.isArray(item.change) && _.includes(item.change, 'restartPython')) {
       return dispatch(kernel.restart());
     }
-    return Promise.resolve();
+    return bluebird.resolve();
   };
 }
 

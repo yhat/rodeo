@@ -126,6 +126,10 @@ function interrupt(instance) {
   return send('interrupt', instance);
 }
 
+function getInspection(instance, code, cursorPos, detailLevel) {
+  return send('getInspection', instance, code, cursorPos, detailLevel);
+}
+
 /**
  * Run the prepended function before the original function.
  * @param {function} prependedFn
@@ -157,6 +161,7 @@ export default _.assign({
   execute,
   executeHidden,
   interrupt,
+  getInspection,
   getAutoComplete,
   getVariables,
   killInstance,

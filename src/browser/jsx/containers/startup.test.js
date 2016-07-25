@@ -1,16 +1,22 @@
-const expect = require('chai').expect,
-  React = require('react/addons'),
-  TestUtils = React.addons.TestUtils;
+import {expect} from 'chai';
+import sinon from 'sinon';
+import React from 'react';
+import TestUtils from 'react-addons-test-utils';
+import Startup from './startup.jsx';
+import SetupViewer from './setup-viewer/setup-viewer.jsx';
 
 describe('startup', function () {
-  let shallowRenderer, Startup;
-
-  before(function () {
-    Startup = window.Startup;
-  });
+  let shallowRenderer, sandbox;
 
   beforeEach(function () {
+    sandbox = sinon.sandbox.create();
+
+    sandbox.stub(SetupViewer);
     shallowRenderer = TestUtils.createRenderer();
+  });
+
+  afterEach(function () {
+    sandbox.restore();
   });
 
   describe('getInitialState', function () {

@@ -22,7 +22,15 @@ import chai, {expect} from 'chai';
 import chaiAsPromised from 'chai-as-promised';
 chai.use(chaiAsPromised);
 
-const persistent = true;
+import MockAce from './mocks/ace';
+import MockIpc from './mocks/ipc';
+import MockStorage from './mocks/storage';
+
+const persistent = true,
+  mocks = {
+    ace: MockAce,
+    ipc: MockIpc
+  };
 
 // Environment setup (used by Babel as well, see .babelrc)
 process.env['NODE_ENV'] = 'test';
@@ -44,9 +52,12 @@ Function.prototype.ensure = (arr, func) => func();
  * @returns {*}
  */
 Module.prototype.require = function (path) {
-  const types = /\.(s?css|sass|less|svg|html|png|jpe?g|gif)$/;
+  console.log('requiring', path);
+
+  const types = /\.(s?css|sass|less|svg|html|png|jpe?g|gif|md)$/;
 
   if (path.search(types) !== -1) return;
+  if (mocks[path]) return mocks[path];
 
   // Mimics Webpack's "alias" feature
   if (path === 'config') {
@@ -63,6 +74,9 @@ Module.prototype.require = function (path) {
 (function () {
   let doc = jsdom.jsdom('<!doctype html><html><body></body></html>'),
     win = doc.defaultView;
+
+  win.localStorage = new MockStorage();
+  win.sessionStorage = new MockStorage();
 
   // set globals for mocha that make access to document and window feel
   // natural in the test environment
@@ -109,7 +123,7 @@ Module.prototype.require = function (path) {
    * @param  {string} a glob of files to watch
    * @param  {object} settings
    */
-  chokidar.watch('test/browser/services/**/*.js', {persistent})
+  chokidar.watch('src/browser/jsx/**/*.test.js', {persistent})
     .on('add', function (filePath) {
       console.log('add', {filePath});
       fileList.push(filePath);
@@ -123,7 +137,7 @@ Module.prototype.require = function (path) {
       runSuite();
     });
 
-  chokidar.watch('src/browser/**/*.js', {persistent})
+  chokidar.watch('src/browser/jsx/**/*.js', {persistent})
     .on('change', function (filePath) {
       console.log('change', {filePath});
       runSuite();
