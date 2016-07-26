@@ -29,12 +29,6 @@ function handleMatch(context) {
       value = prefix + match.substr(matchPrefix.length);
     }
 
-    // if it's not a filename and there's a '.' in the value, we want
-    // to set the value to just the last item in the list
-    if (value.indexOf('/') == -1 && value.indexOf('.') > -1) {
-      value = value.split('.').slice(value.split('.').length - 1).join('.');
-    }
-
     if (value !== match) {
       meta = match;
     }
@@ -104,6 +98,7 @@ export default {
       callback(null, _.map(result.matches, handleMatch({
         prefix,
         postfix,
+        matchPrefix,
         pos,
         cursorPos,
         result,
