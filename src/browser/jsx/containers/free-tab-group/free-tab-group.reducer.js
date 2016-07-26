@@ -45,7 +45,7 @@ function focusTab(state, action) {
     group = state[groupIndex],
     items = group && group.items,
     targetIndex = _.findIndex(items, {id: action.id}),
-    targetItem = targetIndex && items && items[targetIndex];
+    targetItem = items && items[targetIndex];
 
   if (!targetItem || targetItem.hasFocus) {
     return state;
@@ -77,7 +77,7 @@ function moveTab(oldState, action) {
     toGroup = state[_.findIndex(state, {groupId: action.toGroupId})],
     fromGroup = state[_.findIndex(state, {groupId: action.fromGroupId})],
     fromGroupItemIndex = fromGroup && _.findIndex(fromGroup.items, {id: action.id}),
-    removedItems = fromGroup && fromGroup.items.splice(fromGroupItemIndex, 1);
+    removedItems = fromGroup && fromGroupItemIndex !== -1 && fromGroup.items.splice(fromGroupItemIndex, 1);
 
   if (!toGroup) {
     return oldState;
