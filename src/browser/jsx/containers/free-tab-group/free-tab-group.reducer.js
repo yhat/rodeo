@@ -2,7 +2,7 @@ import _ from 'lodash';
 import cid from '../../services/cid';
 import Immutable from 'seamless-immutable';
 import mapReducers from '../../services/map-reducers';
-import commonTabReducers from '../../services/common-tabs-reducers';
+import commonTabsReducers from '../../services/common-tabs-reducers';
 
 const initialState = Immutable.from([]);
 
@@ -53,53 +53,12 @@ function moveTab(oldState, action) {
 }
 
 /**
- * @param {object} oldState
+ * @param {Array} state
  * @param {object} action
- * @returns {object}
+ * @returns {Array}
  */
-function createTab(oldState, action) {
-  const state = _.cloneDeep(oldState);
-  let group = state[_.findIndex(state, {groupId: action.groupId})];
-
-  if (!group) {
-    group = _.head(state);
-  }
-
-  if (group) {
-    const item = _.omit(action, 'type');
-
-    group.items.push(item);
-  }
-
-  return state;
-}
-
-/**
- * @param {object} oldState
- * @param {object} action
- * @returns {object}
- */
-function closeTab(oldState, action) {
-  const state = _.cloneDeep(oldState);
-  let groupIndex = _.findIndex(state, {groupId: action.groupId}),
-    group = state[groupIndex],
-    itemIndex = group && _.findIndex(group.items, {id: action.id});
-
-  if (groupIndex > -1 && itemIndex > -1) {
-    const item = _.find(group.items, {id: action.id});
-
-    if (item.id === group.active && group.items.length > 1) {
-      if (itemIndex === 0) {
-        group.active = group.items[1].id;
-      } else {
-        group.active = group.items[itemIndex - 1].id;
-      }
-    }
-
-    _.pull(group.items, item);
-  }
-
-  return state;
+function add(state, action) {
+  return commonTabsReducers.addItem(state, action, _.omit(action, 'type'));
 }
 
 /**
@@ -132,10 +91,10 @@ function addPlot(state, action) {
 }
 
 export default mapReducers({
-  CLOSE_TAB: closeTab,
-  CREATE_TAB: createTab,
+  CLOSE_TAB: commonTabsReducers.close,
+  ADD_TAB: add,
   FOCUS_PLOT: focusPlot,
-  FOCUS_TAB: commonTabReducers.focus,
+  FOCUS_TAB: commonTabsReducers.focus,
   MOVE_TAB: moveTab,
   IOPUB_DATA_DISPLAYED: addPlot
 }, initialState);

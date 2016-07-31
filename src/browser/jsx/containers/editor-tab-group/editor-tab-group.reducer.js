@@ -37,9 +37,7 @@ function getDefault() {
  * @returns {Array}
  */
 function add(state, action) {
-  const groupId = action.groupId,
-    groupIndex = _.findIndex(state, {groupId}),
-    newItem = getDefault();
+  const newItem = getDefault();
 
   if (action.filename) {
     newItem.filename = action.filename;
@@ -50,41 +48,7 @@ function add(state, action) {
     }
   }
 
-  state = state.updateIn([groupIndex, 'tabs'], tabs => {
-    return tabs.push(newItem);
-  });
-
-  state = state.setIn([groupIndex, 'active'], newItem.id);
-
-  return state;
-}
-
-/**
- * @param {Array} state
- * @param {object} action
- * @returns {Array}
- */
-function remove(state, action) {
-  state = _.cloneDeep(state);
-  let group = _.head(state),
-    items = group.items,
-    targetIndex = _.findIndex(items, {id: action.id}),
-    targetItem = items[targetIndex];
-
-  // only allow removal if they have more than one item
-  if (targetItem && items.length > 1) {
-    items = _.pull(items, targetItem);
-
-    if (group.active === targetItem.id) {
-      if (targetIndex === 0 && items[0]) {
-        group.active = items[0].id;
-      } else {
-        group.active = items[targetIndex - 1].id;
-      }
-    }
-  }
-
-  return state;
+  return commonTabsReducers.addItem(state, action, newItem);
 }
 
 /**
@@ -166,7 +130,7 @@ function changePreference(state, action) {
 
 export default mapReducers({
   ADD_TAB: add,
-  CLOSE_FILE: remove,
+  CLOSE_TAB: commonTabsReducers.close,
   FOCUS_TAB: commonTabsReducers.focus,
   FILE_IS_SAVED: fileSaved,
   CLOSE_ACTIVE_FILE: closeActive,

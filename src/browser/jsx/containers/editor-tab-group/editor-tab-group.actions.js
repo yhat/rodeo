@@ -25,11 +25,12 @@ export function focus(groupId, id) {
 }
 
 /**
+ * @param {string} groupId
  * @param {string} id
  * @returns {{type: string, id: string}}
  */
-export function closeFile(id) {
-  return {type: 'CLOSE_FILE', id};
+export function close(groupId, id) {
+  return {type: 'CLOSE_TAB', groupId, id};
 }
 
 /**
@@ -149,7 +150,7 @@ export default {
   add,
   focus,
   focusActive,
-  closeFile,
+  close,
   fileIsSaved,
   saveActiveFile,
   showSaveFileDialogForActiveFile,
