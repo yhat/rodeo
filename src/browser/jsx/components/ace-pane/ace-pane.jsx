@@ -7,6 +7,7 @@ import { send } from 'ipc';
 import aceShortcuts from '../../services/ace-shortcuts';
 import aceSettings from '../../services/ace-settings';
 import commonReact from '../../services/common-react';
+import globalObserver from '../../services/global-observer';
 
 /**
  * @class AcePane
@@ -36,15 +37,6 @@ export default React.createClass({
     theme: React.PropTypes.string
   },
   statics: {
-    /**
-     * @methodOf AcePane
-     * @static
-     */
-    resizeAll: function () {
-      _.each(document.querySelectorAll('.ace-pane'), function (el) {
-        ace.edit(el).resize();
-      });
-    },
     /**
      * @param {Element} el
      * @methodOf AcePane
@@ -89,6 +81,8 @@ export default React.createClass({
     aceShortcuts.liftFile(instance, props.onLiftFile);
     aceShortcuts.openPreferences(instance, props.onOpenPreferences);
 
+    globalObserver.on('resize', this.resize, this);
+
     _.defer(() => instance.resize());
 
     // if filename, load filename into instance
@@ -103,10 +97,18 @@ export default React.createClass({
 
     aceSettings.applyDynamicSettings(instance, props, oldProps);
   },
+  componentWillUnmount: function () {
+    globalObserver.off(null, null, this);
+  },
   focus: function () {
     const instance = ace.edit(ReactDOM.findDOMNode(this));
 
     _.defer(() =>instance.focus());
+  },
+  resize: function () {
+    const instance = ace.edit(ReactDOM.findDOMNode(this));
+
+    instance.resize();
   },
   loadContentFromFile: function () {
     const props = this.props,

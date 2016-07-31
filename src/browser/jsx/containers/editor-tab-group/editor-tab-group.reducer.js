@@ -1,20 +1,19 @@
 import _ from 'lodash';
 import Immutable from 'seamless-immutable';
-import AcePane from '../../components/ace-pane/ace-pane.jsx';
 import cid from '../../services/cid';
 import mapReducers from '../../services/map-reducers';
 import {local} from '../../services/store';
 import initialStory from 'raw!./initial-story.py';
+import commonTabsReducers from '../../services/common-tabs-reducers';
 
-const refreshPanes = _.throttle(() => AcePane.resizeAll(), 50),
-  initialState = getFirst();
+const initialState = getFirst();
 
 function getFirst() {
   const first = getDefault();
 
   first.initialValue = initialStory;
 
-  return Immutable.from([{groupId: 'top-left', active: first.id, items: [first]}]);
+  return Immutable([{groupId: 'top-left', active: first.id, items: [first]}]);
 }
 
 function getDefault() {
@@ -38,9 +37,8 @@ function getDefault() {
  * @returns {Array}
  */
 function add(state, action) {
-  state = _.cloneDeep(state);
-  let group = _.head(state),
-    items = group.items,
+  const groupId = action.groupId,
+    groupIndex = _.findIndex(state, {groupId}),
     newItem = getDefault();
 
   if (action.filename) {
@@ -52,8 +50,11 @@ function add(state, action) {
     }
   }
 
-  items.push(newItem);
-  group.active = newItem.id;
+  state = state.updateIn([groupIndex, 'tabs'], tabs => {
+    return tabs.push(newItem);
+  });
+
+  state = state.setIn([groupIndex, 'active'], newItem.id);
 
   return state;
 }
@@ -83,38 +84,6 @@ function remove(state, action) {
     }
   }
 
-  return state;
-}
-
-/**
- * @param {Array} state
- * @param {object} action
- * @returns {Array}
- */
-function focus(state, action) {
-  // if id, set active to id
-  const group = _.head(state),
-    items = group.items,
-    targetIndex = _.findIndex(items, {id: action.id}),
-    targetItem = items[targetIndex];
-
-  if (targetItem && targetItem.id !== group.active) {
-    // focus on item
-    state = _.cloneDeep(state);
-    const newGroup = _.head(state);
-
-    newGroup.active = action.id;
-  }
-
-  return state;
-}
-
-/**
- * @param {Array} state
- * @returns {Array}
- */
-function splitPaneDrag(state) {
-  refreshPanes();
   return state;
 }
 
@@ -196,12 +165,11 @@ function changePreference(state, action) {
 }
 
 export default mapReducers({
-  ADD_FILE: add,
+  ADD_TAB: add,
   CLOSE_FILE: remove,
-  FOCUS_FILE: focus,
+  FOCUS_TAB: commonTabsReducers.focus,
   FILE_IS_SAVED: fileSaved,
   CLOSE_ACTIVE_FILE: closeActive,
-  SPLIT_PANE_DRAG: splitPaneDrag,
   MOVE_ONE_RIGHT: _.partialRight(shiftFocus, +1),
   MOVE_ONE_LEFT: _.partialRight(shiftFocus, -1),
   CHANGE_PREFERENCE: changePreference

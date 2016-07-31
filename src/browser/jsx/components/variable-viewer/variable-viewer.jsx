@@ -35,8 +35,8 @@ export default React.createClass({
     };
   },
   componentDidMount: function () {
-    _.defer(() => this.onResize());
-    globalObserver.on('resize', this.onResize, this);
+    _.defer(() => this.resize());
+    globalObserver.on('resize', this.resize, this);
   },
   shouldComponentUpdate: function (nextProps, nextState) {
     // children don't matter for this component
@@ -53,7 +53,7 @@ export default React.createClass({
 
     this.setState({columnWidths});
   },
-  onResize: function () {
+  resize: function () {
     const el = ReactDOM.findDOMNode(this),
       height = el.parentNode.offsetHeight,
       width = el.offsetWidth;

@@ -5,20 +5,23 @@ import {local} from '../../services/store';
 import {errorCaught} from '../../actions/application';
 
 /**
+ * @param {string} groupId
+ * @param {string} id
  * @param {string} [filename]
  * @param {object} [stats]
  * @returns {{type: string, filename: string, stats: object}}
  */
-export function addFile(filename, stats) {
-  return {type: 'ADD_FILE', filename, stats};
+export function add(groupId, id, filename, stats) {
+  return {type: 'ADD_TAB', groupId, id, filename, stats};
 }
 
 /**
+ * @param {string} groupId
  * @param {string} id
- * @returns {{type: string, id: string}}
+ * @returns {{type: string, groupId: string, id: string}}
  */
-export function focusFile(id) {
-  return {type: 'FOCUS_FILE', id};
+export function focus(groupId, id) {
+  return {type: 'FOCUS_TAB', groupId, id};
 }
 
 /**
@@ -124,25 +127,28 @@ export function showOpenFileDialogForActiveFile() {
   };
 }
 
-function focus() {
+function focusActive() {
   return function (dispatch, getState) {
-    const state = getState(),
-      group = _.head(state.editorTabGroups),
-      items = group.items,
-      focusedAce = state && _.find(items, {id: group.active}),
-      el = focusedAce && document.querySelector('#' + focusedAce.id),
-      aceInstance = el && ace.edit(el);
+    let group, groupId, focusedAce, el, aceInstance;
+    const state = getState();
 
-    aceInstance.focus();
+    group = _.head(state.editorTabGroups);
+    groupId = group.groupId;
+    focusedAce = state && _.find(group.items, {id: group.active});
+    el = focusedAce && document.querySelector('#' + focusedAce.id);
+    aceInstance = el && ace.edit(el);
+    dispatch(focus(groupId, group.active));
 
-    dispatch(focusFile(focusedAce.id));
+    if (aceInstance) {
+      aceInstance.focus();
+    }
   };
 }
 
 export default {
-  addFile,
+  add,
   focus,
-  focusFile,
+  focusActive,
   closeFile,
   fileIsSaved,
   saveActiveFile,

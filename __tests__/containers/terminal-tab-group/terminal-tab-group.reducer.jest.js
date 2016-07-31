@@ -7,7 +7,7 @@ jest.unmock('../../../src/browser/jsx/containers/terminal-tab-group/terminal-tab
 import Immutable from 'seamless-immutable';
 import lib from '../../../src/browser/jsx/containers/terminal-tab-group/terminal-tab-group.reducer';
 
-describe('TerminalTabReducer', () => {
+describe(__filename, () => {
   describe('FOCUS_TAB', () => {
     it('focuses', () => {
       const state = Immutable([{groupId: 'a', tabs: [{id: 'b'}]}]),

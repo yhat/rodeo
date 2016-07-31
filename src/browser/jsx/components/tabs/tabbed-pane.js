@@ -4,11 +4,6 @@ import TabbedPaneItem from './tabbed-pane-item.js';
 import TabContentList from './tab-content-list.jsx';
 import './tabbed-pane.css';
 import _ from 'lodash';
-import {getParentNodeOf} from '../../services/dom';
-import globalObserver from '../../services/global-observer';
-
-const draggableClass = 'tabbed-pane-draggable',
-  dropableClass = 'tabbed-pane-droppable';
 
 /**
  * @param {ReactElement} component

@@ -145,7 +145,7 @@
   },
   "jest": {
     "moduleNameMapper": {
-      ".*css": "<rootDir>/__mocks__/generic-stub.js"
+      "(raw!.*|.*css)": "<rootDir>/__mocks__/generic-stub.js"
     },
     "unmockedModulePathPatterns": [
       "<rootDir>/node_modules/bluebird/",
