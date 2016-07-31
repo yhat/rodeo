@@ -1,27 +1,15 @@
 import React from 'react';
 import {connect} from 'react-redux';
 import SplitPane from '../../components/split-pane/split-pane.jsx';
-import TabbedPane from '../../components/tabbed-pane/tabbed-pane.jsx';
-import TabbedPaneItem from '../../components/tabbed-pane/tabbed-pane-item.jsx';
 import EditorTabGroup from '../../containers/editor-tab-group/editor-tab-group.jsx';
-import Terminal from '../terminal/terminal.jsx';
+import TerminalTabGroup from '../../containers/terminal-tab-group/terminal-tab-group.jsx';
 import FreeTabGroup from '../../containers/free-tab-group/free-tab-group.jsx';
-import TabText from '../../components/tab-text/tab-text.jsx';
 import './studio-layout.css';
-import _ from 'lodash';
 import splitPaneActions from '../../components/split-pane/split-pane.actions';
 import editorTabGroupActions from '../../containers/editor-tab-group/editor-tab-group.actions';
 import dialogActions from '../../actions/dialogs';
 import kernelActions from '../../actions/kernel';
-import terminalActions from '../terminal/terminal.actions';
-
-/**
- * @param {object} state
- * @returns {object}
- */
-function mapStateToProps(state) {
-  return _.pick(state, ['acePanes', 'splitPanes', 'terminals', 'modalDialogs']);
-}
+import terminalActions from '../terminal-tab-group/terminal-tab-group.actions';
 
 /**
  * @param {function} dispatch
@@ -48,13 +36,10 @@ function mapDispatchToProps(dispatch) {
  * @extends ReactComponent
  * @property props
  */
-export default connect(mapStateToProps, mapDispatchToProps)(React.createClass({
+export default connect(state => state, mapDispatchToProps)(React.createClass({
   displayName: 'StudioLayout',
-  getInitialState: function () {
-    return {
-      topRightSearch: '',
-      bottomRightSearch: ''
-    };
+  shouldComponentUpdate: function (nextProps) {
+    return this.props !== nextProps;
   },
   render: function () {
     let props = this.props,
@@ -62,32 +47,13 @@ export default connect(mapStateToProps, mapDispatchToProps)(React.createClass({
 
     return (
       <SplitPane direction="left-right" id="split-pane-center">
-        <SplitPane direction="top-bottom" id="split-pane-left" onDrag={props.onSplitPaneDrag}>
+        <SplitPane direction="top-bottom" id="split-pane-left">
           <EditorTabGroup focusable={isFocusable} id="top-left"/>
-          <TabbedPane focusable={isFocusable}>
-
-            <TabText>{props.terminals[0].cwd}</TabText>
-
-            {props.terminals.map(function (item) {
-              return (
-                <TabbedPaneItem icon="terminal" id={item.tabId} key={item.id} label="Console">
-                  <Terminal
-                    focusable={isFocusable && item.cmd}
-                    key={item.id}
-                    onAutoComplete={props.onTerminalAutoComplete}
-                    onInterrupt={props.onInterrupt}
-                    onStart={props.onTerminalStart}
-                    {...item}
-                  />
-                </TabbedPaneItem>
-              );
-            })}
-
-          </TabbedPane>
+          <TerminalTabGroup focusable={isFocusable} id="bottom-left"/>
         </SplitPane>
         <SplitPane direction="top-bottom" id="split-pane-right">
-          <FreeTabGroup focusable={isFocusable} id="top-right" />
-          <FreeTabGroup focusable={isFocusable} id="bottom-right" />
+          <FreeTabGroup focusable={isFocusable} id="top-right"/>
+          <FreeTabGroup focusable={isFocusable} id="bottom-right"/>
         </SplitPane>
       </SplitPane>
     );

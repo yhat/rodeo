@@ -9,7 +9,7 @@ import rootReducer from './free-tabs-only.reducer';
 import reduxReducer from '../services/redux-store';
 
 const groupId = cid(),
-  store = reduxReducer.create(rootReducer, {freeTabGroups: [{groupId: groupId, items: []}]});
+  store = reduxReducer.create(rootReducer, {freeTabGroups: [{groupId: groupId, active: '', items: []}]});
 
 ipcDispatcher(store.dispatch);
 

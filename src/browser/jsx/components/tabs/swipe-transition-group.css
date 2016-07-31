@@ -1,0 +1,30 @@
+.swipe-transition-group {
+  overflow: hidden;
+  height: 100%;
+  width: 100%;
+}
+
+.swipe-transition-group-inner {
+  width: calc(100% * 2)
+}
+
+.swipe-transition-group > * {
+  display: none;
+  transition: transform 0.2s;
+}
+
+.swipe-transition-group .show {
+  display: block;
+}
+
+.swipe-transition-group > .coming {
+  transform: translate(200px, 0);
+}
+
+.swipe-transition-group .coming.ongoing {
+  transform: translate(0, 0);
+}
+
+.swipe-transition-group .going.ongoing {
+  transform: translate(-200px, 0);
+}

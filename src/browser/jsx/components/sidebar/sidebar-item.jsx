@@ -1,5 +1,6 @@
 import _ from 'lodash';
 import React from 'react';
+import commonReact from '../../services/common-react';
 
 /**
  * @class SidebarItem
@@ -18,6 +19,9 @@ export default React.createClass({
     return {
       onClick: _.noop
     };
+  },
+  shouldComponentUpdate(nextProps, nextState) {
+    return !commonReact.shallowCompare(this, nextProps, nextState);
   },
   render: function () {
     const props = this.props;

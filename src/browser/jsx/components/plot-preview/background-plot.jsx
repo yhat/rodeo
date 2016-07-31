@@ -2,6 +2,7 @@ import _ from 'lodash';
 import React from 'react';
 import htmlSplash from './html-flat.svg';
 import errorSplash from './document-error-flat.svg';
+import commonReact from '../../services/common-react';
 
 /**
  * @class BackgroundPlot
@@ -21,6 +22,9 @@ export default React.createClass({
       hasFocus: false,
       onClick: _.noop
     };
+  },
+  shouldComponentUpdate(nextProps, nextState) {
+    return !commonReact.shallowCompare(this, nextProps, nextState);
   },
   render: function () {
     const props = this.props,

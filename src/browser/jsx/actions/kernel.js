@@ -88,7 +88,7 @@ export function restart() {
 function detectKernelVariables() {
   return function (dispatch, getState) {
     const state = getState(),
-      terminal = _.find(state.terminals, {hasFocus: true}),
+      terminal = _.head(state.terminals),
       id = terminal.id;
 
     return client.getStatus().then(function (status) {
@@ -106,12 +106,13 @@ function detectKernelVariables() {
 export function executeActiveFileInActiveConsole() {
   return function (dispatch, getState) {
     const state = getState(),
-      items = _.head(state.editorTabGroups).items,
-      focusedAce = state && _.find(items, {hasFocus: true}),
+      group = _.head(state.editorTabGroups),
+      items = group.items,
+      focusedAce = state && _.find(items, {id: group.active}),
       el = focusedAce && document.querySelector('#' + focusedAce.id),
       aceInstance = el && ace.edit(el),
       filename = focusedAce.filename,
-      focusedTerminal = state && _.find(state.terminals, {hasFocus: true}),
+      focusedTerminal = state && _.head(state.terminals),
       id = focusedTerminal.id,
       content = aceInstance && aceInstance.getSession().getValue();
 
@@ -128,12 +129,17 @@ export function executeActiveFileInActiveConsole() {
 export function executeActiveFileSelectionInActiveConsole() {
   return function (dispatch, getState) {
     const state = getState(),
-      items = _.head(state.editorTabGroups).items,
-      focusedAce = state && _.find(items, {hasFocus: true}),
+      group = _.head(state.editorTabGroups),
+      items = group.items,
+      focusedAce = state && _.find(items, {id: group.active}),
       el = focusedAce && document.querySelector('#' + focusedAce.id),
       aceInstance = el && ace.edit(el);
 
-    aceInstance.commands.exec('liftSelection', aceInstance);
+    if (aceInstance) {
+      aceInstance.commands.exec('liftSelection', aceInstance);
+    } else {
+      dispatch(errorCaught(new Error('No active Ace instance')));
+    }
   };
 }
 

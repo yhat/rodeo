@@ -1,0 +1,11 @@
+ul.tab-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  position: relative;
+}
+
+ul.tab-list > li {
+  display: inline-block;
+  position: relative;
+}

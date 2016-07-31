@@ -1,4 +1,5 @@
 import _ from 'lodash';
+import Immutable from 'seamless-immutable';
 import AcePane from '../../components/ace-pane/ace-pane.jsx';
 import cid from '../../services/cid';
 import mapReducers from '../../services/map-reducers';
@@ -6,14 +7,14 @@ import {local} from '../../services/store';
 import initialStory from 'raw!./initial-story.py';
 
 const refreshPanes = _.throttle(() => AcePane.resizeAll(), 50),
-  initialState = [{groupId: 'top-left', items: [getFirst()]}];
+  initialState = getFirst();
 
 function getFirst() {
   const first = getDefault();
 
   first.initialValue = initialStory;
 
-  return first;
+  return Immutable.from([{groupId: 'top-left', active: first.id, items: [first]}]);
 }
 
 function getDefault() {
@@ -22,12 +23,10 @@ function getDefault() {
     mode: 'python',
     contentType: 'ace-pane',
     id: cid(),
-    tabId: cid(),
-    hasFocus: true,
     keyBindings: local.get('aceKeyBindings') || 'default',
     tabSpaces: _.toNumber(local.get('aceTabSpaces')) || 4,
     icon: 'file-code-o',
-    isCloseable: true,
+    closeable: true,
     fontSize: _.toNumber(local.get('fontSize')) || 12,
     theme: 'chrome'
   };
@@ -40,9 +39,8 @@ function getDefault() {
  */
 function add(state, action) {
   state = _.cloneDeep(state);
-  let items = _.head(state).items,
-    focusIndex = _.findIndex(items, {hasFocus: true}),
-    focusItem = items[focusIndex],
+  let group = _.head(state),
+    items = group.items,
     newItem = getDefault();
 
   if (action.filename) {
@@ -54,13 +52,8 @@ function add(state, action) {
     }
   }
 
-  // focus changed to new file
-
-  if (focusItem) {
-    focusItem.hasFocus = false;
-  }
-
   items.push(newItem);
+  group.active = newItem.id;
 
   return state;
 }
@@ -72,7 +65,8 @@ function add(state, action) {
  */
 function remove(state, action) {
   state = _.cloneDeep(state);
-  let items = _.head(state).items,
+  let group = _.head(state),
+    items = group.items,
     targetIndex = _.findIndex(items, {id: action.id}),
     targetItem = items[targetIndex];
 
@@ -80,11 +74,11 @@ function remove(state, action) {
   if (targetItem && items.length > 1) {
     items = _.pull(items, targetItem);
 
-    if (targetItem.hasFocus) {
+    if (group.active === targetItem.id) {
       if (targetIndex === 0 && items[0]) {
-        items[0].hasFocus = true;
+        group.active = items[0].id;
       } else {
-        items[targetIndex - 1].hasFocus = true;
+        group.active = items[targetIndex - 1].id;
       }
     }
   }
@@ -98,20 +92,21 @@ function remove(state, action) {
  * @returns {Array}
  */
 function focus(state, action) {
-  state = _.cloneDeep(state);
-  const items = _.head(state).items,
-    focusIndex = _.findIndex(items, {hasFocus: true}),
-    focusItem = items[focusIndex],
+  // if id, set active to id
+  const group = _.head(state),
+    items = group.items,
     targetIndex = _.findIndex(items, {id: action.id}),
     targetItem = items[targetIndex];
 
-  if (targetItem.hasFocus) {
-    return state;
-  } else {
-    targetItem.hasFocus = true;
-    focusItem.hasFocus = false;
-    return state;
+  if (targetItem && targetItem.id !== group.active) {
+    // focus on item
+    state = _.cloneDeep(state);
+    const newGroup = _.head(state);
+
+    newGroup.active = action.id;
   }
+
+  return state;
 }
 
 /**

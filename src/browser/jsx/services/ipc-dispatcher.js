@@ -6,7 +6,7 @@ import track from './track';
 import dialogActions from '../actions/dialogs';
 import applicationActions from '../actions/application';
 import editorTabGroupActions from '../containers/editor-tab-group/editor-tab-group.actions';
-import terminalActions from '../containers/terminal/terminal.actions';
+import terminalActions from '../containers/terminal-tab-group/terminal-tab-group.actions';
 import iopubActions from '../actions/iopub';
 import kernelActions from '../actions/kernel';
 import plotViewerActions from '../containers/plot-viewer/plot-viewer.actions';

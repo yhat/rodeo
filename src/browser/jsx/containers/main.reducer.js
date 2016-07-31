@@ -1,12 +1,12 @@
 import { combineReducers } from 'redux';
 import applicationControl from '../services/application-control';
 import splitPanes from '../components/split-pane/split-pane.reducer';
-import terminals from './terminal/terminal.reducer';
 import plots from './plot-viewer/plot-viewer.reducer';
 import fileView from './file-viewer/file-viewer.reducer';
 import modalDialogs from '../components/modal-dialog/modal-dialog.reducer';
 import sidebar from '../components/sidebar/sidebar.reducer';
 import notifications from '../components/notifications/notifications.reducer';
+import terminalTabGroups from './terminal-tab-group/terminal-tab-group.reducer';
 import freeTabGroups from './free-tab-group/free-tab-group.reducer';
 import editorTabGroups from './editor-tab-group/editor-tab-group.reducer';
 
@@ -36,22 +36,6 @@ export default combineReducers({
    */
   splitPanes,
   /**
-   * list! There could potentially be many of these in the future, connecting to different sessions or
-   * different environments.
-   */
-  terminals,
-  /**
-   *
-   * list! All the plots we know about, does _not_ store the actual plot, but refers to images or html files
-   * served from below.
-   */
-  plots,
-  /**
-   * singleton! Only one file view should ever be on the screen at the time for the sake of other components
-   * to interact and change themselves based on the state of the fileview.
-   */
-  fileView,
-  /**
    * stack! Modals are stacked up in order, and closed in order, FILO.
    */
   modalDialogs,
@@ -75,6 +59,10 @@ export default combineReducers({
    * in the editor.
    */
   editorTabGroups,
+  /**
+   * list! The tab and the terminals are tightly coupled so the tab can change its look based on the state of the terminal.
+   */
+  terminalTabGroups,
   /**
    * Unneeded. This just logs all the actions that pass through.
    */

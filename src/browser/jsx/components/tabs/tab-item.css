@@ -1,0 +1,50 @@
+.tab-item {
+  height: 24px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  min-width: 50px;
+  padding: 2px;
+  border: 1px solid #dddddd;
+  border-bottom: 2px solid #dddddd;
+  box-shadow: inset -1px -1px 2px #fff;
+  margin: 1px;
+  cursor: pointer;
+  transition: all 0.2s;
+  position: relative;
+}
+
+.tab-item .tab-label {
+  transition: all 0.2s;
+  color: #888;
+}
+
+.tab-item.active .tab-label {
+  transform: translate(0, -2px);
+  color: #222;
+}
+
+.tab-item .lift {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  height: 0;
+  width: 100%;
+  transition: height 0.2s;
+  background-color: red;
+}
+
+.tab-item.active .lift {
+  height: 2px;
+}
+
+
+
+.tab-item,
+.tab-item * {
+  -webkit-touch-callout: none; /* iOS Safari */
+  -webkit-user-select: none;   /* Chrome/Safari/Opera */
+  -moz-user-select: none;      /* Firefox */
+  -ms-user-select: none;       /* Internet Explorer/Edge */
+  user-select: none;           /* Non-prefixed version, currently
+                                  not supported by any browser */
+}

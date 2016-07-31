@@ -1,5 +1,6 @@
 import React from 'react';
 import './slideout-dialog.css';
+import commonReact from '../../services/common-react';
 
 const showClass = 'slideout-dialog-show';
 
@@ -13,6 +14,9 @@ export default React.createClass({
   propTypes: {
     isExpanded: React.PropTypes.bool,
     url: React.PropTypes.string
+  },
+  shouldComponentUpdate(nextProps, nextState) {
+    return !commonReact.shallowCompare(this, nextProps, nextState);
   },
   render: function () {
     const props = this.props,

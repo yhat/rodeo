@@ -1,37 +1,13 @@
 import _ from 'lodash';
 import React from 'react';
 import ReactDOM from 'react-dom';
-import {connect} from 'react-redux';
 import {Table, Column, Cell} from 'fixed-data-table-2';
 import 'fixed-data-table-2/dist/fixed-data-table.min.css';
-import variableViewerActions from './variable-viewer.actions';
+import shallowEqual from '../../services/shallow-equal';
 import globalObserver from '../../services/global-observer';
 import './variable-viewer.css';
 
 const structuredVariableTypes = ['DataFrame'];
-
-/**
- * @param {object} state
- * @returns {object}
- */
-function mapStateToProps(state) {
-  // pick the first terminal (we can add more later to this view?)
-  const terminal = _.head(state.terminals),
-    variables = terminal && terminal.variables,
-    splitPanes = state.splitPanes;
-
-  return _.pickBy({variables, splitPanes}, _.identity);
-}
-
-/**
- * @param {function} dispatch
- * @returns {object}
- */
-function mapDispatchToProps(dispatch) {
-  return {
-    onShowDataFrame: item => dispatch(variableViewerActions.showDataFrame(item))
-  };
-}
 
 /**
  * @class PackagesViewer
@@ -39,12 +15,12 @@ function mapDispatchToProps(dispatch) {
  * @property {object} state
  * @property {object} props
  */
-export default connect(mapStateToProps, mapDispatchToProps)(React.createClass({
+export default React.createClass({
   displayName: 'VariableViewer',
   propTypes: {
     filter: React.PropTypes.string,
-    splitPanes: React.PropTypes.object.isRequired,
-    variables: React.PropTypes.object
+    onShowDataFrame: React.PropTypes.func,
+    options: React.PropTypes.object
   },
   getInitialState: function () {
     return {
@@ -62,8 +38,10 @@ export default connect(mapStateToProps, mapDispatchToProps)(React.createClass({
     _.defer(() => this.onResize());
     globalObserver.on('resize', this.onResize, this);
   },
-  shouldComponentUpdate: function () {
-    return true;
+  shouldComponentUpdate: function (nextProps, nextState) {
+    // children don't matter for this component
+
+    return !shallowEqual(this.props, nextProps, _.isFunction) || shallowEqual(this.state, nextState);
   },
   componentWillUnmount: function () {
     globalObserver.off(null, null, this);
@@ -168,4 +146,4 @@ export default connect(mapStateToProps, mapDispatchToProps)(React.createClass({
       </div>
     );
   }
-}));
+});

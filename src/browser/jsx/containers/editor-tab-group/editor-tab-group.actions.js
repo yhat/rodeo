@@ -45,8 +45,9 @@ export function fileIsSaved(id, filename) {
 export function saveActiveFileAs(filename) {
   return function (dispatch, getState) {
     const state = getState(),
-      items = _.head(state.editorTabGroups).items,
-      focusedAce = state && _.find(items, {hasFocus: true}),
+      group = _.head(state.editorTabGroups),
+      items = group.items,
+      focusedAce = state && _.find(items, {id: group.active}),
       el = focusedAce && document.querySelector('#' + focusedAce.id),
       aceInstance = el && ace.edit(el),
       content = aceInstance && aceInstance.getSession().getValue();
@@ -62,8 +63,9 @@ export function saveActiveFileAs(filename) {
 export function saveActiveFile() {
   return function (dispatch, getState) {
     const state = getState(),
-      items = _.head(state.editorTabGroups).items,
-      focusedAce = state && _.find(items, {hasFocus: true}),
+      group = _.head(state.editorTabGroups),
+      items = group.items,
+      focusedAce = state && _.find(items, {id: group.active}),
       el = focusedAce && document.querySelector('#' + focusedAce.id),
       aceInstance = el && ace.edit(el),
       filename = focusedAce.filename,
@@ -87,8 +89,9 @@ export function saveActiveFile() {
 export function showSaveFileDialogForActiveFile() {
   return function (dispatch, getState) {
     const state = getState(),
-      items = _.head(state.editorTabGroups).items,
-      focusedAce = state && _.find(items, {hasFocus: true}),
+      group = _.head(state.editorTabGroups),
+      items = group.items,
+      focusedAce = state && _.find(items, {id: group.active}),
       title = 'Save File',
       defaultPath = focusedAce && focusedAce.filename ? focusedAce.filename : local.get('workingDirectory');
 
@@ -124,8 +127,9 @@ export function showOpenFileDialogForActiveFile() {
 function focus() {
   return function (dispatch, getState) {
     const state = getState(),
-      items = _.head(state.editorTabGroups).items,
-      focusedAce = state && _.find(items, {hasFocus: true}),
+      group = _.head(state.editorTabGroups),
+      items = group.items,
+      focusedAce = state && _.find(items, {id: group.active}),
       el = focusedAce && document.querySelector('#' + focusedAce.id),
       aceInstance = el && ace.edit(el);
 

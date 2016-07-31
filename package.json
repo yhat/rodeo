@@ -60,7 +60,7 @@
     "gulp-uglify": "^1.5.3",
     "gulp-util": "^3.0.7",
     "html-entities": "^1.2.0",
-    "jest-cli": "^13.2.3",
+    "jest-cli": "^14.0",
     "jsdom": "^9.4.1",
     "json-loader": "^0.5.4",
     "karma": "^0.13.22",
@@ -122,16 +122,19 @@
     "fs-extra": "^0.23.1",
     "handlebars": "^4.0.5",
     "highlight.js": "^8.9.1",
+    "immutable": "^3.8.1",
     "jquery": "^2.2.3",
     "js-yaml": "^3.5.5",
     "lodash": "^4.11",
     "marked": "^0.3.5",
     "node-fetch": "^1.5.0",
     "react": "^15.2",
+    "react-addons-css-transition-group": "^15.2.1",
     "react-addons-test-utils": "^15.2.1",
     "react-dom": "^15.2",
     "react-redux": "^4.4",
     "redux": "^3.5",
+    "seamless-immutable": "^6.1.1",
     "stream-splitter": "^0.3.2",
     "temp": "^0.8.3",
     "tmp": "0.0.27",
@@ -141,9 +144,13 @@
     "yargs": "^4.6.0"
   },
   "jest": {
+    "moduleNameMapper": {
+      ".*css": "<rootDir>/__mocks__/generic-stub.js"
+    },
     "unmockedModulePathPatterns": [
       "<rootDir>/node_modules/bluebird/",
       "<rootDir>/node_modules/lodash/",
+      "<rootDir>/node_modules/seamless-immutable/",
       "<rootDir>/node_modules/react/",
       "<rootDir>/node_modules/react-dom/",
       "<rootDir>/node_modules/react-addons-test-utils/"

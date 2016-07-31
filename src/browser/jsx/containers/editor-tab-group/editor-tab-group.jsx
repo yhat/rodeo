@@ -1,15 +1,14 @@
 import _ from 'lodash';
 import React from 'react';
-import ReactDOM from 'react-dom';
 import {connect} from 'react-redux';
-import TabbedPane from '../../components/tabbed-pane/tabbed-pane.jsx';
-import TabbedPaneItem from '../../components/tabbed-pane/tabbed-pane-item.jsx';
+import TabbedPane from '../../components/tabs/tabbed-pane.js';
+import TabbedPaneItem from '../../components/tabs/tabbed-pane-item.js';
 import AcePane from '../../components/ace-pane/ace-pane.jsx';
 import { getParentNodeOf } from '../../services/dom';
 import editorTabGroupActions from '../../containers/editor-tab-group/editor-tab-group.actions';
 import dialogActions from '../../actions/dialogs';
 import kernelActions from '../../actions/kernel';
-import terminalActions from '../terminal/terminal.actions';
+import terminalActions from '../terminal-tab-group/terminal-tab-group.actions';
 
 /**
  * @param {Element} el
@@ -57,9 +56,10 @@ function mapDispatchToProps(dispatch) {
 export default connect(mapStateToProps, mapDispatchToProps)(React.createClass({
   displayName: 'FreeTabGroup',
   propTypes: {
+    active: React.PropTypes.string.isRequired,
     disabled: React.PropTypes.bool,
     id: React.PropTypes.string.isRequired,
-    items: React.PropTypes.array.isRequired
+    tabs: React.PropTypes.array.isRequired
   },
   getDefaultProps: function () {
     return {
@@ -73,34 +73,35 @@ export default connect(mapStateToProps, mapDispatchToProps)(React.createClass({
       onRodeo: _.noop
     };
   },
-  handleTabClose: function (tabId) {
+  shouldComponentUpdate: function (nextProps) {
+    const props = this.props;
+
+    // if the references changed, then some item has changed and needs a re-render
+    return (props.active !== nextProps.active) ||
+      (props.disabled !== props.disabled) ||
+      (props.items !== nextProps.items);
+  },
+  handleTabClick: function (id) {
+    const props = this.props;
+
+    console.log('editorTabGroup', 'handleTabClick', arguments);
+    props.onFocusTab(id);
+  },
+  handleTabClose: function (id) {
     const props = this.props,
       items = props.items,
-      targetPane = _.find(items, {tabId});
+      targetPane = _.find(items, {id});
 
     props.onRemoveAcePane(targetPane.id);
-  },
-  handleTabChanged: function (oldTabId, tabId) {
-    // todo: remove 'refs', we can find it by id instead
-    // find the active ace-pane, and focus on it
-    const props = this.props,
-      items = props.items,
-      editorTabs = ReactDOM.findDOMNode(this.refs.editorTabs),
-      newPane = _.find(items, {tabId});
-
-    props.onFocusTab(newPane.id);
-
-    // if there is an active editor tab, focus on the ace pane inside of it
-    focusAcePaneInActiveElement(editorTabs);
   },
   /**
    * NOTE: preventDefault to reject drag
    * @param {MouseEvent} event
-   * @param {string} tabId
+   * @param {string} id
    */
-  handleTabDragStart: function (event, tabId) {
+  handleTabDragStart: function (event, id) {
     const el = getParentNodeOf(event.target, 'li'),
-      item = _.find(this.props.items, {tabId});
+      item = _.find(this.props.items, {id});
 
     if (item && item.filename) {
       event.dataTransfer.effectAllowed = 'move';
@@ -140,32 +141,38 @@ export default connect(mapStateToProps, mapDispatchToProps)(React.createClass({
     event.preventDefault();
     event.dataTransfer.dropEffect = 'move';
   },
+  handleTabListDragLeave: function (event) {
+    console.log('handleTabListDragLeave', event);
+  },
+  handleTabDragEnd: function (event) {
+    console.log('handleTabListDragEnd', event);
+  },
   render: function () {
     const props = this.props,
-      items = props.items,
       runLineTitle = process.platform === 'darwin' ? '⌘ + Enter' : 'Alt + Enter',
       runScriptTitle = process.platform === 'darwin' ? '⌘ + Shift + Enter' : 'Alt + Shift + Enter',
       types = {
-        'ace-pane': item => (
+        'ace-pane': options => (
           <AcePane
             disabled={props.disabled}
-            key={item.id}
             onInterrupt={props.onInterrupt}
             onLiftFile={props.onRunActiveAcePane}
             onLiftSelection={props.onLiftText}
             onOpenPreferences={props.onOpenPreferences}
-            {...item}
+            options={options}
           />
         )
       };
 
     return (
       <TabbedPane
-        focusable={props.disabled}
-        onChanged={this.handleTabChanged}
+        focusable={!props.disabled}
+        onTabClick={this.handleTabClick}
         onTabClose={this.handleTabClose}
+        onTabDragEnd={this.handleTabDragEnd}
         onTabDragStart={this.handleTabDragStart}
         onTabListDragEnter={this.handleTabListDragEnter}
+        onTabListDragLeave={this.handleTabListDragLeave}
         onTabListDragOver={this.handleTabListDragOver}
         onTabListDrop={this.handleTabListDrop}
         ref="editorTabs"
@@ -184,11 +191,15 @@ export default connect(mapStateToProps, mapDispatchToProps)(React.createClass({
           </a>
         </li>
 
-        {items.map(function (item) {
+        {props.items.map(function (item) {
           return (
-            <TabbedPaneItem hasFocus={item.hasFocus} icon={item.icon} id={item.tabId} isCloseable key={item.id} label={item.label}>
-              {types[item.contentType](item)}
-            </TabbedPaneItem>
+            <TabbedPaneItem
+              closeable
+              icon={item.icon}
+              id={item.id}
+              key={item.id}
+              label={item.label}
+            >{types[item.contentType](item.options)}</TabbedPaneItem>
           );
         })}
 

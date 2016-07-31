@@ -1,5 +1,6 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
+import commonReact from '../services/common-react';
 
 /**
  * @class UnsafeHTML
@@ -18,6 +19,9 @@ export default React.createClass({
     if (el) {
       el.setAttribute('src', this.props.src);
     }
+  },
+  shouldComponentUpdate(nextProps, nextState) {
+    return !commonReact.shallowCompare(this, nextProps, nextState);
   },
   render: function () {
     return <iframe frameBorder="0" id={this.props.id} sandbox="allow-scripts"></iframe>;

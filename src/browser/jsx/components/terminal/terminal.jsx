@@ -5,6 +5,7 @@ import ReactDOM from 'react-dom';
 import './lib/jqconsole.js';
 import './terminal.css';
 import terminalShortcuts from '../../services/terminal-shortcuts';
+import commonReact from '../../services/common-react';
 
 let message = `
 IPython -- An enhanced Interactive Python.
@@ -28,6 +29,7 @@ export default React.createClass({
     indentWidth: React.PropTypes.number,
     message: React.PropTypes.string,
     onAutoComplete: React.PropTypes.func,
+    onInterrupt: React.PropTypes.func,
     onStart: React.PropTypes.func
   },
   getDefaultProps: function () {
@@ -58,8 +60,8 @@ export default React.createClass({
 
     props.onStart(jqConsole);
   },
-  componentDidUpdate: function () {
-
+  shouldComponentUpdate: function (nextProps) {
+    return commonReact.shallowCompare(this, nextProps);
   },
   render: function () {
     const props = this.props,

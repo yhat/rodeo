@@ -3,6 +3,7 @@ import React from 'react';
 import ForegroundPlot from './foreground-plot.jsx';
 import BackgroundPlot from './background-plot.jsx';
 import './plot-preview.css';
+import commonReact from '../../services/common-react';
 
 /**
  * @class PlotPreview
@@ -15,6 +16,9 @@ export default React.createClass({
   propTypes: {
     onItemClick: React.PropTypes.func.isRequired,
     plots: React.PropTypes.array.isRequired
+  },
+  shouldComponentUpdate(nextProps, nextState) {
+    return !commonReact.shallowCompare(this, nextProps, nextState);
   },
   render: function () {
     const props = this.props,

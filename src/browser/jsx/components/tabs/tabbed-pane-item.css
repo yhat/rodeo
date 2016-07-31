@@ -1,0 +1,7 @@
+.tabbed-pane-item {
+  display: none;
+}
+
+.tabbed-pane-item.active {
+  display: block;
+}

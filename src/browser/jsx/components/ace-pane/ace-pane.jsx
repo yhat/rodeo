@@ -6,6 +6,7 @@ import _ from 'lodash';
 import { send } from 'ipc';
 import aceShortcuts from '../../services/ace-shortcuts';
 import aceSettings from '../../services/ace-settings';
+import commonReact from '../../services/common-react';
 
 /**
  * @class AcePane
@@ -93,6 +94,9 @@ export default React.createClass({
     // if filename, load filename into instance
     this.loadContentFromFile();
   },
+  shouldComponentUpdate(nextProps, nextState) {
+    return !commonReact.shallowCompare(this, nextProps, nextState);
+  },
   componentDidUpdate: function (oldProps) {
     const props = this.props,
       instance = ace.edit(ReactDOM.findDOMNode(this));
@@ -122,9 +126,7 @@ export default React.createClass({
     }
   },
   render: function () {
-    return (
-      <div className="ace-pane" id={this.props.id}></div>
-    );
+    return <div className="ace-pane" id={this.props.id}></div>;
   }
 });
 

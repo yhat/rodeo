@@ -1,13 +1,13 @@
 import _ from 'lodash';
 import React from 'react';
 import {connect} from 'react-redux';
-import TabbedPane from '../../components/tabbed-pane/tabbed-pane.jsx';
-import TabbedPaneItem from '../../components/tabbed-pane/tabbed-pane-item.jsx';
+import TabbedPane from '../../components/tabs/tabbed-pane.js';
+import TabbedPaneItem from '../../components/tabs/tabbed-pane-item.js';
 import SearchTextBox from '../../components/search-text-box/search-text-box.jsx';
 import HistoryViewer from '../history-viewer.jsx';
 import PlotViewer from '../plot-viewer/plot-viewer.jsx';
 import FileViewer from '../file-viewer/file-viewer.jsx';
-import VariableViewer from '../variable-viewer/variable-viewer.jsx';
+import VariableViewer from '../../components/variable-viewer/variable-viewer.jsx';
 import VariableTableViewer from '../variable-table-viewer.jsx';
 import PackageViewer from '../package-viewer.jsx';
 import { getParentNodeOf } from '../../services/dom';
@@ -46,21 +46,25 @@ function mapDispatchToProps(dispatch, ownProps) {
 export default connect(mapStateToProps, mapDispatchToProps)(React.createClass({
   displayName: 'FreeTabGroup',
   propTypes: {
+    active: React.PropTypes.string.isRequired,
     disabled: React.PropTypes.bool,
     id: React.PropTypes.string.isRequired,
-    items: React.PropTypes.array.isRequired
+    tabs: React.PropTypes.array.isRequired
   },
   getInitialState: function () {
     return {searchFilter: ''};
   },
-  handleTabChanged: function (oldTabId, tabId) {
-    // todo: remove 'refs', we can find it by id instead
-    // find the active ace-pane, and focus on it
-    const props = this.props,
-      items = props.items,
-      newPane = _.find(items, {tabId});
+  shouldComponentUpdate: function (nextProps) {
+    const props = this.props;
 
-    props.onFocusTab(newPane.id);
+    // if the references changed, then some item has changed and needs a re-render
+    return (props.active !== nextProps.active) ||
+      (props.disabled !== props.disabled) ||
+      (props.items !== nextProps.items);
+  },
+  handleTabClick: function (id) {
+    console.log('freeTabGroup', 'handleTabClick', arguments);
+    this.props.onFocusTab(id);
   },
   handleTabClose: function (tabId) {
     const props = this.props,
@@ -99,7 +103,7 @@ export default connect(mapStateToProps, mapDispatchToProps)(React.createClass({
       try {
         item = JSON.parse(itemStr);
       } catch (ex) {
-        console.log(ex);
+        console.error('handleTabListDragOver', ex);
       }
     }
 
@@ -111,6 +115,9 @@ export default connect(mapStateToProps, mapDispatchToProps)(React.createClass({
     // accept all
     event.preventDefault();
     event.dataTransfer.dropEffect = 'move';
+  },
+  handleTabListDragLeave: function (event) {
+    console.log('handleTabListDragLeave', event);
   },
   handleTabListDrop: function (event) {
     const itemStr = event.dataTransfer.getData('application/json');
@@ -131,7 +138,6 @@ export default connect(mapStateToProps, mapDispatchToProps)(React.createClass({
   },
   render: function () {
     const props = this.props,
-      items = props.items,
       types = {
         'history-viewer': options => <HistoryViewer filter={this.state.searchFilter} options={options}/>,
         'plot-viewer': options => <PlotViewer options={options}/>,
@@ -143,11 +149,13 @@ export default connect(mapStateToProps, mapDispatchToProps)(React.createClass({
 
     return (
       <TabbedPane
-        onChanged={this.handleTabChanged}
+        active={props.active}
+        onTabClick={this.handleTabClick}
         onTabClose={this.handleTabClose}
         onTabDragEnd={this.handleTabDragEnd}
         onTabDragStart={this.handleTabDragStart}
         onTabListDragEnter={this.handleTabListDragEnter}
+        onTabListDragLeave={this.handleTabListDragLeave}
         onTabListDragOver={this.handleTabListDragOver}
         onTabListDrop={this.handleTabListDrop}
       >
@@ -155,18 +163,15 @@ export default connect(mapStateToProps, mapDispatchToProps)(React.createClass({
           <SearchTextBox onChange={searchFilter => this.setState({searchFilter})}/>
         </li>
 
-        {items.map(item => {
+        {props.items.map(item => {
           return (
             <TabbedPaneItem
-              hasFocus={item.hasFocus}
+              closeable={item.closeable}
               icon={item.icon}
-              id={item.tabId}
-              isCloseable={item.isCloseable}
+              id={item.id}
               key={item.id}
               label={item.label}
-            >
-              {types[item.contentType](item.options)}
-            </TabbedPaneItem>
+            >{types[item.contentType](item.options)}</TabbedPaneItem>
           );
         })}
 
