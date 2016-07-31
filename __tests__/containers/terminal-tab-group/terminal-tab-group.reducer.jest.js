@@ -19,10 +19,19 @@ describe('TerminalTabReducer', () => {
 
   describe('KERNEL_DETECTED', () => {
     it('updates single terminal', () => {
-      const state = Immutable([{groupId: 'a', tabs: [{id: 'b'}]}]),
+      const state = Immutable([{groupId: 'a', tabs: [{id: 'b', content: {}}]}]),
         action = {type: 'KERNEL_DETECTED', groupId: 'a', id: 'b', pythonOptions: {c: 'd'}};
 
-      expect(lib(state, action)).toEqual([{groupId: 'a', tabs: [{id: 'b', c: 'd'}]}]);
+      expect(lib(state, action)).toEqual([{groupId: 'a', tabs: [{id: 'b', content: {c: 'd'}}]}]);
+    });
+  });
+
+  describe('CHANGE_PREFERENCE', () => {
+    it('changes font size', () => {
+      const state = Immutable([{groupId: 'a', tabs: [{id: 'b', content: {}}]}]),
+        action = {type: 'CHANGE_PREFERENCE', groupId: 'a', id: 'b', key: 'fontSize', value: 1};
+
+      expect(lib(state, action)).toEqual([{groupId: 'a', tabs: [{id: 'b', content: {fontSize: 1}}]}]);
     });
   });
 });

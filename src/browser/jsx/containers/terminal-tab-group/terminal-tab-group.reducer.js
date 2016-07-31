@@ -56,9 +56,8 @@ function getDefault() {
 function updateAllTerminalsWithKernel(state, action) {
   _.each(state, (group, groupIndex) => {
     _.each(group.tabs, (tab, tabIndex) => {
-      state = state.updateIn([groupIndex, 'tabs', tabIndex, 'content'], (content) => {
-        content.merge(action.pythonOptions);
-        return content;
+      state = state.updateIn([groupIndex, 'tabs', tabIndex, 'content'], content => {
+        return content.merge(action.pythonOptions);
       });
     });
   });
