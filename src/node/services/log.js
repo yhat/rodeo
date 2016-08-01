@@ -12,11 +12,12 @@ winston.transports.ElectronLogger = electronWinstonTransport;
 let logLevel = process.env.RODEO_LOG_LEVEL || 'info',
   transports = [
     new winston.transports.ElectronLogger({
-      level: logLevel
+      level: logLevel,
+      colorize: false
     }),
     new winston.transports.Console({
       level: logLevel,
-      colorize: true,
+      colorize: false,
       humanReadableUnhandledException: true
     }),
     new winston.transports.File({

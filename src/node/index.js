@@ -2,6 +2,7 @@
 
 const _ = require('lodash'),
   bluebird = require('bluebird'),
+  Promise = bluebird,
   cuid = require('cuid'),
   electron = require('electron'),
   browserWindows = require('./services/browser-windows'),
@@ -26,6 +27,8 @@ const _ = require('lodash'),
   systemFactTimeout = 120,
   autoCompleteTimeout = 5,
   second = 1000;
+
+let isStartupFinished = false;
 
 /**
  * @param {object} obj
@@ -101,6 +104,11 @@ function onQuitApplication() {
   log('info', 'onQuitApplication');
 
   app.quit();
+
+  if (process.platform === 'linux') {
+    log('info', 'forcing quit on linux');
+    process.exit(0);
+  }
 }
 
 /**
@@ -310,9 +318,11 @@ function startStartupWindow() {
     window.webContents.on('did-finish-load', function () {
       window.show();
       window.once('close', function () {
-        startMainWindow().catch(function (error) {
-          log('error', error);
-        });
+        if (isStartupFinished) {
+          startMainWindow().catch(function (error) {
+            log('error', error);
+          });
+        }
       });
     });
 
@@ -515,24 +525,34 @@ function onGetSystemFacts() {
  * @returns {Promise<string>}
  */
 function onGetAppVersion() {
-  return bluebird.resolve(getVersion());
-}
+  const app = electron.app;
 
-function onQuitAndInstall() {
-  return bluebird.try(updater.install);
+  return bluebird.resolve(app.getVersion());
 }
 
 /**
- * @returns {string}
+ * @returns {Promise<string>}
  */
-function getVersion() {
-  const pkg = getPkg();
+function onGetAppName() {
+  const app = electron.app;
 
-  if (pkg) {
-    return pkg.version;
-  }
+  return bluebird.resolve(app.getName());
+}
 
-  return '';
+/**
+ * @returns {Promise<string>}
+ */
+function onGetAppLocale() {
+  const app = electron.app;
+
+  return bluebird.resolve(app.getLocale());
+}
+
+/**
+ * @returns {Promise}
+ */
+function onQuitAndInstall() {
+  return bluebird.try(updater.install);
 }
 
 /**
@@ -687,6 +707,15 @@ function onCreateWindow(name, options) {
   return window;
 }
 
+function onFinishStartup() {
+  const startupWindow = browserWindows.getByName('startupWindow');
+
+  if (startupWindow) {
+    isStartupFinished = true;
+    startupWindow.close();
+  }
+}
+
 /**
  * Share an action with every window except the window that send the action.
  * @param {object} action
@@ -722,11 +751,14 @@ function attachIpcMainEvents() {
     onCloseWindow,
     onCreateKernelInstance,
     onCreateWindow,
+    onFinishStartup,
     onEval,
     onExecuteHidden,
     onFiles,
     onFileStats,
     onGetAppVersion,
+    onGetAppName,
+    onGetAppLocale,
     onGetAutoComplete,
     onGetFile,
     onGetInspection,
@@ -758,6 +790,11 @@ function attachAppEvents() {
   const app = electron.app;
 
   if (app) {
+    require('./services/installer')
+      .handleSquirrelStartupEvent(app)
+      .catch(error => log('error', error));
+    app.setAppUserModelId('com.squirrel.rodeo.Rodeo');
+
     app.on('will-finish-launching', function () {
       log('info', 'will-finish-launching');
     });
@@ -779,7 +816,12 @@ function attachAppEvents() {
     app.on('window-all-closed', onWindowAllClosed);
     app.on('ready', onReady);
 
-    require('./services/server').start(9356)
+    if (require('./services/installer').handleSquirrelStartupEvent(app)) {
+      return;
+    }
+
+    require('./services/server')
+      .start(Math.floor(Math.random() * 2000) + 8000)
       .catch(error => log('error', error));
   }
 }

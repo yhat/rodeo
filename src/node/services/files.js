@@ -33,22 +33,6 @@ function getJSONFileSafeSync(filePath) {
 }
 
 /**
- * @param {string} filename
- * @returns {Promise}
- */
-function readFile(filename) {
-  const read = _.partialRight(bluebird.promisify(fs.readFile), 'utf8');
-
-  return read(filename);
-}
-
-function writeFile(filename, content) {
-  const write = bluebird.promisify(fs.writeFile);
-
-  return write(filename, content);
-}
-
-/**
  * @param {string} dirPath
  * @returns {Promise<[{path: string, filename: string, isDirectory: boolean}]>}
  */
@@ -70,16 +54,6 @@ function readDirectory(dirPath) {
 }
 
 /**
- * @param {string} filename
- * @returns {object}
- */
-function getStats(filename) {
-  const lstat = bluebird.promisify(fs.lstat);
-
-  return lstat(filename);
-}
-
-/**
  * @param {string} suffix
  * @param {string|Buffer} data
  * @returns {Promise<string>}
@@ -96,8 +70,10 @@ function saveToTemporaryFile(suffix, data) {
 }
 
 module.exports.getJSONFileSafeSync = getJSONFileSafeSync;
-module.exports.readFile = readFile;
-module.exports.writeFile = writeFile;
+module.exports.readFile = _.partialRight(bluebird.promisify(fs.readFile), 'utf8');
+module.exports.writeFile = bluebird.promisify(fs.writeFile);
 module.exports.readDirectory = readDirectory;
-module.exports.getStats = getStats;
+module.exports.getStats = bluebird.promisify(fs.lstat);
+module.exports.exists = bluebird.promisify(fs.exists);
+module.exports.unlink = bluebird.promisify(fs.unlink);
 module.exports.saveToTemporaryFile = saveToTemporaryFile;

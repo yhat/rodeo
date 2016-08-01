@@ -6,6 +6,7 @@ cache
 BETA.md
 .vagrant
 *.swp
+npm-debug.log*
 
 app
 dist
