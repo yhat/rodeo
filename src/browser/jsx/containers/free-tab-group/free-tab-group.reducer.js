@@ -62,7 +62,7 @@ function add(state, action) {
 }
 
 /**
- * Create a new plot
+ * Add new plot to _every_ plot viewer
  * @param {Immutable} state
  * @param {object} action
  * @param {object|string} action.data
