@@ -2,7 +2,6 @@
 
 const _ = require('lodash'),
   bluebird = require('bluebird'),
-  Promise = bluebird,
   cuid = require('cuid'),
   electron = require('electron'),
   browserWindows = require('./services/browser-windows'),

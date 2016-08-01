@@ -5,7 +5,8 @@ const _ = require('lodash'),
   electronWinstonTransport = require('./electron-winston-transport'),
   path = require('path'),
   winston = require('winston'),
-  util = require('util');
+  util = require('util'),
+  colorize = false;
 
 winston.transports.ElectronLogger = electronWinstonTransport;
 
@@ -13,11 +14,11 @@ let logLevel = process.env.RODEO_LOG_LEVEL || 'info',
   transports = [
     new winston.transports.ElectronLogger({
       level: logLevel,
-      colorize: false
+      colorize
     }),
     new winston.transports.Console({
       level: logLevel,
-      colorize: false,
+      colorize,
       humanReadableUnhandledException: true
     }),
     new winston.transports.File({
@@ -27,7 +28,7 @@ let logLevel = process.env.RODEO_LOG_LEVEL || 'info',
       maxsize: 1024 * 1024,
       tailable: true,
       json: false,
-      colorize: false,
+      colorize,
       prettyPrint: true
     })
   ],
@@ -111,7 +112,7 @@ function transformEventEmitter(obj) {
 }
 
 function printObject(obj) {
-  return util.inspect(obj, {depth: 10, colors: true});
+  return util.inspect(obj, {depth: 10, colors: colorize});
 }
 
 function sanitizeObject(value) {

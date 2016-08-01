@@ -56,32 +56,6 @@ describe(dirname + '/' + filename, function () {
     });
   });
 
-  describe('readFile', function () {
-    const fn = lib[this.title];
-
-    it('reads file', function () {
-      const filename = 'some file',
-        expectedResult = 'some result';
-
-      fs.readFile.yields(null, expectedResult);
-
-      return fn(filename).reflect().then(function (result) {
-        expect(result.value()).to.equal(expectedResult);
-      });
-    });
-
-    it('throws when error', function () {
-      const filename = 'some file',
-        someError = new Error('some error');
-
-      fs.readFile.yields(someError);
-
-      return fn(filename).reflect().then(function (result) {
-        expect(result.reason()).to.equal(someError);
-      });
-    });
-  });
-
   describe('readDirectory', function () {
     const fn = lib[this.title];
 

@@ -9,31 +9,19 @@ const _ = require('lodash'),
   processes = require('./processes'),
   path = require('path'),
   os = require('os'),
-  files = require('./files'),
+  files = require('./files');
+
+let system32Path, regPath, powershellPath, setxPath, appFolder, rootRodeoFolder, binFolder,
+  updateDotExe, exeName, execPath,
   packageName = 'rodeo',
   appName = 'Rodeo',
-  appFolder = path.resolve(process.execPath, '..'),
-  rootRodeoFolder = path.resolve(appFolder, '..'),
-  binFolder = path.join(rootRodeoFolder, 'bin'),
-  updateDotExe = path.join(rootRodeoFolder, 'Update.exe'),
-  exeName = path.basename(process.execPath),
   fileKeyPath = `HKCU\\Software\\Classes\\*\\shell\\${appName}`,
   directoryKeyPath = `HKCU\\Software\\Classes\\directory\\shell\\${appName}`,
   backgroundKeyPath = `HKCU\\Software\\Classes\\directory\\background\\shell\\${appName}`,
   applicationsKeyPath = `HKCU\\Software\\Classes\\Applications\\${packageName}.exe`;
 
-let system32Path, regPath, powershellPath, setxPath;
-
-if (process.env.SystemRoot) {
-  system32Path = path.join(process.env.SystemRoot, 'System32');
-  regPath = path.join(system32Path, 'reg.exe');
-  powershellPath = path.join(system32Path, 'WindowsPowerShell', 'v1.0', 'powershell.exe');
-  setxPath = path.join(system32Path, 'setx.exe');
-} else {
-  regPath = 'reg.exe';
-  powershellPath = 'powershell.exe';
-  setxPath = 'setx.exe';
-}
+setExecPath(process.execPath);
+setSystemRoot(process.env.SystemRoot);
 
 /**
  * Run the registry editor
@@ -62,7 +50,7 @@ function spawnPowershell(args) {
   args.unshift('RemoteSigned');
   args.unshift('-ExecutionPolicy');
   args.unshift('-noprofile');
-  return process.exec(powershellPath, args);
+  return processes.exec(powershellPath, args);
 }
 
 /**
@@ -94,7 +82,7 @@ function installFileHandler() {
     `${applicationsKeyPath}\\shell\\open\\command`,
     '/ve',
     '/d',
-    `\"${process.execPath}\" \"%1\"`
+    `\"${execPath}\" \"%1\"`
   ];
 
   return addToRegistry(args);
@@ -103,9 +91,11 @@ function installFileHandler() {
 function installMenu(keyPath, arg) {
   const args = [keyPath, '/ve', '/d', `Open with ${appName}`];
 
-  return addToRegistry(args)
-    .then(() => addToRegistry([keyPath, '/v', 'Icon', '/d', `\"${process.execPath}\"`]))
-    .then(() => addToRegistry([`${keyPath}\\command`, '/ve', '/d', `\"${process.execPath}\" \"${arg}\"`]));
+  return bluebird.all([
+    addToRegistry(args),
+    addToRegistry([keyPath, '/v', 'Icon', '/d', `\"${execPath}\"`]),
+    addToRegistry([`${keyPath}\\command`, '/ve', '/d', `\"${execPath}\" \"${arg}\"`])
+  ]);
 }
 
 function createShortcuts() {
@@ -138,17 +128,21 @@ function removeShortcuts() {
 }
 
 function installContextMenu() {
-  return installMenu(fileKeyPath, '%1')
-    .then(() => installMenu(directoryKeyPath, '%1'))
-    .then(() => installMenu(backgroundKeyPath, '%V'))
-    .then(() => installFileHandler());
+  return bluebird.all([
+    installMenu(fileKeyPath, '%1'),
+    installMenu(directoryKeyPath, '%1'),
+    installMenu(backgroundKeyPath, '%V'),
+    installFileHandler()
+  ]);
 }
 
 function uninstallContextMenu() {
-  return deleteFromRegistry(fileKeyPath)
-    .then(() => deleteFromRegistry(directoryKeyPath))
-    .then(() => deleteFromRegistry(backgroundKeyPath))
-    .then(() => deleteFromRegistry(applicationsKeyPath));
+  return bluebird.all([
+    deleteFromRegistry(fileKeyPath),
+    deleteFromRegistry(directoryKeyPath),
+    deleteFromRegistry(backgroundKeyPath),
+    deleteFromRegistry(applicationsKeyPath)
+  ]);
 }
 
 function spawnSetx(args) {
@@ -170,8 +164,12 @@ function installCommands() {
     relativeAtomShPath = path.relative(binFolder, path.join(appFolder, 'resources', 'cli', appName + '.sh')),
     atomShCommand = `#!/bin/sh\r\n\"$(dirname \"$0\")/${relativeAtomShPath.replace(/\\/g, '/')}\" \"$@\"\r\necho`;
 
-  return files.writeFile(atomCommandPath, atomCommand)
-    .then(() => files.writeFile(atomShCommandPath, atomShCommand));
+  console.log('info', 'installCommands HOOOO', files.writeFile);
+
+  return bluebird.all([
+    files.writeFile(atomCommandPath, atomCommand),
+    files.writeFile(atomShCommandPath, atomShCommand)
+  ]);
 }
 
 function getPath() {
@@ -197,7 +195,7 @@ function removeCommandsFromPath() {
   return getPath()
     .then(pathEnv => {
       const pathSegments = pathEnv.split(/;+/)
-        .filter(pathSegment => pathSegment && pathSegment !== binFolder),
+          .filter(pathSegment => pathSegment && pathSegment !== binFolder),
         newPathEnv = pathSegments.join(';');
 
       if (pathEnv !== newPathEnv) {
@@ -216,23 +214,26 @@ function handleSquirrelStartupEvent(app) {
   return bluebird.try(function () {
     switch (squirrelCommand) {
       case '--squirrel-install':
-        return createShortcuts()
-          .then(installContextMenu)
-          .then(addCommandsToPath)
-          .then(() => app.quit())
-          .returns(true);
+        return bluebird.all([
+          createShortcuts(),
+          installContextMenu(),
+          addCommandsToPath()
+        ]).then(() => app.quit())
+          .return(true);
       case '--squirrel-updated':
-        return updateShortcuts()
-          .then(installContextMenu)
-          .then(addCommandsToPath)
-          .then(() => app.quit())
-          .returns(true);
+        return bluebird.all([
+          updateShortcuts(),
+          installContextMenu(),
+          addCommandsToPath()
+        ]).then(() => app.quit())
+          .return(true);
       case '--squirrel-uninstall':
-        return removeShortcuts()
-          .then(uninstallContextMenu)
-          .then(removeCommandsFromPath)
-          .then(() => app.quit())
-          .returns(true);
+        return bluebird.all([
+          removeShortcuts(),
+          uninstallContextMenu(),
+          removeCommandsFromPath()
+        ]).then(() => app.quit())
+          .return(true);
       case '--squirrel-obsolete':
         app.quit();
         return true;
@@ -242,4 +243,35 @@ function handleSquirrelStartupEvent(app) {
   });
 }
 
+function setExecPath(value) {
+  execPath = value;
+  appFolder = path.resolve(execPath, '..');
+  rootRodeoFolder = path.resolve(appFolder, '..');
+  binFolder = path.join(rootRodeoFolder, 'bin');
+  updateDotExe = path.join(rootRodeoFolder, 'Update.exe');
+  exeName = path.basename(execPath);
+}
+
+function setSystemRoot(systemRoot) {
+  if (systemRoot) {
+    system32Path = path.join(systemRoot, 'System32');
+    regPath = path.join(system32Path, 'reg.exe');
+    powershellPath = path.join(system32Path, 'WindowsPowerShell', 'v1.0', 'powershell.exe');
+    setxPath = path.join(system32Path, 'setx.exe');
+  } else {
+    regPath = 'reg.exe';
+    powershellPath = 'powershell.exe';
+    setxPath = 'setx.exe';
+  }
+}
+
+module.exports.getPath = getPath;
+module.exports.installCommands = installCommands;
+module.exports.addCommandsToPath = addCommandsToPath;
+module.exports.removeCommandsFromPath = removeCommandsFromPath;
+module.exports.installContextMenu = installContextMenu;
+module.exports.spawnPowershell = spawnPowershell;
 module.exports.handleSquirrelStartupEvent = handleSquirrelStartupEvent;
+module.exports.setExecPath = setExecPath;
+module.exports.setSystemRoot = setSystemRoot;
+module.exports.getBinFolder = () => binFolder;

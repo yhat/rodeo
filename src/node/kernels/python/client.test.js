@@ -227,7 +227,7 @@ describe(dirname + '/' + filename, function () {
       });
 
       it('example 1', function () {
-        const expectedResult = {status: 'ok', user_expressions: {}};
+        const expectedResult = {status: 'ok', user_expressions: {}, payload: []};
 
         return fn.call(client, example1).then(function (result) {
           expect(result).to.deep.equal(expectedResult);
@@ -235,7 +235,7 @@ describe(dirname + '/' + filename, function () {
       });
 
       it('example 2', function () {
-        const expectedResult = {status: 'ok', user_expressions: {}};
+        const expectedResult = {status: 'ok', user_expressions: {}, payload: []};
 
         return fn.call(client, example2).then(function (result) {
           expect(result).to.deep.equal(expectedResult);
@@ -243,7 +243,7 @@ describe(dirname + '/' + filename, function () {
       });
 
       it('example 3', function () {
-        const expectedResult = {status: 'ok', user_expressions: {}};
+        const expectedResult = {status: 'ok', user_expressions: {}, payload: []};
 
         return fn.call(client, example3).then(function (result) {
           expect(result).to.deep.equal(expectedResult);
@@ -251,7 +251,7 @@ describe(dirname + '/' + filename, function () {
       });
 
       it('example 4', function () {
-        const expectedResult = {status: 'ok', user_expressions: {}};
+        const expectedResult = {status: 'ok', user_expressions: {}, payload: []};
 
         client.on('input_request', function () {
           client.input('stuff!');
