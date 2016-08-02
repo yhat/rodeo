@@ -28,7 +28,7 @@ describe(dirname + '/' + filename, function () {
   describe('create', function () {
     const fn = lib[this.title];
 
-    it('adds us to path', function () {
+    it('creates', function () {
       const execPath = 'w/x/y.z';
 
       processes.exec.returns(bluebird.resolve());
@@ -42,7 +42,7 @@ describe(dirname + '/' + filename, function () {
   describe('remove', function () {
     const fn = lib[this.title];
 
-    it('adds us to path', function () {
+    it('removes', function () {
       const execPath = 'w/x/y.z';
 
       processes.exec.returns(bluebird.resolve());

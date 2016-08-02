@@ -11,7 +11,7 @@ const bluebird = require('bluebird'),
   applicationsKeyPath = `HKCU\\Software\\Classes\\Applications\\${packageName}.exe`;
 
 /**
- * @param {string} [systemRoot]
+ * @param {string} systemRoot
  * @returns {string}
  * @example setSystemRoot(process.env.SystemRoot);
  */
@@ -26,7 +26,7 @@ function getRegPath(systemRoot) {
 /**
  * Add item to registry
  * @param {[string]} args
- * @param {string} [systemRoot]
+ * @param {string} systemRoot
  * @returns {Promise.<{errors: Error[], stderr: string, stdout: string}>}
  */
 function addToRegistry(args, systemRoot) {
@@ -39,7 +39,7 @@ function addToRegistry(args, systemRoot) {
 /**
  * Remove item from registry
  * @param {string} keyPath
- * @param {string} [systemRoot]
+ * @param {string} systemRoot
  * @returns {Promise.<{errors: Error[], stderr: string, stdout: string}>}
  */
 function deleteFromRegistry(keyPath, systemRoot) {
@@ -51,7 +51,7 @@ function deleteFromRegistry(keyPath, systemRoot) {
 /**
  * Install file handler
  * @param {string} execPath
- * @param {string} [systemRoot]
+ * @param {string} systemRoot
  * @returns {Promise.<{errors: Error[], stderr: string, stdout: string}>}
  */
 function installFileHandler(execPath, systemRoot) {
@@ -69,7 +69,7 @@ function installFileHandler(execPath, systemRoot) {
  * @param {string} execPath
  * @param {string} keyPath
  * @param {string} arg
- * @param {string} [systemRoot]
+ * @param {string} systemRoot
  * @returns {Promise}
  */
 function installMenu(execPath, keyPath, arg, systemRoot) {
@@ -84,7 +84,7 @@ function installMenu(execPath, keyPath, arg, systemRoot) {
 
 /**
  * @param {string} execPath
- * @param {string} [systemRoot]
+ * @param {string} systemRoot
  * @returns {Promise}
  */
 function install(execPath, systemRoot) {
@@ -97,7 +97,7 @@ function install(execPath, systemRoot) {
 }
 
 /**
- * @param {string} [systemRoot]
+ * @param {string} systemRoot
  * @returns {Promise}
  */
 function uninstall(systemRoot) {

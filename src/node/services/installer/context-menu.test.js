@@ -1,6 +1,7 @@
 'use strict';
 
-const bluebird = require('bluebird'),
+const _ = require('lodash'),
+  bluebird = require('bluebird'),
   expect = require('chai').expect,
   sinon = require('sinon'),
   dirname = __dirname.split('/').pop(),
@@ -34,7 +35,7 @@ describe(dirname + '/' + filename, function () {
   describe('install', function () {
     const fn = lib[this.title];
 
-    it('adds us to path', function () {
+    it('installs', function () {
       const execPath = 'x/y/z';
 
       processes.exec.returns(bluebird.resolve());
@@ -43,12 +44,28 @@ describe(dirname + '/' + filename, function () {
         expect(processes.exec.args).to.deep.include.members(installContextMenuWindowsRegistryCommands);
       });
     });
+
+    it('installs with systemRoot', function () {
+      const execPath = 'x/y/z',
+        systemRoot = 'w';
+
+      processes.exec.returns(bluebird.resolve());
+
+      return fn(execPath, systemRoot).then(function () {
+        const withSystemRoot = _.map(installContextMenuWindowsRegistryCommands, cmd => {
+          cmd[0] = 'w/System32/reg.exe';
+          return cmd;
+        });
+
+        expect(processes.exec.args).to.deep.include.members(withSystemRoot);
+      });
+    });
   });
 
   describe('uninstall', function () {
     const fn = lib[this.title];
 
-    it('adds us to path', function () {
+    it('uninstalls', function () {
 
       processes.exec.returns(bluebird.resolve());
 
@@ -56,6 +73,22 @@ describe(dirname + '/' + filename, function () {
         const args = processes.exec.args;
 
         expect(args).to.deep.include.members(uninstallContextMenuWindowsRegistryCommands);
+      });
+    });
+
+    it('uninstalls with systemRoot', function () {
+      const systemRoot = 'w';
+
+      processes.exec.returns(bluebird.resolve());
+
+      return fn(systemRoot).then(function () {
+        const args = processes.exec.args,
+          withSystemRoot = _.map(uninstallContextMenuWindowsRegistryCommands, cmd => {
+            cmd[0] = 'w/System32/reg.exe';
+            return cmd;
+          });
+
+        expect(args).to.deep.include.members(withSystemRoot);
       });
     });
   });

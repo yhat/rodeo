@@ -11,9 +11,10 @@ const bluebird = require('bluebird'),
   contextMenu = require('./context-menu');
 
 /**
+ * Handles squirrel events if any.  Then quits if any.
  *
  * @param {electron.app} app
- * @returns {Promise<boolean>}
+ * @returns {Promise<boolean>}  Are we handling squirrel events?  False if we are not.
  */
 function handleSquirrelStartupEvent(app) {
   if (process.platform !== 'win32') {
