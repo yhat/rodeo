@@ -8,7 +8,14 @@ const bluebird = require('bluebird'),
   lib = require('./' + filename),
   processes = require('./processes'),
   files = require('./files'),
-  exampleWindowsRegistryCommands = require('../../../test/fixtures/windows-registry.json');
+  jsYaml = require('js-yaml'),
+  fs = require('fs'),
+  installContextMenuWindowsRegistryCommands = jsYaml.safeLoad(
+    fs.readFileSync('./test/fixtures/windows-registry-commands/install-context-menu.yml')
+  ),
+  uninstallContextMenuWindowsRegistryCommands = jsYaml.safeLoad(
+    fs.readFileSync('./test/fixtures/windows-registry-commands/uninstall-context-menu.yml')
+  );
 
 describe(dirname + '/' + filename, function () {
   this.timeout(10000);
@@ -112,7 +119,6 @@ describe(dirname + '/' + filename, function () {
         .returns(bluebird.resolve());
       files.writeFile.returns(bluebird.resolve());
 
-
       return fn().then(function () {
         const args = processes.exec.withArgs(sinon.match('setx.exe', sinon.match.array)).args,
           firstCall = args[0],
@@ -133,7 +139,23 @@ describe(dirname + '/' + filename, function () {
       lib.setExecPath(execPath);
 
       return fn().then(function () {
-        expect(processes.exec.args).to.deep.equal(exampleWindowsRegistryCommands);
+        expect(processes.exec.args).to.deep.include.members(installContextMenuWindowsRegistryCommands);
+      });
+    });
+  });
+
+  describe('uninstallContextMenu', function () {
+    const fn = lib[this.title];
+
+    it('adds us to path', function () {
+      const execPath = 'x/y/z';
+
+      lib.setExecPath(execPath);
+
+      return fn().then(function () {
+        const args = processes.exec.args;
+
+        expect(args).to.deep.include.members(uninstallContextMenuWindowsRegistryCommands);
       });
     });
   });

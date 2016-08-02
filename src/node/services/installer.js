@@ -204,14 +204,19 @@ function removeCommandsFromPath() {
     });
 }
 
+/**
+ *
+ * @param {electron.app} app
+ * @returns {Promise<boolean>}
+ */
 function handleSquirrelStartupEvent(app) {
   if (process.platform !== 'win32') {
     return bluebird.resolve(false);
   }
 
-  const squirrelCommand = process.argv[1];
-
   return bluebird.try(function () {
+    const squirrelCommand = process.argv[1];
+
     switch (squirrelCommand) {
       case '--squirrel-install':
         return bluebird.all([
@@ -243,6 +248,10 @@ function handleSquirrelStartupEvent(app) {
   });
 }
 
+/**
+ * @param {string} value
+ * @example setExecPath(process.execPath);
+ */
 function setExecPath(value) {
   execPath = value;
   appFolder = path.resolve(execPath, '..');
@@ -252,6 +261,10 @@ function setExecPath(value) {
   exeName = path.basename(execPath);
 }
 
+/**
+ * @param {string} systemRoot
+ * @example setSystemRoot(process.env.SystemRoot);
+ */
 function setSystemRoot(systemRoot) {
   if (systemRoot) {
     system32Path = path.join(systemRoot, 'System32');
@@ -270,6 +283,7 @@ module.exports.installCommands = installCommands;
 module.exports.addCommandsToPath = addCommandsToPath;
 module.exports.removeCommandsFromPath = removeCommandsFromPath;
 module.exports.installContextMenu = installContextMenu;
+module.exports.uninstallContextMenu = uninstallContextMenu;
 module.exports.spawnPowershell = spawnPowershell;
 module.exports.handleSquirrelStartupEvent = handleSquirrelStartupEvent;
 module.exports.setExecPath = setExecPath;
