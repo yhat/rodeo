@@ -141,7 +141,9 @@ function sanitizeObject(value) {
  * @returns {Function}
  */
 function asInternal(dirname) {
-  const prefix = path.relative(process.cwd(), dirname).replace(/\.js$/, '').replace(/^[\.]\.\//, '');
+  const prefix = path.relative(process.cwd(), dirname)
+    .replace(/\.js$/, '')
+    .replace(/^[\.]\.\//, '').replace(/^app\/node\//, '');
 
   return function (type) {
     exports.log(type, _.reduce(_.slice(arguments, 1), function (list, value) {
@@ -152,7 +154,7 @@ function asInternal(dirname) {
       }
 
       return list;
-    }, [chalk.blue(prefix + '::')]).join(' '));
+    }, [prefix + '::']).join(' '));
   };
 }
 

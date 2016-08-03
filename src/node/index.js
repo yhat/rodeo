@@ -12,6 +12,8 @@ const _ = require('lodash'),
   os = require('os'),
   steveIrwin = require('./kernels/python/steve-irwin'),
   updater = require('./services/updater'),
+  installer = require('./services/installer'),
+  PlotServer = require('./services/plot-server'),
   yargs = require('yargs'),
   argv = yargs.argv,
   log = require('./services/log').asInternal(__filename),
@@ -27,7 +29,8 @@ const _ = require('lodash'),
   autoCompleteTimeout = 5,
   second = 1000;
 
-let isStartupFinished = false;
+let plotServerInstance,
+  isStartupFinished = false;
 
 /**
  * @param {object} obj
@@ -178,11 +181,18 @@ function onSaveFile(filename, contents) {
   return files.writeFile(filename, contents);
 }
 
+/**
+ *
+ * @param {string} extension
+ * @param {object} data
+ * @param {string} property
+ * @returns {Promise}
+ */
 function replacePropertyWithTemporaryFile(extension, data, property) {
   if (data[property]) {
     return files.saveToTemporaryFile(extension, data[property]).then(function (filepath) {
       let name = _.last(filepath.split(path.sep)),
-        route = require('./services/server').addTemporaryFileRoute(filepath, '/' + name);
+        route = plotServerInstance.addRouteToFile(filepath, '/' + name);
 
       log('info', 'new plot served from', route);
 
@@ -229,9 +239,7 @@ function subscribeBrowserWindowToEvent(windowName, emitter, eventName) {
   emitter.on(eventName, function (event) {
     displayDataTransform(event).then(function (normalizedEvent) {
       browserWindows.send.apply(browserWindows, [windowName, eventName].concat([normalizedEvent]));
-    }).catch(function (error) {
-      log('error', error);
-    });
+    }).catch(error => log('error', error));
   });
 }
 
@@ -348,7 +356,7 @@ function onReady() {
       } else {
         (argv.startup === false ? startMainWindow() : startStartupWindow())
           .then(attachIpcMainEvents)
-          .catch(err => log('error', err));
+          .catch(error => log('error', error));
       }
     });
 }
@@ -782,51 +790,61 @@ function attachIpcMainEvents() {
   ]);
 }
 
+function startApp() {
+  const app = electron.app,
+    appUserModelId = 'com.squirrel.rodeo.Rodeo';
+
+  if (app) {
+    app.setAppUserModelId(appUserModelId);
+
+    return installer.handleSquirrelStartupEvent(app)
+      .then(function (isSquirrel) {
+        if (!isSquirrel) {
+          attachAppEvents();
+          return startPlotServer();
+        }
+      })
+      .catch(error => log('error', error));
+  }
+}
+
 /**
  * Attach events only if we're not in a browser window
  */
 function attachAppEvents() {
   const app = electron.app;
 
-  if (app) {
-    require('./services/installer')
-      .handleSquirrelStartupEvent(app)
-      .catch(error => log('error', error));
-    app.setAppUserModelId('com.squirrel.rodeo.Rodeo');
+  app.on('will-finish-launching', function () {
+    log('info', 'will-finish-launching');
+  });
+  app.on('will-quit', function () {
+    log('info', 'will-quit');
+  });
+  app.on('before-quit', function () {
+    log('info', 'before-quit');
+  });
+  app.on('quit', function (event, errorCode) {
+    log('info', 'quit', {errorCode});
+  });
+  app.on('activate', function (event, hasVisibleWindows) {
+    log('info', 'activate', {hasVisibleWindows});
+  });
+  app.on('gpu-process-crashed', function () {
+    log('info', 'gpu-process-crashed');
+  });
+  app.on('window-all-closed', onWindowAllClosed);
+  app.on('ready', onReady);
+}
 
-    app.on('will-finish-launching', function () {
-      log('info', 'will-finish-launching');
-    });
-    app.on('will-quit', function () {
-      log('info', 'will-quit');
-    });
-    app.on('before-quit', function () {
-      log('info', 'before-quit');
-    });
-    app.on('quit', function (event, errorCode) {
-      log('info', 'quit', {errorCode});
-    });
-    app.on('activate', function (event, hasVisibleWindows) {
-      log('info', 'activate', {hasVisibleWindows});
-    });
-    app.on('gpu-process-crashed', function () {
-      log('info', 'gpu-process-crashed');
-    });
-    app.on('window-all-closed', onWindowAllClosed);
-    app.on('ready', onReady);
+function startPlotServer() {
+  plotServerInstance = new PlotServer(Math.floor(Math.random() * 2000) + 8000);
 
-    if (require('./services/installer').handleSquirrelStartupEvent(app)) {
-      return;
-    }
-
-    require('./services/server')
-      .start(Math.floor(Math.random() * 2000) + 8000)
-      .catch(error => log('error', error));
-  }
+  return plotServerInstance.listen()
+    .then(port => log('info', 'serving plots from port', port))
+    .catch(error => log('critical', 'failure to start plot server', error));
 }
 
 /**
- *
  * @param {EventEmitter} ipcEmitter
  * @returns {Promise}
  */
@@ -849,4 +867,4 @@ module.exports.onQuitApplication = onQuitApplication;
 module.exports.onReady = onReady;
 module.exports.onWindowAllClosed = onWindowAllClosed;
 
-attachAppEvents();
+startApp();
