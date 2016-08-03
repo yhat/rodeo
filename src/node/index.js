@@ -805,6 +805,8 @@ function startApp() {
         if (!isSquirrel) {
           attachAppEvents();
           return startPlotServer();
+        } else {
+          log('info', 'was squirrely');
         }
       })
       .catch(error => log('error', error));
