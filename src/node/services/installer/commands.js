@@ -69,16 +69,16 @@ function spawnSetx(args, systemRoot) {
 function installCommands(appCommandName, execPath) {
   const appFolder = path.resolve(execPath, '..'),
     binFolder = path.join(path.resolve(appFolder, '..'), 'bin'),
-    atomCommandPath = path.join(binFolder, appCommandName + '.cmd'),
-    relativeAtomPath = path.relative(binFolder, path.join(appFolder, 'resources', 'cli', appCommandName + '.cmd')),
-    atomCommand = `@echo off\r\n\"%~dp0\\${relativeAtomPath}\" %*`,
-    atomShCommandPath = path.join(binFolder, 'atom'),
-    relativeAtomShPath = path.relative(binFolder, path.join(appFolder, 'resources', 'cli', appCommandName + '.sh')),
-    atomShCommand = `#!/bin/sh\r\n\"$(dirname \"$0\")/${relativeAtomShPath.replace(/\\/g, '/')}\" \"$@\"\r\necho`;
+    rodeoCommandPath = path.join(binFolder, appCommandName + '.cmd'),
+    relativeRodeoPath = path.relative(binFolder, path.join(appFolder, 'resources', 'cli', appCommandName + '.cmd')),
+    rodeoCommand = `@echo off\r\n\"%~dp0\\${relativeRodeoPath}\" %*`,
+    rodeoShCommandPath = path.join(binFolder, 'rodeo'),
+    relativeRodeoShPath = path.relative(binFolder, path.join(appFolder, 'resources', 'cli', appCommandName + '.sh')),
+    rodeoShCommand = `#!/bin/sh\r\n\"$(dirname \"$0\")/${relativeRodeoShPath.replace(/\\/g, '/')}\" \"$@\"\r\necho`;
 
   return bluebird.all([
-    files.writeFile(atomCommandPath, atomCommand),
-    files.writeFile(atomShCommandPath, atomShCommand)
+    files.writeFile(rodeoCommandPath, rodeoCommand),
+    files.writeFile(rodeoShCommandPath, rodeoShCommand)
   ]);
 }
 

@@ -797,6 +797,9 @@ function startApp() {
   if (app) {
     app.setAppUserModelId(appUserModelId);
 
+    // record for later use
+    log('info', 'started with', argv);
+
     return installer.handleSquirrelStartupEvent(app)
       .then(function (isSquirrel) {
         if (!isSquirrel) {
