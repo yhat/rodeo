@@ -2,9 +2,11 @@
 
 const _ = require('lodash'),
   bluebird = require('bluebird'),
+  kernelsPythonClient = require('./kernels/python/client'),
   cuid = require('cuid'),
   electron = require('electron'),
   browserWindows = require('./services/browser-windows'),
+  env = require('./services/env'),
   files = require('./services/files'),
   ipcPromises = require('./services/ipc-promises'),
   path = require('path'),
@@ -15,7 +17,10 @@ const _ = require('lodash'),
   installer = require('./services/installer'),
   PlotServer = require('./services/plot-server'),
   yargs = require('yargs'),
-  argv = yargs.argv,
+  argv = yargs
+    .boolean('dev')
+    .boolean('pythons')
+    .argv,
   log = require('./services/log').asInternal(__filename),
   staticFileDir = path.resolve(__dirname, '../browser/'),
   kernelClients = {},
@@ -122,7 +127,9 @@ function onFiles(dir) {
     throw new Error('onFiles expects a string as the first argument');
   }
 
-  return files.readDirectory(path.resolve(dir));
+  log('info', 'HEY', dir);
+
+  return files.readDirectory(path.resolve(dir)).tap(function (files) { log('info', 'HOO', files); });
 }
 
 /**
@@ -306,6 +313,51 @@ function startMainWindow() {
   });
 }
 
+function startMainWindowWithOpenFile(filename, stats) {
+  return bluebird.try(function () {
+    let window;
+    const windowName = 'mainWindow';
+
+    window = browserWindows.createMainWindow(windowName, {
+      url: 'file://' + path.join(staticFileDir, windowUrls[windowName]),
+      startActions: [
+        {type: 'ADD_FILE', filename, stats}
+      ]
+    });
+
+    if (argv.dev) {
+      window.openDevTools();
+    }
+
+    return attachApplicationMenu(window.webContents)
+      .then(function () {
+        window.show();
+      });
+  });
+}
+
+function startMainWindowWithWorkingDirectory(filename) {
+  return files.readDirectory(filename).then(function (files) {
+    const windowName = 'mainWindow';
+
+    let window = browserWindows.createMainWindow(windowName, {
+      url: 'file://' + path.join(staticFileDir, windowUrls[windowName]),
+      startActions: [
+        {type: 'SET_WORKING_DIRECTORY', filename},
+        {type: 'SET_VIEWED_PATH', path: filename, files}
+      ]
+    });
+
+    if (argv.dev) {
+      window.openDevTools();
+    }
+
+    return attachApplicationMenu(window.webContents)
+      .then(function () {
+        window.show();
+      });
+  });
+}
 /**
  * @returns {Promise}
  */
@@ -343,9 +395,9 @@ function startStartupWindow() {
 function onReady() {
   let windowName, window;
 
-  require('./services/env').getEnv()
+  env.getEnv()
     .then(function (env) {
-      require('./kernels/python/client').setDefaultEnv(env);
+      kernelsPythonClient.setDefaultEnv(env);
 
       if (argv.design) {
         windowName = 'designWindow';
@@ -353,12 +405,30 @@ function onReady() {
           url: 'file://' + path.join(staticFileDir, windowUrls[windowName])
         });
         window.show();
+      } else if (argv._[0]) {
+        const filename = path.resolve(argv._[0]);
+
+        log('info', 'found filename', filename);
+
+        return files.getStats(filename)
+          .then(function (stats) {
+            log('info', 'filename has stats', filename, stats);
+
+            if (stats.isDirectory()) {
+              return startMainWindowWithWorkingDirectory(filename);
+            } else {
+              return startMainWindowWithOpenFile(filename, stats);
+            }
+          });
+      } else if (argv.startup === false) {
+        return startMainWindow();
       } else {
-        (argv.startup === false ? startMainWindow() : startStartupWindow())
-          .then(attachIpcMainEvents)
-          .catch(error => log('error', error));
+        return startStartupWindow();
       }
-    });
+
+    })
+    .then(attachIpcMainEvents)
+    .catch(error => log('error', error));
 }
 
 /**
@@ -799,6 +869,7 @@ function startApp() {
 
     // record for later use
     log('info', 'started with', argv);
+    log('info', 'versions', process.versions);
 
     return installer.handleSquirrelStartupEvent(app)
       .then(function (isSquirrel) {

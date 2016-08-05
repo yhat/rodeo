@@ -1,7 +1,6 @@
 'use strict';
 
 const _ = require('lodash'),
-  chalk = require('chalk'),
   electronWinstonTransport = require('./electron-winston-transport'),
   path = require('path'),
   winston = require('winston'),

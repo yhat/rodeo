@@ -1,52 +1,17 @@
+/**
+ * @see https://msdn.microsoft.com/en-us/library/windows/desktop/cc144171(v=vs.85).aspx
+ */
+
 'use strict';
 
 const bluebird = require('bluebird'),
-  path = require('path'),
-  processes = require('../processes'),
+  win32Registry = require('../win32/registry'),
   packageName = 'rodeo',
   appName = 'Rodeo',
-  fileKeyPath = `HKCU\\Software\\Classes\\*\\shell\\${appName}`,
+  fileKeyPath = `HKCU\\Software\\Classes\\.py\\shell\\${appName}`,
   directoryKeyPath = `HKCU\\Software\\Classes\\directory\\shell\\${appName}`,
   backgroundKeyPath = `HKCU\\Software\\Classes\\directory\\background\\shell\\${appName}`,
   applicationsKeyPath = `HKCU\\Software\\Classes\\Applications\\${packageName}.exe`;
-
-/**
- * @param {string} systemRoot
- * @returns {string}
- * @example setSystemRoot(process.env.SystemRoot);
- */
-function getRegPath(systemRoot) {
-  if (systemRoot) {
-    return path.join(systemRoot, 'System32', 'reg.exe');
-  }
-
-  return 'reg.exe';
-}
-
-/**
- * Add item to registry
- * @param {[string]} args
- * @param {string} systemRoot
- * @returns {Promise.<{errors: Error[], stderr: string, stdout: string}>}
- */
-function addToRegistry(args, systemRoot) {
-  args.unshift('add');
-  args.push('/f');
-
-  return processes.exec(getRegPath(systemRoot), args);
-}
-
-/**
- * Remove item from registry
- * @param {string} keyPath
- * @param {string} systemRoot
- * @returns {Promise.<{errors: Error[], stderr: string, stdout: string}>}
- */
-function deleteFromRegistry(keyPath, systemRoot) {
-  const args = ['delete', keyPath, '/f'];
-
-  return processes.exec(getRegPath(systemRoot), args);
-}
 
 /**
  * Install file handler
@@ -62,7 +27,7 @@ function installFileHandler(execPath, systemRoot) {
     `\"${execPath}\" \"%1\"`
   ];
 
-  return addToRegistry(args, systemRoot);
+  return win32Registry.add(args, systemRoot);
 }
 
 /**
@@ -76,9 +41,9 @@ function installMenu(execPath, keyPath, arg, systemRoot) {
   const args = [keyPath, '/ve', '/d', `Open with ${appName}`];
 
   return bluebird.all([
-    addToRegistry(args, systemRoot),
-    addToRegistry([keyPath, '/v', 'Icon', '/d', `\"${execPath}\"`], systemRoot),
-    addToRegistry([`${keyPath}\\command`, '/ve', '/d', `\"${execPath}\" \"${arg}\"`], systemRoot)
+    win32Registry.add(args, systemRoot),
+    win32Registry.add([keyPath, '/v', 'Icon', '/d', `\"${execPath}\"`], systemRoot),
+    win32Registry.add([`${keyPath}\\command`, '/ve', '/d', `\"${execPath}\" \"${arg}\"`], systemRoot)
   ]);
 }
 
@@ -102,10 +67,10 @@ function install(execPath, systemRoot) {
  */
 function uninstall(systemRoot) {
   return bluebird.all([
-    deleteFromRegistry(fileKeyPath, systemRoot),
-    deleteFromRegistry(directoryKeyPath, systemRoot),
-    deleteFromRegistry(backgroundKeyPath, systemRoot),
-    deleteFromRegistry(applicationsKeyPath, systemRoot)
+    win32Registry.remove(fileKeyPath, systemRoot),
+    win32Registry.remove(directoryKeyPath, systemRoot),
+    win32Registry.remove(backgroundKeyPath, systemRoot),
+    win32Registry.remove(applicationsKeyPath, systemRoot)
   ]);
 }
 

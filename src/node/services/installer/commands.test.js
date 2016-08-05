@@ -45,7 +45,7 @@ describe(dirname + '/' + filename, function () {
           secondParameter = firstCall[1],
           secondExecArg = secondParameter[1];
 
-        expect(secondExecArg).to.match(/a;b.c;d:e;f\/g;h\\i;.*\/x\/bin/);
+        expect(secondExecArg).to.match(/a;b.c;d:e;f\/g;h\\i;.*\/x\/y\/bin/);
       });
     });
 
@@ -68,7 +68,7 @@ describe(dirname + '/' + filename, function () {
           secondParameter = firstCall[1],
           secondExecArg = secondParameter[1];
 
-        expect(secondExecArg).to.match(/a;b.c;d:e;f\/g;h\\i;.*\/x\/bin/);
+        expect(secondExecArg).to.match(/a;b.c;d:e;f\/g;h\\i;.*\/x\/y\/bin/);
       });
     });
   });
@@ -78,7 +78,7 @@ describe(dirname + '/' + filename, function () {
 
     it('removes us to path', function () {
       const execPath = 'x/y/z',
-        binFolder = path.resolve(execPath, '..', '..', 'bin');
+        binFolder = path.resolve(execPath, '..', 'bin');
 
       processes.exec
         .withArgs(sinon.match(/powershell.exe/), sinon.match.array)
@@ -100,7 +100,7 @@ describe(dirname + '/' + filename, function () {
 
     it('removes us to path with systemRoot', function () {
       const execPath = 'x/y/z',
-        binFolder = path.resolve(execPath, '..', '..', 'bin'),
+        binFolder = path.resolve(execPath, '..', 'bin'),
         systemRoot = 'w';
 
       processes.exec

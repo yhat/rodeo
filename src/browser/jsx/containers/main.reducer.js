@@ -11,6 +11,8 @@ import freeTabGroups from './free-tab-group/free-tab-group.reducer';
 import editorTabGroups from './editor-tab-group/editor-tab-group.reducer';
 
 function broadcast(state, action) {
+  console.log(action.type, action);
+
   applicationControl.shareAction(action);
 
   if (!state) {

@@ -8,7 +8,8 @@ const bluebird = require('bluebird'),
   os = require('os'),
   shortcuts = require('./shortcuts'),
   commands = require('./commands'),
-  contextMenu = require('./context-menu');
+  contextMenu = require('./context-menu'),
+  log = require('../log').asInternal(__filename);
 
 /**
  * Handles squirrel events if any.  Then quits if any.
@@ -26,6 +27,8 @@ function handleSquirrelStartupEvent(app) {
       squirrelCommand = process.argv[1],
       execPath = process.execPath,
       systemRoot = process.env.SystemRoot;
+
+    log('info', 'squirrel saw', {squirrelCommand, execPath, systemRoot});
 
     switch (squirrelCommand) {
       case '--squirrel-install':

@@ -50,7 +50,9 @@ export default connect(mapStateToProps, mapDispatchToProps)(React.createClass({
   componentDidMount: function () {
     const props = this.props;
 
-    this.props.onRefresh(props.path);
+    if (!props.files.length) {
+      props.onRefresh();
+    }
   },
   render: function () {
     const props = this.props;

@@ -3,7 +3,7 @@
   - reg.exe
   -
     - add
-    - HKCU\Software\Classes\*\shell\Rodeo
+    - HKCU\Software\Classes\.py\shell\Rodeo
     - "/ve"
     - "/d"
     - Open with Rodeo
@@ -12,7 +12,7 @@
   - reg.exe
   -
     - add
-    - HKCU\Software\Classes\*\shell\Rodeo
+    - HKCU\Software\Classes\.py\shell\Rodeo
     - "/v"
     - Icon
     - "/d"
@@ -22,7 +22,7 @@
   - reg.exe
   -
     - add
-    - HKCU\Software\Classes\*\shell\Rodeo\command
+    - HKCU\Software\Classes\.py\shell\Rodeo\command
     - "/ve"
     - "/d"
     - '"x/y/z" "%1"'

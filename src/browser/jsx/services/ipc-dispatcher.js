@@ -172,17 +172,17 @@ function stdinDispatcher() {
 
 function otherDispatcher(dispatch) {
   ipc.on('event', function (event, data) {
-    console.log('event', {event, data});
+    console.log('event', data);
   });
 
   ipc.on('error', function (event, data) {
-    console.log('error', {event, data});
+    console.log('error', data);
   });
 
   ipc.on('sharedAction', function (event, action) {
-    console.log('received sharedAction', {event, action});
+    console.log('received sharedAction', action);
     if (action.senderName) {
-      console.log('dispatching sharedAction', action.senderName, {event, action});
+      console.log('dispatching sharedAction', action.senderName, action);
       dispatch(action);
     }
   });

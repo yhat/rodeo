@@ -3,7 +3,7 @@
   - reg.exe
   -
     - delete
-    - HKCU\Software\Classes\*\shell\Rodeo
+    - HKCU\Software\Classes\.py\shell\Rodeo
     - "/f"
 -
   - reg.exe
