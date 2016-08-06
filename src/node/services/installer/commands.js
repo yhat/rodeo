@@ -19,16 +19,18 @@ function installCommands(appCommandName, execPath) {
   const appFolder = path.resolve(execPath, '..'),
     binFolder = getBinFolder(execPath),
     rodeoCommandPath = path.join(binFolder, appCommandName + '.cmd'),
-    relativeRodeoPath = path.relative(binFolder, path.join(appFolder, 'resources', 'cli', appCommandName + '.cmd')),
-    rodeoCommand = `@echo off\r\n\"%~dp0\\${relativeRodeoPath}\" %*`,
-    rodeoShCommandPath = path.join(binFolder, 'rodeo'),
-    relativeRodeoShPath = path.relative(binFolder, path.join(appFolder, 'resources', 'cli', appCommandName + '.sh')),
-    rodeoShCommand = `#!/bin/sh\r\n\"$(dirname \"$0\")/${relativeRodeoShPath.replace(/\\/g, '/')}\" \"$@\"\r\necho`;
+    relativeRodeoPath = path.relative(binFolder, path.join(appFolder, appCommandName + '.exe')),
+    rodeoCommand = `@echo off\r\n\"%~dp0\\${relativeRodeoPath}\" %*`;
 
-  return bluebird.all([
-    files.writeFile(rodeoCommandPath, rodeoCommand),
-    files.writeFile(rodeoShCommandPath, rodeoShCommand)
-  ]);
+  return files.exists(binFolder).then(function (binExists) {
+    if (!binExists) {
+      return files.makeDirectory(binFolder);
+    }
+  }).then(function () {
+    return bluebird.all([
+      files.writeFile(rodeoCommandPath, rodeoCommand)
+    ]);
+  });
 }
 
 /**

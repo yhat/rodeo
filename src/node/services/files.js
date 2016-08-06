@@ -73,6 +73,7 @@ module.exports.getJSONFileSafeSync = getJSONFileSafeSync;
 module.exports.readFile = _.partialRight(bluebird.promisify(fs.readFile), 'utf8');
 module.exports.writeFile = bluebird.promisify(fs.writeFile);
 module.exports.readDirectory = readDirectory;
+module.exports.makeDirectory = bluebird.promisify(fs.mkdir);
 module.exports.getStats = bluebird.promisify(fs.lstat);
 module.exports.exists = bluebird.promisify(fs.exists);
 module.exports.unlink = bluebird.promisify(fs.unlink);

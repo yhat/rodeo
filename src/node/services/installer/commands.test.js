@@ -37,6 +37,7 @@ describe(dirname + '/' + filename, function () {
       processes.exec
         .withArgs('setx.exe', sinon.match.array)
         .returns(bluebird.resolve());
+      files.exists.returns(bluebird.resolve(true));
       files.writeFile.returns(bluebird.resolve());
 
       return fn(appCommandName, execPath).then(function () {
@@ -60,6 +61,7 @@ describe(dirname + '/' + filename, function () {
       processes.exec
         .withArgs('setx.exe', sinon.match.array)
         .returns(bluebird.resolve());
+      files.exists.returns(bluebird.resolve(true));
       files.writeFile.returns(bluebird.resolve());
 
       return fn(appCommandName, execPath, systemRoot).then(function () {
@@ -86,6 +88,7 @@ describe(dirname + '/' + filename, function () {
       processes.exec
         .withArgs('setx.exe', sinon.match.array)
         .returns(bluebird.resolve());
+      files.exists.returns(bluebird.resolve(true));
       files.writeFile.returns(bluebird.resolve());
 
       return fn(execPath).then(function () {
@@ -109,6 +112,7 @@ describe(dirname + '/' + filename, function () {
       processes.exec
         .withArgs('setx.exe', sinon.match.array)
         .returns(bluebird.resolve());
+      files.exists.returns(bluebird.resolve(true));
       files.writeFile.returns(bluebird.resolve());
 
       return fn(execPath, systemRoot).then(function () {

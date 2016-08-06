@@ -17,10 +17,7 @@ const _ = require('lodash'),
   installer = require('./services/installer'),
   PlotServer = require('./services/plot-server'),
   yargs = require('yargs'),
-  argv = yargs
-    .boolean('dev')
-    .boolean('pythons')
-    .argv,
+  argv = getArgv(),
   log = require('./services/log').asInternal(__filename),
   staticFileDir = path.resolve(__dirname, '../browser/'),
   kernelClients = {},
@@ -36,6 +33,21 @@ const _ = require('lodash'),
 
 let plotServerInstance,
   isStartupFinished = false;
+
+function getArgv() {
+  let sliceNum;
+
+  if (_.endsWith(process.argv[0], 'Electron')) {
+    sliceNum = 2;
+  } else {
+    sliceNum = 1;
+  }
+
+  return yargs
+    .boolean('dev')
+    .boolean('pythons')
+    .parse(process.argv.slice(sliceNum));
+}
 
 /**
  * @param {object} obj
@@ -405,21 +417,31 @@ function onReady() {
           url: 'file://' + path.join(staticFileDir, windowUrls[windowName])
         });
         window.show();
-      } else if (argv._[0]) {
-        const filename = path.resolve(argv._[0]);
+      } else if (_.size(argv._)) {
+        const statSearch = _.map(argv._, arg => {
+          return files.getStats(arg)
+            .catch(_.noop)
+            .then(stats => {
+              return {name: path.resolve(arg), stats};
+            });
+        });
 
-        log('info', 'found filename', filename);
+        return bluebird.all(statSearch).then(function (files) {
+          log('info', 'files', files);
 
-        return files.getStats(filename)
-          .then(function (stats) {
-            log('info', 'filename has stats', filename, stats);
+          const file = _.head(_.compact(files));
 
-            if (stats.isDirectory()) {
-              return startMainWindowWithWorkingDirectory(filename);
+          if (file) {
+            if (file.stats.isDirectory()) {
+              return startMainWindowWithWorkingDirectory(file.name);
             } else {
-              return startMainWindowWithOpenFile(filename, stats);
+              return startMainWindowWithOpenFile(file.name, file.stats);
             }
-          });
+          } else {
+            log('info', 'no files found with', argv._);
+            return startStartupWindow();
+          }
+        });
       } else if (argv.startup === false) {
         return startMainWindow();
       } else {
@@ -868,7 +890,7 @@ function startApp() {
     app.setAppUserModelId(appUserModelId);
 
     // record for later use
-    log('info', 'started with', argv);
+    log('info', 'started with', argv, process.argv);
     log('info', 'versions', process.versions);
 
     return installer.handleSquirrelStartupEvent(app)
