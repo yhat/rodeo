@@ -1,4 +1,3 @@
-import _ from 'lodash';
 import path from 'path';
 import {send} from 'ipc';
 import {addFile} from '../../containers/editor-tab-group/editor-tab-group.actions';
@@ -13,7 +12,7 @@ export function openViewedFile(file) {
       filename = path.join(state.fileView.path, file.filename);
 
     if (file.isDirectory) {
-      return dispatch(getViewedFiles(filename));
+      return dispatch(setViewedPath(filename));
     } else {
       return send('fileStats', filename)
         .then(stats => dispatch(addFile(filename, stats)));
@@ -36,10 +35,27 @@ export function selectViewedFile(file) {
  * @returns {function}
  */
 export function getViewedFiles(filePath) {
-  return function (dispatch) {
-    return send('resolveFilePath', filePath)
-      .then(expandedPath => send('files', expandedPath))
+  return function (dispatch, getState) {
+    console.log('getViewedFiles', filePath);
+
+    if (!filePath) {
+      const state = getState();
+
+      filePath = state.fileView.path;
+    }
+
+    return send('files', filePath)
       .then(files => dispatch({type: 'LIST_VIEWED_FILES', path: filePath, files}))
+      .catch(error => console.error(error));
+  };
+}
+
+function setViewedPath(filePath) {
+  return function (dispatch) {
+    console.log('setViewedPath, filePath', filePath);
+
+    return send('files', filePath)
+      .then(files => dispatch({type: 'SET_VIEWED_PATH', path: filePath, files}))
       .catch(error => console.error(error));
   };
 }
@@ -49,18 +65,16 @@ export function getViewedFiles(filePath) {
  */
 export function goToParentDirectory() {
   return function (dispatch, getState) {
-    const fileView = getState().fileView,
-      newPath = _.dropRight(fileView.path.split(path.sep), 1).join(path.sep);
+    const fileView = getState().fileView;
 
-    if (newPath) {
-      dispatch(getViewedFiles(newPath));
-    }
+    dispatch(setViewedPath(path.resolve(fileView.path, '..')));
   };
 }
 
 export default {
   openViewedFile,
   selectViewedFile,
+  setViewedPath,
   getViewedFiles,
   goToParentDirectory
 };

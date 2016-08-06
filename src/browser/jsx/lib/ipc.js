@@ -68,7 +68,6 @@ const ipc = (function () {
           console.warn('ipc ' + eventId + ': still waiting for', eventName);
         }, 1000);
 
-      console.log('ipc ' + eventId + ': sending', [eventName, eventId].concat(args.slice(1)));
       ipcRenderer.send.apply(ipcRenderer, [eventName, eventId].concat(args.slice(1)));
       response = function (event, id) {
         var result, endTime;

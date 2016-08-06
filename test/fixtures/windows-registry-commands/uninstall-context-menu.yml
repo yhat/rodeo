@@ -1,0 +1,25 @@
+---
+-
+  - reg.exe
+  -
+    - delete
+    - HKCU\Software\Classes\.py\shell\Rodeo
+    - "/f"
+-
+  - reg.exe
+  -
+    - delete
+    - HKCU\Software\Classes\directory\shell\Rodeo
+    - "/f"
+-
+  - reg.exe
+  -
+    - delete
+    - HKCU\Software\Classes\directory\background\shell\Rodeo
+    - "/f"
+-
+  - reg.exe
+  -
+    - delete
+    - HKCU\Software\Classes\Applications\rodeo.exe
+    - "/f"

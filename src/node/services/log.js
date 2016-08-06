@@ -1,22 +1,23 @@
 'use strict';
 
 const _ = require('lodash'),
-  chalk = require('chalk'),
   electronWinstonTransport = require('./electron-winston-transport'),
   path = require('path'),
   winston = require('winston'),
-  util = require('util');
+  util = require('util'),
+  colorize = false;
 
 winston.transports.ElectronLogger = electronWinstonTransport;
 
 let logLevel = process.env.RODEO_LOG_LEVEL || 'info',
   transports = [
     new winston.transports.ElectronLogger({
-      level: logLevel
+      level: logLevel,
+      colorize
     }),
     new winston.transports.Console({
       level: logLevel,
-      colorize: true,
+      colorize,
       humanReadableUnhandledException: true
     }),
     new winston.transports.File({
@@ -26,7 +27,7 @@ let logLevel = process.env.RODEO_LOG_LEVEL || 'info',
       maxsize: 1024 * 1024,
       tailable: true,
       json: false,
-      colorize: false,
+      colorize,
       prettyPrint: true
     })
   ],
@@ -110,7 +111,7 @@ function transformEventEmitter(obj) {
 }
 
 function printObject(obj) {
-  return util.inspect(obj, {depth: 10, colors: true});
+  return util.inspect(obj, {depth: 10, colors: colorize});
 }
 
 function sanitizeObject(value) {
@@ -139,7 +140,9 @@ function sanitizeObject(value) {
  * @returns {Function}
  */
 function asInternal(dirname) {
-  const prefix = path.relative(process.cwd(), dirname).replace(/\.js$/, '').replace(/^[\.]\.\//, '');
+  const prefix = path.relative(process.cwd(), dirname)
+    .replace(/\.js$/, '')
+    .replace(/^[\.]\.\//, '').replace(/^app\/node\//, '');
 
   return function (type) {
     exports.log(type, _.reduce(_.slice(arguments, 1), function (list, value) {
@@ -150,7 +153,7 @@ function asInternal(dirname) {
       }
 
       return list;
-    }, [chalk.blue(prefix + '::')]).join(' '));
+    }, [prefix + '::']).join(' '));
   };
 }
 

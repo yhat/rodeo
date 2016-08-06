@@ -2,7 +2,8 @@
 
 const _ = require('lodash'),
   bluebird = require('bluebird'),
-  processes = require('./processes');
+  processes = require('./processes'),
+  win32System = require('./win32/system');
 
 /**
  * @returns {Promise}
@@ -37,8 +38,21 @@ function getBashEnv() {
  * @returns {Promise}
  */
 function getCmdEnv() {
-  return new bluebird(function (resolve) {
-    resolve([]);
+  return win32System.getPath(process.env.SystemPath).then(function (str) {
+    const lines = str.split(';'),
+      env = {};
+
+    _.each(lines, function (line) {
+      const split = line.split('=', 2),
+        key = split[0],
+        value = split[1];
+
+      if (key && value) {
+        env[key] = value;
+      }
+    });
+
+    return _.assign({}, process.env, env);
   });
 }
 
@@ -51,7 +65,11 @@ function getEnv() {
     return getBashEnv();
   }
 
-  return getCmdEnv();
+  if (process.platform === 'win32') {
+    return getCmdEnv();
+  }
+
+  return bluebird.resolve([]);
 }
 
 module.exports.getEnv = getEnv;

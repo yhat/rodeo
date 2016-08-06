@@ -16,10 +16,8 @@ function replyToEvent(name, id, event) {
   return function (data) {
     try {
       if (_.isError(data)) {
-        log('error', 'event failed', id, name, data);
         event.sender.send(replyName, id, {name: data.name, message: data.message});
       } else {
-        log('info', 'event succeeded', id, name, data);
         event.sender.send(replyName, id, null, data);
       }
     } catch (ex) {
@@ -46,13 +44,10 @@ function exposeElectronIpcEvents(ipcEmitter, list) {
   _.each(list, function (fn) {
     const name = _.camelCase(fn.name.replace(/^on/, ''));
 
-    log('debug', 'exposeElectronIpcEvents exposing', name);
-
     ipcEmitter.on(name, function (event, id) {
       try {
         const args = _.slice(arguments, 2);
 
-        log('info', 'responding to ipc event', id, name, args);
         bluebird.try(() => fn.apply(event.sender, args))
           .then(replyToEvent(name, id, event))
           .catch(replyToEvent(name, id, event));

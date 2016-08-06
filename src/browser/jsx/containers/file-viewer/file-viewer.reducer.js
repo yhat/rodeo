@@ -9,10 +9,28 @@ const initialState = {
   showDotFiles: false
 };
 
-function setFileList(state, action) {
+function setViewedPath(state, action) {
+  console.log('setViewedPath', action);
+
   state = _.clone(state);
-  state.files = action.files;
   state.path = action.path;
+
+  if (action.files) {
+    state.files = action.files;
+  }
+
+  return state;
+}
+
+function setFileList(state, action) {
+  console.log('setFileList', action);
+
+  // Async means multiple file lists could be coming.
+  // Only accept the one that matches what we're current viewing.
+  if (state.path === action.path) {
+    state = _.clone(state);
+    state.files = action.files;
+  }
 
   return state;
 }
@@ -53,6 +71,7 @@ function changePreference(state, action) {
 }
 
 export default mapReducers({
+  SET_VIEWED_PATH: setViewedPath,
   LIST_VIEWED_FILES: setFileList,
   SELECT_VIEWED_FILE: selectFile,
   CHANGE_PREFERENCE: changePreference

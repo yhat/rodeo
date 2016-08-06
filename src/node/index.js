@@ -2,9 +2,11 @@
 
 const _ = require('lodash'),
   bluebird = require('bluebird'),
+  kernelsPythonClient = require('./kernels/python/client'),
   cuid = require('cuid'),
   electron = require('electron'),
   browserWindows = require('./services/browser-windows'),
+  env = require('./services/env'),
   files = require('./services/files'),
   ipcPromises = require('./services/ipc-promises'),
   path = require('path'),
@@ -12,8 +14,10 @@ const _ = require('lodash'),
   os = require('os'),
   steveIrwin = require('./kernels/python/steve-irwin'),
   updater = require('./services/updater'),
+  installer = require('./services/installer'),
+  PlotServer = require('./services/plot-server'),
   yargs = require('yargs'),
-  argv = yargs.argv,
+  argv = getArgv(),
   log = require('./services/log').asInternal(__filename),
   staticFileDir = path.resolve(__dirname, '../browser/'),
   kernelClients = {},
@@ -26,6 +30,24 @@ const _ = require('lodash'),
   systemFactTimeout = 120,
   autoCompleteTimeout = 5,
   second = 1000;
+
+let plotServerInstance,
+  isStartupFinished = false;
+
+function getArgv() {
+  let sliceNum;
+
+  if (_.endsWith(process.argv[0], 'Electron')) {
+    sliceNum = 2;
+  } else {
+    sliceNum = 1;
+  }
+
+  return yargs
+    .boolean('dev')
+    .boolean('pythons')
+    .parse(process.argv.slice(sliceNum));
+}
 
 /**
  * @param {object} obj
@@ -101,6 +123,11 @@ function onQuitApplication() {
   log('info', 'onQuitApplication');
 
   app.quit();
+
+  if (process.platform === 'linux') {
+    log('info', 'forcing quit on linux');
+    process.exit(0);
+  }
 }
 
 /**
@@ -112,7 +139,9 @@ function onFiles(dir) {
     throw new Error('onFiles expects a string as the first argument');
   }
 
-  return files.readDirectory(path.resolve(dir));
+  log('info', 'HEY', dir);
+
+  return files.readDirectory(path.resolve(dir)).tap(function (files) { log('info', 'HOO', files); });
 }
 
 /**
@@ -171,11 +200,18 @@ function onSaveFile(filename, contents) {
   return files.writeFile(filename, contents);
 }
 
+/**
+ *
+ * @param {string} extension
+ * @param {object} data
+ * @param {string} property
+ * @returns {Promise}
+ */
 function replacePropertyWithTemporaryFile(extension, data, property) {
   if (data[property]) {
     return files.saveToTemporaryFile(extension, data[property]).then(function (filepath) {
       let name = _.last(filepath.split(path.sep)),
-        route = require('./services/server').addTemporaryFileRoute(filepath, '/' + name);
+        route = plotServerInstance.addRouteToFile(filepath, '/' + name);
 
       log('info', 'new plot served from', route);
 
@@ -222,9 +258,7 @@ function subscribeBrowserWindowToEvent(windowName, emitter, eventName) {
   emitter.on(eventName, function (event) {
     displayDataTransform(event).then(function (normalizedEvent) {
       browserWindows.send.apply(browserWindows, [windowName, eventName].concat([normalizedEvent]));
-    }).catch(function (error) {
-      log('error', error);
-    });
+    }).catch(error => log('error', error));
   });
 }
 
@@ -291,6 +325,51 @@ function startMainWindow() {
   });
 }
 
+function startMainWindowWithOpenFile(filename, stats) {
+  return bluebird.try(function () {
+    let window;
+    const windowName = 'mainWindow';
+
+    window = browserWindows.createMainWindow(windowName, {
+      url: 'file://' + path.join(staticFileDir, windowUrls[windowName]),
+      startActions: [
+        {type: 'ADD_FILE', filename, stats}
+      ]
+    });
+
+    if (argv.dev) {
+      window.openDevTools();
+    }
+
+    return attachApplicationMenu(window.webContents)
+      .then(function () {
+        window.show();
+      });
+  });
+}
+
+function startMainWindowWithWorkingDirectory(filename) {
+  return files.readDirectory(filename).then(function (files) {
+    const windowName = 'mainWindow';
+
+    let window = browserWindows.createMainWindow(windowName, {
+      url: 'file://' + path.join(staticFileDir, windowUrls[windowName]),
+      startActions: [
+        {type: 'SET_WORKING_DIRECTORY', filename},
+        {type: 'SET_VIEWED_PATH', path: filename, files}
+      ]
+    });
+
+    if (argv.dev) {
+      window.openDevTools();
+    }
+
+    return attachApplicationMenu(window.webContents)
+      .then(function () {
+        window.show();
+      });
+  });
+}
 /**
  * @returns {Promise}
  */
@@ -310,9 +389,11 @@ function startStartupWindow() {
     window.webContents.on('did-finish-load', function () {
       window.show();
       window.once('close', function () {
-        startMainWindow().catch(function (error) {
-          log('error', error);
-        });
+        if (isStartupFinished) {
+          startMainWindow().catch(function (error) {
+            log('error', error);
+          });
+        }
       });
     });
 
@@ -326,9 +407,9 @@ function startStartupWindow() {
 function onReady() {
   let windowName, window;
 
-  require('./services/env').getEnv()
+  env.getEnv()
     .then(function (env) {
-      require('./kernels/python/client').setDefaultEnv(env);
+      kernelsPythonClient.setDefaultEnv(env);
 
       if (argv.design) {
         windowName = 'designWindow';
@@ -336,12 +417,40 @@ function onReady() {
           url: 'file://' + path.join(staticFileDir, windowUrls[windowName])
         });
         window.show();
+      } else if (_.size(argv._)) {
+        const statSearch = _.map(argv._, arg => {
+          return files.getStats(arg)
+            .catch(_.noop)
+            .then(stats => {
+              return {name: path.resolve(arg), stats};
+            });
+        });
+
+        return bluebird.all(statSearch).then(function (files) {
+          log('info', 'files', files);
+
+          const file = _.head(_.compact(files));
+
+          if (file) {
+            if (file.stats.isDirectory()) {
+              return startMainWindowWithWorkingDirectory(file.name);
+            } else {
+              return startMainWindowWithOpenFile(file.name, file.stats);
+            }
+          } else {
+            log('info', 'no files found with', argv._);
+            return startStartupWindow();
+          }
+        });
+      } else if (argv.startup === false) {
+        return startMainWindow();
       } else {
-        (argv.startup === false ? startMainWindow() : startStartupWindow())
-          .then(attachIpcMainEvents)
-          .catch(err => log('error', err));
+        return startStartupWindow();
       }
-    });
+
+    })
+    .then(attachIpcMainEvents)
+    .catch(error => log('error', error));
 }
 
 /**
@@ -515,24 +624,34 @@ function onGetSystemFacts() {
  * @returns {Promise<string>}
  */
 function onGetAppVersion() {
-  return bluebird.resolve(getVersion());
-}
+  const app = electron.app;
 
-function onQuitAndInstall() {
-  return bluebird.try(updater.install);
+  return bluebird.resolve(app.getVersion());
 }
 
 /**
- * @returns {string}
+ * @returns {Promise<string>}
  */
-function getVersion() {
-  const pkg = getPkg();
+function onGetAppName() {
+  const app = electron.app;
 
-  if (pkg) {
-    return pkg.version;
-  }
+  return bluebird.resolve(app.getName());
+}
 
-  return '';
+/**
+ * @returns {Promise<string>}
+ */
+function onGetAppLocale() {
+  const app = electron.app;
+
+  return bluebird.resolve(app.getLocale());
+}
+
+/**
+ * @returns {Promise}
+ */
+function onQuitAndInstall() {
+  return bluebird.try(updater.install);
 }
 
 /**
@@ -687,6 +806,15 @@ function onCreateWindow(name, options) {
   return window;
 }
 
+function onFinishStartup() {
+  const startupWindow = browserWindows.getByName('startupWindow');
+
+  if (startupWindow) {
+    isStartupFinished = true;
+    startupWindow.close();
+  }
+}
+
 /**
  * Share an action with every window except the window that send the action.
  * @param {object} action
@@ -722,11 +850,14 @@ function attachIpcMainEvents() {
     onCloseWindow,
     onCreateKernelInstance,
     onCreateWindow,
+    onFinishStartup,
     onEval,
     onExecuteHidden,
     onFiles,
     onFileStats,
     onGetAppVersion,
+    onGetAppName,
+    onGetAppLocale,
     onGetAutoComplete,
     onGetFile,
     onGetInspection,
@@ -751,41 +882,67 @@ function attachIpcMainEvents() {
   ]);
 }
 
+function startApp() {
+  const app = electron.app,
+    appUserModelId = 'com.squirrel.rodeo.Rodeo';
+
+  if (app) {
+    app.setAppUserModelId(appUserModelId);
+
+    // record for later use
+    log('info', 'started with', argv, process.argv);
+    log('info', 'versions', process.versions);
+
+    return installer.handleSquirrelStartupEvent(app)
+      .then(function (isSquirrel) {
+        if (!isSquirrel) {
+          attachAppEvents();
+          return startPlotServer();
+        } else {
+          log('info', 'was squirrely');
+        }
+      })
+      .catch(error => log('error', error));
+  }
+}
+
 /**
  * Attach events only if we're not in a browser window
  */
 function attachAppEvents() {
   const app = electron.app;
 
-  if (app) {
-    app.on('will-finish-launching', function () {
-      log('info', 'will-finish-launching');
-    });
-    app.on('will-quit', function () {
-      log('info', 'will-quit');
-    });
-    app.on('before-quit', function () {
-      log('info', 'before-quit');
-    });
-    app.on('quit', function (event, errorCode) {
-      log('info', 'quit', {errorCode});
-    });
-    app.on('activate', function (event, hasVisibleWindows) {
-      log('info', 'activate', {hasVisibleWindows});
-    });
-    app.on('gpu-process-crashed', function () {
-      log('info', 'gpu-process-crashed');
-    });
-    app.on('window-all-closed', onWindowAllClosed);
-    app.on('ready', onReady);
+  app.on('will-finish-launching', function () {
+    log('info', 'will-finish-launching');
+  });
+  app.on('will-quit', function () {
+    log('info', 'will-quit');
+  });
+  app.on('before-quit', function () {
+    log('info', 'before-quit');
+  });
+  app.on('quit', function (event, errorCode) {
+    log('info', 'quit', {errorCode});
+  });
+  app.on('activate', function (event, hasVisibleWindows) {
+    log('info', 'activate', {hasVisibleWindows});
+  });
+  app.on('gpu-process-crashed', function () {
+    log('info', 'gpu-process-crashed');
+  });
+  app.on('window-all-closed', onWindowAllClosed);
+  app.on('ready', onReady);
+}
 
-    require('./services/server').start(9356)
-      .catch(error => log('error', error));
-  }
+function startPlotServer() {
+  plotServerInstance = new PlotServer(Math.floor(Math.random() * 2000) + 8000);
+
+  return plotServerInstance.listen()
+    .then(port => log('info', 'serving plots from port', port))
+    .catch(error => log('critical', 'failure to start plot server', error));
 }
 
 /**
- *
  * @param {EventEmitter} ipcEmitter
  * @returns {Promise}
  */
@@ -808,4 +965,4 @@ module.exports.onQuitApplication = onQuitApplication;
 module.exports.onReady = onReady;
 module.exports.onWindowAllClosed = onWindowAllClosed;
 
-attachAppEvents();
+startApp();

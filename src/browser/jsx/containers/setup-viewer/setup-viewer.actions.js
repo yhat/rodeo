@@ -7,7 +7,7 @@ import track from '../../services/track';
 function closeWindow() {
   return function (dispatch) {
     dispatch({type: 'CLOSING_WINDOW'});
-    send('closeWindow', 'startupWindow')
+    send('finishStartup')
       .then(() => dispatch({type: 'CLOSED_WINDOW'}))
       .catch(error => console.error(error));
   };

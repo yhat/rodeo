@@ -10,7 +10,8 @@ const _ = require('lodash'),
   log = require('./log').asInternal(__filename),
   util = require('util'),
   availableBrowserWindowOptions = [
-    'width', 'height', 'useContentSize', 'resizable', 'moveable', 'center', 'alwaysOnTop', 'show', 'frame'
+    'width', 'height', 'useContentSize', 'resizable', 'moveable', 'center', 'alwaysOnTop', 'show', 'frame',
+    'webPreferences'
   ],
   windows = {},
   os = require('os'),
@@ -161,6 +162,7 @@ function inspectWebContents() {
  * @returns {BrowserWindow}
  */
 function create(name, options) {
+  let webContents;
   const BrowserWindow = electron.BrowserWindow,
     window = new BrowserWindow(_.pick(options, availableBrowserWindowOptions));
 
@@ -177,12 +179,15 @@ function create(name, options) {
   window.on('focus', () => log('info', 'focus', name));
   window.on('blur', () => log('info', 'blur', name));
   window.on('ready-to-show', () => log('info', 'ready-to-show', name));
-  window.webContents.on('did-finish-load', () => log('info', 'onFinishLoad', name));
-  window.webContents.on('did-fail-load', onFailLoad);
-  window.webContents.on('did-get-response-details', onGetResponseDetails);
-  window.webContents.on('crashed', () => log('error', 'onCrashed'));
-  window.webContents.on('plugin-crashed', () => log('error', 'onPluginCrashed'));
-  window.webContents.on('destroyed', onDestroyed);
+  window.on('app-command', () => log('info', 'app-command', name));
+
+  webContents = window.webContents;
+  webContents.on('did-finish-load', onFinishLoad(name, options));
+  webContents.on('did-fail-load', onFailLoad);
+  webContents.on('did-get-response-details', onGetResponseDetails);
+  webContents.on('crashed', () => log('error', 'onCrashed'));
+  webContents.on('plugin-crashed', () => log('error', 'onPluginCrashed'));
+  webContents.on('destroyed', onDestroyed);
 
   // how to log
   window.inspect = inspectBrowserWindow;
@@ -192,6 +197,16 @@ function create(name, options) {
   windows[name] = window;
 
   return window;
+}
+
+function onFinishLoad(name, options) {
+  return function () {
+    if (_.isArray(options.startActions)) {
+      _.each(options.startActions, function (action) {
+        send(name, 'dispatch', action);
+      });
+    }
+  };
 }
 
 /**
@@ -207,7 +222,12 @@ function createMainWindow(name, options) {
   return create(name, _.assign({
     width: size.width,
     height: size.height,
-    show: false
+    show: false,
+    acceptFirstMouse: true,
+    webPreferences: {
+      nodeIntegration: true,
+      offscreen: true
+    }
   }, options));
 }
 
@@ -225,7 +245,8 @@ function createStartupWindow(name, options) {
     center: true,
     alwaysOnTop: false,
     show: false,
-    frame: false
+    frame: false,
+    acceptFirstMouse: true
   }, options));
 }
 
