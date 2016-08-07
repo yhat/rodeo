@@ -14,8 +14,7 @@ x**2
 
 # We'll use the popular package called Pandas
 # Install it with pip
-import pip
-pip.main(['install', 'pandas'])
+! pip install pandas
 
 # Import it as 'pd'
 import pandas as pd
@@ -26,8 +25,8 @@ df.head()
 
 #####################################################################################
 # An example of making a plot:
+! pip install ggplot
 
-pip.main(['install', 'ggplot'])
 from ggplot import ggplot, aes, geom_bar
 
 ggplot(df, aes(x="Animal", weight="Legs")) + geom_bar(fill='blue')
