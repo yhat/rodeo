@@ -7,6 +7,7 @@ import SlideoutDialog from './slideout-dialog.jsx';
 import './sidebar.css';
 import logoPython from './logo-python.svg';
 import logoScienceOps from './logo-scienceops.png';
+import logoYhat from './logo-yhat.svg';
 import actions from './sidebar.actions';
 import dialogActions from '../../actions/dialogs';
 
@@ -68,6 +69,10 @@ export default connect(mapStateToProps, mapDispatchToProps)(React.createClass({
             <SidebarItem onClick={_.partial(props.onShowURL, 'http://blog.yhat.com/tutorials/index.html')}>
               <span><img src={logoPython}/></span>
               <span>{'Tutorials'}</span>
+            </SidebarItem>
+            <SidebarItem onClick={_.partial(props.onOpenURL, 'http://blog.yhat.com/index.html')}>
+              <span><img src={logoYhat}/></span>
+              <span>{'Yhat Blog'}</span>
             </SidebarItem>
           </div>
           <SidebarItem onClick={_.partial(props.onOpenURL, 'http://rodeo.yhat.com/docs/')}>
