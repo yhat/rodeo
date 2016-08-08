@@ -6,7 +6,9 @@
 'use strict';
 
 const _ = require('lodash'),
-  fs = require('fs');
+  fs = require('fs'),
+  os = require('os'),
+  log = require('../../services/log').asInternal(__filename);
 
 /**
  * @param {object} args
@@ -35,6 +37,14 @@ function setDefaultEnvVars(env) {
       addPath(envs, '/usr/local/bin');
 
       env.PATH = envs.join(':');
+    }
+  }
+
+  if (process.platform === 'win32') {
+    try {
+      env.NUMBER_OF_PROCESSORS = os.cpus().length;
+    } catch (ex) {
+      log('warn', 'failed to set NUMBER_OF_PROCESSORS', ex);
     }
   }
 
