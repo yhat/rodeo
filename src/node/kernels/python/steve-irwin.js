@@ -17,15 +17,6 @@ let ruleSet = [
     then: {cmd: 'python', shell: 'cmd.exe'}
   },
   {
-    when: _.matches({platform: 'win32'}),
-    then: function () {
-      return processes.exec('for %i in (python.exe) do @echo. %~$PATH:i')
-        .then(function (results) {
-          return {cmd: _.trim(results.stdout), shell: 'cmd.exe', label: 'all pythons in path'};
-        }).timeout(2000, 'Unable to run "all pythons in path" in under 2 seconds');
-    }
-  },
-  {
     when: _.overSome(_.matches({platform: 'linux'}), _.matches({platform: 'darwin'})),
     then: function () {
       // run 'which python' and use that result as their python instance

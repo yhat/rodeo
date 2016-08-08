@@ -25,6 +25,7 @@ const _ = require('lodash'),
   bluebird = require('bluebird'),
   clientResponse = require('./client-response'),
   EventEmitter = require('events'),
+  environment = require('../../services/env'),
   StreamSplitter = require('stream-splitter'),
   log = require('../../services/log').asInternal(__filename),
   path = require('path'),
@@ -32,12 +33,6 @@ const _ = require('lodash'),
   pythonLanguage = require('./language'),
   uuid = require('uuid'),
   checkPythonTimeout = 60000;
-
-/**
- * The default environment variables that all clients will assume
- * @type object
- */
-let defaultEnv = process.env;
 
 function createObjectEmitter(stream) {
   const streamSplitter = new StreamSplitter('\n'),
@@ -337,11 +332,13 @@ class JupyterClient extends EventEmitter {
 function getPythonCommandOptions(options) {
   options = resolveHomeDirectory(options);
 
-  return _.assign({
-    env: pythonLanguage.setDefaultEnvVars(defaultEnv),
-    stdio: ['pipe', 'pipe', 'pipe'],
-    encoding: 'UTF8'
-  }, _.pick(options || {}, ['shell']));
+  return environment.getEnv().then(function (defaultEnv) {
+    return _.assign({
+      env: pythonLanguage.setDefaultEnvVars(defaultEnv),
+      stdio: ['pipe', 'pipe', 'pipe'],
+      encoding: 'UTF8'
+    }, _.pick(options || {}, ['shell']));
+  });
 }
 
 /**
@@ -349,26 +346,28 @@ function getPythonCommandOptions(options) {
  * @param {object} [options]
  * @param {string} [options.shell=<default for OS>]
  * @param {string} [options.cmd="python"]
- * @returns {ChildProcess}
+ * @returns {Promise<ChildProcess>}
  */
 function createPythonScriptProcess(targetFile, options) {
   options = _.pick(options || {}, ['shell', 'cmd']);
 
-  const processOptions = getPythonCommandOptions(options),
-    cmd = options.cmd || 'python';
+  return getPythonCommandOptions(options).then(function (processOptions) {
+    const cmd = options.cmd || 'python';
 
-  return processes.create(cmd, [targetFile], processOptions);
+    return processes.create(cmd, [targetFile], processOptions);
+  });
 }
 
 /**
  * @param {object} options
- * @returns {JupyterClient}
+ * @returns {Promise<JupyterClient>}
  */
 function create(options) {
-  const targetFile = path.resolve(path.join(__dirname, 'start_kernel.py')),
-    child = createPythonScriptProcess(targetFile, options);
+  const targetFile = path.resolve(path.join(__dirname, 'start_kernel.py'));
 
-  return new JupyterClient(child);
+  return createPythonScriptProcess(targetFile, options).then(function (child) {
+    return new JupyterClient(child);
+  });
 }
 
 /**
@@ -378,10 +377,11 @@ function create(options) {
  * @returns {Promise}
  */
 function getPythonScriptResults(targetFile, options) {
-  const processOptions = getPythonCommandOptions(options),
-    cmd = options.cmd || 'python';
+  return getPythonCommandOptions(options).then(function (processOptions) {
+    const cmd = options.cmd || 'python';
 
-  return processes.exec(cmd, [targetFile], processOptions);
+    return processes.exec(cmd, [targetFile], processOptions);
+  });
 }
 
 /**
@@ -433,13 +433,16 @@ function seekJson(str) {
 function checkPython(options) {
   const targetFile = path.resolve(path.join(__dirname, 'check_python.py'));
 
+  log('info', 'checkPython', options);
   return exports.getPythonScriptResults(targetFile, options)
     .then(function (results) {
       let stdout = results.stdout, checkResult;
 
       _.each(results.errors, error => log('error', 'checkPython', options, error));
       if (results.stderr) {
-        log('warn', 'checkPython', options, results.stderr);
+        log('warn', 'checkPython', options, results);
+      } else {
+        log('info', 'checkPython', options, results);
       }
 
       checkResult = seekJson(stdout);
@@ -470,6 +473,3 @@ function resolveHomeDirectory(options) {
 module.exports.create = create;
 module.exports.getPythonScriptResults = getPythonScriptResults;
 module.exports.checkPython = checkPython;
-
-module.exports.setDefaultEnv = value => defaultEnv = value;
-module.exports.getDefaultEnv = () => defaultEnv;

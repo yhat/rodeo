@@ -2,8 +2,7 @@
 
 const _ = require('lodash'),
   path = require('path'),
-  processes = require('../processes'),
-  log = require('../log').asInternal(__filename);
+  processes = require('../processes');
 
 /**
  * @param {string} [systemRoot]

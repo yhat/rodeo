@@ -2,10 +2,12 @@
 
 const AsciiToHtml = require('ansi-to-html'),
   sinon = require('sinon'),
+  bluebird = require('bluebird'),
   dirname = __dirname.split('/').pop(),
   filename = __filename.split('/').pop().split('.').shift(),
   lib = require('./' + filename),
   processes = require('../../services/processes'),
+  environment = require('../../services/env'),
   fs = require('fs'),
   path = require('path'),
   example1 = fs.readFileSync(path.resolve('./test/mocks/jupyter_examples/example_1.py'), {encoding: 'UTF8'}),
@@ -20,6 +22,8 @@ describe(dirname + '/' + filename, function () {
 
   beforeEach(function () {
     sandbox = sinon.sandbox.create();
+    sandbox.stub(environment);
+    environment.getEnv.returns(bluebird.resolve(process.env));
   });
 
   afterEach(function () {
@@ -30,12 +34,16 @@ describe(dirname + '/' + filename, function () {
     const fn = lib[this.title];
 
     it('creates', function () {
-      return new Promise(function (resolve) {
-        const client = fn();
-
-        client.on('ready', function () {
-          expect(processes.getChildren().length).to.equal(1);
-          resolve(client.kill());
+      return fn().then(function (client) {
+        return new bluebird(function (resolve, reject) {
+          client.on('ready', function () {
+            try {
+              expect(processes.getChildren().length).to.equal(1);
+              resolve(client.kill());
+            } catch (ex) {
+              reject(ex);
+            }
+          });
         });
       }).then(function () {
         expect(processes.getChildren().length).to.equal(0);
@@ -63,10 +71,12 @@ describe(dirname + '/' + filename, function () {
 
     before(function () {
       return new Promise(function (resolve) {
-        client = lib.create();
+        return lib.create().then(function (result) {
 
-        client.on('ready', function () {
-          resolve();
+          client = result;
+          client.on('ready', function () {
+            resolve();
+          });
         });
       });
     });

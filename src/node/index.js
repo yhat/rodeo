@@ -6,7 +6,6 @@ const _ = require('lodash'),
   cuid = require('cuid'),
   electron = require('electron'),
   browserWindows = require('./services/browser-windows'),
-  env = require('./services/env'),
   files = require('./services/files'),
   ipcPromises = require('./services/ipc-promises'),
   path = require('path'),
@@ -44,8 +43,10 @@ function getArgv() {
   }
 
   return yargs
-    .boolean('dev')
-    .boolean('pythons')
+    .env('RODEO')
+    .boolean('dev').default('pythons', false)
+    .boolean('pythons').default('pythons', true)
+    .boolean('startup').default('startup', true)
     .parse(process.argv.slice(sliceNum));
 }
 
@@ -139,7 +140,7 @@ function onFiles(dir) {
     throw new Error('onFiles expects a string as the first argument');
   }
 
-  return files.readDirectory(path.resolve(dir)).tap(function (files) { log('info', 'HOO', files); });
+  return files.readDirectory(path.resolve(dir));
 }
 
 /**
@@ -347,13 +348,19 @@ function startMainWindowWithOpenFile(filename, stats) {
 }
 
 function startMainWindowWithWorkingDirectory(filename) {
+  try {
+    process.chdir(filename);
+  } catch (ex) {
+    log('error', 'failed to change working directory to', filename);
+
+    return startStartupWindow();
+  }
+
   return files.readDirectory(filename).then(function (files) {
     const windowName = 'mainWindow';
-
     let window = browserWindows.createMainWindow(windowName, {
       url: 'file://' + path.join(staticFileDir, windowUrls[windowName]),
       startActions: [
-        {type: 'SET_WORKING_DIRECTORY', filename},
         {type: 'SET_VIEWED_PATH', path: filename, files}
       ]
     });
@@ -362,10 +369,9 @@ function startMainWindowWithWorkingDirectory(filename) {
       window.openDevTools();
     }
 
-    return attachApplicationMenu(window.webContents)
-      .then(function () {
-        window.show();
-      });
+    return attachApplicationMenu(window.webContents).then(function () {
+      window.show();
+    });
   });
 }
 /**
@@ -405,49 +411,44 @@ function startStartupWindow() {
 function onReady() {
   let windowName, window;
 
-  env.getEnv()
-    .then(function (env) {
-      kernelsPythonClient.setDefaultEnv(env);
+  return bluebird.try(function () {
+    if (argv.design) {
+      windowName = 'designWindow';
+      window = browserWindows.create(windowName, {
+        url: 'file://' + path.join(staticFileDir, windowUrls[windowName])
+      });
+      window.show();
+    } else if (_.size(argv._)) {
+      const statSearch = _.map(argv._, arg => {
+        return files.getStats(arg)
+          .catch(_.noop)
+          .then(stats => {
+            return {name: path.resolve(arg), stats};
+          });
+      });
 
-      if (argv.design) {
-        windowName = 'designWindow';
-        window = browserWindows.create(windowName, {
-          url: 'file://' + path.join(staticFileDir, windowUrls[windowName])
-        });
-        window.show();
-      } else if (_.size(argv._)) {
-        const statSearch = _.map(argv._, arg => {
-          return files.getStats(arg)
-            .catch(_.noop)
-            .then(stats => {
-              return {name: path.resolve(arg), stats};
-            });
-        });
+      return bluebird.all(statSearch).then(function (files) {
+        log('info', 'files', files);
 
-        return bluebird.all(statSearch).then(function (files) {
-          log('info', 'files', files);
+        const file = _.head(_.compact(files));
 
-          const file = _.head(_.compact(files));
-
-          if (file) {
-            if (file.stats.isDirectory()) {
-              return startMainWindowWithWorkingDirectory(file.name);
-            } else {
-              return startMainWindowWithOpenFile(file.name, file.stats);
-            }
+        if (file) {
+          if (file.stats.isDirectory()) {
+            return startMainWindowWithWorkingDirectory(file.name);
           } else {
-            log('info', 'no files found with', argv._);
-            return startStartupWindow();
+            return startMainWindowWithOpenFile(file.name, file.stats);
           }
-        });
-      } else if (argv.startup === false) {
-        return startMainWindow();
-      } else {
-        return startStartupWindow();
-      }
-
-    })
-    .then(attachIpcMainEvents)
+        } else {
+          log('info', 'no files found with', argv._);
+          return startStartupWindow();
+        }
+      });
+    } else if (argv.startup === false) {
+      return startMainWindow();
+    } else {
+      return startStartupWindow();
+    }
+  }).then(attachIpcMainEvents)
     .catch(error => log('error', error));
 }
 
@@ -464,7 +465,7 @@ function onCheckKernel(options) {
     cwd: {type: 'string'}
   });
 
-  return require('./kernels/python/client').checkPython(options);
+  return kernelsPythonClient.checkPython(options);
 }
 
 /**
@@ -486,18 +487,23 @@ function onCreateKernelInstance(options) {
   }
 
   return new bluebird(function (resolveInstanceId) {
-    let clientFactory = require('./kernels/python/client'),
-      instanceId = cuid(),
-      client = clientFactory.create(options);
+    let instanceId = cuid();
 
-    log('info', 'created new python kernel process', instanceId, options);
-    subscribeWindowToKernelEvents('mainWindow', client);
+    kernelsPythonClient.create(options).then(function (client) {
+      log('info', 'created new python kernel process', instanceId, options);
+      subscribeWindowToKernelEvents('mainWindow', client);
 
-    kernelClients[instanceId] = new bluebird(function (resolveClient) {
-      client.on('ready', function () {
-        log('info', 'new python kernel process is ready', instanceId, options);
-        resolveClient(client);
+      kernelClients[instanceId] = new bluebird(function (resolveClient) {
+        client.on('ready', function () {
+          log('info', 'new python kernel process is ready', instanceId, options);
+          resolveClient(client);
+        });
       });
+
+      return kernelClients[instanceId];
+    }).catch(function () {
+      log('error', 'failed to create instance', instanceId);
+      delete resolveInstanceId(instanceId);
     });
 
     resolveInstanceId(instanceId);

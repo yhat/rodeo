@@ -16,4 +16,5 @@
   z-index: 9000;
   right: 0;
   margin-right: 52px;
+  overflow: hidden;
 }

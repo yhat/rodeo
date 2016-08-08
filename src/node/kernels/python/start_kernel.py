@@ -1,10 +1,21 @@
 #!/usr/bin/env python
 
+import os
+import sys
+import json
+import pprint as pp
+import threading
+from datetime import datetime
+from collections import OrderedDict
+
 # start compatibility with IPython Jupyter 4.0
 try:
     from jupyter_client import manager
 except ImportError:
-    from IPython.kernel import manager
+    try:
+        from IPython.kernel import manager
+    except ImportError:
+        raise Exception('IPython is not installed with {0} {1} {2} {3}'.format(sys.executable, sys.argv, sys.version, os.environ.get('PATH')))
 
 # python3/python2 nonsense
 try:
@@ -13,15 +24,6 @@ try:
 except:
     from queue import Empty
     import queue as Queue
-
-from collections import OrderedDict
-
-import os
-import sys
-import json
-import pprint as pp
-import threading
-from datetime import datetime
 
 def json_serial(obj):
     """JSON serializer for objects not serializable by default json code"""
