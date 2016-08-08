@@ -35,28 +35,6 @@ function getBashEnv() {
 }
 
 /**
- * @returns {Promise}
- */
-function getCmdEnv() {
-  return win32System.getPath(process.env.SystemPath).then(function (str) {
-    const lines = str.split(';'),
-      env = {};
-
-    _.each(lines, function (line) {
-      const split = line.split('=', 2),
-        key = split[0],
-        value = split[1];
-
-      if (key && value) {
-        env[key] = value;
-      }
-    });
-
-    return _.assign({}, process.env, env);
-  });
-}
-
-/**
  * Get the environment variables for a default instance of bash
  * @returns {Promise}
  */
@@ -66,7 +44,7 @@ function getEnv() {
   }
 
   if (process.platform === 'win32') {
-    return getCmdEnv();
+    return win32System.getEnv();
   }
 
   return bluebird.resolve([]);

@@ -250,7 +250,6 @@ class JupyterClient extends EventEmitter {
       resolveEvent: 'stream',
       hidden: true
     }).then(function (result) {
-      log('info', 'HEY!', result);
       return JSON.parse(result.text);
     });
   }

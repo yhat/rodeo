@@ -1,7 +1,9 @@
 'use strict';
 
-const path = require('path'),
-  processes = require('../processes');
+const _ = require('lodash'),
+  path = require('path'),
+  processes = require('../processes'),
+  log = require('../log').asInternal(__filename);
 
 /**
  * @param {string} [systemRoot]
@@ -69,7 +71,29 @@ function getPath(systemRoot) {
     });
 }
 
+/**
+ * @returns {Promise<string>}
+ */
+function getEnv() {
+  return processes.exec('SET')
+    .then(function (result) {
+      const lines = result.stdout.split('\n'),
+        splitLimit = 2;
+
+      return _.reduce(lines, (env, line) => {
+        const split = line.split('=', splitLimit);
+
+        if (split.length === splitLimit) {
+          env[split[0]] = split[1].trim();
+        }
+
+        return env;
+      }, {});
+    });
+}
+
 module.exports.spawnSetx = spawnSetx;
 module.exports.spawnPowershell = spawnPowershell;
 module.exports.getPath = getPath;
+module.exports.getEnv = getEnv;
 

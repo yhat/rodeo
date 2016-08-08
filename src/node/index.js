@@ -139,8 +139,6 @@ function onFiles(dir) {
     throw new Error('onFiles expects a string as the first argument');
   }
 
-  log('info', 'HEY', dir);
-
   return files.readDirectory(path.resolve(dir)).tap(function (files) { log('info', 'HOO', files); });
 }
 
