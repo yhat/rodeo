@@ -15,7 +15,7 @@
 
 .preferences-list .preference-group-list {
   flex: 0 0 120px;
-  overflow-y: scroll;
+  overflow-y: auto;
   display: flex;
   flex-direction: column;
   align-items: stretch;

@@ -5,6 +5,7 @@
   display: inline-block;
   margin: 0;
   padding: 0;
+  height: 22px;
 }
 
 .search-text-box .search-text-box-icon {
@@ -29,6 +30,7 @@
   line-height: 16px;
   padding: 3px;
   padding-right: 6px;
+  vertical-align: top;
 }
 
 .search-text-box input:hover {
