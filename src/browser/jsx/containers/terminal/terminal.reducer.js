@@ -143,10 +143,22 @@ function changePreference(state, action) {
   }
 }
 
+function changeWorkingDirectory(state, action) {
+  state = _.cloneDeep(state);
+  let target = state && state[0];
+
+  if (target) {
+    target.cwd = action.cwd;
+  }
+
+  return state;
+}
+
 export default mapReducers({
   TERMINAL_STATE: setTerminalState,
   IOPUB_EXECUTED_INPUT: executedInput,
   KERNEL_DETECTED: updateFirstTerminalWithKernel,
-  VARIABLES_DETECTED: updateFirstTerminalWithVariables,
-  CHANGE_PREFERENCE: changePreference
+  VARIABLES_CHANGED: updateFirstTerminalWithVariables,
+  CHANGE_PREFERENCE: changePreference,
+  WORKING_DIRECTORY_CHANGED: changeWorkingDirectory
 }, initialState);

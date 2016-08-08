@@ -1,5 +1,11 @@
 import pprint as pp
+import os
 import json
+import ast
+import inspect
+import types
+import re
+
 try:
     import pandas as pd
 except:
@@ -15,45 +21,13 @@ try:
 except:
     pip = None
 
-import ast
-import inspect
-import types
-import re
+def __rodeo_print_status(session):
+   print(json.dumps({
+     "variables": __rodeo_get_variables(session),
+     "cwd": os.getcwd()
+   }))
 
-def __get_docstrings(session, names, is_function):
-    if is_function==True:
-        dtype = "function"
-    else:
-        dtype = "---"
-
-    docstrings = []
-    for name in names:
-        try:
-            if name in session:
-                docstring = session[name].__doc__
-            else:
-                docstring = eval(name, session).__doc__
-        except:
-            docstring = "no docstring provided"
-
-        docstrings.append({
-            "text": name,
-            "dtype": dtype,
-            "docstring": docstring,
-        })
-    print(json.dumps(docstrings))
-
-def __is_code_finished(code):
-    try:
-        ast.parse(code)
-        if "\\n" in code:
-            return re.search('\\n\s+?$', code) is not None
-        else:
-            return True
-    except Exception as e:
-        return str(e)
-
-def __get_variables(session):
+def __rodeo_get_variables(session):
 
     variables = {
         "list": [],
@@ -108,20 +82,4 @@ def __get_variables(session):
     for key in variables:
         variables[key] = sorted(variables[key], key=lambda x: "%s-%s" % (x['repr'], x['name']))
 
-    print(json.dumps(variables))
-
-def __get_packages():
-    if not pip:
-        print('[]')
-        return
-    installed_packages = pip.get_installed_distributions()
-    packages = [{ "name": i.key, "version": i.version} for i in installed_packages]
-    installed_packages_list = sorted(packages, key=lambda x: x['name'])
-    print(json.dumps(installed_packages_list))
-
-def __pip_install(pkgname):
-    if pip:
-        print(pip.main(['install', pkgname]))
-    else:
-        print("Did not detect a pip installation on this machine.")
-
+    return variables

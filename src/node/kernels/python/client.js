@@ -117,7 +117,7 @@ function write(childProcess, obj) {
  * @param {object} [invocation.kwargs]
  * @param {string} [invocation.target]
  * @param {object} options
- * @param {string|string[]} options.successEvent
+ * @param {string|string[]} options.resolveEvent
  * @returns {Promise}
  */
 function request(client, invocation, options) {
@@ -125,11 +125,11 @@ function request(client, invocation, options) {
     requestMap = client.requestMap,
     id = uuid.v4().toString(),
     inputPromise = write(childProcess, _.assign({id}, invocation)),
-    successEvent = options.successEvent,
+    resolveEvent = options.resolveEvent,
     hidden = options.hidden,
     startTime = new Date().getTime(),
     outputPromise = new Promise(function (resolve, reject) {
-      requestMap[id] = {id, invocation, successEvent, hidden, deferred: {resolve, reject}};
+      requestMap[id] = {id, invocation, resolveEvent, hidden, deferred: {resolve, reject}};
     });
 
   return inputPromise
@@ -170,7 +170,7 @@ class JupyterClient extends EventEmitter {
     return request(this, {
       method: 'execute',
       kwargs: _.assign({code}, pythonLanguage.toPythonArgs(args))
-    }, {successEvent: 'execute_reply'});
+    }, {resolveEvent: 'execute_reply'});
   }
 
   /**
@@ -179,7 +179,7 @@ class JupyterClient extends EventEmitter {
    * @returns {Promise}
    */
   input(str) {
-    return request(this, {method: 'input', args: [str]}, {successEvent: 'execute_reply'});
+    return request(this, {method: 'input', args: [str]}, {resolveEvent: 'execute_reply'});
   }
 
   interrupt() {
@@ -197,7 +197,7 @@ class JupyterClient extends EventEmitter {
   getEval(str) {
     return request(this, {
       exec_eval: str
-    }, {successEvent: ['eval_results']});
+    }, {resolveEvent: ['eval_results']});
   }
 
   getDocStrings(names) {
@@ -211,17 +211,17 @@ class JupyterClient extends EventEmitter {
       method: 'execute',
       kwargs: _.assign({code}, pythonLanguage.toPythonArgs(args))
     }, {
-      successEvent: ['stream'],
+      resolveEvent: ['stream'],
       hidden: true
     });
   }
 
   /**
    * @param {string} code
-   * @param {string|[string]} successEvent
+   * @param {string|[string]} resolveEvent
    * @returns {Promise}
    */
-  executeHidden(code, successEvent) {
+  executeHidden(code, resolveEvent) {
     const args = {
       allowStdin: false,
       stopOnError: true
@@ -231,13 +231,13 @@ class JupyterClient extends EventEmitter {
       method: 'execute',
       kwargs: _.assign({code}, pythonLanguage.toPythonArgs(args))
     }, {
-      successEvent: successEvent,
+      resolveEvent,
       hidden: true
     });
   }
 
-  getVariableDetails(name) {
-    const code = '__get_variable_details(globals(), "' + name + '")',
+  getStatus() {
+    const code = '__rodeo_print_status(globals())',
       args = {
         allowStdin: false,
         stopOnError: true
@@ -247,25 +247,10 @@ class JupyterClient extends EventEmitter {
       method: 'execute',
       kwargs: _.assign({code}, pythonLanguage.toPythonArgs(args))
     }, {
-      successEvent: ['stream'],
-      hidden: true
-    });
-  }
-
-  getVariables() {
-    const code = '__get_variables(globals())',
-      args = {
-        allowStdin: false,
-        stopOnError: true
-      };
-
-    return request(this, {
-      method: 'execute',
-      kwargs: _.assign({code}, pythonLanguage.toPythonArgs(args))
-    }, {
-      successEvent: ['stream'],
+      resolveEvent: 'stream',
       hidden: true
     }).then(function (result) {
+      log('info', 'HEY!', result);
       return JSON.parse(result.text);
     });
   }
@@ -293,7 +278,7 @@ class JupyterClient extends EventEmitter {
     return request(this, {
       method: 'complete', // sends complete_request
       args: [code, cursorPos]
-    }, {successEvent: 'complete_reply'});
+    }, {resolveEvent: 'complete_reply'});
   }
 
   /**
@@ -316,7 +301,7 @@ class JupyterClient extends EventEmitter {
     return request(this, {
       method: 'inspect', // sends inspect_request
       args: [code, cursorPos, detailLevel]
-    }, {successEvent: 'inspect_reply'});
+    }, {resolveEvent: 'inspect_reply'});
   }
 
   /**
@@ -335,7 +320,7 @@ class JupyterClient extends EventEmitter {
     return request(this, {
       method: 'is_complete', // sends is_complete_request
       args: [code]
-    }, {successEvent: 'is_complete_reply'});
+    }, {resolveEvent: 'is_complete_reply'});
   }
 
   /**

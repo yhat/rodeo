@@ -85,10 +85,10 @@ function execute(instance, content) {
   });
 }
 
-function executeHidden(instance, code, successEvent) {
+function executeHidden(instance, code, resolveEvent) {
   const startTime = new Date().getTime();
 
-  return send('executeHidden', instance, code, successEvent).then(function (result) {
+  return send('executeHidden', instance, code, resolveEvent).then(function (result) {
     const ms = (new Date().getTime() - startTime);
 
     if (ms > 250) {
@@ -114,8 +114,8 @@ function getAutoComplete(instance, code, cursorPos) {
  * @param {{instanceId: string}} instance
  * @returns {Promise}
  */
-function getVariables(instance) {
-  return send('getVariables', instance);
+function getStatus(instance) {
+  return send('getStatus', instance);
 }
 
 /**
@@ -163,7 +163,7 @@ export default _.assign({
   interrupt,
   getInspection,
   getAutoComplete,
-  getVariables,
+  getStatus,
   killInstance,
   restartInstance
 }, prependPromiseFunction(guaranteeInstance)));

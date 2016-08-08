@@ -49,7 +49,6 @@ function resolveRequest(request, result) {
   delete outputMap[request.msg_id];
 }
 
-
 /**
  * @param {{status: string, id: string}} obj
  * @returns {boolean}
@@ -90,24 +89,30 @@ function isExecutionResult(response) {
 }
 
 /**
+ * @param {[string] | string | function} event
+ * @param {object} parent
+ * @param {object} child
+ * @returns {boolean}
+ */
+function doesRequestMatchEvent(event, parent, child) {
+  const msgType = child.msg_type;
+
+  return (_.isArray(event) && _.includes(event, msgType) ||
+    (_.isFunction(event) && event(parent, child)) ||
+    (event === msgType));
+}
+
+/**
  * @param {{id: string}} parent  Original request
  * @param {{msg_type: string}} child  Resulting action
  * @param {JupyterClient} client  Map of all current requests
  * @returns {boolean}
  */
 function isRequestResolution(parent, child, client) {
-  const requestMap = client.requestMap;
-  let request = requestMap[parent.id];
+  const requestMap = client.requestMap,
+    request = requestMap[parent.id];
 
-  if (request) {
-    if (_.isArray(request.successEvent) && _.includes(request.successEvent, child.msg_type)) {
-      return true;
-    } else if (request.successEvent === child.msg_type) {
-      return true;
-    }
-  }
-
-  return false;
+  return !!(request && doesRequestMatchEvent(request.resolveEvent, parent, child));
 }
 
 /**
@@ -143,7 +148,6 @@ function resolveExecutionResult(client, response) {
     requestInputFromUser(client, result);
   } else if (isRequestResolution(parent, child, client)) {
     resolveRequest(request, result);
-
 
   } else if (child.msg_type === 'status') {
     broadcastKernelStatus(client, result);
