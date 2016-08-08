@@ -91,8 +91,14 @@ function detectKernelVariables() {
       terminal = _.find(state.terminals, {hasFocus: true}),
       id = terminal.id;
 
-    return client.getVariables().then(function (variables) {
-      return dispatch({type: 'VARIABLES_DETECTED', variables, id});
+    return client.getStatus().then(function (status) {
+      const variables = status.variables,
+        cwd = status.cwd;
+
+      dispatch({type: 'VARIABLES_CHANGED', variables, id});
+      dispatch({type: 'WORKING_DIRECTORY_CHANGED', cwd, id});
+
+      return status;
     }).catch(error => dispatch(errorCaught(error)));
   };
 }

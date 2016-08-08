@@ -71,12 +71,12 @@ describe(dirname + '/' + filename, function () {
       const emitSpy = sinon.spy(),
         resolveSpy = sinon.spy(),
         deferred = {resolve: resolveSpy},
-        successEvent = 'yay!',
-        requestMap = {abc: {deferred, successEvent}},
+        resolveEvent = 'yay!',
+        requestMap = {abc: {deferred, resolveEvent}},
         client = {emit: emitSpy, requestMap},
         source = 'some source',
         content = {someValue: 'something really important'},
-        response = {source, result: {msg_type: successEvent, content, parent_header: {msg_id: 'def'}}};
+        response = {source, result: {msg_type: resolveEvent, content, parent_header: {msg_id: 'def'}}};
 
       fn(client, {source: 'link', id: 'abc', result: 'def'}); // request link
       fn(client, response);
@@ -90,12 +90,12 @@ describe(dirname + '/' + filename, function () {
       const emitSpy = sinon.spy(),
         resolveSpy = sinon.spy(),
         deferred = {resolve: resolveSpy},
-        successEvent = 'yay!',
-        requestMap = {abc: {deferred, successEvent, hidden: true}},
+        resolveEvent = 'yay!',
+        requestMap = {abc: {deferred, resolveEvent, hidden: true}},
         client = {emit: emitSpy, requestMap},
         source = 'some source',
         content = {someValue: 'something really important'},
-        response = {source, result: {msg_type: successEvent, content, parent_header: {msg_id: 'def'}}};
+        response = {source, result: {msg_type: resolveEvent, content, parent_header: {msg_id: 'def'}}};
 
       fn(client, {source: 'link', id: 'abc', result: 'def'}); // request link
       fn(client, response);
@@ -109,13 +109,13 @@ describe(dirname + '/' + filename, function () {
       const emitSpy = sinon.spy(),
         resolveSpy = sinon.spy(),
         deferred = {resolve: resolveSpy},
-        successEvent = 'yay!',
-        nonSuccessEvent = 'aww!',
-        requestMap = {abc: {deferred, successEvent}},
+        resolveEvent = 'yay!',
+        nonResolveEvent = 'aww!',
+        requestMap = {abc: {deferred, resolveEvent}},
         client = {emit: emitSpy, requestMap},
         source = 'some source',
         content = {someValue: 'something really important'},
-        response = {source, result: {msg_type: nonSuccessEvent, content, parent_header: {msg_id: 'def'}}};
+        response = {source, result: {msg_type: nonResolveEvent, content, parent_header: {msg_id: 'def'}}};
 
       fn(client, {source: 'link', id: 'abc', result: 'def'}); // request link
       fn(client, response);

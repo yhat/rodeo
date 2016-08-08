@@ -571,14 +571,14 @@ function onGetInspection(options, text, cursorPos) {
     .then(client => client.getInspection(text, cursorPos));
 }
 
-function onGetVariables(options) {
+function onGetStatus(options) {
   return getKernelInstanceById(options.instanceId)
-    .then(client => client.getVariables());
+    .then(client => client.getStatus());
 }
 
-function onExecuteHidden(options, code, successEvent) {
+function onExecuteHidden(options, code, resolveEvent) {
   return getKernelInstanceById(options.instanceId)
-    .then(client => client.executeHidden(code, successEvent));
+    .then(client => client.executeHidden(code, resolveEvent));
 }
 
 function onEval(options, text) {
@@ -862,7 +862,7 @@ function attachIpcMainEvents() {
     onGetFile,
     onGetInspection,
     onGetSystemFacts,
-    onGetVariables,
+    onGetStatus,
     onIsComplete,
     onInterrupt,
     onKnitHTML,

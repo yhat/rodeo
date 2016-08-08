@@ -6,6 +6,7 @@ import TabbedPaneItem from '../../components/tabbed-pane/tabbed-pane-item.jsx';
 import EditorTabGroup from '../../containers/editor-tab-group/editor-tab-group.jsx';
 import Terminal from '../terminal/terminal.jsx';
 import FreeTabGroup from '../../containers/free-tab-group/free-tab-group.jsx';
+import TabText from '../../components/tab-text/tab-text.jsx';
 import './studio-layout.css';
 import _ from 'lodash';
 import splitPaneActions from '../../components/split-pane/split-pane.actions';
@@ -64,6 +65,8 @@ export default connect(mapStateToProps, mapDispatchToProps)(React.createClass({
         <SplitPane direction="top-bottom" id="split-pane-left" onDrag={props.onSplitPaneDrag}>
           <EditorTabGroup focusable={isFocusable} id="top-left"/>
           <TabbedPane focusable={isFocusable}>
+
+            <TabText>{props.terminals[0].cwd}</TabText>
 
             {props.terminals.map(function (item) {
               return (

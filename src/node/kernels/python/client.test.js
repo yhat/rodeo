@@ -90,7 +90,7 @@ describe(dirname + '/' + filename, function () {
       });
     });
 
-    describe('getDocStrings', function () {
+    describe('getStatus', function () {
       const title = this.title;
       let fn;
 
@@ -98,37 +98,16 @@ describe(dirname + '/' + filename, function () {
         fn = client[title].bind(client);
       });
 
-      it('gets docstrings when empty list', function () {
+      it('gets current working directory when empty', function () {
         return fn([]).then(function (result) {
-          expect(result).to.deep.equal({
-            name: 'stdout',
-            text: '[]\n'
-          });
+          expect(!!result.cwd).to.equal(true);
         });
-      });
-
-      it('gets docstrings with global names', function () {
-        return fn(['sys']).then(function (result) {
-          expect(result).to.deep.equal({
-            name: 'stdout',
-            text: '[{\"text\": \"sys\", \"docstring\": \"no docstring provided\", \"dtype\": \"---\"}]\n'
-          });
-        });
-      });
-    });
-
-    describe('getVariables', function () {
-      const title = this.title;
-      let fn;
-
-      before(function () {
-        fn = client[title].bind(client);
       });
 
       it('gets variables when empty', function () {
         return fn([]).then(function (result) {
-          expect(result).to.deep.equal({function: [], Series: [], list: [], DataFrame: [], other: [], dict: [], ndarray: []});
-          expect(result).to.deep.equal({function: [], Series: [], list: [], DataFrame: [], other: [], dict: [], ndarray: []});
+          expect(result.variables).to.deep.equal({function: [], Series: [], list: [], DataFrame: [], other: [], dict: [], ndarray: []});
+          expect(result.variables).to.deep.equal({function: [], Series: [], list: [], DataFrame: [], other: [], dict: [], ndarray: []});
         });
       });
     });
