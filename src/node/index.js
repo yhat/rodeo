@@ -140,7 +140,7 @@ function onFiles(dir) {
     throw new Error('onFiles expects a string as the first argument');
   }
 
-  return files.readDirectory(path.resolve(dir));
+  return files.readDirectory(path.resolve(files.resolveHomeDirectory(dir)));
 }
 
 /**
@@ -176,7 +176,7 @@ function onPDF() {
 }
 
 function onFileStats(filename) {
-  return files.getStats(filename);
+  return files.getStats(files.resolveHomeDirectory(filename));
 }
 
 function onResolveFilePath(filename) {
@@ -192,7 +192,7 @@ function onResolveFilePath(filename) {
 }
 
 function onGetFile(filename) {
-  return files.readFile(filename);
+  return files.readFile(files.resolveHomeDirectory(filename));
 }
 
 function onSaveFile(filename, contents) {
