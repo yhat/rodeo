@@ -16,7 +16,8 @@
     "test": "./node_modules/.bin/gulp test",
     "dist:all": "./scripts/osx/dist-all.sh",
     "dist:osx": "./scripts/osx/dist-osx.sh",
-    "dist:win": "./scripts/osx/dist-win.sh"
+    "dist:win": "./scripts/osx/dist-win.sh",
+    "dist:linux": "./scripts/osx/dist-linux.sh"
   },
   "build": {
     "appId": "com.yhat.rodeo",

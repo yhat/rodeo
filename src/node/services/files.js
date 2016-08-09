@@ -41,6 +41,8 @@ function readDirectory(dirPath) {
     lstat = bluebird.promisify(fs.lstat),
     stat = bluebird.promisify(fs.stat);
 
+  dirPath = resolveHomeDirectory(dirPath);
+
   return read(dirPath).map(function (filename) {
     const fullPath = path.join(dirPath, filename);
 
@@ -76,6 +78,20 @@ function saveToTemporaryFile(suffix, data) {
   }).timeout(10000, 'Timed out trying to save temporary file with extension', suffix);
 }
 
+/**
+ * @param {string} str
+ * @returns {string}
+ */
+function resolveHomeDirectory(str) {
+  if (_.startsWith(str, '~') || _.startsWith(str, '%HOME%')) {
+    const home = require('os').homedir();
+
+    str = str.replace(/^~/, home).replace(/^%HOME%/, home);
+  }
+
+  return str;
+}
+
 module.exports.getJSONFileSafeSync = getJSONFileSafeSync;
 module.exports.readFile = _.partialRight(bluebird.promisify(fs.readFile), 'utf8');
 module.exports.writeFile = bluebird.promisify(fs.writeFile);
@@ -85,3 +101,4 @@ module.exports.getStats = bluebird.promisify(fs.lstat);
 module.exports.exists = bluebird.promisify(fs.exists);
 module.exports.unlink = bluebird.promisify(fs.unlink);
 module.exports.saveToTemporaryFile = saveToTemporaryFile;
+module.exports.resolveHomeDirectory = resolveHomeDirectory;
