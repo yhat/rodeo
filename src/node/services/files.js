@@ -38,19 +38,26 @@ function getJSONFileSafeSync(filePath) {
  */
 function readDirectory(dirPath) {
   const read = bluebird.promisify(fs.readdir),
-    lstat = bluebird.promisify(fs.lstat);
+    lstat = bluebird.promisify(fs.lstat),
+    stat = bluebird.promisify(fs.stat);
 
   return read(dirPath).map(function (filename) {
     const fullPath = path.join(dirPath, filename);
 
-    return lstat(fullPath).then(function (fileStats) {
+    return lstat(fullPath).catch(function (lstatEx) {
+      log('warn', 'lstat failed', filename, lstatEx);
+      return stat(fullPath).catch(function (statEx) {
+        log('warn', 'stat failed', filename, statEx);
+        return undefined;
+      });
+    }).then(function (fileStats) {
       return {
         path: fullPath,
         filename: filename,
         isDirectory: fileStats.isDirectory()
       };
     });
-  });
+  }).then(list => _.compact(list));
 }
 
 /**

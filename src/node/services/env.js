@@ -2,6 +2,7 @@
 
 const _ = require('lodash'),
   bluebird = require('bluebird'),
+  log = require('./log').asInternal(__filename),
   processes = require('./processes'),
   win32System = require('./win32/system');
 
@@ -35,19 +36,37 @@ function getBashEnv() {
 }
 
 /**
+ *
+ * @returns {Promise}
+ */
+function getPlatformEnv() {
+  return bluebird.try(function () {
+    let promise;
+    const platform = process.platform;
+
+    if (platform === 'darwin' || platform === 'linux') {
+      promise = getBashEnv();
+    } else if (platform === 'win32') {
+      promise = win32System.getEnv(process.env.SystemRoot);
+    } else {
+      promise = bluebird.resolve({});
+    }
+
+    return promise;
+  });
+}
+
+/**
  * Get the environment variables for a default instance of bash
  * @returns {Promise}
  */
 function getEnv() {
-  if (process.platform === 'darwin' || process.platform === 'linux') {
-    return getBashEnv();
-  }
-
-  if (process.platform === 'win32') {
-    return win32System.getEnv();
-  }
-
-  return bluebird.resolve([]);
+  return getPlatformEnv()
+    .then(extraEnv => _.defaults(extraEnv, process.env))
+    .catch(error => {
+      log('error', 'getEnv', error);
+      return process.env;
+    });
 }
 
 module.exports.getEnv = getEnv;

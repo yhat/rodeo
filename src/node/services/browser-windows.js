@@ -1,7 +1,6 @@
 'use strict';
 
 const _ = require('lodash'),
-  chalk = require('chalk'),
   cuid = require('cuid'),
   electron = require('electron'),
   fs = require('fs'),
@@ -134,7 +133,7 @@ function getPropertySafe(target, propertyName) {
 
     return _.isFunction(value) && value.call(target) || value;
   } catch (ex) {
-    return chalk.italics('throws ' + ex.name + ': ' + ex.message);
+    return 'throws ' + ex.name + ': ' + ex.message;
   }
 }
 
@@ -144,7 +143,7 @@ function inspectBrowserWindow() {
       id: getPropertySafe(this, 'id'),
       title: getPropertySafe(this, 'title'),
       url: getPropertySafe(this, 'url')
-    }, {colors: true});
+    }, {colors: false});
 }
 
 function inspectWebContents() {

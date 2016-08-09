@@ -45,11 +45,13 @@ function createInstance(options) {
  * @returns {Promise}
  */
 function guaranteeInstance() {
-  if (!instancePromise) {
-    instancePromise = createInstance();
-  }
+  return bluebird.try(function () {
+    if (!instancePromise) {
+      instancePromise = createInstance();
+    }
 
-  return instancePromise;
+    return instancePromise;
+  });
 }
 
 function killInstance(instance) {

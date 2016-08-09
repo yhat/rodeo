@@ -1,9 +1,9 @@
 'use strict';
 
 const _ = require('lodash'),
+  log = require('../log').asInternal(__filename),
   path = require('path'),
-  processes = require('../processes'),
-  log = require('../log').asInternal(__filename);
+  processes = require('../processes');
 
 /**
  * @param {string} [systemRoot]
@@ -72,9 +72,32 @@ function getPath(systemRoot) {
 }
 
 /**
+ * @param {string} systemRoot
+ * @returns {Promise}
+ */
+function getFreshEnv(systemRoot) {
+  const cmd = 'Start-Process -NoNewWindow -UseNewEnvironment -Wait cmd -ArgumentList “/C SET"';
+
+  return spawnPowershell([cmd], systemRoot).then(function (result) {
+    const lines = result.stdout.split('\n'),
+      splitLimit = 2;
+
+    return _.reduce(lines, (env, line) => {
+      const split = line.split('=', splitLimit);
+
+      if (split.length === splitLimit) {
+        env[split[0]] = split[1].trim();
+      }
+
+      return env;
+    }, {});
+  });
+}
+
+/**
  * @returns {Promise<string>}
  */
-function getEnv() {
+function getDefaultEnv() {
   return processes.exec('SET')
     .then(function (result) {
       const lines = result.stdout.split('\n'),
@@ -95,5 +118,7 @@ function getEnv() {
 module.exports.spawnSetx = spawnSetx;
 module.exports.spawnPowershell = spawnPowershell;
 module.exports.getPath = getPath;
-module.exports.getEnv = getEnv;
+module.exports.getFreshEnv = getFreshEnv;
+module.exports.getDefaultEnv = getDefaultEnv;
 
+module.exports.getEnv = getFreshEnv;

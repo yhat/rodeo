@@ -1,9 +1,9 @@
 {
   "name": "rodeo",
   "productName": "Rodeo",
-  "version": "2.0.14-pre.2",
-  "description": "An IDE for data science.",
-  "author": "The Yhat Team <team@yhathq.com> (https://www.yhat.com/products/rodeo)",
+  "version": "2.0.14-pre.5",
+  "description": "Rodeo: An IDE for data science",
+  "author": "Yhat Inc. <team@yhathq.com> (https://www.yhat.com/products/rodeo)",
   "license": "AGPL-3.0",
   "main": "app/node",
   "repository": {

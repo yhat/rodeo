@@ -33,7 +33,7 @@ except:
     except:
         if pip:
             try:
-                pip.main(['install', 'jupyter', 'numpy', 'scipy', 'ggplot'])
+                pip.main(['install', '--disable-pip-version-check', '-qq', 'jupyter'])
             except:
                 has_jupyter_kernel = False
         else:
