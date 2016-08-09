@@ -35,14 +35,25 @@ function getBashEnv() {
   });
 }
 
+/**
+ *
+ * @returns {Promise}
+ */
 function getPlatformEnv() {
-  if (process.platform === 'darwin' || process.platform === 'linux') {
-    return getBashEnv();
-  } else if (process.platform === 'win32') {
-    return win32System.getEnv();
-  } else {
-    return bluebird.resolve({});
-  }
+  return bluebird.try(function () {
+    let promise;
+    const platform = process.platform;
+
+    if (platform === 'darwin' || platform === 'linux') {
+      promise = getBashEnv();
+    } else if (platform === 'win32') {
+      promise = win32System.getEnv(process.env.SystemRoot);
+    } else {
+      promise = bluebird.resolve({});
+    }
+
+    return promise;
+  });
 }
 
 /**
@@ -53,7 +64,7 @@ function getEnv() {
   return getPlatformEnv()
     .then(extraEnv => _.defaults(extraEnv, process.env))
     .catch(error => {
-      log('error', error);
+      log('error', 'getEnv', error);
       return process.env;
     });
 }

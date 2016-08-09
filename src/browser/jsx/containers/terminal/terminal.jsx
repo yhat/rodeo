@@ -22,6 +22,7 @@ object?   -> Details about 'object', use 'object??' for extra details.
 export default React.createClass({
   displayName: 'Terminal',
   propTypes: {
+    focusable: React.PropTypes.bool,
     fontSize: React.PropTypes.number,
     id: React.PropTypes.string,
     indentWidth: React.PropTypes.number,
@@ -31,6 +32,7 @@ export default React.createClass({
   },
   getDefaultProps: function () {
     return {
+      focusable: true,
       fontSize: 12,
       indentWidth: 4,
       message: message,
@@ -55,6 +57,9 @@ export default React.createClass({
     terminalShortcuts.moveCursorToStart(jqConsole);
 
     props.onStart(jqConsole);
+  },
+  componentDidUpdate: function () {
+
   },
   render: function () {
     const props = this.props,

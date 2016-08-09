@@ -40,7 +40,7 @@ function setDefaultEnvVars(env) {
     }
   }
 
-  if (process.platform === 'win32') {
+  if (process.platform === 'win32' && !env.NUMBER_OF_PROCESSORS) {
     try {
       env.NUMBER_OF_PROCESSORS = os.cpus().length;
     } catch (ex) {
