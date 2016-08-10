@@ -102,7 +102,7 @@ function findPythons(facts) {
       return resolveResults;
     })
     .map(function (pythonOptions) {
-      return client.checkPython(pythonOptions)
+      return client.check(pythonOptions)
         .then(function (checkResults) {
           if (!checkResults.hasJupyterKernel) {
             throw new Error('Missing Jupyter/IPython Kernel');

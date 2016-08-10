@@ -120,7 +120,10 @@ export default connect(mapStateToProps, mapDispatchToProps)(React.createClass({
         this.setKeyInvalid(item, newValue);
       })
       // if anything bad happens, it's invalid
-      .catch(_.partial(this.setKeyInvalid, item, newValue));
+      .catch(ex => {
+        console.log('exception when validating preferences', ex);
+        this.setKeyInvalid(item, newValue);
+      });
   }, 250),
   setKeyUnchanged: function (item) {
     let changes = this.state.changes,

@@ -62,6 +62,7 @@ describe(dirname + '/' + filename, function () {
       const dirPath = 'test',
         expectedResult = [{}];
 
+      files.resolveHomeDirectory.returnsArg(0);
       files.readDirectory.returns(bluebird.resolve(expectedResult));
 
       return fn(dirPath).then(function (result) {

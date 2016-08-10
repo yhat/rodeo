@@ -52,9 +52,9 @@ describe(dirname + '/' + filename, function () {
         expectedResults = [];
 
       // one rule to test
-      client.checkPython.withArgs(sinon.match(targetRule)).returns(bluebird.resolve(checkPythonResult));
+      client.check.withArgs(sinon.match(targetRule)).returns(bluebird.resolve(checkPythonResult));
       // all other rules will auto-fail
-      client.checkPython.returns(bluebird.reject(new Error('some error')));
+      client.check.returns(bluebird.reject(new Error('some error')));
 
       return fn(providedEvidence).then(function (results) {
         expect(results).to.deep.equal(expectedResults);
@@ -69,9 +69,9 @@ describe(dirname + '/' + filename, function () {
         expectedResults = [{pythonOptions: targetRule, checkResults: checkPythonResult}];
 
       // one rule to test
-      client.checkPython.withArgs(sinon.match(targetRule)).returns(bluebird.resolve(checkPythonResult));
+      client.check.withArgs(sinon.match(targetRule)).returns(bluebird.resolve(checkPythonResult));
       // all other rules will auto-fail
-      client.checkPython.returns(bluebird.reject(new Error('some error')));
+      client.check.returns(bluebird.reject(new Error('some error')));
 
       return fn(providedEvidence).then(function (results) {
         expect(results).to.deep.equal(expectedResults);
