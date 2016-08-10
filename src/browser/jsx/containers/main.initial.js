@@ -18,7 +18,7 @@ function getFreeTabGroups() {
     {
       groupId: 'top-right',
       active: topRightFocusId,
-      items: [
+      tabs: [
         {
           contentType: 'variable-viewer',
           icon: 'table',
@@ -36,7 +36,7 @@ function getFreeTabGroups() {
     {
       groupId: 'bottom-right',
       active: bottomRightFocusId,
-      items: [
+      tabs: [
         {
           contentType: 'file-viewer',
           icon: 'file-text-o',

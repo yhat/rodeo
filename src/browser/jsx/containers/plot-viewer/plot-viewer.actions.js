@@ -23,10 +23,5 @@ function focusNewestPlot() {
 
 export default {
   focusPlot,
-  focusNewestPlot,
-  focusNextPlot,
-  focusPrevPlot,
-  openActivePlot,
-  removeActivePlot,
-  saveActivePlot
+  focusNewestPlot
 };

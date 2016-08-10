@@ -28,21 +28,21 @@ function moveTab(oldState, action) {
   const state = _.cloneDeep(oldState),
     toGroup = state[_.findIndex(state, {groupId: action.toGroupId})],
     fromGroup = state[_.findIndex(state, {groupId: action.fromGroupId})],
-    fromGroupItemIndex = fromGroup && _.findIndex(fromGroup.items, {id: action.id}),
-    removedItems = fromGroup && fromGroupItemIndex !== -1 && fromGroup.items.splice(fromGroupItemIndex, 1);
+    fromGroupItemIndex = fromGroup && _.findIndex(fromGroup.tabs, {id: action.id}),
+    removedItems = fromGroup && fromGroupItemIndex !== -1 && fromGroup.tabs.splice(fromGroupItemIndex, 1);
 
   if (!toGroup) {
     return oldState;
   }
 
-  toGroup.items = toGroup.items.concat(removedItems);
+  toGroup.tabs = toGroup.tabs.concat(removedItems);
 
   // dragged item takes focus in the new location
   toGroup.active = action.id;
 
   // if moving to new group and item had focus, move focus to left item
   if (toGroup !== fromGroup && removedItems && removedItems.length && removedItems[0].id === fromGroup.active) {
-    if (fromGroupItemIndex === 0 && fromGroup.items.length) {
+    if (fromGroupItemIndex === 0 && fromGroup.tabs.length) {
       fromGroup.active = fromGroup.items[0].id;
     } else if (fromGroup.items[fromGroupItemIndex - 1]) {
       fromGroup.active = fromGroup.items[fromGroupItemIndex - 1].id;
