@@ -23,16 +23,18 @@
 
 const _ = require('lodash'),
   bluebird = require('bluebird'),
+  config = require('config'),
   clientResponse = require('./client-response'),
   EventEmitter = require('events'),
   environment = require('../../services/env'),
   StreamSplitter = require('stream-splitter'),
   log = require('../../services/log').asInternal(__filename),
   path = require('path'),
+  files = require('../../services/files'),
   processes = require('../../services/processes'),
   pythonLanguage = require('./language'),
   uuid = require('uuid'),
-  checkPythonTimeout = 60000;
+  checkPythonPath = path.resolve(path.join(__dirname, 'check_python.py'));
 
 function createObjectEmitter(stream) {
   const streamSplitter = new StreamSplitter('\n'),
@@ -330,7 +332,7 @@ class JupyterClient extends EventEmitter {
  * @returns {object}
  */
 function getPythonCommandOptions(options) {
-  options = resolveHomeDirectory(options);
+  options = resolveHomeDirectoryOptions(options);
 
   return environment.getEnv().then(function (defaultEnv) {
     return _.assign({
@@ -430,41 +432,39 @@ function seekJson(str) {
  * @param {object} options
  * @returns {Promise}
  */
-function checkPython(options) {
-  const targetFile = path.resolve(path.join(__dirname, 'check_python.py'));
+function check(options) {
+  log('info', 'checking for python with', options);
+  options = resolveHomeDirectoryOptions(options);
 
-  log('info', 'checkPython', options);
-  return exports.getPythonScriptResults(targetFile, options)
+  return getPythonScriptResults(checkPythonPath, options)
+    .timeout(config.get('kernel.python.check-timeout'), 'Unable to check python with ' + JSON.stringify(options))
     .then(function (results) {
-      let stdout = results.stdout, checkResult;
+      results = _.cloneDeep(results);
 
-      _.each(results.errors, error => log('error', 'checkPython', options, error));
-      if (results.stderr) {
-        log('warn', 'checkPython', options, results);
-      } else {
-        log('info', 'checkPython', options, results);
-      }
+      _.assign(results, options);
+      _.assign(results, seekJson(results.stdout));
 
-      checkResult = seekJson(stdout);
-      if (!checkResult) {
-        throw new Error('Python check failed to return result.');
-      }
-
-      return checkResult;
-    })
-    .timeout(checkPythonTimeout, 'Unable to check python with options ' + JSON.stringify(options))
-    .then(pythonOptions => _.assign({}, pythonOptions, options));
+      return results;
+    });
 }
 
 /**
  * @param {object} options
+ * @param {string} [options.cwd]
+ * @param {string} [options.cmd]
  * @returns {object}  Modified options
  */
-function resolveHomeDirectory(options) {
-  if (options && options.cmd && (_.startsWith(options.cmd, '~') || _.startsWith(options.cmd, '%HOME%'))) {
-    const home = require('os').homedir();
+function resolveHomeDirectoryOptions(options) {
+  if (options) {
+    options = _.clone(options);
 
-    options.cmd = options.cmd.replace(/^~/, home).replace(/^%HOME%/, home);
+    if (options.cmd) {
+      options.cmd = files.resolveHomeDirectory(options.cmd);
+    }
+
+    if (options.cwd) {
+      options.cwd = files.resolveHomeDirectory(options.cwd);
+    }
   }
 
   return options;
@@ -472,4 +472,4 @@ function resolveHomeDirectory(options) {
 
 module.exports.create = create;
 module.exports.getPythonScriptResults = getPythonScriptResults;
-module.exports.checkPython = checkPython;
+module.exports.check = check;

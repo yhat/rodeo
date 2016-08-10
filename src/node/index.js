@@ -465,7 +465,7 @@ function onCheckKernel(options) {
     cwd: {type: 'string'}
   });
 
-  return kernelsPythonClient.checkPython(options);
+  return kernelsPythonClient.check(options);
 }
 
 /**
