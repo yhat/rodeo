@@ -28,6 +28,10 @@ function checkKernel(options) {
     throw new Error('Missing cmd for checkKernel');
   }
 
+  if (!options.cwd) {
+    options.cwd = local.get('workingDirectory');
+  }
+
   return bluebird.try(() => send('checkKernel', options));
 }
 

@@ -22,6 +22,7 @@
  */
 
 const _ = require('lodash'),
+  assert = require('../../services/assert'),
   bluebird = require('bluebird'),
   config = require('config'),
   clientResponse = require('./client-response'),
@@ -34,7 +35,11 @@ const _ = require('lodash'),
   processes = require('../../services/processes'),
   pythonLanguage = require('./language'),
   uuid = require('uuid'),
-  checkPythonPath = path.resolve(path.join(__dirname, 'check_python.py'));
+  checkPythonPath = path.resolve(path.join(__dirname, 'check_python.py')),
+  assertValidOptions = assert(
+    [{cmd: _.isString}, 'must have command'],
+    [{cwd: _.isString}, 'must have working directory']
+  );
 
 function createObjectEmitter(stream) {
   const streamSplitter = new StreamSplitter('\n'),
@@ -433,11 +438,15 @@ function seekJson(str) {
  * @returns {Promise}
  */
 function check(options) {
-  log('info', 'checking for python with', options);
+  const timeout = config.get('kernel.python.check-timeout');
+
+  log('info', {action: 'checking for python', options, timeout});
+  assertValidOptions(options);
+
   options = resolveHomeDirectoryOptions(options);
 
   return getPythonScriptResults(checkPythonPath, options)
-    .timeout(config.get('kernel.python.check-timeout'), 'Unable to check python with ' + JSON.stringify(options))
+    .timeout(timeout, 'Unable to check python with ' + JSON.stringify(options))
     .then(function (results) {
       results = _.cloneDeep(results);
 

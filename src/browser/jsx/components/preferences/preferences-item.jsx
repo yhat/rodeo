@@ -1,10 +1,11 @@
-import _ from 'lodash';
 import React from 'react';
 import Marked from '../marked/marked.jsx';
-import PreferencesInput from './preferences-input.jsx';
-import PreferencesSelect from './preferences-select.jsx';
-
-const preferenceDetailsItem = 'preference-group-details-item';
+import PreferencesText from './items/preferences-text.jsx';
+import PreferencesNumber from './items/preferences-number.jsx';
+import PreferencesCheckbox from './items/preferences-checkbox.jsx';
+import PreferencesSelect from './items/preferences-select.jsx';
+import PreferencesPythonCmd from './items/preferences-python-cmd.jsx';
+import './preferences-item.css';
 
 /**
  * @class DocCode
@@ -14,40 +15,21 @@ const preferenceDetailsItem = 'preference-group-details-item';
 export default React.createClass({
   displayName: 'PreferencesItem',
   propTypes: {
-    className: React.PropTypes.string,
-    defaultValue: React.PropTypes.oneOfType([React.PropTypes.string, React.PropTypes.number, React.PropTypes.bool]),
-    explanation: React.PropTypes.string,
-    id: React.PropTypes.string,
-    keyName: React.PropTypes.string,
-    type: React.PropTypes.string,
-    value: React.PropTypes.oneOfType([React.PropTypes.string, React.PropTypes.number])
+    item: React.PropTypes.object.isRequired,
+    onChange: React.PropTypes.func.isRequired
   },
-  getDefaultProps: function () {
-    return {
-      onChange: _.noop,
-      type: 'text',
-      defaultValue: ''
-    };
-  },
-  handleChange: _.debounce(function () {
-    this.props.onChange();
-  }, 150),
   render: function () {
-    const props = this.props;
-    let content,
-      contentClass = [
-        preferenceDetailsItem,
-        props.className
-      ].join(' ');
+    const props = this.props,
+      className = 'preferences-item',
+      types = {
+        select: () => <PreferencesSelect {...props} className={className}/>,
+        text: () => <PreferencesText {...props} className={className}/>,
+        number: () => <PreferencesNumber {...props} className={className}/>,
+        checkbox: () => <PreferencesCheckbox {...props} className={className}/>,
+        pythonCmd: () => <PreferencesPythonCmd {...props} className={className}/>,
+        marked: () => <div className={className}><Marked>{props.item.explanation}</Marked></div>
+      };
 
-    if (props.type === 'marked' && props.explanation) {
-      content = <Marked>{props.explanation}</Marked>;
-    } else if (props.type === 'select' && _.isArray(props.options)) {
-      content = <PreferencesSelect onChange={props.onChange} {...props} />;
-    } else if (props.type) {
-      content = <PreferencesInput onChange={props.onChange} {...props} />;
-    }
-
-    return <div className={contentClass}>{content}</div>;
+    return types[props.item.type] ? types[props.item.type]() : null;
   }
 });

@@ -14,6 +14,10 @@
   border-radius: 5px;
 }
 
+.modal-dialog-instance.modal-dialog-instance-full {
+  width: 100%;
+}
+
 .modal-dialog-instance.modal-dialog-show {
   opacity: 1;
 }

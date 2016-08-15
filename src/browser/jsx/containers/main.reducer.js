@@ -9,6 +9,7 @@ import sidebar from '../components/sidebar/sidebar.reducer';
 import notifications from '../components/notifications/notifications.reducer';
 import freeTabGroups from './free-tab-group/free-tab-group.reducer';
 import editorTabGroups from './editor-tab-group/editor-tab-group.reducer';
+import preferences from './preferences-viewer/preferences-viewer.reducer';
 
 function broadcast(state, action) {
   console.log(action.type, action);
@@ -75,6 +76,10 @@ export default combineReducers({
    * in the editor.
    */
   editorTabGroups,
+  /**
+   * map!
+   */
+  preferences,
   /**
    * Unneeded. This just logs all the actions that pass through.
    */

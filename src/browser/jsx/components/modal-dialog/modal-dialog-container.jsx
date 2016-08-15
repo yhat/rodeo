@@ -61,7 +61,7 @@ export default connect(mapStateToProps, mapDispatchToProps)(React.createClass({
       classNameContainer = [
         'modal-dialog-container',
         props.modalDialogs.length ? 'active' : ''
-      ].join(' '),
+      ],
       last;
 
     function getModal(modal) {
@@ -95,7 +95,7 @@ export default connect(mapStateToProps, mapDispatchToProps)(React.createClass({
         );
       } else if (modal.contentType === 'PREFERENCES') {
         contents = (
-          <ModalDialog key={modal.id} onCancel={onCancel} onOK={onOK} {...modal}>
+          <ModalDialog className="modal-dialog-instance-full" key={modal.id} onCancel={onCancel} onOK={onOK} {...modal}>
             <PreferencesViewer onClose={onCancel} />
           </ModalDialog>
         );
@@ -117,7 +117,7 @@ export default connect(mapStateToProps, mapDispatchToProps)(React.createClass({
     }
 
     return (
-      <div className={classNameContainer}>
+      <div className={classNameContainer.join(' ')}>
         {_.map(_.dropRight(props.modalDialogs, 1), getModal)}
         {last}
       </div>

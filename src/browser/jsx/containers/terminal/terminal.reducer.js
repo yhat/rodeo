@@ -159,6 +159,6 @@ export default mapReducers({
   IOPUB_EXECUTED_INPUT: executedInput,
   KERNEL_DETECTED: updateFirstTerminalWithKernel,
   VARIABLES_CHANGED: updateFirstTerminalWithVariables,
-  CHANGE_PREFERENCE: changePreference,
+  PREFERENCE_CHANGED: changePreference,
   WORKING_DIRECTORY_CHANGED: changeWorkingDirectory
 }, initialState);

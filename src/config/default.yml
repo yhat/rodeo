@@ -1,3 +1,0 @@
-kernel:
-  python:
-    check-timeout: 60 * 1000

@@ -1,3 +1,12 @@
+/**
+ * assert- throws a ValidationError and is- returns a boolean
+ */
+
+import _ from 'lodash';
+import {send} from 'ipc';
+import clientDiscovery from './client-discovery';
+import ValidationError from './errors/validation-error';
+
 const email = /^(([^<>()[\]\.,;:\s@\"]+(\.[^<>()[\]\.,;:\s@\"]+)*)|(\".+\"))@(([^<>()[\]\.,;:\s@\"]+\.)+[^<>()[\]\.,;:\s@\"]{2,})$/i;
 
 export function isEmail(value) {
@@ -26,8 +35,22 @@ export function isTabSpace(value) {
   }
 }
 
+function assertPathExists(value) {
+  return send('fileStats', value);
+}
+
+function assertPython(value) {
+  return clientDiscovery.checkKernel({cmd: value})
+    .then(result => _.map(
+      result.errors,
+      error => new ValidationError(error.message || error.code, error)
+    ));
+}
+
 export default {
   isEmail,
   isFontSize,
-  isTabSpace
+  isTabSpace,
+  assertPathExists,
+  assertPython
 };

@@ -12,7 +12,7 @@ import clientDiscovery from '../services/client-discovery';
 import {errorCaught} from './application';
 import track from '../services/track';
 
-export function interrupt() {
+function interrupt() {
   track({category: 'kernel', action: 'interrupt'});
   return function (dispatch) {
     dispatch({type: 'INTERRUPTING_KERNEL'});
@@ -23,15 +23,15 @@ export function interrupt() {
   };
 }
 
-export function isBusy() {
+function isBusy() {
   return {type: 'KERNEL_IS_BUSY'};
 }
 
-export function isIdle() {
+function isIdle() {
   return {type: 'KERNEL_IS_IDLE'};
 }
 
-export function kernelDetected(pythonOptions) {
+function kernelDetected(pythonOptions) {
   track({category: 'kernel', action: 'kernel_detected'});
   // save over previous settings
   if (!pythonOptions.cmd) {
@@ -43,7 +43,7 @@ export function kernelDetected(pythonOptions) {
   return {type: 'KERNEL_DETECTED', pythonOptions};
 }
 
-export function askForPythonOptions() {
+function askForPythonOptions() {
   track({category: 'kernel', action: 'ask_for_python_options'});
   return {type: 'ASK_FOR_PYTHON_OPTIONS'};
 }
@@ -53,7 +53,7 @@ export function askForPythonOptions() {
  * try to auto-detect a working kernel
  * @returns {Function}
  */
-export function detectKernel() {
+function detectKernel() {
   return function (dispatch) {
     const pythonCmd = local.get('pythonCmd');
     let promise;
@@ -77,7 +77,7 @@ export function detectKernel() {
   };
 }
 
-export function restart() {
+function restart() {
   return function (dispatch) {
     return client.restartInstance()
       .then(() => dispatch({type: 'KERNEL_RESTARTED'}))
@@ -103,7 +103,7 @@ function detectKernelVariables() {
   };
 }
 
-export function executeActiveFileInActiveConsole() {
+function executeActiveFileInActiveConsole() {
   return function (dispatch, getState) {
     const state = getState(),
       items = _.head(state.editorTabGroups).items,
@@ -125,7 +125,7 @@ export function executeActiveFileInActiveConsole() {
   };
 }
 
-export function executeActiveFileSelectionInActiveConsole() {
+function executeActiveFileSelectionInActiveConsole() {
   return function (dispatch, getState) {
     const state = getState(),
       items = _.head(state.editorTabGroups).items,

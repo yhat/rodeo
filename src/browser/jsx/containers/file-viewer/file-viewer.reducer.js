@@ -74,5 +74,5 @@ export default mapReducers({
   SET_VIEWED_PATH: setViewedPath,
   LIST_VIEWED_FILES: setFileList,
   SELECT_VIEWED_FILE: selectFile,
-  CHANGE_PREFERENCE: changePreference
+  PREFERENCE_CHANGED: changePreference
 }, initialState);

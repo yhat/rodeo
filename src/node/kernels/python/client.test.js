@@ -63,7 +63,7 @@ describe(dirname + '/' + filename, function () {
       files.resolveHomeDirectory.withArgs('~/b').returns('/a/b');
       processes.exec.returns({errors: [], stderr: '', stdout: ''});
 
-      return fn({cmd: '~/b'}).then(function (result) {
+      return fn({cmd: '~/b', cwd: ''}).then(function (result) {
         expect(result.cmd).to.equal('/a/b');
       });
     });
@@ -72,7 +72,7 @@ describe(dirname + '/' + filename, function () {
       files.resolveHomeDirectory.withArgs('~/b').returns('/a/b');
       processes.exec.returns({errors: [], stderr: '', stdout: ''});
 
-      return fn({cwd: '~/b'}).then(function (result) {
+      return fn({cmd: '', cwd: '~/b'}).then(function (result) {
         expect(result.cwd).to.equal('/a/b');
       });
     });

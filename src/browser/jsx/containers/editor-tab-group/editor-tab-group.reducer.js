@@ -209,5 +209,5 @@ export default mapReducers({
   SPLIT_PANE_DRAG: splitPaneDrag,
   MOVE_ONE_RIGHT: _.partialRight(shiftFocus, +1),
   MOVE_ONE_LEFT: _.partialRight(shiftFocus, -1),
-  CHANGE_PREFERENCE: changePreference
+  PREFERENCE_CHANGED: changePreference
 }, initialState);

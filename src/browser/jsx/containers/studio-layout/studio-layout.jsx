@@ -72,7 +72,7 @@ export default connect(mapStateToProps, mapDispatchToProps)(React.createClass({
               return (
                 <TabbedPaneItem icon="terminal" id={item.tabId} key={item.id} label="Console">
                   <Terminal
-                    focusable={isFocusable && item.cmd}
+                    focusable={isFocusable && !!item.cmd}
                     key={item.id}
                     onAutoComplete={props.onTerminalAutoComplete}
                     onInterrupt={props.onInterrupt}
