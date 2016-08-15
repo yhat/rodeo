@@ -11,17 +11,17 @@
         type: text
         inputWidth: 300px
         valid:
-          - isPathReal
+          - assertPathExists
       -
         key: pythonCmd
         label: Python Command
-        type: text
+        type: pythonCmd
         inputWidth: 300px
         valid:
-          - isPython
+          - assertPython
         change:
           - restartPython
-        defaultValue: python
+        value: python
       -
         key: environmentVariables
         label: Environment Variables
@@ -38,7 +38,7 @@
         inputWidth: 40px
         valid:
           - isTabSpace
-        defaultValue: 4
+        value: 4
       -
         key: aceKeyBindings
         label: Key Bindings
@@ -50,6 +50,7 @@
             value: emacs
           - label: vim
             value: vim
+        value: default
   -
     label: Console
     items:
@@ -60,7 +61,7 @@
         key: consoleDisplayImages
         label: Display Images
         type: checkbox
-        defaultValue: true
+        value: true
   -
     label: File Viewer
     items:
@@ -68,7 +69,7 @@
         key: showDotFiles
         label: Display Dot Files
         type: checkbox
-        defaultValue: false
+        value: false
   -
     label: Plots
     items:
@@ -79,7 +80,7 @@
         key: plotsFocusOnNew
         label: Focus On Created Plots
         type: checkbox
-        defaultValue: true
+        value: true
   -
     label: Git
     items:
@@ -94,21 +95,18 @@
         explanation: globalSettingsText
         type: marked
       -
-        label: Check For Updates
-        type: button
-      -
         key: fontSize
         label: Font Size
         type: number
         inputWidth: 40px
         valid:
           - isFontSize
-        defaultValue: 12
+        value: 12
       -
         key: trackMetrics
         label: Track Metrics
         type: checkbox
-        defaultValue: true
+        value: true
   -
     label: Project
     items:

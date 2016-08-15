@@ -52,10 +52,7 @@
 .preferences-list .preference-group-details {
   padding-right: 0;
   padding-left: 0;
-  flex: 1 1 400px;
-  overflow: auto;
-  display: flex;
-  flex-direction: column;
+  overflow-y: auto;
   border-left: #eee solid 1px;
 }
 
@@ -73,24 +70,12 @@
   transition: all 0.2s;
 }
 
-.preferences-list .preference-group-details-item.changed {
-  background-color: #feff24;
-}
-
-.preferences-list .preference-group-details-item.valid {
-  background-color: #feffb4;
-}
-
-.preferences-list .preference-group-details-item.invalid {
-  background-color: #ff8280;
-}
-
 .preferences-list .preference-group-details-item:last-child {
   border-bottom: none;
 }
 
 .preferences-list .preference-group-details-item input {
-  margin-left: 20px;
+  margin-left: 40px;
 }
 
 .preferences-list .preference-group-details-item select {

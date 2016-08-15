@@ -13,36 +13,24 @@ import './preferences-list.css';
 export default React.createClass({
   displayName: 'PreferencesList',
   propTypes: {
-    active: React.PropTypes.string,
-    canSave: React.PropTypes.bool,
-    changes: React.PropTypes.object,
-    className: React.PropTypes.string,
-    id: React.PropTypes.string,
-    onApply: React.PropTypes.func,
-    onCancel: React.PropTypes.func,
-    onChange: React.PropTypes.func,
-    onOK: React.PropTypes.func,
-    onTabClick: React.PropTypes.func,
-    preferencesMap: React.PropTypes.array
-  },
-  getDefaultProps: function () {
-    return {
-      canSave: false,
-      onApply: _.noop,
-      onCancel: _.noop,
-      onChange: _.noop,
-      onOK: _.noop,
-      onTabClick: _.noop
-    };
+    active: React.PropTypes.string.isRequired,
+    canSave: React.PropTypes.bool.isRequired,
+    changes: React.PropTypes.object.isRequired,
+    onApply: React.PropTypes.func.isRequired,
+    onCancel: React.PropTypes.func.isRequired,
+    onChange: React.PropTypes.func.isRequired,
+    onOK: React.PropTypes.func.isRequired,
+    onTabClick: React.PropTypes.func.isRequired,
+    preferenceMap: React.PropTypes.array.isRequired
   },
   render: function () {
     const props = this.props,
-      activePreferenceGroup = _.find(props.preferencesMap, {id: props.active});
+      activePreferenceGroup = _.find(props.preferenceMap, {id: props.active});
 
     return (
       <div className="preferences-list">
         <div className="preference-group-list">
-          {_.map(props.preferencesMap, item => {
+          {_.map(props.preferenceMap, item => {
             const isActive = item.id === props.active,
               isDisabled = !isActive && _.size(props.changes) > 0,
               id = item.id;
@@ -58,23 +46,14 @@ export default React.createClass({
             );
           })}
         </div>
-        <section className="preference-group-details container">
-          <div className="form-inline">
-            {_.map(activePreferenceGroup.items, item => {
-              const changeToken = props.changes[item.key];
-
-              return (
-                <PreferencesItem
-
-                  className={changeToken ? changeToken.state : null}
-                  key={item.key}
-                  onChange={_.partial(props.onChange, item)}
-                  value={changeToken ? changeToken.value : item.defaultValue}
-                  {...item}
-                />
-              );
-            })}
-          </div>
+        <section className="preference-group-details">
+          {_.map(activePreferenceGroup.items, (item, itemIndex) => (
+            <PreferencesItem
+              item={_.assign({}, item, props.changes[item.key])}
+              key={item.key || itemIndex}
+              onChange={_.partial(props.onChange, item)}
+            />
+          ))}
           <footer>
             <SaveChangesButtonGroup
               canSave={props.canSave}

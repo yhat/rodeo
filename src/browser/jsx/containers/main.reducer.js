@@ -9,6 +9,7 @@ import notifications from '../components/notifications/notifications.reducer';
 import terminalTabGroups from './terminal-tab-group/terminal-tab-group.reducer';
 import freeTabGroups from './free-tab-group/free-tab-group.reducer';
 import editorTabGroups from './editor-tab-group/editor-tab-group.reducer';
+import preferences from './preferences-viewer/preferences-viewer.reducer';
 
 function broadcast(state, action) {
   console.log(action.type, action);
@@ -63,6 +64,10 @@ export default combineReducers({
    * list! The tab and the terminals are tightly coupled so the tab can change its look based on the state of the terminal.
    */
   terminalTabGroups,
+  /**
+   * map!
+   */
+  preferences,
   /**
    * Unneeded. This just logs all the actions that pass through.
    */

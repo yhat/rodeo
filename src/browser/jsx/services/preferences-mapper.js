@@ -1,40 +1,38 @@
 import _ from 'lodash';
 import bluebird from 'bluebird';
-import {send} from 'ipc';
 import {local} from './store';
 import validation from './validation';
-import clientDiscovery from './client-discovery';
 
-const validationTimeout = 2000;
-
-let validators = {
-  isPathReal: value => send('resolveFilePath', value)
-    .then(expandedFilename => send('fileStats', expandedFilename)),
-  isPython: value => clientDiscovery.checkKernel({cmd: value}),
-  isFontSize: validation.isFontSize,
-  isTabSpace: validation.isTabSpace
-};
+const validationTimeout = 60000;
 
 /**
  * @param {object} item
  * @param {Array} item.valid  List of validators by key
  * @param {string} value
- * @returns {Promise<boolean>}
+ * @returns {Promise<[Error]>}
  */
-function isValid(item, value) {
+function validate(item, value) {
   if (!item.valid) {
-    return bluebird.resolve(true);
+    return bluebird.resolve([]);
   }
+  const promises = _.map(item.valid, key => bluebird.try(function () {
+    let validator = validation[key];
 
-  return bluebird.all(_.map(item.valid, function (key) {
-    let validator = validators[key];
-
-    if (validator) {
-      return validators[key](value);
+    if (!validator) {
+      throw new Error('Validator' + key + 'does not exist');
     }
 
-    return bluebird.reject(new Error('Validator' + key + 'does not exist'));
-  })).timeout(validationTimeout);
+    return validator(value);
+  }).reflect());
+
+  return bluebird.all(promises)
+    .timeout(validationTimeout)
+    // only return list of errors
+    .then(function (inspections) {
+      const list = _.map(inspections, inspection => inspection.isFulfilled() ? inspection.value() : inspection.reason());
+
+      return _.filter(_.flattenDeep(list), _.isError);
+    });
 }
 
 /**
@@ -51,7 +49,7 @@ function define(definition, explanations) {
       const item = _.clone(preference),
         explanation = explanations[preference.explanation],
         storeValue = local.get(preference.key),
-        defaultValue = storeValue !== null ? storeValue : preference.defaultValue;
+        value = storeValue !== null ? storeValue : preference.value;
 
       if (explanation) {
         item.explanation = explanation;
@@ -59,10 +57,10 @@ function define(definition, explanations) {
         delete item.explanation;
       }
 
-      if (defaultValue !== undefined) {
-        item.defaultValue = defaultValue;
+      if (value !== undefined) {
+        item.value = value;
       } else {
-        delete item.defaultValue;
+        delete item.value;
       }
 
       return item;
@@ -73,6 +71,6 @@ function define(definition, explanations) {
 }
 
 export default {
-  isValid,
+  validate,
   define
 };

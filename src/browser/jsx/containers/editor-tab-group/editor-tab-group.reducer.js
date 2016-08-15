@@ -136,5 +136,5 @@ export default mapReducers({
   CLOSE_ACTIVE_FILE: closeActive,
   MOVE_ONE_RIGHT: _.partialRight(shiftFocus, +1),
   MOVE_ONE_LEFT: _.partialRight(shiftFocus, -1),
-  CHANGE_PREFERENCE: changePreference
+  PREFERENCE_CHANGED: changePreference
 }, initialState);

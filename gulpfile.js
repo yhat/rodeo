@@ -18,6 +18,7 @@ const _ = require('lodash'),
     browser: path.join(tmpAppDirectory, 'browser'),
     fonts: path.join(tmpAppDirectory, 'browser', 'fonts'),
     images: path.join(tmpAppDirectory, 'browser', 'images'),
+    config: path.join(tmpAppDirectory, 'config'),
     node: path.join(tmpAppDirectory, 'node'),
     themes: path.join(tmpAppDirectory, 'browser', 'themes')
   };
@@ -88,6 +89,16 @@ gulp.task('images', function () {
 });
 
 /**
+ * Copy the config-specific code over to the temp directory that will be distributed with a deployed app
+ */
+gulp.task('config', function () {
+  // copy node program
+  return gulp.src([
+    'config/**/*'
+  ]).pipe(gulp.dest(outputMap.config));
+});
+
+/**
  * Copy the node-specific code over to the temp directory that will be distributed with a deployed app
  */
 gulp.task('node', function () {
@@ -134,6 +145,6 @@ gulp.task('npm-install', function () {
 });
 
 gulp.task('test', ['lint', 'karma']);
-gulp.task('build', ['themes', 'external', 'images', 'ace', 'jsx', 'html', 'node', 'package.json']);
+gulp.task('build', ['themes', 'external', 'images', 'ace', 'jsx', 'html', 'config', 'node', 'package.json']);
 gulp.task('dist', ['dist:all']);
 gulp.task('default', ['test', 'build']);
