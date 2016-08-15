@@ -4,6 +4,8 @@
 
 .preferences-item .validation-errors {
   background-color: #ff8280;
+  border-radius: 5px;
+  margin-top: 5px;
   padding: 5px 10px;
 }
 
@@ -30,4 +32,20 @@
 .preferences-text {
   display: flex;
   flex-direction: column;
+}
+
+.preferences-item .input-group {
+  display: table;
+}
+
+.preferences-item .input-group-container {
+  display: table-cell;
+  vertical-align: middle;
+  width: 1%; /* takes the least amount of space */
+}
+
+.preferences-item button {
+  margin-left: 5px;
+  margin-right: 5px;
+  white-space: nowrap;
 }

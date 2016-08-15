@@ -3,17 +3,15 @@ import React from 'react';
 import PreferencesItemErrors from '../preferences-item-errors.jsx';
 
 /**
- * @class PreferencesPythonCmd
- * @extends ReactComponent
- * @property props
+ * @class PreferencesFolder
  */
 export default React.createClass({
-  displayName: 'PreferencesPythonCmd',
+  displayName: 'PreferencesFolder',
   propTypes: {
     className: React.PropTypes.string,
     item: React.PropTypes.object.isRequired,
     onChange: React.PropTypes.func.isRequired,
-    onSelectFile: React.PropTypes.func.isRequired
+    onSelectFolder: React.PropTypes.func.isRequired
   },
   render: function () {
     const displayName = this.constructor.displayName,
@@ -34,12 +32,12 @@ export default React.createClass({
     content.push(<div className="input-group">
       <input className="form-control" key="input" onChange={props.onChange} {...item} type="text"/>
       <span className="input-group-container">
-        <button className="btn btn-default" onClick={props.onSelectFile}>{'…'}</button>
+        <button className="btn btn-default" onClick={props.onSelectFolder}>{'…'}</button>
       </span>
     </div>);
 
-    if (item.checkKernel) {
-      const errors = item.checkKernel.errors;
+    if (item.fileStats) {
+      const errors = item.fileStats.errors;
 
       if (errors && errors.length) {
         content.push(<PreferencesItemErrors errors={errors} key="errors" />);

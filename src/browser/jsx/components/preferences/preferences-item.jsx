@@ -5,6 +5,7 @@ import PreferencesNumber from './items/preferences-number.jsx';
 import PreferencesCheckbox from './items/preferences-checkbox.jsx';
 import PreferencesSelect from './items/preferences-select.jsx';
 import PreferencesPythonCmd from './items/preferences-python-cmd.jsx';
+import PreferencesFolder from './items/preferences-folder.jsx';
 import './preferences-item.css';
 
 /**
@@ -16,7 +17,9 @@ export default React.createClass({
   displayName: 'PreferencesItem',
   propTypes: {
     item: React.PropTypes.object.isRequired,
-    onChange: React.PropTypes.func.isRequired
+    onChange: React.PropTypes.func.isRequired,
+    onSelectFile: React.PropTypes.func.isRequired,
+    onSelectFolder: React.PropTypes.func.isRequired
   },
   render: function () {
     const props = this.props,
@@ -27,6 +30,7 @@ export default React.createClass({
         number: () => <PreferencesNumber {...props} className={className}/>,
         checkbox: () => <PreferencesCheckbox {...props} className={className}/>,
         pythonCmd: () => <PreferencesPythonCmd {...props} className={className}/>,
+        folder: () => <PreferencesFolder {...props} className={className}/>,
         marked: () => <div className={className}><Marked>{props.item.explanation}</Marked></div>
       };
 

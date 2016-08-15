@@ -76,12 +76,14 @@ function changeAdded(state, action) {
     if (savedValue === value) {
       delete changes[key];
     } else if (changes[key].value !== value) {
-      changes[key].value = value;
+      // remove extra details
+      changes[key] = _.pick(_.assign({}, changes[key], change), ['key', 'value', 'type', 'state']);
     }
   } else {
-    changes[key] = change;
+    changes[key] = _.defaults(change, {state: 'valid'});
   }
 
+  state.canSave = _.every(changes, {state: 'valid'});
   state.changes = changes;
   return state;
 }
@@ -94,9 +96,10 @@ function changeDetailAdded(state, action) {
     value = change.value;
 
   if (changes[key] && changes[key].value === value) {
-    changes[key] = _.defaults(changes[key], change);
+    changes[key] = _.assign(changes[key], change);
   }
 
+  state.canSave = _.every(changes, {state: 'valid'});
   state.changes = changes;
   return state;
 }

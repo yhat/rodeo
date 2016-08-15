@@ -2,7 +2,7 @@ import _ from 'lodash';
 import React from 'react';
 import {connect} from 'react-redux';
 import PreferencesList from '../../components/preferences/preferences-list.jsx';
-import preferenceActions from './preferences.actions';
+import actions from './preferences.actions';
 
 /**
  * @param {object} state
@@ -18,12 +18,22 @@ function mapStateToProps(state) {
  */
 function mapDispatchToProps(dispatch) {
   return {
-    onChange: change => dispatch(preferenceActions.add(change)),
-    onTabClick: active => dispatch(preferenceActions.selectTab(active)),
-    onSave: () => dispatch(preferenceActions.save()),
-    onApply: () => dispatch(preferenceActions.save()),
-    onCancel: () => dispatch(preferenceActions.cancelAll())
+    onChange: change => dispatch(actions.add(change)),
+    onTabClick: active => dispatch(actions.selectTab(active)),
+    onSave: () => dispatch(actions.save()),
+    onApply: () => dispatch(actions.save()),
+    onCancel: () => dispatch(actions.cancelAll()),
+    onSelectFile: change => dispatch(actions.selectFile(change)),
+    onSelectFolder: change => dispatch(actions.selectFolder(change)),
   };
+}
+
+function getChange(item, event) {
+  const value = item.type === 'checkbox' ? event.target.checked : event.target.value,
+    type = item.type,
+    key = item.key;
+
+  return {key, value, type};
 }
 
 /**
@@ -36,18 +46,28 @@ export default connect(mapStateToProps, mapDispatchToProps)(React.createClass({
     onOK: React.PropTypes.func.isRequired
   },
   /**
-   * Remember change.
    * @param {object} item
    * @param {string} item.key
    * @param {Event} event
    */
   handleChange: function (item, event) {
-    const props = this.props;
-    let value = item.type === 'checkbox' ? event.target.checked : event.target.value,
-      type = item.type,
-      key = item.key;
-
-    props.onChange({key, value, type});
+    this.props.onChange(getChange(item, event));
+  },
+  /**
+   * @param {object} item
+   * @param {string} item.key
+   * @param {Event} event
+   */
+  handleSelectFile: function (item, event) {
+    this.props.onSelectFile(getChange(item, event));
+  },
+  /**
+   * @param {object} item
+   * @param {string} item.key
+   * @param {Event} event
+   */
+  handleSelectFolder: function (item, event) {
+    this.props.onSelectFolder(getChange(item, event));
   },
   /**
    * Save the changed keys, close.
@@ -66,9 +86,18 @@ export default connect(mapStateToProps, mapDispatchToProps)(React.createClass({
       }
     }
   },
+
   render: function () {
     const props = this.props;
 
-    return <PreferencesList {...props} onChange={this.handleChange} onOK={this.handleOK} />;
+    return (
+      <PreferencesList
+        {...props}
+        onChange={this.handleChange}
+        onOK={this.handleOK}
+        onSelectFile={this.handleSelectFile}
+        onSelectFolder={this.handleSelectFolder}
+      />
+    );
   }
 }));
