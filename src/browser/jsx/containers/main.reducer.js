@@ -4,7 +4,7 @@ import splitPanes from '../components/split-pane/split-pane.reducer';
 import terminals from './terminal/terminal.reducer';
 import plots from './plot-viewer/plot-viewer.reducer';
 import fileView from './file-viewer/file-viewer.reducer';
-import modalDialogs from '../components/modal-dialog/modal-dialog.reducer';
+import modalDialogs from './modal-dialog-viewer/modal-dialog.reducer';
 import sidebar from '../components/sidebar/sidebar.reducer';
 import notifications from '../components/notifications/notifications.reducer';
 import freeTabGroups from './free-tab-group/free-tab-group.reducer';

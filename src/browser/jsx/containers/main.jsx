@@ -4,7 +4,7 @@ import {Provider} from 'react-redux';
 import FullScreen from '../components/full-screen/full-screen.jsx';
 import StudioLayout from './studio-layout/studio-layout.jsx';
 import Sidebar from '../components/sidebar/sidebar.jsx';
-import ModalDialogContainer from '../components/modal-dialog/modal-dialog-container.jsx';
+import ModalDialogViewer from './modal-dialog-viewer/modal-dialog-viewer.jsx';
 import NotificationsContainer from '../components/notifications/notifications-container.jsx';
 import rootReducer from './main.reducer';
 import initialState from './main.initial';
@@ -47,7 +47,7 @@ export default React.createClass({
         <FullScreen row>
           <StudioLayout />
           <Sidebar />
-          <ModalDialogContainer />
+          <ModalDialogViewer />
           <NotificationsContainer />
         </FullScreen>
       </Provider>

@@ -1,6 +1,5 @@
 import _ from 'lodash';
 import React from 'react';
-import {connect} from 'react-redux';
 import ModalDialog from './modal-dialog.jsx';
 import Marked from '../marked/marked.jsx';
 import AboutRodeo from '../about-rodeo/about-rodeo.jsx';
@@ -8,31 +7,17 @@ import StickersPane from '../stickers-pane/stickers-pane.jsx';
 import Acknowledgements from '../acknowledgements/acknowledgements.jsx';
 import PreferencesViewer from '../../containers/preferences-viewer/preferences-viewer.jsx';
 import RegisterRodeo from '../register-rodeo/register-rodeo.jsx';
-import actions from './modal-dialog.actions';
 import './modal-dialog-container.css';
-
-/**
- * @param {function} dispatch
- * @returns {object}
- */
-function mapDispatchToProps(dispatch) {
-  return {
-    onCancel: id => dispatch(actions.cancel(id)),
-    onCancelAll: () => dispatch(actions.cancelAll()),
-    onOK: (id, result) => dispatch(actions.ok(id, result)),
-    onRegister: () => dispatch(actions.register())
-  };
-}
 
 /**
  * @class ModalDialogContainer
  * @extends ReactComponent
  * @property props
  */
-export default connect(state => state, mapDispatchToProps)(React.createClass({
+export default React.createClass({
   displayName: 'ModalDialogContainer',
   propTypes: {
-    modalDialogs: React.PropTypes.array,
+    modalDialogs: React.PropTypes.array.isRequired,
     onCancel: React.PropTypes.func.isRequired,
     onCancelAll: React.PropTypes.func.isRequired,
     onOK: React.PropTypes.func.isRequired,
@@ -115,4 +100,4 @@ export default connect(state => state, mapDispatchToProps)(React.createClass({
       </div>
     );
   }
-}));
+});
