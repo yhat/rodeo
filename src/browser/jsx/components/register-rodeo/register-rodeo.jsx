@@ -14,21 +14,15 @@ import './register-rodeo.css';
 
 /**
  * @class RegisterRodeo
- * @extends ReactComponent
- * @property props
  */
 export default React.createClass({
   displayName: 'RegisterRodeo',
   propTypes: {
-    onClose: React.PropTypes.func.isRequired
+    onCancel: React.PropTypes.func.isRequired,
+    onOK: React.PropTypes.func.isRequired
   },
   contextTypes: {
     store: React.PropTypes.object
-  },
-  getDefaultProps: function () {
-    return {
-      onClose: _.noop
-    };
   },
   handleSubmit: function (event) {
     event.preventDefault();
@@ -43,7 +37,7 @@ export default React.createClass({
     }, {});
 
     return registration.register(data)
-      .then(props.onClose)
+      .then(props.onOK)
       .catch(props.onError);
   },
   handleRegister: function () {
@@ -90,7 +84,7 @@ export default React.createClass({
               </div>
             </div>
             <div className="row-thin">
-              <button className="btn btn-default" onClick={this.props.onClose}>{'Skip for today'}</button>
+              <button className="btn btn-default" onClick={this.props.onCancel}>{'Skip for today'}</button>
               <button className="btn btn-primary" onClick={this.handleRegister} type="submit">{'Register'}</button>
             </div>
           </form>
