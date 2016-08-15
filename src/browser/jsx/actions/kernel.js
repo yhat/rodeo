@@ -81,6 +81,7 @@ function restart() {
   return function (dispatch) {
     return client.restartInstance()
       .then(() => dispatch({type: 'KERNEL_RESTARTED'}))
+      .then(() => dispatch(detectKernelVariables()))
       .catch(error => dispatch(errorCaught(error)));
   };
 }

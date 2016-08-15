@@ -20,6 +20,8 @@ export default React.createClass({
     onCancel: React.PropTypes.func.isRequired,
     onChange: React.PropTypes.func.isRequired,
     onOK: React.PropTypes.func.isRequired,
+    onSelectFile: React.PropTypes.func.isRequired,
+    onSelectFolder: React.PropTypes.func.isRequired,
     onTabClick: React.PropTypes.func.isRequired,
     preferenceMap: React.PropTypes.array.isRequired
   },
@@ -52,6 +54,8 @@ export default React.createClass({
               item={_.assign({}, item, props.changes[item.key])}
               key={item.key || itemIndex}
               onChange={_.partial(props.onChange, item)}
+              onSelectFile={_.partial(props.onSelectFile, item)}
+              onSelectFolder={_.partial(props.onSelectFolder, item)}
             />
           ))}
           <footer>

@@ -489,21 +489,21 @@ function onCreateKernelInstance(options) {
   return new bluebird(function (resolveInstanceId) {
     let instanceId = cuid();
 
-    kernelsPythonClient.create(options).then(function (client) {
-      log('info', 'created new python kernel process', instanceId, options);
-      subscribeWindowToKernelEvents('mainWindow', client);
-
-      kernelClients[instanceId] = new bluebird(function (resolveClient) {
+    kernelClients[instanceId] = new bluebird(function (resolveClient) {
+      kernelsPythonClient.create(options).then(function (client) {
+        log('info', 'created new python kernel process', instanceId, options);
         client.on('ready', function () {
           log('info', 'new python kernel process is ready', instanceId, options);
           resolveClient(client);
         });
-      });
 
-      return kernelClients[instanceId];
-    }).catch(function () {
-      log('error', 'failed to create instance', instanceId);
-      delete resolveInstanceId(instanceId);
+        subscribeWindowToKernelEvents('mainWindow', client);
+
+        return kernelClients[instanceId];
+      }).catch(function () {
+        log('error', 'failed to create instance', instanceId);
+        delete kernelClients[instanceId];
+      });
     });
 
     resolveInstanceId(instanceId);

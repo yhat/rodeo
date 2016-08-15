@@ -8,17 +8,11 @@
       -
         key: workingDirectory
         label: Default Working Directory
-        type: text
-        inputWidth: 300px
-        valid:
-          - assertPathExists
+        type: folder
       -
         key: pythonCmd
         label: Python Command
         type: pythonCmd
-        inputWidth: 300px
-        valid:
-          - assertPython
         change:
           - restartPython
         value: python
@@ -35,7 +29,6 @@
         key: aceTabSpaces
         label: Tab Spaces
         type: number
-        inputWidth: 40px
         valid:
           - isTabSpace
         value: 4
@@ -98,7 +91,6 @@
         key: fontSize
         label: Font Size
         type: number
-        inputWidth: 40px
         valid:
           - isFontSize
         value: 12

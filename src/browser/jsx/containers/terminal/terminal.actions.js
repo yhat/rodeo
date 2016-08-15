@@ -4,6 +4,7 @@ import AsciiToHtml from 'ansi-to-html';
 import client from '../../services/client';
 import cid from '../../services/cid';
 import {errorCaught} from '../../actions/application';
+import kernelActions from '../../actions/kernel';
 import plotViewerActions from '../plot-viewer/plot-viewer.actions';
 import {local} from '../../services/store';
 import textUtil from '../../services/text-util';
@@ -235,6 +236,7 @@ function restart() {
     client.restartInstance()
       .then(function () {
         jqConsole.Write('done\n');
+        dispatch(kernelActions.detectKernelVariables());
         _.defer(() => dispatch(startPrompt(jqConsole)));
       })
       .catch(error => dispatch(errorCaught(error)));

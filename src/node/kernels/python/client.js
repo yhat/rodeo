@@ -356,10 +356,14 @@ function getPythonCommandOptions(options) {
  * @returns {Promise<ChildProcess>}
  */
 function createPythonScriptProcess(targetFile, options) {
-  options = _.pick(options || {}, ['shell', 'cmd']);
+  options = _.pick(options || {}, ['shell', 'cmd', 'cwd']);
 
   return getPythonCommandOptions(options).then(function (processOptions) {
     const cmd = options.cmd || 'python';
+
+    if (options.cwd) {
+      processOptions.cwd = options.cwd;
+    }
 
     return processes.create(cmd, [targetFile], processOptions);
   });
@@ -446,6 +450,9 @@ function check(options) {
   options = resolveHomeDirectoryOptions(options);
 
   return getPythonScriptResults(checkPythonPath, options)
+    .catch(function (error) {
+      return {errors: [error], stdout: '', stderr: ''};
+    })
     .timeout(timeout, 'Unable to check python with ' + JSON.stringify(options))
     .then(function (results) {
       results = _.cloneDeep(results);

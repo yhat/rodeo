@@ -54,6 +54,20 @@ export default connect(mapStateToProps, mapDispatchToProps)(React.createClass({
       props.onRefresh();
     }
   },
+  shouldComponentUpdate: function (nextProps) {
+    const props = this.props;
+
+    return props.path !== nextProps.path || props.filter !== nextProps.filter ||
+        props.showDotFiles !== nextProps.showDotFiles ||
+        !_.isEqual(props.files, nextProps.files);
+  },
+  componentDidUpdate: function () {
+    const props = this.props;
+
+    if (!props.files.length) {
+      props.onRefresh();
+    }
+  },
   render: function () {
     const props = this.props;
     let files = props.files;
