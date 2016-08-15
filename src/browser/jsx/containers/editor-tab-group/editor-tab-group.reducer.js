@@ -192,10 +192,12 @@ function fileSaved(state, action) {
 }
 
 function changePreference(state, action) {
-  switch (action.key) {
-    case 'fontSize': return changeProperty(state, 'fontSize', action.value, _.toNumber);
-    case 'aceTabSpaces': return changeProperty(state, 'tabSpaces', action.value, _.toNumber);
-    case 'aceKeyBindings': return changeProperty(state, 'keyBindings', action.value);
+  const change = action.change;
+
+  switch (change.key) {
+    case 'fontSize': return changeProperty(state, 'fontSize', change.value, _.toNumber);
+    case 'aceTabSpaces': return changeProperty(state, 'tabSpaces', change.value, _.toNumber);
+    case 'aceKeyBindings': return changeProperty(state, 'keyBindings', change.value);
     default: return state;
   }
 }
@@ -209,5 +211,5 @@ export default mapReducers({
   SPLIT_PANE_DRAG: splitPaneDrag,
   MOVE_ONE_RIGHT: _.partialRight(shiftFocus, +1),
   MOVE_ONE_LEFT: _.partialRight(shiftFocus, -1),
-  PREFERENCE_CHANGED: changePreference
+  PREFERENCE_CHANGE_SAVED: changePreference
 }, initialState);
