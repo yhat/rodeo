@@ -33,7 +33,7 @@ export default connect(mapStateToProps, mapDispatchToProps)(React.createClass({
   displayName: 'PreferencesViewer',
   propTypes: {
     // expected to be provided from parent
-    onClose: React.PropTypes.func.isRequired
+    onOK: React.PropTypes.func.isRequired
   },
   /**
    * Remember change.
@@ -57,12 +57,12 @@ export default connect(mapStateToProps, mapDispatchToProps)(React.createClass({
 
     if (_.size(props.changes) === 0) {
       // they made no changes, close
-      props.onClose();
+      props.onOK();
     } else {
       // same as saving and then closing
       if (props.canSave) {
         props.onSave();
-        props.onClose();
+        props.onOK();
       }
     }
   },

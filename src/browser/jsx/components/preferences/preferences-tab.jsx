@@ -1,5 +1,6 @@
 import _ from 'lodash';
 import React from 'react';
+import './preferences-tab.css';
 
 const tabClass = 'preferences-tab',
   activeTabClass = 'preferences-tab-active',

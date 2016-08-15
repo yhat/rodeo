@@ -22,38 +22,12 @@
   align-content: stretch;
 }
 
-.preferences-list .preferences-tab {
-  cursor: pointer;
-  padding: 10px 15px;
-}
-
-.preferences-list .preferences-tab:first-child {
-  border-top-left-radius: 5px;
-}
-
-.preferences-list .preferences-tab:hover {
-  background-color: #e1e1e1;
-}
-
-.preferences-list .preferences-tab.disabled {
-  background-color: inherit;
-  color: grey;
-  cursor: default;
-}
-
-.preferences-list .preferences-tab.disabled:hover {
-  background-color: inherit;
-}
-
-.preferences-list .preferences-tab.preferences-tab-active {
-  background-color: #cbcbcb;
-}
-
 .preferences-list .preference-group-details {
   padding-right: 0;
   padding-left: 0;
   overflow-y: auto;
   border-left: #eee solid 1px;
+  width: 100%;
 }
 
 .preferences-list .preference-group-details > footer {
