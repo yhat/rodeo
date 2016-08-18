@@ -29,10 +29,25 @@ function checkKernel(options) {
   }
 
   if (!options.cwd) {
-    options.cwd = local.get('workingDirectory');
+    options.cwd = local.get('workingDirectory') || '~';
   }
 
   return bluebird.try(() => send('checkKernel', options));
+}
+
+/**
+ * @param {object} options
+ * @param {string} options.cmd
+ * @param {string} [options.cwd]
+ * @param {string} text
+ * @returns {Promise}
+ */
+function executeWithNewKernel(options, text) {
+  if (!options.cwd) {
+    options.cwd = '~';
+  }
+
+  return bluebird.try(() => send('executeWithNewKernel', options, text));
 }
 
 function getSystemFacts() {
@@ -114,5 +129,6 @@ export default {
   getAppVersion,
   getFreshPythonOptions,
   getSystemFacts,
-  getUserId
+  getUserId,
+  executeWithNewKernel
 };

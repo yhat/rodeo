@@ -1,0 +1,38 @@
+%YAML 1.2
+---
+askForPythonCommand: What is the command that you use to run python?
+explainAnaconda: |
+  Anaconda is a packaged version of python that we recommend.  It includes most of the libraries used for common data
+  science tasks, such as `numpy` and `matplotlib`
+
+  [Download Anaconda](https://www.continuum.io/downloads)
+explainJupyter: |
+  _What is it?_<br />
+  [IPython](http://jupyter.readthedocs.io/en/latest/ipython/content-ipython.html)
+  is a Python environment that runs using a
+  [Kernel](http://jupyter.readthedocs.io/en/latest/architecture/how_jupyter_ipython_work.html)
+  and emits events in response to executed code.
+
+  _Why do I need it?_<br />
+  Rodeo runs IPython with the Jupyter package
+explainMissingDependences: |
+  # Woah there partner!
+
+  Looks like you need to install a few things before getting started.
+noJupyter: Rodeo is a Data Science IDE and needs a few more libraries
+noPython: Looks like there is no python available on your path
+pythonError: There was an error running python
+hello: Welcome to Rodeo
+installPython: I haven't installed python yet
+installAnaconda: Install Anaconda
+installJupyter: Install Jupyter
+installMatplotlib: Install MatPlotLib
+installNumpy: Install numpy
+installScipy: Install scipy
+installGGPlot: Install ggplot
+testInstall: I've installed python
+uniqueCommandForPython: I use a different command for python
+okay: OK
+tryAgain: Try again
+readyToRodeo: Ready to Rodeo!
+

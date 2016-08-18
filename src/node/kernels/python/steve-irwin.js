@@ -97,38 +97,13 @@ function findPythons(facts) {
   const ruleResults = rules.all(ruleSet, facts);
 
   return bluebird.all(ruleResults)
-    .then(function (resolveResults) {
-      log('info', 'findPythons', {resolveResults});
-      return resolveResults;
-    })
+    .tap(resolveResults => log('info', 'findPythons', 'looking for', resolveResults))
     .map(function (pythonOptions) {
-      return client.check(pythonOptions)
-        .then(function (checkResults) {
-          if (!checkResults.hasJupyterKernel) {
-            throw new Error('Missing Jupyter/IPython Kernel');
-          }
-
-          return {pythonOptions, checkResults};
-        })
-        .reflect()
-        .then(function (inspection) {
-          if (inspection.isRejected()) {
-            let rejected = inspection.reason();
-
-            if (rejected.message) {
-              rejected = rejected.message;
-            }
-
-            log('info', 'findPythons', {pythonOptions, rejected});
-          } else {
-            const value = inspection.value();
-
-            log('info', 'findPythons', {pythonOptions, value});
-            return value;
-          }
-        });
-    })
-    .filter(_.identity);
+      return client.check(_.assign({cwd: '~'}, pythonOptions))
+        .then(function (checkResults) { return {pythonOptions, checkResults}; })
+        .catch(function (error) { return {pythonOptions, error}; })
+        .tap(value => log('info', 'findPythons', 'result', value));
+    });
 }
 
 module.exports.findPythons = findPythons;

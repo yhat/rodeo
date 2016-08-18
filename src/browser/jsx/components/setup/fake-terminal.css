@@ -1,0 +1,41 @@
+.fake-terminal {
+  border: solid 1px #888;
+  background-color: #FFF;
+  display: block;
+  white-space: pre;
+  font-family: "Inconsolata","Inconsolata-dz", Monaco, Menlo, Consolas, "Courier New", monospace;
+  font-size: 14px;
+  color: #222;
+  text-align: left;
+  padding: 5px;
+  overflow: auto;
+  box-shadow: inset 2px 2px 50px #acc, 2px 2px 10px #aaa;
+  transition: all 0.6s;
+}
+
+.fake-terminal .prompt {
+  padding-right: 10px;
+}
+
+.fake-terminal .errors {
+  background-color: #ff8280;
+  border-radius: 5px;
+  margin-top: 5px;
+  padding: 5px 10px;
+}
+
+.fake-terminal .errors .fa {
+  margin-right: 10px;
+}
+
+.fake-terminal .stderr {
+  background-color: transparent;
+  color: red;
+}
+
+.fake-terminal .exit-code {
+  background: linear-gradient(0deg, rgba(255, 130, 128, 0.5), rgba(255, 130, 128, 0.3) 30%, rgba(255, 255, 255, 0));
+  /* border-radius: 5px; */
+  padding: 5px 10px;
+  margin: 10px -5px -5px;
+}

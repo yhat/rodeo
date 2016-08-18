@@ -60,11 +60,13 @@ function exec(str, args, options) {
     child.stdout.on('data', data => stdout.push(data));
     child.stderr.on('data', data => stderr.push(data));
     child.on('error', data => errors.push(data));
-    child.on('close', function () {
+    child.on('close', function (code, signal) {
       resolve({
         errors,
         stderr: stderr.join(''),
-        stdout: stdout.join('')
+        stdout: stdout.join(''),
+        code,
+        signal
       });
     });
   });

@@ -55,12 +55,25 @@ function askForPythonOptions() {
  */
 function detectKernel() {
   return function (dispatch) {
-    const pythonCmd = local.get('pythonCmd');
+    const cmd = local.get('pythonCmd');
     let promise;
 
-    if (pythonCmd) {
+    if (cmd) {
       // verify anyway
-      promise = clientDiscovery.checkKernel({cmd: pythonCmd})
+      promise = clientDiscovery.checkKernel({cmd})
+        .then(function (result) {
+          const isMissingCmd = !result.cmd,
+            hasErrors = result.errors && result.errors.length > 0,
+            isMissingJupter = !result.hasJupyterKernel;
+
+          console.log('HEY', result);
+
+          if (isMissingCmd || hasErrors || isMissingJupter) {
+            result = clientDiscovery.getFreshPythonOptions();
+          }
+
+          return result;
+        })
         .catch(() => clientDiscovery.getFreshPythonOptions());
     } else {
       // get them

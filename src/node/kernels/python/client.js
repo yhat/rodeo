@@ -58,7 +58,7 @@ function createObjectEmitter(stream) {
       // we don't have enough data yet, maybe?
     }
   });
-  stream.on('error', error => emitter.emit('error', error) );
+  stream.on('error', error => emitter.emit('error', error));
 
   return emitter;
 }
@@ -71,6 +71,14 @@ function createObjectEmitter(stream) {
 function handleProcessStreamEvent(client, source, data) {
   log('info', 'client event', source, data);
   client.emit('event', source, data);
+}
+
+function handleProcessError(client, error) {
+  client.emit('error', error);
+}
+
+function handleProcessClose(client, code, signal) {
+  client.emit('close', code, signal);
 }
 
 /**
@@ -88,7 +96,8 @@ function listenToChild(client, child) {
   child.stderr.on('data', _.partial(handleProcessStreamEvent, client, 'stderr.data'));
   child.stderr.on('error', _.partial(handleProcessStreamEvent, client, 'stderr.error'));
 
-  child.on('error', _.partial(handleProcessStreamEvent, client, 'error'));
+  child.on('error', _.partial(handleProcessError, client));
+  child.on('close', _.partial(handleProcessClose, client));
 }
 
 /**
@@ -202,22 +211,6 @@ class JupyterClient extends EventEmitter {
     }, {resolveEvent: ['eval_results']});
   }
 
-  getDocStrings(names) {
-    const code = '__get_docstrings(globals(), ' + JSON.stringify(names) + ', False)',
-      args = {
-        allowStdin: false,
-        stopOnError: true
-      };
-
-    return request(this, {
-      method: 'execute',
-      kwargs: _.assign({code}, pythonLanguage.toPythonArgs(args))
-    }, {
-      resolveEvent: ['stream'],
-      hidden: true
-    });
-  }
-
   /**
    * @param {string} code
    * @param {string|[string]} resolveEvent
@@ -325,6 +318,16 @@ class JupyterClient extends EventEmitter {
   }
 
   /**
+   * Safely request that the kernel end
+   * @returns {Promise}
+   */
+  shutdown() {
+    return request(this, {
+      method: 'shutdown' // sends is_complete_request
+    }, {resolveEvent: 'shutdown_reply'})
+  }
+
+  /**
    * @returns {Promise}
    */
   kill() {
@@ -374,6 +377,7 @@ function createPythonScriptProcess(targetFile, options) {
  * @returns {Promise<JupyterClient>}
  */
 function create(options) {
+  assertValidOptions(options);
   const targetFile = path.resolve(path.join(__dirname, 'start_kernel.py'));
 
   return createPythonScriptProcess(targetFile, options).then(function (child) {
@@ -453,7 +457,7 @@ function check(options) {
     .catch(function (error) {
       return {errors: [error], stdout: '', stderr: ''};
     })
-    .timeout(timeout, 'Unable to check python with ' + JSON.stringify(options))
+    .timeout(timeout, 'Timed out when checking python with ' + JSON.stringify(options))
     .then(function (results) {
       results = _.cloneDeep(results);
 
@@ -486,6 +490,78 @@ function resolveHomeDirectoryOptions(options) {
   return options;
 }
 
+function exec(options, text) {
+  const timeout = config.get('kernel.python.exec-timeout');
+
+  log('info', 'exec', {options, timeout});
+  assertValidOptions(options);
+
+  options = resolveHomeDirectoryOptions(options);
+
+  function listenTo(jupyterClient, source, events) {
+    jupyterClient.on(source, data => events.push({timestamp: new Date().getTime(), source, data}));
+  }
+
+  return create(options)
+    .catch(function (error) {
+      log('info', 'exec', 'create error', {error});
+      return _.assign({errors: [error]}, options);
+    })
+    .then(function (jupyterClient) {
+      return new bluebird(function (resolve) {
+        const result = {
+            errors: [],
+            events: []
+          },
+          stderr = [],
+          stdout = [];
+
+        jupyterClient.on('ready', function () {
+          log('info', 'exec', 'ready', arguments);
+          jupyterClient.execute(text)
+            .then(function (executionResult) {
+              log('info', 'exec', {executionResult});
+            })
+            .timeout(timeout, 'Timed out when executing python with ' + JSON.stringify(options))
+            .catch(error => result.errors.push(error))
+            .then(function () {
+              return jupyterClient.shutdown();
+            });
+        });
+        jupyterClient.on('error', error => result.errors.push(error));
+        jupyterClient.on('event', function (source, data) {
+          log('info', 'exec', 'HEY event', source, data);
+
+          if (_.isBuffer(data)) {
+            data = data.toString();
+          }
+
+          switch (source) {
+            case 'stderr.data':
+              stderr.push(data);
+              break;
+            case 'stdout.data':
+              stdout.push(data);
+              break;
+            default:
+              break;
+          }
+        });
+        jupyterClient.on('close', function (code, signal) {
+          resolve(_.assign({code, signal, stderr: stderr.join('\n'), stdout: stdout.join('\n')}, result));
+        });
+
+        listenTo(jupyterClient, 'shell', result.events);
+        listenTo(jupyterClient, 'iopub', result.events);
+        listenTo(jupyterClient, 'stdin', result.events);
+        listenTo(jupyterClient, 'input_request', result.events);
+
+        log('info', 'onExecuteWithNewKernel', {jupyterClient});
+      });
+    });
+}
+
 module.exports.create = create;
+module.exports.exec = exec;
 module.exports.getPythonScriptResults = getPythonScriptResults;
 module.exports.check = check;

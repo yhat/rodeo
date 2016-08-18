@@ -15,7 +15,7 @@ except ImportError:
     try:
         from IPython.kernel import manager
     except ImportError:
-        raise Exception('IPython is not installed with {0} {1} {2} {3}'.format(sys.executable, sys.argv, sys.version, os.environ.get('PATH')))
+        raise Exception('Jupyter is not installed')
 
 # python3/python2 nonsense
 try:
@@ -72,7 +72,8 @@ def kernel(wd=None, verbose=0):
     # we're up and running!
     sys.stdout.write(json.dumps({ "id": "startup-complete", "status": "complete" }) + "\n")
 
-    while True:
+    should_shutdown = False
+    while not should_shutdown:
         if not input_queue.empty():
             current_timeout = current_timeout_min
             line = input_queue.get().strip()
@@ -101,18 +102,25 @@ def kernel(wd=None, verbose=0):
                 sys.stdout.write(json.dumps({ "source": "eval", "result": result, "id": uid }) + '\n')
 
         try:
+            data = kernel_client.get_shell_msg(timeout=current_timeout)
+
+            msg_type = data.get('msg_type', False)
+            content = data.get('content', False)
+            if msg_type == 'shutdown_reply' and content:
+                shutdown_restart = content.get('restart', False)
+                if not shutdown_restart:
+                    should_shutdown = True
+            sys.stdout.write(json.dumps({"source": "shell", "result": data, "should_shutdown": should_shutdown}, default=json_serial) + '\n')
+            current_timeout = current_timeout_min
+        except Empty:
+            pass
+
+        try:
             while True:
                 data = kernel_client.get_iopub_msg(timeout=current_timeout)
                 sys.stdout.write(json.dumps({"source": "iopub", "result": data}, default=json_serial) + '\n')
                 sys.stdout.flush()
                 current_timeout = current_timeout_min
-        except Empty:
-            pass
-
-        try:
-            data = kernel_client.get_shell_msg(timeout=current_timeout)
-            sys.stdout.write(json.dumps({"source": "shell", "result": data}, default=json_serial) + '\n')
-            current_timeout = current_timeout_min
         except Empty:
             pass
 

@@ -1,64 +1,60 @@
-import kernelActions from '../../actions/kernel';
+import _ from 'lodash';
 import {send} from 'ipc';
 import clientDiscovery from '../../services/client-discovery';
-import {errorCaught} from '../../actions/application';
-import track from '../../services/track';
 
-function closeWindow() {
-  return function (dispatch) {
-    dispatch({type: 'CLOSING_WINDOW'});
-    send('finishStartup')
-      .then(() => dispatch({type: 'CLOSED_WINDOW'}))
+function finish() {
+  return function () {
+    return send('finishStartup')
       .catch(error => console.error(error));
   };
 }
 
-function ask(question) {
-  track({category: 'setup-viewer', action: 'ask', label: question});
-  return {type: 'SETUP_QUESTION', question};
-}
+function execute() {
+  return function (dispatch, getState) {
+    const state = getState(),
+      cmd = _.get(state, 'setup.terminal.cmd'),
+      code = [
+        'print("Welcome to Rodeo!")'
+      ].join('\n');
 
-function setCmd(cmd) {
-  return function (dispatch) {
-    return clientDiscovery.checkKernel({cmd})
-      .then(pythonOptions => dispatch(kernelActions.kernelDetected(pythonOptions)))
-      .catch(error => dispatch(errorCaught(error)));
+    dispatch({type: 'SETUP_EXECUTING', cmd, code});
+    return clientDiscovery.executeWithNewKernel({cmd}, code)
+      .then(result => dispatch({type: 'SETUP_EXECUTED', result}))
+      .catch(error => console.error(error));
   };
 }
 
-function test(cmd) {
-  return function (dispatch) {
-    dispatch({type: 'TESTING_PYTHON_CMD', cmd});
-    return clientDiscovery.checkKernel({cmd})
-      .then(() => dispatch({type: 'TESTED_PYTHON_CMD', cmd}))
-      .catch(error => dispatch({type: 'TESTED_PYTHON_CMD', cmd, error}));
-  };
+function transition(contentType) {
+  return {type: 'SETUP_TRANSITION', contentType};
 }
 
-function saveTest(cmd) {
-  track({category: 'setup-viewer', action: 'saveTest'});
-  return function (dispatch) {
-    return clientDiscovery.checkKernel({cmd})
-      .then(pythonOptions => dispatch(kernelActions.kernelDetected(pythonOptions)))
-      .then(() => dispatch({type: 'SAVED_PYTHON_TEST'}))
-      .catch(error => dispatch(errorCaught(error)));
-  };
+function changeInput(key, event) {
+  const value = _.isString(event) ? event : event.target.value;
+
+  return {type: 'SETUP_CHANGE', key, value};
 }
 
-function testInstall() {
-  return function (dispatch) {
-    return clientDiscovery.getFreshPythonOptions()
-      .then(pythonOptions => dispatch(kernelActions.kernelDetected(pythonOptions)))
-      .then(() => dispatch({type: 'INSTALLED_PYTHON'}))
-      .catch(() => dispatch({type: 'INSTALLED_PYTHON_NOT_FOUND'}));
+function installPackage() {
+  return function (dispatch, getState) {
+    const state = getState(),
+      cmd = _.get(state, 'setup.terminal.cmd'),
+      code = [
+        'import pip',
+        'pip.main(["install", "-vvvv", "jupyter"])'
+      ].join('\n'),
+      args = ['-u', '-c', code];
+
+    dispatch({type: 'SETUP_PACKAGE_INSTALLING', cmd, args});
+    return send('executeProcess', cmd, ['-u', '-c', code])
+      .then(result => dispatch({type: 'SETUP_PACKAGE_INSTALLED', result}))
+      .catch(error => console.error(error));
   };
 }
 
 export default {
-  ask,
-  closeWindow,
-  setCmd,
-  saveTest,
-  test,
-  testInstall
+  execute,
+  finish,
+  transition,
+  changeInput,
+  installPackage
 };
