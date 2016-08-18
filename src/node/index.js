@@ -20,6 +20,7 @@ const _ = require('lodash'),
   log = require('./services/log').asInternal(__filename),
   staticFileDir = path.resolve(__dirname, '../browser/'),
   kernelClients = {},
+  processes = require('./services/processes'),
   windowUrls = {
     mainWindow: 'main.html',
     startupWindow: 'startup.html',
@@ -44,7 +45,7 @@ function getArgv() {
 
   return yargs
     .env('RODEO')
-    .boolean('dev').default('pythons', false)
+    .boolean('dev').default('dev', false)
     .boolean('pythons').default('pythons', true)
     .boolean('startup').default('startup', true)
     .parse(process.argv.slice(sliceNum));
@@ -550,13 +551,28 @@ function getKernelInstanceById(id) {
  * @param {string} text
  * @returns {Promise}
  */
-function onExecute(options, text) {
+function onExecuteWithKernel(options, text) {
   if (!text) {
     throw Error('Missing text to execute');
   }
 
   return getKernelInstanceById(options.instanceId)
     .then(client => client.execute(text));
+}
+
+/**
+ * @param {object} options
+ * @param {string} options.cmd
+ * @param {string} text
+ * @returns {Promise}
+ */
+function onExecuteWithNewKernel(options, text) {
+  log('info', 'onExecuteWithNewKernel', {options, text});
+  return kernelsPythonClient.exec(options, text);
+}
+
+function onExecuteProcess(cmd, args, options) {
+  return processes.exec(cmd, args, options);
 }
 
 function onGetAutoComplete(options, text, cursorPos) {
@@ -602,7 +618,7 @@ function onInterrupt(options) {
 function findPythons() {
   if (argv.pythons === false) {
     return [];
-  } else {
+  }  else {
     return steveIrwin.findPythons(steveIrwin.getFacts());
   }
 }
@@ -848,17 +864,20 @@ function attachIpcMainEvents() {
   const ipcMain = electron.ipcMain;
 
   ipcPromises.exposeElectronIpcEvents(ipcMain, [
-    onExecute,
+
     onCheckForUpdates,
     onCheckKernel,
     onCloseWindow,
     onCreateKernelInstance,
     onCreateWindow,
-    onFinishStartup,
     onEval,
+    onExecuteWithKernel,
+    onExecuteWithNewKernel,
+    onExecuteProcess,
     onExecuteHidden,
     onFiles,
     onFileStats,
+    onFinishStartup,
     onGetAppVersion,
     onGetAppName,
     onGetAppLocale,

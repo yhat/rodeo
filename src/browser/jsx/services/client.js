@@ -75,7 +75,7 @@ function restartInstance(instance) {
 function execute(instance, content) {
   const startTime = new Date().getTime();
 
-  return send('execute', instance, content).then(function (result) {
+  return send('executeWithKernel', instance, content).then(function (result) {
     const ms = (new Date().getTime() - startTime);
 
     if (ms > 250) {

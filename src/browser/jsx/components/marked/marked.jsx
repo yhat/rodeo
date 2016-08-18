@@ -1,3 +1,4 @@
+import _ from 'lodash';
 import React from 'react';
 import marked from 'marked';
 
@@ -44,14 +45,17 @@ export default React.createClass({
     return {__html: marked(str, {renderer: renderer})};
   },
   render: function () {
-    const className = [
-      'marked',
-      this.props.className
-    ].join(' ');
+    const displayName = this.constructor.displayName,
+      props = this.props,
+      className = [_.kebabCase(displayName)];
+
+    if (props.className) {
+      className.push(props.className);
+    }
 
     return (
       /* eslint react/no-danger: 0 */
-      <span className={className} dangerouslySetInnerHTML={this.getRawMarkup()}/>
+      <span className={className.join(' ')} dangerouslySetInnerHTML={this.getRawMarkup()}/>
     );
   }
 });

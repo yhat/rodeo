@@ -162,5 +162,5 @@ export default mapReducers({
   KERNEL_DETECTED: updateFirstTerminalWithKernel,
   VARIABLES_CHANGED: updateFirstTerminalWithVariables,
   PREFERENCE_CHANGE_SAVED: changePreference,
-  WORKING_DIRECTORY_CHANGED: changeWorkingDirectory,
+  WORKING_DIRECTORY_CHANGED: changeWorkingDirectory
 }, initialState);
