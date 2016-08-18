@@ -1,28 +1,17 @@
 import _ from 'lodash';
-import {local} from '../../services/store';
-import kernel from '../../actions/kernel';
 import ipc from 'ipc';
 import clientDiscovery from '../../services/client-discovery';
-
+import preferenceActions from '../../actions/preferences';
 /**
  * @returns {function}
  */
 function save() {
   return function (dispatch, getState) {
-    const preferences = getState().preferences,
-      changes = preferences.changes;
+    const preferences = getState().preferences;
 
     // only save if there are no invalid entries
     if (preferences.canSave) {
-      _.each(changes, function (change) {
-        local.set(change.key, change.value);
-        dispatch({type: 'PREFERENCE_CHANGE_SAVED', change});
-      });
-
-      // only after all changes
-      if (_.some(changes, change => _.includes(['pythonCmd', 'workingDirectory'], change.key))) {
-        dispatch(kernel.restart());
-      }
+      dispatch(preferenceActions.savePreferenceChanges(preferences.changes));
     }
   };
 }
@@ -32,6 +21,8 @@ function save() {
  * @returns {function}
  */
 function add(change) {
+  const actionType = 'PREFERENCE_CHANGE_DETAIL_ADDED';
+
   return function (dispatch) {
     if (change.type === 'pythonCmd') {
       // check the kernel that command points to
@@ -47,7 +38,7 @@ function add(change) {
           change.state = 'valid';
         }
 
-        dispatch({type: 'PREFERENCE_CHANGE_DETAIL_ADDED', change});
+        dispatch({type: actionType, change});
       }).catch(function (error) {
         console.error(__filename, 'add', 'checkKernel', error);
       });
@@ -63,11 +54,11 @@ function add(change) {
         }
         change.fileStats = result;
 
-        dispatch({type: 'PREFERENCE_CHANGE_DETAIL_ADDED', change});
+        dispatch({type: actionType, change});
       }).catch(function (error) {
         change.state = 'invalid';
         change.fileStats = {errors: [error]};
-        dispatch({type: 'PREFERENCE_CHANGE_DETAIL_ADDED', change});
+        dispatch({type: actionType, change});
       });
     }
 

@@ -51,43 +51,7 @@ function executing(state) {
 
 function executed(state, action) {
   state = _.clone(state);
-  const newTerminal = action.result;
-
-  newTerminal.state = 'executed';
-
-  if (newTerminal.errors.length) {
-    newTerminal.errors = newTerminal.errors.map(function (error) {
-      let icon = 'fa-asterisk',
-        message;
-
-      if (isErrorCode(error, 'ENOENT')) {
-        // bell // exclamation // flask
-        message = 'No such file or command';
-      } else if (isErrorCode(error, 'EACCES')) {
-        message = 'Permission denied';
-      } else {
-        console.error(error);
-        message = error.message;
-      }
-
-      return {icon, message};
-    });
-    state.contentType = 'pythonError';
-  } else if (newTerminal.stderr.match(/Jupyter is not installed/)) {
-    newTerminal.stdout = 'from IPython.kernel import manager';
-    newTerminal.stderr = '';
-    newTerminal.errors.unshift({icon: 'fa-asterisk', message: 'Jupyter is not installed'});
-    state.contentType = 'noJupyter';
-  } else if (newTerminal.code === 127) {
-    state.contentType = 'noPython';
-  } else if (newTerminal.code !== 0) {
-    state.contentType = 'pythonError';
-  } else {
-    state.contentType = 'ready';
-  }
-
-  state.terminal = _.assign({}, state.terminal, newTerminal);
-
+  state.terminal = _.assign({}, state.terminal, action.result);
   return state;
 }
 
@@ -127,7 +91,7 @@ function packageInstalled(state, action) {
   newTerminal.state = 'executed';
 
   if (newTerminal.errors.length) {
-    newTerminal.errors = newTerminal.errors.map(function (error, i) {
+    newTerminal.errors = newTerminal.errors.map(function (error) {
       let icon = 'fa-asterisk',
         message;
 

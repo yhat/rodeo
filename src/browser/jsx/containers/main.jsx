@@ -9,7 +9,6 @@ import NotificationsContainer from '../components/notifications/notifications-co
 import rootReducer from './main.reducer';
 import initialState from './main.initial';
 import ipcDispatcher from '../services/ipc-dispatcher';
-import kernelActions from '../actions/kernel';
 import dialogActions from '../actions/dialogs';
 import applicationControl from '../services/application-control';
 import reduxStore from '../services/redux-store';
@@ -19,7 +18,6 @@ const store = reduxStore.create(rootReducer, initialState.getState());
 ipcDispatcher(store.dispatch);
 
 // find the kernel immediately
-store.dispatch(kernelActions.detectKernel());
 store.dispatch(dialogActions.showRegisterRodeo());
 
 // no visual for this please

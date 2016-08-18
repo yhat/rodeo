@@ -340,14 +340,12 @@ class JupyterClient extends EventEmitter {
  * @returns {object}
  */
 function getPythonCommandOptions(options) {
-  options = resolveHomeDirectoryOptions(options);
-
   return environment.getEnv().then(function (defaultEnv) {
     return _.assign({
       env: pythonLanguage.setDefaultEnvVars(defaultEnv),
       stdio: ['pipe', 'pipe', 'pipe'],
       encoding: 'UTF8'
-    }, _.pick(options || {}, ['shell']));
+    }, _.pick(options, ['cwd', 'shell']));
   });
 }
 
@@ -360,6 +358,7 @@ function getPythonCommandOptions(options) {
  */
 function createPythonScriptProcess(targetFile, options) {
   options = _.pick(options || {}, ['shell', 'cmd', 'cwd']);
+  options = resolveHomeDirectoryOptions(options);
 
   return getPythonCommandOptions(options).then(function (processOptions) {
     const cmd = options.cmd || 'python';
@@ -392,10 +391,10 @@ function create(options) {
  * @returns {Promise}
  */
 function getPythonScriptResults(targetFile, options) {
-  return getPythonCommandOptions(options).then(function (processOptions) {
-    const cmd = options.cmd || 'python';
+  options = resolveHomeDirectoryOptions(options);
 
-    return processes.exec(cmd, [targetFile], processOptions);
+  return getPythonCommandOptions(options).then(function (processOptions) {
+    return processes.exec(options.cmd, [targetFile], processOptions);
   });
 }
 

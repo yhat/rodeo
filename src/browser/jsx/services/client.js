@@ -6,31 +6,19 @@ import {send} from 'ipc';
 let instancePromise;
 
 /**
- * @param {object} options
- * @param {string} options.cmd  The command to start python
- * @param {string} [options.cwd]  Optional working directory to start in for this instance
  * @returns {Promise}
  */
-function createInstance(options) {
-  let promise,
-    cmd = local.get('pythonCmd'),
-    cwd = local.get('workingDirectory'),
-    pythonOptions = local.get('pythonOptions');
-
-  options = _.defaults(options || {}, {cmd, cwd}, pythonOptions);
-
-  options = _.pickBy(_.pick(options, ['cmd', 'cwd']), _.identity);
-
-  if (!options.cmd) {
-    throw new Error('Cannot create python instance, missing cmd');
-  }
-
+function createInstance() {
   // they should kill first if they want a new one
   if (instancePromise) {
     return instancePromise;
   }
 
-  promise = send('createKernelInstance', options).then(function (instanceId) {
+  let promise,
+    cmd = local.get('pythonCmd') || 'python',
+    cwd = local.get('workingDirectory') || '~';
+
+  promise = send('createKernelInstance', {cmd, cwd}).then(function (instanceId) {
     return {instanceId};
   });
 
@@ -55,12 +43,14 @@ function guaranteeInstance() {
 }
 
 function killInstance(instance) {
+  console.log(__filename, 'killInstance');
   return send('killKernelInstance', instance.instanceId).then(function () {
     instancePromise = false;
   });
 }
 
 function restartInstance(instance) {
+  console.log(__filename, 'restartInstance');
   return send('killKernelInstance', instance.instanceId).then(function () {
     instancePromise = false;
     return createInstance();

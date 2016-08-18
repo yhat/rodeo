@@ -255,9 +255,11 @@ function displayDataTransform(event) {
  * @param {string} eventName
  */
 function subscribeBrowserWindowToEvent(windowName, emitter, eventName) {
-  emitter.on(eventName, function (event) {
-    displayDataTransform(event).then(function (normalizedEvent) {
-      browserWindows.send.apply(browserWindows, [windowName, eventName].concat([normalizedEvent]));
+  emitter.on(eventName, function () {
+    const list = _.map(_.toArray(arguments), arg => displayDataTransform(arg));
+
+    bluebird.all(list).then(function (normalizedList) {
+      browserWindows.send.apply(browserWindows, [windowName, eventName].concat(normalizedList));
     }).catch(error => log('error', error));
   });
 }
@@ -273,6 +275,7 @@ function subscribeWindowToKernelEvents(windowName, client) {
   subscribeBrowserWindowToEvent(windowName, client, 'event');
   subscribeBrowserWindowToEvent(windowName, client, 'input_request');
   subscribeBrowserWindowToEvent(windowName, client, 'error');
+  subscribeBrowserWindowToEvent(windowName, client, 'close');
 }
 
 // Quit when all windows are closed.
@@ -476,26 +479,32 @@ function onCheckKernel(options) {
  * @returns {Promise}
  */
 function onCreateKernelInstance(options) {
+
+  log('info', 'onCreateKernelInstance', options);
+
   assertValidObject(options, {
     cmd: {type: 'string', isRequired: true},
     cwd: {type: 'string'}
   });
 
-  if (!options) {
-    throw new Error('Must provide kernel options to run python');
-  } else if (!options.cmd) {
-    throw new Error('Must provide cmd to create python instance, i.e., {cmd: "python"}');
-  }
-
   return new bluebird(function (resolveInstanceId) {
     let instanceId = cuid();
 
     kernelClients[instanceId] = new bluebird(function (resolveClient) {
+      log('info', 'creating new python kernel process', 'creating python client');
+
       kernelsPythonClient.create(options).then(function (client) {
         log('info', 'created new python kernel process', instanceId, options);
         client.on('ready', function () {
           log('info', 'new python kernel process is ready', instanceId, options);
           resolveClient(client);
+        });
+        client.on('error', function (error) {
+          log('info', 'python kernel process error', error);
+        })
+        client.on('close', function () {
+          log('info', 'python kernel process closed', options);
+          delete kernelClients[instanceId];
         });
 
         subscribeWindowToKernelEvents('mainWindow', client);
@@ -522,7 +531,6 @@ function onKillKernelInstance(id) {
 
   let promise = kernelClients[id];
 
-  delete kernelClients[id];
   log('info', 'deleted python kernel process reference', id);
 
   return promise
@@ -555,6 +563,8 @@ function onExecuteWithKernel(options, text) {
   if (!text) {
     throw Error('Missing text to execute');
   }
+
+  log('info', 'onExecuteWithKernel', options, text);
 
   return getKernelInstanceById(options.instanceId)
     .then(client => client.execute(text));

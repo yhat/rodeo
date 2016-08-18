@@ -4,11 +4,17 @@ body {
   -webkit-user-select: none;
   padding: 30px 5px;
   text-align: center;
+  margin: 0;
 }
 
 /* Buttons and inputs don't drag the window around */
 button, input {
   -webkit-app-region: no-drag;
+}
+
+.marked > * {
+  -webkit-app-region: no-drag;
+  -webkit-user-select: text;
 }
 
 ul {
