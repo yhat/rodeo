@@ -1,18 +1,20 @@
 'use strict';
 
 const _ = require('lodash'),
+  assert = require('./assert'),
   bluebird = require('bluebird'),
   childProcess = require('child_process'),
   log = require('./log').asInternal(__filename),
   children = [],
-  killTimeout = 5000;
+  killTimeout = 5000,
+  assertString = assert(['string', 'must be string']);
 
 /**
  * @param {ChildProcess} child
  */
 function addChild(child) {
   children.push(child);
-  log('debug', 'added child process', child.pid, ';', children.length, 'children running');
+  log('info', 'added child process', child.pid, ';', children.length, 'children running');
 }
 
 /**
@@ -20,7 +22,7 @@ function addChild(child) {
  */
 function removeChild(child) {
   _.pull(children, child);
-  log('debug', 'removed child process', child.pid, ';', children.length, 'children running');
+  log('info', 'removed child process', child.pid, ';', children.length, 'children running');
 }
 
 /**
@@ -37,6 +39,9 @@ function getChildren() {
  * @returns {ChildProcess}
  */
 function create(str, args, options) {
+  assertString(str);
+
+  log('info', 'adding child process', str, args || options, args && options);
   const child = childProcess.spawn(str, args || options, args && options)
     .on('close', () => removeChild(child));
 
@@ -51,6 +56,8 @@ function create(str, args, options) {
  * @returns {Promise<{errors: [Error], stderr: string, stdout: string}>}
  */
 function exec(str, args, options) {
+  assertString(str);
+
   return new bluebird(function (resolve) {
     const child = create(str, args, options);
     let stdout = [],

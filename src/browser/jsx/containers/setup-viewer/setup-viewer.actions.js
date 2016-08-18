@@ -1,11 +1,85 @@
 import _ from 'lodash';
 import {send} from 'ipc';
+import preferenceActions from '../../actions/preferences';
 import clientDiscovery from '../../services/client-discovery';
+import {local} from '../../services/store';
+
+/**
+ * @param {Error} error
+ * @param {string} code
+ * @returns {boolean}
+ */
+function isErrorCode(error, code) {
+  return error.code === code || _.includes(error.message, code);
+}
+
+function handleError(error) {
+  console.error(error);
+}
 
 function finish() {
   return function () {
-    return send('finishStartup')
-      .catch(error => console.error(error));
+    return send('finishStartup').catch(handleError);
+  };
+}
+
+function saveCmd(dispatch, cmd) {
+  // if the pythonCmd is new, save it and inform everyone that it has changed
+  if (local.get('pythonCmd') !== cmd) {
+    console.log('HEY!', saveCmd, arguments);
+    dispatch(preferenceActions.savePreferenceChanges([{key: 'pythonCmd', value: cmd}]));
+  }
+}
+
+/**
+ * @param {Error} error
+ * @returns {{icon: string, message: *}}
+ */
+function convertErrorToIconMessage(error) {
+  let icon = 'fa-asterisk',
+    message;
+
+  if (isErrorCode(error, 'ENOENT')) {
+    // bell // exclamation // flask
+    message = 'No such file or command';
+  } else if (isErrorCode(error, 'EACCES')) {
+    message = 'Permission denied';
+  } else {
+    console.error(error);
+    message = error.message;
+  }
+
+  return {icon, message};
+}
+
+function handleExecuted(dispatch, cmd) {
+  return function (result) {
+    const terminal = result;
+    let contentType;
+
+    terminal.state = 'executed';
+
+    if (terminal.errors.length) {
+      terminal.errors = terminal.errors.map(convertErrorToIconMessage);
+
+      contentType = 'pythonError';
+    } else if (terminal.stderr.match(/Jupyter is not installed/)) {
+      terminal.stdout = 'from IPython.kernel import manager';
+      terminal.stderr = '';
+      terminal.errors.unshift({icon: 'fa-asterisk', message: 'Jupyter is not installed'});
+
+      contentType = 'noJupyter';
+    } else if (terminal.code === 127) {
+      contentType = 'noPython';
+    } else if (terminal.code !== 0) {
+      contentType = 'pythonError';
+    } else {
+      saveCmd(dispatch, cmd);
+      contentType = 'ready';
+    }
+
+    dispatch(transition(contentType));
+    dispatch({type: 'SETUP_EXECUTED', result});
   };
 }
 
@@ -13,14 +87,12 @@ function execute() {
   return function (dispatch, getState) {
     const state = getState(),
       cmd = _.get(state, 'setup.terminal.cmd'),
-      code = [
-        'print("Welcome to Rodeo!")'
-      ].join('\n');
+      code = 'print("Welcome to Rodeo!")';
 
     dispatch({type: 'SETUP_EXECUTING', cmd, code});
     return clientDiscovery.executeWithNewKernel({cmd}, code)
-      .then(result => dispatch({type: 'SETUP_EXECUTED', result}))
-      .catch(error => console.error(error));
+      .then(handleExecuted(dispatch, cmd))
+      .catch(handleError);
   };
 }
 
@@ -34,20 +106,31 @@ function changeInput(key, event) {
   return {type: 'SETUP_CHANGE', key, value};
 }
 
-function installPackage() {
+function handlePackageInstalled(dispatch) {
+  return function (result) {
+    const terminal = result;
+
+    terminal.state = 'executed';
+    terminal.errors = terminal.errors.map(convertErrorToIconMessage);
+
+    dispatch({type: 'SETUP_PACKAGE_INSTALLED', result});
+  };
+}
+
+function installPackage(targetPackage) {
   return function (dispatch, getState) {
     const state = getState(),
       cmd = _.get(state, 'setup.terminal.cmd'),
       code = [
         'import pip',
-        'pip.main(["install", "-vvvv", "jupyter"])'
+        `pip.main(["install", "-vvvv", ${targetPackage}}])`
       ].join('\n'),
       args = ['-u', '-c', code];
 
     dispatch({type: 'SETUP_PACKAGE_INSTALLING', cmd, args});
     return send('executeProcess', cmd, ['-u', '-c', code])
-      .then(result => dispatch({type: 'SETUP_PACKAGE_INSTALLED', result}))
-      .catch(error => console.error(error));
+      .then(handlePackageInstalled(dispatch))
+      .catch(handleError);
   };
 }
 

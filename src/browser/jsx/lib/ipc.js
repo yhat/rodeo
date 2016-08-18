@@ -34,9 +34,10 @@ const ipc = (function () {
     try {
       ipcRenderer.on(eventName, function (event, eventId, result) {
         var endTime,
-          startTime = new Date().getTime();
+          startTime = new Date().getTime(),
+          args = Array.prototype.slice.call(arguments, 2);
 
-        var eventResult = eventFn.call(null, event, result);
+        var eventResult = eventFn.apply(null, [event].concat(args));
 
         endTime = (new Date().getTime() - startTime);
 

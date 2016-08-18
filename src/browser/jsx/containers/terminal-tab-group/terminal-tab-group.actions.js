@@ -37,10 +37,17 @@ function startPrompt(jqConsole) {
   };
 }
 
+function handleExecuteError(dispatch) {
+  return function (error) {
+    dispatch(addJSError(error));
+    dispatch(errorCaught(error));
+  };
+}
+
 function execute(cmd, done) {
   return function (dispatch) {
     return client.execute(cmd)
-      .catch(error => dispatch(errorCaught(error)))
+      .catch(handleExecuteError(dispatch))
       .nodeify(done);
   };
 }
@@ -107,6 +114,18 @@ function addOutputBlock(text) {
       htmlEscape = false;
 
     jqConsole.Write('<span class="terminal-block">' + convertor.toHtml(text) + '</span>\n', className, htmlEscape);
+  };
+}
+
+function addJSError(error) {
+  return function (dispatch, getState) {
+    const state = getState(),
+      terminal = _.head(state.terminals),
+      jqConsole = getJQConsole(terminal.id),
+      htmlEscape = true,
+      className = 'jqconsole-output';
+
+    jqConsole.Write(error.message + '\n', className, htmlEscape);
   };
 }
 

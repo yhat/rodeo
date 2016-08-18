@@ -2,7 +2,7 @@ import _ from 'lodash';
 import React from 'react';
 import {connect} from 'react-redux';
 import PreferencesList from '../../components/preferences/preferences-list.jsx';
-import actions from './preferences.actions';
+import actions from './preferences-viewer.actions';
 
 /**
  * @param {object} state
@@ -24,7 +24,7 @@ function mapDispatchToProps(dispatch) {
     onApply: () => dispatch(actions.save()),
     onCancel: () => dispatch(actions.cancelAll()),
     onSelectFile: change => dispatch(actions.selectFile(change)),
-    onSelectFolder: change => dispatch(actions.selectFolder(change)),
+    onSelectFolder: change => dispatch(actions.selectFolder(change))
   };
 }
 

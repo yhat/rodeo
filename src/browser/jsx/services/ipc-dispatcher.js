@@ -171,12 +171,19 @@ function stdinDispatcher() {
 }
 
 function otherDispatcher(dispatch) {
-  ipc.on('event', function (event, data) {
+  ipc.on('event', function (event, source, data) {
+    dispatch(terminalActions.addOutputText(source + ': ' + data));
     console.log('event', data);
   });
 
   ipc.on('error', function (event, data) {
+    dispatch(terminalActions.addOutputText('Error: ' + JSON.stringify(data)));
     console.log('error', data);
+  });
+
+  ipc.on('close', function (event, data) {
+    dispatch(terminalActions.addOutputText('Close: ' + JSON.stringify(data)));
+    console.log('close', data);
   });
 
   ipc.on('sharedAction', function (event, action) {
