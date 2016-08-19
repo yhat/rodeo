@@ -33,18 +33,22 @@ const dispatchMap = {
     TERMINAL_RESTART: () => terminalActions.restart()
   },
   iopubDispatchMap = {
-    execute_input: dispatchIOPubExecuteInput,
+    executeInput: dispatchIOPubExecuteInput,
     stream: dispatchIOPubStream,
-    execute_result: dispatchIOPubResult,
-    display_data: dispatchIOPubDisplayData,
+    executeResult: dispatchIOPubResult,
+    displayData: dispatchIOPubDisplayData,
     error: dispatchIOPubError,
     status: dispatchIOPubStatus,
-    comm_msg: dispatchNoop,
-    comm_open: dispatchNoop,
-    clear_output: dispatchNoop
+    commMsg: dispatchNoop,
+    commOpen: dispatchNoop,
+    clearOutput: dispatchNoop
   },
   shellDispatchMap = {
-    execute_reply: dispatchShellExecuteReply
+    executeReply: dispatchShellExecuteReply
+  },
+  stdinDispatchMap = {},
+  browserWindowDispatchMap = {
+    readyToShow: () => applicationActions.readyToShow()
   },
   detectVariables = _.debounce(function (dispatch) {
     dispatch(kernelActions.detectKernelVariables());
@@ -141,10 +145,11 @@ function dispatchNoop() {
 function iopubDispatcher(dispatch) {
   ipc.on('iopub', function (event, data) {
     const result = data.result,
-      content = _.get(data, 'result.content');
+      content = _.get(data, 'result.content'),
+      type = result && _.camelCase(result.msg_type);
 
-    if (result && iopubDispatchMap[result.msg_type]) {
-      return iopubDispatchMap[result.msg_type](dispatch, content);
+    if (iopubDispatchMap[type]) {
+      return iopubDispatchMap[type](dispatch, content);
     }
 
     return dispatch(iopubActions.unknownEventOccurred(data));
@@ -154,25 +159,46 @@ function iopubDispatcher(dispatch) {
 function shellDispatcher(dispatch) {
   ipc.on('shell', function (event, data) {
     const result = data.result,
-      content = _.get(data, 'result.content');
+      content = _.get(data, 'result.content'),
+      type = result && _.camelCase(result.msg_type);
 
-    if (result && shellDispatchMap[result.msg_type]) {
-      return shellDispatchMap[result.msg_type](dispatch, content);
+    if (shellDispatchMap[type]) {
+      return shellDispatchMap[type](dispatch, content);
     }
 
     console.log('shell', {data});
   });
 }
 
-function stdinDispatcher() {
+function stdinDispatcher(dispatch) {
   ipc.on('stdin', function (event, data) {
-    console.log('stdin', {event, data});
+    const result = data.result,
+      content = _.get(data, 'result.content'),
+      type = result && _.camelCase(result.msg_type);
+
+    if (stdinDispatchMap[type]) {
+      return stdinDispatchMap[type](dispatch, content);
+    }
+
+    console.log('stdin', {data});
+  });
+}
+
+function browserWindowDispatcher(dispatch) {
+  ipc.on('browser-windows', function (event, eventName) {
+    const args = _.slice(arguments, 2);
+
+    if (browserWindowDispatchMap[eventName]) {
+      return browserWindowDispatchMap[eventName].apply(null, [dispatch].concat(args));
+    }
+
+    console.log('browserWindow', eventName);
   });
 }
 
 function otherDispatcher(dispatch) {
   ipc.on('event', function (event, source, data) {
-    dispatch(terminalActions.addOutputText(source + ': ' + data));
+    // dispatch(terminalActions.addOutputText(source + ': ' + data));
     console.log('event', data);
   });
 
@@ -187,9 +213,7 @@ function otherDispatcher(dispatch) {
   });
 
   ipc.on('sharedAction', function (event, action) {
-    console.log('received sharedAction', action);
     if (action.senderName) {
-      console.log('dispatching sharedAction', action.senderName, action);
       dispatch(action);
     }
   });
@@ -205,7 +229,8 @@ function otherDispatcher(dispatch) {
 export default function (dispatch) {
   iopubDispatcher(dispatch);
   shellDispatcher(dispatch);
-  stdinDispatcher();
+  stdinDispatcher(dispatch);
+  browserWindowDispatcher(dispatch);
   internalDispatcher(dispatch);
   otherDispatcher(dispatch);
 }

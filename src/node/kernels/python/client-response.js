@@ -43,9 +43,6 @@ function broadcastKernelStatus(client, message) {
 function resolveRequest(request, result) {
   // execution_count doesn't apply to us
   request.deferred.resolve(_.omit(result.content, 'engine_info', 'execution_count'));
-
-  // we're done reporting about this topic
-  log('warn', 'resolved', request.msg_id, result);
   delete outputMap[request.msg_id];
 }
 

@@ -123,13 +123,21 @@ function onQuitApplication() {
   const app = electron.app;
 
   log('info', 'onQuitApplication');
+  log('info', 'killing all children processes');
 
-  app.quit();
-
-  if (process.platform === 'linux') {
-    log('info', 'forcing quit on linux');
-    process.exit(0);
-  }
+  bluebird.all(processes.getChildren().each(child => child.kill().reflect()))
+    .map(function (inspection) {
+      if (inspection.isRejected()) {
+        log('info', inspection.reason());
+      }
+    })
+    .finally(function () {
+      app.quit();
+      if (process.platform === 'linux') {
+        log('info', 'forcing quit on linux');
+        process.exit(0);
+      }
+    });
 }
 
 /**
@@ -494,16 +502,16 @@ function onCreateKernelInstance(options) {
       log('info', 'creating new python kernel process', 'creating python client');
 
       kernelsPythonClient.create(options).then(function (client) {
-        log('info', 'created new python kernel process', instanceId, options);
+        log('info', 'created new python kernel process', instanceId, 'process', client.childProcess.pid, options);
         client.on('ready', function () {
-          log('info', 'new python kernel process is ready', instanceId, options);
+          log('info', 'new python kernel process is ready', instanceId, 'process', client.childProcess.pid, options);
           resolveClient(client);
         });
         client.on('error', function (error) {
-          log('info', 'python kernel process error', error);
-        })
+          log('info', 'python kernel process error', instanceId, 'process', client.childProcess.pid, options, error);
+        });
         client.on('close', function () {
-          log('info', 'python kernel process closed', options);
+          log('info', 'python kernel process closed', instanceId, 'process', client.childProcess.pid, options);
           delete kernelClients[instanceId];
         });
 
@@ -874,7 +882,6 @@ function attachIpcMainEvents() {
   const ipcMain = electron.ipcMain;
 
   ipcPromises.exposeElectronIpcEvents(ipcMain, [
-
     onCheckForUpdates,
     onCheckKernel,
     onCloseWindow,

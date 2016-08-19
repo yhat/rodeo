@@ -16,25 +16,6 @@ const _ = require('lodash'),
   os = require('os'),
   homedir = os.homedir();
 
-/**
- * @this {BrowserWindow}
- */
-function onClose() {
-  log('info', 'onClose');
-
-  // remove reference from list of windows
-  const key = _.findKey(windows, {id: this.id});
-
-  if (key) {
-    delete windows[key];
-  } else {
-    log('warn', 'unable to unreference window');
-  }
-
-  // remove the stuff inside it
-  this.webContents.send('kill');
-}
-
 function getCommonErrors() {
   const targetFile = path.resolve(path.join(__dirname, 'chromium-errors.yml'));
   let contents, commonErrors;
@@ -114,7 +95,7 @@ function onDestroyed(event) {
       log('warn', 'onDestroyed', 'destroyed window is still referenced');
     }
   } catch (ex) {
-    log('warn', 'onDestroyed', 'failed to iterate through window references');
+    log('warn', 'onDestroyed', 'failed to iterate through window references', ex);
   }
 }
 
@@ -163,7 +144,13 @@ function inspectWebContents() {
 function create(name, options) {
   let webContents;
   const BrowserWindow = electron.BrowserWindow,
-    window = new BrowserWindow(_.pick(options, availableBrowserWindowOptions));
+    window = new BrowserWindow(_.pick(options, availableBrowserWindowOptions)),
+    token = {
+      id: window.id,
+      didFinishLoad: false,
+      instance: window,
+      readyToShow: false
+    };
 
   if (!options.url) {
     throw new Error('BrowserWindows should always start with a target.  No flickering allowed.');
@@ -172,40 +159,55 @@ function create(name, options) {
   window.loadURL(options.url);
 
   // default event handlers
-  window.on('close', onClose);
+  window.on('close', () => log('info', 'close', name));
+  window.on('closed', () => {
+    log('info', 'closed', name);
+    delete windows[name];
+  });
+  window.on('responsive', () => log('info', 'responsive', name));
+  window.on('unresponsive', () => log('info', 'unresponsive', name));
   window.on('show', () => log('info', 'show', name));
   window.on('hide', () => log('info', 'hide', name));
   window.on('focus', () => log('info', 'focus', name));
   window.on('blur', () => log('info', 'blur', name));
-  window.on('ready-to-show', () => log('info', 'ready-to-show', name));
+  window.on('ready-to-show', () => {
+    log('info', 'ready-to-show', name);
+    token.readyToShow = true;
+  });
   window.on('app-command', () => log('info', 'app-command', name));
-
   webContents = window.webContents;
-  webContents.on('did-finish-load', onFinishLoad(name, options));
+  webContents.on('did-finish-load', () => {
+    log('info', 'did-finish-load', name);
+    token.didFinishLoad = true;
+    runStartActions(name, options.startActions);
+  });
   webContents.on('did-fail-load', onFailLoad);
   webContents.on('did-get-response-details', onGetResponseDetails);
   webContents.on('crashed', () => log('error', 'onCrashed'));
   webContents.on('plugin-crashed', () => log('error', 'onPluginCrashed'));
-  webContents.on('destroyed', onDestroyed);
+  webContents.on('destroyed', () => log('info', 'destroyed'));
 
   // how to log
   window.inspect = inspectBrowserWindow;
   window.webContents.inspect = inspectWebContents;
 
   // hold reference so not garbage collected
-  windows[name] = window;
+  windows[name] = token;
 
   return window;
 }
 
-function onFinishLoad(name, options) {
-  return function () {
-    if (_.isArray(options.startActions)) {
-      _.each(options.startActions, function (action) {
-        send(name, 'dispatch', action);
-      });
-    }
-  };
+/**
+ * Dispatches a series of actions to target window
+ * @param {string} name
+ * @param {[{type: string}]} startActions
+ */
+function runStartActions(name, startActions) {
+  if (_.isArray(startActions)) {
+    _.each(startActions, function (action) {
+      send(name, 'dispatch', action);
+    });
+  }
 }
 
 /**
@@ -254,7 +256,7 @@ function createStartupWindow(name, options) {
  * @returns {BrowserWindow}
  */
 function getByName(name) {
-  return windows[name];
+  return windows[name].instance;
 }
 
 /**
@@ -268,7 +270,7 @@ function getByName(name) {
 function send(windowName, eventName) {
   const target = getByName(windowName),
     eventId = cuid(),
-    args = _.slice(arguments, 2);
+    args = _.map(_.slice(arguments, 2), arg => _.isBuffer(arg) ? arg.toString() : arg);
 
   if (target) {
     let webContents = target.webContents;
