@@ -125,19 +125,23 @@ function onQuitApplication() {
   log('info', 'onQuitApplication');
   log('info', 'killing all children processes');
 
-  bluebird.all(processes.getChildren().each(child => child.kill().reflect()))
-    .map(function (inspection) {
+  bluebird.all(processes.getChildren().map(function (child) {
+    return processes.kill(child).reflect().then(function (inspection) {
       if (inspection.isRejected()) {
-        log('info', inspection.reason());
-      }
-    })
-    .finally(function () {
-      app.quit();
-      if (process.platform === 'linux') {
-        log('info', 'forcing quit on linux');
-        process.exit(0);
+        log('info', 'process', child.pid, 'unable to be killed', inspection.reason());
+      } else {
+        log('info', 'process', child.pid, 'successfully killed', inspection.value());
       }
     });
+  })).finally(function () {
+    log('info', 'quiting');
+    app.quit();
+
+    if (process.platform === 'linux') {
+      log('info', 'forcing quit on linux');
+      process.exit(0);
+    }
+  });
 }
 
 /**
@@ -636,7 +640,7 @@ function onInterrupt(options) {
 function findPythons() {
   if (argv.pythons === false) {
     return [];
-  }  else {
+  } else {
     return steveIrwin.findPythons(steveIrwin.getFacts());
   }
 }
@@ -932,8 +936,7 @@ function startApp() {
     // record for later use
     log('info', {
       action: 'started',
-      argv, 'process.argv':
-      process.argv,
+      argv, 'process.argv': process.argv,
       cwd: process.cwd(),
       versions: process.versions
     });

@@ -272,7 +272,7 @@ function send(windowName, eventName) {
     eventId = cuid(),
     args = _.map(_.slice(arguments, 2), arg => _.isBuffer(arg) ? arg.toString() : arg);
 
-  if (target) {
+  if (target && !target.isDestroyed()) {
     let webContents = target.webContents;
 
     webContents.send.apply(webContents, [eventName, eventId].concat(args));

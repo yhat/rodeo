@@ -323,7 +323,7 @@ class JupyterClient extends EventEmitter {
   shutdown() {
     return request(this, {
       method: 'shutdown' // sends is_complete_request
-    }, {resolveEvent: 'shutdown_reply'})
+    }, {resolveEvent: 'shutdown_reply'});
   }
 
   /**
