@@ -256,7 +256,9 @@ function createStartupWindow(name, options) {
  * @returns {BrowserWindow}
  */
 function getByName(name) {
-  return windows[name].instance;
+  if (windows[name]) {
+    return windows[name].instance;
+  }
 }
 
 /**
