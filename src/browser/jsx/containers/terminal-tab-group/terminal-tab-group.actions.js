@@ -341,6 +341,27 @@ function autoComplete() {
   };
 }
 
+/**
+ * @param {number} code
+ * @param {string} signal
+ * @returns {function}
+ */
+function handleProcessClose(code, signal) {
+  return function (dispatch) {
+    if (code !== 0) {
+      dispatch(addOutputText('Process closed (exit code: ' + code + '), restarting...'));
+    } else if (signal) {
+      dispatch(addOutputText('Process closed (signal: ' + signal + '), restarting...'));
+    } else {
+      dispatch(addOutputText('Process closed, restarting...'));
+    }
+
+    return client.dropInstance().then(function () {
+      dispatch(addOutputText('done\n'));
+    });
+  };
+}
+
 export default {
   addDisplayData,
   addInputText,
@@ -352,5 +373,6 @@ export default {
   focus,
   restart,
   startPrompt,
-  autoComplete
+  autoComplete,
+  handleProcessClose
 };

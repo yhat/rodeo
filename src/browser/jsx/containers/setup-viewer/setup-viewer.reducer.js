@@ -114,11 +114,23 @@ function packageInstalled(state, action) {
   return state;
 }
 
+function readyToShow(state, action) {
+  state = _.clone(state);
+  const name = action.name;
+
+  if (name === 'mainWindow') {
+    state.isMainWindowReady = true;
+  }
+
+  return state;
+}
+
 export default mapReducers({
   SETUP_EXECUTED: executed,
   SETUP_EXECUTING: executing,
   SETUP_PACKAGE_INSTALLED: packageInstalled,
   SETUP_PACKAGE_INSTALLING: packageInstalling,
   SETUP_TRANSITION: transition,
-  SETUP_CHANGE: change
+  SETUP_CHANGE: change,
+  READY_TO_SHOW: readyToShow
 }, initialState);

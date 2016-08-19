@@ -4,8 +4,11 @@ import {Provider} from 'react-redux';
 import FullScreen from '../components/full-screen/full-screen.jsx';
 import rootReducer from './startup.reducer';
 import reduxStore from '../services/redux-store';
+import ipcDispatcher from '../services/ipc-dispatcher';
 
 const store = reduxStore.create(rootReducer);
+
+ipcDispatcher(store.dispatch);
 
 /**
  * @class Startup
