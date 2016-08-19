@@ -72,8 +72,8 @@ def kernel(wd=None, verbose=0):
     # we're up and running!
     sys.stdout.write(json.dumps({ "id": "startup-complete", "status": "complete" }) + "\n")
 
-    should_shutdown = False
-    while not should_shutdown:
+    should_continue = True
+    while should_continue:
         if not input_queue.empty():
             current_timeout = current_timeout_min
             line = input_queue.get().strip()
@@ -106,11 +106,11 @@ def kernel(wd=None, verbose=0):
 
             msg_type = data.get('msg_type', False)
             content = data.get('content', False)
+            sys.stdout.write(json.dumps({"source": "shell", "result": data}, default=json_serial) + '\n')
             if msg_type == 'shutdown_reply' and content:
                 shutdown_restart = content.get('restart', False)
                 if not shutdown_restart:
-                    should_shutdown = True
-            sys.stdout.write(json.dumps({"source": "shell", "result": data, "should_shutdown": should_shutdown}, default=json_serial) + '\n')
+                    should_continue = False
             current_timeout = current_timeout_min
         except Empty:
             pass
