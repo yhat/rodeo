@@ -423,6 +423,7 @@ function startStartupWindow() {
 
 /**
  * When Electron is ready, we can start making windows
+ * @returns {Promise}
  */
 function onReady() {
   let windowName, window;

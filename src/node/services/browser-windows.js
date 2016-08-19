@@ -85,20 +85,6 @@ function onGetResponseDetails() {
   log('info', 'onGetResponseDetails', _.pick(args, ['code', 'url']));
 }
 
-function onDestroyed(event) {
-  log('info', 'onDestroyed', event);
-
-  try {
-    const key = _.findKey(windows, {id: this.id});
-
-    if (!key) {
-      log('warn', 'onDestroyed', 'destroyed window is still referenced');
-    }
-  } catch (ex) {
-    log('warn', 'onDestroyed', 'failed to iterate through window references', ex);
-  }
-}
-
 /**
  * Returns a property.
  * If function, calls it to get the property value.
@@ -132,7 +118,7 @@ function inspectWebContents() {
     util.inspect({
       title: getPropertySafe(this, 'title'),
       url: getPropertySafe(this, 'url')
-    }, {colors: true});
+    }, {colors: false});
 }
 
 /**
@@ -147,10 +133,10 @@ function create(name, options) {
     window = new BrowserWindow(_.pick(options, availableBrowserWindowOptions)),
     token = {
       id: window.id,
-      didFinishLoad: false,
       instance: window,
-      readyToShow: false
-    };
+      name
+    },
+    announceReady = _.once(() => dispatchActionToOtherWindows(name, {type: 'READY_TO_SHOW', name}));
 
   if (!options.url) {
     throw new Error('BrowserWindows should always start with a target.  No flickering allowed.');
@@ -172,13 +158,13 @@ function create(name, options) {
   window.on('blur', () => log('info', 'blur', name));
   window.on('ready-to-show', () => {
     log('info', 'ready-to-show', name);
-    token.readyToShow = true;
+    announceReady();
   });
   window.on('app-command', () => log('info', 'app-command', name));
   webContents = window.webContents;
   webContents.on('did-finish-load', () => {
     log('info', 'did-finish-load', name);
-    token.didFinishLoad = true;
+    announceReady();
     runStartActions(name, options.startActions);
   });
   webContents.on('did-fail-load', onFailLoad);
@@ -205,7 +191,7 @@ function create(name, options) {
 function runStartActions(name, startActions) {
   if (_.isArray(startActions)) {
     _.each(startActions, function (action) {
-      send(name, 'dispatch', action);
+      dispatchActionToWindow(name, action);
     });
   }
 }
@@ -279,6 +265,28 @@ function send(windowName, eventName) {
 
     webContents.send.apply(webContents, [eventName, eventId].concat(args));
   }
+}
+
+/**
+ * @param {string} name
+ * @param {{type: string}} action
+ */
+function dispatchActionToWindow(name, action) {
+  log('info', 'dispatch', name, action);
+
+  send(name, 'dispatch', action);
+}
+
+/**
+ * @param {string} name
+ * @param {{type: string}} action
+ */
+function dispatchActionToOtherWindows(name, action) {
+  _.each(windows, window => {
+    if (window.name !== name) {
+      dispatchActionToWindow(window.name, action);
+    }
+  });
 }
 
 /**

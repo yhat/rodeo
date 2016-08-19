@@ -104,13 +104,26 @@ def kernel(wd=None, verbose=0):
         try:
             data = kernel_client.get_shell_msg(timeout=current_timeout)
 
-            msg_type = data.get('msg_type', False)
             content = data.get('content', False)
-            sys.stdout.write(json.dumps({"source": "shell", "result": data}, default=json_serial) + '\n')
-            if msg_type == 'shutdown_reply' and content:
-                shutdown_restart = content.get('restart', False)
-                if not shutdown_restart:
-                    should_continue = False
+
+            if content:
+                payload = content.get('payload', False)
+                if payload:
+                    try:
+                        first = payload[0]
+                        if first:
+                            source = first.get('source', False)
+                            keepkernel = first.get('keepkernel', False)
+                            if source == 'ask_exit' and keepkernel == False:
+                                should_continue = False
+                    except IndexError:
+                        pass
+                msg_type = data.get('msg_type', False)
+                if msg_type == 'shutdown_reply':
+                    shutdown_restart = content.get('restart', False)
+                    if not shutdown_restart:
+                        should_continue = False
+            sys.stdout.write(json.dumps({"source": "shell", "result": data, "should_continue": should_continue}, default=json_serial) + '\n')
             current_timeout = current_timeout_min
         except Empty:
             pass

@@ -6,7 +6,6 @@ export default React.createClass({
   displayName: 'SetupInitial',
   propTypes: {
     className: React.PropTypes.string,
-    terminal: React.PropTypes.object,
     text: React.PropTypes.object
   },
   componentDidMount: function () {
@@ -24,7 +23,6 @@ export default React.createClass({
     return (
       <div className={className.join(' ')}>
         <div className="explanation">{props.text.hello}</div>
-        <FakeTerminal {...props.terminal}/>
       </div>
     );
   }

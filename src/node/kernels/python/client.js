@@ -72,10 +72,19 @@ function handleProcessStreamEvent(client, source, data) {
   client.emit('event', source, data);
 }
 
+/**
+ * @param {JupyterClient} client
+ * @param {Error} error
+ */
 function handleProcessError(client, error) {
   client.emit('error', error);
 }
 
+/**
+ * @param {JupyterClient} client
+ * @param {number} code
+ * @param {string} signal
+ */
 function handleProcessClose(client, code, signal) {
   client.emit('close', code, signal);
 }
@@ -488,6 +497,11 @@ function resolveHomeDirectoryOptions(options) {
   return options;
 }
 
+/**
+ * @param {object} options
+ * @param {string} text
+ * @returns {Promise}
+ */
 function exec(options, text) {
   const timeout = config.get('kernel.python.exec-timeout');
 

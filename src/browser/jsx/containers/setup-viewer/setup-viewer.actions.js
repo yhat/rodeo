@@ -26,7 +26,6 @@ function finish() {
 function saveCmd(dispatch, cmd) {
   // if the pythonCmd is new, save it and inform everyone that it has changed
   if (local.get('pythonCmd') !== cmd) {
-    console.log('HEY!', saveCmd, arguments);
     dispatch(preferenceActions.savePreferenceChanges([{key: 'pythonCmd', value: cmd}]));
   }
 }
@@ -52,33 +51,39 @@ function convertErrorToIconMessage(error) {
   return {icon, message};
 }
 
-function handleExecuted(dispatch, cmd) {
+function handleExecuted(dispatch, getState) {
   return function (result) {
     const terminal = result;
-    let contentType;
 
     terminal.state = 'executed';
 
     if (terminal.errors.length) {
       terminal.errors = terminal.errors.map(convertErrorToIconMessage);
 
-      contentType = 'pythonError';
+      dispatch(transition('pythonError'));
     } else if (terminal.stderr.match(/Jupyter is not installed/)) {
       terminal.stdout = 'from IPython.kernel import manager';
       terminal.stderr = '';
       terminal.errors.unshift({icon: 'fa-asterisk', message: 'Jupyter is not installed'});
 
-      contentType = 'noJupyter';
+      dispatch(transition('noJupyter'));
     } else if (terminal.code === 127) {
-      contentType = 'noPython';
+      dispatch(transition('noPython'));
     } else if (terminal.code !== 0) {
-      contentType = 'pythonError';
+      dispatch(transition('pythonError'));
     } else {
+      const state = getState(),
+        cmd = _.get(state, 'setup.terminal.cmd'),
+        isMainWindowReady = _.get(state, 'setup.isMainWindowReady');
+
       saveCmd(dispatch, cmd);
-      contentType = 'ready';
+      if (isMainWindowReady) {
+        dispatch(finish());
+      } else {
+        dispatch(transition('ready'));
+      }
     }
 
-    dispatch(transition(contentType));
     dispatch({type: 'SETUP_EXECUTED', result});
   };
 }
@@ -91,7 +96,7 @@ function execute() {
 
     dispatch({type: 'SETUP_EXECUTING', cmd, code});
     return clientDiscovery.executeWithNewKernel({cmd}, code)
-      .then(handleExecuted(dispatch, cmd))
+      .then(handleExecuted(dispatch, getState))
       .catch(handleError);
   };
 }

@@ -47,9 +47,6 @@ const dispatchMap = {
     executeReply: dispatchShellExecuteReply
   },
   stdinDispatchMap = {},
-  browserWindowDispatchMap = {
-    readyToShow: () => applicationActions.readyToShow()
-  },
   detectVariables = _.debounce(function (dispatch) {
     dispatch(kernelActions.detectKernelVariables());
   }, 500);
@@ -184,18 +181,6 @@ function stdinDispatcher(dispatch) {
   });
 }
 
-function browserWindowDispatcher(dispatch) {
-  ipc.on('browser-windows', function (event, eventName) {
-    const args = _.slice(arguments, 2);
-
-    if (browserWindowDispatchMap[eventName]) {
-      return browserWindowDispatchMap[eventName].apply(null, [dispatch].concat(args));
-    }
-
-    console.log('browserWindow', eventName);
-  });
-}
-
 function otherDispatcher(dispatch) {
   ipc.on('event', function (event, source, data) {
     // dispatch(terminalActions.addOutputText(source + ': ' + data));
@@ -207,9 +192,9 @@ function otherDispatcher(dispatch) {
     console.log('error', data);
   });
 
-  ipc.on('close', function (event, data) {
-    dispatch(terminalActions.addOutputText('Close: ' + JSON.stringify(data)));
-    console.log('close', data);
+  ipc.on('close', function (event, code, signal) {
+    dispatch(terminalActions.handleProcessClose(code, signal));
+    console.log('close', code, signal);
   });
 
   ipc.on('sharedAction', function (event, action) {
@@ -230,7 +215,6 @@ export default function (dispatch) {
   iopubDispatcher(dispatch);
   shellDispatcher(dispatch);
   stdinDispatcher(dispatch);
-  browserWindowDispatcher(dispatch);
   internalDispatcher(dispatch);
   otherDispatcher(dispatch);
 }
