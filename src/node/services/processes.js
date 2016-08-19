@@ -41,7 +41,6 @@ function getChildren() {
 function create(str, args, options) {
   assertString(str);
 
-  log('info', 'adding child process', str, args || options, args && options);
   const child = childProcess.spawn(str, args || options, args && options)
     .on('close', () => removeChild(child));
 

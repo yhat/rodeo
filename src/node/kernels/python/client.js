@@ -69,7 +69,6 @@ function createObjectEmitter(stream) {
  * @param {object} data
  */
 function handleProcessStreamEvent(client, source, data) {
-  log('info', 'client event', source, data);
   client.emit('event', source, data);
 }
 
@@ -492,7 +491,6 @@ function resolveHomeDirectoryOptions(options) {
 function exec(options, text) {
   const timeout = config.get('kernel.python.exec-timeout');
 
-  log('info', 'exec', {options, timeout});
   assertValidOptions(options);
 
   options = resolveHomeDirectoryOptions(options);
@@ -503,7 +501,6 @@ function exec(options, text) {
 
   return create(options)
     .catch(function (error) {
-      log('info', 'exec', 'create error', {error});
       return _.assign({errors: [error]}, options);
     })
     .then(function (jupyterClient) {
@@ -516,11 +513,7 @@ function exec(options, text) {
           stdout = [];
 
         jupyterClient.on('ready', function () {
-          log('info', 'exec', 'ready', arguments);
           jupyterClient.execute(text)
-            .then(function (executionResult) {
-              log('info', 'exec', {executionResult});
-            })
             .timeout(timeout, 'Timed out when executing python with ' + JSON.stringify(options))
             .catch(error => result.errors.push(error))
             .then(function () {
@@ -529,8 +522,6 @@ function exec(options, text) {
         });
         jupyterClient.on('error', error => result.errors.push(error));
         jupyterClient.on('event', function (source, data) {
-          log('info', 'exec', 'HEY event', source, data);
-
           if (_.isBuffer(data)) {
             data = data.toString();
           }
@@ -554,8 +545,6 @@ function exec(options, text) {
         listenTo(jupyterClient, 'iopub', result.events);
         listenTo(jupyterClient, 'stdin', result.events);
         listenTo(jupyterClient, 'input_request', result.events);
-
-        log('info', 'onExecuteWithNewKernel', {jupyterClient});
       });
     });
 }
