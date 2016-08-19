@@ -117,15 +117,14 @@ function getPkg() {
 }
 
 /**
- * Quit the application
+ * @returns {Promise}
  */
-function onQuitApplication() {
+function quitApplication() {
   const app = electron.app;
 
-  log('info', 'onQuitApplication');
   log('info', 'killing all children processes');
 
-  bluebird.all(processes.getChildren().map(function (child) {
+  return bluebird.all(processes.getChildren().map(function (child) {
     return processes.kill(child).reflect().then(function (inspection) {
       if (inspection.isRejected()) {
         log('info', 'process', child.pid, 'unable to be killed', inspection.reason());
@@ -142,6 +141,15 @@ function onQuitApplication() {
       process.exit(0);
     }
   });
+}
+
+/**
+ * Quit the application
+ * @returns {Promise}
+ */
+function onQuitApplication() {
+  log('info', 'onQuitApplication');
+  return quitApplication();
 }
 
 /**
@@ -288,14 +296,6 @@ function subscribeWindowToKernelEvents(windowName, client) {
   subscribeBrowserWindowToEvent(windowName, client, 'input_request');
   subscribeBrowserWindowToEvent(windowName, client, 'error');
   subscribeBrowserWindowToEvent(windowName, client, 'close');
-}
-
-// Quit when all windows are closed.
-function onWindowAllClosed() {
-  log('info', 'onWindowAllClosed');
-  const app = electron.app;
-
-  app.quit();
 }
 
 /**
@@ -978,7 +978,10 @@ function attachAppEvents() {
   app.on('gpu-process-crashed', function () {
     log('info', 'gpu-process-crashed');
   });
-  app.on('window-all-closed', onWindowAllClosed);
+  app.on('window-all-closed', () => {
+    log('info', 'onWindowAllClosed');
+    quitApplication();
+  });
   app.on('ready', onReady);
 }
 
@@ -1009,8 +1012,6 @@ function attachApplicationMenu(ipcEmitter) {
 module.exports.onCloseWindow = onCloseWindow;
 module.exports.onFiles = onFiles;
 module.exports.onPDF = onPDF;
-module.exports.onQuitApplication = onQuitApplication;
 module.exports.onReady = onReady;
-module.exports.onWindowAllClosed = onWindowAllClosed;
 
 startApp();
