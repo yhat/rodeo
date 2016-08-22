@@ -1,5 +1,4 @@
 import _ from 'lodash';
-import {local} from '../../services/store';
 import mapReducers from '../../services/map-reducers';
 
 const initialState = {

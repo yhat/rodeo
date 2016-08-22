@@ -1,0 +1,35 @@
+.setup-article-preview {
+  display: flex;
+  align-items: center;
+  justify-content: space-around;
+  flex-wrap: wrap;
+  text-align: left;
+  width: 80%;
+  margin: 40px auto;
+  font-size: 14px;
+}
+
+.setup-article-preview h2 {
+  margin-top: 0;
+  font-size: 16px;
+}
+
+.setup-article-preview a {
+  color: #333;
+  text-decoration: none;
+}
+
+.setup-article-preview .setup-article {
+  width: 600px;
+  min-height: 150px;
+  overflow: hidden;
+}
+
+.setup-article .setup-article-image {
+  float: left;
+  width: 40%;
+  margin: 0 10px 20px;
+  min-height: 120px;
+  background-size: cover;
+  background-position: center;
+}

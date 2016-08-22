@@ -38,7 +38,7 @@ explainMissingDependences: |
 noJupyter: Rodeo is a Data Science IDE and needs a few more libraries
 noPython: Looks like there is no python available on your path
 pythonError: There was an error running python
-hello: Welcome to Rodeo
+loading: Rodeo is Loading
 installPython: I haven't installed python yet
 installAnaconda: Install Anaconda
 installJupyter: Install Jupyter
@@ -46,6 +46,16 @@ installMatplotlib: Install matplotlib
 installNumpy: Install numpy
 installScipy: Install scipy
 installPandas: Install pandas
+installingJupyter: |
+  ## Installing Jupyter
+installingMatplotlib: |
+  ## Installing matplotlib
+installingNumpy: |
+  ## Installing numpy
+installingScipy: |
+  ## Installing scipy
+installingPandas: |
+  ## Installing pandas
 testInstall: I've installed python
 uniqueCommandForPython: I use a different command for python
 okay: OK

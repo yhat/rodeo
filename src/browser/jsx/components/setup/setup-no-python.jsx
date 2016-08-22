@@ -23,7 +23,7 @@ export default React.createClass({
     return (
       <div className={className.join(' ')}>
         <ExitButton onClick={props.onCancel}/>
-        <div className="explanation">{text.noPython}</div>
+        <div className="explanation"><Marked>{text.noPython}</Marked></div>
         <FakeTerminal {...props.terminal}/>
         <button className="btn btn-default btn-setup-action" onClick={_.partial(props.onTransition, 'installAnaconda')}>{text.installAnaconda}</button>
         <button className="btn btn-default btn-setup-action" onClick={_.partial(props.onTransition, 'manualCommand')}>{text.uniqueCommandForPython}</button>
