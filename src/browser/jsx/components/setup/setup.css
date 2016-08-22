@@ -20,12 +20,6 @@ button, input {
   -webkit-user-select: text;
 }
 
-ul {
-  list-style-type: none;
-  margin: 0;
-  padding: 0;
-}
-
 li {
   margin: 20px;
 }
@@ -84,12 +78,17 @@ ul.horizontal li {
   width: 1%; /* takes the least amount of space */
 }
 
-.setup .secondary-explanation {
-  margin-top: 40px;
-  text-align: left;
+.setup .explanation {
   width: 80%;
+  text-align: left;
   margin-left: auto;
   margin-right: auto;
+}
+
+.setup .secondary-explanation {
+  text-align: left;
+  width: 80%;
+  margin: 40px auto;
   box-shadow: 2px 2px 4px #ccc;
   border: 1px solid #ccc;
   padding: 5px 10px;
@@ -132,4 +131,12 @@ ul.horizontal li {
   width: 80%;
   margin-right: auto;
   margin-left: auto;
+}
+
+.setup .progress {
+  margin-top: 40px;
+  width: 60%;
+  margin-left: auto;
+  margin-right: auto;
+  height: 20px;
 }

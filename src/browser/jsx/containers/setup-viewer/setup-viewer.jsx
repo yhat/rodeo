@@ -3,6 +3,7 @@ import {connect} from 'react-redux';
 import Setup from '../../components/setup/setup.jsx';
 import actions from './setup-viewer.actions';
 import text from './setup-text.yml';
+import articles from './articles.yml';
 
 function mapStateToProps(state) {
   return state.setup;
@@ -14,6 +15,7 @@ function mapDispatchToProps(dispatch) {
     onExecute: () => dispatch(actions.execute()),
     onFinish: () => dispatch(actions.finish()),
     onInputChange: (key, event) => dispatch(actions.changeInput(key, event)),
+    onOpenExternal: url => dispatch(actions.openExternal(url)),
     onPackageInstall: targetPackage => dispatch(actions.installPackage(targetPackage)),
     onTransition: contentType => dispatch(actions.transition(contentType))
   };
@@ -22,6 +24,6 @@ function mapDispatchToProps(dispatch) {
 export default connect(mapStateToProps, mapDispatchToProps)(React.createClass({
   displayName: 'SetupViewer',
   render: function () {
-    return <Setup text={text} {...this.props} />;
+    return <Setup articles={articles} text={text} {...this.props} />;
   }
 }));
