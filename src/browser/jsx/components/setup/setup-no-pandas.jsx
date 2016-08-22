@@ -26,7 +26,7 @@ export default React.createClass({
     return (
       <div className={className.join(' ')}>
         <ExitButton onClick={props.onCancel}/>
-        <Marked className="explanation">{text.explainMissingDependences}</Marked>
+        <div className="explanation"><Marked>{text.explainMissingDependences}</Marked></div>
         <FakeTerminal {...props.terminal}/>
         <button className="btn btn-primary btn-setup-action" onClick={_.partial(props.onTransition, 'installPandas')}>{text.installPandas}</button>
         <div className="secondary-explanation"><Marked>{text.explainPandas}</Marked></div>

@@ -138,7 +138,6 @@ function handlePackageInstalled(dispatch) {
     terminal.state = 'executed';
     terminal.errors = terminal.errors.map(convertErrorToIconMessage);
 
-
     if (terminal.errors.length) {
       terminal.errors = terminal.errors.map(convertErrorToIconMessage);
 
@@ -171,7 +170,11 @@ function installPackage(targetPackage) {
 }
 
 function cancel() {
-  send('quitApplication');
+  return send('quitApplication');
+}
+
+function openExternal(url) {
+  return send('openExternal', url);
 }
 
 export default {
@@ -180,5 +183,6 @@ export default {
   finish,
   transition,
   changeInput,
-  installPackage
+  installPackage,
+  openExternal
 };

@@ -21,21 +21,35 @@ export default React.createClass({
     const displayName = this.constructor.displayName,
       props = this.props,
       text = props.text,
-      className = [_.kebabCase(displayName)];
+      className = [_.kebabCase(displayName)],
+      buttons = [];
 
     if (props.className) {
       className.push(props.className);
     }
 
+    if (props.secondaryTerminal.code !== 0) {
+      buttons.push(
+        <button className="btn btn-primary btn-setup-action" onClick={_.partial(props.onTransition, 'installAnaconda')}>
+          {text.installAnaconda}
+        </button>
+      );
+    }
+
+    buttons.push(<button className="btn btn-default btn-setup-action" onClick={props.onExecute}>{text.tryAgain}</button>);
+    buttons.push(
+      <button className="btn btn-default btn-setup-action" onClick={_.partial(props.onTransition, 'manualCommand')}>
+        {text.uniqueCommandForPython}
+      </button>
+    );
+
     return (
       <div className={className.join(' ')}>
         <ExitButton onClick={props.onCancel}/>
-        <Marked className="explanation">{text.explainMatplotlib}</Marked>
+        <div className="explanation"><Marked>{text.explainMatplotlib}</Marked></div>
         <FakeTerminal {...props.terminal}/>
         <FakeTerminal {...props.secondaryTerminal}/>
-        <button className="btn btn-primary btn-setup-action" onClick={_.partial(props.onTransition, 'installAnaconda')}>{text.installAnaconda}</button>
-        <button className="btn btn-default btn-setup-action" onClick={props.onExecute}>{text.tryAgain}</button>
-        <button className="btn btn-default btn-setup-action" onClick={_.partial(props.onTransition, 'manualCommand')}>{text.uniqueCommandForPython}</button>
+        {buttons}
       </div>
     );
   }
