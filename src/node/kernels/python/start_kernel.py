@@ -17,6 +17,31 @@ except ImportError:
     except ImportError:
         raise Exception('Jupyter is not installed')
 
+try:
+    import pip
+except:
+    raise Exception('Pip is not installed')
+
+try:
+    import numpy
+except:
+    raise Exception('Numpy is not installed')
+
+try:
+    import pandas
+except:
+    raise Exception('Pandas is not installed')
+
+try:
+    import matplotlib
+except:
+    raise Exception('Matplotlib is not installed')
+
+try:
+    import scipy
+except:
+    raise Exception('Scipy is not installed')
+
 # python3/python2 nonsense
 try:
     from Queue import Empty

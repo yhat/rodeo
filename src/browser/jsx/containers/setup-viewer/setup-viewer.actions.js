@@ -59,14 +59,32 @@ function handleExecuted(dispatch, getState) {
 
     if (terminal.errors.length) {
       terminal.errors = terminal.errors.map(convertErrorToIconMessage);
-
       dispatch(transition('pythonError'));
     } else if (terminal.stderr.match(/Jupyter is not installed/)) {
-      terminal.stdout = 'from IPython.kernel import manager';
+      terminal.stdout = 'from jupyter_client import manager';
       terminal.stderr = '';
       terminal.errors.unshift({icon: 'fa-asterisk', message: 'Jupyter is not installed'});
-
       dispatch(transition('noJupyter'));
+    } else if (terminal.stderr.match(/Numpy is not installed/)) {
+      terminal.stdout = 'import numpy';
+      terminal.stderr = '';
+      terminal.errors.unshift({icon: 'fa-asterisk', message: 'Numpy is not installed'});
+      dispatch(transition('noNumpy'));
+    } else if (terminal.stderr.match(/Scipy is not installed/)) {
+      terminal.stdout = 'import scipy';
+      terminal.stderr = '';
+      terminal.errors.unshift({icon: 'fa-asterisk', message: 'Scipy is not installed'});
+      dispatch(transition('noScipy'));
+    } else if (terminal.stderr.match(/Matplotlib is not installed/)) {
+      terminal.stdout = 'import matplotlib';
+      terminal.stderr = '';
+      terminal.errors.unshift({icon: 'fa-asterisk', message: 'Matplotlib is not installed'});
+      dispatch(transition('noMatplotlib'));
+    } else if (terminal.stderr.match(/Pandas is not installed/)) {
+      terminal.stdout = 'import pandas';
+      terminal.stderr = '';
+      terminal.errors.unshift({icon: 'fa-asterisk', message: 'Pandas is not installed'});
+      dispatch(transition('noPandas'));
     } else if (terminal.code === 127) {
       dispatch(transition('noPython'));
     } else if (terminal.code !== 0) {
@@ -92,7 +110,9 @@ function execute() {
   return function (dispatch, getState) {
     const state = getState(),
       cmd = _.get(state, 'setup.terminal.cmd'),
-      code = 'print("Welcome to Rodeo!")';
+      code = [
+        'print("Welcome to Rodeo!")'
+      ].join('\n');
 
     dispatch({type: 'SETUP_EXECUTING', cmd, code});
     return clientDiscovery.executeWithNewKernel({cmd}, code)
@@ -118,6 +138,17 @@ function handlePackageInstalled(dispatch) {
     terminal.state = 'executed';
     terminal.errors = terminal.errors.map(convertErrorToIconMessage);
 
+
+    if (terminal.errors.length) {
+      terminal.errors = terminal.errors.map(convertErrorToIconMessage);
+
+      dispatch(transition('pythonError'));
+    } else if (terminal.stderr.match(/DistributionNotFound/)) {
+      terminal.errors.unshift({icon: 'fa-asterisk', message: 'Are you connected to the Internet?'});
+
+      dispatch(transition('pythonError'));
+    }
+
     dispatch({type: 'SETUP_PACKAGE_INSTALLED', result});
   };
 }
@@ -128,7 +159,7 @@ function installPackage(targetPackage) {
       cmd = _.get(state, 'setup.terminal.cmd'),
       code = [
         'import pip',
-        `pip.main(["install", "-vvvv", ${targetPackage}}])`
+        `pip.main(["install", "-vvvv", "${targetPackage}"])`
       ].join('\n'),
       args = ['-u', '-c', code];
 
@@ -139,7 +170,12 @@ function installPackage(targetPackage) {
   };
 }
 
+function cancel() {
+  send('quitApplication');
+}
+
 export default {
+  cancel,
   execute,
   finish,
   transition,

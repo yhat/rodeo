@@ -343,8 +343,10 @@ function autoComplete() {
 function handleProcessClose(code, signal) {
   return function (dispatch) {
     if (code !== 0) {
-      dispatch(addOutputText('Process closed (exit code: ' + code + '), restarting...'));
+      dispatch(addOutputText('Process closed (exit code: ' + code + ')...'));
     } else if (signal) {
+      console.log('HEY', {code, signal});
+      debugger;
       dispatch(addOutputText('Process closed (signal: ' + signal + '), restarting...'));
     } else {
       dispatch(addOutputText('Process closed, restarting...'));

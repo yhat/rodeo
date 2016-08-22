@@ -375,6 +375,8 @@ function createPythonScriptProcess(targetFile, options) {
       processOptions.cwd = options.cwd;
     }
 
+    log('info', 'createPythonScriptProcess', {cmd, targetFile, processOptions});
+
     return processes.create(cmd, [targetFile], processOptions);
   });
 }
