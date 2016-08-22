@@ -22,17 +22,24 @@
  */
 
 const _ = require('lodash'),
+  assert = require('../../services/assert'),
   bluebird = require('bluebird'),
+  config = require('config'),
   clientResponse = require('./client-response'),
   EventEmitter = require('events'),
   environment = require('../../services/env'),
   StreamSplitter = require('stream-splitter'),
   log = require('../../services/log').asInternal(__filename),
   path = require('path'),
+  files = require('../../services/files'),
   processes = require('../../services/processes'),
   pythonLanguage = require('./language'),
   uuid = require('uuid'),
-  checkPythonTimeout = 60000;
+  checkPythonPath = path.resolve(path.join(__dirname, 'check_python.py')),
+  assertValidOptions = assert(
+    [{cmd: _.isString}, 'must have command'],
+    [{cwd: _.isString}, 'must have working directory']
+  );
 
 function createObjectEmitter(stream) {
   const streamSplitter = new StreamSplitter('\n'),
@@ -51,7 +58,7 @@ function createObjectEmitter(stream) {
       // we don't have enough data yet, maybe?
     }
   });
-  stream.on('error', error => emitter.emit('error', error) );
+  stream.on('error', error => emitter.emit('error', error));
 
   return emitter;
 }
@@ -62,8 +69,24 @@ function createObjectEmitter(stream) {
  * @param {object} data
  */
 function handleProcessStreamEvent(client, source, data) {
-  log('info', 'client event', source, data);
   client.emit('event', source, data);
+}
+
+/**
+ * @param {JupyterClient} client
+ * @param {Error} error
+ */
+function handleProcessError(client, error) {
+  client.emit('error', error);
+}
+
+/**
+ * @param {JupyterClient} client
+ * @param {number} code
+ * @param {string} signal
+ */
+function handleProcessClose(client, code, signal) {
+  client.emit('close', code, signal);
 }
 
 /**
@@ -81,7 +104,8 @@ function listenToChild(client, child) {
   child.stderr.on('data', _.partial(handleProcessStreamEvent, client, 'stderr.data'));
   child.stderr.on('error', _.partial(handleProcessStreamEvent, client, 'stderr.error'));
 
-  child.on('error', _.partial(handleProcessStreamEvent, client, 'error'));
+  child.on('error', _.partial(handleProcessError, client));
+  child.on('close', _.partial(handleProcessClose, client));
 }
 
 /**
@@ -195,22 +219,6 @@ class JupyterClient extends EventEmitter {
     }, {resolveEvent: ['eval_results']});
   }
 
-  getDocStrings(names) {
-    const code = '__get_docstrings(globals(), ' + JSON.stringify(names) + ', False)',
-      args = {
-        allowStdin: false,
-        stopOnError: true
-      };
-
-    return request(this, {
-      method: 'execute',
-      kwargs: _.assign({code}, pythonLanguage.toPythonArgs(args))
-    }, {
-      resolveEvent: ['stream'],
-      hidden: true
-    });
-  }
-
   /**
    * @param {string} code
    * @param {string|[string]} resolveEvent
@@ -318,6 +326,16 @@ class JupyterClient extends EventEmitter {
   }
 
   /**
+   * Safely request that the kernel end
+   * @returns {Promise}
+   */
+  shutdown() {
+    return request(this, {
+      method: 'shutdown' // sends is_complete_request
+    }, {resolveEvent: 'shutdown_reply'});
+  }
+
+  /**
    * @returns {Promise}
    */
   kill() {
@@ -330,14 +348,12 @@ class JupyterClient extends EventEmitter {
  * @returns {object}
  */
 function getPythonCommandOptions(options) {
-  options = resolveHomeDirectory(options);
-
   return environment.getEnv().then(function (defaultEnv) {
     return _.assign({
       env: pythonLanguage.setDefaultEnvVars(defaultEnv),
       stdio: ['pipe', 'pipe', 'pipe'],
       encoding: 'UTF8'
-    }, _.pick(options || {}, ['shell']));
+    }, _.pick(options, ['cwd', 'shell']));
   });
 }
 
@@ -349,10 +365,17 @@ function getPythonCommandOptions(options) {
  * @returns {Promise<ChildProcess>}
  */
 function createPythonScriptProcess(targetFile, options) {
-  options = _.pick(options || {}, ['shell', 'cmd']);
+  options = _.pick(options || {}, ['shell', 'cmd', 'cwd']);
+  options = resolveHomeDirectoryOptions(options);
 
   return getPythonCommandOptions(options).then(function (processOptions) {
     const cmd = options.cmd || 'python';
+
+    if (options.cwd) {
+      processOptions.cwd = options.cwd;
+    }
+
+    log('info', 'createPythonScriptProcess', {cmd, targetFile, processOptions});
 
     return processes.create(cmd, [targetFile], processOptions);
   });
@@ -363,6 +386,7 @@ function createPythonScriptProcess(targetFile, options) {
  * @returns {Promise<JupyterClient>}
  */
 function create(options) {
+  assertValidOptions(options);
   const targetFile = path.resolve(path.join(__dirname, 'start_kernel.py'));
 
   return createPythonScriptProcess(targetFile, options).then(function (child) {
@@ -377,10 +401,10 @@ function create(options) {
  * @returns {Promise}
  */
 function getPythonScriptResults(targetFile, options) {
-  return getPythonCommandOptions(options).then(function (processOptions) {
-    const cmd = options.cmd || 'python';
+  options = resolveHomeDirectoryOptions(options);
 
-    return processes.exec(cmd, [targetFile], processOptions);
+  return getPythonCommandOptions(options).then(function (processOptions) {
+    return processes.exec(options.cmd, [targetFile], processOptions);
   });
 }
 
@@ -430,46 +454,118 @@ function seekJson(str) {
  * @param {object} options
  * @returns {Promise}
  */
-function checkPython(options) {
-  const targetFile = path.resolve(path.join(__dirname, 'check_python.py'));
+function check(options) {
+  const timeout = config.get('kernel.python.check-timeout');
 
-  log('info', 'checkPython', options);
-  return exports.getPythonScriptResults(targetFile, options)
-    .then(function (results) {
-      let stdout = results.stdout, checkResult;
+  log('info', {action: 'checking for python', options, timeout});
+  assertValidOptions(options);
 
-      _.each(results.errors, error => log('error', 'checkPython', options, error));
-      if (results.stderr) {
-        log('warn', 'checkPython', options, results);
-      } else {
-        log('info', 'checkPython', options, results);
-      }
+  options = resolveHomeDirectoryOptions(options);
 
-      checkResult = seekJson(stdout);
-      if (!checkResult) {
-        throw new Error('Python check failed to return result.');
-      }
-
-      return checkResult;
+  return getPythonScriptResults(checkPythonPath, options)
+    .catch(function (error) {
+      return {errors: [error], stdout: '', stderr: ''};
     })
-    .timeout(checkPythonTimeout, 'Unable to check python with options ' + JSON.stringify(options))
-    .then(pythonOptions => _.assign({}, pythonOptions, options));
+    .timeout(timeout, 'Timed out when checking python with ' + JSON.stringify(options))
+    .then(function (results) {
+      results = _.cloneDeep(results);
+
+      _.assign(results, options);
+      _.assign(results, seekJson(results.stdout));
+
+      return results;
+    });
 }
 
 /**
  * @param {object} options
+ * @param {string} [options.cwd]
+ * @param {string} [options.cmd]
  * @returns {object}  Modified options
  */
-function resolveHomeDirectory(options) {
-  if (options && options.cmd && (_.startsWith(options.cmd, '~') || _.startsWith(options.cmd, '%HOME%'))) {
-    const home = require('os').homedir();
+function resolveHomeDirectoryOptions(options) {
+  if (options) {
+    options = _.clone(options);
 
-    options.cmd = options.cmd.replace(/^~/, home).replace(/^%HOME%/, home);
+    if (options.cmd) {
+      options.cmd = files.resolveHomeDirectory(options.cmd);
+    }
+
+    if (options.cwd) {
+      options.cwd = files.resolveHomeDirectory(options.cwd);
+    }
   }
 
   return options;
 }
 
+/**
+ * @param {object} options
+ * @param {string} text
+ * @returns {Promise}
+ */
+function exec(options, text) {
+  const timeout = config.get('kernel.python.exec-timeout');
+
+  assertValidOptions(options);
+
+  options = resolveHomeDirectoryOptions(options);
+
+  function listenTo(jupyterClient, source, events) {
+    jupyterClient.on(source, data => events.push({timestamp: new Date().getTime(), source, data}));
+  }
+
+  return create(options)
+    .catch(function (error) {
+      return _.assign({errors: [error]}, options);
+    })
+    .then(function (jupyterClient) {
+      return new bluebird(function (resolve) {
+        const result = {
+            errors: [],
+            events: []
+          },
+          stderr = [],
+          stdout = [];
+
+        jupyterClient.on('ready', function () {
+          jupyterClient.execute(text)
+            .timeout(timeout, 'Timed out when executing python with ' + JSON.stringify(options))
+            .catch(error => result.errors.push(error))
+            .then(function () {
+              return jupyterClient.shutdown();
+            });
+        });
+        jupyterClient.on('error', error => result.errors.push(error));
+        jupyterClient.on('event', function (source, data) {
+          if (_.isBuffer(data)) {
+            data = data.toString();
+          }
+
+          switch (source) {
+            case 'stderr.data':
+              stderr.push(data);
+              break;
+            case 'stdout.data':
+              stdout.push(data);
+              break;
+            default:
+              break;
+          }
+        });
+        jupyterClient.on('close', function (code, signal) {
+          resolve(_.assign({code, signal, stderr: stderr.join('\n'), stdout: stdout.join('\n')}, result));
+        });
+
+        listenTo(jupyterClient, 'shell', result.events);
+        listenTo(jupyterClient, 'iopub', result.events);
+        listenTo(jupyterClient, 'stdin', result.events);
+        listenTo(jupyterClient, 'input_request', result.events);
+      });
+    });
+}
+
 module.exports.create = create;
+module.exports.exec = exec;
 module.exports.getPythonScriptResults = getPythonScriptResults;
-module.exports.checkPython = checkPython;
+module.exports.check = check;

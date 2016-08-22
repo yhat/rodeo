@@ -2,120 +2,135 @@ import _ from 'lodash';
 import {local} from '../../services/store';
 import mapReducers from '../../services/map-reducers';
 
-const initialState = getDefault();
-
-function getDefault() {
-  const facts = local.get('systemFacts'),
-    homedir = facts && facts.homedir,
-    pythonValidity = local.get('pythonCmd') ? 'good' : 'bad',
-    workingDirectory = local.get('workingDirectory') || homedir || '~';
-
-  return _.assign({facts, homedir, workingDirectory, pythonValidity}, local.get('pythonOptions') || {});
-}
-
-function askForPythonOptions(state) {
-  if (!state.ask) {
-    state = _.clone(state);
-    state.ask = 'MANUAL_OR_MISSING';
-    state.warning = '';
+const initialState = {
+  contentType: 'initial',
+  secondaryTerminal: {
+    state: 'initial',
+    prompt: '$',
+    cmd: '_',
+    errors: [],
+    stdout: '',
+    stderr: '',
+    code: 0
+  },
+  terminal: {
+    state: 'initial',
+    prompt: '$',
+    cmd: 'python',
+    errors: [],
+    stdout: '',
+    stderr: '',
+    code: 0
   }
-
-  if (state.pythonValidity !== 'ugly') {
-    state = _.clone(state);
-    state.pythonValidity = 'ugly';
-  }
-
-  return state;
-}
+};
 
 /**
- * @param {object} state
- * @param {object} action
- * @returns {object}
+ * @param {Error} error
+ * @param {string} code
+ * @returns {boolean}
  */
-function kernelDetected(state, action) {
-  state = _.cloneDeep(state);
-
-  const pythonOptions = action.pythonOptions;
-
-  _.assign(state, action.pythonOptions);
-  state.pythonValidity = pythonOptions.cmd ? 'good' : 'bad';
-  delete state.ask;
-
-  return state;
+function isErrorCode(error, code) {
+  return error.code === code || _.includes(error.message, code);
 }
 
-function askQuestion(state, action) {
-  const question = action.question;
-
-  if (question) {
-    state = _.clone(state);
-    state.ask = question;
-    state.pythonTest = {};
-    state.warning = '';
-  }
-
-  return state;
-}
-
-function testingPythonCmd(state, action) {
+function executing(state) {
   state = _.clone(state);
-  state.pythonTest = {
-    cmd: action.cmd,
-    status: 'changed'
+  const newTerminal = {
+    state: 'executing',
+    events: [],
+    errors: [],
+    stderr: '',
+    stdout: '',
+    code: 0
   };
 
+  state.terminal = _.assign({}, state.terminal, newTerminal);
+
   return state;
 }
 
-function testedPythonCmd(state, action) {
-  const pythonTest = state.pythonTest;
+function executed(state, action) {
+  state = _.clone(state);
+  state.terminal = _.assign({}, state.terminal, action.result);
+  return state;
+}
 
-  if (pythonTest && pythonTest.cmd === action.cmd) {
-    state = _.clone(state);
-    state.pythonTest = {
-      cmd: action.cmd,
-      status: action.error ? 'invalid' : 'valid'
-    };
+function transition(state, action) {
+  state = _.clone(state);
+  state.contentType = action.contentType;
+  return state;
+}
+
+function change(state, action) {
+  state = _.clone(state);
+  state.terminal = _.clone(state.terminal);
+  _.set(state, action.key, action.value);
+  return state;
+}
+
+function packageInstalling(state, action) {
+  state = _.clone(state);
+  const newTerminal = {
+    cmd: [action.cmd, action.args.join(' ')].join(' '),
+    state: 'executing',
+    events: [],
+    errors: [],
+    stderr: '',
+    stdout: ''
+  };
+
+  state.secondaryTerminal = _.assign({}, state.secondaryTerminal, newTerminal);
+
+  return state;
+}
+
+function packageInstalled(state, action) {
+  state = _.clone(state);
+  const newTerminal = action.result;
+
+  newTerminal.state = 'executed';
+
+  if (newTerminal.errors.length) {
+    newTerminal.errors = newTerminal.errors.map(function (error) {
+      let icon = 'fa-asterisk',
+        message;
+
+      if (isErrorCode(error, 'ENOENT')) {
+        // bell // exclamation // flask
+        message = 'No such file or command';
+      } else if (isErrorCode(error, 'EACCES')) {
+        message = 'Permission denied';
+      } else {
+        console.error(error);
+        message = error.message;
+      }
+
+      return {icon, message};
+    });
   }
 
+  state.secondaryTerminal = _.assign({}, state.secondaryTerminal, newTerminal);
+
   return state;
 }
 
-function savePythonTest(state) {
-  const pythonTest = state.pythonTest;
+function readyToShow(state, action) {
+  state = _.clone(state);
+  const name = action.name;
 
-  if (pythonTest) {
-    state = _.clone(state);
-    state.pythonTest = {};
-    delete state.ask;
+  if (name === 'mainWindow') {
+    state.isMainWindowReady = true;
   }
-
-  return state;
-}
-
-function installedPython(state) {
-  state = _.clone(state);
-  state.warning = '';
-  delete state.ask;
-
-  return state;
-}
-
-function installedPythonNotFound(state) {
-  state = _.clone(state);
-  state.warning = 'Installed Python not found';
 
   return state;
 }
 
 export default mapReducers({
-  KERNEL_DETECTED: kernelDetected,
-  ASK_FOR_PYTHON_OPTIONS: askForPythonOptions,
-  TESTING_PYTHON_CMD: testingPythonCmd,
-  TESTED_PYTHON_CMD: testedPythonCmd,
-  SAVED_PYTHON_TEST: savePythonTest,
-  SETUP_QUESTION: askQuestion,
-  INSTALLED_PYTHON: installedPython,
-  INSTALLED_PYTHON_NOT_FOUND: installedPythonNotFound
+  SETUP_EXECUTED: executed,
+  SETUP_EXECUTING: executing,
+  SETUP_PACKAGE_INSTALLED: packageInstalled,
+  SETUP_PACKAGE_INSTALLING: packageInstalling,
+  SETUP_TRANSITION: transition,
+  SETUP_CHANGE: change,
+  READY_TO_SHOW: readyToShow
 }, initialState);

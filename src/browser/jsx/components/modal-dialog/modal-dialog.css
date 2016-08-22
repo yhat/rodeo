@@ -4,7 +4,7 @@
   display: flex;
   flex-direction: column;
   min-width: 400px;
-  max-width: 800px;
+  max-width: 1000px;
   max-height: 90%;
   z-index: 11;
   background-color: white;
@@ -12,6 +12,10 @@
   transition: all 0.8s;
   opacity: 0;
   border-radius: 5px;
+}
+
+.modal-dialog-instance.modal-dialog-instance-full {
+  width: 100%;
 }
 
 .modal-dialog-instance.modal-dialog-show {

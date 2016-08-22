@@ -20,6 +20,7 @@ const _ = require('lodash'),
   log = require('./services/log').asInternal(__filename),
   staticFileDir = path.resolve(__dirname, '../browser/'),
   kernelClients = {},
+  processes = require('./services/processes'),
   windowUrls = {
     mainWindow: 'main.html',
     startupWindow: 'startup.html',
@@ -44,7 +45,7 @@ function getArgv() {
 
   return yargs
     .env('RODEO')
-    .boolean('dev').default('pythons', false)
+    .boolean('dev').default('dev', false)
     .boolean('pythons').default('pythons', true)
     .boolean('startup').default('startup', true)
     .parse(process.argv.slice(sliceNum));
@@ -116,19 +117,39 @@ function getPkg() {
 }
 
 /**
- * Quit the application
+ * @returns {Promise}
  */
-function onQuitApplication() {
+function quitApplication() {
   const app = electron.app;
 
+  log('info', 'killing all children processes');
+
+  return bluebird.all(processes.getChildren().map(function (child) {
+    return processes.kill(child).reflect().then(function (inspection) {
+      if (inspection.isRejected()) {
+        log('info', 'process', child.pid, 'unable to be killed', inspection.reason());
+      } else {
+        log('info', 'process', child.pid, 'successfully killed', inspection.value());
+      }
+    });
+  })).finally(function () {
+    log('info', 'quiting');
+    app.quit();
+
+    if (process.platform === 'linux') {
+      log('info', 'forcing quit on linux');
+      process.exit(0);
+    }
+  });
+}
+
+/**
+ * Quit the application
+ * @returns {Promise}
+ */
+function onQuitApplication() {
   log('info', 'onQuitApplication');
-
-  app.quit();
-
-  if (process.platform === 'linux') {
-    log('info', 'forcing quit on linux');
-    process.exit(0);
-  }
+  return quitApplication();
 }
 
 /**
@@ -254,9 +275,11 @@ function displayDataTransform(event) {
  * @param {string} eventName
  */
 function subscribeBrowserWindowToEvent(windowName, emitter, eventName) {
-  emitter.on(eventName, function (event) {
-    displayDataTransform(event).then(function (normalizedEvent) {
-      browserWindows.send.apply(browserWindows, [windowName, eventName].concat([normalizedEvent]));
+  emitter.on(eventName, function () {
+    const list = _.map(_.toArray(arguments), arg => displayDataTransform(arg));
+
+    bluebird.all(list).then(function (normalizedList) {
+      browserWindows.send.apply(browserWindows, [windowName, eventName].concat(normalizedList));
     }).catch(error => log('error', error));
   });
 }
@@ -272,14 +295,7 @@ function subscribeWindowToKernelEvents(windowName, client) {
   subscribeBrowserWindowToEvent(windowName, client, 'event');
   subscribeBrowserWindowToEvent(windowName, client, 'input_request');
   subscribeBrowserWindowToEvent(windowName, client, 'error');
-}
-
-// Quit when all windows are closed.
-function onWindowAllClosed() {
-  log('info', 'onWindowAllClosed');
-  const app = electron.app;
-
-  app.quit();
+  subscribeBrowserWindowToEvent(windowName, client, 'close');
 }
 
 /**
@@ -407,6 +423,7 @@ function startStartupWindow() {
 
 /**
  * When Electron is ready, we can start making windows
+ * @returns {Promise}
  */
 function onReady() {
   let windowName, window;
@@ -465,7 +482,7 @@ function onCheckKernel(options) {
     cwd: {type: 'string'}
   });
 
-  return kernelsPythonClient.checkPython(options);
+  return kernelsPythonClient.check(options);
 }
 
 /**
@@ -475,35 +492,45 @@ function onCheckKernel(options) {
  * @returns {Promise}
  */
 function onCreateKernelInstance(options) {
+
+  log('info', 'onCreateKernelInstance', options);
+
   assertValidObject(options, {
     cmd: {type: 'string', isRequired: true},
     cwd: {type: 'string'}
   });
 
-  if (!options) {
-    throw new Error('Must provide kernel options to run python');
-  } else if (!options.cmd) {
-    throw new Error('Must provide cmd to create python instance, i.e., {cmd: "python"}');
-  }
-
   return new bluebird(function (resolveInstanceId) {
     let instanceId = cuid();
 
-    kernelsPythonClient.create(options).then(function (client) {
-      log('info', 'created new python kernel process', instanceId, options);
-      subscribeWindowToKernelEvents('mainWindow', client);
+    kernelClients[instanceId] = new bluebird(function (resolveClient) {
+      log('info', 'creating new python kernel process', 'creating python client');
 
-      kernelClients[instanceId] = new bluebird(function (resolveClient) {
+      kernelsPythonClient.create(options).then(function (client) {
+        log('info', 'created new python kernel process', instanceId, 'process', client.childProcess.pid, options);
         client.on('ready', function () {
-          log('info', 'new python kernel process is ready', instanceId, options);
+          log('info', 'new python kernel process is ready', instanceId, 'process', client.childProcess.pid, options);
           resolveClient(client);
         });
-      });
+        client.on('event', function (source, data) {
+          log('info', 'python kernel process event', instanceId, 'process', client.childProcess.pid, options, {source, data});
+        });
+        client.on('error', function (error) {
+          log('info', 'python kernel process error', instanceId, 'process', client.childProcess.pid, options, error);
 
-      return kernelClients[instanceId];
-    }).catch(function () {
-      log('error', 'failed to create instance', instanceId);
-      delete resolveInstanceId(instanceId);
+        });
+        client.on('close', function (code, signal) {
+          log('info', 'python kernel process closed', instanceId, 'process', client.childProcess.pid, options, {code, signal});
+          delete kernelClients[instanceId];
+        });
+
+        subscribeWindowToKernelEvents('mainWindow', client);
+
+        return kernelClients[instanceId];
+      }).catch(function () {
+        log('error', 'failed to create instance', instanceId);
+        delete kernelClients[instanceId];
+      });
     });
 
     resolveInstanceId(instanceId);
@@ -521,7 +548,6 @@ function onKillKernelInstance(id) {
 
   let promise = kernelClients[id];
 
-  delete kernelClients[id];
   log('info', 'deleted python kernel process reference', id);
 
   return promise
@@ -550,13 +576,30 @@ function getKernelInstanceById(id) {
  * @param {string} text
  * @returns {Promise}
  */
-function onExecute(options, text) {
+function onExecuteWithKernel(options, text) {
   if (!text) {
     throw Error('Missing text to execute');
   }
 
+  log('info', 'onExecuteWithKernel', options, text);
+
   return getKernelInstanceById(options.instanceId)
     .then(client => client.execute(text));
+}
+
+/**
+ * @param {object} options
+ * @param {string} options.cmd
+ * @param {string} text
+ * @returns {Promise}
+ */
+function onExecuteWithNewKernel(options, text) {
+  log('info', 'onExecuteWithNewKernel', {options, text});
+  return kernelsPythonClient.exec(options, text);
+}
+
+function onExecuteProcess(cmd, args, options) {
+  return processes.exec(cmd, args, options);
 }
 
 function onGetAutoComplete(options, text, cursorPos) {
@@ -848,17 +891,19 @@ function attachIpcMainEvents() {
   const ipcMain = electron.ipcMain;
 
   ipcPromises.exposeElectronIpcEvents(ipcMain, [
-    onExecute,
     onCheckForUpdates,
     onCheckKernel,
     onCloseWindow,
     onCreateKernelInstance,
     onCreateWindow,
-    onFinishStartup,
     onEval,
+    onExecuteWithKernel,
+    onExecuteWithNewKernel,
+    onExecuteProcess,
     onExecuteHidden,
     onFiles,
     onFileStats,
+    onFinishStartup,
     onGetAppVersion,
     onGetAppName,
     onGetAppLocale,
@@ -894,8 +939,12 @@ function startApp() {
     app.setAppUserModelId(appUserModelId);
 
     // record for later use
-    log('info', 'started with', argv, process.argv);
-    log('info', 'versions', process.versions);
+    log('info', {
+      action: 'started',
+      argv, 'process.argv': process.argv,
+      cwd: process.cwd(),
+      versions: process.versions
+    });
 
     return installer.handleSquirrelStartupEvent(app)
       .then(function (isSquirrel) {
@@ -934,7 +983,10 @@ function attachAppEvents() {
   app.on('gpu-process-crashed', function () {
     log('info', 'gpu-process-crashed');
   });
-  app.on('window-all-closed', onWindowAllClosed);
+  app.on('window-all-closed', () => {
+    log('info', 'onWindowAllClosed');
+    quitApplication();
+  });
   app.on('ready', onReady);
 }
 
@@ -965,8 +1017,6 @@ function attachApplicationMenu(ipcEmitter) {
 module.exports.onCloseWindow = onCloseWindow;
 module.exports.onFiles = onFiles;
 module.exports.onPDF = onPDF;
-module.exports.onQuitApplication = onQuitApplication;
 module.exports.onReady = onReady;
-module.exports.onWindowAllClosed = onWindowAllClosed;
 
 startApp();

@@ -1,64 +1,184 @@
-import kernelActions from '../../actions/kernel';
+import _ from 'lodash';
 import {send} from 'ipc';
+import preferenceActions from '../../actions/preferences';
 import clientDiscovery from '../../services/client-discovery';
-import {errorCaught} from '../../actions/application';
-import track from '../../services/track';
+import {local} from '../../services/store';
 
-function closeWindow() {
-  return function (dispatch) {
-    dispatch({type: 'CLOSING_WINDOW'});
-    send('finishStartup')
-      .then(() => dispatch({type: 'CLOSED_WINDOW'}))
-      .catch(error => console.error(error));
+/**
+ * @param {Error} error
+ * @param {string} code
+ * @returns {boolean}
+ */
+function isErrorCode(error, code) {
+  return error.code === code || _.includes(error.message, code);
+}
+
+function handleError(error) {
+  console.error(error);
+}
+
+function finish() {
+  return function () {
+    return send('finishStartup').catch(handleError);
   };
 }
 
-function ask(question) {
-  track({category: 'setup-viewer', action: 'ask', label: question});
-  return {type: 'SETUP_QUESTION', question};
+function saveCmd(dispatch, cmd) {
+  // if the pythonCmd is new, save it and inform everyone that it has changed
+  if (local.get('pythonCmd') !== cmd) {
+    dispatch(preferenceActions.savePreferenceChanges([{key: 'pythonCmd', value: cmd}]));
+  }
 }
 
-function setCmd(cmd) {
-  return function (dispatch) {
-    return clientDiscovery.checkKernel({cmd})
-      .then(pythonOptions => dispatch(kernelActions.kernelDetected(pythonOptions)))
-      .catch(error => dispatch(errorCaught(error)));
+/**
+ * @param {Error} error
+ * @returns {{icon: string, message: *}}
+ */
+function convertErrorToIconMessage(error) {
+  let icon = 'fa-asterisk',
+    message;
+
+  if (isErrorCode(error, 'ENOENT')) {
+    // bell // exclamation // flask
+    message = 'No such file or command';
+  } else if (isErrorCode(error, 'EACCES')) {
+    message = 'Permission denied';
+  } else {
+    console.error(error);
+    message = error.message;
+  }
+
+  return {icon, message};
+}
+
+function handleExecuted(dispatch, getState) {
+  return function (result) {
+    const terminal = result;
+
+    terminal.state = 'executed';
+
+    if (terminal.errors.length) {
+      terminal.errors = terminal.errors.map(convertErrorToIconMessage);
+      dispatch(transition('pythonError'));
+    } else if (terminal.stderr.match(/Jupyter is not installed/)) {
+      terminal.stdout = 'from jupyter_client import manager';
+      terminal.stderr = '';
+      terminal.errors.unshift({icon: 'fa-asterisk', message: 'Jupyter is not installed'});
+      dispatch(transition('noJupyter'));
+    } else if (terminal.stderr.match(/Numpy is not installed/)) {
+      terminal.stdout = 'import numpy';
+      terminal.stderr = '';
+      terminal.errors.unshift({icon: 'fa-asterisk', message: 'Numpy is not installed'});
+      dispatch(transition('noNumpy'));
+    } else if (terminal.stderr.match(/Scipy is not installed/)) {
+      terminal.stdout = 'import scipy';
+      terminal.stderr = '';
+      terminal.errors.unshift({icon: 'fa-asterisk', message: 'Scipy is not installed'});
+      dispatch(transition('noScipy'));
+    } else if (terminal.stderr.match(/Matplotlib is not installed/)) {
+      terminal.stdout = 'import matplotlib';
+      terminal.stderr = '';
+      terminal.errors.unshift({icon: 'fa-asterisk', message: 'Matplotlib is not installed'});
+      dispatch(transition('noMatplotlib'));
+    } else if (terminal.stderr.match(/Pandas is not installed/)) {
+      terminal.stdout = 'import pandas';
+      terminal.stderr = '';
+      terminal.errors.unshift({icon: 'fa-asterisk', message: 'Pandas is not installed'});
+      dispatch(transition('noPandas'));
+    } else if (terminal.code === 127) {
+      dispatch(transition('noPython'));
+    } else if (terminal.code !== 0) {
+      dispatch(transition('pythonError'));
+    } else {
+      const state = getState(),
+        cmd = _.get(state, 'setup.terminal.cmd'),
+        isMainWindowReady = _.get(state, 'setup.isMainWindowReady');
+
+      saveCmd(dispatch, cmd);
+      if (isMainWindowReady) {
+        dispatch(finish());
+      } else {
+        dispatch(transition('ready'));
+      }
+    }
+
+    dispatch({type: 'SETUP_EXECUTED', result});
   };
 }
 
-function test(cmd) {
-  return function (dispatch) {
-    dispatch({type: 'TESTING_PYTHON_CMD', cmd});
-    return clientDiscovery.checkKernel({cmd})
-      .then(() => dispatch({type: 'TESTED_PYTHON_CMD', cmd}))
-      .catch(error => dispatch({type: 'TESTED_PYTHON_CMD', cmd, error}));
+function execute() {
+  return function (dispatch, getState) {
+    const state = getState(),
+      cmd = _.get(state, 'setup.terminal.cmd'),
+      code = [
+        'print("Welcome to Rodeo!")'
+      ].join('\n');
+
+    dispatch({type: 'SETUP_EXECUTING', cmd, code});
+    return clientDiscovery.executeWithNewKernel({cmd}, code)
+      .then(handleExecuted(dispatch, getState))
+      .catch(handleError);
   };
 }
 
-function saveTest(cmd) {
-  track({category: 'setup-viewer', action: 'saveTest'});
-  return function (dispatch) {
-    return clientDiscovery.checkKernel({cmd})
-      .then(pythonOptions => dispatch(kernelActions.kernelDetected(pythonOptions)))
-      .then(() => dispatch({type: 'SAVED_PYTHON_TEST'}))
-      .catch(error => dispatch(errorCaught(error)));
+function transition(contentType) {
+  return {type: 'SETUP_TRANSITION', contentType};
+}
+
+function changeInput(key, event) {
+  const value = _.isString(event) ? event : event.target.value;
+
+  return {type: 'SETUP_CHANGE', key, value};
+}
+
+function handlePackageInstalled(dispatch) {
+  return function (result) {
+    const terminal = result;
+
+    terminal.state = 'executed';
+    terminal.errors = terminal.errors.map(convertErrorToIconMessage);
+
+
+    if (terminal.errors.length) {
+      terminal.errors = terminal.errors.map(convertErrorToIconMessage);
+
+      dispatch(transition('pythonError'));
+    } else if (terminal.stderr.match(/DistributionNotFound/)) {
+      terminal.errors.unshift({icon: 'fa-asterisk', message: 'Are you connected to the Internet?'});
+
+      dispatch(transition('pythonError'));
+    }
+
+    dispatch({type: 'SETUP_PACKAGE_INSTALLED', result});
   };
 }
 
-function testInstall() {
-  return function (dispatch) {
-    return clientDiscovery.getFreshPythonOptions()
-      .then(pythonOptions => dispatch(kernelActions.kernelDetected(pythonOptions)))
-      .then(() => dispatch({type: 'INSTALLED_PYTHON'}))
-      .catch(() => dispatch({type: 'INSTALLED_PYTHON_NOT_FOUND'}));
+function installPackage(targetPackage) {
+  return function (dispatch, getState) {
+    const state = getState(),
+      cmd = _.get(state, 'setup.terminal.cmd'),
+      code = [
+        'import pip',
+        `pip.main(["install", "-vvvv", "${targetPackage}"])`
+      ].join('\n'),
+      args = ['-u', '-c', code];
+
+    dispatch({type: 'SETUP_PACKAGE_INSTALLING', cmd, args});
+    return send('executeProcess', cmd, ['-u', '-c', code])
+      .then(handlePackageInstalled(dispatch))
+      .catch(handleError);
   };
+}
+
+function cancel() {
+  send('quitApplication');
 }
 
 export default {
-  ask,
-  closeWindow,
-  setCmd,
-  saveTest,
-  test,
-  testInstall
+  cancel,
+  execute,
+  finish,
+  transition,
+  changeInput,
+  installPackage
 };

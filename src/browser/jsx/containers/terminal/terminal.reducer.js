@@ -135,10 +135,12 @@ function changeProperty(state, propertyName, value, transform) {
 }
 
 function changePreference(state, action) {
-  switch (action.key) {
-    case 'fontSize': return changeProperty(state, 'fontSize', action.value, _.toNumber);
-    case 'pythonCmd': return changeProperty(state, 'cmd', action.value);
-    case 'pythonShell': return changeProperty(state, 'shell', action.value);
+  const change = action.change;
+
+  switch (change.key) {
+    case 'fontSize': return changeProperty(state, 'fontSize', change.value, _.toNumber);
+    case 'pythonCmd': return changeProperty(state, 'cmd', change.value);
+    case 'pythonShell': return changeProperty(state, 'shell', change.value);
     default: return state;
   }
 }
@@ -159,6 +161,6 @@ export default mapReducers({
   IOPUB_EXECUTED_INPUT: executedInput,
   KERNEL_DETECTED: updateFirstTerminalWithKernel,
   VARIABLES_CHANGED: updateFirstTerminalWithVariables,
-  CHANGE_PREFERENCE: changePreference,
+  PREFERENCE_CHANGE_SAVED: changePreference,
   WORKING_DIRECTORY_CHANGED: changeWorkingDirectory
 }, initialState);

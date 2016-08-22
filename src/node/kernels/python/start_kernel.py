@@ -15,7 +15,32 @@ except ImportError:
     try:
         from IPython.kernel import manager
     except ImportError:
-        raise Exception('IPython is not installed with {0} {1} {2} {3}'.format(sys.executable, sys.argv, sys.version, os.environ.get('PATH')))
+        raise Exception('Jupyter is not installed')
+
+try:
+    import pip
+except:
+    raise Exception('Pip is not installed')
+
+try:
+    import numpy
+except:
+    raise Exception('Numpy is not installed')
+
+try:
+    import pandas
+except:
+    raise Exception('Pandas is not installed')
+
+try:
+    import matplotlib
+except:
+    raise Exception('Matplotlib is not installed')
+
+try:
+    import scipy
+except:
+    raise Exception('Scipy is not installed')
 
 # python3/python2 nonsense
 try:
@@ -72,7 +97,8 @@ def kernel(wd=None, verbose=0):
     # we're up and running!
     sys.stdout.write(json.dumps({ "id": "startup-complete", "status": "complete" }) + "\n")
 
-    while True:
+    should_continue = True
+    while should_continue:
         if not input_queue.empty():
             current_timeout = current_timeout_min
             line = input_queue.get().strip()
@@ -101,18 +127,38 @@ def kernel(wd=None, verbose=0):
                 sys.stdout.write(json.dumps({ "source": "eval", "result": result, "id": uid }) + '\n')
 
         try:
+            data = kernel_client.get_shell_msg(timeout=current_timeout)
+
+            content = data.get('content', False)
+
+            if content:
+                payload = content.get('payload', False)
+                if payload:
+                    try:
+                        first = payload[0]
+                        if first:
+                            source = first.get('source', False)
+                            keepkernel = first.get('keepkernel', False)
+                            if source == 'ask_exit' and keepkernel == False:
+                                should_continue = False
+                    except IndexError:
+                        pass
+                msg_type = data.get('msg_type', False)
+                if msg_type == 'shutdown_reply':
+                    shutdown_restart = content.get('restart', False)
+                    if not shutdown_restart:
+                        should_continue = False
+            sys.stdout.write(json.dumps({"source": "shell", "result": data, "should_continue": should_continue}, default=json_serial) + '\n')
+            current_timeout = current_timeout_min
+        except Empty:
+            pass
+
+        try:
             while True:
                 data = kernel_client.get_iopub_msg(timeout=current_timeout)
                 sys.stdout.write(json.dumps({"source": "iopub", "result": data}, default=json_serial) + '\n')
                 sys.stdout.flush()
                 current_timeout = current_timeout_min
-        except Empty:
-            pass
-
-        try:
-            data = kernel_client.get_shell_msg(timeout=current_timeout)
-            sys.stdout.write(json.dumps({"source": "shell", "result": data}, default=json_serial) + '\n')
-            current_timeout = current_timeout_min
         except Empty:
             pass
 

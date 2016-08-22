@@ -1,8 +1,0 @@
-body {
-  margin: 0;
-}
-
-.marked > * {
-  -webkit-app-region: no-drag;
-  -webkit-user-select: text;
-}

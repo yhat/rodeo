@@ -17,6 +17,8 @@ function setViewedPath(state, action) {
 
   if (action.files) {
     state.files = action.files;
+  } else {
+    state.files = [];
   }
 
   return state;
@@ -64,8 +66,11 @@ function changeProperty(state, propertyName, value) {
 }
 
 function changePreference(state, action) {
-  switch (action.key) {
-    case 'showDotFiles': return changeProperty(state, 'showDotFiles', action.value);
+  const change = action.change;
+
+  switch (change.key) {
+    case 'showDotFiles': return changeProperty(state, 'showDotFiles', change.value);
+    case 'workingDirectory': return setViewedPath(state, {path: change.value});
     default: return state;
   }
 }
@@ -74,5 +79,5 @@ export default mapReducers({
   SET_VIEWED_PATH: setViewedPath,
   LIST_VIEWED_FILES: setFileList,
   SELECT_VIEWED_FILE: selectFile,
-  CHANGE_PREFERENCE: changePreference
+  PREFERENCE_CHANGE_SAVED: changePreference
 }, initialState);

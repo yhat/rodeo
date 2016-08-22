@@ -58,9 +58,6 @@ export default React.createClass({
 
     props.onStart(jqConsole);
   },
-  componentDidUpdate: function () {
-
-  },
   render: function () {
     const props = this.props,
       style = {

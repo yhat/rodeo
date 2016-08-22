@@ -4,6 +4,7 @@ body {
   -webkit-user-select: none;
   padding: 30px 5px;
   text-align: center;
+  margin: 0;
 }
 
 /* Buttons and inputs don't drag the window around */
@@ -11,10 +12,12 @@ button, input {
   -webkit-app-region: no-drag;
 }
 
-main {
-  display: flex;
-  flex-direction: column;
-  justify-content: space-around;
+/* Neither do fake-terminals and everything in them */
+.marked > *,
+.fake-terminal,
+.fake-terminal * {
+  -webkit-app-region: no-drag;
+  -webkit-user-select: text;
 }
 
 ul {
@@ -42,31 +45,17 @@ ul.horizontal li {
 .setup {
   font-size: 18px;
   height: 100%;
-  display: flex;
-  flex-direction: column;
-  justify-content: space-around;
-  align-items: center;
 }
 
-.setup > * {
-  flex: 1;
-}
-
-.setup button {
+.setup button.btn-setup-action {
   font-size: 16px;
+  white-space: nowrap;
+  margin: 20px 5px;
 }
 
-.setup > header {
-  max-height: 33%; /* thirds */
-}
-
-.setup-content {
-  position: relative;
-  height: 100%;
-  width: 80%;
-  display: flex;
-  flex-direction: column;
-  justify-content: space-around;
+.setup .fake-terminal {
+  width: 95%;
+  margin: 20px auto;
 }
 
 .setup .faded {
@@ -81,18 +70,66 @@ ul.horizontal li {
   transition: background-color 0.4s;
 }
 
-.python-test-input .changed {
-  background-color: #feff24;
-}
-
-.python-test-input .valid {
-  background-color: #feffb4;
-}
-
-.python-test-input .invalid {
-  background-color: #ffd3cf;
-}
-
 .setup-loading-icon {
   transition: opacity 2s;
+}
+
+.setup .input-group {
+  display: table;
+}
+
+.setup .input-group-container {
+  display: table-cell;
+  vertical-align: middle;
+  width: 1%; /* takes the least amount of space */
+}
+
+.setup .secondary-explanation {
+  margin-top: 40px;
+  text-align: left;
+  width: 80%;
+  margin-left: auto;
+  margin-right: auto;
+  box-shadow: 2px 2px 4px #ccc;
+  border: 1px solid #ccc;
+  padding: 5px 10px;
+}
+
+.setup .brand img {
+  width: auto;
+  margin-right: auto;
+  margin-left: auto;
+  height: 200px;
+}
+
+.setup-appear {
+  opacity: 0.01;
+}
+
+.setup-appear.setup-appear-active {
+  opacity: 1;
+  transition: opacity .2s ease-in;
+}
+
+.setup-enter {
+  opacity: 0.01;
+}
+
+.setup-enter.setup-enter-active {
+  opacity: 1;
+  transition: opacity .2s ease-in;
+}
+
+.setup-leave {
+  opacity: 1;
+}
+
+.setup-leave.setup-leave-active {
+  opacity: 0.01;
+  transition: opacity 0.2s ease-in;
+}
+.setup .input-python-cmd {
+  width: 80%;
+  margin-right: auto;
+  margin-left: auto;
 }

@@ -15,10 +15,14 @@ function replyToEvent(name, id, event) {
 
   return function (data) {
     try {
-      if (_.isError(data)) {
-        event.sender.send(replyName, id, {name: data.name, message: data.message});
+      if (!event.sender.isDestroyed()) {
+        if (_.isError(data)) {
+          event.sender.send(replyName, id, {name: data.name, message: data.message});
+        } else {
+          event.sender.send(replyName, id, null, data);
+        }
       } else {
-        event.sender.send(replyName, id, null, data);
+        log('info', 'did not reply to event because sender is destroyed', id, name);
       }
     } catch (ex) {
       log('error', 'failed to reply to event', id, name, data, ex);

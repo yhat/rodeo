@@ -1,7 +1,6 @@
 'use strict';
 
-const _ = require('lodash'),
-  log = require('../../services/log').asInternal(__filename);
+const _ = require('lodash');
 let outputMap = {};
 
 /**
@@ -43,9 +42,6 @@ function broadcastKernelStatus(client, message) {
 function resolveRequest(request, result) {
   // execution_count doesn't apply to us
   request.deferred.resolve(_.omit(result.content, 'engine_info', 'execution_count'));
-
-  // we're done reporting about this topic
-  log('warn', 'resolved', request.msg_id, result);
   delete outputMap[request.msg_id];
 }
 
@@ -75,15 +71,7 @@ function isRequestToOutputLink(client, response) {
  * @returns {boolean}
  */
 function isExecutionResult(response) {
-  const parentMessageId = _.get(response, 'result.parent_header.msg_id'),
-    msg_type = _.get(response, 'result.msg_type'),
-    isReply = msg_type && _.endsWith(msg_type, '_reply');
-
-  if (_.size(outputMap) === 0 && isReply) {
-    log('warn', msg_type, 'without anyone waiting for output', outputMap, response);
-  } else if (isReply && !outputMap[parentMessageId]) {
-    log('warn', msg_type, parentMessageId, 'without parent waiting for output', outputMap, response);
-  }
+  const parentMessageId = _.get(response, 'result.parent_header.msg_id');
 
   return !!outputMap[parentMessageId];
 }

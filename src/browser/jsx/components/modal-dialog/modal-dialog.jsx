@@ -3,8 +3,7 @@ import React from 'react';
 import ReactDOM from 'react-dom';
 import './modal-dialog.css';
 
-const instanceClass = 'modal-dialog-instance',
-  showClass = 'modal-dialog-show';
+const showClass = 'modal-dialog-show';
 
 /**
  * @class ModalDialog
@@ -15,6 +14,7 @@ export default React.createClass({
   displayName: 'ModalDialog',
   propTypes: {
     buttons: React.PropTypes.array,
+    className: React.PropTypes.string,
     id: React.PropTypes.string.isRequired,
     onApply: React.PropTypes.func,
     onCancel: React.PropTypes.func,
@@ -27,11 +27,16 @@ export default React.createClass({
     _.defer(() => el.classList.add(showClass));
   },
   render: function () {
-    const props = this.props;
+    const props = this.props,
+      className = ['modal-dialog-instance'];
     let footer, header;
 
     if (props.title) {
       header = <header>{props.title}</header>;
+    }
+
+    if (props.className) {
+      className.push(props.className);
     }
 
     if (props.buttons) {
@@ -53,7 +58,7 @@ export default React.createClass({
     }
 
     return (
-      <section className={instanceClass}>
+      <section className={className.join(' ')}>
         {header}
         {props.children}
         {footer}

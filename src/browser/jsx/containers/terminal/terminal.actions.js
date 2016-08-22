@@ -4,6 +4,7 @@ import AsciiToHtml from 'ansi-to-html';
 import client from '../../services/client';
 import cid from '../../services/cid';
 import {errorCaught} from '../../actions/application';
+import kernelActions from '../../actions/kernel';
 import plotViewerActions from '../plot-viewer/plot-viewer.actions';
 import {local} from '../../services/store';
 import textUtil from '../../services/text-util';
@@ -35,10 +36,17 @@ function startPrompt(jqConsole) {
   };
 }
 
+function handleExecuteError(dispatch) {
+  return function (error) {
+    dispatch(addJSError(error));
+    dispatch(errorCaught(error));
+  };
+}
+
 function execute(cmd, done) {
   return function (dispatch) {
     return client.execute(cmd)
-      .catch(error => dispatch(errorCaught(error)))
+      .catch(handleExecuteError(dispatch))
       .nodeify(done);
   };
 }
@@ -105,6 +113,18 @@ function addOutputBlock(text) {
       htmlEscape = false;
 
     jqConsole.Write('<span class="terminal-block">' + convertor.toHtml(text) + '</span>\n', className, htmlEscape);
+  };
+}
+
+function addJSError(error) {
+  return function (dispatch, getState) {
+    const state = getState(),
+      terminal = _.head(state.terminals),
+      jqConsole = getJQConsole(terminal.id),
+      htmlEscape = true,
+      className = 'jqconsole-output';
+
+    jqConsole.Write(error.message + '\n', className, htmlEscape);
   };
 }
 
@@ -235,6 +255,7 @@ function restart() {
     client.restartInstance()
       .then(function () {
         jqConsole.Write('done\n');
+        dispatch(kernelActions.detectKernelVariables());
         _.defer(() => dispatch(startPrompt(jqConsole)));
       })
       .catch(error => dispatch(errorCaught(error)));
@@ -314,6 +335,29 @@ function autoComplete() {
   };
 }
 
+/**
+ * @param {number} code
+ * @param {string} signal
+ * @returns {function}
+ */
+function handleProcessClose(code, signal) {
+  return function (dispatch) {
+    if (code !== 0) {
+      dispatch(addOutputText('Process closed (exit code: ' + code + ')...'));
+    } else if (signal) {
+      console.log('HEY', {code, signal});
+      debugger;
+      dispatch(addOutputText('Process closed (signal: ' + signal + '), restarting...'));
+    } else {
+      dispatch(addOutputText('Process closed, restarting...'));
+    }
+
+    return client.dropInstance().then(function () {
+      dispatch(addOutputText('done\n'));
+    });
+  };
+}
+
 export default {
   addDisplayData,
   addInputText,
@@ -325,5 +369,6 @@ export default {
   focus,
   restart,
   startPrompt,
-  autoComplete
+  autoComplete,
+  handleProcessClose
 };

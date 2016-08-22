@@ -111,7 +111,7 @@ function transformEventEmitter(obj) {
 }
 
 function printObject(obj) {
-  return util.inspect(obj, {depth: 10, colors: colorize});
+  return util.inspect(obj, {depth: 10, colors: colorize, hidden: true});
 }
 
 function sanitizeObject(value) {
@@ -121,7 +121,7 @@ function sanitizeObject(value) {
     } else if (_.isBuffer(value)) {
       return value.toString();
     } else if (isError(value)) {
-      return value.stack;
+      return printObject(value);
     } else if (isElectronEvent(value)) {
       return transformElectronEvent(value);
     } else if (isEventEmitter(value)) {
