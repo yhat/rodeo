@@ -1,11 +1,12 @@
 import _ from 'lodash';
 import React from 'react';
-import FakeTerminal from './fake-terminal.jsx';
+import ExitButton from './exit-button.jsx';
 
 export default React.createClass({
   displayName: 'SetupReady',
   propTypes: {
     className: React.PropTypes.string,
+    onCancel: React.PropTypes.func.isRequired,
     onFinish: React.PropTypes.func.isRequired
   },
   render: function () {
@@ -20,7 +21,8 @@ export default React.createClass({
 
     return (
       <div className={className.join(' ')}>
-        <button className="btn btn-default" onClick={props.onFinish}>{text.readyToRodeo}</button>
+        <ExitButton onClick={props.onCancel}/>
+        <button className="btn btn-default btn-setup-action" onClick={props.onFinish}>{text.readyToRodeo}</button>
       </div>
     );
   }

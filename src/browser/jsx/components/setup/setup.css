@@ -12,7 +12,10 @@ button, input {
   -webkit-app-region: no-drag;
 }
 
-.marked > * {
+/* Neither do fake-terminals and everything in them */
+.marked > *,
+.fake-terminal,
+.fake-terminal * {
   -webkit-app-region: no-drag;
   -webkit-user-select: text;
 }
@@ -44,7 +47,7 @@ ul.horizontal li {
   height: 100%;
 }
 
-.setup button {
+.setup button.btn-setup-action {
   font-size: 16px;
   white-space: nowrap;
   margin: 20px 5px;
@@ -90,4 +93,43 @@ ul.horizontal li {
   box-shadow: 2px 2px 4px #ccc;
   border: 1px solid #ccc;
   padding: 5px 10px;
+}
+
+.setup .brand img {
+  width: auto;
+  margin-right: auto;
+  margin-left: auto;
+  height: 200px;
+}
+
+.setup-appear {
+  opacity: 0.01;
+}
+
+.setup-appear.setup-appear-active {
+  opacity: 1;
+  transition: opacity .2s ease-in;
+}
+
+.setup-enter {
+  opacity: 0.01;
+}
+
+.setup-enter.setup-enter-active {
+  opacity: 1;
+  transition: opacity .2s ease-in;
+}
+
+.setup-leave {
+  opacity: 1;
+}
+
+.setup-leave.setup-leave-active {
+  opacity: 0.01;
+  transition: opacity 0.2s ease-in;
+}
+.setup .input-python-cmd {
+  width: 80%;
+  margin-right: auto;
+  margin-left: auto;
 }

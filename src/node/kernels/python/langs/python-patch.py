@@ -5,21 +5,9 @@ import ast
 import inspect
 import types
 import re
-
-try:
-    import pandas as pd
-except:
-    pd = None
-
-try:
-    import numpy as np
-except:
-    np = None
-
-try:
-    import pip
-except:
-    pip = None
+import pandas as pd
+import numpy as np
+import pip
 
 def __rodeo_print_status(session):
    print(json.dumps({

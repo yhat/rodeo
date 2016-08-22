@@ -10,6 +10,7 @@ function mapStateToProps(state) {
 
 function mapDispatchToProps(dispatch) {
   return {
+    onCancel: () => dispatch(actions.cancel()),
     onExecute: () => dispatch(actions.execute()),
     onFinish: () => dispatch(actions.finish()),
     onInputChange: (key, event) => dispatch(actions.changeInput(key, event)),

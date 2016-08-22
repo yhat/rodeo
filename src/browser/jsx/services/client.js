@@ -74,7 +74,7 @@ function restartInstance(instance) {
  */
 function dropInstance() {
   instancePromise = false;
-  return guaranteeInstance();
+  return bluebird.resolve();
 }
 
 /**

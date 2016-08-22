@@ -7,14 +7,30 @@ explainAnaconda: |
 
   [Download Anaconda](https://www.continuum.io/downloads)
 explainJupyter: |
-  _What is it?_<br />
-  [IPython](http://jupyter.readthedocs.io/en/latest/ipython/content-ipython.html)
-  is a Python environment that runs using a
-  [Kernel](http://jupyter.readthedocs.io/en/latest/architecture/how_jupyter_ipython_work.html)
-  and emits events in response to executed code.
+  Rodeo relies on an open source package called
+  [Jupyter](http://jupyter.readthedocs.io/en/latest/architecture/how_jupyter_ipython_work.html) for running
+  interactive code, tab completion, and code introspection.
+explainPandas: |
+  [pandas](http://pandas.pydata.org/) is an open source, BSD-licensed library providing high-performance, easy-to-use
+  data structures and data analysis tools for the Python programming language.
+explainScipy: |
+  [SciPy](https://pypi.python.org/pypi/scipy) (pronounced “Sigh Pie”) is open-source software for mathematics, science,
+  and engineering.
+explainNumpy: |
+  [NumPy](http://www.numpy.org/) is the fundamental package for scientific computing with Python. It contains among other things:
 
-  _Why do I need it?_<br />
-  Rodeo runs IPython with the Jupyter package
+  - a powerful N-dimensional array object
+  - sophisticated (broadcasting) functions
+  - tools for integrating C/C++ and Fortran code
+  - useful linear algebra, Fourier transform, and random number capabilities
+
+  Besides its obvious scientific uses, NumPy can also be used as an efficient multi-dimensional container of
+  generic data. Arbitrary data-types can be defined. This allows NumPy to seamlessly and speedily integrate
+  with a wide variety of databases.
+explainMatplotlib: |
+  [matplotlib](http://matplotlib.org/) is a python 2D plotting library which produces publication quality figures
+  in a variety of hardcopy formats and interactive environments across platforms. You can generate plots, histograms,
+  power spectra, bar charts, errorcharts, scatterplots, etc, with just a few lines of code.
 explainMissingDependences: |
   # Woah there partner!
 
@@ -26,13 +42,13 @@ hello: Welcome to Rodeo
 installPython: I haven't installed python yet
 installAnaconda: Install Anaconda
 installJupyter: Install Jupyter
-installMatplotlib: Install MatPlotLib
+installMatplotlib: Install matplotlib
 installNumpy: Install numpy
 installScipy: Install scipy
-installGGPlot: Install ggplot
+installPandas: Install pandas
 testInstall: I've installed python
 uniqueCommandForPython: I use a different command for python
 okay: OK
-tryAgain: Try again
+tryAgain: Try starting again
 readyToRodeo: Ready to Rodeo!
 

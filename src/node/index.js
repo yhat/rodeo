@@ -512,11 +512,15 @@ function onCreateKernelInstance(options) {
           log('info', 'new python kernel process is ready', instanceId, 'process', client.childProcess.pid, options);
           resolveClient(client);
         });
+        client.on('event', function (source, data) {
+          log('info', 'python kernel process event', instanceId, 'process', client.childProcess.pid, options, {source, data});
+        });
         client.on('error', function (error) {
           log('info', 'python kernel process error', instanceId, 'process', client.childProcess.pid, options, error);
+
         });
-        client.on('close', function () {
-          log('info', 'python kernel process closed', instanceId, 'process', client.childProcess.pid, options);
+        client.on('close', function (code, signal) {
+          log('info', 'python kernel process closed', instanceId, 'process', client.childProcess.pid, options, {code, signal});
           delete kernelClients[instanceId];
         });
 

@@ -30,6 +30,15 @@ export default React.createClass({
       content.push(<span className="fa fa-cog fa-spin fa-2x"/>);
     }
 
+    content.push(<div className="stderr">{props.stderr}</div>);
+    content.push(<div className="stdout">{props.stdout}</div>);
+
+    if (!props.errors.length && !!props.code) {
+      const str = ['Exit Code:', props.code].join(' ');
+
+      content.push(<div className="exit-code">{str}</div>);
+    }
+
     if (props.errors.length) {
       content.push(<div className="errors">
         {props.errors.map(error => {
@@ -42,15 +51,6 @@ export default React.createClass({
             </div>
           );
         })}</div>);
-    }
-
-    content.push(<div className="stderr">{props.stderr}</div>);
-    content.push(<div className="stdout">{props.stdout}</div>);
-
-    if (!props.errors.length && !!props.code) {
-      const str = ['Exit Code:', props.code].join(' ');
-
-      content.push(<div className="exit-code">{str}</div>);
     }
 
     return <div className={className.join(' ')}>{content}</div>;

@@ -1,12 +1,14 @@
 import _ from 'lodash';
 import React from 'react';
-import FakeTerminal from './fake-terminal.jsx';
+import ExitButton from './exit-button.jsx';
+import logo from './logo-rodeo-grey-text.svg';
 
 export default React.createClass({
   displayName: 'SetupInitial',
   propTypes: {
     className: React.PropTypes.string,
-    text: React.PropTypes.object
+    onCancel: React.PropTypes.func.isRequired,
+    text: React.PropTypes.object.isRequired
   },
   componentDidMount: function () {
     this.props.onExecute();
@@ -22,6 +24,8 @@ export default React.createClass({
 
     return (
       <div className={className.join(' ')}>
+        <ExitButton onClick={props.onCancel}/>
+        <div className="brand"><img src={logo} /></div>
         <div className="explanation">{props.text.hello}</div>
       </div>
     );
