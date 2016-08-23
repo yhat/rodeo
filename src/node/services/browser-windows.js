@@ -210,11 +210,7 @@ function createMainWindow(name, options) {
     width: size.width,
     height: size.height,
     show: false,
-    acceptFirstMouse: true,
-    webPreferences: {
-      nodeIntegration: true,
-      offscreen: true
-    }
+    acceptFirstMouse: true
   }, options));
 }
 

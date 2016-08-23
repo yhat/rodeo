@@ -11,18 +11,24 @@ const _ = require('lodash'),
 
 /**
  * @param {ChildProcess} child
+ * @param {object} details
  */
-function addChild(child) {
+function addChild(child, details) {
   children.push(child);
-  log('info', 'added child process', child.pid, ';', children.length, 'children running');
+  log('info', 'added child process', _.assign({pid: child.pid}, details), ';', children.length, 'children running');
 }
 
 /**
  * @param {ChildProcess} child
+ * @param {object} details
  */
-function removeChild(child) {
+function removeChild(child, details) {
   _.pull(children, child);
-  log('info', 'removed child process', child.pid, ';', children.length, 'children running');
+  log('info', 'removed child process', _.assign({pid: child.pid}, details), ';', children.length, 'children running');
+}
+
+function errorInChild(child, error, details) {
+  log('info', 'error in child process', _.assign({pid: child.pid, error}, details), ';', children.length, 'children running');
 }
 
 /**
@@ -33,18 +39,23 @@ function getChildren() {
 }
 
 /**
- * @param {string} str
+ * @param {string} cmd
  * @param {Array} [args]
  * @param {object} [options]
  * @returns {ChildProcess}
  */
-function create(str, args, options) {
-  assertString(str);
+function create(cmd, args, options) {
+  assertString(cmd);
 
-  const child = childProcess.spawn(str, args || options, args && options)
-    .on('close', () => removeChild(child));
+  args = args || options;
+  options = args && options;
 
-  addChild(child);
+  const details = {cmd, args, options},
+    child = childProcess.spawn(cmd, args, options)
+      .on('error', error => errorInChild(child, error, details))
+      .on('close', (code, signal) => removeChild(child, _.assign({code, signal}, details)));
+
+  addChild(child, details);
   return child;
 }
 

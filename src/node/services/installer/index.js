@@ -11,6 +11,12 @@ const bluebird = require('bluebird'),
   contextMenu = require('./context-menu'),
   log = require('../log').asInternal(__filename);
 
+function reportError(message) {
+  return function (error) {
+    log('error', {message, error});
+  };
+}
+
 /**
  * Handles squirrel events if any.  Then quits if any.
  *
@@ -33,24 +39,24 @@ function handleSquirrelStartupEvent(app) {
     switch (squirrelCommand) {
       case '--squirrel-install':
         return bluebird.all([
-          shortcuts.create(execPath),
-          contextMenu.install(execPath, systemRoot),
-          commands.addToPath(appName, execPath, systemRoot)
-        ]).then(() => app.quit())
+          shortcuts.create(execPath).catch(reportError('failed to create shortcuts')),
+          contextMenu.install(execPath, systemRoot).catch(reportError('failed to install context menu')),
+          commands.addToPath(appName, execPath, systemRoot).catch(reportError('failed to add to path'))
+        ]).finally(() => app.quit())
           .return(true);
       case '--squirrel-updated':
         return bluebird.all([
-          shortcuts.update(execPath, appName, os.homedir()),
-          contextMenu.install(execPath, systemRoot),
-          commands.addToPath(appName, execPath, systemRoot)
-        ]).then(() => app.quit())
+          shortcuts.update(execPath, appName, os.homedir()).catch(reportError('failed to update shortcuts')),
+          contextMenu.install(execPath, systemRoot).catch(reportError('failed to install context menu')),
+          commands.addToPath(appName, execPath, systemRoot).catch(reportError('failed to add to path'))
+        ]).finally(() => app.quit())
           .return(true);
       case '--squirrel-uninstall':
         return bluebird.all([
-          shortcuts.remove(execPath),
-          contextMenu.uninstall(systemRoot),
-          commands.removeFromPath(execPath, systemRoot)
-        ]).then(() => app.quit())
+          shortcuts.remove(execPath).catch(reportError('failed to remove shortcuts')),
+          contextMenu.uninstall(systemRoot).catch(reportError('failed to uninstall context menu')),
+          commands.removeFromPath(execPath, systemRoot).catch(reportError('failed to remove from path'))
+        ]).finally(() => app.quit())
           .return(true);
       case '--squirrel-obsolete':
         app.quit();

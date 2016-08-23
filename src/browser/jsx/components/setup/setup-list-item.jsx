@@ -1,9 +1,5 @@
 import React from 'react';
 
-/**
- * @class SetupListItem
- * @extends ReactComponent
- */
 export default React.createClass({
   displayName: 'SetupListItem',
   propTypes: {

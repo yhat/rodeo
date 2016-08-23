@@ -400,6 +400,8 @@ function startStartupWindow() {
         url: 'file://' + path.join(staticFileDir, windowUrls[windowName])
       });
 
+    log('info', 'startStartupWindow');
+
     if (argv.dev === true) {
       window.openDevTools();
     }
@@ -407,6 +409,7 @@ function startStartupWindow() {
     preloadMainWindow();
 
     window.webContents.on('did-finish-load', function () {
+
       window.show();
       window.once('close', function () {
         if (isStartupFinished) {
@@ -428,6 +431,8 @@ function startStartupWindow() {
 function onReady() {
   let windowName, window;
 
+  log('info', 'onReady');
+
   return bluebird.try(function () {
     if (argv.design) {
       windowName = 'designWindow';
@@ -445,12 +450,10 @@ function onReady() {
       });
 
       return bluebird.all(statSearch).then(function (files) {
-        log('info', 'files', files);
-
         const file = _.head(_.compact(files));
 
         if (file) {
-          if (file.stats.isDirectory()) {
+          if (file.stats.isDirectory) {
             return startMainWindowWithWorkingDirectory(file.name);
           } else {
             return startMainWindowWithOpenFile(file.name, file.stats);
@@ -492,9 +495,6 @@ function onCheckKernel(options) {
  * @returns {Promise}
  */
 function onCreateKernelInstance(options) {
-
-  log('info', 'onCreateKernelInstance', options);
-
   assertValidObject(options, {
     cmd: {type: 'string', isRequired: true},
     cwd: {type: 'string'}

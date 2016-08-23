@@ -2,6 +2,7 @@ import _ from 'lodash';
 import React from 'react';
 import FakeTerminal from './fake-terminal.jsx';
 import ExitButton from './exit-button.jsx';
+import Marked from '../marked/marked.jsx';
 
 export default React.createClass({
   displayName: 'SetupNoPython',

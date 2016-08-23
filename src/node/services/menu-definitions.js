@@ -11,7 +11,6 @@ const _ = require('lodash'),
   jsYaml = require('js-yaml'),
   path = require('path'),
   util = require('util');
-// dialogs = require('dialogs')({url: '../../static/img/cowboy-hat.svg'}),
 
 /**
  * @param {EventEmitter} ipcEmitter
