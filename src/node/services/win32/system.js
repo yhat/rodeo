@@ -76,7 +76,7 @@ function getPath(systemRoot) {
  * @returns {Promise}
  */
 function getFreshEnv(systemRoot) {
-  const cmd = 'Start-Process -NoNewWindow -UseNewEnvironment -Wait cmd -ArgumentList “/C SET"';
+  const cmd = 'Start-Process -NoNewWindow -UseNewEnvironment -Wait cmd -ArgumentList "/C SET"; [Environment]::Exit(0)';
 
   return spawnPowershell([cmd], systemRoot).then(function (result) {
     const lines = result.stdout.split('\n'),

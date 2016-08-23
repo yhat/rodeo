@@ -24,7 +24,6 @@
 const _ = require('lodash'),
   assert = require('../../services/assert'),
   bluebird = require('bluebird'),
-  config = require('config'),
   clientResponse = require('./client-response'),
   EventEmitter = require('events'),
   environment = require('../../services/env'),
@@ -39,7 +38,11 @@ const _ = require('lodash'),
   assertValidOptions = assert(
     [{cmd: _.isString}, 'must have command'],
     [{cwd: _.isString}, 'must have working directory']
-  );
+  ),
+  timeouts = {
+    checkTimeout: 60000,
+    execTimeout: 60000
+  };
 
 function createObjectEmitter(stream) {
   const streamSplitter = new StreamSplitter('\n'),
@@ -375,8 +378,6 @@ function createPythonScriptProcess(targetFile, options) {
       processOptions.cwd = options.cwd;
     }
 
-    log('info', 'createPythonScriptProcess', {cmd, targetFile, processOptions});
-
     return processes.create(cmd, [targetFile], processOptions);
   });
 }
@@ -455,9 +456,8 @@ function seekJson(str) {
  * @returns {Promise}
  */
 function check(options) {
-  const timeout = config.get('kernel.python.check-timeout');
+  const timeout = timeouts.checkTimeout;
 
-  log('info', {action: 'checking for python', options, timeout});
   assertValidOptions(options);
 
   options = resolveHomeDirectoryOptions(options);
@@ -505,22 +505,19 @@ function resolveHomeDirectoryOptions(options) {
  * @returns {Promise}
  */
 function exec(options, text) {
-  const timeout = config.get('kernel.python.exec-timeout');
+  return bluebird.try(function () {
+    const timeout = timeouts.execTimeout;
 
-  assertValidOptions(options);
+    assertValidOptions(options);
 
-  options = resolveHomeDirectoryOptions(options);
+    options = resolveHomeDirectoryOptions(options);
 
-  function listenTo(jupyterClient, source, events) {
-    jupyterClient.on(source, data => events.push({timestamp: new Date().getTime(), source, data}));
-  }
+    function listenTo(jupyterClient, source, events) {
+      jupyterClient.on(source, data => events.push({timestamp: new Date().getTime(), source, data}));
+    }
 
-  return create(options)
-    .catch(function (error) {
-      return _.assign({errors: [error]}, options);
-    })
-    .then(function (jupyterClient) {
-      return new bluebird(function (resolve) {
+    return create(options)
+      .then(function (jupyterClient) {
         const result = {
             errors: [],
             events: []
@@ -528,41 +525,55 @@ function exec(options, text) {
           stderr = [],
           stdout = [];
 
-        jupyterClient.on('ready', function () {
-          jupyterClient.execute(text)
-            .timeout(timeout, 'Timed out when executing python with ' + JSON.stringify(options))
-            .catch(error => result.errors.push(error))
-            .then(function () {
-              return jupyterClient.shutdown();
-            });
-        });
-        jupyterClient.on('error', error => result.errors.push(error));
-        jupyterClient.on('event', function (source, data) {
-          if (_.isBuffer(data)) {
-            data = data.toString();
-          }
+        return new bluebird(function (resolve) {
+          jupyterClient.on('ready', function () {
+            jupyterClient.execute(text)
+              .then(function () {
+                // graceful shutdown, if possible
+                return jupyterClient.shutdown();
+              })
+              .timeout(timeout, 'Timed out when executing python with ' + JSON.stringify({options, result}))
+              .catch(function (error) {
+                result.errors.push(error);
+                return jupyterClient.kill();
+              });
+          });
+          jupyterClient.on('error', function (error) {
+            result.errors.push(error);
+          });
+          jupyterClient.on('event', function (source, data) {
+            if (_.isBuffer(data)) {
+              data = data.toString();
+            }
 
-          switch (source) {
-            case 'stderr.data':
-              stderr.push(data);
-              break;
-            case 'stdout.data':
-              stdout.push(data);
-              break;
-            default:
-              break;
-          }
-        });
-        jupyterClient.on('close', function (code, signal) {
-          resolve(_.assign({code, signal, stderr: stderr.join('\n'), stdout: stdout.join('\n')}, result));
-        });
+            switch (source) {
+              case 'stderr.data':
+                stderr.push(data);
+                break;
+              case 'stdout.data':
+                stdout.push(data);
+                break;
+              default:
+                break;
+            }
+          });
+          jupyterClient.on('close', function (code, signal) {
+            resolve(_.assign({code, signal, stderr: stderr.join('\n'), stdout: stdout.join('\n')}, result));
+          });
 
-        listenTo(jupyterClient, 'shell', result.events);
-        listenTo(jupyterClient, 'iopub', result.events);
-        listenTo(jupyterClient, 'stdin', result.events);
-        listenTo(jupyterClient, 'input_request', result.events);
+          listenTo(jupyterClient, 'shell', result.events);
+          listenTo(jupyterClient, 'iopub', result.events);
+          listenTo(jupyterClient, 'stdin', result.events);
+          listenTo(jupyterClient, 'input_request', result.events);
+        }).timeout(timeout, 'Timed out when waiting for ready with ' + JSON.stringify({options, result}));
       });
-    });
+  }).catch(function (error) {
+    return _.assign({
+      errors: [error],
+      stdout: '',
+      stderr: ''
+    }, options);
+  });
 }
 
 module.exports.create = create;

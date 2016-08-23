@@ -2,6 +2,7 @@ import _ from 'lodash';
 import React from 'react';
 import FakeTerminal from './fake-terminal.jsx';
 import ExitButton from './exit-button.jsx';
+import Marked from '../marked/marked.jsx';
 
 export default React.createClass({
   displayName: 'SetupManualCommand',
@@ -25,7 +26,7 @@ export default React.createClass({
     return (
       <div className={className.join(' ')}>
         <ExitButton onClick={props.onCancel}/>
-        <div className="explanation">{props.text.askForPythonCommand}</div>
+        <div className="explanation"><Marked>{props.text.askForPythonCommand}</Marked></div>
         <div className="input-group input-python-cmd">
           <input className="form-control" onChange={_.partial(props.onInputChange, 'terminal.cmd')} type="text" value={props.terminal.cmd} />
           <span className="input-group-container">
