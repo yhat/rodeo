@@ -1,7 +1,6 @@
 'use strict';
 
 const _ = require('lodash'),
-  log = require('../log').asInternal(__filename),
   path = require('path'),
   processes = require('../processes');
 

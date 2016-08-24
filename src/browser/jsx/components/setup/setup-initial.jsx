@@ -1,6 +1,5 @@
 import _ from 'lodash';
 import React from 'react';
-import ExitButton from './exit-button.jsx';
 import Marked from '../marked/marked.jsx';
 import SetupArticlePreview from './setup-article-preview.jsx';
 import logo from './logo-rodeo-grey-text.svg';
@@ -30,7 +29,6 @@ export default React.createClass({
 
     return (
       <div className={className.join(' ')}>
-        <ExitButton onClick={props.onCancel}/>
         <div className="brand"><img src={logo} /></div>
         <div className="progress">
           <div className="progress-bar progress-bar-striped active" style={progressBarStyle}>

@@ -1,7 +1,6 @@
 import _ from 'lodash';
 import React from 'react';
 import FakeTerminal from './fake-terminal.jsx';
-import ExitButton from './exit-button.jsx';
 import Marked from '../marked/marked.jsx';
 
 export default React.createClass({
@@ -24,7 +23,6 @@ export default React.createClass({
 
     return (
       <div className={className.join(' ')}>
-        <ExitButton onClick={props.onCancel}/>
         <div className="explanation"><Marked>{text.pythonError}</Marked></div>
         <FakeTerminal {...props.terminal}/>
         <button className="btn btn-primary btn-setup-action" onClick={_.partial(props.onTransition, 'installAnaconda')}>{text.installAnaconda}</button>
