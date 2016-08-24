@@ -45,8 +45,9 @@ export default connect(state => state, mapDispatchToProps)(React.createClass({
   },
   render: function () {
     let props = this.props,
-      runLineTitle = process.platform === 'darwin' ? '⌘ + Enter' : 'Alt + Enter',
-      runScriptTitle = process.platform === 'darwin' ? '⌘ + Shift + Enter' : 'Alt + Shift + Enter',
+      runClearTerminalBuffer = 'Ctrl + L',
+      runTerminalInterrupt = 'Ctrl + C',
+      runTerminalRestart = process.platform === 'darwin' ? '⌘ + R' : 'Alt + R',
       isFocusable = !props.modalDialogs.length;
 
     return (
