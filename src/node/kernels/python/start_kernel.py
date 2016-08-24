@@ -37,11 +37,6 @@ try:
 except:
     raise Exception('Matplotlib is not installed')
 
-try:
-    import scipy
-except:
-    raise Exception('Scipy is not installed')
-
 # python3/python2 nonsense
 try:
     from Queue import Empty
