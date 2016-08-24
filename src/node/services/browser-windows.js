@@ -160,7 +160,7 @@ function create(name, options) {
     log('info', 'ready-to-show', name);
     announceReady();
   });
-  window.on('app-command', () => log('info', 'app-command', name));
+  window.on('app-command', (e, cmd) => log('info', 'app-command', name, cmd));
   webContents = window.webContents;
   webContents.on('did-finish-load', () => {
     log('info', 'did-finish-load', name);

@@ -1,6 +1,5 @@
 import _ from 'lodash';
 import React from 'react';
-import ExitButton from './exit-button.jsx';
 
 export default React.createClass({
   displayName: 'SetupReady',
@@ -21,7 +20,6 @@ export default React.createClass({
 
     return (
       <div className={className.join(' ')}>
-        <ExitButton onClick={props.onCancel}/>
         <button className="btn btn-default btn-setup-action" onClick={props.onFinish}>{text.readyToRodeo}</button>
       </div>
     );
