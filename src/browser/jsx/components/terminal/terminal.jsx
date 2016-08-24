@@ -24,6 +24,7 @@ export default React.createClass({
     indentWidth: React.PropTypes.number,
     message: React.PropTypes.string,
     onAutoComplete: React.PropTypes.func,
+    onClearBuffer: React.PropTypes.func.isRequired,
     onInterrupt: React.PropTypes.func,
     onStart: React.PropTypes.func
   },
@@ -47,7 +48,7 @@ export default React.createClass({
     jqConsole.SetIndentWidth(this.props.indentWidth);
 
     terminalShortcuts.autoComplete(jqConsole, props.onAutoComplete);
-    terminalShortcuts.clearBuffer(jqConsole, el);
+    terminalShortcuts.clearBuffer(jqConsole, el, props.onClearBuffer);
     terminalShortcuts.clearPrompt(jqConsole);
     terminalShortcuts.interrupt(jqConsole, el, props.onInterrupt);
     terminalShortcuts.moveCursorToEnd(jqConsole);

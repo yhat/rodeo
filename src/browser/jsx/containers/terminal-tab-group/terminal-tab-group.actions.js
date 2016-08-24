@@ -364,6 +364,25 @@ function handleProcessClose(code, signal) {
   };
 }
 
+function clearBuffer() {
+  return function (dispatch, getState) {
+    const state = getState(),
+      terminal = _.head(state.terminals),
+      id = terminal.id,
+      el = document.querySelector('#' + id),
+      jqConsole = el && $(el).data('jqconsole'),
+      extras = el && el.querySelectorAll('img,iframe');
+
+    jqConsole.Clear();
+
+    _.each(extras, function (extra) {
+      const parent = extra.parentNode;
+
+      parent.removeChild(extra);
+    });
+  };
+}
+
 export default {
   addDisplayData,
   addInputText,
@@ -372,6 +391,7 @@ export default {
   addOutputBlock,
   execute,
   interrupt,
+  clearBuffer,
   focus,
   restart,
   startPrompt,

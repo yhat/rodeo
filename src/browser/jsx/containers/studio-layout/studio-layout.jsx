@@ -18,9 +18,11 @@ import terminalActions from '../terminal-tab-group/terminal-tab-group.actions';
 function mapDispatchToProps(dispatch) {
   return {
     onAddAcePane: () => dispatch(editorTabGroupActions.addFile()),
-    onInterrupt: () => dispatch(terminalActions.interrupt()),
+    onTerminalInterrupt: () => dispatch(terminalActions.interrupt()),
     onTerminalAutoComplete: (code, cursorPos) => dispatch(terminalActions.autoComplete(code, cursorPos)),
     onTerminalStart: (jqConsole) => dispatch(terminalActions.startPrompt(jqConsole)),
+    onTerminalRestart: () => dispatch(terminalActions.restart()),
+    onTerminalClearBuffer: () => dispatch(terminalActions.clearBuffer()),
     onFocusAcePane: (id) => dispatch(editorTabGroupActions.focusFile(id)),
     onLiftText: (text, context) => dispatch(terminalActions.addInputText(context)),
     onOpenPreferences: () => dispatch(dialogActions.showPreferences()),
@@ -43,6 +45,8 @@ export default connect(state => state, mapDispatchToProps)(React.createClass({
   },
   render: function () {
     let props = this.props,
+      runLineTitle = process.platform === 'darwin' ? '⌘ + Enter' : 'Alt + Enter',
+      runScriptTitle = process.platform === 'darwin' ? '⌘ + Shift + Enter' : 'Alt + Shift + Enter',
       isFocusable = !props.modalDialogs.length;
 
     return (
