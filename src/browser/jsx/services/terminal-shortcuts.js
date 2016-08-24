@@ -1,16 +1,7 @@
 import _ from 'lodash';
 
-function clearBuffer(jqConsole, el) {
-  jqConsole.RegisterShortcut('l', function () {
-    jqConsole.Clear();
-    const extras = el.querySelectorAll('img,iframe');
-
-    _.each(extras, function (extra) {
-      const parent = extra.parentNode;
-
-      parent.removeChild(extra);
-    });
-  });
+function clearBuffer(jqConsole, fn) {
+  jqConsole.RegisterShortcut('l', () => fn());
 }
 
 function clearPrompt(jqConsole) {

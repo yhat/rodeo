@@ -24,6 +24,7 @@ main {
 }
 
 /* override bootstrap :( to stop adding an underline for non-tabs */
+.nav-tabs > li > a.not-tab,
 .nav-tabs > li > a.not-tab:hover,
 .nav-tabs > li > a.not-tab:focus:hover {
   box-shadow: none;
