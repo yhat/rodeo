@@ -30,9 +30,11 @@ function mapStateToProps(state) {
 function mapDispatchToProps(dispatch) {
   return {
     onAddAcePane: () => dispatch(editorTabGroupActions.addFile()),
-    onInterrupt: () => dispatch(terminalActions.interrupt()),
+    onTerminalInterrupt: () => dispatch(terminalActions.interrupt()),
     onTerminalAutoComplete: (code, cursorPos) => dispatch(terminalActions.autoComplete(code, cursorPos)),
     onTerminalStart: (jqConsole) => dispatch(terminalActions.startPrompt(jqConsole)),
+    onTerminalRestart: () => dispatch(terminalActions.restart()),
+    onTerminalClearBuffer: () => dispatch(terminalActions.clearBuffer()),
     onFocusAcePane: (id) => dispatch(editorTabGroupActions.focusFile(id)),
     onLiftText: (text, context) => dispatch(terminalActions.addInputText(context)),
     onOpenPreferences: () => dispatch(dialogActions.showPreferences()),
@@ -58,6 +60,8 @@ export default connect(mapStateToProps, mapDispatchToProps)(React.createClass({
   },
   render: function () {
     let props = this.props,
+      runLineTitle = process.platform === 'darwin' ? '⌘ + Enter' : 'Alt + Enter',
+      runScriptTitle = process.platform === 'darwin' ? '⌘ + Shift + Enter' : 'Alt + Shift + Enter',
       isFocusable = !props.modalDialogs.length;
 
     return (
@@ -65,6 +69,25 @@ export default connect(mapStateToProps, mapDispatchToProps)(React.createClass({
         <SplitPane direction="top-bottom" id="split-pane-left" onDrag={props.onSplitPaneDrag}>
           <EditorTabGroup focusable={isFocusable} id="top-left"/>
           <TabbedPane focusable={isFocusable}>
+
+            <li className="right">
+              <a className="not-tab" onClick={props.onTerminalRestart} title={runScriptTitle}>
+                <span className="fa fa-refresh" />
+                <span className="icon-text-right">{'Restart'}</span>
+              </a>
+            </li>
+            <li className="right">
+              <a className="not-tab" onClick={props.onTerminalInterrupt} title={runLineTitle}>
+                <span className="fa fa-stop" />
+                <span className="icon-text-right">{'Interrupt'}</span>
+              </a>
+            </li>
+            <li className="right">
+              <a className="not-tab" onClick={props.onTerminalClearBuffer} title={runLineTitle}>
+                <span className="fa fa-trash-o" />
+                <span className="icon-text-right">{'Clear'}</span>
+              </a>
+            </li>
 
             <TabText>{props.terminals[0].cwd}</TabText>
 
@@ -75,7 +98,8 @@ export default connect(mapStateToProps, mapDispatchToProps)(React.createClass({
                     focusable={isFocusable && !!item.cmd}
                     key={item.id}
                     onAutoComplete={props.onTerminalAutoComplete}
-                    onInterrupt={props.onInterrupt}
+                    onClearBuffer={props.onTerminalClearBuffer}
+                    onInterrupt={props.onTerminalInterrupt}
                     onStart={props.onTerminalStart}
                     {...item}
                   />
