@@ -3,7 +3,6 @@
 const AsciiToHtml = require('ansi-to-html'),
   sinon = require('sinon'),
   bluebird = require('bluebird'),
-  config = require('config'),
   dirname = __dirname.split('/').pop(),
   filename = __filename.split('/').pop().split('.').shift(),
   lib = require('./' + filename),
@@ -28,7 +27,6 @@ describe(dirname + '/' + filename, function () {
     sandbox.stub(environment);
     sandbox.stub(files);
     sandbox.stub(processes);
-    sandbox.stub(config);
     environment.getEnv.returns(bluebird.resolve(process.env));
   });
 

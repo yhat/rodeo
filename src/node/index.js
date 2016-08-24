@@ -11,12 +11,11 @@ const _ = require('lodash'),
   path = require('path'),
   menuDefinitions = require('./services/menu-definitions'),
   os = require('os'),
-  steveIrwin = require('./kernels/python/steve-irwin'),
   updater = require('./services/updater'),
   installer = require('./services/installer'),
   PlotServer = require('./services/plot-server'),
   yargs = require('yargs'),
-  argv = getArgv(),
+  argv = require('./services/args').getArgv(),
   log = require('./services/log').asInternal(__filename),
   staticFileDir = path.resolve(__dirname, '../browser/'),
   kernelClients = {},
@@ -33,23 +32,6 @@ const _ = require('lodash'),
 
 let plotServerInstance,
   isStartupFinished = false;
-
-function getArgv() {
-  let sliceNum;
-
-  if (_.endsWith(process.argv[0], 'Electron')) {
-    sliceNum = 2;
-  } else {
-    sliceNum = 1;
-  }
-
-  return yargs
-    .env('RODEO')
-    .boolean('dev').default('dev', false)
-    .boolean('pythons').default('pythons', true)
-    .boolean('startup').default('startup', true)
-    .parse(process.argv.slice(sliceNum));
-}
 
 /**
  * @param {object} obj
@@ -400,6 +382,8 @@ function startStartupWindow() {
         url: 'file://' + path.join(staticFileDir, windowUrls[windowName])
       });
 
+    log('info', 'startStartupWindow');
+
     if (argv.dev === true) {
       window.openDevTools();
     }
@@ -407,6 +391,7 @@ function startStartupWindow() {
     preloadMainWindow();
 
     window.webContents.on('did-finish-load', function () {
+
       window.show();
       window.once('close', function () {
         if (isStartupFinished) {
@@ -428,6 +413,8 @@ function startStartupWindow() {
 function onReady() {
   let windowName, window;
 
+  log('info', 'onReady');
+
   return bluebird.try(function () {
     if (argv.design) {
       windowName = 'designWindow';
@@ -445,12 +432,10 @@ function onReady() {
       });
 
       return bluebird.all(statSearch).then(function (files) {
-        log('info', 'files', files);
-
         const file = _.head(_.compact(files));
 
         if (file) {
-          if (file.stats.isDirectory()) {
+          if (file.stats.isDirectory) {
             return startMainWindowWithWorkingDirectory(file.name);
           } else {
             return startMainWindowWithOpenFile(file.name, file.stats);
@@ -492,9 +477,6 @@ function onCheckKernel(options) {
  * @returns {Promise}
  */
 function onCreateKernelInstance(options) {
-
-  log('info', 'onCreateKernelInstance', options);
-
   assertValidObject(options, {
     cmd: {type: 'string', isRequired: true},
     cwd: {type: 'string'}
@@ -639,18 +621,6 @@ function onInterrupt(options) {
 }
 
 /**
- * To allow testing, the user can specific '--no-pythons' to prevent auto-detection of all the pythons
- * @returns {Promise}
- */
-function findPythons() {
-  if (argv.pythons === false) {
-    return [];
-  } else {
-    return steveIrwin.findPythons(steveIrwin.getFacts());
-  }
-}
-
-/**
  * Get system facts that the client-side hopefully caches and doesn't call repeatedly.
  *
  * These values should remain somewhat static on a particular machine
@@ -660,7 +630,6 @@ function findPythons() {
  */
 function onGetSystemFacts() {
   return bluebird.props({
-    availablePythonKernels: findPythons(),
     homedir: os.homedir(),
     pathSep: path.sep,
     delimiter: path.delimiter
@@ -699,6 +668,15 @@ function onGetAppLocale() {
  */
 function onQuitAndInstall() {
   return bluebird.try(updater.install);
+}
+
+function onRestartApplication() {
+  return bluebird.try(function () {
+    const app = electron.app;
+
+    app.relaunch({args: process.argv.slice(1) + ['--relaunch']});
+    app.exit(0);
+  });
 }
 
 /**
@@ -918,6 +896,7 @@ function attachIpcMainEvents() {
     onQuitApplication,
     onPDF,
     onResolveFilePath,
+    onRestartApplication,
     onSaveFile,
     onShareAction,
     onQuitAndInstall,

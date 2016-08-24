@@ -59,6 +59,7 @@ installingPandas: |
 testInstall: I've installed python
 uniqueCommandForPython: I use a different command for python
 okay: OK
+restart: Restart Rodeo
 tryAgain: Try starting again
 readyToRodeo: Ready to Rodeo!
 

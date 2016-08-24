@@ -14,11 +14,6 @@ help      -> Python's own help system.
 object?   -> Details about 'object', use 'object??' for extra details.
 `;
 
-/**
- * @class Terminal
- * @extends ReactComponent
- * @property props
- */
 export default React.createClass({
   displayName: 'Terminal',
   propTypes: {

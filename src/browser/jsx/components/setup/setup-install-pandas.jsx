@@ -2,7 +2,6 @@ import _ from 'lodash';
 import React from 'react';
 import FakeTerminal from './fake-terminal.jsx';
 import Marked from '../marked/marked.jsx';
-import ExitButton from './exit-button.jsx';
 
 export default React.createClass({
   displayName: 'SetupInstallPandas',
@@ -45,7 +44,6 @@ export default React.createClass({
 
     return (
       <div className={className.join(' ')}>
-        <ExitButton onClick={props.onCancel}/>
         <div className="explanation"><Marked>{text.explainPandas}</Marked></div>
         <FakeTerminal {...props.terminal}/>
         <FakeTerminal {...props.secondaryTerminal}/>

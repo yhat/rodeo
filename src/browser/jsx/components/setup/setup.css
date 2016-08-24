@@ -5,6 +5,7 @@ body {
   padding: 30px 5px;
   text-align: center;
   margin: 0;
+  position: relative;
 }
 
 /* Buttons and inputs don't drag the window around */

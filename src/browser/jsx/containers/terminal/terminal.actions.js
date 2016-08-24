@@ -341,20 +341,20 @@ function autoComplete() {
  * @returns {function}
  */
 function handleProcessClose(code, signal) {
-  return function (dispatch) {
-    if (code !== 0) {
-      dispatch(addOutputText('Process closed (exit code: ' + code + ')...'));
-    } else if (signal) {
-      console.log('HEY', {code, signal});
-      debugger;
-      dispatch(addOutputText('Process closed (signal: ' + signal + '), restarting...'));
-    } else {
-      dispatch(addOutputText('Process closed, restarting...'));
-    }
+  return function () {
+    console.log('handleProcessClose', {code, signal});
 
-    return client.dropInstance().then(function () {
-      dispatch(addOutputText('done\n'));
-    });
+    // todo: only show after the startup is done
+
+    // if (code) {
+    //   dispatch(addOutputText('Process closed (exit code: ' + code + '), restarting.'));
+    // } else if (signal) {
+    //   dispatch(addOutputText('Process closed (signal: ' + signal + '), restarting.'));
+    // } else {
+    //   dispatch(addOutputText('Process closed, restarting.'));
+    // }
+
+    return client.dropInstance();
   };
 }
 

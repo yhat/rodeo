@@ -177,6 +177,10 @@ function openExternal(url) {
   return send('openExternal', url);
 }
 
+function restart() {
+  return send('restartApplication');
+}
+
 export default {
   cancel,
   execute,
@@ -184,5 +188,6 @@ export default {
   transition,
   changeInput,
   installPackage,
-  openExternal
+  openExternal,
+  restart
 };
