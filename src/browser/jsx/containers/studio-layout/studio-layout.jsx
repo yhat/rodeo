@@ -60,8 +60,9 @@ export default connect(mapStateToProps, mapDispatchToProps)(React.createClass({
   },
   render: function () {
     let props = this.props,
-      runLineTitle = process.platform === 'darwin' ? '⌘ + Enter' : 'Alt + Enter',
-      runScriptTitle = process.platform === 'darwin' ? '⌘ + Shift + Enter' : 'Alt + Shift + Enter',
+      runClearTerminalBuffer = 'Ctrl + L',
+      runTerminalInterrupt = 'Ctrl + C',
+      runTerminalRestart = process.platform === 'darwin' ? '⌘ + R' : 'Alt + R',
       isFocusable = !props.modalDialogs.length;
 
     return (
@@ -71,19 +72,19 @@ export default connect(mapStateToProps, mapDispatchToProps)(React.createClass({
           <TabbedPane focusable={isFocusable}>
 
             <li className="right">
-              <a className="not-tab" onClick={props.onTerminalRestart} title={runScriptTitle}>
+              <a className="not-tab" onClick={props.onTerminalRestart} title={runTerminalRestart}>
                 <span className="fa fa-refresh" />
                 <span className="icon-text-right">{'Restart'}</span>
               </a>
             </li>
             <li className="right">
-              <a className="not-tab" onClick={props.onTerminalInterrupt} title={runLineTitle}>
+              <a className="not-tab" onClick={props.onTerminalInterrupt} title={runTerminalInterrupt}>
                 <span className="fa fa-stop" />
                 <span className="icon-text-right">{'Interrupt'}</span>
               </a>
             </li>
             <li className="right">
-              <a className="not-tab" onClick={props.onTerminalClearBuffer} title={runLineTitle}>
+              <a className="not-tab" onClick={props.onTerminalClearBuffer} title={runClearTerminalBuffer}>
                 <span className="fa fa-trash-o" />
                 <span className="icon-text-right">{'Clear'}</span>
               </a>
