@@ -24,7 +24,11 @@ function rememberShowedDialog() {
 function register(data) {
   data['rodeoId'] = local.get('userId');
 
-  return fetch('https://www.yhat.com/rodeo/register', {method: 'POST', body: JSON.stringify(data), 'Content-Type':'application/json'}).then(function () {
+  return fetch('https://www.yhat.com/rodeo/register', {
+    method: 'POST',
+    body: JSON.stringify(data),
+    headers: {'Content-Type':'application/json'}
+  }).then(function () {
     // Use a timestamp so we know _when_ they registered
     local.set(hasRegisteredKey, new Date().getTime());
   });
