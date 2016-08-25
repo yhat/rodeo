@@ -37,7 +37,9 @@ function save(plot) {
       const data = plot.data;
 
       if (data['text/html']) {
-        return ipc.send('saveDialog').then(function (filename) {
+        return ipc.send('saveDialog', {
+          filters: [{ name: 'html', extensions: ['html'] }]
+        }).then(function (filename) {
           if (!_.includes(filename, '.')) {
             filename += '.html';
           }
@@ -45,7 +47,9 @@ function save(plot) {
           return ipc.send('savePlot', data['text/html'], filename);
         }).catch(error => console.error(error));
       } else if (data['image/png']) {
-        return ipc.send('saveDialog').then(function (filename) {
+        return ipc.send('saveDialog', {
+          filters: [{ name: 'png', extensions: ['png'] }]
+        }).then(function (filename) {
           if (!_.includes(filename, '.')) {
             filename += '.png';
           }
@@ -53,7 +57,9 @@ function save(plot) {
           return ipc.send('savePlot', data['image/png'], filename);
         }).catch(error => console.error(error));
       } else if (data['image/svg']) {
-        return ipc.send('saveDialog').then(function (filename) {
+        return ipc.send('saveDialog', {
+          filters: [{ name: 'svg', extensions: ['svg'] }]
+        }).then(function (filename) {
           if (!_.includes(filename, '.')) {
             filename += '.svg';
           }
