@@ -1,5 +1,6 @@
 import _ from 'lodash';
 import ipc from 'ipc';
+import {local} from '../../services/store';
 import freeTabGroupAction from '../free-tab-group/free-tab-group.actions';
 
 function removeActivePlot() {
@@ -34,11 +35,13 @@ function save(plot) {
   return function () {
     // copy file somewhere else
     if (plot.data) {
-      const data = plot.data;
+      const data = plot.data,
+        defaultPath = local.get('workingDirectory') || '~';
 
       if (data['text/html']) {
         return ipc.send('saveDialog', {
-          filters: [{ name: 'html', extensions: ['html'] }]
+          defaultPath,
+          filters: [{name: 'html', extensions: ['html']}]
         }).then(function (filename) {
           if (!_.includes(filename, '.')) {
             filename += '.html';
@@ -48,7 +51,8 @@ function save(plot) {
         }).catch(error => console.error(error));
       } else if (data['image/png']) {
         return ipc.send('saveDialog', {
-          filters: [{ name: 'png', extensions: ['png'] }]
+          defaultPath,
+          filters: [{name: 'png', extensions: ['png']}]
         }).then(function (filename) {
           if (!_.includes(filename, '.')) {
             filename += '.png';
@@ -58,7 +62,8 @@ function save(plot) {
         }).catch(error => console.error(error));
       } else if (data['image/svg']) {
         return ipc.send('saveDialog', {
-          filters: [{ name: 'svg', extensions: ['svg'] }]
+          defaultPath,
+          filters: [{name: 'svg', extensions: ['svg']}]
         }).then(function (filename) {
           if (!_.includes(filename, '.')) {
             filename += '.svg';

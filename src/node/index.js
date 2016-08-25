@@ -777,6 +777,10 @@ function onOpenDialog(options) {
   options = _.pick(options || {}, ['title', 'defaultPath', 'properties', 'filters']);
 
   return new bluebird(function (resolve) {
+    if (options.defaultPath) {
+      options.defaultPath = files.resolveHomeDirectory(options.defaultPath);
+    }
+
     electron.dialog.showOpenDialog(options, resolve);
   });
 }
@@ -793,6 +797,10 @@ function onSaveDialog(options) {
   options = _.pick(options || {}, ['title', 'defaultPath', 'filters']);
 
   return new bluebird(function (resolve) {
+    if (options.defaultPath) {
+      options.defaultPath = files.resolveHomeDirectory(options.defaultPath);
+    }
+
     electron.dialog.showSaveDialog(options, resolve);
   });
 }

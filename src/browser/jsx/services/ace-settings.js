@@ -30,6 +30,9 @@ dynamicSettingMap = {
   },
   theme: function (instance, value) {
     instance.setTheme('ace/theme/' + value);
+  },
+  useSoftTabs: function (instance, value) {
+    instance.getSession().setUseSoftTabs(value);
   }
 };
 
@@ -66,7 +69,6 @@ function applyStaticSettings(instance) {
   langTools.addCompleter(pythonCompleter);
 
   instance.setOptions({
-    useSoftTabs: true,
     showPrintMargin: false,
     enableBasicAutocompletion: true,
     enableSnippets: false,
