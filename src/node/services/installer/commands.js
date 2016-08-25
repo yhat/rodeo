@@ -27,9 +27,7 @@ function installCommands(appCommandName, execPath) {
       return files.makeDirectory(binFolder);
     }
   }).then(function () {
-    return bluebird.all([
-      files.writeFile(rodeoCommandPath, rodeoCommand)
-    ]);
+    return files.writeFile(rodeoCommandPath, rodeoCommand);
   });
 }
 

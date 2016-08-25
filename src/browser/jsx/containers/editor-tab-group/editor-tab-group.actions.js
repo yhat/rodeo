@@ -98,6 +98,10 @@ export function showSaveFileDialogForActiveFile() {
           filename = filename[0];
         }
 
+        if (!_.includes(filename, '.')) {
+          filename += '.py';
+        }
+
         return dispatch(saveActiveFileAs(filename));
       })
       .catch(error => dispatch(errorCaught(error)));
