@@ -97,20 +97,11 @@ export function showSaveFileDialogForActiveFile() {
       items = group.items,
       focusedAce = state && _.find(items, {id: group.active}),
       title = 'Save File',
-      defaultPath = focusedAce && focusedAce.filename ? focusedAce.filename : local.get('workingDirectory');
+      filename = focusedAce && focusedAce.filename,
+      defaultPath = filename || (local.get('workingDirectory') || '~');
 
-    return send('saveDialog', {title, defaultPath})
-      .then(function (filename) {
-        if (_.isArray(filename)) {
-          filename = filename[0];
-        }
-
-        if (!_.includes(filename, '.')) {
-          filename += '.py';
-        }
-
-        return dispatch(saveActiveFileAs(filename));
-      })
+    return send('saveDialog', {title, defaultPath, filters: [{ name: 'Python', extensions: ['py'] }]})
+      .then(filename => dispatch(saveActiveFileAs(filename)))
       .catch(error => dispatch(errorCaught(error)));
   };
 }

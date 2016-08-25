@@ -3,6 +3,7 @@ import {send} from 'ipc';
 import preferenceActions from '../../actions/preferences';
 import clientDiscovery from '../../services/client-discovery';
 import {local} from '../../services/store';
+import track from '../../services/track';
 
 /**
  * @param {Error} error
@@ -19,6 +20,7 @@ function handleError(error) {
 
 function finish() {
   return function () {
+    track({category: 'setup', action: 'finish'});
     return send('finishStartup').catch(handleError);
   };
 }
@@ -26,6 +28,7 @@ function finish() {
 function saveCmd(dispatch, cmd) {
   // if the pythonCmd is new, save it and inform everyone that it has changed
   if (local.get('pythonCmd') !== cmd) {
+    track({category: 'setup', action: 'saveCmd', label: cmd});
     dispatch(preferenceActions.savePreferenceChanges([{key: 'pythonCmd', value: cmd}]));
   }
 }
@@ -122,6 +125,7 @@ function execute() {
 }
 
 function transition(contentType) {
+  track({category: 'setup', action: 'transition/' + contentType});
   return {type: 'SETUP_TRANSITION', contentType};
 }
 
@@ -154,6 +158,7 @@ function handlePackageInstalled(dispatch) {
 
 function installPackage(targetPackage) {
   return function (dispatch, getState) {
+    track({category: 'setup', action: 'installPackage', label: targetPackage});
     const state = getState(),
       cmd = _.get(state, 'setup.terminal.cmd'),
       code = [
@@ -170,14 +175,20 @@ function installPackage(targetPackage) {
 }
 
 function cancel() {
+  track({category: 'setup', action: 'cancel'});
+
   return send('quitApplication');
 }
 
 function openExternal(url) {
+  track({category: 'setup', action: 'openExternal', label: url});
+
   return send('openExternal', url);
 }
 
 function restart() {
+  track({category: 'setup', action: 'restart'});
+
   return send('restartApplication');
 }
 
