@@ -11,7 +11,9 @@ const refreshPanes = _.throttle(() => AcePane.resizeAll(), 50),
 function getFirst() {
   const first = getDefault();
 
-  first.initialValue = initialStory;
+  if (local.get('editorStartingTutorial') !== false) {
+    first.initialValue = initialStory;
+  }
 
   return first;
 }
@@ -25,11 +27,12 @@ function getDefault() {
     tabId: cid(),
     hasFocus: true,
     keyBindings: local.get('aceKeyBindings') || 'default',
-    tabSpaces: _.toNumber(local.get('aceTabSpaces')) || 4,
+    tabSize: _.toNumber(local.get('aceTabSpaces')) || 4,
     icon: 'file-code-o',
     isCloseable: true,
     fontSize: _.toNumber(local.get('fontSize')) || 12,
-    theme: 'chrome'
+    theme: 'chrome',
+    useSoftTabs: local.get('aceUseSoftTabs') || true
   };
 }
 
@@ -180,13 +183,15 @@ function changeProperty(state, propertyName, value, transform) {
 }
 
 function fileSaved(state, action) {
-  state = _.cloneDeep(state);
+  if (action.filename) {
+    state = _.cloneDeep(state);
 
-  const items = _.head(state).items,
-    focusedAce = state && _.find(items, {hasFocus: true});
+    const items = _.head(state).items,
+      focusedAce = state && _.find(items, {hasFocus: true});
 
-  focusedAce.filename = action.filename;
-  focusedAce.label = _.last(action.filename.split(/[\\\/]/));
+    focusedAce.filename = action.filename;
+    focusedAce.label = _.last(action.filename.split(/[\\\/]/));
+  }
 
   return state;
 }
@@ -196,8 +201,9 @@ function changePreference(state, action) {
 
   switch (change.key) {
     case 'fontSize': return changeProperty(state, 'fontSize', change.value, _.toNumber);
-    case 'aceTabSpaces': return changeProperty(state, 'tabSpaces', change.value, _.toNumber);
+    case 'aceTabSpaces': return changeProperty(state, 'tabSize', change.value, _.toNumber);
     case 'aceKeyBindings': return changeProperty(state, 'keyBindings', change.value);
+    case 'aceUseSoftTabs': return changeProperty(state, 'useSoftTabs', change.value);
     default: return state;
   }
 }

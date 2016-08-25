@@ -100,12 +100,13 @@ function liftFile(instance, fn) {
   });
 }
 
-function autocomplete(instance, tabSize) {
+function autocomplete(instance) {
   instance.commands.addCommand({
     name: 'autocomplete',
     bindKey: {win: 'Tab', mac: 'Tab'},
     exec: function (editor) {
       const pos = editor.getCursorPosition(),
+        session = editor.getSession(),
         text = editor.session.getTextRange({
           start: {row: pos.row, column: pos.column - 1},
           end: {row: pos.row, column: pos.column}
@@ -118,7 +119,7 @@ function autocomplete(instance, tabSize) {
       } else if (/from /.test(line) || /import /.test(line) || (text != ' ' && text != '')) {
         Autocomplete.startCommand.exec(editor);
       } else {
-        editor.insert(_.repeat(' ', tabSize));
+        editor.insert(session.getUseSoftTabs() ? _.repeat(' ', session.getTabSize()) : '\t');
       }
     }
   });

@@ -52,10 +52,10 @@ function removeActive(state) {
   return state;
 }
 
-function focusById(state, action) {
-  const id = action.id,
-    activePlot = _.find(state, { hasFocus: true }),
-    targetPlot = _.find(state, { id });
+function focus(state, action) {
+  const id = action.plot.id,
+    activePlot = _.find(state, {hasFocus: true}),
+    targetPlot = _.find(state, {id});
 
   if (targetPlot && targetPlot !== activePlot) {
     state = _.clone(state);
@@ -68,8 +68,20 @@ function focusById(state, action) {
   return state;
 }
 
+function remove(state, action) {
+  const id = action.plot.id,
+    plot = _.find(state, {id});
+
+  if (plot) {
+    state = _.without(state, plot);
+  }
+
+  return state;
+}
+
 export default mapReducers({
   IOPUB_DATA_DISPLAYED: add,
   REMOVE_ACTIVE_PLOT: removeActive,
-  FOCUS_PLOT: focusById
+  FOCUS_PLOT: focus,
+  REMOVE_PLOT: remove
 }, initialState);

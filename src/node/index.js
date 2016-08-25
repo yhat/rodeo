@@ -14,7 +14,6 @@ const _ = require('lodash'),
   updater = require('./services/updater'),
   installer = require('./services/installer'),
   PlotServer = require('./services/plot-server'),
-  yargs = require('yargs'),
   argv = require('./services/args').getArgv(),
   log = require('./services/log').asInternal(__filename),
   staticFileDir = path.resolve(__dirname, '../browser/'),
@@ -200,6 +199,26 @@ function onGetFile(filename) {
 
 function onSaveFile(filename, contents) {
   return files.writeFile(filename, contents);
+}
+
+/**
+ * Plots are served from a temporary route, so given a route and a filename
+ * we should be able to copy the temporary file to the new permanent file
+ * @param {string} url
+ * @param {string} filename
+ * @return {Promise}
+ */
+function onSavePlot(url, filename) {
+  // assertion
+  if (!plotServerInstance.urls.has(url)) {
+    throw new Error('No such url: ' + url);
+  }
+
+  log('info', 'onSavePlot', {url, filename});
+
+  const tempFilename = plotServerInstance.urls.get(url);
+
+  return files.copy(tempFilename, filename);
 }
 
 /**
@@ -758,6 +777,10 @@ function onOpenDialog(options) {
   options = _.pick(options || {}, ['title', 'defaultPath', 'properties', 'filters']);
 
   return new bluebird(function (resolve) {
+    if (options.defaultPath) {
+      options.defaultPath = files.resolveHomeDirectory(options.defaultPath);
+    }
+
     electron.dialog.showOpenDialog(options, resolve);
   });
 }
@@ -774,6 +797,10 @@ function onSaveDialog(options) {
   options = _.pick(options || {}, ['title', 'defaultPath', 'filters']);
 
   return new bluebird(function (resolve) {
+    if (options.defaultPath) {
+      options.defaultPath = files.resolveHomeDirectory(options.defaultPath);
+    }
+
     electron.dialog.showSaveDialog(options, resolve);
   });
 }
@@ -898,6 +925,7 @@ function attachIpcMainEvents() {
     onResolveFilePath,
     onRestartApplication,
     onSaveFile,
+    onSavePlot,
     onShareAction,
     onQuitAndInstall,
     onOpenExternal,

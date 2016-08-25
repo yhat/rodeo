@@ -7,9 +7,17 @@ const bluebird = require('bluebird'),
   defaultBacklog = 511;
 let PlotServer;
 
+/**
+ * @param {number} port
+ * @constructor
+ * @property {Map} urls
+ * @property {Map} routes
+ */
 PlotServer = function (port) {
   this.port = port;
   this.app = express();
+  this.urls = new Map();
+  this.routes = new Map();
 };
 PlotServer.prototype = {
   listen() {
@@ -28,7 +36,9 @@ PlotServer.prototype = {
   addRouteToFile(filename, route) {
     const app = this.app,
       port = this.port,
-      real = 'http://localhost:' + port + route;
+      url = 'http://localhost:' + port + route,
+      urls = this.urls,
+      routes = this.routes;
 
     app.get(route, function (req, res) {
       log('info', 'sending file', {filename, route, port});
@@ -40,8 +50,10 @@ PlotServer.prototype = {
         }
       });
     });
+    urls.set(url, filename);
+    routes.set(route, filename);
 
-    return real;
+    return url;
   }
 };
 

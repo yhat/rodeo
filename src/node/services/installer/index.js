@@ -4,17 +4,68 @@
 
 'use strict';
 
-const bluebird = require('bluebird'),
+const _ = require('lodash'),
+  bluebird = require('bluebird'),
   os = require('os'),
   shortcuts = require('./shortcuts'),
   commands = require('./commands'),
   contextMenu = require('./context-menu'),
-  log = require('../log').asInternal(__filename);
+  log = require('../log').asInternal(__filename),
+  argv = require('../args').getArgv(),
+  activeCommands = {
+    squirrelInstall: install,
+    squirrelUpdate: update,
+    squirrelUninstall: uninstall,
+    squirrelObsolete: obsolete
+  },
+  passiveCommands = {
+    squirrelFirstrun: firstRun
+  };
 
 function reportError(message) {
   return function (error) {
     log('error', {message, error});
   };
+}
+
+function firstRun(appName, execPath, systemRoot) {
+  log('info', 'firstRunning', {appName, execPath, systemRoot});
+  return bluebird.all([
+    shortcuts.create(execPath).catch(reportError('failed to create shortcuts')),
+    contextMenu.install(execPath, systemRoot).catch(reportError('failed to install context menu')),
+    commands.addToPath(appName, execPath, systemRoot).catch(reportError('failed to add to path'))
+  ]);
+}
+
+function install(appName, execPath, systemRoot) {
+  log('info', 'installing', {appName, execPath, systemRoot});
+  return bluebird.all([]);
+}
+
+function update(appName, execPath, systemRoot) {
+  log('info', 'updating', {appName, execPath, systemRoot});
+  return bluebird.all([
+    shortcuts.update(execPath, appName, os.homedir()).catch(reportError('failed to update shortcuts')),
+    contextMenu.install(execPath, systemRoot).catch(reportError('failed to install context menu')),
+    commands.addToPath(appName, execPath, systemRoot).catch(reportError('failed to add to path'))
+  ]);
+}
+
+function uninstall(appName, execPath, systemRoot) {
+  log('info', 'uninstalling', {appName, execPath, systemRoot});
+  return bluebird.all([
+    shortcuts.remove(execPath).catch(reportError('failed to remove shortcuts')),
+    contextMenu.uninstall(systemRoot).catch(reportError('failed to uninstall context menu')),
+    commands.removeFromPath(execPath, systemRoot).catch(reportError('failed to remove from path'))
+  ]);
+}
+
+function obsolete() {
+  return bluebird.all([]);
+}
+
+function findFlaggedKey(map) {
+  return _.findKey(map, (value, key) => argv[key] === true)
 }
 
 /**
@@ -24,46 +75,29 @@ function reportError(message) {
  * @returns {Promise<boolean>}  Are we handling squirrel events?  False if we are not.
  */
 function handleSquirrelStartupEvent(app) {
-  if (process.platform !== 'win32') {
-    return bluebird.resolve(false);
-  }
-
   return bluebird.try(function () {
-    const appName = 'Rodeo',
-      squirrelCommand = process.argv[1],
-      execPath = process.execPath,
-      systemRoot = process.env.SystemRoot;
-
-    log('info', 'squirrel saw', {squirrelCommand, execPath, systemRoot});
-
-    switch (squirrelCommand) {
-      case '--squirrel-install':
-        return bluebird.all([
-          shortcuts.create(execPath).catch(reportError('failed to create shortcuts')),
-          contextMenu.install(execPath, systemRoot).catch(reportError('failed to install context menu')),
-          commands.addToPath(appName, execPath, systemRoot).catch(reportError('failed to add to path'))
-        ]).finally(() => app.quit())
-          .return(true);
-      case '--squirrel-updated':
-        return bluebird.all([
-          shortcuts.update(execPath, appName, os.homedir()).catch(reportError('failed to update shortcuts')),
-          contextMenu.install(execPath, systemRoot).catch(reportError('failed to install context menu')),
-          commands.addToPath(appName, execPath, systemRoot).catch(reportError('failed to add to path'))
-        ]).finally(() => app.quit())
-          .return(true);
-      case '--squirrel-uninstall':
-        return bluebird.all([
-          shortcuts.remove(execPath).catch(reportError('failed to remove shortcuts')),
-          contextMenu.uninstall(systemRoot).catch(reportError('failed to uninstall context menu')),
-          commands.removeFromPath(execPath, systemRoot).catch(reportError('failed to remove from path'))
-        ]).finally(() => app.quit())
-          .return(true);
-      case '--squirrel-obsolete':
-        app.quit();
-        return true;
-      default:
-        return false;
+    if (process.platform !== 'win32') {
+      return false;
     }
+
+    const appName = 'Rodeo',
+      execPath = process.execPath,
+      systemRoot = process.env.SystemRoot,
+      activeCommand = findFlaggedKey(activeCommands),
+      passiveCommand = findFlaggedKey(passiveCommands);
+
+    log('info', 'squirrel saw', {activeCommand, passiveCommand, execPath, systemRoot});
+
+    if (activeCommand) {
+      return activeCommands[activeCommand](appName, execPath, systemRoot)
+        .finally(() => app.quit())
+        .return(true);
+    } else if (passiveCommand) {
+      return passiveCommands[passiveCommand](appName, execPath, systemRoot)
+        .return(false);
+    }
+
+    return false;
   });
 }
 

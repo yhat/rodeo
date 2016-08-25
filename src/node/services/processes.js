@@ -50,10 +50,14 @@ function create(cmd, args, options) {
   args = args || options;
   options = args && options;
 
-  const details = {cmd, args, options},
+  const errors = [],
+    details = {cmd, args, options},
     child = childProcess.spawn(cmd, args, options)
-      .on('error', error => errorInChild(child, error, details))
-      .on('close', (code, signal) => removeChild(child, _.assign({code, signal}, details)));
+      .on('error', error => {
+        errors.push(error);
+        errorInChild(child, error, details);
+      })
+      .on('close', (code, signal) => removeChild(child, _.assign({code, signal, errors}, details)));
 
   addChild(child, details);
   return child;

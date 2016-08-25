@@ -32,7 +32,8 @@ export default React.createClass({
     onOpenPreferences: React.PropTypes.func,
     onSave: React.PropTypes.func,
     tabSize: React.PropTypes.number,
-    theme: React.PropTypes.string
+    theme: React.PropTypes.string,
+    useSoftTabs: React.PropTypes.bool
   },
   statics: {
     /**
@@ -68,7 +69,8 @@ export default React.createClass({
       onLoaded: _.noop,
       onLoadError: _.noop,
       onSave: _.noop,
-      tabSize: 4
+      tabSize: 4,
+      useSoftTabs: true
     };
   },
   componentDidMount: function () {
@@ -83,7 +85,7 @@ export default React.createClass({
     aceShortcuts.interrupt(instance, props.onInterrupt);
     aceShortcuts.outdent(instance);
     aceShortcuts.saveFile(instance, props.onSave);
-    aceShortcuts.autocomplete(instance, props.tabSize);
+    aceShortcuts.autocomplete(instance);
     aceShortcuts.liftSelection(instance, props.onLiftSelection);
     aceShortcuts.liftFile(instance, props.onLiftFile);
     aceShortcuts.openPreferences(instance, props.onOpenPreferences);

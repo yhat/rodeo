@@ -44,6 +44,16 @@
           - label: vim
             value: vim
         value: default
+      -
+        key: aceUseSoftTabs
+        label: Use Soft Tabs
+        type: checkbox
+        value: true
+      -
+        key: editorStartingTutorial
+        label: Enable the Starting Tutorial
+        type: checkbox
+        value: true
   -
     label: Console
     items:

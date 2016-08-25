@@ -111,6 +111,74 @@ function getStats(filename) {
   });
 }
 
+function close(fd) {
+  return new bluebird(function (resolve, reject) {
+    log('info', 'closing', {fd});
+    fs.close(fd, function (err) {
+      if (err) {
+        reject(err);
+      } else {
+        resolve();
+      }
+    });
+  });
+}
+
+function open(filename, flags) {
+  return new bluebird(function (resolve, reject) {
+    log('info', 'opening', {filename, flags});
+    fs.open(filename, flags, function (err, fd) {
+      log('info', 'opened', {filename, err, fd});
+      if (err) {
+        reject(err);
+      } else {
+        resolve(fd);
+      }
+    });
+  }).disposer(function (fd) {
+    log('info', 'open disposer', {filename, fd});
+    return close(fd);
+  });
+}
+
+/**
+ * @param {string} src
+ * @param {string} dest
+ * @returns {Promise<undefined>}
+ */
+function copy(src, dest) {
+  log('info', 'copy', {src, dest});
+
+  return bluebird.using(open(src, 'r'), open(dest, 'w'), function (readFd, writeFd) {
+    return new bluebird(function (resolve, reject) {
+      log('info', 'starting copy', {readFd, writeFd});
+      const done = _.once(function (error, result) {
+        log('info', 'copy', 'done', {readFd, writeFd});
+
+        if (error) {
+          reject(error);
+        } else {
+          resolve(result);
+        }
+      });
+      let readStream, writeStream;
+
+      readStream = fs.createReadStream(src, {fd: readFd, autoClose: false})
+        .on('error', done)
+        .on('end', () => log('info', 'copy', 'readEnd'));
+
+      writeStream = fs.createWriteStream(dest, {fd: writeFd, autoClose: false})
+        .on('error', done)
+        .on('finish', () => {
+          log('info', 'copy', 'writeFinish');
+          done();
+        });
+
+      readStream.pipe(writeStream);
+    });
+  });
+}
+
 module.exports.getJSONFileSafeSync = getJSONFileSafeSync;
 module.exports.readFile = _.partialRight(bluebird.promisify(fs.readFile), 'utf8');
 module.exports.writeFile = bluebird.promisify(fs.writeFile);
@@ -121,3 +189,4 @@ module.exports.exists = bluebird.promisify(fs.exists);
 module.exports.unlink = bluebird.promisify(fs.unlink);
 module.exports.saveToTemporaryFile = saveToTemporaryFile;
 module.exports.resolveHomeDirectory = resolveHomeDirectory;
+module.exports.copy = copy;

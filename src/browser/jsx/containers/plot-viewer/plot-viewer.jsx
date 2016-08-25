@@ -5,15 +5,6 @@ import {connect} from 'react-redux';
 import actions from './plot-viewer.actions';
 
 /**
- * We only need plots
- * @param {object} state
- * @returns {object}
- */
-function mapStateToProps(state) {
-  return _.pick(state, ['plots']);
-}
-
-/**
  *
  * @param {function} dispatch
  * @returns {object}
@@ -21,11 +12,13 @@ function mapStateToProps(state) {
 function mapDispatchToProps(dispatch) {
   return {
     onDelete: () => dispatch(actions.removeActivePlot()),
+    onItemClick: plot => dispatch(actions.focus(plot)),
+    onItemRemove: plot => dispatch(actions.remove(plot)),
+    onItemSave: plot => dispatch(actions.save(plot)),
     onNext: () => dispatch(actions.focusNextPlot()),
     onPrev: () => dispatch(actions.focusPrevPlot()),
     onSave: () => dispatch(actions.saveActivePlot()),
-    onOpen: () => dispatch(actions.openActivePlot()),
-    onItemClick: (id) => dispatch(actions.focusPlot(id))
+    onOpen: () => dispatch(actions.openActivePlot())
   };
 }
 
@@ -35,7 +28,7 @@ function mapDispatchToProps(dispatch) {
  * @property props
  * @property {Array} props.plots
  */
-export default connect(mapStateToProps, mapDispatchToProps)(React.createClass({
+export default connect(state => state, mapDispatchToProps)(React.createClass({
   displayName: 'PlotViewer',
   render: function () {
     return <PlotPreview {...this.props}/>;
