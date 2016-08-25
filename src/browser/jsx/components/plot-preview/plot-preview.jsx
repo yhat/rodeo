@@ -15,6 +15,8 @@ export default React.createClass({
   displayName: 'PlotPreview',
   propTypes: {
     onItemClick: React.PropTypes.func.isRequired,
+    onItemRemove: React.PropTypes.func.isRequired,
+    onItemSave: React.PropTypes.func.isRequired,
     plots: React.PropTypes.array.isRequired
   },
   shouldComponentUpdate(nextProps, nextState) {
@@ -44,7 +46,15 @@ export default React.createClass({
 
         <nav>
           {props.plots.map((plot) => {
-            return <BackgroundPlot key={plot.id} onClick={props.onItemClick} {...plot} />;
+            return (
+              <BackgroundPlot
+                key={plot.id}
+                onClick={_.partial(props.onItemClick, plot)}
+                onRemove={_.partial(props.onItemRemove, plot)}
+                onSave={_.partial(props.onItemSave, plot)}
+                {...plot}
+              />
+            );
           })}
         </nav>
       </section>

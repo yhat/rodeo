@@ -15,12 +15,13 @@ export default React.createClass({
     data: React.PropTypes.object.isRequired,
     hasFocus: React.PropTypes.bool,
     id: React.PropTypes.string.isRequired,
-    onClick: React.PropTypes.func
+    onClick: React.PropTypes.func.isRequired,
+    onRemove: React.PropTypes.func.isRequired,
+    onSave: React.PropTypes.func.isRequired
   },
   getDefaultProps: function () {
     return {
-      hasFocus: false,
-      onClick: _.noop
+      hasFocus: false
     };
   },
   shouldComponentUpdate(nextProps, nextState) {
@@ -50,11 +51,14 @@ export default React.createClass({
     className = className.join(' ');
 
     return (
-      <div
-        className={className}
-        onClick={_.partial(props.onClick, props.id)}
-        style={itemStyle}
-      ></div>
+      <div className={className} onClick={props.onClick} style={itemStyle}>
+        <div className="action-bar">
+          <div className="actions">
+            <div className="fa fa-times action" onClick={props.onRemove}></div>
+            <div className="fa fa-save action" onClick={props.onSave}></div>
+          </div>
+        </div>
+      </div>
     );
   }
 });
