@@ -9,27 +9,29 @@ const _ = require('lodash'),
 
 winston.transports.ElectronLogger = electronWinstonTransport;
 
-let logLevel = process.env.RODEO_LOG_LEVEL || 'info',
+let electronTransport = new winston.transports.ElectronLogger({
+    level: 'info',
+    colorize: false
+  }),
+  consoleTransport = new winston.transports.Console({
+    level: 'info',
+    colorize: true,
+    humanReadableUnhandledException: true
+  }),
+  fileTransport = new winston.transports.File({
+    filename: path.join(require('os').homedir(), 'rodeo.log'),
+    level: 'info',
+    maxFiles: 2,
+    maxsize: 1024 * 1024,
+    tailable: true,
+    json: false,
+    colorize: false,
+    prettyPrint: false
+  }),
   transports = [
-    new winston.transports.ElectronLogger({
-      level: logLevel,
-      colorize
-    }),
-    new winston.transports.Console({
-      level: logLevel,
-      colorize,
-      humanReadableUnhandledException: true
-    }),
-    new winston.transports.File({
-      filename: path.join(require('os').homedir(), 'rodeo.log'),
-      level: logLevel,
-      maxFiles: 2,
-      maxsize: 1024 * 1024,
-      tailable: true,
-      json: false,
-      colorize,
-      prettyPrint: true
-    })
+    electronTransport,
+    consoleTransport,
+    fileTransport
   ],
   logger = new winston.Logger({
     transports: transports,
@@ -156,6 +158,10 @@ function asInternal(dirname) {
     }, [prefix + '::']).join(' '));
   };
 }
+
+module.exports.afterFileTransportFlush = function (fn) {
+  fileTransport.on('flush', fn);
+};
 
 module.exports.asInternal = asInternal;
 module.exports.log = function () { logger.log.apply(logger, _.slice(arguments)); };
