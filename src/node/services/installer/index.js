@@ -65,40 +65,36 @@ function obsolete() {
 }
 
 function findFlaggedKey(map) {
-  return _.findKey(map, (value, key) => argv[key] === true)
+  return _.findKey(map, (value, key) => !!argv[key]);
 }
 
 /**
- * Handles squirrel events if any.  Then quits if any.
+ * Handles squirrel events if any.
  *
- * @param {electron.app} app
- * @returns {Promise<boolean>}  Are we handling squirrel events?  False if we are not.
+ * @returns {boolean} Should we quit immediate/y?
  */
-function handleSquirrelStartupEvent(app) {
-  return bluebird.try(function () {
-    if (process.platform !== 'win32') {
-      return false;
-    }
-
-    const appName = 'Rodeo',
-      execPath = process.execPath,
-      systemRoot = process.env.SystemRoot,
-      activeCommand = findFlaggedKey(activeCommands),
-      passiveCommand = findFlaggedKey(passiveCommands);
-
-    log('info', 'squirrel saw', {activeCommand, passiveCommand, execPath, systemRoot});
-
-    if (activeCommand) {
-      return activeCommands[activeCommand](appName, execPath, systemRoot)
-        .finally(() => app.quit())
-        .return(true);
-    } else if (passiveCommand) {
-      return passiveCommands[passiveCommand](appName, execPath, systemRoot)
-        .return(false);
-    }
-
+function handleSquirrelStartupEvent() {
+  if (process.platform !== 'win32') {
     return false;
-  });
+  }
+
+  const appName = 'Rodeo',
+    execPath = process.execPath,
+    systemRoot = process.env.SystemRoot,
+    activeCommand = findFlaggedKey(activeCommands),
+    passiveCommand = findFlaggedKey(passiveCommands);
+
+  log('info', 'squirrel saw', {activeCommand, passiveCommand, execPath, systemRoot});
+
+  if (activeCommand) {
+    activeCommands[activeCommand](appName, execPath, systemRoot).return(true);
+    return true;
+  } else if (passiveCommand) {
+    passiveCommands[passiveCommand](appName, execPath, systemRoot).return(false);
+    return false;
+  }
+
+  return false;
 }
 
 module.exports.handleSquirrelStartupEvent = handleSquirrelStartupEvent;
