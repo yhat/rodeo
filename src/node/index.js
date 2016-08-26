@@ -596,7 +596,8 @@ function onExecuteWithKernel(options, text) {
  */
 function onExecuteWithNewKernel(options, text) {
   log('info', 'onExecuteWithNewKernel', {options, text});
-  return kernelsPythonClient.exec(options, text);
+  return kernelsPythonClient.exec(options, text)
+    .tap(result => log('info', 'onExecuteWithNewKernel result', {options, text}, result));
 }
 
 function onExecuteProcess(cmd, args, options) {
@@ -944,34 +945,32 @@ function startApp() {
 
   if (app) {
     app.setAppUserModelId(appUserModelId);
+    const isActiveSquirrelCommand = installer.handleSquirrelStartupEvent();
 
     // record for later use
     log('info', {
       action: 'started',
       argv, 'process.argv': process.argv,
       cwd: process.cwd(),
-      versions: process.versions
+      versions: process.versions,
+      isActiveSquirrelCommand
     });
 
-    return installer.handleSquirrelStartupEvent(app)
-      .then(function (isSquirrel) {
-        if (!isSquirrel) {
-          attachAppEvents();
-          return startPlotServer();
-        } else {
-          log('info', 'was squirrely');
-        }
-      })
-      .catch(error => log('error', error));
+    if (isActiveSquirrelCommand) {
+      log('info', 'was squirrely');
+      require('./services/log').afterFileTransportFlush(() => process.exit(0));
+    } else {
+      attachAppEvents(app);
+      return startPlotServer();
+    }
   }
 }
 
 /**
  * Attach events only if we're not in a browser window
+ * @param {electron.app} app
  */
-function attachAppEvents() {
-  const app = electron.app;
-
+function attachAppEvents(app) {
   app.on('will-finish-launching', function () {
     log('info', 'will-finish-launching');
   });
