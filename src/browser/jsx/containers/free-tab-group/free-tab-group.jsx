@@ -9,7 +9,7 @@ import PlotViewer from '../plot-viewer/plot-viewer.jsx';
 import FileViewer from '../file-viewer/file-viewer.jsx';
 import VariableViewer from '../variable-viewer/variable-viewer.jsx';
 import VariableTableViewer from '../variable-table-viewer.jsx';
-import PackageViewer from '../package-viewer.jsx';
+import PackageViewer from '../package-viewer/package-viewer.jsx';
 import { getParentNodeOf } from '../../services/dom';
 import freeTabActions from './free-tab-group.actions';
 
