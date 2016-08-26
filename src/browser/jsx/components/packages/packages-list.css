@@ -1,0 +1,13 @@
+.packages-list .btn {
+  margin: 10px;
+}
+
+.packages-list .package-actions {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.packages-list button .fa {
+  margin-right: 10px;
+}
