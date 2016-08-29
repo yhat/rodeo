@@ -35,13 +35,16 @@ const _ = require('lodash'),
   pythonLanguage = require('./language'),
   uuid = require('uuid'),
   checkPythonPath = path.resolve(path.join(__dirname, 'check_python.py')),
+  clone = require('../../services/clone'),
+  ProcessError = require('../../services/errors/process-error'),
   assertValidOptions = assert(
     [{cmd: _.isString}, 'must have command'],
     [{cwd: _.isString}, 'must have working directory']
   ),
+  second = 1000,
   timeouts = {
-    checkTimeout: 60000,
-    execTimeout: 60000
+    checkTimeout: 120 * second,
+    execTimeout: 120 * second
   };
 
 function createObjectEmitter(stream) {
@@ -499,81 +502,111 @@ function resolveHomeDirectoryOptions(options) {
   return options;
 }
 
+function normalizeExecutionResult(result) {
+  // convert errors to objects so they can travel across ipc
+  result.errors = _.map(result.errors, error => clone.toObject(error));
+
+  // to strings that will make sense on the outside
+  result.stderr = result.stderr.join('\n');
+  result.stdout = result.stdout.join('\n');
+
+  return result;
+}
+
+function listenTo(jupyterClient, source, events) {
+  jupyterClient.on(source, data => events.push({timestamp: new Date().getTime(), source, data}));
+}
+
+function addSourceData(result) {
+  log('warn', 'addSourceData', {
+    result,
+    stdoutType: typeof result.stdout,
+    stderrType: typeof result.stderr
+  });
+
+  return function (source, data) {
+    if (_.isBuffer(data)) {
+      data = data.toString();
+    }
+
+    log('warn', 'addSourceData2', {
+      result,
+      stdoutType: typeof result.stdout,
+      stderrType: typeof result.stderr
+    });
+
+    switch (source) {
+      case 'stderr.data':
+        result.stderr.push(data);
+        break;
+      case 'stdout.data':
+        result.stdout.push(data);
+        break;
+      default:
+        break;
+    }
+  };
+}
+
 /**
  * @param {object} options
  * @param {string} text
  * @returns {Promise}
  */
 function exec(options, text) {
+  const result = {
+      errors: [],
+      events: [],
+      stderr: [],
+      stdout: []
+    },
+    timeout = timeouts.execTimeout;
+
   return bluebird.try(function () {
-    const timeout = timeouts.execTimeout;
-
     assertValidOptions(options);
-
     options = resolveHomeDirectoryOptions(options);
 
-    function listenTo(jupyterClient, source, events) {
-      jupyterClient.on(source, data => events.push({timestamp: new Date().getTime(), source, data}));
-    }
+    return create(options).then(function (jupyterClient) {
+      return new bluebird(function (resolve, reject, onCancel) {
+        onCancel(function () {
+          // kill process
+          log('info', 'exec', 'cancelling process');
+          try {
+            jupyterClient.removeAllListeners();
+            jupyterClient.kill()
+              .then(() => log('info', 'exec', 'cancelled process'))
+              .catch(error => log('error', 'failed to cancel process', error));
+          } catch (ex) {
+            log('error', 'error cancelling process', ex);
+          }
+        });
 
-    return create(options)
-      .then(function (jupyterClient) {
-        const result = {
-            errors: [],
-            events: []
-          },
-          stderr = [],
-          stdout = [];
+        jupyterClient.on('ready', function () {
+          jupyterClient.execute(text)
+          // graceful shutdown, if possible
+            .then(() => jupyterClient.shutdown())
+            .timeout(timeout, new ProcessError('Timed out when executing python', {options, result}))
+            .catch(function (error) {
+              result.errors.push(error);
+              return jupyterClient.kill();
+            });
+        });
+        jupyterClient.on('event', addSourceData(result));
+        jupyterClient.on('error', error => result.errors.push(error));
+        jupyterClient.on('close', (code, signal) => { resolve(_.assign({code, signal}, result)); });
 
-        return new bluebird(function (resolve) {
-          jupyterClient.on('ready', function () {
-            jupyterClient.execute(text)
-              .then(function () {
-                // graceful shutdown, if possible
-                return jupyterClient.shutdown();
-              })
-              .timeout(timeout, 'Timed out when executing python with ' + JSON.stringify({options, result}))
-              .catch(function (error) {
-                result.errors.push(error);
-                return jupyterClient.kill();
-              });
-          });
-          jupyterClient.on('error', function (error) {
-            result.errors.push(error);
-          });
-          jupyterClient.on('event', function (source, data) {
-            if (_.isBuffer(data)) {
-              data = data.toString();
-            }
-
-            switch (source) {
-              case 'stderr.data':
-                stderr.push(data);
-                break;
-              case 'stdout.data':
-                stdout.push(data);
-                break;
-              default:
-                break;
-            }
-          });
-          jupyterClient.on('close', function (code, signal) {
-            resolve(_.assign({code, signal, stderr: stderr.join('\n'), stdout: stdout.join('\n')}, result));
-          });
-
-          listenTo(jupyterClient, 'shell', result.events);
-          listenTo(jupyterClient, 'iopub', result.events);
-          listenTo(jupyterClient, 'stdin', result.events);
-          listenTo(jupyterClient, 'input_request', result.events);
-        }).timeout(timeout, 'Timed out when waiting for ready with ' + JSON.stringify({options, result}));
-      });
+        listenTo(jupyterClient, 'shell', result.events);
+        listenTo(jupyterClient, 'iopub', result.events);
+        listenTo(jupyterClient, 'stdin', result.events);
+        listenTo(jupyterClient, 'input_request', result.events);
+      }).timeout(timeout, new ProcessError('Timed out waiting for Jupyter to start', {options, result}));
+    });
   }).catch(function (error) {
-    return _.assign({
-      errors: [error],
-      stdout: '',
-      stderr: ''
-    }, options);
-  });
+    log('error', 'exec error', error);
+    result.errors.push(error);
+
+    return _.assign(result, options);
+  }).then(normalizeExecutionResult);
 }
 
 module.exports.create = create;
