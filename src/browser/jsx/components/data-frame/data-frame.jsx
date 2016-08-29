@@ -106,7 +106,7 @@ export default React.createClass({
           width={state.width}
         >
           {_.map(columns, (column, columnIndex) => {
-            if (column && state.columnWidths[column]) {
+            if (column !== undefined && state.columnWidths[column]) {
 
               return (
                 <Column
