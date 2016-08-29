@@ -32,6 +32,13 @@ const _ = require('lodash'),
 let plotServerInstance,
   isStartupFinished = false;
 
+// cancellation is useful for managing processes
+bluebird.config({
+  warnings: true,
+  longStackTraces: true,
+  cancellation: true
+});
+
 /**
  * @param {object} obj
  * @param {object} validOptions
