@@ -205,7 +205,7 @@ function onGetFile(filename) {
 }
 
 function onSaveFile(filename, contents) {
-  return files.writeFile(filename, contents);
+  return files.writeFile(files.resolveHomeDirectory(filename), contents);
 }
 
 /**
