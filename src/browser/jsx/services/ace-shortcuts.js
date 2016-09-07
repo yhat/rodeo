@@ -21,7 +21,7 @@ function getIndentLevel(session, content) {
  * @param {*} editor
  * @returns {boolean}
  */
-function isCodeComplete(editor) {
+function isCodeRunnable(editor) {
   const currentRow = editor.getSelectionRange().end.row,
     session = editor.session,
     totalRows = session.getLength();
@@ -82,7 +82,7 @@ function liftSelection(instance, callback) {
       if (_.trim(text) !== '') {
         callback(null, {
           text,
-          isCodeComplete: isCodeComplete(editor)
+          isCodeRunnable: isCodeRunnable(editor)
         });
       }
 

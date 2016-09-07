@@ -1,0 +1,15 @@
+.package-search-list {
+  margin: 10px;
+}
+
+.package-search-list > header {
+  margin-left: auto;
+  margin-right: auto;
+  width: 80%;
+  display: table;
+}
+
+.package-search-list > header input {
+  width: 100%;
+  display: table-cell;
+}

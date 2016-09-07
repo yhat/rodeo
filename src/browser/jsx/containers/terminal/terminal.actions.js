@@ -22,7 +22,7 @@ function startPrompt(jqConsole) {
     const nextPrompt = () => _.defer(() => dispatch(startPrompt(jqConsole)));
 
     if (jqConsole.GetState() !== 'prompt') {
-      jqConsole.Prompt(true, (input) => dispatch(execute(input, nextPrompt)));
+      jqConsole.Prompt(true, (input) => dispatch(executeWithCallback(input, nextPrompt)));
     }
 
     client.guaranteeInstance()
@@ -43,7 +43,7 @@ function handleExecuteError(dispatch) {
   };
 }
 
-function execute(cmd, done) {
+function executeWithCallback(cmd, done) {
   return function (dispatch) {
     return client.execute(cmd)
       .catch(handleExecuteError(dispatch))
@@ -51,6 +51,19 @@ function execute(cmd, done) {
   };
 }
 
+/**
+ * Atomic code should not be added/concatenated with other code
+ *
+ * Complete code is runnable as it is, but should be merged with current code on the prompt
+ *
+ * Code that is neither atomic or complete is just added to the prompt, waiting to be edited or completed.
+ *
+ * @param {object} context
+ * @param {string} context.text
+ * @param {boolean} [context.isCodeIsolated=false]
+ * @param {boolean} [context.isCodeRunnable=false]
+ * @returns {Function}
+ */
 function addInputText(context) {
   return function (dispatch, getState) {
     const state = getState(),
@@ -61,10 +74,17 @@ function addInputText(context) {
 
     // if a prompt is waiting for this input
     if (consoleState === 'prompt') {
-      const fullText = jqConsole.GetPromptText() + text;
+      const promptText = jqConsole.GetPromptText(),
+        fullText = promptText + text;
 
       // execute if able
-      if (context.isCodeComplete) {
+      if (context.isCodeIsolated) {
+        // isolated code leaves the prompt alone, still visibly runs the code
+        // even if the code is not runnable, run it anyway so they can see the error
+        jqConsole.SetHistory(jqConsole.GetHistory().concat([text]));
+        return client.execute(text)
+          .catch(error => dispatch(errorCaught(error)));
+      } else if (context.isCodeRunnable) {
         // pretend to run from the prompt: kill the prompt, run the code, start the prompt, lie
         jqConsole.SetPromptText(fullText);
         jqConsole.AbortPrompt();
@@ -383,7 +403,6 @@ export default {
   addErrorText,
   addOutputText,
   addOutputBlock,
-  execute,
   interrupt,
   clearBuffer,
   focus,

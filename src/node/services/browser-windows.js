@@ -169,7 +169,7 @@ function create(name, options) {
   });
   webContents.on('did-fail-load', onFailLoad);
   webContents.on('did-get-response-details', onGetResponseDetails);
-  webContents.on('crashed', () => log('error', 'onCrashed'));
+  webContents.on('crashed', () => log('error', 'onCrashed', arguments));
   webContents.on('plugin-crashed', () => log('error', 'onPluginCrashed'));
   webContents.on('destroyed', () => log('info', 'destroyed'));
 

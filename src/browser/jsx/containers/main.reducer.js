@@ -11,6 +11,7 @@ import freeTabGroups from './free-tab-group/free-tab-group.reducer';
 import editorTabGroups from './editor-tab-group/editor-tab-group.reducer';
 import preferences from './preferences-viewer/preferences-viewer.reducer';
 import packages from './package-viewer/package-viewer.reducer';
+import packageSearch from './package-search-viewer/package-search-viewer.reducer';
 
 function broadcast(state, action) {
   console.log(action.type, action);
@@ -85,6 +86,10 @@ export default combineReducers({
    * map!
    */
   packages,
+  /**
+   * map!
+   */
+  packageSearch,
   /**
    * Unneeded. This just logs all the actions that pass through.
    */
