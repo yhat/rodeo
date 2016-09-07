@@ -54,6 +54,13 @@ function getFreeTabGroups() {
           icon: 'archive',
           label: 'Packages',
           id: cid()
+        },
+        {
+          contentType: 'package-search-viewer',
+          icon: 'archive',
+          label: 'Package Search',
+          tabId: cid(),
+          id: cid()
         }
       ]
     }

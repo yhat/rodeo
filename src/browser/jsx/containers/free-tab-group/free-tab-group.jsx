@@ -10,6 +10,7 @@ import FileViewer from '../file-viewer/file-viewer.jsx';
 import VariableViewer from '../../components/variable-viewer/variable-viewer.jsx';
 import VariableTableViewer from '../variable-table-viewer.jsx';
 import PackageViewer from '../package-viewer/package-viewer.jsx';
+import PackageSearchViewer from '../package-search-viewer/package-search-viewer.jsx';
 import { getParentNodeOf } from '../../services/dom';
 import freeTabActions from './free-tab-group.actions';
 
@@ -144,7 +145,8 @@ export default connect(mapStateToProps, mapDispatchToProps)(React.createClass({
         'file-viewer': options => <FileViewer filter={this.state.searchFilter} options={options}/>,
         'variable-viewer': options => <VariableViewer filter={this.state.searchFilter} options={options}/>,
         'variable-table-viewer': options => <VariableTableViewer filter={this.state.searchFilter} options={options}/>,
-        'package-viewer': options => <PackageViewer filter={this.state.searchFilter} options={options}/>
+        'package-viewer': options => <PackageViewer filter={this.state.searchFilter} options={options}/>,
+        'package-search-viewer': options => <PackageSearchViewer filter={this.state.searchFilter} options={options}/>
       };
 
     return (
