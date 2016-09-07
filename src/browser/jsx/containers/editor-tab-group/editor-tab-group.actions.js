@@ -51,7 +51,7 @@ export function saveActiveFileAs(filename) {
       aceInstance = el && ace.edit(el),
       content = aceInstance && aceInstance.getSession().getValue();
 
-    if (content) {
+    if (_.isString(content)) {
       return send('saveFile', filename, content)
         .then(() => dispatch(fileIsSaved(focusedAce.id, filename)))
         .catch(error => dispatch(errorCaught(error)));

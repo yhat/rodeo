@@ -12,10 +12,6 @@
     accelerator: CmdOrCtrl+,
     click:
       type: SHOW_PREFERENCES
-  - label: Default Variables
-    accelerator: CmdOrCtrl+g
-    click:
-      type: SHOW_PROFILE
   - label: Quit
     accelerator: CmdOrCtrl+Q
     click:

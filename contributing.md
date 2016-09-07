@@ -8,7 +8,7 @@ You need the following to run Rodeo in dev mode:
 Then from the root directory of the project:
 ```bash
 npm install  # to install the dependences
-gulp  # to build the project
+gulp build # to build the project
 npm start  # to run Rodeo
 ```
 
@@ -57,4 +57,3 @@ CSC_NAME=<some key sha identifier for signing> npm run dist:all
 ```bash
 CSC_NAME=<some key sha identifier for signing> npm run dist:osx
 ```
-
