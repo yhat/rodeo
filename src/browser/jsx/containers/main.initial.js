@@ -49,17 +49,16 @@ function getFreeTabGroups() {
           label: 'Plots',
           id: cid()
         },
-        {
-          contentType: 'package-viewer',
-          icon: 'archive',
-          label: 'Packages',
-          id: cid()
-        },
+        // {
+        //   contentType: 'package-viewer',
+        //   icon: 'archive',
+        //   label: 'Packages',
+        //   id: cid()
+        // },
         {
           contentType: 'package-search-viewer',
           icon: 'archive',
-          label: 'Package Search',
-          tabId: cid(),
+          label: 'Packages',
           id: cid()
         }
       ]

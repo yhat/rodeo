@@ -13,3 +13,20 @@
   width: 100%;
   display: table-cell;
 }
+
+.package-search-list .suggestion {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #cbcbcb;
+}
+
+.package-search-list .button-shift {
+  display: table-cell;
+  width: 1%;
+  white-space: nowrap;
+  vertical-align: middle;
+  position: relative;
+  font-size: 0;
+  padding-left: 10px;
+}

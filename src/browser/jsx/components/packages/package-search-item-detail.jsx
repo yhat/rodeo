@@ -3,17 +3,24 @@ import React from 'react';
 import Marked from '../marked/marked.jsx';
 import './package-search-item.css';
 
+function removeProtocolFromUrl(url) {
+  return url.replace('http://', '').replace('https://', '');
+}
+
 export default React.createClass({
   displayName: 'PackageSearchItem',
   propTypes: {
     className: React.PropTypes.string,
     onInstallPackage: React.PropTypes.func.isRequired,
+    onOpenExternal: React.PropTypes.func.isRequired,
     onShowMore: React.PropTypes.func.isRequired
   },
   render: function () {
     const displayName = this.constructor.displayName,
       props = this.props,
-      className = [_.kebabCase(displayName)];
+      className = [_.kebabCase(displayName)],
+      onOpenExternal = this.props.onOpenExternal;
+    let description, recommended;
 
     if (props.className) {
       className.push(props.className);
@@ -22,15 +29,41 @@ export default React.createClass({
     // the sidebar is floating, and this is needed.  Bad because CSS shouldn't be interfering here.
     className.push('clearfix');
 
-    function getDetailRows(target, property, label) {
+    function getDetailRows(target, label, property, hrefProperty) {
       const rows = [];
 
       if (target[property]) {
-        rows.push(<tr><td>{label}</td></tr>);
-        rows.push(<tr><td className="package-sidebar-value">{target[property]}</td></tr>);
+        const propertyLabelKey = property + '-label',
+          propertyValueKey = property + '-value',
+          targetProperty = removeProtocolFromUrl(target[property]);
+
+        rows.push(<tr key={propertyLabelKey}><td>{label}</td></tr>);
+        if (hrefProperty && target[hrefProperty]) {
+          rows.push(
+            <tr key={propertyValueKey}><td className="package-sidebar-value">
+              <a onClick={_.partial(onOpenExternal, target[hrefProperty])}>{targetProperty}</a>
+            </td></tr>
+          );
+        } else {
+          rows.push(<tr><td className="package-sidebar-value">{target[property]}</td></tr>);
+        }
       }
 
       return rows;
+    }
+
+    if (props.description) {
+      if (props.isLikelyMarkdown) {
+        description = <Marked>{props.description}</Marked>;
+      } else {
+        description = <div className="restructuredtext">{props.description}</div>;
+      }
+    } else {
+      description = <div className="suggestion"><span>{'No description'}</span></div>;
+    }
+
+    if (props.recommended) {
+      recommended = <span className="package-recommended"><span className="fa fa-star" /></span>;
     }
 
     return (
@@ -38,29 +71,20 @@ export default React.createClass({
         <div>
           <span className="package-name">{props.name}</span>
           <span className="package-version">{props.version}</span>
+          {recommended}
         </div>
         <div className="package-content">
           <div className="package-sidebar">
-            <section className="package-downloads">
-              <header>{'Downloads'}</header>
-              <table>
-                <tbody>
-                  <tr><td>{'Last Day'}</td><td className="package-sidebar-value">{props.downloads.last_day}</td></tr>
-                  <tr><td>{'Last Week'}</td><td className="package-sidebar-value">{props.downloads.last_week}</td></tr>
-                  <tr><td>{'Last Month'}</td><td className="package-sidebar-value">{props.downloads.last_month}</td></tr>
-                </tbody>
-              </table>
-            </section>
             <section className="package-details">
               <header>{'Details'}</header>
               <table>
                 <tbody>
-                {getDetailRows(props, 'license', 'License')}
-                {getDetailRows(props, 'platform', 'Platform')}
-                {getDetailRows(props, 'package_url', 'Package Url')}
-                {getDetailRows(props, 'home_page', 'Home Page')}
-                {getDetailRows(props, 'docs_url', 'Documentation')}
-                {getDetailRows(props, 'bugtrack_url', 'Bug Tracking')}
+                {getDetailRows(props, 'License', 'license')}
+                {getDetailRows(props, 'Platform', 'platform')}
+                {getDetailRows(props, 'Package Url', 'package_url', 'package_url')}
+                {getDetailRows(props, 'Home Page', 'home_page', 'home_page')}
+                {getDetailRows(props, 'Documentation', 'docs_url', 'docs_url')}
+                {getDetailRows(props, 'Bug Tracking', 'bugtrack_url', 'bugtrack_url')}
                 </tbody>
               </table>
             </section>
@@ -71,9 +95,7 @@ export default React.createClass({
             </section>
           </div>
           <div className="package-summary">{props.summary}</div>
-          <div className="package-description">
-            {props.isLikelyMarkdown ? <Marked></Marked> : <div className="restructuredtext">{props.description}</div>}
-          </div>
+          <div className="package-description">{description}</div>
         </div>
       </div>
     );

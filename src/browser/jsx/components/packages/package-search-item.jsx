@@ -12,7 +12,7 @@ export default React.createClass({
     const displayName = this.constructor.displayName,
       props = this.props,
       className = [_.kebabCase(displayName)];
-    let moreButton;
+    let moreButton, summary, recommended;
 
     if (props.className) {
       className.push(props.className);
@@ -28,14 +28,25 @@ export default React.createClass({
       );
     }
 
+    if (props.summary) {
+      summary = <div className="package-summary">{props.summary}</div>;
+    } else {
+      summary = <div className="package-summary missing">{'No summary'}</div>;
+    }
+
+    if (props.recommended) {
+      recommended = <span className="package-recommended"><span className="fa fa-star" /></span>;
+    }
+
     return (
       <div className={className.join(' ')}>
         <div>
           <span className="package-name">{props.name}</span>
           <span className="package-version">{props.version}</span>
+          {recommended}
         </div>
         <div className="package-short-content">
-          <div className="package-summary">{props.summary}</div>
+          {summary}
           <div className="package-actions">{moreButton}</div>
         </div>
       </div>

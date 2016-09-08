@@ -7,9 +7,17 @@
   position: relative;
 }
 
-.package-search-item .package-version {
+.package-search-item .package-version,
+.package-search-item .package-recommended {
   float: right;
+  margin-right: 10px;
 }
+
+.package-search-item .package-recommended {
+  color: #ffd700;
+}
+
+
 
 .package-search-item .package-actions .btn {
   margin-left: 10px;
