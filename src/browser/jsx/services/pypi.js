@@ -1,6 +1,8 @@
+import _ from 'lodash';
 import xmlrpc from './xmlrpc';
 
-const baseUrl = 'https://pypi.python.org/pypi';
+const baseUrl = 'https://pypi.python.org/pypi'; // missing packages
+// const baseUrl = 'https://pypi.io/pypi'; // 404
 
 /**
  *

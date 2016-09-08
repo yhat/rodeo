@@ -19,6 +19,7 @@ function mapStateToProps(state) {
 function mapDispatchToProps(dispatch) {
   return {
     onInstallPackage: (packageName, version) => dispatch(actions.installPackage(packageName, version)),
+    onOpenExternal: url => dispatch(actions.openExternal(url)),
     onShowMore: (packageName, version) => dispatch(actions.showMore(packageName, version)),
     onList: () => dispatch(actions.list()),
     onSearchValueChange: value => dispatch(actions.changeSearchValue(value)),

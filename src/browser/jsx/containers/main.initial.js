@@ -77,17 +77,17 @@ function getFreeTabGroups() {
           tabId: cid(),
           id: cid()
         },
-        {
-          contentType: 'package-viewer',
-          icon: 'archive',
-          label: 'Packages',
-          tabId: cid(),
-          id: cid()
-        },
+        // {
+        //   contentType: 'package-viewer',
+        //   icon: 'archive',
+        //   label: 'Packages',
+        //   tabId: cid(),
+        //   id: cid()
+        // },
         {
           contentType: 'package-search-viewer',
           icon: 'archive',
-          label: 'Package Search',
+          label: 'Packages',
           tabId: cid(),
           id: cid()
         }
