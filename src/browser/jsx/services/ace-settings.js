@@ -14,7 +14,7 @@ dynamicSettingMap = {
     instance.setFontSize(value);
   },
   keyBindings: function (instance, value) {
-    instance.setKeyboardHandler('ace/keyboard/' + (value === 'default' ? null : value));
+    instance.setKeyboardHandler(value === 'default' ? null : 'ace/keyboard/' + value);
   },
   highlightLine: function (instance, value) {
     instance.setHighlightActiveLine(value);
@@ -29,7 +29,7 @@ dynamicSettingMap = {
     instance.getSession().setTabSize(value);
   },
   theme: function (instance, value) {
-    instance.setTheme('ace/theme/' + value);
+    instance.setTheme('ace/theme/' + (value === 'default' ? 'chrome' : value));
   },
   useSoftTabs: function (instance, value) {
     instance.getSession().setUseSoftTabs(value);

@@ -29,7 +29,7 @@ function getDefault() {
     icon: 'file-code-o',
     closeable: true,
     fontSize: _.toNumber(local.get('fontSize')) || 12,
-    theme: 'chrome',
+    theme: local.get('aceTheme') || 'chrome',
     useSoftTabs: local.get('aceUseSoftTabs') || true
   };
 }
@@ -132,6 +132,7 @@ function changePreference(state, action) {
     case 'aceTabSpaces': return changeProperty(state, 'tabSize', change.value, _.toNumber);
     case 'aceKeyBindings': return changeProperty(state, 'keyBindings', change.value);
     case 'aceUseSoftTabs': return changeProperty(state, 'useSoftTabs', change.value);
+    case 'aceTheme': return changeProperty(state, 'theme', change.value);
     default: return state;
   }
 }
