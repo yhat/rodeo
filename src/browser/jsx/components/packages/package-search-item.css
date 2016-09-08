@@ -1,0 +1,103 @@
+.package-search-item {
+  border: 1px solid #999;
+  border-radius: 5px;
+  margin: 10px;
+  padding: 10px;
+  min-height: 80px;
+  position: relative;
+}
+
+.package-search-item .package-version,
+.package-search-item .package-recommended {
+  float: right;
+  margin-right: 10px;
+}
+
+.package-search-item .package-recommended {
+  color: #ffd700;
+}
+
+
+
+.package-search-item .package-actions .btn {
+  margin-left: 10px;
+}
+
+.package-search-item .package-summary {
+  font-style: italic;
+}
+
+.package-search-item .package-short-content {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 10px;
+}
+
+.package-search-item .package-short-content > * {
+  flex: 2 1;
+}
+
+.package-search-item .package-short-content .package-actions {
+  flex: 0 1;
+  white-space: nowrap;
+}
+
+.package-search-item .package-content {
+  margin-top: 10px;
+}
+
+.package-search-item .package-sidebar {
+  float: right;
+  margin: 0 0 10px 10px;
+}
+
+.package-search-item .package-sidebar section {
+  padding-left: 12px;
+  margin: 0 2px 20px;
+  white-space: nowrap;
+  position: relative;
+}
+
+.package-search-item .package-sidebar section > header {
+  font-size: larger;
+  font-weight: bold;
+}
+
+.package-search-item .package-sidebar-value {
+  padding-left: 10px;
+  max-width: 200px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.package-search-item .package-description {
+  margin-top: 10px;
+}
+
+.package-search-item .package-description .restructuredtext {
+  white-space: pre-wrap;
+}
+
+.package-search-item .package-description h1 {
+  font-size: 20px;
+  margin-top: 10px;
+  margin-bottom: 5px;
+}
+
+.package-search-item .package-description h2 {
+  font-size: 18px;
+  margin-top: 10px;
+  margin-bottom: 5px;
+}
+
+.package-search-item .package-description h3,
+.package-search-item .package-description h4,
+.package-search-item .package-description h5,
+.package-search-item .package-description h6 {
+  font-size: 16px;
+  margin-top: 5px;
+  margin-bottom: 3px;
+}
+
+
