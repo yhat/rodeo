@@ -28,18 +28,28 @@ karmaTasks.importTasks(gulp);
 lintTasks.importTasks(gulp);
 webpackTasks.importTasks(gulp, outputMap);
 
-/**
- * Ace is so large that its easier to keep it separate.
- * Also, it minifies well, unlike other ext
- */
-gulp.task('ace', function () {
+gulp.task('ace:core', function () {
   return gulp.src([
     'src/browser/ace/ace.js',
-    'src/browser/ace/**/*.js'
+    'src/browser/ace/**/*.js',
+    '!src/browser/ace/theme-*.js'
   ]).pipe(concat('ace.min.js'))
     .pipe(uglify())
     .pipe(gulp.dest(outputMap.browser));
 });
+
+gulp.task('ace:themes-js', function () {
+  return gulp.src([
+    'src/browser/ace/theme-*.js'
+  ]).pipe(uglify())
+    .pipe(gulp.dest(outputMap.browser));
+});
+
+/**
+ * Ace is so large that its easier to keep it separate.
+ * Also, it minifies well, unlike other ext
+ */
+gulp.task('ace', ['ace:core', 'ace:themes-js']);
 
 /**
  * This files should be included in every screen, and have already been processed, so keep it separate.

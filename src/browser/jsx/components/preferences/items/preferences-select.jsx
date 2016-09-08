@@ -34,9 +34,17 @@ export default React.createClass({
       content.push(<label htmlFor={item.id}>{_.startCase(item.label)}</label>);
     }
 
+    function getOption(option) {
+      if (option.group) {
+        return <optgroup label={option.label}>{option.group.map(getOption)}</optgroup>;
+      } else {
+        return <option value={option.value}>{option.label}</option>;
+      }
+    }
+
     content.push(
       <select onChange={props.onChange} {...item}>
-        {item.options.map(option => <option value={option.value}>{option.label}</option>)}
+        {item.options.map(getOption)}
       </select>
     );
 
