@@ -59,10 +59,11 @@ export default connect(mapStateToProps, mapDispatchToProps)(React.createClass({
     return !commonReact.shallowEqual(this, nextProps);
   },
   render: function () {
-    const props = this.props;
+    const props = this.props,
+      className = commonReact.getClassNameList(this);
 
     return (
-      <section className="sidebar">
+      <section className={className.join(' ')}>
         <SlideoutDialog isExpanded={props.isExpanded} url={props.url} />
         <div className="sidebar-container">
           <div className="sidebar-top">

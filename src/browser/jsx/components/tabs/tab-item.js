@@ -2,8 +2,7 @@ import React from 'react';
 import Closeable from './Closeable';
 import commonReact from '../../services/common-react';
 import './tab-item.css';
-const tabClass = 'tab-item',
-  activeTabClass = 'active';
+const activeTabClass = 'active';
 
 export default React.createClass({
   displayName: 'TabItem',
@@ -36,7 +35,7 @@ export default React.createClass({
   render: function () {
     let closeable;
     const props = this.props,
-      className = [tabClass],
+      className = commonReact.getClassNameList(this),
       iconClassName = [];
 
     console.log('TabItem', 'render');

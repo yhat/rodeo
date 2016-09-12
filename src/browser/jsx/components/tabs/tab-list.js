@@ -35,13 +35,14 @@ export default React.createClass({
     return !commonReact.shallowEqual(this, nextProps);
   },
   render: function () {
-    const props = this.props;
+    const props = this.props,
+      className = commonReact.getClassNameList(this);
 
     console.log('TabList', 'render');
 
     return (
       <ul
-        className="tab-list"
+        className={className.join(' ')}
         onDragEnter={props.onDragEnter}
         onDragLeave={props.onDragLeave}
         onDragOver={props.onDragOver}

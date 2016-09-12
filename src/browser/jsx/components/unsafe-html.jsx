@@ -24,6 +24,8 @@ export default React.createClass({
     return !commonReact.shallowEqual(this, nextProps, nextState);
   },
   render: function () {
-    return <iframe frameBorder="0" id={this.props.id} sandbox="allow-scripts"></iframe>;
+    const className = commonReact.getClassNameList(this);
+
+    return <iframe className={className.join(' ')} frameBorder="0" id={this.props.id} sandbox="allow-scripts"></iframe>;
   }
 });

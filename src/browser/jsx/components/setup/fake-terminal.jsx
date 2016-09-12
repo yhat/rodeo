@@ -1,6 +1,6 @@
-import _ from 'lodash';
 import React from 'react';
 import './fake-terminal.css';
+import commonReact from '../../services/common-react';
 
 /**
  * @class FakeTerminal
@@ -9,14 +9,16 @@ import './fake-terminal.css';
  */
 export default React.createClass({
   displayName: 'FakeTerminal',
+  shouldComponentUpdate: function (nextProps) {
+    return !commonReact.shallowEqual(this, nextProps);
+  },
   render: function () {
-    const displayName = this.constructor.displayName,
-      props = this.props,
-      className = [_.kebabCase(displayName), props.state],
+    const props = this.props,
+      className = commonReact.getClassNameList(this),
       content = [];
 
-    if (props.className) {
-      className.push(props.className);
+    if (props.state) {
+      className.push(props.state);
     }
 
     content.push(

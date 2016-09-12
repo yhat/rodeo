@@ -22,7 +22,7 @@ export default React.createClass({
   },
   render: function () {
     const props = this.props,
-      className = ['tabbed-pane-item'];
+      className = commonReact.getClassNameList(this);
 
     console.log('TabbedPaneItem', 'render');
 

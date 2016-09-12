@@ -20,13 +20,14 @@ export default React.createClass({
   },
   render: function () {
     const props = this.props,
-      className = [
-        'slideout-dialog',
-        props.isExpanded ? showClass : ''
-      ].join(' ');
+      className = commonReact.getClassNameList(this);
+
+    if (props.isExpanded) {
+      className.push(showClass);
+    }
 
     return (
-      <div className={className}>
+      <div className={className.join(' ')}>
         <iframe frameBorder="0" src={props.url}></iframe>
       </div>
     );

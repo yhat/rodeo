@@ -2,6 +2,7 @@ import _ from 'lodash';
 import React from 'react';
 import FakeTerminal from './fake-terminal.jsx';
 import Marked from '../marked/marked.jsx';
+import commonReact from '../../services/common-react';
 
 export default React.createClass({
   displayName: 'SetupInstallJupyter',
@@ -16,16 +17,14 @@ export default React.createClass({
   componentDidMount: function () {
     this.props.onPackageInstall('jupyter');
   },
+  shouldComponentUpdate: function (nextProps) {
+    return commonReact.shallowEqual(this, nextProps);
+  },
   render: function () {
-    const displayName = this.constructor.displayName,
-      buttons = [],
+    const buttons = [],
       props = this.props,
       text = props.text,
-      className = [_.kebabCase(displayName)];
-
-    if (props.className) {
-      className.push(props.className);
-    }
+      className = commonReact.getClassNameList(this);
 
     if (props.secondaryTerminal.code !== 0) {
       buttons.push(

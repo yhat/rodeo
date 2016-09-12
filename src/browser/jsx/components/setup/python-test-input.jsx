@@ -1,4 +1,5 @@
 import React from 'react';
+import commonReact from '../../services/common-react';
 
 /**
  * @class PythonTestInput
@@ -17,6 +18,9 @@ export default React.createClass({
       cmd: 'python'
     };
   },
+  shouldComponentUpdate: function (nextProps) {
+    return !commonReact.shallowEqual(this, nextProps);
+  },
   handleChange: function (e) {
     this.props.onTest(e.target.value);
     e.preventDefault();
@@ -26,10 +30,7 @@ export default React.createClass({
   },
   render: function () {
     const props = this.props,
-      className = [
-        'form',
-        'python-test-input'
-      ];
+      className = commonReact.getClassNameList(this).concat(['form']);
     let label;
 
     if (props.label) {

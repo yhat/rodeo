@@ -75,12 +75,13 @@ export default React.createClass({
     return !commonReact.shallowEqual(this, nextProps);
   },
   render: function () {
-    const props = this.props;
+    const props = this.props,
+      className = commonReact.getClassNameList(this);
 
     console.log('TabbedPane', 'render');
 
     return (
-      <div className="tabbed-pane">
+      <div className={className.join(' ')}>
         <TabList
           active={props.active}
           onDragEnter={props.onTabListDragEnter}

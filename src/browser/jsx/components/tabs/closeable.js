@@ -16,13 +16,9 @@ export default React.createClass({
   },
   render: function () {
     const props = this.props,
-      className = ['fa', 'fa-times', closeTabClass];
+      className = commonReact.getClassNameList(this).concat(['fa', 'fa-times', closeTabClass]);
 
     console.log('Closable', 'render');
-
-    if (props.className) {
-      className.push(props.className);
-    }
 
     return (
       <span

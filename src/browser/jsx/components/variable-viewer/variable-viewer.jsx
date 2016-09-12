@@ -63,6 +63,7 @@ export default React.createClass({
   },
   render: function () {
     const props = this.props,
+      className = commonReact.getClassNameList(this),
       state = this.state,
       style = {
         height: '100%'
@@ -87,7 +88,7 @@ export default React.createClass({
     ));
 
     return (
-      <div className="variable-viewer" style={style}>
+      <div className={className.join(' ')} style={style}>
         <Table
           headerHeight={state.rowHeight}
           height={state.height}

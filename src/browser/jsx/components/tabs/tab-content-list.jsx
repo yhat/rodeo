@@ -1,3 +1,4 @@
+import _ from 'lodash';
 import React from 'react';
 import TabbedPaneItem from './tabbed-pane-item.js';
 import commonReact from '../../services/common-react';
@@ -19,7 +20,8 @@ function isChildActive(child, active, index) {
 export default React.createClass({
   displayName: 'TabContentList',
   propTypes: {
-    active: React.PropTypes.string
+    active: React.PropTypes.string,
+    className: React.PropTypes.string
   },
   shouldComponentUpdate: function (nextProps) {
     console.log('TabContentList', 'shouldComponentUpdate', !commonReact.shallowEqual(this, nextProps));
@@ -31,7 +33,7 @@ export default React.createClass({
     console.log('TabContentList', 'render', props);
 
     return (
-      <div>
+      <div className={commonReact.getClassNameList(this).join(' ')}>
         {React.Children.map(props.children, function (child, i) {
           if (isComponentOfType(child, TabbedPaneItem)) {
             return React.cloneElement(child, {active: isChildActive(child, props.active, i)});

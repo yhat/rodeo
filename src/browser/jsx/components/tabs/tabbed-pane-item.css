@@ -4,4 +4,5 @@
 
 .tabbed-pane-item.active {
   display: block;
+  height: 100%;
 }

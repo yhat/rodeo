@@ -1,3 +1,5 @@
+import _ from 'lodash';
+
 function equal(a, b) {
   if (a === b || (!a && !b)) {
     return true;
@@ -39,6 +41,19 @@ function shallowEqual(instance, newProps, newState) {
   return equal(instance.props, newProps) && equal(instance.state, newState);
 }
 
+function getClassNameList(instance) {
+  const displayName = instance.constructor.displayName,
+    props = instance.props,
+    className = [_.kebabCase(displayName)];
+
+  if (props.className) {
+    className.push(props.className);
+  }
+
+  return className;
+}
+
 export default {
-  shallowEqual
+  shallowEqual,
+  getClassNameList
 };

@@ -61,10 +61,11 @@ export default React.createClass({
   },
   render: function () {
     const props = this.props,
+      className = commonReact.getClassNameList(this),
       style = {
         fontSize: props.fontSize + 'px'
       };
 
-    return <div className="terminal" id={props.id} style={style}></div>;
+    return <div className={className.join(' ')} id={props.id} style={style}></div>;
   }
 });

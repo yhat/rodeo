@@ -19,10 +19,11 @@ export default React.createClass({
     return !commonReact.shallowEqual(this, nextProps);
   },
   render: function () {
-    const props = this.props;
+    const props = this.props,
+      className = commonReact.getClassNameList(this);
 
     return (
-      <div className="sidebar-item" onClick={props.onClick}>{props.children}</div>
+      <div className={className.join(' ')} onClick={props.onClick}>{props.children}</div>
     );
   }
 });

@@ -2,6 +2,7 @@ import _ from 'lodash';
 import React from 'react';
 import FakeTerminal from './fake-terminal.jsx';
 import Marked from '../marked/marked.jsx';
+import commonReact from '../../services/common-react';
 
 export default React.createClass({
   displayName: 'SetupInstallMatplotlib',
@@ -16,16 +17,14 @@ export default React.createClass({
   componentDidMount: function () {
     this.props.onPackageInstall('matplotlib');
   },
+  shouldComponentUpdate: function (nextProps) {
+    return commonReact.shallowEqual(this, nextProps);
+  },
   render: function () {
-    const displayName = this.constructor.displayName,
-      props = this.props,
+    const props = this.props,
       text = props.text,
-      className = [_.kebabCase(displayName)],
+      className = commonReact.getClassNameList(this),
       buttons = [];
-
-    if (props.className) {
-      className.push(props.className);
-    }
 
     if (props.secondaryTerminal.code !== 0) {
       buttons.push(

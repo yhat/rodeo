@@ -1,5 +1,6 @@
 import _ from 'lodash';
 import React from 'react';
+import commonReact from '../../services/common-react';
 
 export default React.createClass({
   displayName: 'SetupReady',
@@ -8,15 +9,13 @@ export default React.createClass({
     onCancel: React.PropTypes.func.isRequired,
     onFinish: React.PropTypes.func.isRequired
   },
+  shouldComponentUpdate: function (nextProps) {
+    return commonReact.shallowEqual(this, nextProps);
+  },
   render: function () {
-    const displayName = this.constructor.displayName,
-      props = this.props,
+    const props = this.props,
       text = props.text,
-      className = [_.kebabCase(displayName)];
-
-    if (props.className) {
-      className.push(props.className);
-    }
+      className = commonReact.getClassNameList(this);
 
     return (
       <div className={className.join(' ')}>
