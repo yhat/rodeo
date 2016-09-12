@@ -3,9 +3,11 @@ ul.tab-list {
   margin: 0;
   padding: 0;
   position: relative;
+  min-height: 30px;
 }
 
 ul.tab-list > li {
   display: inline-block;
   position: relative;
+  min-height: 30px;
 }

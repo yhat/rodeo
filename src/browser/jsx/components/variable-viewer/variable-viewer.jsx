@@ -39,7 +39,7 @@ export default React.createClass({
     globalObserver.on('resize', this.resize, this);
   },
   shouldComponentUpdate: function (nextProps, nextState) {
-    return !commonReact.shallowEqual(this.props, nextProps, nextState);
+    return !commonReact.shallowEqual(this, nextProps, nextState);
   },
   componentWillUnmount: function () {
     globalObserver.off(null, null, this);

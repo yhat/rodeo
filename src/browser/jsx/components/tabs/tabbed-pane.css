@@ -5,19 +5,19 @@
 
 .tabbed-pane .left {
   float: left;
-  min-height: 40px;
+  min-height: 30px;
   min-width: 20px;
 }
 
 .tabbed-pane .right {
   float: right;
-  min-height: 40px;
+  min-height: 30px;
   min-width: 20px;
 }
 
 .tabbed-pane .right .search-text-box {
-  margin-top: 7px;
-  margin-right: 7px;
+  margin-top: 3px;
+  margin-right: 10px;
 }
 
 .tabbed-pane .fa-before:before {

@@ -3,11 +3,9 @@
   text-overflow: ellipsis;
   white-space: nowrap;
   min-width: 50px;
-  padding: 2px;
-  border: 1px solid #dddddd;
-  border-bottom: 2px solid #dddddd;
+  padding: 6px 8px 0;
+  border-bottom: 1px solid #dddddd;
   box-shadow: inset -1px -1px 2px #fff;
-  margin: 1px;
   cursor: pointer;
   transition: all 0.2s;
   position: relative;
@@ -30,7 +28,7 @@
   height: 0;
   width: 100%;
   transition: height 0.2s;
-  background-color: red;
+  background-color: #ed5724;
 }
 
 .tab-item.active .lift {

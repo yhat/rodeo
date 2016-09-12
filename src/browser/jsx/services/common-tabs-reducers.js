@@ -4,11 +4,13 @@ function addItem(state, action, item) {
   const groupId = action.groupId,
     groupIndex = _.findIndex(state, {groupId});
 
-  state = state.updateIn([groupIndex, 'tabs'], tabs => {
-    return tabs.push(item);
-  });
+  if (groupIndex > -1) {
+    state = state.updateIn([groupIndex, 'tabs'], tabs => {
+      return tabs.push(item);
+    });
 
-  state = state.setIn([groupIndex, 'active'], item.id);
+    state = state.setIn([groupIndex, 'active'], item.id);
+  }
 
   return state;
 }
