@@ -3,6 +3,7 @@ import {send} from 'ipc';
 import ace from 'ace';
 import {local} from '../../services/store';
 import {errorCaught} from '../../actions/application';
+import cid from '../../services/cid';
 
 /**
  * @param {string} groupId
@@ -50,8 +51,8 @@ export function saveActiveFileAs(filename) {
   return function (dispatch, getState) {
     const state = getState(),
       group = _.head(state.editorTabGroups),
-      items = group.items,
-      focusedAce = state && _.find(items, {id: group.active}),
+      tabs = group.tabs,
+      focusedAce = state && _.find(tabs, {id: group.active}),
       el = focusedAce && document.querySelector('#' + focusedAce.id),
       aceInstance = el && ace.edit(el),
       content = aceInstance && aceInstance.getSession().getValue();
@@ -68,8 +69,8 @@ export function saveActiveFile() {
   return function (dispatch, getState) {
     const state = getState(),
       group = _.head(state.editorTabGroups),
-      items = group.items,
-      focusedAce = state && _.find(items, {id: group.active}),
+      tabs = group.tabs,
+      focusedAce = state && _.find(tabs, {id: group.active}),
       el = focusedAce && document.querySelector('#' + focusedAce.id),
       aceInstance = el && ace.edit(el),
       filename = focusedAce.filename,
@@ -94,8 +95,8 @@ export function showSaveFileDialogForActiveFile() {
   return function (dispatch, getState) {
     const state = getState(),
       group = _.head(state.editorTabGroups),
-      items = group.items,
-      focusedAce = state && _.find(items, {id: group.active}),
+      tabs = group.tabs,
+      focusedAce = state && _.find(tabs, {id: group.active}),
       title = 'Save File',
       filename = focusedAce && focusedAce.filename,
       defaultPath = filename || (local.get('workingDirectory') || '~');
@@ -107,7 +108,12 @@ export function showSaveFileDialogForActiveFile() {
 }
 
 export function showOpenFileDialogForActiveFile() {
-  return function (dispatch) {
+  return function (dispatch, getState) {
+    const state = getState(),
+      group = _.head(state.editorTabGroups),
+      groupId = group.groupId,
+      id = cid();
+
     return send('openDialog', {
       title: 'Select a file to open',
       defaultPath: local.get('workingDirectory'),
@@ -118,7 +124,7 @@ export function showOpenFileDialogForActiveFile() {
       }
 
       return send('fileStats', filename)
-        .then(stats => dispatch(addFile(filename, stats)));
+        .then(stats => dispatch(add(groupId, id, filename, stats)));
     }).catch(error => dispatch(errorCaught(error)));
   };
 }
@@ -130,7 +136,7 @@ function focusActive() {
 
     group = _.head(state.editorTabGroups);
     groupId = group.groupId;
-    focusedAce = state && _.find(group.items, {id: group.active});
+    focusedAce = state && _.find(group.tabs, {id: group.active});
     el = focusedAce && document.querySelector('#' + focusedAce.id);
     aceInstance = el && ace.edit(el);
     dispatch(focus(groupId, group.active));

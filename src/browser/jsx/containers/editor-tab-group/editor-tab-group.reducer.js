@@ -15,7 +15,7 @@ function getFirst() {
     first.initialValue = initialStory;
   }
 
-  return Immutable([{groupId: 'top-left', active: first.id, items: [first]}]);
+  return Immutable([{groupId: 'top-left', active: first.id, tabs: [first]}]);
 }
 
 function getDefault() {
@@ -60,9 +60,9 @@ function add(state, action) {
  * @returns {Array}
  */
 function closeActive(state, action) {
-  const items = _.head(state).items,
-    focusIndex = _.findIndex(items, {hasFocus: true}),
-    focusItem = items[focusIndex];
+  const tabs = _.head(state).tabs,
+    focusIndex = _.findIndex(tabs, {hasFocus: true}),
+    focusItem = tabs[focusIndex];
 
   return remove(state, _.assign({id: focusItem.id}, action));
 }
@@ -75,11 +75,11 @@ function closeActive(state, action) {
  */
 function shiftFocus(state, action, move) {
   state = _.cloneDeep(state);
-  const items = _.head(state).items,
-    focusIndex = _.findIndex(items, {hasFocus: true}),
-    focusItem = items[focusIndex],
+  const tabs = _.head(state).tabs,
+    focusIndex = _.findIndex(tabs, {hasFocus: true}),
+    focusItem = tabs[focusIndex],
     newFocusIndex = focusIndex + move,
-    newFocusItem = items[newFocusIndex];
+    newFocusItem = tabs[newFocusIndex];
 
   if (newFocusItem) {
     focusItem.hasFocus = false;
@@ -103,9 +103,9 @@ function changeProperty(state, propertyName, value, transform) {
     value = transform(value);
   }
 
-  const items = _.head(state).items;
+  const tabs = _.head(state).tabs;
 
-  _.each(items, (item) => _.set(item, propertyName, value));
+  _.each(tabs, (item) => _.set(item, propertyName, value));
 
   return state;
 }
@@ -114,8 +114,8 @@ function fileSaved(state, action) {
   if (action.filename) {
     state = _.cloneDeep(state);
 
-    const items = _.head(state).items,
-      focusedAce = state && _.find(items, {hasFocus: true});
+    const tabs = _.head(state).tabs,
+      focusedAce = state && _.find(tabs, {hasFocus: true});
 
     focusedAce.filename = action.filename;
     focusedAce.label = _.last(action.filename.split(/[\\\/]/));

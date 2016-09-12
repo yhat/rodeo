@@ -30,11 +30,14 @@ export default React.createClass({
     onTabDragEnd: React.PropTypes.func,
     onTabDragStart: React.PropTypes.func
   },
-  shouldComponentUpdate(nextProps, nextState) {
-    return !commonReact.shallowCompare(this, nextProps, nextState);
+  shouldComponentUpdate(nextProps) {
+    console.log('TabList', 'shouldComponentUpdate', !commonReact.shallowEqual(this, nextProps));
+    return !commonReact.shallowEqual(this, nextProps);
   },
   render: function () {
     const props = this.props;
+
+    console.log('TabList', 'render');
 
     return (
       <ul

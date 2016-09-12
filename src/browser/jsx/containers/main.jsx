@@ -40,6 +40,8 @@ export default React.createClass({
     return {store};
   },
   render: function () {
+    console.log('Main', 'render');
+
     return (
       <Provider store={store}>
         <FullScreen row>

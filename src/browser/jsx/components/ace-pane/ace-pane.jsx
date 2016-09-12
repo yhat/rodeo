@@ -91,7 +91,7 @@ export default React.createClass({
     this.loadContentFromFile();
   },
   shouldComponentUpdate(nextProps, nextState) {
-    return !commonReact.shallowCompare(this, nextProps, nextState);
+    return !commonReact.shallowEqual(this, nextProps, nextState);
   },
   componentDidUpdate: function (oldProps) {
     const props = this.props,

@@ -2,8 +2,13 @@ import _ from 'lodash';
 import cid from '../../services/cid';
 import mapReducers from '../../services/map-reducers';
 
-const initialState = [],
-  maxPlots = 50;
+const maxPlots = 50;
+
+export function getInitialState() {
+  return {
+    plots: []
+  };
+}
 
 function getDefault() {
   return {
@@ -84,4 +89,4 @@ export default mapReducers({
   REMOVE_ACTIVE_PLOT: removeActive,
   FOCUS_PLOT: focus,
   REMOVE_PLOT: remove
-}, initialState);
+}, getInitialState());

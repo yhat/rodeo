@@ -57,7 +57,7 @@ export default React.createClass({
     props.onStart(jqConsole);
   },
   shouldComponentUpdate: function (nextProps) {
-    return commonReact.shallowCompare(this, nextProps);
+    return !commonReact.shallowEqual(this, nextProps);
   },
   render: function () {
     const props = this.props,

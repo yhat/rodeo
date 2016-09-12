@@ -79,6 +79,17 @@ export default combineReducers({
    */
   packageSearch,
   /**
+   *
+   * list! All the plots we know about, does _not_ store the actual plot, but refers to images or html files
+   * served from below.
+   */
+  plots,
+  /**
+   * singleton! Only one file view should ever be on the screen at the time for the sake of other components
+   * to interact and change themselves based on the state of the fileview.
+   */
+  fileView,
+  /**
    * Unneeded. This just logs all the actions that pass through.
    */
   broadcast

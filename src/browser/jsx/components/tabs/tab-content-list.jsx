@@ -1,6 +1,6 @@
 import React from 'react';
 import TabbedPaneItem from './tabbed-pane-item.js';
-import SwipeTransitionGroup from './swipe-transition-group';
+import commonReact from '../../services/common-react';
 
 /**
  * @param {*} component
@@ -21,17 +21,23 @@ export default React.createClass({
   propTypes: {
     active: React.PropTypes.string
   },
+  shouldComponentUpdate: function (nextProps) {
+    console.log('TabContentList', 'shouldComponentUpdate', !commonReact.shallowEqual(this, nextProps));
+    return !commonReact.shallowEqual(this, nextProps);
+  },
   render: function () {
     const props = this.props;
 
+    console.log('TabContentList', 'render', props);
+
     return (
-      <SwipeTransitionGroup active={props.active}>
+      <div>
         {React.Children.map(props.children, function (child, i) {
           if (isComponentOfType(child, TabbedPaneItem)) {
             return React.cloneElement(child, {active: isChildActive(child, props.active, i)});
           }
         })}
-      </SwipeTransitionGroup>
+      </div>
     );
   }
 });

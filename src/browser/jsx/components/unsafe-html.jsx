@@ -21,7 +21,7 @@ export default React.createClass({
     }
   },
   shouldComponentUpdate(nextProps, nextState) {
-    return !commonReact.shallowCompare(this, nextProps, nextState);
+    return !commonReact.shallowEqual(this, nextProps, nextState);
   },
   render: function () {
     return <iframe frameBorder="0" id={this.props.id} sandbox="allow-scripts"></iframe>;

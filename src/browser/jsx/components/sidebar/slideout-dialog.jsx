@@ -15,8 +15,8 @@ export default React.createClass({
     isExpanded: React.PropTypes.bool,
     url: React.PropTypes.string
   },
-  shouldComponentUpdate(nextProps, nextState) {
-    return !commonReact.shallowCompare(this, nextProps, nextState);
+  shouldComponentUpdate(nextProps) {
+    return !commonReact.shallowEqual(this, nextProps);
   },
   render: function () {
     const props = this.props,

@@ -3,9 +3,9 @@ import React from 'react';
 import ReactDOM from 'react-dom';
 import {Table, Column, Cell} from 'fixed-data-table-2';
 import 'fixed-data-table-2/dist/fixed-data-table.min.css';
-import shallowEqual from '../../services/shallow-equal';
 import globalObserver from '../../services/global-observer';
 import './variable-viewer.css';
+import commonReact from '../../services/common-react';
 
 const structuredVariableTypes = ['DataFrame'];
 
@@ -39,9 +39,7 @@ export default React.createClass({
     globalObserver.on('resize', this.resize, this);
   },
   shouldComponentUpdate: function (nextProps, nextState) {
-    // children don't matter for this component
-
-    return !shallowEqual(this.props, nextProps, _.isFunction) || shallowEqual(this.state, nextState);
+    return !commonReact.shallowEqual(this.props, nextProps, nextState);
   },
   componentWillUnmount: function () {
     globalObserver.off(null, null, this);

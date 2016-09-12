@@ -1,30 +1,20 @@
 import _ from 'lodash';
 import React from 'react';
 import {connect} from 'react-redux';
-
-/**
- * @param {object} state
- * @returns {object}
- */
-function mapStateToProps(state) {
-  // pick the first terminal (we can add more later to this view?)
-  return _.pick(_.head(state.terminals) || {}, ['history']);
-}
+import commonReact from '../services/common-react';
 
 /**
  * @class PackagesViewer
  * @extends ReactComponent
  */
-export default connect(mapStateToProps)(React.createClass({
+export default connect()(React.createClass({
   displayName: 'HistoryViewer',
   propTypes: {
-    filter: React.PropTypes.string,
-    history: React.PropTypes.array
+    filter: React.PropTypes.string.isRequired,
+    history: React.PropTypes.array.isRequired
   },
-  getDefaultProps: function () {
-    return {
-      filter: ''
-    };
+  shouldComponentUpdate: function (nextProps) {
+    return !commonReact.shallowEqual(this, nextProps);
   },
   render: function () {
     const props = this.props,

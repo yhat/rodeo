@@ -28,7 +28,7 @@ function mapDispatchToProps(dispatch) {
  * @property props
  * @property {Array} props.plots
  */
-export default connect(state => state, mapDispatchToProps)(React.createClass({
+export default connect(null, mapDispatchToProps)(React.createClass({
   displayName: 'PlotViewer',
   render: function () {
     return <PlotPreview {...this.props}/>;

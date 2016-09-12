@@ -19,8 +19,8 @@ export default React.createClass({
     onItemSave: React.PropTypes.func.isRequired,
     plots: React.PropTypes.array.isRequired
   },
-  shouldComponentUpdate(nextProps, nextState) {
-    return !commonReact.shallowCompare(this, nextProps, nextState);
+  shouldComponentUpdate(nextProps) {
+    return !commonReact.shallowEqual(this, nextProps);
   },
   render: function () {
     const props = this.props,

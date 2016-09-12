@@ -2,7 +2,7 @@ import _ from 'lodash';
 import bluebird from 'bluebird';
 import ipc from 'ipc';
 import pypi from '../../services/pypi';
-import terminalActions from '../terminal/terminal.actions';
+import terminalActions from '../terminal-tab-group/terminal-tab-group.actions';
 import recommendedPackages from './recommended.yml';
 
 function list() {

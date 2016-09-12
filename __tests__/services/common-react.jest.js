@@ -1,7 +1,6 @@
 /* globals describe, it, expect, jest */
 
 jest.unmock('../../src/browser/jsx/services/common-react');
-jest.unmock('../../src/browser/jsx/services/shallow-equal');
 import _ from 'lodash';
 import lib from '../../src/browser/jsx/services/common-react';
 

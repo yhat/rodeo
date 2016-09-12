@@ -4,6 +4,7 @@ import TabbedPaneItem from './tabbed-pane-item.js';
 import TabContentList from './tab-content-list.jsx';
 import './tabbed-pane.css';
 import _ from 'lodash';
+import commonReact from '../../services/common-react';
 
 /**
  * @param {ReactElement} component
@@ -53,8 +54,8 @@ function getTabIds(children) {
 export default React.createClass({
   displayName: 'TabbedPane',
   propTypes: {
-    active: React.PropTypes.string,
-    focusable: React.PropTypes.bool,
+    active: React.PropTypes.string.isRequired,
+    focusable: React.PropTypes.bool.isRequired,
     onTabClick: React.PropTypes.func.isRequired,
     onTabClose: React.PropTypes.func.isRequired, // should close tab if closeable
     onTabDragEnd: React.PropTypes.func.isRequired, // should be able to move and rearrange
@@ -69,8 +70,14 @@ export default React.createClass({
       focusable: true
     };
   },
+  shouldComponentUpdate: function (nextProps) {
+    console.log('TabbedPane', 'shouldComponentUpdate', !commonReact.shallowEqual(this, nextProps));
+    return !commonReact.shallowEqual(this, nextProps);
+  },
   render: function () {
     const props = this.props;
+
+    console.log('TabbedPane', 'render');
 
     return (
       <div className="tabbed-pane">
@@ -85,9 +92,7 @@ export default React.createClass({
           onTabDragEnd={props.onTabDragEnd}
           onTabDragStart={props.onTabDragStart}
         >{props.children}</TabList>
-        <TabContentList
-          active={props.active}
-        >{props.children}</TabContentList>
+        <TabContentList active={props.active}>{props.children}</TabContentList>
       </div>
     );
   }

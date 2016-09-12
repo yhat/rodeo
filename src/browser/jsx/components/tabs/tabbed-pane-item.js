@@ -1,5 +1,6 @@
 import React from 'react';
 import './tabbed-pane-item.css';
+import commonReact from '../../services/common-react';
 
 /**
  * @class TabbedPaneItem
@@ -15,9 +16,15 @@ export default React.createClass({
     id: React.PropTypes.string,
     label: React.PropTypes.string.isRequired
   },
+  shouldComponentUpdate: function (nextProps) {
+    console.log('TabbedPaneItem', 'shouldComponentUpdate', !commonReact.shallowEqual(this, nextProps));
+    return !commonReact.shallowEqual(this, nextProps);
+  },
   render: function () {
     const props = this.props,
       className = ['tabbed-pane-item'];
+
+    console.log('TabbedPaneItem', 'render');
 
     if (props.active) {
       className.push('active');

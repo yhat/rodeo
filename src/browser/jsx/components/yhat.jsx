@@ -9,7 +9,7 @@ import commonReact from '../services/common-react';
 export default React.createClass({
   displayName: 'Yhat',
   shouldComponentUpdate(nextProps, nextState) {
-    return !commonReact.shallowCompare(this, nextProps, nextState);
+    return !commonReact.shallowEqual(this, nextProps, nextState);
   },
   handleYhat: () => send('openExternal', 'http://yhat.com/').catch(error => console.error(error)),
   render: function () {

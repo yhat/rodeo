@@ -2,12 +2,14 @@ import _ from 'lodash';
 import cid from '../../services/cid';
 import mapReducers from '../../services/map-reducers';
 
-const initialState = {
-  id: cid(),
-  path: '~',
-  files: [],
-  showDotFiles: false
-};
+export function getInitialState() {
+  return {
+    id: cid(),
+    path: '~',
+    files: [],
+    showDotFiles: false
+  };
+}
 
 function setViewedPath(state, action) {
   console.log('setViewedPath', action);
@@ -80,4 +82,4 @@ export default mapReducers({
   LIST_VIEWED_FILES: setFileList,
   SELECT_VIEWED_FILE: selectFile,
   PREFERENCE_CHANGE_SAVED: changePreference
-}, initialState);
+}, getInitialState());

@@ -5,15 +5,7 @@ import TabbedPane from '../../components/tabs/tabbed-pane.js';
 import TabbedPaneItem from '../../components/tabs/tabbed-pane-item.js';
 import Terminal from '../../components/terminal/terminal.jsx';
 import actions from './terminal-tab-group.actions';
-
-/**
- * @param {object} state  New state after an action occurred
- * @param {object} ownProps  Props given to this object from parent
- * @returns {object}
- */
-function mapStateToProps(state, ownProps) {
-  return _.find(state.terminalTabGroups, {groupId: ownProps.id});
-}
+import commonReact from '../../services/common-react';
 
 /**
  * @param {function} dispatch
@@ -21,10 +13,10 @@ function mapStateToProps(state, ownProps) {
  * @returns {object}
  */
 function mapDispatchToProps(dispatch, ownProps) {
-  const groupId = ownProps.id;
+  const groupId = ownProps.groupId;
 
   return {
-    onFocusTab: id => actions.focus(groupId, id)
+    onFocusTab: id => dispatch(actions.focus(groupId, id))
   };
 }
 
@@ -34,24 +26,22 @@ function mapDispatchToProps(dispatch, ownProps) {
  * @property props
  * @property state
  */
-export default connect(mapStateToProps, mapDispatchToProps)(React.createClass({
-  displayName: 'FreeTabGroup',
+export default connect(null, mapDispatchToProps)(React.createClass({
+  displayName: 'TerminalTabGroup',
   propTypes: {
     active: React.PropTypes.string.isRequired,
     disabled: React.PropTypes.bool,
-    id: React.PropTypes.string.isRequired,
+    groupId: React.PropTypes.string.isRequired,
     tabs: React.PropTypes.array.isRequired
   },
   shouldComponentUpdate: function (nextProps) {
-    const props = this.props;
-
-    // if the references changed, then some item has changed and needs a re-render
-    return (props.active !== nextProps.active) ||
-      (props.disabled !== props.disabled) ||
-      (props.items !== nextProps.items);
+    console.log('TerminalTabGroup', 'shouldComponentUpdate', !commonReact.shallowEqual(this, nextProps));
+    return !commonReact.shallowEqual(this, nextProps);
   },
   handleNoop: _.noop,
   render: function () {
+    console.log('TerminalTabGroup', 'render');
+
     const props = this.props,
       types = {
         terminal: options => (
@@ -65,9 +55,10 @@ export default connect(mapStateToProps, mapDispatchToProps)(React.createClass({
         )
       };
 
+    console.log('TerminalTabGroup', 'render2');
+
     return (
       <TabbedPane
-        active={props.active}
         onTabClick={props.onFocusTab}
         onTabClose={this.handleNoop}
         onTabDragEnd={this.handleNoop}
@@ -76,15 +67,18 @@ export default connect(mapStateToProps, mapDispatchToProps)(React.createClass({
         onTabListDragLeave={this.handleNoop}
         onTabListDragOver={this.handleNoop}
         onTabListDrop={this.handleNoop}
-      >{props.items.map(function (item) {
+        {...props}
+      >{props.tabs.map(function (tab) {
+        console.log('TerminalTabGroup', 'render3');
+
         return (
           <TabbedPaneItem
-            closeable={item.closeable}
-            icon={item.icon}
-            id={item.id}
-            key={item.id}
-            label={item.label}
-          >{types[item.contentType](item.options)}</TabbedPaneItem>
+            closeable={tab.closeable}
+            icon={tab.icon}
+            id={tab.id}
+            key={tab.id}
+            label={tab.label}
+          >{types[tab.contentType](tab.options)}</TabbedPaneItem>
         );
       })}</TabbedPane>
     );

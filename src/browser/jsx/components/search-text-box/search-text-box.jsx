@@ -15,13 +15,8 @@ export default React.createClass({
     onChange: React.PropTypes.func,
     placeholder: React.PropTypes.string
   },
-  getDefaultProps: function () {
-    return {
-      onChange: _.noop
-    };
-  },
-  shouldComponentUpdate(nextProps, nextState) {
-    return !commonReact.shallowCompare(this, nextProps, nextState);
+  shouldComponentUpdate(nextProps) {
+    return !commonReact.shallowEqual(this, nextProps);
   },
   handleFilterChange: _.debounce(function () {
     const value = this.refs.search.value;

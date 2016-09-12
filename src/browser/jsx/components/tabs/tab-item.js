@@ -29,14 +29,17 @@ export default React.createClass({
       focusable: true
     };
   },
-  shouldComponentUpdate(nextProps, nextState) {
-    return !commonReact.shallowCompare(this, nextProps, nextState);
+  shouldComponentUpdate(nextProps) {
+    console.log('TabItem', 'shouldComponentUpdate', !commonReact.shallowEqual(this, nextProps));
+    return !commonReact.shallowEqual(this, nextProps);
   },
   render: function () {
     let closeable;
     const props = this.props,
       className = [tabClass],
       iconClassName = [];
+
+    console.log('TabItem', 'render');
 
     if (props.icon) {
       iconClassName.push('tab-label', 'fa', 'fa-before', 'fa-' + props.icon);

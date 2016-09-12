@@ -44,7 +44,7 @@ import commonTabReducers from '../../services/common-tabs-reducers';
 const initialState = getDefault();
 
 function getDefault() {
-  return Immutable.from([]);
+  return Immutable.from([{}]);
 }
 
 /**

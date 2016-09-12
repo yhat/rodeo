@@ -9,6 +9,7 @@ import editorTabGroupActions from '../../containers/editor-tab-group/editor-tab-
 import dialogActions from '../../actions/dialogs';
 import kernelActions from '../../actions/kernel';
 import terminalActions from '../terminal-tab-group/terminal-tab-group.actions';
+import commonReact from '../../services/common-react';
 
 /**
  * @param {Element} el
@@ -22,26 +23,20 @@ function focusAcePaneInActiveElement(el) {
 }
 
 /**
- * @param {object} state  New state after an action occurred
- * @param {object} ownProps  Props given to this object from parent
- * @returns {object}
- */
-function mapStateToProps(state, ownProps) {
-  return _.find(state.editorTabGroups, {groupId: ownProps.id});
-}
-
-/**
  * @param {function} dispatch
+ * @param {object} ownProps
  * @returns {object}
  */
-function mapDispatchToProps(dispatch) {
+function mapDispatchToProps(dispatch, ownProps) {
+  const groupId = ownProps.groupId;
+
   return {
-    onAddAcePane: () => dispatch(editorTabGroupActions.addFile()),
+    onAddAcePane: () => dispatch(editorTabGroupActions.add(groupId)),
     onInterrupt: () => dispatch(terminalActions.interrupt()),
-    onFocusTab: (id) => dispatch(editorTabGroupActions.focusFile(id)),
+    onFocusTab: (id) => dispatch(editorTabGroupActions.focus(groupId, id)),
     onLiftText: (text, context) => dispatch(terminalActions.addInputText(context)),
     onOpenPreferences: () => dispatch(dialogActions.showPreferences()),
-    onRemoveAcePane: (id) => dispatch(editorTabGroupActions.closeFile(id)),
+    onRemoveAcePane: (id) => dispatch(editorTabGroupActions.close(groupId, id)),
     onRunActiveAcePane: () => dispatch(kernelActions.executeActiveFileInActiveConsole()),
     onRunActiveAcePaneSelection: () => dispatch(kernelActions.executeActiveFileSelectionInActiveConsole()),
     onRodeo: () => dispatch(dialogActions.showAboutRodeo())
@@ -49,37 +44,21 @@ function mapDispatchToProps(dispatch) {
 }
 
 /**
- * @class FreeTabGroup
+ * @class EditorTabGroup
  * @extends ReactComponent
  * @property props
  */
-export default connect(mapStateToProps, mapDispatchToProps)(React.createClass({
-  displayName: 'FreeTabGroup',
+export default connect(null, mapDispatchToProps)(React.createClass({
+  displayName: 'EditorTabGroup',
   propTypes: {
     active: React.PropTypes.string.isRequired,
     disabled: React.PropTypes.bool,
-    id: React.PropTypes.string.isRequired,
+    groupId: React.PropTypes.string.isRequired,
     tabs: React.PropTypes.array.isRequired
   },
-  getDefaultProps: function () {
-    return {
-      onAddAcePane: _.noop,
-      onInterrupt: _.noop,
-      onFocusTab: _.noop,
-      onLiftText: _.noop,
-      onOpenPreferences: _.noop,
-      onRemoveAcePane: _.noop,
-      onRunActiveAcePane: _.noop,
-      onRodeo: _.noop
-    };
-  },
-  shouldComponentUpdate: function (nextProps) {
-    const props = this.props;
-
-    // if the references changed, then some item has changed and needs a re-render
-    return (props.active !== nextProps.active) ||
-      (props.disabled !== props.disabled) ||
-      (props.items !== nextProps.items);
+  shouldComponentUpdate(nextProps) {
+    console.log('EditorTabGroup', 'shouldComponentUpdate', !commonReact.shallowEqual(this, nextProps));
+    return !commonReact.shallowEqual(this, nextProps);
   },
   handleTabClick: function (id) {
     const props = this.props;
@@ -89,8 +68,8 @@ export default connect(mapStateToProps, mapDispatchToProps)(React.createClass({
   },
   handleTabClose: function (id) {
     const props = this.props,
-      items = props.items,
-      targetPane = _.find(items, {id});
+      tabs = props.tabs,
+      targetPane = _.find(tabs, {id});
 
     props.onRemoveAcePane(targetPane.id);
   },
@@ -101,13 +80,13 @@ export default connect(mapStateToProps, mapDispatchToProps)(React.createClass({
    */
   handleTabDragStart: function (event, id) {
     const el = getParentNodeOf(event.target, 'li'),
-      item = _.find(this.props.items, {id});
+      tab = _.find(this.props.tabs, {id});
 
-    if (item && item.filename) {
+    if (tab && tab.filename) {
       event.dataTransfer.effectAllowed = 'move';
       event.dataTransfer.setData('text/html', el.outerHTML);
-      event.dataTransfer.setData('text/uri-list', item.filename);  // used by outside file system viewers
-      event.dataTransfer.setData('text/plain', item.filename);  //  used by outside file system viewers
+      event.dataTransfer.setData('text/uri-list', tab.filename);  // used by outside file system viewers
+      event.dataTransfer.setData('text/plain', tab.filename);  //  used by outside file system viewers
     } else {
       // prevent default in this case means to _deny_ the start of the drag
       event.preventDefault();
@@ -129,10 +108,10 @@ export default connect(mapStateToProps, mapDispatchToProps)(React.createClass({
     const targetEl = getParentNodeOf(event.target, 'li'),
       targetId = targetEl && targetEl.getAttribute('data-child'),
       props = this.props,
-      items = props.items,
-      targetAcePane = _.find(items, {id: targetId}),
+      tabs = props.tabs,
+      targetAcePane = _.find(tabs, {id: targetId}),
       sourceId = event.dataTransfer.getData('rodeo/cid'),
-      sourceAcePane = _.find(items, {id: sourceId});
+      sourceAcePane = _.find(tabs, {id: sourceId});
 
     console.log('handleTabListDrop', {targetAcePane, sourceAcePane});
   },
@@ -164,6 +143,8 @@ export default connect(mapStateToProps, mapDispatchToProps)(React.createClass({
         )
       };
 
+    console.log('EditorTabGroup', 'render', props);
+
     return (
       <TabbedPane
         focusable={!props.disabled}
@@ -176,6 +157,7 @@ export default connect(mapStateToProps, mapDispatchToProps)(React.createClass({
         onTabListDragOver={this.handleTabListDragOver}
         onTabListDrop={this.handleTabListDrop}
         ref="editorTabs"
+        {...props}
       >
         <li><a className="icon-overflowing not-tab" onClick={props.onRodeo}><span /></a></li>
         <li className="right">
@@ -191,15 +173,15 @@ export default connect(mapStateToProps, mapDispatchToProps)(React.createClass({
           </a>
         </li>
 
-        {props.items.map(function (item) {
+        {props.tabs.map(function (tab) {
           return (
             <TabbedPaneItem
               closeable
-              icon={item.icon}
-              id={item.id}
-              key={item.id}
-              label={item.label}
-            >{types[item.contentType](item.options)}</TabbedPaneItem>
+              icon={tab.icon}
+              id={tab.id}
+              key={tab.id}
+              label={tab.label}
+            >{types[tab.contentType](tab.options)}</TabbedPaneItem>
           );
         })}
 

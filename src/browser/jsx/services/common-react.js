@@ -1,5 +1,31 @@
-import _ from 'lodash';
-import shallowEqual from './shallow-equal';
+function equal(a, b) {
+  if (a === b || (!a && !b)) {
+    return true;
+  }
+
+  const aKeys = Object.keys(a),
+    bKeys = Object.keys(b);
+
+  if (aKeys.length !== bKeys.length) {
+    return false;
+  }
+
+  for (let i = 0; i < aKeys.length; i++) {
+    const key = aKeys[i],
+      aValue = a[key],
+      // the 'children' key doesn't matter; it's not in our control
+      isChildren = key === 'children',
+      // functions don't matter either
+      isFunction = typeof aValue === 'function',
+      isValueEqual = aValue === b[key];
+
+    if (!isChildren && !isFunction && !isValueEqual) {
+      return false;
+    }
+  }
+
+  return true;
+}
 
 /**
  * @param {ReactComponent} instance
@@ -9,17 +35,10 @@ import shallowEqual from './shallow-equal';
  * @see https://facebook.github.io/react/docs/shallow-compare.html
  * @see https://github.com/garbles/shallow-compare-without-functions/
  */
-function shallowCompare(instance, newProps, newState) {
-  if (newProps && newProps.children) {
-    // Always update if the parent is updating, because we don't know about our children's state.
-    //   To fix this, we need immutable.js
-    return false;
-  }
-
-  return shallowEqual(instance.props, newProps, _.isFunction) &&
-    shallowEqual(instance.state, newState, _.isFunction);
+function shallowEqual(instance, newProps, newState) {
+  return equal(instance.props, newProps) && equal(instance.state, newState);
 }
 
 export default {
-  shallowCompare
+  shallowEqual
 };

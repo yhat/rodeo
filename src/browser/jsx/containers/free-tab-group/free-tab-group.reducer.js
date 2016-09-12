@@ -43,9 +43,9 @@ function moveTab(oldState, action) {
   // if moving to new group and item had focus, move focus to left item
   if (toGroup !== fromGroup && removedItems && removedItems.length && removedItems[0].id === fromGroup.active) {
     if (fromGroupItemIndex === 0 && fromGroup.tabs.length) {
-      fromGroup.active = fromGroup.items[0].id;
-    } else if (fromGroup.items[fromGroupItemIndex - 1]) {
-      fromGroup.active = fromGroup.items[fromGroupItemIndex - 1].id;
+      fromGroup.active = fromGroup.tabs[0].id;
+    } else if (fromGroup.tabs[fromGroupItemIndex - 1]) {
+      fromGroup.active = fromGroup.tabs[fromGroupItemIndex - 1].id;
     }
   }
 

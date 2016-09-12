@@ -15,13 +15,8 @@ export default React.createClass({
     label: React.PropTypes.string,
     onClick: React.PropTypes.func
   },
-  getDefaultProps: function () {
-    return {
-      onClick: _.noop
-    };
-  },
-  shouldComponentUpdate(nextProps, nextState) {
-    return !commonReact.shallowCompare(this, nextProps, nextState);
+  shouldComponentUpdate(nextProps) {
+    return !commonReact.shallowEqual(this, nextProps);
   },
   render: function () {
     const props = this.props;
