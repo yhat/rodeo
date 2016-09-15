@@ -29,4 +29,15 @@ describe(__filename, function () {
       expect(result).toEqual([{groupId: 'a', tabs: [{id: 'b', content: {c: 4}}]}]);
     });
   });
+
+  describe('focus', function () {
+    it('focuses', function () {
+      const state = Immutable([{groupId: 'a', tabs: [{id: 'b'}]}]),
+        action = {groupId: 'a', id: 'b'};
+
+      let result = lib.focus(state, action);
+
+      expect(result).toEqual([{groupId: 'a', active: 'b', tabs: [{id: 'b'}]}]);
+    });
+  });
 });

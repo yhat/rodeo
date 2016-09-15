@@ -21,8 +21,6 @@ function addItem(state, action, item) {
  * @returns {Immutable}
  */
 function focus(state, action) {
-  console.log('common-tabs-reducers', 'focus', action);
-
   const groupId = action.groupId,
     groupIndex = _.findIndex(state, {groupId});
 
