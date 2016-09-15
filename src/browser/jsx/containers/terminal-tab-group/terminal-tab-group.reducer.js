@@ -1,7 +1,7 @@
 import _ from 'lodash';
 import Immutable from 'seamless-immutable';
 import mapReducers from '../../services/map-reducers';
-import commonTabReducers from '../../services/common-tabs-reducers';
+import commonTabsReducers from '../../services/common-tabs-reducers';
 
 /*
  Available classes:
@@ -65,39 +65,17 @@ function updateAllTerminalsWithKernel(state, action) {
   return state;
 }
 
-/**
- *
- * @param {Immutable} state
- * @param {string} propertyName
- * @param {*} value
- * @param {function} [transform]
- * @returns {object}
- */
-function changeProperty(state, propertyName, value, transform) {
-  if (transform) {
-    value = transform(value);
-  }
-
-  _.each(state, (group, groupIndex) => {
-    _.each(group.tabs, (tab, tabIndex) => {
-      state = state.setIn([groupIndex, 'tabs', tabIndex, 'content', propertyName], value);
-    });
-  });
-
-  return state;
-}
-
 function changePreference(state, action) {
   switch (action.key) {
-    case 'fontSize': return changeProperty(state, 'fontSize', action.value, _.toNumber);
-    case 'pythonCmd': return changeProperty(state, 'cmd', action.value);
-    case 'pythonShell': return changeProperty(state, 'shell', action.value);
+    case 'fontSize': return commonTabsReducers.changeProperty(state, 'fontSize', action.value, _.toNumber);
+    case 'pythonCmd': return commonTabsReducers.changeProperty(state, 'cmd', action.value);
+    case 'pythonShell': return commonTabsReducers.changeProperty(state, 'shell', action.value);
     default: return state;
   }
 }
 
 export default mapReducers({
-  FOCUS_TAB: commonTabReducers.focus,
+  FOCUS_TAB: commonTabsReducers.focus,
   KERNEL_DETECTED: updateAllTerminalsWithKernel,
   CHANGE_PREFERENCE: changePreference
 }, initialState);

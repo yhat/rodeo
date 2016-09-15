@@ -85,9 +85,32 @@ function closeActive(state, action) {
   return state;
 }
 
+/**
+ *
+ * @param {Immutable} state
+ * @param {string} propertyName
+ * @param {*} value
+ * @param {function} [transform]
+ * @returns {object}
+ */
+function changeProperty(state, propertyName, value, transform) {
+  if (transform) {
+    value = transform(value);
+  }
+
+  _.each(state, (group, groupIndex) => {
+    _.each(group.tabs, (tab, tabIndex) => {
+      state = state.setIn([groupIndex, 'tabs', tabIndex, 'content', propertyName], value);
+    });
+  });
+
+  return state;
+}
+
 export default {
   addItem,
   close,
   closeActive,
-  focus
+  focus,
+  changeProperty
 };

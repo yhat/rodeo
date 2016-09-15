@@ -127,7 +127,7 @@ function changeProperty(state, propertyName, value, transform) {
 
   const tabs = _.head(state).tabs;
 
-  _.each(tabs, (item) => _.set(item.content, propertyName, value));
+  _.each(tabs, (item) => _.set(item, content, propertyName, value));
 
   return state;
 }
@@ -150,11 +150,11 @@ function changePreference(state, action) {
   const change = action.change;
 
   switch (change.key) {
-    case 'fontSize': return changeProperty(state, 'fontSize', change.value, _.toNumber);
-    case 'aceTabSpaces': return changeProperty(state, 'tabSize', change.value, _.toNumber);
-    case 'aceKeyBindings': return changeProperty(state, 'keyBindings', change.value);
-    case 'aceUseSoftTabs': return changeProperty(state, 'useSoftTabs', change.value);
-    case 'aceTheme': return changeProperty(state, 'theme', change.value);
+    case 'fontSize': return commonTabsReducers.changeProperty(state, 'fontSize', change.value, _.toNumber);
+    case 'aceTabSpaces': return commonTabsReducers.changeProperty(state, 'tabSize', change.value, _.toNumber);
+    case 'aceKeyBindings': return commonTabsReducers.changeProperty(state, 'keyBindings', change.value);
+    case 'aceUseSoftTabs': return commonTabsReducers.changeProperty(state, 'useSoftTabs', change.value);
+    case 'aceTheme': return commonTabsReducers.changeProperty(state, 'theme', change.value);
     default: return state;
   }
 }
