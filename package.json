@@ -13,7 +13,7 @@
   "scripts": {
     "start": "electron app",
     "hot-server": "node -r babel-register server.js",
-    "test": "./node_modules/.bin/jest src/browser",
+    "test": "./node_modules/.bin/jest src/browser --coverage",
     "dist:all": "./scripts/osx/dist-all.sh",
     "dist:osx": "./scripts/osx/dist-osx.sh",
     "dist:win": "./scripts/osx/dist-win.sh",
@@ -134,19 +134,10 @@
     "yargs": "^4.6.0"
   },
   "jest": {
-    "automock": false,
     "moduleNameMapper": {
       "^ace$": "<rootDir>/__mocks__/ace.js",
       "(raw!.*|.*css)": "<rootDir>/__mocks__/generic-stub.js"
     },
-    "testRegex": "/src/browser/.*\\.test\\.js$",
-    "unmockedModulePathPatterns": [
-      "<rootDir>/node_modules/bluebird/",
-      "<rootDir>/node_modules/lodash/",
-      "<rootDir>/node_modules/seamless-immutable/",
-      "<rootDir>/node_modules/react/",
-      "<rootDir>/node_modules/react-dom/",
-      "<rootDir>/node_modules/react-addons-test-utils/"
-    ]
+    "testRegex": "/src/browser/.*\\.test\\.js$"
   }
 }

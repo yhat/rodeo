@@ -63,4 +63,35 @@ describe(__filename, () => {
       expect(result[0].active).toEqual('b');
     });
   });
+
+  describe('CLOSE_ACTIVE_TAB', () => {
+    it('does not close only tab', function () {
+      const state = Immutable([{groupId: 'a', active: 'b', tabs: [{id: 'b'}]}]),
+        action = {type: 'CLOSE_ACTIVE_TAB', groupId: 'a'};
+
+      let result = lib(state, action);
+
+      expect(result[0].tabs).toEqual([{id: 'b'}]);
+    });
+
+    it('closes one tab if multiple', function () {
+      const state = Immutable([{groupId: 'a', active: 'b', tabs: [{id: 'b'}, {id: 'c'}]}]),
+        action = {type: 'CLOSE_ACTIVE_TAB', groupId: 'a'};
+
+      let result = lib(state, action);
+
+      expect(result[0].tabs).toEqual([{id: 'c'}]);
+    });
+  });
+
+  describe('CLOSE_ACTIVE_FILE', function () {
+    it('closes tab in first group without saying groupId', () => {
+      const state = Immutable([{groupId: 'a', active: 'b', tabs: [{id: 'b'}, {id: 'c'}]}]),
+        action = {type: 'CLOSE_ACTIVE_FILE'};
+
+      let result = lib(state, action);
+
+      expect(result[0].tabs).toEqual([{id: 'c'}]);
+    });
+  });
 });

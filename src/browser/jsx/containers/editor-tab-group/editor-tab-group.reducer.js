@@ -61,9 +61,32 @@ function add(state, action) {
  * @param {object} action
  * @returns {Array}
  */
-function closeActiveFile(state, action) {
+function closeActiveTab(state, action) {
+  const groupId = action.groupId,
+    groupIndex = _.findIndex(state, {groupId});
+
   // later, files might be special, but for now they're just like regular tabs
-  return commonTabsReducers.closeActive(state, action);
+  if (groupIndex > -1 && state[groupIndex].tabs.length > 1) {
+    state = commonTabsReducers.closeActive(state, action);
+  }
+
+  return state;
+}
+
+/**
+ * Closes the active tab in the first group.
+ *
+ * Likely from a keyboard shortcut.
+ *
+ * @param {Array} state
+ * @returns {Array}
+ */
+function closeActiveFile(state) {
+  if (state[0]) {
+    state = closeActiveTab(state, {groupId: state[0].groupId});
+  }
+
+  return state;
 }
 
 /**
@@ -141,6 +164,7 @@ export default mapReducers({
   CLOSE_TAB: commonTabsReducers.close,
   FOCUS_TAB: commonTabsReducers.focus,
   FILE_IS_SAVED: fileSaved,
+  CLOSE_ACTIVE_TAB: closeActiveTab,
   CLOSE_ACTIVE_FILE: closeActiveFile,
   MOVE_ONE_RIGHT: _.partialRight(shiftFocus, +1),
   MOVE_ONE_LEFT: _.partialRight(shiftFocus, -1),

@@ -75,7 +75,14 @@ function close(state, action) {
 }
 
 function closeActive(state, action) {
-  return close(state, _.assign({id: state[action.groupId].active}, action));
+  const groupId = action.groupId,
+    groupIndex = _.findIndex(state, {groupId});
+
+  if (groupIndex > -1) {
+    state = close(state, _.assign({id: state[groupIndex].active}, action));
+  }
+
+  return state;
 }
 
 export default {
