@@ -39,5 +39,23 @@ describe(__filename, function () {
 
       expect(result).toEqual([{groupId: 'a', active: 'b', tabs: [{id: 'b'}]}]);
     });
+
+    it('does not focus missing tab', function () {
+      const state = Immutable([{groupId: 'a', active: 'b', tabs: [{id: 'b'}]}]),
+        action = {groupId: 'a', id: 'c'};
+
+      let result = lib.focus(state, action);
+
+      expect(result).toEqual([{groupId: 'a', active: 'b', tabs: [{id: 'b'}]}]);
+    });
+
+    it('does not focus missing group', function () {
+      const state = Immutable([{groupId: 'a', tabs: [{id: 'b'}]}]),
+        action = {groupId: 'c', id: 'b'};
+
+      let result = lib.focus(state, action);
+
+      expect(result).toEqual([{groupId: 'a', tabs: [{id: 'b'}]}]);
+    });
   });
 });

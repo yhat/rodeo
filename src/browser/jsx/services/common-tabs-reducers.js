@@ -17,7 +17,7 @@ function addItem(state, action, item) {
 
 /**
  * @param {Immutable} state
- * @param {Action} action
+ * @param {object} action
  * @returns {Immutable}
  */
 function focus(state, action) {

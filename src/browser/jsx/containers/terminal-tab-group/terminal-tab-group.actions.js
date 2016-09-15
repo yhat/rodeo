@@ -15,6 +15,8 @@ function getJQConsole(id) {
   const el = document.querySelector('#' + id),
     terminalEl = el && el.querySelector('.terminal');
 
+  console.log({terminalEl, data: $(terminalEl).data('jqconsole')});
+
   return terminalEl && $(terminalEl).data('jqconsole');
 }
 
@@ -288,11 +290,23 @@ function restart() {
 function focus(groupId, id) {
   return function (dispatch, getState) {
     const state = getState(),
-      terminal = _.head(state.terminalTabGroup),
-      jqConsole = getJQConsole(terminal.id);
+      groupIndex = _.findIndex(state.terminalTabGroups, {groupId});
 
-    // side-effect?
-    jqConsole.Focus();
+    if (groupIndex > -1) {
+      const terminalIndex = _.findIndex(state.terminalTabGroups[groupIndex].tabs, {id});
+
+      console.log('found group');
+
+      if (terminalIndex > -1) {
+        const terminalId = state.terminalTabGroups[groupIndex].tabs[terminalIndex].id,
+          jqConsole = getJQConsole(terminalId);
+
+        console.log('found terminalId', terminalId, jqConsole);
+
+        // side-effect?  Can this be moved to component?  (Not yet.)
+        jqConsole.Focus();
+      }
+    }
 
     dispatch({type: 'FOCUS_TAB', groupId, id});
   };

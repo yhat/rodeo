@@ -20,7 +20,7 @@ export default React.createClass({
   propTypes: {
     focusable: React.PropTypes.bool,
     fontSize: React.PropTypes.number,
-    id: React.PropTypes.string,
+    id: React.PropTypes.string.isRequired,
     indentWidth: React.PropTypes.number,
     message: React.PropTypes.string,
     onAutoComplete: React.PropTypes.func,
