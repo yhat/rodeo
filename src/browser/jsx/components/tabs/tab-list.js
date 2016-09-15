@@ -38,7 +38,7 @@ export default React.createClass({
     const props = this.props,
       className = commonReact.getClassNameList(this);
 
-    console.log('TabList', 'render');
+    console.log('TabList', 'render', props);
 
     return (
       <ul

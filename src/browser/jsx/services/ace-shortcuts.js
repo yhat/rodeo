@@ -1,6 +1,5 @@
 import _ from 'lodash';
 import ace from 'ace';
-const Autocomplete = ace.require('ace/autocomplete').Autocomplete;
 
 function getIndentLevel(session, content) {
   content = _.trimEnd(content); // line of all spaces doesn't count
@@ -117,6 +116,8 @@ function autocomplete(instance) {
       if (selectedText) {
         editor.blockIndent(editor.getSelectionRange());
       } else if (/from /.test(line) || /import /.test(line) || (text != ' ' && text != '')) {
+        const Autocomplete = ace.require('ace/autocomplete').Autocomplete;
+
         Autocomplete.startCommand.exec(editor);
       } else {
         editor.insert(session.getUseSoftTabs() ? _.repeat(' ', session.getTabSize()) : '\t');

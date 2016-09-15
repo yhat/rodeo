@@ -1,0 +1,13 @@
+/*noinspection CssOptimizeSimilarProperties*/
+.tab-overflow-image a {
+  background-size: auto 80%;
+  background-repeat: no-repeat;
+  background-position: center;
+  display: block;
+  width: 30px;
+  height: 30px;
+}
+
+.tab-overflow-image:first-child {
+  margin-left: 2px;
+}

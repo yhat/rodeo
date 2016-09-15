@@ -12,6 +12,10 @@
   white-space: pre-wrap;
 }
 
+.terminal {
+  position: relative;
+}
+
 .terminal-list {
   display: flex;
   flex-direction: row;

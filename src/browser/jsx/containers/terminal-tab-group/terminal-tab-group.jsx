@@ -1,6 +1,7 @@
 import _ from 'lodash';
 import React from 'react';
 import {connect} from 'react-redux';
+import TabButton from '../../components/tabs/tab-button';
 import TabbedPane from '../../components/tabs/tabbed-pane.js';
 import TabbedPaneItem from '../../components/tabs/tabbed-pane-item.js';
 import Terminal from '../../components/terminal/terminal.jsx';
@@ -16,7 +17,12 @@ function mapDispatchToProps(dispatch, ownProps) {
   const groupId = ownProps.groupId;
 
   return {
-    onFocusTab: id => dispatch(actions.focus(groupId, id))
+    onFocusTab: id => dispatch(actions.focus(groupId, id)),
+    onInterrupt: () => dispatch(actions.interrupt()),
+    onAutoComplete: (code, cursorPos) => dispatch(actions.autoComplete(code, cursorPos)),
+    onStart: (jqConsole) => dispatch(actions.startPrompt(jqConsole)),
+    onRestart: () => dispatch(actions.restart()),
+    onClearBuffer: () => dispatch(actions.clearBuffer())
   };
 }
 
@@ -43,14 +49,18 @@ export default connect(null, mapDispatchToProps)(React.createClass({
     console.log('TerminalTabGroup', 'render');
 
     const props = this.props,
+      runClearTerminalBuffer = 'Ctrl + L',
+      runTerminalInterrupt = 'Ctrl + C',
+      runTerminalRestart = process.platform === 'darwin' ? '⌘ + R' : 'Alt + R',
       types = {
-        terminal: options => (
+        terminal: content => (
           <Terminal
             disabled={props.disabled}
-            onAutoComplete={props.onTerminalAutoComplete}
+            onAutoComplete={props.onAutoComplete}
+            onClearBuffer={props.onClearBuffer}
             onInterrupt={props.onInterrupt}
-            onStart={props.onTerminalStart}
-            {...options}
+            onStart={props.onStart}
+            {...content}
           />
         )
       };
@@ -59,6 +69,7 @@ export default connect(null, mapDispatchToProps)(React.createClass({
 
     return (
       <TabbedPane
+        focusable={!props.disabled}
         onTabClick={props.onFocusTab}
         onTabClose={this.handleNoop}
         onTabDragEnd={this.handleNoop}
@@ -68,19 +79,43 @@ export default connect(null, mapDispatchToProps)(React.createClass({
         onTabListDragOver={this.handleNoop}
         onTabListDrop={this.handleNoop}
         {...props}
-      >{props.tabs.map(function (tab) {
-        console.log('TerminalTabGroup', 'render3');
+      >
+        <TabButton
+          className="right"
+          icon="refresh"
+          label="Restart"
+          onClick={props.onRestart}
+          title={runTerminalRestart}
+        />
+        <TabButton
+          className="right"
+          icon="stop"
+          label="Interrupt"
+          onClick={props.onInterrupt}
+          title={runTerminalInterrupt}
+        />
+        <TabButton
+          className="right"
+          icon="trash-o"
+          label="Clear"
+          onClick={props.onClearBuffer}
+          title={runClearTerminalBuffer}
+        />
 
-        return (
-          <TabbedPaneItem
-            closeable={tab.closeable}
-            icon={tab.icon}
-            id={tab.id}
-            key={tab.id}
-            label={tab.label}
-          >{types[tab.contentType](tab.options)}</TabbedPaneItem>
-        );
-      })}</TabbedPane>
+        {props.tabs.map(function (tab) {
+          console.log('TerminalTabGroup', 'render3');
+
+          return (
+            <TabbedPaneItem
+              closeable={tab.closeable}
+              icon={tab.icon}
+              id={tab.id}
+              key={tab.id}
+              label={tab.label}
+            >{types[tab.contentType](tab.content)}</TabbedPaneItem>
+          );
+        })}
+      </TabbedPane>
     );
   }
 }));

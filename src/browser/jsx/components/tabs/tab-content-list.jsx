@@ -2,6 +2,7 @@ import _ from 'lodash';
 import React from 'react';
 import TabbedPaneItem from './tabbed-pane-item.js';
 import commonReact from '../../services/common-react';
+import './tab-content-list.css';
 
 /**
  * @param {*} component

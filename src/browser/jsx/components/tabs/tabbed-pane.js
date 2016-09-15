@@ -78,7 +78,7 @@ export default React.createClass({
     const props = this.props,
       className = commonReact.getClassNameList(this);
 
-    console.log('TabbedPane', 'render');
+    console.log('TabbedPane', 'render', props);
 
     return (
       <div className={className.join(' ')}>

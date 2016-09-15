@@ -24,7 +24,7 @@ export default React.createClass({
     const props = this.props,
       className = commonReact.getClassNameList(this);
 
-    console.log('TabbedPaneItem', 'render');
+    console.log('TabbedPaneItem', 'render', props);
 
     if (props.active) {
       className.push('active');

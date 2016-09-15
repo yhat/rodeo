@@ -8,11 +8,10 @@ export default React.createClass({
   displayName: 'TabItem',
   propTypes: {
     active: React.PropTypes.bool,
-    className: React.PropTypes.string,
     closeable: React.PropTypes.bool,
     draggable: React.PropTypes.bool,
     focusable: React.PropTypes.bool,
-    icon: React.PropTypes.string,
+    icon: React.PropTypes.string.isRequired,
     id: React.PropTypes.string,
     label: React.PropTypes.string.isRequired,
     onClick: React.PropTypes.func.isRequired,
@@ -36,13 +35,9 @@ export default React.createClass({
     let closeable;
     const props = this.props,
       className = commonReact.getClassNameList(this),
-      iconClassName = [];
+      iconClassName = ['fa', 'fa-before', 'fa-' + props.icon];
 
-    console.log('TabItem', 'render');
-
-    if (props.icon) {
-      iconClassName.push('tab-label', 'fa', 'fa-before', 'fa-' + props.icon);
-    }
+    console.log('TabItem', 'render', props);
 
     if (props.closeable && props.onClose) {
       closeable = <Closeable onClick={props.onClose} />;
@@ -61,8 +56,11 @@ export default React.createClass({
         onDragStart={props.onDragStart}
         tabIndex={props.focusable ? 0 : null}
       >
-        <span className={iconClassName.join(' ')}>{props.label}</span>
-        {closeable}
+        <div className="tab-label">
+          <span className={iconClassName.join(' ')} />
+          <span className="font-sans">{props.label}</span>
+          {closeable}
+        </div>
         <div className="lift"></div>
       </li>
     );

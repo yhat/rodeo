@@ -14,10 +14,6 @@ main {
   height: 100%;
 }
 
-.splitter_panel {
-  height: 100%;
-}
-
 /* override bootstrap :( to move the tabs tightly together*/
 .nav > li > a[data-toggle="tab"] {
   padding: 10px
@@ -40,34 +36,6 @@ main .form-horizontal .form-group {
 main .row {
   margin-left: 0;
   margin-right: 0;
-}
-
-.icon-overflowing:before {
-  /* 4x for retina: of all the icons, this should look the best */
-  background-size: auto 60%;
-  background-repeat: no-repeat;
-  background-position: center;
-  background-image: url(./rodeo-logo.4x.png);
-  position: absolute;
-  display: block;
-  top: 0;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  content: '';
-}
-
-.icon-overflowing:first-child {
-  margin-left: 5px;
-}
-
-.icon-overflowing span {
-  display: inline-block;
-}
-
-.icon-text-right {
-  display: inline;
-  margin-left:4px;
 }
 
 .actionest {

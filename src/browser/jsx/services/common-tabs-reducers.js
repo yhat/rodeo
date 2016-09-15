@@ -6,7 +6,7 @@ function addItem(state, action, item) {
 
   if (groupIndex > -1) {
     state = state.updateIn([groupIndex, 'tabs'], tabs => {
-      return tabs.push(item);
+      return tabs.concat([item]);
     });
 
     state = state.setIn([groupIndex, 'active'], item.id);
@@ -47,34 +47,40 @@ function focus(state, action) {
 function close(state, action) {
   const groupId = action.groupId,
     id = action.id,
-    groupIndex = _.findIndex(state, {groupId}),
-    tabs = state[groupIndex].tabs,
-    tabIndex = _.findIndex(state[groupIndex].tabs, {id});
+    groupIndex = _.findIndex(state, {groupId});
 
-  // only allow removal if they have more than one item
-  if (tabs.length > 1) {
-    state = state.updateIn([groupIndex, 'tabs'], tabs => {
-      return tabs.filter(tab => tab.id !== id);
-    });
+  if (groupIndex > -1) {
+    const tabs = state[groupIndex].tabs,
+      tabIndex = _.findIndex(state[groupIndex].tabs, {id});
 
-    if (state[groupIndex].active === id) {
-      let newActive;
+    // only allow removal if they have more than one item
+    if (tabs.length > 1) {
+      state = state.updateIn([groupIndex, 'tabs'], tabs =>  tabs.filter(tab => tab.id !== id));
 
-      if (tabIndex === 0 && tabs[1]) {
-        newActive = tabs[1].id;
-      } else {
-        newActive = tabs[tabIndex - 1].id;
+      if (state[groupIndex].active === id) {
+        let newActive;
+
+        if (tabIndex === 0 && tabs[1]) {
+          newActive = tabs[1].id;
+        } else {
+          newActive = tabs[tabIndex - 1].id;
+        }
+
+        state = state.setIn([groupIndex, 'active'], newActive);
       }
-
-      state = state.setIn([groupIndex, 'active'], newActive);
     }
   }
 
   return state;
 }
 
+function closeActive(state, action) {
+  return close(state, _.assign({id: state[action.groupId].active}, action));
+}
+
 export default {
   addItem,
   close,
+  closeActive,
   focus
 };

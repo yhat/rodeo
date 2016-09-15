@@ -1,0 +1,23 @@
+.tab-button button {
+  white-space: nowrap;
+  display: inline-block;
+  height: 30px;
+  background-color: white;
+  padding: 1px 10px;
+  border-style: hidden;
+  color: #888;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.tab-button button:hover {
+  color: #222
+}
+
+.tab-button button:active {
+  color: #aaa
+}
+
+.tab-button .fa {
+  margin-right: 5px;
+}

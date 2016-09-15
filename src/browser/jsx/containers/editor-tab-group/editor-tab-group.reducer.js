@@ -12,7 +12,7 @@ function getFirst() {
   const first = getDefault();
 
   if (local.get('editorStartingTutorial') !== false) {
-    first.initialValue = initialStory;
+    first.content.initialValue = initialStory;
   }
 
   return Immutable([{groupId: 'top-left', active: first.id, tabs: [first]}]);
@@ -21,16 +21,18 @@ function getFirst() {
 function getDefault() {
   return {
     label: 'New File',
-    mode: 'python',
     contentType: 'ace-pane',
     id: cid(),
-    keyBindings: local.get('aceKeyBindings') || 'default',
-    tabSize: _.toNumber(local.get('aceTabSpaces')) || 4,
     icon: 'file-code-o',
     closeable: true,
-    fontSize: _.toNumber(local.get('fontSize')) || 12,
-    theme: local.get('aceTheme') || 'chrome',
-    useSoftTabs: local.get('aceUseSoftTabs') || true
+    content: {
+      fontSize: _.toNumber(local.get('fontSize')) || 12,
+      keyBindings: local.get('aceKeyBindings') || 'default',
+      mode: 'python',
+      tabSize: _.toNumber(local.get('aceTabSpaces')) || 4,
+      theme: local.get('aceTheme') || 'chrome',
+      useSoftTabs: local.get('aceUseSoftTabs') || true
+    }
   };
 }
 
@@ -59,12 +61,9 @@ function add(state, action) {
  * @param {object} action
  * @returns {Array}
  */
-function closeActive(state, action) {
-  const tabs = _.head(state).tabs,
-    focusIndex = _.findIndex(tabs, {hasFocus: true}),
-    focusItem = tabs[focusIndex];
-
-  return remove(state, _.assign({id: focusItem.id}, action));
+function closeActiveFile(state, action) {
+  // later, files might be special, but for now they're just like regular tabs
+  return commonTabsReducers.closeActive(state, action);
 }
 
 /**
@@ -105,7 +104,7 @@ function changeProperty(state, propertyName, value, transform) {
 
   const tabs = _.head(state).tabs;
 
-  _.each(tabs, (item) => _.set(item, propertyName, value));
+  _.each(tabs, (item) => _.set(item.content, propertyName, value));
 
   return state;
 }
@@ -142,7 +141,7 @@ export default mapReducers({
   CLOSE_TAB: commonTabsReducers.close,
   FOCUS_TAB: commonTabsReducers.focus,
   FILE_IS_SAVED: fileSaved,
-  CLOSE_ACTIVE_FILE: closeActive,
+  CLOSE_ACTIVE_FILE: closeActiveFile,
   MOVE_ONE_RIGHT: _.partialRight(shiftFocus, +1),
   MOVE_ONE_LEFT: _.partialRight(shiftFocus, -1),
   PREFERENCE_CHANGE_SAVED: changePreference

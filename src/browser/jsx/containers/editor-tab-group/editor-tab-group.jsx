@@ -3,13 +3,17 @@ import React from 'react';
 import {connect} from 'react-redux';
 import TabbedPane from '../../components/tabs/tabbed-pane.js';
 import TabbedPaneItem from '../../components/tabs/tabbed-pane-item.js';
-import AcePane from '../../components/ace-pane/ace-pane.jsx';
+import TabButton from '../../components/tabs/tab-button';
+import TabAdd from '../../components/tabs/tab-add';
+import TabOverflowImage from '../../components/tabs/tab-overflow-image';
+import AcePane from '../../components/ace-pane/ace-pane.js';
 import { getParentNodeOf } from '../../services/dom';
 import editorTabGroupActions from '../../containers/editor-tab-group/editor-tab-group.actions';
 import dialogActions from '../../actions/dialogs';
 import kernelActions from '../../actions/kernel';
 import terminalActions from '../terminal-tab-group/terminal-tab-group.actions';
 import commonReact from '../../services/common-react';
+import rodeoLogo from './rodeo-logo/rodeo-logo.4x.png';
 
 /**
  * @param {Element} el
@@ -60,16 +64,20 @@ export default connect(null, mapDispatchToProps)(React.createClass({
     console.log('EditorTabGroup', 'shouldComponentUpdate', !commonReact.shallowEqual(this, nextProps));
     return !commonReact.shallowEqual(this, nextProps);
   },
-  handleTabClick: function (id) {
+  handleTabClick: function (id, event) {
     const props = this.props;
+
+    event.preventDefault();
 
     console.log('editorTabGroup', 'handleTabClick', arguments);
     props.onFocusTab(id);
   },
-  handleTabClose: function (id) {
+  handleTabClose: function (id, event) {
     const props = this.props,
       tabs = props.tabs,
       targetPane = _.find(tabs, {id});
+
+    event.preventDefault();
 
     props.onRemoveAcePane(targetPane.id);
   },
@@ -131,14 +139,14 @@ export default connect(null, mapDispatchToProps)(React.createClass({
       runLineTitle = process.platform === 'darwin' ? '⌘ + Enter' : 'Alt + Enter',
       runScriptTitle = process.platform === 'darwin' ? '⌘ + Shift + Enter' : 'Alt + Shift + Enter',
       types = {
-        'ace-pane': options => (
+        'ace-pane': content => (
           <AcePane
             disabled={props.disabled}
             onInterrupt={props.onInterrupt}
             onLiftFile={props.onRunActiveAcePane}
             onLiftSelection={props.onLiftText}
             onOpenPreferences={props.onOpenPreferences}
-            options={options}
+            {...content}
           />
         )
       };
@@ -159,19 +167,9 @@ export default connect(null, mapDispatchToProps)(React.createClass({
         ref="editorTabs"
         {...props}
       >
-        <li><a className="icon-overflowing not-tab" onClick={props.onRodeo}><span /></a></li>
-        <li className="right">
-          <a className="not-tab" onClick={props.onRunActiveAcePane} title={runScriptTitle}>
-            <span className="fa fa-play-circle" />
-            <span className="icon-text-right">{'Run Script'}</span>
-          </a>
-        </li>
-        <li className="right">
-          <a className="not-tab" onClick={props.onRunActiveAcePaneSelection} title={runLineTitle}>
-            <span className="fa fa-play" />
-            <span className="icon-text-right">{'Run Line'}</span>
-          </a>
-        </li>
+        <TabOverflowImage onClick={props.onRodeo} src={rodeoLogo}/>
+        <TabButton className="right" icon="play-circle" label="Run Script" onClick={props.onRunActiveAcePane} title={runScriptTitle}/>
+        <TabButton className="right" icon="play" label="Run Line" onClick={props.onRunActiveAcePaneSelection} title={runLineTitle}/>
 
         {props.tabs.map(function (tab) {
           return (
@@ -181,16 +179,11 @@ export default connect(null, mapDispatchToProps)(React.createClass({
               id={tab.id}
               key={tab.id}
               label={tab.label}
-            >{types[tab.contentType](tab.options)}</TabbedPaneItem>
+            >{types[tab.contentType](tab.content)}</TabbedPaneItem>
           );
         })}
 
-        <li>
-          <a className="not-tab" onClick={props.onAddAcePane}>
-            <span className="fa fa-plus-square-o"/>
-          </a>
-        </li>
-
+        <TabAdd onClick={props.onAddAcePane} />
       </TabbedPane>
     );
   }
