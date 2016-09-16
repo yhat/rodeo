@@ -1,4 +1,5 @@
 import _ from 'lodash';
+let Store;
 
 /**
  * Prevent myself from being inconsistent as I change between languages.
@@ -10,33 +11,43 @@ function assertCamelCase(key) {
   }
 }
 
-class Store {
-  constructor(source) {
-    this.source = source;
-  }
+Store = (function () {
+  let source;
 
-  get(key) {
-    assertCamelCase(key);
-    let result = this.source.getItem(key);
+  const constructor = function (storageSource) {
+    source = storageSource;
+  };
 
-    if (typeof result === 'string') {
-      try {
-        result = JSON.parse(result);
-      } catch (ex) {
-        // we're okay with this
+  constructor.prototype = {
+    get(key) {
+      assertCamelCase(key);
+      let result = source.getItem(key);
+
+      if (typeof result === 'string') {
+        try {
+          result = JSON.parse(result);
+        } catch (ex) {
+          // we're okay with this
+        }
       }
-    }
-    return result;
-  }
+      return result;
+    },
 
-  set(key, value) {
-    assertCamelCase(key);
-    if (typeof value === 'object') {
-      value = JSON.stringify(value);
+    set(key, value) {
+      assertCamelCase(key);
+      if (typeof value === 'object') {
+        value = JSON.stringify(value);
+      }
+      source.setItem(key, value);
+    },
+
+    setSource(storageSource) {
+      source = storageSource;
     }
-    this.source.setItem(key, value);
-  }
-}
+  };
+
+  return constructor;
+}());
 
 export const local = new Store(window.localStorage),
   session = new Store(window.sessionStorage);

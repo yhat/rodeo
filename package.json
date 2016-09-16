@@ -136,7 +136,7 @@
   "jest": {
     "moduleNameMapper": {
       "^ace$": "<rootDir>/__mocks__/ace.js",
-      "(raw!.*|.*css)": "<rootDir>/__mocks__/generic-stub.js"
+      "(raw!.*|.*css|.*yml|.*md)": "<rootDir>/__mocks__/generic-stub.js"
     },
     "testRegex": "/src/browser/.*\\.test\\.js$"
   }

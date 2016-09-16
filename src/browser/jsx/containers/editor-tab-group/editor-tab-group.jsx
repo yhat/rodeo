@@ -172,14 +172,10 @@ export default connect(null, mapDispatchToProps)(React.createClass({
         <TabButton className="right" icon="play" label="Run Line" onClick={props.onRunActiveAcePaneSelection} title={runLineTitle}/>
 
         {props.tabs.map(function (tab) {
+          console.log('EditorTabGroup', 'render2', {tab});
+
           return (
-            <TabbedPaneItem
-              closeable
-              icon={tab.icon}
-              id={tab.id}
-              key={tab.id}
-              label={tab.label}
-            >{types[tab.contentType](tab.content)}</TabbedPaneItem>
+            <TabbedPaneItem{...tab}>{types[tab.contentType](tab.content)}</TabbedPaneItem>
           );
         })}
 

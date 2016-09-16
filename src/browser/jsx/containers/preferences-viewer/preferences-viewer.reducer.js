@@ -1,4 +1,5 @@
 import _ from 'lodash';
+import Immutable from 'seamless-immutable';
 import {local} from '../../services/store';
 import mapReducers from '../../services/map-reducers';
 
@@ -13,102 +14,124 @@ import plotSettingsText from './plot-settings.md';
 import checkBackLaterGit from './check-back-later-git.md';
 import checkBackLaterProjectSettings from './check-back-later-project-level-settings.md';
 
-const initialState = getDefault();
-
-function getDefault() {
+export function getInitialState() {
+  let active;
   const preferenceMap = preferencesMapper.define(preferencesMapDefinition, {
-      globalSettingsText,
-      pythonSettingsText,
-      aceEditorText,
-      consoleText,
-      plotSettingsText,
-      checkBackLaterGit,
-      checkBackLaterProjectSettings
-    }),
-    active = _.head(preferenceMap).id;
+    globalSettingsText,
+    pythonSettingsText,
+    aceEditorText,
+    consoleText,
+    plotSettingsText,
+    checkBackLaterGit,
+    checkBackLaterProjectSettings
+  });
 
-  return {
+  if (preferenceMap && preferenceMap.length > 0) {
+    active = _.head(preferenceMap).id;
+  }
+
+  return Immutable({
     active,
     preferenceMap,
     changes: {},
     canSave: true
-  };
+  });
 }
 
-function changeSaved(state, action) {
-  state = _.clone(state);
-  const changes = _.clone(state.changes),
-    change = action.change,
-    groupIndex = _.findIndex(state.preferenceMap, {id: state.active}),
-    keyIndex = _.findIndex(state.preferenceMap[groupIndex].items, {key: change.key}),
-    key = change.key;
+/**
+ * @param {object} state
+ * @param {{key: string, value: string}} change
+ * @returns {object}
+ */
+function updatePreferenceMapValueWithChange(state, change) {
+  const key = change.key,
+    groupIndex = _.findIndex(state.preferenceMap, {id: state.active});
 
-  if (keyIndex > -1) {
-    state.preferenceMap[groupIndex].items[keyIndex].value = change.value;
+  if (groupIndex > -1) {
+    const keyIndex = _.findIndex(state.preferenceMap[groupIndex].items, {key});
+
+    if (keyIndex > -1) {
+      state = state.setIn(['preferenceMap', groupIndex, 'items', keyIndex, 'value'], change.value);
+    }
   }
 
-  if (changes[key]) {
-    delete changes[key];
-  }
-
-  state.changes = changes;
-  state.canSave = _.every(changes, {state: 'valid'});
   return state;
 }
 
-function cancelAllChanges(state) {
-  state = _.clone(state);
+/**
+ * @param {object} state
+ * @returns {object}
+ */
+function updateCanSave(state) {
+  const canSave = _.every(state.changes, {state: 'valid'});
 
-  state.changes = {};
-  state.canSave = true;
+  if (state.canSave !== canSave) {
+    state = state.set('canSave', canSave);
+  }
+
+  return state;
+}
+
+/**
+ *
+ * @param {object} state
+ * @param {{change: {key: string, value: string}}} action
+ * @returns {object}
+ */
+function changeSaved(state, action) {
+  const key = action.change.key;
+
+  state = updatePreferenceMapValueWithChange(state, action.change);
+
+  if (state.changes[key]) {
+    state = state.update('changes', changes => changes.without(key));
+  }
+
+  return updateCanSave(state);
+}
+
+function cancelAllChanges(state) {
+  state = state.set('changes', {});
+  state = state.set('canSave', true);
   return state;
 }
 
 function changeAdded(state, action) {
-  state = _.clone(state);
-  const changes = _.clone(state.changes),
-    change = action.change,
-    key = change.key,
-    value = change.value,
-    savedValue = local.get(change.key);
+  const key = action.change.key;
 
-  if (changes[key]) {
+  if (state.changes[key]) {
+    const value = action.change.value,
+      savedValue = local.get(action.change.key);
+
     if (savedValue === value) {
-      delete changes[key];
-    } else if (changes[key].value !== value) {
-      // remove extra details
-      changes[key] = _.pick(_.assign({}, changes[key], change), ['key', 'value', 'type', 'state']);
-    }
+      state = state.update('changes', changes => changes.without(key));
+    } else if (state.changes[key].value !== value) {
+      state = state.setIn(
+        ['changes', key],
+        _.pick(_.assign({}, state.changes[key], action.change), ['key', 'value', 'type', 'state'])
+      );
+    } // else we shouldn't change anything
   } else {
-    changes[key] = _.defaults(change, {state: 'valid'});
+    state = state.setIn(['changes', key], _.defaults(action.change, {state: 'valid'}));
   }
 
-  state.canSave = _.every(changes, {state: 'valid'});
-  state.changes = changes;
-  return state;
+  return updateCanSave(state);
 }
 
 function changeDetailAdded(state, action) {
-  state = _.clone(state);
-  const changes = _.clone(state.changes),
+  const changes = state.changes,
     change = action.change,
-    key = change.key,
-    value = change.value;
+    key = change.key;
 
-  if (changes[key] && changes[key].value === value) {
-    changes[key] = _.assign(changes[key], change);
+  if (changes[key] && changes[key].value === change.value) {
+    state = state.setIn(['changes', key], _.assign(changes[key], change));
   }
 
-  state.canSave = _.every(changes, {state: 'valid'});
-  state.changes = changes;
-  return state;
+  return updateCanSave(state);
 }
 
 function activeTabChanged(state, action) {
-  state = _.clone(state);
-  state.active = action.active;
-
-  return state;
+  return state.set('active', action.active);
 }
 
 export default mapReducers({
@@ -117,4 +140,4 @@ export default mapReducers({
   PREFERENCE_CHANGE_ADDED: changeAdded,
   PREFERENCE_CHANGE_DETAIL_ADDED: changeDetailAdded,
   PREFERENCE_CANCEL_ALL_CHANGES: cancelAllChanges
-}, initialState);
+}, getInitialState());

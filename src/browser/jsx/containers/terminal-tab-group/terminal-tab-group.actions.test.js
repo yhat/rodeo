@@ -29,4 +29,8 @@ describe(__filename, () => {
       expect(focusFn.mock.calls.length).toBe(1);
     });
   });
+
+  describe('', function () {
+
+  });
 });

@@ -94,4 +94,15 @@ describe(__filename, () => {
       expect(result[0].tabs).toEqual([{id: 'c'}]);
     });
   });
+
+  describe('PREFERENCE_CHANGE_SAVED', function () {
+    it('closes tab in first group without saying groupId', () => {
+      const state = Immutable([{groupId: 'a', active: 'b', tabs: [{id: 'b'}]}]),
+        action = {type: 'PREFERENCE_CHANGE_SAVED', change: {key: 'fontSize', value: 2}};
+
+      let result = lib(state, action);
+
+      expect(result[0].tabs).toEqual([{id: 'b', content: {fontSize: 2}}]);
+    });
+  });
 });

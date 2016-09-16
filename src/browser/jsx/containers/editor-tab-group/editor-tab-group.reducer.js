@@ -111,27 +111,6 @@ function shiftFocus(state, action, move) {
   return state;
 }
 
-/**
- * @param {object} state
- * @param {string} propertyName
- * @param {*} value
- * @param {function} [transform]
- * @returns {object}
- */
-function changeProperty(state, propertyName, value, transform) {
-  state = _.cloneDeep(state);
-
-  if (transform) {
-    value = transform(value);
-  }
-
-  const tabs = _.head(state).tabs;
-
-  _.each(tabs, (item) => _.set(item, content, propertyName, value));
-
-  return state;
-}
-
 function fileSaved(state, action) {
   if (action.filename) {
     state = _.cloneDeep(state);

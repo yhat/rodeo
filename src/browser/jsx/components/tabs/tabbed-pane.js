@@ -84,6 +84,7 @@ export default React.createClass({
       <div className={className.join(' ')}>
         <TabList
           active={props.active}
+          focusable={props.focusable}
           onDragEnter={props.onTabListDragEnter}
           onDragLeave={props.onTabListDragLeave}
           onDragOver={props.onTabListDragOver}
@@ -92,8 +93,13 @@ export default React.createClass({
           onTabClose={props.onTabClose}
           onTabDragEnd={props.onTabDragEnd}
           onTabDragStart={props.onTabDragStart}
+          tabs={props.tabs} // update when tabs reference changes
         >{props.children}</TabList>
-        <TabContentList active={props.active}>{props.children}</TabContentList>
+        <TabContentList
+          active={props.active}
+          focusable={props.focusable}
+          tabs={props.tabs} // update when tabs reference changes
+        >{props.children}</TabContentList>
       </div>
     );
   }

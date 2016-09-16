@@ -19,23 +19,23 @@ export default React.createClass({
   propTypes: {
     disabled: React.PropTypes.bool,
     filename: React.PropTypes.string,
-    fontSize: React.PropTypes.number,
-    highlightLine: React.PropTypes.bool,
+    fontSize: React.PropTypes.number.isRequired,
+    highlightLine: React.PropTypes.bool.isRequired,
     id: React.PropTypes.string,
     initialValue: React.PropTypes.string,
-    keyBindings: React.PropTypes.string,
-    mode: React.PropTypes.string,
-    onInterrupt: React.PropTypes.func,
-    onLiftFile: React.PropTypes.func,
-    onLiftSelection: React.PropTypes.func,
-    onLoadError: React.PropTypes.func,
-    onLoaded: React.PropTypes.func,
-    onLoading: React.PropTypes.func,
-    onOpenPreferences: React.PropTypes.func,
-    onSave: React.PropTypes.func,
-    tabSize: React.PropTypes.number,
-    theme: React.PropTypes.string,
-    useSoftTabs: React.PropTypes.bool
+    keyBindings: React.PropTypes.string.isRequired,
+    mode: React.PropTypes.string.isRequired,
+    onInterrupt: React.PropTypes.func.isRequired,
+    onLiftFile: React.PropTypes.func.isRequired,
+    onLiftSelection: React.PropTypes.func.isRequired,
+    onLoadError: React.PropTypes.func.isRequired,
+    onLoaded: React.PropTypes.func.isRequired,
+    onLoading: React.PropTypes.func.isRequired,
+    onOpenPreferences: React.PropTypes.func.isRequired,
+    onSave: React.PropTypes.func.isRequired,
+    tabSize: React.PropTypes.number.isRequired,
+    theme: React.PropTypes.string.isRequired,
+    useSoftTabs: React.PropTypes.bool.isRequired
   },
   statics: {
     /**
@@ -50,20 +50,7 @@ export default React.createClass({
   getDefaultProps: function () {
     return {
       disabled: false,
-      fontSize: 12,
-      highlightLine: true,
-      keyBindings: 'default',
-      theme: 'chrome',
-      mode: 'python',
-      readOnly: false,
-      onInterrupt: _.noop,
-      onLiftSelection: _.noop,
-      onLoading: _.noop,
-      onLoaded: _.noop,
-      onLoadError: _.noop,
-      onSave: _.noop,
-      tabSize: 4,
-      useSoftTabs: true
+      readOnly: false
     };
   },
   componentDidMount: function () {
@@ -90,12 +77,16 @@ export default React.createClass({
     // if filename, load filename into instance
     this.loadContentFromFile();
   },
-  shouldComponentUpdate(nextProps, nextState) {
-    return !commonReact.shallowEqual(this, nextProps, nextState);
+  shouldComponentUpdate(nextProps) {
+    console.log('AcePane', 'shouldComponentUpdate', !commonReact.shallowEqual(this, nextProps));
+
+    return !commonReact.shallowEqual(this, nextProps);
   },
   componentDidUpdate: function (oldProps) {
     const props = this.props,
       instance = ace.edit(ReactDOM.findDOMNode(this));
+
+    console.log('AcePane', 'componentDidUpdate', {newProps: this.props, oldProps});
 
     aceSettings.applyDynamicSettings(instance, props, oldProps);
   },
@@ -130,6 +121,8 @@ export default React.createClass({
     }
   },
   render: function () {
+    console.log('AcePane', 'render', this.props);
+
     return <div className="ace-pane" id={this.props.id}></div>;
   }
 });
