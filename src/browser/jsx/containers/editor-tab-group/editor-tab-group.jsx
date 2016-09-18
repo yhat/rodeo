@@ -36,9 +36,9 @@ function mapDispatchToProps(dispatch, ownProps) {
 
   return {
     onAddAcePane: () => dispatch(editorTabGroupActions.add(groupId)),
-    onInterrupt: () => dispatch(terminalActions.interrupt()),
+    onInterrupt: () => dispatch(terminalActions.interruptActiveTab(null)),
     onFocusTab: (id) => dispatch(editorTabGroupActions.focus(groupId, id)),
-    onLiftText: (text, context) => dispatch(terminalActions.addInputText(context)),
+    onLiftText: (text, context) => dispatch(terminalActions.addInputTextToActiveTab(null, context)),
     onLoadError: tab => dispatch(editorTabGroupActions.handleLoadError(groupId, tab)),
     onLoading: tab => dispatch(editorTabGroupActions.handleLoading(groupId, tab)),
     onLoaded: tab => dispatch(editorTabGroupActions.handleLoaded(groupId, tab)),

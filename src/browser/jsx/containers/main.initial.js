@@ -17,7 +17,11 @@ function getTerminalTabGroups() {
           contentType: 'terminal',
           icon: 'terminal',
           label: 'Console',
-          id: bottomLeftFocusId
+          id: bottomLeftFocusId,
+          content: {
+            fontSize: 12,
+            id: cid()
+          }
         }
       ]
     }

@@ -11,31 +11,69 @@ import textUtil from '../../services/text-util';
 const convertor = new AsciiToHtml(),
   inputBuffer = [];
 
+/**
+ * @param {object} state
+ * @param {number} [groupId]  Uses first group if not provided
+ * @returns {object}  Returns -1 if no group found
+ */
+function getGroupIndex(state, groupId) {
+  if (state.terminalTabGroups.length === 0) {
+    return -1;
+  }
+
+  return _.isString(groupId) ? _.findIndex(state.terminalTabGroups, {groupId}) : 0;
+}
+
+function getTerminal(state, groupId, id) {
+  const groupIndex = _.findIndex(state.terminalTabGroups, {groupId});
+
+  if (groupIndex > -1) {
+    const tabIndex = _.findIndex(state.terminalTabGroups[groupIndex].tabs, {id});
+
+    if (tabIndex > -1) {
+      return state.terminalTabGroups[groupIndex].tabs[tabIndex].content;
+    }
+  }
+
+  return null;
+}
+
 function getJQConsole(id) {
   const el = document.querySelector('#' + id),
     terminalEl = el && el.querySelector('.terminal');
 
-  console.log({terminalEl, data: $(terminalEl).data('jqconsole')});
-
   return terminalEl && $(terminalEl).data('jqconsole');
 }
 
-function startPrompt(jqConsole) {
-  return function (dispatch) {
-    const nextPrompt = () => _.defer(() => dispatch(startPrompt(jqConsole)));
+function startPrompt(groupId, id) {
+  if (!_.isString(groupId) || !_.isString(id)) {
+    throw new Error('Missing groupId or id');
+  }
 
-    if (jqConsole.GetState() !== 'prompt') {
-      jqConsole.Prompt(true, (input) => dispatch(executeWithCallback(input, nextPrompt)));
-    }
+  return function (dispatch, getState) {
+    const state = getState(),
+      terminal = getTerminal(state, groupId, id);
 
-    client.guaranteeInstance()
-      .catch(error => dispatch(errorCaught(error)));
+    if (terminal) {
+      const jqConsole = getJQConsole(id);
 
-    _.defer(() => {
-      if (inputBuffer.length && jqConsole.GetState() === 'prompt') {
-        dispatch(addInputText(inputBuffer.shift()));
+      if (jqConsole) {
+        const nextPrompt = () => _.defer(() => dispatch(startPrompt(groupId, id)));
+
+        if (jqConsole.GetState() !== 'prompt') {
+          jqConsole.Prompt(true, (input) => dispatch(executeWithCallback(input, nextPrompt)));
+        }
+
+        client.guaranteeInstance()
+          .catch(error => dispatch(errorCaught(error)));
+
+        _.defer(() => {
+          if (inputBuffer.length && jqConsole.GetState() === 'prompt') {
+            dispatch(addInputText(groupId, id, inputBuffer.shift()));
+          }
+        });
       }
-    });
+    }
   };
 }
 
@@ -61,113 +99,177 @@ function executeWithCallback(cmd, done) {
  *
  * Code that is neither atomic or complete is just added to the prompt, waiting to be edited or completed.
  *
+ * @param {string} groupId
+ * @param {string} id
  * @param {object} context
  * @param {string} context.text
  * @param {boolean} [context.isCodeIsolated=false]
  * @param {boolean} [context.isCodeRunnable=false]
  * @returns {Function}
  */
-function addInputText(context) {
+function addInputText(groupId, id, context) {
+  if (!_.isString(groupId) || !_.isString(id)) {
+    throw new Error('Missing groupId or id');
+  }
+
   return function (dispatch, getState) {
     const state = getState(),
-      terminal = _.head(state.terminals),
-      jqConsole = getJQConsole(terminal.id),
-      text = context.text,
-      consoleState = jqConsole.GetState();
+      terminal = getTerminal(state, groupId, id);
 
-    // if a prompt is waiting for this input
-    if (consoleState === 'prompt') {
-      const promptText = jqConsole.GetPromptText(),
-        fullText = promptText + text;
+    if (terminal) {
+      const jqConsole = getJQConsole(id);
 
-      // execute if able
-      if (context.isCodeIsolated) {
-        // isolated code leaves the prompt alone, still visibly runs the code
-        // even if the code is not runnable, run it anyway so they can see the error
-        jqConsole.SetHistory(jqConsole.GetHistory().concat([text]));
-        return client.execute(text)
-          .catch(error => dispatch(errorCaught(error)));
-      } else if (context.isCodeRunnable) {
-        // pretend to run from the prompt: kill the prompt, run the code, start the prompt, lie
-        jqConsole.SetPromptText(fullText);
-        jqConsole.AbortPrompt();
-        jqConsole.SetHistory(jqConsole.GetHistory().concat([fullText]));
-        return client.execute(fullText)
-          .catch(error => dispatch(errorCaught(error)))
-          .then(() => _.defer(() => dispatch(startPrompt(jqConsole))));
-      } else {
-        jqConsole.ClearPromptText();
-        jqConsole.SetPromptText(fullText + '\n');
+      if (jqConsole) {
+        const text = context.text,
+          consoleState = jqConsole.GetState();
+
+        // if a prompt is waiting for this input
+        if (consoleState === 'prompt') {
+          const promptText = jqConsole.GetPromptText(),
+            fullText = promptText + text;
+
+          // execute if able
+          if (context.isCodeIsolated) {
+            // isolated code leaves the prompt alone, still visibly runs the code
+            // even if the code is not runnable, run it anyway so they can see the error
+            jqConsole.SetHistory(jqConsole.GetHistory().concat([text]));
+            return client.execute(text)
+              .catch(error => dispatch(errorCaught(error)));
+          } else if (context.isCodeRunnable) {
+            // pretend to run from the prompt: kill the prompt, run the code, start the prompt, lie
+            jqConsole.SetPromptText(fullText);
+            jqConsole.AbortPrompt();
+            jqConsole.SetHistory(jqConsole.GetHistory().concat([fullText]));
+            return client.execute(fullText)
+              .catch(error => dispatch(errorCaught(error)))
+              .then(() => _.defer(() => dispatch(startPrompt(groupId, id))));
+          } else {
+            jqConsole.ClearPromptText();
+            jqConsole.SetPromptText(fullText + '\n');
+          }
+        } else {
+          // buffer the command for when they're done
+          inputBuffer.push(context);
+        }
       }
-    } else {
-      // buffer the command for when they're done
-      inputBuffer.push(context);
     }
   };
 }
 
 /**
  * Free-flowing text output (no color, no html)
+ * @param {string} groupId
+ * @param {string} id
  * @param {string} text
  * @returns {function}
  */
-function addOutputText(text) {
+function addOutputText(groupId, id, text) {
+  if (!_.isString(groupId) || !_.isString(id)) {
+    throw new Error('Missing groupId or id');
+  }
+
   return function (dispatch, getState) {
     const state = getState(),
-      terminal = _.head(state.terminals),
-      jqConsole = getJQConsole(terminal.id);
+      terminal = getTerminal(state, groupId, id);
 
-    jqConsole.Write(text + '\n', 'jqconsole-output');
+    if (terminal) {
+      const jqConsole = getJQConsole(id);
+
+      if (jqConsole) {
+        jqConsole.Write(text + '\n', 'jqconsole-output');
+      }
+    }
   };
 }
 
 /**
  * Text output put into an HTML container
  * Converts colored ANSI to HTML.
+ * @param {string} groupId
+ * @param {string} id
  * @param {string} text
  * @returns {function}
  */
-function addOutputBlock(text) {
+function addOutputBlock(groupId, id, text) {
+  if (!_.isString(groupId) || !_.isString(id)) {
+    throw new Error('Missing groupId or id');
+  }
+
   return function (dispatch, getState) {
     const state = getState(),
-      terminal = _.head(state.terminals),
-      className = 'jqconsole-output',
-      jqConsole = getJQConsole(terminal.id),
-      htmlEscape = false;
+      terminal = getTerminal(state, groupId, id);
 
-    jqConsole.Write('<span class="terminal-block">' + convertor.toHtml(text) + '</span>\n', className, htmlEscape);
-  };
-}
+    if (terminal) {
+      const jqConsole = getJQConsole(id);
 
-function addJSError(error) {
-  return function (dispatch, getState) {
-    const state = getState(),
-      terminal = _.head(state.terminals),
-      jqConsole = getJQConsole(terminal.id),
-      htmlEscape = true,
-      className = 'jqconsole-output';
+      if (jqConsole) {
+        const className = 'jqconsole-output',
+          htmlEscape = false;
 
-    jqConsole.Write(error.message + '\n', className, htmlEscape);
+        jqConsole.Write('<span class="terminal-block">' + convertor.toHtml(text) + '</span>\n', className, htmlEscape);
+      }
+    }
   };
 }
 
 /**
+ *
+ * @param {string} groupId
+ * @param {string} id
+ * @param {Error} error
+ * @returns {Function}
+ */
+function addJSError(groupId, id, error) {
+  if (!_.isString(groupId) || !_.isString(id)) {
+    throw new Error('Missing groupId or id');
+  }
+
+  return function (dispatch, getState) {
+    const state = getState(),
+      terminal = getTerminal(state, groupId, id);
+
+    if (terminal) {
+      const jqConsole = getJQConsole(id);
+
+      if (jqConsole) {
+        const htmlEscape = true,
+          className = 'jqconsole-output';
+
+        jqConsole.Write(error.message + '\n', className, htmlEscape);
+      }
+    }
+  };
+}
+
+/**
+ * @param {string} groupId
+ * @param {string} id
  * @param {string} ename
  * @param {string} evalue
  * @param {[string]} traceback
  * @returns {function}
  */
-function addErrorText(ename, evalue, traceback) {
+function addErrorText(groupId, id, ename, evalue, traceback) {
   traceback = traceback && _.map(traceback, str => convertor.toHtml(str)).join('<br />');
+
+  if (!_.isString(groupId) || !_.isString(id)) {
+    throw new Error('Missing groupId or id');
+  }
 
   return function (dispatch, getState) {
     const state = getState(),
-      terminal = _.head(state.terminals),
-      jqConsole = getJQConsole(terminal.id),
-      htmlEscape = false,
-      className = 'jqconsole-output';
+      terminal = getTerminal(state, groupId, id);
 
-    jqConsole.Write(traceback + '\n', className, htmlEscape);
+    if (terminal) {
+      const jqConsole = getJQConsole(id);
+
+      if (jqConsole) {
+        const htmlEscape = false,
+          className = 'jqconsole-output';
+
+        jqConsole.Write(traceback + '\n', className, htmlEscape);
+      }
+    }
   };
 }
 
@@ -223,86 +325,127 @@ function appendSVG(dispatch, jqConsole, data) {
 
 /**
  * Update a terminal with display data
+ * @param {string} groupId
+ * @param {string} id
  * @param {object} data
  * @returns {function}
  */
-function addDisplayData(data) {
+function addDisplayData(groupId, id, data) {
+  if (!_.isString(groupId) || !_.isString(id)) {
+    throw new Error('Missing groupId or id');
+  }
+
   return function (dispatch, getState) {
     const state = getState(),
-      terminal = _.head(state.terminals),
-      jqConsole = getJQConsole(terminal.id);
+      terminal = getTerminal(state, groupId, id);
 
-    if (data['text/html']) {
-      if (local.get('allowIFrameInTerminal')) {
-        appendIFrame(jqConsole, data);
+    if (terminal) {
+      const jqConsole = getJQConsole(id);
+
+      if (jqConsole) {
+        if (data['text/html']) {
+          if (local.get('allowIFrameInTerminal')) {
+            appendIFrame(jqConsole, data);
+          }
+        } else if (data['image/png']) {
+          appendPNG(dispatch, jqConsole, data);
+          // do nothing at the moment
+        } else if (data['image/svg']) {
+          appendSVG(dispatch, jqConsole, data);
+        } else {
+          console.warn('addDisplayData', 'unknown data type', data);
+        }
       }
-    } else if (data['image/png']) {
-      appendPNG(dispatch, jqConsole, data);
-      // do nothing at the moment
-    } else if (data['image/svg']) {
-      appendSVG(dispatch, jqConsole, data);
-    } else {
-      console.warn('addDisplayData', 'unknown data type', data);
     }
   };
 }
 
-function interrupt() {
+/**
+ *
+ * @param {string} groupId
+ * @param {string} id
+ * @returns {function}
+ */
+function interrupt(groupId, id) {
+  if (!_.isString(groupId) || !_.isString(id)) {
+    throw new Error('Missing groupId or id');
+  }
+
   return function (dispatch, getState) {
     const state = getState(),
-      terminal = _.head(state.terminals),
-      jqConsole = getJQConsole(terminal.id),
-      consoleState = jqConsole.GetState();
+      terminal = getTerminal(state, groupId, id);
 
-    client.interrupt()
-      .catch(error => dispatch(errorCaught(error)));
-    if (consoleState !== 'output') {
-      jqConsole.ClearPromptText();
-    }
-  };
-}
+    if (terminal) {
+      const jqConsole = getJQConsole(id);
 
-function restart() {
-  return function (dispatch, getState) {
-    const state = getState(),
-      terminal = _.head(state.terminals),
-      jqConsole = terminal && getJQConsole(terminal.id);
+      if (jqConsole) {
+        const consoleState = jqConsole.GetState();
 
-    if (jqConsole) {
-      if (jqConsole.GetState() === 'prompt') {
-        jqConsole.AbortPrompt();
+        client.interrupt()
+          .catch(error => dispatch(errorCaught(error)));
+        if (consoleState !== 'output') {
+          jqConsole.ClearPromptText();
+        }
       }
-      jqConsole.Write('restarting terminal... ');
-
-      client.restartInstance()
-        .then(() => {
-          jqConsole.Write('done\n');
-          dispatch(kernelActions.detectKernelVariables());
-          _.defer(() => dispatch(startPrompt(jqConsole)));
-        })
-        .catch(error => dispatch(errorCaught(error)));
-    } else {
-      dispatch(errorCaught(new Error('Cannot restart without terminal')));
     }
   };
 }
 
+/**
+ * @param {string} groupId
+ * @param {string} id
+ * @returns {function}
+ */
+function restart(groupId, id) {
+  if (!_.isString(groupId) || !_.isString(id)) {
+    throw new Error('Missing groupId or id');
+  }
+
+  return function (dispatch, getState) {
+    const state = getState(),
+      terminal = getTerminal(state, groupId, id);
+
+    if (terminal) {
+      const jqConsole = getJQConsole(id);
+
+      if (jqConsole) {
+        if (jqConsole.GetState() === 'prompt') {
+          jqConsole.AbortPrompt();
+        }
+        jqConsole.Write('restarting terminal... ');
+
+        client.restartInstance()
+          .then(() => {
+            jqConsole.Write('done\n');
+            dispatch(kernelActions.detectKernelVariables());
+            _.defer(() => dispatch(startPrompt(groupId, id)));
+          })
+          .catch(error => dispatch(errorCaught(error)));
+      } else {
+        dispatch(errorCaught(new Error('Cannot restart without terminal')));
+      }
+    }
+  };
+}
+
+/**
+ * @param {string} groupId
+ * @param {string} id
+ * @returns {function}
+ */
 function focus(groupId, id) {
+  if (!_.isString(groupId) || !_.isString(id)) {
+    throw new Error('Missing groupId or id');
+  }
+
   return function (dispatch, getState) {
     const state = getState(),
-      groupIndex = _.findIndex(state.terminalTabGroups, {groupId});
+      terminal = getTerminal(state, groupId, id);
 
-    if (groupIndex > -1) {
-      const terminalIndex = _.findIndex(state.terminalTabGroups[groupIndex].tabs, {id});
+    if (terminal) {
+      const jqConsole = getJQConsole(id);
 
-      console.log('found group');
-
-      if (terminalIndex > -1) {
-        const terminalId = state.terminalTabGroups[groupIndex].tabs[terminalIndex].id,
-          jqConsole = getJQConsole(terminalId);
-
-        console.log('found terminalId', terminalId, jqConsole);
-
+      if (jqConsole) {
         // side-effect?  Can this be moved to component?  (Not yet.)
         jqConsole.Focus();
       }
@@ -339,50 +482,65 @@ function withContentAndPosition(jqConsole, fn) {
   return fn(before + current + after, cursorPos);
 }
 
-function autoComplete() {
+/**
+ * @param {string} groupId
+ * @param {string} id
+ * @returns {Function}
+ */
+function autoComplete(groupId, id) {
+  if (!_.isString(groupId) || !_.isString(id)) {
+    throw new Error('Missing groupId or id');
+  }
+
   return function (dispatch, getState) {
     const state = getState(),
-      terminal = _.head(state.terminals),
-      jqConsole = getJQConsole(terminal.id);
+      terminal = getTerminal(state, groupId, id);
 
-    withContentAndPosition(jqConsole, function (code, cursorPos) {
-      client.getAutoComplete(code, cursorPos)
-        .then(function (result) {
-          const matches = result.matches,
-            start = result.cursor_start,
-            len = result.cursor_end - start,
-            className = 'jqconsole-output',
-            htmlEscape = false,
-            longestLen = textUtil.longestLength(matches);
-          let paddedMatches, suggestions;
+    if (terminal) {
+      const jqConsole = getJQConsole(id);
 
-          if (matches.length === 1) {
-            // if only a single match, just replace it
-            return jqConsole.SetPromptText(textUtil.spliceString(code, start, len, matches[0]));
-          } else if (matches.length > 0) {
-            paddedMatches = matches.map(match => textUtil.padRight(match, longestLen));
-            suggestions = paddedMatches.map(function (match) {
-              match = $(jqConsole.ansi.stylize($('<span />').text(match).html()))[0];
-              match.classList.add('terminal-item');
-              return match.outerHTML;
-            }).join('');
+      if (jqConsole) {
+        withContentAndPosition(jqConsole, function (code, cursorPos) {
+          client.getAutoComplete(code, cursorPos)
+            .then(function (result) {
+              const matches = result.matches,
+                start = result.cursor_start,
+                len = result.cursor_end - start,
+                className = 'jqconsole-output',
+                htmlEscape = false,
+                longestLen = textUtil.longestLength(matches);
+              let paddedMatches, suggestions;
 
-            jqConsole.Write('<span class="terminal-list">' + suggestions + '</span>', className, htmlEscape);
-          }
-        })
-        .catch(error => dispatch(errorCaught(error)));
-    });
+              if (matches.length === 1) {
+                // if only a single match, just replace it
+                return jqConsole.SetPromptText(textUtil.spliceString(code, start, len, matches[0]));
+              } else if (matches.length > 0) {
+                paddedMatches = matches.map(match => textUtil.padRight(match, longestLen));
+                suggestions = paddedMatches.map(function (match) {
+                  match = $(jqConsole.ansi.stylize($('<span />').text(match).html()))[0];
+                  match.classList.add('terminal-item');
+                  return match.outerHTML;
+                }).join('');
+
+                jqConsole.Write('<span class="terminal-list">' + suggestions + '</span>', className, htmlEscape);
+              }
+            })
+            .catch(error => dispatch(errorCaught(error)));
+        });
+      }
+    }
   };
 }
-
 /**
+ * @param {string} clientId
  * @param {number} code
  * @param {string} signal
  * @returns {function}
  */
-function handleProcessClose(code, signal) {
+function handleProcessClose(clientId, code, signal) {
+
   return function () {
-    console.log('handleProcessClose', {code, signal});
+    console.log('handleProcessClose', {clientId, code, signal});
 
     // todo: only show after the startup is done
 
@@ -398,35 +556,103 @@ function handleProcessClose(code, signal) {
   };
 }
 
-function clearBuffer() {
+/**
+ * @param {string} groupId
+ * @param {string} id
+ * @returns {function}
+ */
+function clearBuffer(groupId, id) {
+  if (!_.isString(groupId) || !_.isString(id)) {
+    throw new Error('Missing groupId or id');
+  }
+
   return function (dispatch, getState) {
     const state = getState(),
-      terminal = _.head(state.terminals),
-      id = terminal.id,
-      el = document.querySelector('#' + id),
-      jqConsole = el && $(el).data('jqconsole'),
-      extras = el && el.querySelectorAll('img,iframe');
+      terminal = getTerminal(state, groupId, id);
 
-    jqConsole.Clear();
+    if (terminal) {
+      const el = document.querySelector('#' + id),
+        jqConsole = el && $(el).data('jqconsole'),
+        extras = el && el.querySelectorAll('img,iframe');
 
-    _.each(extras, function (extra) {
-      const parent = extra.parentNode;
+      if (jqConsole) {
+        jqConsole.Clear();
 
-      parent.removeChild(extra);
-    });
+        // anything else we've added should be removed too
+        _.each(extras, function (extra) {
+          const parent = extra.parentNode;
+
+          parent.removeChild(extra);
+        });
+      }
+    }
+  };
+}
+
+/**
+ * Note:  Caller must pass null if they want _any_ group
+ * @param fn
+ * @returns {Function}
+ */
+function toActiveTab(fn) {
+  return function (groupId) {
+    const otherArgs = _.slice(arguments, 1);
+
+    return function (dispatch, getState) {
+      const state = getState(),
+        groupIndex = getGroupIndex(state, groupId);
+
+      if (groupIndex > -1) {
+        groupId = groupId || state.terminalTabGroups[groupIndex].groupId;
+        const active = state.terminalTabGroups[groupIndex].active;
+
+        return dispatch(fn.apply(null, [groupId, active].concat(otherArgs)));
+      }
+    };
+  };
+}
+
+function byClientIdToActiveTab(fn) {
+  return function (clientId) {
+    const otherArgs = _.slice(arguments, 1);
+
+    console.warn('Received by clientId, but not implemented yet.  Just pushing ' +
+      'to active terminal for now.', {clientId});
+
+    return function (dispatch, getState) {
+      const state = getState(),
+        groupIndex = getGroupIndex(state);
+
+      if (groupIndex > -1) {
+        const groupId = state.terminalTabGroups[groupIndex].groupId,
+          active = state.terminalTabGroups[groupIndex].active;
+
+        return dispatch(fn.apply(null, [groupId, active].concat(otherArgs)));
+      }
+    };
   };
 }
 
 export default {
   addDisplayData,
+  addDisplayDataByClientId: byClientIdToActiveTab(addDisplayData),
   addInputText,
+  addInputTextToActiveTab: toActiveTab(addInputText),
+  addInputTextByClientId: byClientIdToActiveTab(addInputText),
   addErrorText,
+  addErrorTextByClientId: byClientIdToActiveTab(addErrorText),
   addOutputText,
+  addOutputTextByClientId: byClientIdToActiveTab(addOutputText),
   addOutputBlock,
+  addOutputBlockByClientId: byClientIdToActiveTab(addOutputBlock),
   interrupt,
+  interruptActiveTab: toActiveTab(interrupt),
   clearBuffer,
+  clearBufferOfActiveTab: toActiveTab(clearBuffer),
   focus,
+  focusActiveTab: toActiveTab(focus),
   restart,
+  restartActiveTab: toActiveTab(restart),
   startPrompt,
   autoComplete,
   handleProcessClose

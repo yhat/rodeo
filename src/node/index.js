@@ -281,13 +281,14 @@ function displayDataTransform(event) {
  * @param {string} windowName
  * @param {EventEmitter} emitter
  * @param {string} eventName
+ * @param {string} instanceId
  */
-function subscribeBrowserWindowToEvent(windowName, emitter, eventName) {
+function subscribeBrowserWindowToEvent(windowName, emitter, eventName, instanceId) {
   emitter.on(eventName, function () {
     const list = _.map(_.toArray(arguments), arg => displayDataTransform(arg));
 
     bluebird.all(list).then(function (normalizedList) {
-      browserWindows.send.apply(browserWindows, [windowName, eventName].concat(normalizedList));
+      browserWindows.send.apply(browserWindows, [windowName, eventName, instanceId].concat(normalizedList));
     }).catch(error => log('error', error));
   });
 }
@@ -295,15 +296,16 @@ function subscribeBrowserWindowToEvent(windowName, emitter, eventName) {
 /**
  * @param {string} windowName
  * @param {JupyterClient} client
+ * @param {string} instanceId
  */
-function subscribeWindowToKernelEvents(windowName, client) {
-  subscribeBrowserWindowToEvent(windowName, client, 'shell');
-  subscribeBrowserWindowToEvent(windowName, client, 'iopub');
-  subscribeBrowserWindowToEvent(windowName, client, 'stdin');
-  subscribeBrowserWindowToEvent(windowName, client, 'event');
-  subscribeBrowserWindowToEvent(windowName, client, 'input_request');
-  subscribeBrowserWindowToEvent(windowName, client, 'error');
-  subscribeBrowserWindowToEvent(windowName, client, 'close');
+function subscribeWindowToKernelEvents(windowName, client, instanceId) {
+  subscribeBrowserWindowToEvent(windowName, client, 'shell', instanceId);
+  subscribeBrowserWindowToEvent(windowName, client, 'iopub', instanceId);
+  subscribeBrowserWindowToEvent(windowName, client, 'stdin', instanceId);
+  subscribeBrowserWindowToEvent(windowName, client, 'event', instanceId);
+  subscribeBrowserWindowToEvent(windowName, client, 'input_request', instanceId);
+  subscribeBrowserWindowToEvent(windowName, client, 'error', instanceId);
+  subscribeBrowserWindowToEvent(windowName, client, 'close', instanceId);
 }
 
 /**
@@ -525,14 +527,13 @@ function onCreateKernelInstance(options) {
         });
         client.on('error', function (error) {
           log('info', 'python kernel process error', instanceId, 'process', client.childProcess.pid, options, error);
-
         });
         client.on('close', function (code, signal) {
           log('info', 'python kernel process closed', instanceId, 'process', client.childProcess.pid, options, {code, signal});
           delete kernelClients[instanceId];
         });
 
-        subscribeWindowToKernelEvents('mainWindow', client);
+        subscribeWindowToKernelEvents('mainWindow', client, instanceId);
 
         return kernelClients[instanceId];
       }).catch(function () {

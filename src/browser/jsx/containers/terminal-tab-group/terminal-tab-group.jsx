@@ -18,11 +18,14 @@ function mapDispatchToProps(dispatch, ownProps) {
 
   return {
     onFocusTab: id => dispatch(actions.focus(groupId, id)),
-    onInterrupt: () => dispatch(actions.interrupt()),
-    onAutoComplete: (code, cursorPos) => dispatch(actions.autoComplete(code, cursorPos)),
-    onStart: (jqConsole) => dispatch(actions.startPrompt(jqConsole)),
-    onRestart: () => dispatch(actions.restart()),
-    onClearBuffer: () => dispatch(actions.clearBuffer())
+    onInterrupt: id => dispatch(actions.interrupt(groupId, id)),
+    onAutoComplete: id => dispatch(actions.autoComplete(groupId, id)),
+    onStart: id => dispatch(actions.startPrompt(groupId, id)),
+    onRestart: id => dispatch(actions.restart(groupId, id)),
+    onClearBuffer: id => dispatch(actions.clearBuffer(groupId, id)),
+    onRestartActiveTerminal: () => dispatch(actions.restartActiveTab(groupId)),
+    onInterruptActiveTerminal: () => dispatch(actions.interruptActiveTab(groupId)),
+    onClearBufferActiveTerminal: () => dispatch(actions.clearBufferOfActiveTab(groupId))
   };
 }
 
@@ -53,14 +56,14 @@ export default connect(null, mapDispatchToProps)(React.createClass({
       runTerminalInterrupt = 'Ctrl + C',
       runTerminalRestart = process.platform === 'darwin' ? '⌘ + R' : 'Alt + R',
       types = {
-        terminal: content => (
+        terminal: tab => (
           <Terminal
             disabled={props.disabled}
-            onAutoComplete={props.onAutoComplete}
-            onClearBuffer={props.onClearBuffer}
-            onInterrupt={props.onInterrupt}
-            onStart={props.onStart}
-            {...content}
+            onAutoComplete={_.partial(props.onAutoComplete, tab.id)}
+            onClearBuffer={_.partial(props.onClearBuffer, tab.id)}
+            onInterrupt={_.partial(props.onInterrupt, tab.id)}
+            onStart={_.partial(props.onStart, tab.id)}
+            {...tab.content}
           />
         )
       };
@@ -84,21 +87,21 @@ export default connect(null, mapDispatchToProps)(React.createClass({
           className="right"
           icon="refresh"
           label="Restart"
-          onClick={props.onRestart}
+          onClick={props.onRestartActiveTerminal}
           title={runTerminalRestart}
         />
         <TabButton
           className="right"
           icon="stop"
           label="Interrupt"
-          onClick={props.onInterrupt}
+          onClick={props.onInterruptActiveTerminal}
           title={runTerminalInterrupt}
         />
         <TabButton
           className="right"
           icon="trash-o"
           label="Clear"
-          onClick={props.onClearBuffer}
+          onClick={props.onClearBufferActiveTerminal}
           title={runClearTerminalBuffer}
         />
 
@@ -112,7 +115,7 @@ export default connect(null, mapDispatchToProps)(React.createClass({
               id={tab.id}
               key={tab.id}
               label={tab.label}
-            >{types[tab.contentType](tab.content)}</TabbedPaneItem>
+            >{types[tab.contentType](tab)}</TabbedPaneItem>
           );
         })}
       </TabbedPane>

@@ -100,17 +100,13 @@ function restart() {
 }
 
 function detectKernelVariables() {
-  return function (dispatch, getState) {
-    const state = getState(),
-      terminal = _.head(state.terminals),
-      id = terminal.id;
-
+  return function (dispatch) {
     return client.getStatus().then(function (status) {
       const variables = status.variables,
         cwd = status.cwd;
 
-      dispatch({type: 'VARIABLES_CHANGED', variables, id});
-      dispatch({type: 'WORKING_DIRECTORY_CHANGED', cwd, id});
+      dispatch({type: 'VARIABLES_CHANGED', variables});
+      dispatch({type: 'WORKING_DIRECTORY_CHANGED', cwd});
 
       return status;
     }).catch(error => dispatch(errorCaught(error)));

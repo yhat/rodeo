@@ -20,23 +20,19 @@ export default React.createClass({
   propTypes: {
     focusable: React.PropTypes.bool,
     fontSize: React.PropTypes.number,
-    id: React.PropTypes.string.isRequired,
     indentWidth: React.PropTypes.number,
     message: React.PropTypes.string,
-    onAutoComplete: React.PropTypes.func,
+    onAutoComplete: React.PropTypes.func.isRequired,
     onClearBuffer: React.PropTypes.func.isRequired,
-    onInterrupt: React.PropTypes.func,
-    onStart: React.PropTypes.func
+    onInterrupt: React.PropTypes.func.isRequired,
+    onStart: React.PropTypes.func.isRequired
   },
   getDefaultProps: function () {
     return {
       focusable: true,
       fontSize: 12,
       indentWidth: 4,
-      message: message,
-      onAutoComplete: _.noop,
-      onInterrupt: _.noop,
-      onStart: _.noop
+      message: message
     };
   },
   componentDidMount: function () {
@@ -54,7 +50,7 @@ export default React.createClass({
     terminalShortcuts.moveCursorToEnd(jqConsole);
     terminalShortcuts.moveCursorToStart(jqConsole);
 
-    props.onStart(jqConsole);
+    props.onStart();
   },
   shouldComponentUpdate: function (nextProps) {
     return !commonReact.shallowEqual(this, nextProps);
@@ -64,6 +60,6 @@ export default React.createClass({
       className = commonReact.getClassNameList(this),
       style = {fontSize: props.fontSize + 'px'};
 
-    return <div className={className.join(' ')} id={props.id} style={style}></div>;
+    return <div className={className.join(' ')} style={style}></div>;
   }
 });

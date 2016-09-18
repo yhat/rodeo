@@ -14,6 +14,7 @@
 
 .terminal {
   position: relative;
+  height: 100%;
 }
 
 .terminal-list {

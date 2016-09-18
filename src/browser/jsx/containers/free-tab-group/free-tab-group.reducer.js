@@ -72,15 +72,16 @@ function addPlot(state, action) {
   _.each(state, (group, groupIndex) => {
     _.each(group.tabs, (tab, tabIndex) => {
       if (tab.contentType === 'plot-viewer') {
-        state = state.updateIn([groupIndex, 'tabs', tabIndex, 'options'], obj => {
+        state = state.updateIn([groupIndex, 'tabs', tabIndex, 'content'], obj => {
           const newPlot = {
             id: cid(),
             data: action.data,
             createdAt: new Date().getTime()
           };
 
-          obj.active = newPlot.id;
-          obj.plots.push(newPlot);
+          obj.set('active', newPlot.id);
+          obj.set('plots', obj.plots.concat([newPlot]));
+
           return obj;
         });
       }
