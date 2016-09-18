@@ -101,9 +101,14 @@ export default React.createClass({
   resize: function () {
     const instance = ace.edit(ReactDOM.findDOMNode(this));
 
+    console.log('before', instance.container.offsetWidth, instance.container.offsetHeight);
+
     instance.resize();
+
+    console.log('after', instance.container.offsetWidth, instance.container.offsetHeight);
   },
   loadContentFromFile: function () {
+    console.log('AcePane', 'loadContentFromFile', {props: this.props});
     const props = this.props,
       instance = ace.edit(ReactDOM.findDOMNode(this)),
       session = instance.getSession();

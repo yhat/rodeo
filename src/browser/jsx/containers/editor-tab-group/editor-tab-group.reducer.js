@@ -27,6 +27,7 @@ function getDefault() {
     closeable: true,
     content: {
       fontSize: _.toNumber(local.get('fontSize')) || 12,
+      highlightLine: true,
       keyBindings: local.get('aceKeyBindings') || 'default',
       mode: 'python',
       tabSize: _.toNumber(local.get('aceTabSpaces')) || 4,

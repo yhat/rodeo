@@ -3,6 +3,7 @@ ul.tab-list {
   margin: 0;
   padding: 0;
   position: relative;
+  flex: 0 0;
 }
 
 ul.tab-list > li {

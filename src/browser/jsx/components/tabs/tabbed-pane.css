@@ -1,6 +1,10 @@
-.tabbed-pane {
+.full-screen div.tabbed-pane { /* annoyingly specific over vsplitter */
   display: flex;
   flex-direction: column;
+  justify-content: flex-start;
+  align-items: stretch;
+  overflow: hidden;
+  align-content: stretch;
 }
 
 .tabbed-pane .left {

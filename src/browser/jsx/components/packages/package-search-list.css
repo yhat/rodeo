@@ -1,5 +1,7 @@
 .package-search-list {
-  margin: 10px;
+  padding: 10px;
+  overflow-y: auto;
+  height: 100%;
 }
 
 .package-search-list > header {

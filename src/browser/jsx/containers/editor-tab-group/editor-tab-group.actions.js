@@ -7,7 +7,7 @@ import cid from '../../services/cid';
 
 /**
  * @param {string} groupId
- * @param {string} id
+ * @param {string} [id]
  * @param {string} [filename]
  * @param {object} [stats]
  * @returns {{type: string, filename: string, stats: object}}
@@ -147,13 +147,40 @@ function focusActive() {
   };
 }
 
+function handleLoadError(tab) {
+  return function () {
+    console.log(__filename, 'handleLoadError', tab);
+  };
+}
+
+function handleLoading(tab) {
+  return function () {
+    console.log(__filename, 'handleLoading', tab);
+  };
+}
+
+function handleLoaded(tab) {
+  return function () {
+    console.log(__filename, 'handleLoaded', tab);
+  };
+}
+
+function save(tab) {
+  return function () {
+    console.log(__filename, 'save', tab);
+  }
+}
 export default {
   add,
   focus,
   focusActive,
   close,
+  save,
   fileIsSaved,
   saveActiveFile,
   showSaveFileDialogForActiveFile,
-  showOpenFileDialogForActiveFile
+  showOpenFileDialogForActiveFile,
+  handleLoadError,
+  handleLoading,
+  handleLoaded
 };

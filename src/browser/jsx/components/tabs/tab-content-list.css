@@ -1,3 +1,5 @@
 .tab-content-list {
-  height: 100%;
+  flex: 1 1;
+  overflow: hidden; /* allow individual components decide if they scroll / take the full space */
 }
+

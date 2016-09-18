@@ -1,6 +1,5 @@
 import { combineReducers } from 'redux';
 import applicationControl from '../services/application-control';
-import splitPanes from '../components/split-pane/split-pane.reducer';
 import plots from './plot-viewer/plot-viewer.reducer';
 import fileView from './file-viewer/file-viewer.reducer';
 import modalDialogs from './modal-dialog-viewer/modal-dialog.reducer';
@@ -33,11 +32,6 @@ function broadcast(state, action) {
  * functions, symbols, null, and other things that do not translate to JSON are not allowed and will not be persisted.
  */
 export default combineReducers({
-  /**
-   * list! These need to be persisted between application loads.  They also have to broadcast changes to themselves to
-   * other components so they know to handle resizing in the case of badly written external jquery libraries.
-   */
-  splitPanes,
   /**
    * stack! Modals are stacked up in order, and closed in order, FILO.
    */

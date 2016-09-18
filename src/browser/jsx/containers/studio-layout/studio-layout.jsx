@@ -6,7 +6,6 @@ import EditorTabGroup from '../../containers/editor-tab-group/editor-tab-group.j
 import TerminalTabGroup from '../../containers/terminal-tab-group/terminal-tab-group.jsx';
 import FreeTabGroup from '../../containers/free-tab-group/free-tab-group.jsx';
 import './studio-layout.css';
-import splitPaneActions from '../../components/split-pane/split-pane.actions';
 import editorTabGroupActions from '../../containers/editor-tab-group/editor-tab-group.actions';
 import dialogActions from '../../actions/dialogs';
 import kernelActions from '../../actions/kernel';
@@ -31,7 +30,6 @@ function mapDispatchToProps(dispatch) {
     onRemoveAcePane: (id) => dispatch(editorTabGroupActions.closeFile(id)),
     onRunActiveAcePane: () => dispatch(kernelActions.executeActiveFileInActiveConsole()),
     onRodeo: () => dispatch(dialogActions.showAboutRodeo()),
-    onSplitPaneDrag: () => dispatch(splitPaneActions.splitPaneDrag())
   };
 }
 

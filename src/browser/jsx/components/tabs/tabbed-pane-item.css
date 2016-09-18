@@ -1,5 +1,6 @@
 .tabbed-pane-item {
   display: none;
+  overflow: hidden;
 }
 
 .tabbed-pane-item.active {

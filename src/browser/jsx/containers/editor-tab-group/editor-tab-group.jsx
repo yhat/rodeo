@@ -39,6 +39,10 @@ function mapDispatchToProps(dispatch, ownProps) {
     onInterrupt: () => dispatch(terminalActions.interrupt()),
     onFocusTab: (id) => dispatch(editorTabGroupActions.focus(groupId, id)),
     onLiftText: (text, context) => dispatch(terminalActions.addInputText(context)),
+    onLoadError: tab => dispatch(editorTabGroupActions.handleLoadError(groupId, tab)),
+    onLoading: tab => dispatch(editorTabGroupActions.handleLoading(groupId, tab)),
+    onLoaded: tab => dispatch(editorTabGroupActions.handleLoaded(groupId, tab)),
+    onSave: tab => dispatch(editorTabGroupActions.save(groupId, tab)),
     onOpenPreferences: () => dispatch(dialogActions.showPreferences()),
     onRemoveAcePane: (id) => dispatch(editorTabGroupActions.close(groupId, id)),
     onRunActiveAcePane: () => dispatch(kernelActions.executeActiveFileInActiveConsole()),
@@ -145,7 +149,11 @@ export default connect(null, mapDispatchToProps)(React.createClass({
             onInterrupt={props.onInterrupt}
             onLiftFile={props.onRunActiveAcePane}
             onLiftSelection={props.onLiftText}
+            onLoadError={props.onLoadError}
+            onLoaded={props.onLoaded}
+            onLoading={props.onLoading}
             onOpenPreferences={props.onOpenPreferences}
+            onSave={props.onSave}
             {...content}
           />
         )
@@ -170,15 +178,7 @@ export default connect(null, mapDispatchToProps)(React.createClass({
         <TabOverflowImage onClick={props.onRodeo} src={rodeoLogo}/>
         <TabButton className="right" icon="play-circle" label="Run Script" onClick={props.onRunActiveAcePane} title={runScriptTitle}/>
         <TabButton className="right" icon="play" label="Run Line" onClick={props.onRunActiveAcePaneSelection} title={runLineTitle}/>
-
-        {props.tabs.map(function (tab) {
-          console.log('EditorTabGroup', 'render2', {tab});
-
-          return (
-            <TabbedPaneItem{...tab}>{types[tab.contentType](tab.content)}</TabbedPaneItem>
-          );
-        })}
-
+        {props.tabs.map(tab => <TabbedPaneItem key={tab.id} {...tab}>{types[tab.contentType](tab.content)}</TabbedPaneItem>)}
         <TabAdd onClick={props.onAddAcePane} />
       </TabbedPane>
     );

@@ -5,14 +5,6 @@ import {getInitialState as getFileViewerInitialState} from './file-viewer/file-v
 import {getInitialState as getPlotViewerInitialState} from './plot-viewer/plot-viewer.reducer';
 import {getInitialState as getPackageSearchViewerInitialState} from './package-search-viewer/package-search-viewer.reducer';
 
-function getSplitState() {
-  return local.get('splitPanePositions') || {
-    'split-pane-center': window.innerWidth / 2 + 'px',
-    'split-pane-right': window.innerHeight / 2 + 'px',
-    'split-pane-left': window.innerHeight / 2 + 'px'
-  };
-}
-
 function getTerminalTabGroups() {
   const bottomLeftFocusId = cid();
 
@@ -91,7 +83,6 @@ function getFreeTabGroups() {
 
 function getState() {
   return {
-    splitPanes: getSplitState(),
     freeTabGroups: getFreeTabGroups(),
     terminalTabGroups: getTerminalTabGroups()
   };

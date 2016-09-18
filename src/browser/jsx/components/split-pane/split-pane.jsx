@@ -5,6 +5,37 @@ import ReactDOM from 'react-dom';
 import './lib/jquery.splitter.css';
 import './lib/jquery.splitter-0.15.0';
 import globalObserver from '../../services/global-observer';
+import {local} from '../../services/store';
+
+function getSplitState() {
+  return local.get('splitPanePositions') || {
+    'split-pane-center': window.innerWidth / 2 + 'px',
+    'split-pane-right': window.innerHeight / 2 + 'px',
+    'split-pane-left': window.innerHeight / 2 + 'px'
+  };
+}
+
+function savePosition(id) {
+  const el = document.querySelector('#' + id);
+
+  if (el) {
+    let position,
+      splitter = $(el).split(),
+      orientation = splitter.orientation,
+      state = getSplitState();
+
+    if (orientation === 'horizontal') {
+      position = el.firstChild.clientHeight;
+    } else if (orientation === 'vertical') {
+      position = el.firstChild.clientWidth;
+    }
+
+    if (position) {
+      state[id] = position + 'px';
+      local.set('splitPanePositions', state);
+    }
+  }
+}
 
 /**
  * @class SplitPane
@@ -40,15 +71,15 @@ export default React.createClass({
     const el = ReactDOM.findDOMNode(this),
       $el = $(el),
       props = this.props,
-      state = this.context.store.getState(),
+      state = getSplitState(),
       id = props.id,
       limit = props.limit,
       direction = props.direction;
     let instance,
       position = props.position;
 
-    if (state.splitPanes[id]) {
-      position = state.splitPanes[id];
+    if (state[id]) {
+      position = state[id];
     }
 
     instance = $el.split({
@@ -56,8 +87,8 @@ export default React.createClass({
       limit: limit,
       position: position,
       onDragStart: props.onDragStart,
-      onDragEnd: _.over(this.props.onDragEnd, this.handleDragEnd),
-      onDrag: _.over(this.props.onDrag, this.handleDrag)
+      onDragEnd: _.over(props.onDragEnd, this.handleDragEnd),
+      onDrag: _.over(props.onDrag, this.handleDrag)
     });
 
     instance.refresh();
@@ -83,16 +114,14 @@ export default React.createClass({
     });
   },
   handleDrag: function () {
-    this.context.store.dispatch({type: 'SPLIT_PANE_DRAG', id: this.props.id});
+    savePosition(this.id);
     globalObserver.trigger('resize');
   },
   handleDragEnd: function () {
-    this.context.store.dispatch({type: 'SPLIT_PANE_DRAG_END', id: this.props.id});
+    savePosition(this.id);
     globalObserver.trigger('resize');
   },
   render: function () {
-    return (
-      <div id={this.props.id}>{this.props.children}</div>
-    );
+    return <div id={this.props.id}>{this.props.children}</div>;
   }
 });
