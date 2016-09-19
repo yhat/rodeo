@@ -9,7 +9,7 @@ describe(__filename, () => {
   describe('ADD_TAB', () => {
     it('adds', function () {
       const state = Immutable([{groupId: 'a', tabs: []}]),
-        action = {type: 'ADD_TAB', groupId: 'a', id: 'b'};
+        action = {type: 'ADD_TAB', groupId: 'a'};
 
       let result = lib(state, action);
 
@@ -103,6 +103,46 @@ describe(__filename, () => {
       let result = lib(state, action);
 
       expect(result[0].tabs).toEqual([{id: 'b', content: {fontSize: 2}}]);
+    });
+  });
+
+  describe('MOVE_ONE_RIGHT', function () {
+    it('moves active one right', () => {
+      const state = Immutable([{groupId: 'a', active: 'b', tabs: [{id: 'b'}, {id: 'c'}]}]),
+        action = {type: 'MOVE_ONE_RIGHT'};
+
+      let result = lib(state, action);
+
+      expect(result[0].active).toEqual('c');
+    });
+
+    it('does not move if on the far right', () => {
+      const state = Immutable([{groupId: 'a', active: 'c', tabs: [{id: 'b'}, {id: 'c'}]}]),
+        action = {type: 'MOVE_ONE_RIGHT'};
+
+      let result = lib(state, action);
+
+      expect(result[0].active).toEqual('c');
+    });
+  });
+
+  describe('MOVE_ONE_LEFT', function () {
+    it('moves active one left', () => {
+      const state = Immutable([{groupId: 'a', active: 'c', tabs: [{id: 'b'}, {id: 'c'}]}]),
+        action = {type: 'MOVE_ONE_LEFT'};
+
+      let result = lib(state, action);
+
+      expect(result[0].active).toEqual('b');
+    });
+
+    it('does not move if on the far left', () => {
+      const state = Immutable([{groupId: 'a', active: 'b', tabs: [{id: 'b'}, {id: 'c'}]}]),
+        action = {type: 'MOVE_ONE_LEFT'};
+
+      let result = lib(state, action);
+
+      expect(result[0].active).toEqual('b');
     });
   });
 });

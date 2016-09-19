@@ -12,29 +12,27 @@ import commonReact from '../../services/common-react';
 export default React.createClass({
   displayName: 'BackgroundPlot',
   propTypes: {
+    active: React.PropTypes.bool.isRequired,
     data: React.PropTypes.object.isRequired,
-    hasFocus: React.PropTypes.bool,
-    id: React.PropTypes.string.isRequired,
     onClick: React.PropTypes.func.isRequired,
     onRemove: React.PropTypes.func.isRequired,
     onSave: React.PropTypes.func.isRequired
   },
-  getDefaultProps: function () {
-    return {
-      hasFocus: false
-    };
-  },
   shouldComponentUpdate(nextProps) {
+    console.log('BackgroundPlot', 'shouldComponentUpdate', !commonReact.shallowEqual(this, nextProps));
     return !commonReact.shallowEqual(this, nextProps);
   },
   render: function () {
     const props = this.props,
       data = props.data;
     let itemStyle,
-      className = [
-        'item',
-        props.hasFocus ? 'active' : ''
-      ];
+      className = commonReact.getClassNameList(this);
+
+    console.log('BackgroundPlot', 'render', props);
+
+    if (props.active) {
+      className.push('active');
+    }
 
     if (data['image/png']) {
       itemStyle = { backgroundImage: 'url(' + data['image/png'] + ')' };
@@ -48,10 +46,8 @@ export default React.createClass({
       itemStyle = { backgroundImage: 'url(' + errorSplash + ')' };
     }
 
-    className = className.join(' ');
-
     return (
-      <div className={className} onClick={props.onClick} style={itemStyle}>
+      <div className={className.join(' ')} onClick={props.onClick} style={itemStyle}>
         <div className="action-bar">
           <div className="actions">
             <div className="fa fa-times action" onClick={props.onRemove}></div>

@@ -6,37 +6,13 @@ import cid from '../../services/cid';
 import {errorCaught} from '../../actions/application';
 import kernelActions from '../../actions/kernel';
 import plotViewerActions from '../plot-viewer/plot-viewer.actions';
+import freeTabGroupActions from '../free-tab-group/free-tab-group.actions';
 import {local} from '../../services/store';
 import textUtil from '../../services/text-util';
+import commonTabsActions from '../../services/common-tabs-actions';
 const convertor = new AsciiToHtml(),
-  inputBuffer = [];
-
-/**
- * @param {object} state
- * @param {number} [groupId]  Uses first group if not provided
- * @returns {object}  Returns -1 if no group found
- */
-function getGroupIndex(state, groupId) {
-  if (state.terminalTabGroups.length === 0) {
-    return -1;
-  }
-
-  return _.isString(groupId) ? _.findIndex(state.terminalTabGroups, {groupId}) : 0;
-}
-
-function getTerminal(state, groupId, id) {
-  const groupIndex = _.findIndex(state.terminalTabGroups, {groupId});
-
-  if (groupIndex > -1) {
-    const tabIndex = _.findIndex(state.terminalTabGroups[groupIndex].tabs, {id});
-
-    if (tabIndex > -1) {
-      return state.terminalTabGroups[groupIndex].tabs[tabIndex].content;
-    }
-  }
-
-  return null;
-}
+  inputBuffer = [],
+  tabGroupName = 'terminalTabGroups';
 
 function getJQConsole(id) {
   const el = document.querySelector('#' + id),
@@ -52,7 +28,7 @@ function startPrompt(groupId, id) {
 
   return function (dispatch, getState) {
     const state = getState(),
-      terminal = getTerminal(state, groupId, id);
+      terminal = commonTabsActions.getContent(state[tabGroupName], groupId, id);
 
     if (terminal) {
       const jqConsole = getJQConsole(id);
@@ -114,7 +90,7 @@ function addInputText(groupId, id, context) {
 
   return function (dispatch, getState) {
     const state = getState(),
-      terminal = getTerminal(state, groupId, id);
+      terminal = commonTabsActions.getContent(state[tabGroupName], groupId, id);
 
     if (terminal) {
       const jqConsole = getJQConsole(id);
@@ -170,7 +146,7 @@ function addOutputText(groupId, id, text) {
 
   return function (dispatch, getState) {
     const state = getState(),
-      terminal = getTerminal(state, groupId, id);
+      terminal = commonTabsActions.getContent(state[tabGroupName], groupId, id);
 
     if (terminal) {
       const jqConsole = getJQConsole(id);
@@ -197,7 +173,7 @@ function addOutputBlock(groupId, id, text) {
 
   return function (dispatch, getState) {
     const state = getState(),
-      terminal = getTerminal(state, groupId, id);
+      terminal = commonTabsActions.getContent(state[tabGroupName], groupId, id);
 
     if (terminal) {
       const jqConsole = getJQConsole(id);
@@ -226,7 +202,7 @@ function addJSError(groupId, id, error) {
 
   return function (dispatch, getState) {
     const state = getState(),
-      terminal = getTerminal(state, groupId, id);
+      terminal = commonTabsActions.getContent(state[tabGroupName], groupId, id);
 
     if (terminal) {
       const jqConsole = getJQConsole(id);
@@ -258,7 +234,7 @@ function addErrorText(groupId, id, ename, evalue, traceback) {
 
   return function (dispatch, getState) {
     const state = getState(),
-      terminal = getTerminal(state, groupId, id);
+      terminal = commonTabsActions.getContent(state[tabGroupName], groupId, id);
 
     if (terminal) {
       const jqConsole = getJQConsole(id);
@@ -299,7 +275,7 @@ function appendPNG(dispatch, jqConsole, data) {
   _.defer(function () {
     document.querySelector('#' + id)
       .addEventListener('click', function () {
-        dispatch(plotViewerActions.focusNewestPlot());
+        dispatch(freeTabGroupActions.focusNewestPlot());
       });
   });
 }
@@ -318,7 +294,7 @@ function appendSVG(dispatch, jqConsole, data) {
   _.defer(function () {
     document.querySelector('#' + id)
       .addEventListener('click', function () {
-        dispatch(plotViewerActions.focusNewestPlot());
+        dispatch(freeTabGroupActions.focusNewestPlot());
       });
   });
 }
@@ -337,7 +313,7 @@ function addDisplayData(groupId, id, data) {
 
   return function (dispatch, getState) {
     const state = getState(),
-      terminal = getTerminal(state, groupId, id);
+      terminal = commonTabsActions.getContent(state[tabGroupName], groupId, id);
 
     if (terminal) {
       const jqConsole = getJQConsole(id);
@@ -373,7 +349,7 @@ function interrupt(groupId, id) {
 
   return function (dispatch, getState) {
     const state = getState(),
-      terminal = getTerminal(state, groupId, id);
+      terminal = commonTabsActions.getContent(state[tabGroupName], groupId, id);
 
     if (terminal) {
       const jqConsole = getJQConsole(id);
@@ -403,7 +379,7 @@ function restart(groupId, id) {
 
   return function (dispatch, getState) {
     const state = getState(),
-      terminal = getTerminal(state, groupId, id);
+      terminal = commonTabsActions.getContent(state[tabGroupName], groupId, id);
 
     if (terminal) {
       const jqConsole = getJQConsole(id);
@@ -438,17 +414,12 @@ function focus(groupId, id) {
     throw new Error('Missing groupId or id');
   }
 
-  return function (dispatch, getState) {
-    const state = getState(),
-      terminal = getTerminal(state, groupId, id);
+  return function (dispatch) {
+    const jqConsole = getJQConsole(id);
 
-    if (terminal) {
-      const jqConsole = getJQConsole(id);
-
-      if (jqConsole) {
-        // side-effect?  Can this be moved to component?  (Not yet.)
-        jqConsole.Focus();
-      }
+    if (jqConsole) {
+      // side-effect?  Can this be moved to component?  (Not yet.)
+      jqConsole.Focus();
     }
 
     dispatch({type: 'FOCUS_TAB', groupId, id});
@@ -494,7 +465,7 @@ function autoComplete(groupId, id) {
 
   return function (dispatch, getState) {
     const state = getState(),
-      terminal = getTerminal(state, groupId, id);
+      terminal = commonTabsActions.getContent(state[tabGroupName], groupId, id);
 
     if (terminal) {
       const jqConsole = getJQConsole(id);
@@ -568,11 +539,11 @@ function clearBuffer(groupId, id) {
 
   return function (dispatch, getState) {
     const state = getState(),
-      terminal = getTerminal(state, groupId, id);
+      terminal = commonTabsActions.getContent(state[tabGroupName], groupId, id);
 
     if (terminal) {
       const el = document.querySelector('#' + id),
-        jqConsole = el && $(el).data('jqconsole'),
+        jqConsole = getJQConsole(id),
         extras = el && el.querySelectorAll('img,iframe');
 
       if (jqConsole) {
@@ -589,29 +560,6 @@ function clearBuffer(groupId, id) {
   };
 }
 
-/**
- * Note:  Caller must pass null if they want _any_ group
- * @param fn
- * @returns {Function}
- */
-function toActiveTab(fn) {
-  return function (groupId) {
-    const otherArgs = _.slice(arguments, 1);
-
-    return function (dispatch, getState) {
-      const state = getState(),
-        groupIndex = getGroupIndex(state, groupId);
-
-      if (groupIndex > -1) {
-        groupId = groupId || state.terminalTabGroups[groupIndex].groupId;
-        const active = state.terminalTabGroups[groupIndex].active;
-
-        return dispatch(fn.apply(null, [groupId, active].concat(otherArgs)));
-      }
-    };
-  };
-}
-
 function byClientIdToActiveTab(fn) {
   return function (clientId) {
     const otherArgs = _.slice(arguments, 1);
@@ -621,11 +569,11 @@ function byClientIdToActiveTab(fn) {
 
     return function (dispatch, getState) {
       const state = getState(),
-        groupIndex = getGroupIndex(state);
+        groupIndex = commonTabsActions.getGroupIndex(state[tabGroupName]);
 
       if (groupIndex > -1) {
-        const groupId = state.terminalTabGroups[groupIndex].groupId,
-          active = state.terminalTabGroups[groupIndex].active;
+        const groupId = state[tabGroupName][groupIndex].groupId,
+          active = state[tabGroupName][groupIndex].active;
 
         return dispatch(fn.apply(null, [groupId, active].concat(otherArgs)));
       }
@@ -637,7 +585,7 @@ export default {
   addDisplayData,
   addDisplayDataByClientId: byClientIdToActiveTab(addDisplayData),
   addInputText,
-  addInputTextToActiveTab: toActiveTab(addInputText),
+  addInputTextToActiveTab: commonTabsActions.toActiveTab(tabGroupName, addInputText),
   addInputTextByClientId: byClientIdToActiveTab(addInputText),
   addErrorText,
   addErrorTextByClientId: byClientIdToActiveTab(addErrorText),
@@ -646,13 +594,13 @@ export default {
   addOutputBlock,
   addOutputBlockByClientId: byClientIdToActiveTab(addOutputBlock),
   interrupt,
-  interruptActiveTab: toActiveTab(interrupt),
+  interruptActiveTab: commonTabsActions.toActiveTab(tabGroupName, interrupt),
   clearBuffer,
-  clearBufferOfActiveTab: toActiveTab(clearBuffer),
+  clearBufferOfActiveTab: commonTabsActions.toActiveTab(tabGroupName, clearBuffer),
   focus,
-  focusActiveTab: toActiveTab(focus),
+  focusActiveTab: commonTabsActions.toActiveTab(tabGroupName, focus),
   restart,
-  restartActiveTab: toActiveTab(restart),
+  restartActiveTab: commonTabsActions.toActiveTab(tabGroupName, restart),
   startPrompt,
   autoComplete,
   handleProcessClose

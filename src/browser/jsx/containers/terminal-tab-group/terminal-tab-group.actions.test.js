@@ -13,24 +13,18 @@ describe(__filename, () => {
       const id = 'b',
         focusFn = jest.fn(),
         data = {Focus: focusFn},
-        dispatch = jest.fn(),
-        getState = _.constant(Immutable({terminalTabGroups: [{groupId: 'a', tabs: [{id}]}]}));
+        dispatch = jest.fn();
 
-      document.body.innerHTML =
-        `<div id="${id}"><div class="terminal" /></div>`;
+      document.body.innerHTML = `<div id="${id}"><div class="terminal" /></div>`;
 
       $(`#${id}`).find('.terminal').data('jqconsole', data);
 
       let testFn = lib.focus('a', 'b');
 
-      testFn(dispatch, getState);
+      testFn(dispatch);
 
       expect(dispatch.mock.calls[0][0]).toEqual({type: 'FOCUS_TAB', groupId: 'a', id: 'b'});
       expect(focusFn.mock.calls.length).toBe(1);
     });
-  });
-
-  describe('', function () {
-
   });
 });

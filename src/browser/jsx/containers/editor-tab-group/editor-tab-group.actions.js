@@ -3,17 +3,25 @@ import {send} from 'ipc';
 import ace from 'ace';
 import {local} from '../../services/store';
 import {errorCaught} from '../../actions/application';
-import cid from '../../services/cid';
+import commonTabsActions from '../../services/common-tabs-actions';
+import terminalTabGroupActions from '../terminal-tab-group/terminal-tab-group.actions';
+const tabGroupName = 'editorTabGroups';
+
+function getAceInstance(id) {
+  const tabEl = document.querySelector('#' + id),
+    el = tabEl && tabEl.querySelector('.ace-pane');
+
+  return el && ace.edit(el);
+}
 
 /**
  * @param {string} groupId
- * @param {string} [id]
  * @param {string} [filename]
  * @param {object} [stats]
  * @returns {{type: string, filename: string, stats: object}}
  */
-export function add(groupId, id, filename, stats) {
-  return {type: 'ADD_TAB', groupId, id, filename, stats};
+export function add(groupId, filename, stats) {
+  return {type: 'ADD_TAB', groupId, filename, stats};
 }
 
 /**
@@ -35,12 +43,13 @@ export function close(groupId, id) {
 }
 
 /**
+ * @param {string} groupId
  * @param {string} id
  * @param {string} [filename]
  * @returns {{type: string, id: string, filename: string}}
  */
-export function fileIsSaved(id, filename) {
-  return {type: 'FILE_IS_SAVED', id, filename};
+export function fileIsSaved(groupId, id, filename) {
+  return {type: 'FILE_IS_SAVED', groupId, id, filename};
 }
 
 /**
@@ -50,16 +59,15 @@ export function fileIsSaved(id, filename) {
 export function saveActiveFileAs(filename) {
   return function (dispatch, getState) {
     const state = getState(),
-      group = _.head(state.editorTabGroups),
-      tabs = group.tabs,
-      focusedAce = state && _.find(tabs, {id: group.active}),
-      el = focusedAce && document.querySelector('#' + focusedAce.id),
-      aceInstance = el && ace.edit(el),
+      groupIndex = 0, // assume for now
+      group = state[tabGroupName][groupIndex],
+      focusedAce = _.find(group.tabs, {id: group.active}),
+      aceInstance = focusedAce && getAceInstance(focusedAce.id),
       content = aceInstance && aceInstance.getSession().getValue();
 
     if (_.isString(content)) {
       return send('saveFile', filename, content)
-        .then(() => dispatch(fileIsSaved(focusedAce.id, filename)))
+        .then(() => dispatch(fileIsSaved(group.groupId, focusedAce.id, filename)))
         .catch(error => dispatch(errorCaught(error)));
     }
   };
@@ -68,21 +76,20 @@ export function saveActiveFileAs(filename) {
 export function saveActiveFile() {
   return function (dispatch, getState) {
     const state = getState(),
-      group = _.head(state.editorTabGroups),
-      tabs = group.tabs,
-      focusedAce = state && _.find(tabs, {id: group.active}),
-      el = focusedAce && document.querySelector('#' + focusedAce.id),
-      aceInstance = el && ace.edit(el),
-      filename = focusedAce.filename,
+      groupIndex = 0, // assume for now
+      group = state[tabGroupName][groupIndex],
+      focusedAce = _.find(group.tabs, {id: group.active}),
+      aceInstance = focusedAce && getAceInstance(focusedAce.id),
+      filename = _.get(focusedAce, 'content.filename'),
       content = aceInstance && aceInstance.getSession().getValue();
 
     if (!filename) {
       return dispatch(showSaveFileDialogForActiveFile());
     }
 
-    if (content) {
+    if (_.isString(content)) {
       return send('saveFile', filename, content)
-        .then(() => dispatch(fileIsSaved(focusedAce.id, focusedAce.filename)))
+        .then(() => dispatch(fileIsSaved(group.groupId, focusedAce.id, focusedAce.content.filename)))
         .catch(error => dispatch(errorCaught(error)));
     }
   };
@@ -94,11 +101,11 @@ export function saveActiveFile() {
 export function showSaveFileDialogForActiveFile() {
   return function (dispatch, getState) {
     const state = getState(),
-      group = _.head(state.editorTabGroups),
-      tabs = group.tabs,
-      focusedAce = state && _.find(tabs, {id: group.active}),
+      groupIndex = 0, // assume for now
+      group = state[tabGroupName][groupIndex],
+      focusedAce = _.find(group.tabs, {id: group.active}),
       title = 'Save File',
-      filename = focusedAce && focusedAce.filename,
+      filename = focusedAce && focusedAce.content && focusedAce.content.filename,
       defaultPath = filename || (local.get('workingDirectory') || '~');
 
     return send('saveDialog', {title, defaultPath, filters: [{ name: 'Python', extensions: ['py'] }]})
@@ -110,9 +117,8 @@ export function showSaveFileDialogForActiveFile() {
 export function showOpenFileDialogForActiveFile() {
   return function (dispatch, getState) {
     const state = getState(),
-      group = _.head(state.editorTabGroups),
-      groupId = group.groupId,
-      id = cid();
+      group = _.head(state[tabGroupName]),
+      groupId = group.groupId;
 
     return send('openDialog', {
       title: 'Select a file to open',
@@ -123,22 +129,23 @@ export function showOpenFileDialogForActiveFile() {
         filename = filename[0];
       }
 
-      return send('fileStats', filename)
-        .then(stats => dispatch(add(groupId, id, filename, stats)));
+      if (_.isString(filename) && filename.length > 0) {
+        return send('fileStats', filename)
+          .then(stats => dispatch(add(groupId, filename, stats)));
+      }
     }).catch(error => dispatch(errorCaught(error)));
   };
 }
 
 function focusActive() {
   return function (dispatch, getState) {
-    let group, groupId, focusedAce, el, aceInstance;
+    let group, groupId, focusedAce, aceInstance;
     const state = getState();
 
-    group = _.head(state.editorTabGroups);
+    group = _.head(state[tabGroupName]);
     groupId = group.groupId;
     focusedAce = state && _.find(group.tabs, {id: group.active});
-    el = focusedAce && document.querySelector('#' + focusedAce.id);
-    aceInstance = el && ace.edit(el);
+    aceInstance = getAceInstance(focusedAce.id);
     dispatch(focus(groupId, group.active));
 
     if (aceInstance) {
@@ -168,13 +175,58 @@ function handleLoaded(tab) {
 function save(tab) {
   return function () {
     console.log(__filename, 'save', tab);
-  }
+  };
 }
+
+function executeActiveFileInActiveConsole(groupId) {
+  return function (dispatch, getState) {
+    const state = getState(),
+      groupIndex = commonTabsActions.getGroupIndex(state[tabGroupName], groupId);
+
+    if (groupIndex > -1) {
+      const activeTab = commonTabsActions.getActiveTab(state[tabGroupName], groupId);
+
+      if (activeTab) {
+        const aceInstance = getAceInstance(activeTab.id),
+          text = aceInstance && aceInstance.getSession().getValue(),
+          isCodeIsolated = true;
+
+        if (text) {
+          return dispatch(terminalTabGroupActions.addInputTextToActiveTab(null, {text, isCodeIsolated}));
+        }
+      }
+    }
+  };
+}
+
+function executeActiveFileSelectionInActiveConsole(groupId) {
+  return function (dispatch, getState) {
+    const state = getState(),
+      groupIndex = commonTabsActions.getGroupIndex(state[tabGroupName], groupId);
+
+    if (groupIndex > -1) {
+      const activeTab = commonTabsActions.getActiveTab(state[tabGroupName], groupId);
+
+      if (activeTab) {
+        const aceInstance = getAceInstance(activeTab.id);
+
+        if (aceInstance) {
+          aceInstance.commands.exec('liftSelection', aceInstance);
+        } else {
+          dispatch(errorCaught(new Error('No active Ace instance')));
+        }
+      }
+    }
+  };
+}
+
 export default {
   add,
   focus,
   focusActive,
   close,
+  executeActiveFileInActiveConsole,
+  executeActiveFileSelectionInActiveConsole,
   save,
   fileIsSaved,
   saveActiveFile,

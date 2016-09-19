@@ -46,15 +46,34 @@ function add(state, action) {
   const newItem = getDefault();
 
   if (action.filename) {
-    newItem.filename = action.filename;
+    newItem.content.filename = action.filename;
     newItem.label = _.last(action.filename.split(/[\\\/]/));
 
     if (action.stats) {
-      newItem.stats = action.stats;
+      newItem.content.stats = action.stats;
     }
   }
 
   return commonTabsReducers.addItem(state, action, newItem);
+}
+
+/**
+ * This is different from the regular add because they may not know the group id, but we still know it is specifically
+ * for a editor-tab-group.  We're not handling the cases where there are multiple editor groups yet.
+ * @param {object} state
+ * @param {object} action
+ * @returns {object}
+ */
+function addFile(state, action) {
+  const groupIndex = commonTabsReducers.getGroupIndex(state, action);
+
+  if (groupIndex > -1) {
+    const groupId = state[groupIndex].groupId;
+
+    state = add(state, _.assign({groupId}, action));
+  }
+
+  return state;
 }
 
 /**
@@ -97,16 +116,20 @@ function closeActiveFile(state) {
  * @returns {Array}
  */
 function shiftFocus(state, action, move) {
-  state = _.cloneDeep(state);
-  const tabs = _.head(state).tabs,
-    focusIndex = _.findIndex(tabs, {hasFocus: true}),
-    focusItem = tabs[focusIndex],
-    newFocusIndex = focusIndex + move,
-    newFocusItem = tabs[newFocusIndex];
+  const groupIndex = commonTabsReducers.getGroupIndex(state, action);
 
-  if (newFocusItem) {
-    focusItem.hasFocus = false;
-    newFocusItem.hasFocus = true;
+  if (groupIndex > -1) {
+    const active = state[groupIndex].active,
+      tabIndex = _.findIndex(state[groupIndex].tabs, {id: active});
+
+    if (tabIndex > -1) {
+      const newTabIndex = tabIndex + move,
+        newTab = state[groupIndex].tabs[newTabIndex];
+
+      if (newTab) {
+        state = state.setIn([groupIndex, 'active'], state[groupIndex].tabs[newTabIndex].id);
+      }
+    }
   }
 
   return state;
@@ -114,13 +137,16 @@ function shiftFocus(state, action, move) {
 
 function fileSaved(state, action) {
   if (action.filename) {
-    state = _.cloneDeep(state);
+    const groupIndex = commonTabsReducers.getGroupIndex(state, action),
+      id = action.id,
+      tabIndex = _.findIndex(state[groupIndex].tabs, {id});
 
-    const tabs = _.head(state).tabs,
-      focusedAce = state && _.find(tabs, {hasFocus: true});
+    state = state.updateIn([groupIndex, 'tabs', tabIndex], tab => {
+      tab = tab.setIn(['content', 'filename'], action.filename);
+      tab = tab.set('label', _.last(action.filename.split(/[\\\/]/)));
 
-    focusedAce.filename = action.filename;
-    focusedAce.label = _.last(action.filename.split(/[\\\/]/));
+      return tab;
+    });
   }
 
   return state;
@@ -141,6 +167,7 @@ function changePreference(state, action) {
 
 export default mapReducers({
   ADD_TAB: add,
+  ADD_FILE: addFile,
   CLOSE_TAB: commonTabsReducers.close,
   FOCUS_TAB: commonTabsReducers.focus,
   FILE_IS_SAVED: fileSaved,

@@ -45,7 +45,7 @@
   max-width: 100px;
 }
 
-.plot-preview .item {
+.plot-preview .background-plot {
   background-repeat: no-repeat;
   background-position: center;
   background-size: auto 80%;
@@ -57,21 +57,21 @@
   transform: rotate(0.01deg);
 }
 
-.plot-preview .item.splash {
+.plot-preview .background-plot.splash {
   background-size: auto 50%;
   opacity: 0.7;
 }
 
-.plot-preview .item:hover {
+.plot-preview .background-plot:hover {
   background-color: #f3f3f3;
 }
 
-.plot-preview .item.active {
+.plot-preview .background-plot.active {
   background-color: #e3e3e3;
   background-size: auto 90%;
 }
 
-.plot-preview .item.active.splash {
+.plot-preview .background-plot.active.splash {
   background-size: auto 60%;
   opacity: 0.8;
 }
@@ -80,7 +80,7 @@
   color: #cbcbcb;
 }
 
-.plot-preview .item .action-bar {
+.plot-preview .background-plot .action-bar {
   overflow: hidden;
   position: absolute;
   right: 0;
@@ -88,7 +88,7 @@
   height: 100%;
 }
 
-.plot-preview .item .actions {
+.plot-preview .background-plot .actions {
   transform: translate(20px, 0);
   transition: all 0.2s;
   width: 20px;
@@ -96,7 +96,7 @@
   background-color: rgba(100, 100, 100, 0.2)
 }
 
-.plot-preview .item:hover .actions,
-.plot-preview .item.active .actions {
+.plot-preview .background-plot:hover .actions,
+.plot-preview .background-plot.active .actions {
   transform: translate(0, 0);
 }

@@ -6,6 +6,7 @@ import 'fixed-data-table-2/dist/fixed-data-table.min.css';
 import globalObserver from '../../services/global-observer';
 import DataFrameLoadingIcon from './data-frame-loading-icon.jsx';
 import './data-frame.css';
+import commonReact from '../../services/common-react';
 
 /**
  * @class DataFrame
@@ -19,7 +20,8 @@ export default React.createClass({
     data: React.PropTypes.object,
     filter: React.PropTypes.string,
     id: React.PropTypes.string,
-    isLoading: React.PropTypes.bool
+    isLoading: React.PropTypes.bool,
+    visible: React.PropTypes.bool.isRequired
   },
   getInitialState: function () {
     return {
@@ -29,24 +31,28 @@ export default React.createClass({
       columnWidths: {}
     };
   },
-  componentWillMount: function () {
-    this.onNewData();
-  },
   componentDidMount: function () {
     _.defer(() => this.resize());
     globalObserver.on('resize', this.resize, this);
   },
-  componentWillReceiveProps: function () {
-    this.onNewData();
+  componentWillReceiveProps: function (nextProps) {
+    if (!this.props.visible && nextProps.visible) {
+      _.defer(() => this.resize());
+    }
+
+    if (!this.props.data && nextProps.data) {
+      this.onNewData(nextProps.data);
+    }
   },
-  shouldComponentUpdate: function () {
-    return true;
+  shouldComponentUpdate: function (nextProps, nextState) {
+    console.log('DataFrame', 'shouldComponentUpdate', !commonReact.shallowEqual(this, nextProps, nextState));
+    return !commonReact.shallowEqual(this, nextProps, nextState);
   },
   componentWillUnmount: function () {
     globalObserver.off(null, null, this);
   },
   handleColumnResize: function (newColumnWidth, columnKey) {
-    const columnWidths = this.state.columnWidths;
+    const columnWidths = _.clone(this.state.columnWidths);
 
     if (newColumnWidth < 70) {
       newColumnWidth = 70;
@@ -54,24 +60,19 @@ export default React.createClass({
 
     columnWidths[columnKey] = newColumnWidth;
 
-    this.setState({
-      columnWidths
-    });
+    this.setState({columnWidths});
   },
-  onNewData: function () {
-    const props = this.props,
-      data = props.data,
-      columns = data && data.columns,
-      columnWidths = this.state.columnWidths;
+  onNewData: function (data) {
+    const columns = data && data.columns,
+      columnWidths = _.clone(this.state.columnWidths);
 
-    if (props.data) {
-      _.each(columns, function (columnName) {
-        // guarantee a width of something or 100
-        columnWidths[columnName] = columnWidths[columnName] || 100;
-      });
+    _.each(columns, function (columnName) {
+      // guarantee a width of something or 100
+      columnWidths[columnName] = columnWidths[columnName] || 100;
+    });
 
-      this.setState({columnWidths});
-    }
+    this.setState({columnWidths});
+
   },
   resize: function () {
     const el = ReactDOM.findDOMNode(this),
@@ -91,6 +92,13 @@ export default React.createClass({
       data = props.data,
       columns = data && data.columns || [],
       rows = data && data.data || [];
+    let loadingIcon;
+
+    if (props.isLoading) {
+      loadingIcon = <DataFrameLoadingIcon isLoading={props.isLoading} label="Loading DataFrame" />;
+    }
+
+    console.log('DataFrame', 'render', props, state);
 
     return (
       <div className="data-frame-container">
@@ -127,7 +135,7 @@ export default React.createClass({
             }
           })}
         </Table>
-        <DataFrameLoadingIcon isLoading={props.isLoading} label="Loading DataFrame" />
+        {loadingIcon}
       </div>
     );
   }

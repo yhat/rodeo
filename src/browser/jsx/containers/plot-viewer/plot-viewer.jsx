@@ -3,6 +3,7 @@ import React from 'react';
 import PlotPreview from '../../components/plot-preview/plot-preview.jsx';
 import {connect} from 'react-redux';
 import actions from './plot-viewer.actions';
+import commonReact from '../../services/common-react';
 
 /**
  *
@@ -11,13 +12,9 @@ import actions from './plot-viewer.actions';
  */
 function mapDispatchToProps(dispatch) {
   return {
-    onDelete: () => dispatch(actions.removeActivePlot()),
     onItemClick: plot => dispatch(actions.focus(plot)),
     onItemRemove: plot => dispatch(actions.remove(plot)),
     onItemSave: plot => dispatch(actions.save(plot)),
-    onNext: () => dispatch(actions.focusNextPlot()),
-    onPrev: () => dispatch(actions.focusPrevPlot()),
-    onSave: () => dispatch(actions.saveActivePlot()),
     onOpen: () => dispatch(actions.openActivePlot())
   };
 }
@@ -30,7 +27,13 @@ function mapDispatchToProps(dispatch) {
  */
 export default connect(null, mapDispatchToProps)(React.createClass({
   displayName: 'PlotViewer',
+  shouldComponentUpdate: function (nextProps) {
+    console.log('PlotViewer', 'shouldComponentUpdate', !commonReact.shallowEqual(this, nextProps));
+    return !commonReact.shallowEqual(this, nextProps);
+  },
   render: function () {
+    console.log('PlotViewer', 'render', this.props);
+
     return <PlotPreview {...this.props}/>;
   }
 }));

@@ -4,6 +4,7 @@ ul.tab-list {
   padding: 0;
   position: relative;
   flex: 0 0;
+  border-bottom: 1px solid #dddddd;
 }
 
 ul.tab-list > li {

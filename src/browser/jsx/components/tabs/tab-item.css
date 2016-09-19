@@ -28,7 +28,7 @@
   height: 0;
   width: 100%;
   transition: height 0.2s;
-  background-color: #ed5724;
+  background-color: #337ab7;
 }
 
 .tab-item.active .lift {

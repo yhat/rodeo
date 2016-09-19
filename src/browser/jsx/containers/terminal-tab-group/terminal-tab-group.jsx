@@ -108,15 +108,7 @@ export default connect(null, mapDispatchToProps)(React.createClass({
         {props.tabs.map(function (tab) {
           console.log('TerminalTabGroup', 'render3');
 
-          return (
-            <TabbedPaneItem
-              closeable={tab.closeable}
-              icon={tab.icon}
-              id={tab.id}
-              key={tab.id}
-              label={tab.label}
-            >{types[tab.contentType](tab)}</TabbedPaneItem>
-          );
+          return <TabbedPaneItem key={tab.id}{...tab}>{types[tab.contentType](tab)}</TabbedPaneItem>;
         })}
       </TabbedPane>
     );

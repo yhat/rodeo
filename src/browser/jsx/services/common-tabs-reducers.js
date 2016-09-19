@@ -84,7 +84,6 @@ function closeActive(state, action) {
 }
 
 /**
- *
  * @param {Immutable} state
  * @param {string} propertyName
  * @param {*} value
@@ -105,10 +104,28 @@ function changeProperty(state, propertyName, value, transform) {
   return state;
 }
 
+function getGroupIndex(state, action) {
+  // if we have a groupId, find it
+  if (_.isString(action.groupId)) {
+    const groupId = action.groupId;
+
+    return _.findIndex(state, {groupId});
+  }
+
+  // if we have at least one item, use the first item
+  if (_.isArray(state) && state.length) {
+    return 0;
+  }
+
+  // no groups available here
+  return -1;
+}
+
 export default {
   addItem,
   close,
   closeActive,
   focus,
-  changeProperty
+  changeProperty,
+  getGroupIndex
 };

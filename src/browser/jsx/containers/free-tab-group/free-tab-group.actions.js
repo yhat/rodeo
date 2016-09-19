@@ -1,5 +1,6 @@
 import _ from 'lodash';
 import commonTabsActions from '../../services/common-tabs-actions';
+import cid from '../../services/cid';
 
 /**
  * Any focus on the tab should redirect the focus to the contents.
@@ -11,8 +12,8 @@ function focusTab(groupId, id) {
   return {type: 'FOCUS_TAB', groupId, id};
 }
 
-function focusPlot(groupId, tabId, id) {
-  return {type: 'FOCUS_PLOT', groupId, tabId, id};
+function focusPlot(groupId, tabId, plot) {
+  return {type: 'FOCUS_PLOT', groupId, tabId, plot};
 }
 
 function closeTab(groupId, id) {
@@ -46,31 +47,30 @@ function focusFirstTabByType(contentType) {
 function focusNewestPlot() {
   return function (dispatch, getState) {
     const state = getState();
-    let latestTimestamp,
+    let latestTimestamp = 0,
       latestGroupId,
       latestTabId,
-      latestId;
+      latestPlot;
 
     _.each(state.freeTabGroups, group => {
       _.each(group.tabs, tab => {
         if (tab.contentType === 'plot-viewer') {
           const plots = tab.content.plots,
             sortedPlots = _.reverse(_.sortBy(plots, ['createdAt'])),
-            plot = _.head(sortedPlots),
-            timestamp = plot.createdAt;
+            plot = _.head(sortedPlots);
 
-          if (timestamp > latestTimestamp) {
-            latestTimestamp = timestamp;
+          if (plot && plot.createdAt > latestTimestamp) {
+            latestTimestamp = plot.createdAt;
             latestGroupId = group.groupId;
             latestTabId = tab.id;
-            latestId = plot.id;
+            latestPlot = plot;
           }
         }
       });
     });
 
-    if (latestGroupId && latestTabId && latestId) {
-      dispatch(focusPlot(latestGroupId, latestTabId, latestId));
+    if (latestGroupId && latestTabId && latestPlot) {
+      dispatch(focusPlot(latestGroupId, latestTabId, latestPlot));
     }
   };
 }
@@ -92,11 +92,27 @@ function moveTab(toGroupId, id) {
   };
 }
 
+function showDataFrame(groupId, item) {
+  return function (dispatch) {
+    dispatch({
+      type: 'ADD_TAB',
+      groupId,
+      id: cid(),
+      closeable: true,
+      content: {item},
+      contentType: 'variable-table-viewer',
+      icon: 'table',
+      label: item.name || 'DataFrame'
+    });
+  };
+}
+
 export default {
   closeTab,
   focusNewestPlot,
   focusPlot,
   focusTab,
   focusFirstTabByType,
-  moveTab
+  moveTab,
+  showDataFrame
 };

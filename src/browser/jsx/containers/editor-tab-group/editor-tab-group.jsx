@@ -45,8 +45,8 @@ function mapDispatchToProps(dispatch, ownProps) {
     onSave: tab => dispatch(editorTabGroupActions.save(groupId, tab)),
     onOpenPreferences: () => dispatch(dialogActions.showPreferences()),
     onRemoveAcePane: (id) => dispatch(editorTabGroupActions.close(groupId, id)),
-    onRunActiveAcePane: () => dispatch(kernelActions.executeActiveFileInActiveConsole()),
-    onRunActiveAcePaneSelection: () => dispatch(kernelActions.executeActiveFileSelectionInActiveConsole()),
+    onRunActiveAcePane: () => dispatch(editorTabGroupActions.executeActiveFileInActiveConsole(groupId)),
+    onRunActiveAcePaneSelection: () => dispatch(editorTabGroupActions.executeActiveFileSelectionInActiveConsole(groupId)),
     onRodeo: () => dispatch(dialogActions.showAboutRodeo())
   };
 }
@@ -69,32 +69,23 @@ export default connect(null, mapDispatchToProps)(React.createClass({
     return !commonReact.shallowEqual(this, nextProps);
   },
   handleTabClick: function (id, event) {
-    const props = this.props;
-
     event.preventDefault();
-
-    console.log('editorTabGroup', 'handleTabClick', arguments);
-    props.onFocusTab(id);
+    this.props.onFocusTab(id);
   },
   handleTabClose: function (id, event) {
-    const props = this.props,
-      tabs = props.tabs,
-      targetPane = _.find(tabs, {id});
-
     event.preventDefault();
-
-    props.onRemoveAcePane(targetPane.id);
+    this.props.onRemoveAcePane(id);
   },
   /**
    * NOTE: preventDefault to reject drag
-   * @param {MouseEvent} event
    * @param {string} id
+   * @param {MouseEvent} event
    */
-  handleTabDragStart: function (event, id) {
+  handleTabDragStart: function (id, event) {
     const el = getParentNodeOf(event.target, 'li'),
       tab = _.find(this.props.tabs, {id});
 
-    if (tab && tab.filename) {
+    if (tab && tab.content.filename) {
       event.dataTransfer.effectAllowed = 'move';
       event.dataTransfer.setData('text/html', el.outerHTML);
       event.dataTransfer.setData('text/uri-list', tab.filename);  // used by outside file system viewers

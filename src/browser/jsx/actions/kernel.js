@@ -113,52 +113,10 @@ function detectKernelVariables() {
   };
 }
 
-function executeActiveFileInActiveConsole() {
-  return function (dispatch, getState) {
-    const state = getState(),
-      group = _.head(state.editorTabGroups),
-      items = group.items,
-      focusedAce = state && _.find(items, {id: group.active}),
-      el = focusedAce && document.querySelector('#' + focusedAce.id),
-      aceInstance = el && ace.edit(el),
-      filename = focusedAce.filename,
-      focusedTerminal = state && _.head(state.terminals),
-      id = focusedTerminal.id,
-      content = aceInstance && aceInstance.getSession().getValue();
-
-    if (content) {
-      dispatch({type: 'EXECUTING', filename, id});
-
-      return client.execute(content)
-        .then(() => dispatch({type: 'EXECUTED', id}))
-        .catch(error => dispatch(errorCaught(error)));
-    }
-  };
-}
-
-function executeActiveFileSelectionInActiveConsole() {
-  return function (dispatch, getState) {
-    const state = getState(),
-      group = _.head(state.editorTabGroups),
-      items = group.items,
-      focusedAce = state && _.find(items, {id: group.active}),
-      el = focusedAce && document.querySelector('#' + focusedAce.id),
-      aceInstance = el && ace.edit(el);
-
-    if (aceInstance) {
-      aceInstance.commands.exec('liftSelection', aceInstance);
-    } else {
-      dispatch(errorCaught(new Error('No active Ace instance')));
-    }
-  };
-}
-
 export default {
   askForPythonOptions,
   detectKernel,
   detectKernelVariables,
-  executeActiveFileInActiveConsole,
-  executeActiveFileSelectionInActiveConsole,
   isBusy,
   isIdle,
   interrupt,

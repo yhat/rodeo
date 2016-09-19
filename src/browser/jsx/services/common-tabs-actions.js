@@ -1,3 +1,5 @@
+import _ from 'lodash';
+
 /**
  * @param {[object]} groups
  * @param {string} tabId
@@ -18,6 +20,95 @@ function findGroupIdByTabId(groups, tabId) {
   }
 }
 
+/**
+ * @param {Array} tabGroups
+ * @param {number} [groupId]  Uses first group if not provided
+ * @returns {object}  Returns -1 if no group found
+ */
+function getGroupIndex(tabGroups, groupId) {
+  if (tabGroups.length === 0) {
+    return -1;
+  }
+
+  return _.isString(groupId) ? _.findIndex(tabGroups, {groupId}) : 0;
+}
+
+/**
+ * @param {Array} tabGroups
+ * @param {string} groupId
+ * @param {string} id
+ * @returns {object}
+ */
+function getContent(tabGroups, groupId, id) {
+  const groupIndex = _.findIndex(tabGroups, {groupId});
+
+  if (groupIndex > -1) {
+    const tabIndex = _.findIndex(tabGroups[groupIndex].tabs, {id});
+
+    if (tabIndex > -1) {
+      return tabGroups[groupIndex].tabs[tabIndex].content;
+    }
+  }
+
+  return null;
+}
+
+/**
+ * Note:  Caller must pass null if they want _any_ group
+ * @param {string} tabGroupName  ex., freeTabGroups, terminalTabGroups
+ * @param {function} fn
+ * @returns {function}
+ */
+function toActiveTab(tabGroupName, fn) {
+  return function (groupId) {
+    const otherArgs = _.slice(arguments, 1);
+
+    return function (dispatch, getState) {
+      const state = getState(),
+        groupIndex = getGroupIndex(state[tabGroupName], groupId);
+
+      if (groupIndex > -1) {
+        groupId = groupId || state[tabGroupName][groupIndex].groupId;
+        const active = state[tabGroupName][groupIndex].active;
+
+        return dispatch(fn.apply(null, [groupId, active].concat(otherArgs)));
+      }
+    };
+  };
+}
+
+function getActiveTabIndex(tabGroups, groupId) {
+  const groupIndex = getGroupIndex(tabGroups, groupId);
+
+  if (groupIndex > -1) {
+    const id = tabGroups[groupIndex].active;
+
+    return _.findIndex(tabGroups[groupIndex].tabs, {id});
+  }
+
+  return null;
+}
+
+function getActiveTab(tabGroups, groupId) {
+  const groupIndex = getGroupIndex(tabGroups, groupId);
+
+  if (groupIndex > -1) {
+    const id = tabGroups[groupIndex].active,
+      activeTabIndex = _.findIndex(tabGroups[groupIndex].tabs, {id});
+
+    if (activeTabIndex > -1) {
+      return tabGroups[groupIndex].tabs[activeTabIndex];
+    }
+  }
+
+  return null;
+}
+
 export default {
-  findGroupIdByTabId
+  findGroupIdByTabId,
+  getGroupIndex,
+  getContent,
+  getActiveTabIndex,
+  getActiveTab,
+  toActiveTab
 };

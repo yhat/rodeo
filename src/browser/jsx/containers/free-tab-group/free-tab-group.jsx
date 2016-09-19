@@ -4,7 +4,7 @@ import {connect} from 'react-redux';
 import TabbedPane from '../../components/tabs/tabbed-pane.js';
 import TabbedPaneItem from '../../components/tabs/tabbed-pane-item.js';
 import SearchTextBox from '../../components/search-text-box/search-text-box.jsx';
-import HistoryViewer from '../history-viewer.jsx';
+import HistoryViewer from '../../components/history-viewer/history-viewer.jsx';
 import PlotViewer from '../plot-viewer/plot-viewer.jsx';
 import FileViewer from '../file-viewer/file-viewer.jsx';
 import VariableViewer from '../../components/variable-viewer/variable-viewer.jsx';
@@ -23,12 +23,11 @@ import commonReact from '../../services/common-react';
 function mapDispatchToProps(dispatch, ownProps) {
   const groupId = ownProps.groupId;
 
-  console.log('FreeTabGroup', 'mapDispatchToProps', dispatch, ownProps);
-
   return {
     onCloseTab: id => dispatch(freeTabActions.closeTab(groupId, id)),
     onFocusTab: id => dispatch(freeTabActions.focusTab(groupId, id)),
-    onMoveTab: id => dispatch(freeTabActions.moveTab(groupId, id))
+    onMoveTab: id => dispatch(freeTabActions.moveTab(groupId, id)),
+    onShowDataFrame: item => dispatch(freeTabActions.showDataFrame(groupId, item))
   };
 }
 
@@ -54,25 +53,22 @@ export default connect(null, mapDispatchToProps)(React.createClass({
     console.log('FreeTabGroup', 'shouldComponentUpdate', !commonReact.shallowEqual(this, nextProps, nextState));
     return !commonReact.shallowEqual(this, nextProps, nextState);
   },
-  handleTabClick: function (id) {
-    console.log('FreeTabGroup', 'handleTabClick', arguments);
+  handleTabClick: function (id, event) {
+    event.preventDefault();
     this.props.onFocusTab(id);
   },
-  handleTabClose: function (tabId) {
-    const props = this.props,
-      tabs = props.tabs,
-      targetPane = _.find(tabs, {tabId});
-
-    props.onCloseTab(targetPane.id);
+  handleTabClose: function (id, event) {
+    event.preventDefault();
+    this.props.onCloseTab(id);
   },
   /**
    * NOTE: preventDefault to reject drag
    * @param {DragEvent} event
    * @param {string} tabId
    */
-  handleTabDragStart: function (event, tabId) {
+  handleTabDragStart: function (id, event) {
     const el = getParentNodeOf(event.target, 'li'),
-      tab = _.find(this.props.tabs, {tabId});
+      tab = _.find(this.props.tabs, {id});
 
     if (tab) {
       event.dataTransfer.effectAllowed = 'move';
@@ -112,8 +108,7 @@ export default connect(null, mapDispatchToProps)(React.createClass({
     console.log('handleTabListDragLeave', event);
   },
   handleTabListDrop: function (event) {
-    const props = this.props,
-      itemStr = event.dataTransfer.getData('application/json');
+    const itemStr = event.dataTransfer.getData('application/json');
     let item;
 
     if (_.isString(itemStr)) {
@@ -130,22 +125,24 @@ export default connect(null, mapDispatchToProps)(React.createClass({
     console.log('handleTabDragEnd', event);
   },
   render: function () {
-    console.log('FreeTabGroup', 'render');
-
     const props = this.props,
       state = this.state,
       filter = state.searchFilter,
       types = {
-        'history-viewer': content => <HistoryViewer filter={filter} {...content}/>,
-        'plot-viewer': content => <PlotViewer {...content}/>,
-        'file-viewer': content => <FileViewer filter={filter} {...content}/>,
-        'variable-viewer': content => <VariableViewer filter={filter} {...content}/>,
-        'variable-table-viewer': content => <VariableTableViewer filter={filter} {...content}/>,
-        'package-viewer': content => <PackageViewer filter={filter} {...content}/>,
-        'package-search-viewer': content => <PackageSearchViewer filter={filter} {...content}/>
+        'history-viewer': tab => <HistoryViewer filter={filter} {...tab.content}/>,
+        'plot-viewer': tab => <PlotViewer {...tab.content}/>,
+        'file-viewer': tab => <FileViewer filter={filter} {...tab.content}/>,
+        'variable-viewer': tab => (
+          <VariableViewer filter={filter} onShowDataFrame={props.onShowDataFrame} visible={tab.id === props.active} {...tab.content}/>
+        ),
+        'variable-table-viewer': tab => (
+          <VariableTableViewer filter={filter} visible={tab.id === props.active} {...tab.content}/>
+        ),
+        'package-viewer': tab => <PackageViewer filter={filter} {...tab.content}/>,
+        'package-search-viewer': tab => <PackageSearchViewer filter={filter} {...tab.content}/>
       };
 
-    console.log('FreeTabGroup', 'render2');
+    console.log('FreeTabGroup', 'render', props);
 
     return (
       <TabbedPane
@@ -164,17 +161,9 @@ export default connect(null, mapDispatchToProps)(React.createClass({
         </li>
 
         {props.tabs.map(tab => {
-          console.log('FreeTabGroup', 'render3');
+          console.log('FreeTabGroup', 'render3', tab);
 
-          return (
-            <TabbedPaneItem
-              closeable={tab.closeable}
-              icon={tab.icon}
-              id={tab.id}
-              key={tab.id}
-              label={tab.label}
-            >{types[tab.contentType](tab.content)}</TabbedPaneItem>
-          );
+          return <TabbedPaneItem key={tab.id}{...tab}>{types[tab.contentType](tab)}</TabbedPaneItem>;
         })}
 
       </TabbedPane>

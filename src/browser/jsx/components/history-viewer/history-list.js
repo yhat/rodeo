@@ -1,28 +1,31 @@
 import _ from 'lodash';
 import React from 'react';
-import {connect} from 'react-redux';
-import commonReact from '../services/common-react';
+import commonReact from '../../services/common-react';
 
 /**
  * @class PackagesViewer
  * @extends ReactComponent
  */
-export default connect()(React.createClass({
-  displayName: 'HistoryViewer',
+export default React.createClass({
+  displayName: 'HistoryList',
   propTypes: {
     filter: React.PropTypes.string.isRequired,
     history: React.PropTypes.array.isRequired
   },
   shouldComponentUpdate: function (nextProps) {
+    console.log('HistoryList', 'shouldComponentUpdate', !commonReact.shallowEqual(this, nextProps));
     return !commonReact.shallowEqual(this, nextProps);
   },
   render: function () {
     const props = this.props,
+      className = commonReact.getClassNameList(this),
       history = _.filter(props.history, item => !props.filter || item.text.indexOf(props.filter) > -1);
 
+    console.log('HistoryList', 'render', props);
+
     return (
-      <div>
-        <table className="table table-bordered">
+      <div className={className.join(' ')}>
+        <table className="table">
           <tbody>
           {_.map(history, item => <tr key={item.id}>
             <td>
@@ -34,4 +37,4 @@ export default connect()(React.createClass({
       </div>
     );
   }
-}));
+});

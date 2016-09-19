@@ -6,10 +6,10 @@ import track from './track';
 import dialogActions from '../actions/dialogs';
 import applicationActions from '../actions/application';
 import editorTabGroupActions from '../containers/editor-tab-group/editor-tab-group.actions';
-import terminalActions from '../containers/terminal-tab-group/terminal-tab-group.actions';
+import terminalTabGroupActions from '../containers/terminal-tab-group/terminal-tab-group.actions';
+import freeTabGroupActions from '../containers/free-tab-group/free-tab-group.actions';
 import iopubActions from '../actions/iopub';
 import kernelActions from '../actions/kernel';
-import plotViewerActions from '../containers/plot-viewer/plot-viewer.actions';
 
 /**
  * These are dispatched from the server, usually from interaction with native menus.
@@ -26,11 +26,11 @@ const dispatchMap = {
     SAVE_ACTIVE_FILE: () => editorTabGroupActions.saveActiveFile(),
     SHOW_SAVE_FILE_DIALOG: () => editorTabGroupActions.showSaveFileDialogForActiveFile(),
     SHOW_OPEN_FILE_DIALOG: () => editorTabGroupActions.showOpenFileDialogForActiveFile(),
-    FOCUS_ACTIVE_ACE_EDITOR: () => editorTabGroupActions.focus(),
-    FOCUS_ACTIVE_TERMINAL: () => terminalActions.focusActiveTab(null),
-    FOCUS_NEWEST_PLOT: () => plotViewerActions.focusNewestPlot(),
-    TERMINAL_INTERRUPT: () => terminalActions.interruptActiveTab(null),
-    TERMINAL_RESTART: () => terminalActions.restart()
+    FOCUS_ACTIVE_ACE_EDITOR: () => editorTabGroupActions.focusActive(),
+    FOCUS_ACTIVE_TERMINAL: () => terminalTabGroupActions.focusActiveTab(null),
+    FOCUS_NEWEST_PLOT: () => freeTabGroupActions.focusNewestPlot(),
+    TERMINAL_INTERRUPT: () => terminalTabGroupActions.interruptActiveTab(null),
+    TERMINAL_RESTART: () => terminalTabGroupActions.restartActiveTab(null)
   },
   iopubDispatchMap = {
     executeInput: dispatchIOPubExecuteInput,
@@ -73,7 +73,7 @@ function dispatchShellExecuteReply(dispatch, clientId, content) {
 
     if (text) {
       // this text includes ANSI color
-      dispatch(terminalActions.addOutputBlockByClientId(clientId, text));
+      dispatch(terminalTabGroupActions.addOutputBlockByClientId(clientId, text));
     } else {
       console.log('dispatchShellExecuteReply', 'unknown content type', result);
     }
@@ -86,7 +86,7 @@ function dispatchIOPubResult(dispatch, clientId, content) {
     text = data && data['text/plain'];
 
   if (text) {
-    dispatch(terminalActions.addOutputTextByClientId(clientId, text));
+    dispatch(terminalTabGroupActions.addOutputTextByClientId(clientId, text));
   } else {
     console.log('dispatchIOPubResult', 'unknown content type', data);
   }
@@ -97,24 +97,24 @@ function dispatchIOPubResult(dispatch, clientId, content) {
 
 function dispatchIOPubDisplayData(dispatch, clientId, content) {
   track({category:'iopub', action: 'display_data'});
-  dispatch(terminalActions.addDisplayDataByClientId(clientId, content.data));
+  dispatch(terminalTabGroupActions.addDisplayDataByClientId(clientId, content.data));
   dispatch(iopubActions.dataDisplayed(content.data));
   if (local.get('plotsFocusOnNew') !== false) {
-    dispatch(plotViewerActions.focusNewestPlot());
+    dispatch(freeTabGroupActions.focusNewestPlot());
   }
   detectVariables(dispatch);
 }
 
 function dispatchIOPubError(dispatch, clientId, content) {
   track({category:'iopub', action: 'error'});
-  dispatch(terminalActions.addErrorTextByClientId(clientId, content.ename, content.evalue, content.traceback));
+  dispatch(terminalTabGroupActions.addErrorTextByClientId(clientId, content.ename, content.evalue, content.traceback));
   dispatch(iopubActions.errorOccurred(content.ename, content.evalue, content.traceback));
   detectVariables(dispatch);
 }
 
 function dispatchIOPubStream(dispatch, clientId, content) {
   track({category:'iopub', action: 'stream'});
-  dispatch(terminalActions.addOutputTextByClientId(clientId, content.text));
+  dispatch(terminalTabGroupActions.addOutputTextByClientId(clientId, content.text));
   dispatch(iopubActions.dataStreamed(content.name, content.text));
   detectVariables(dispatch);
 }
@@ -183,17 +183,17 @@ function stdinDispatcher(dispatch) {
 
 function otherDispatcher(dispatch) {
   ipc.on('event', function (event, clientId, source, data) {
-    // dispatch(terminalActions.addOutputText(source + ': ' + data));
+    // dispatch(terminalTabGroupActions.addOutputText(source + ': ' + data));
     console.log('event', data);
   });
 
   ipc.on('error', function (event, clientId, data) {
-    dispatch(terminalActions.addOutputTextByClientId(clientId, 'Error: ' + JSON.stringify(data)));
+    dispatch(terminalTabGroupActions.addOutputTextByClientId(clientId, 'Error: ' + JSON.stringify(data)));
     console.log('error', data);
   });
 
   ipc.on('close', function (event, clientId, code, signal) {
-    dispatch(terminalActions.handleProcessClose(clientId, code, signal));
+    dispatch(terminalTabGroupActions.handleProcessClose(clientId, code, signal));
     console.log('close', clientId, code, signal);
   });
 

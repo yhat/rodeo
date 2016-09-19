@@ -9,7 +9,7 @@ describe(__filename, () => {
   describe('ADD_TAB', () => {
     it('adds', function () {
       const state = Immutable([{groupId: 'a', tabs: []}]),
-        action = {type: 'ADD_TAB', groupId: 'a', id: 'b'};
+        action = {type: 'ADD_TAB', groupId: 'a'};
 
       let result = lib(state, action);
 

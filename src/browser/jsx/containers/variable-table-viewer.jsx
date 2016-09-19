@@ -12,12 +12,18 @@ import commonReact from '../services/common-react';
 export default React.createClass({
   displayName: 'DataFrameViewer',
   propTypes: {
-    content: React.PropTypes.object.isRequired,
-    filter: React.PropTypes.string.isRequired
+    filter: React.PropTypes.string.isRequired,
+    item: React.PropTypes.object.isRequired,
+    visible: React.PropTypes.bool.isRequired
+  },
+  getInitialState: function () {
+    return {
+      isLoading: false
+    };
   },
   componentDidMount: function () {
     const props = this.props,
-      item = _.get(props, 'content.item'),
+      item = _.get(props, 'item'),
       setData = this.setData,
       setError = this.setError;
 
@@ -41,8 +47,9 @@ export default React.createClass({
       }).finally(() => this.showLoading(false));
     }
   },
-  shouldComponentUpdate: function (nextProps) {
-    return !commonReact.shallowEqual(this, nextProps);
+  shouldComponentUpdate: function (nextProps, nextState) {
+    console.log('VariableTableViewer', 'shouldComponentUpdate', !commonReact.shallowEqual(this, nextProps, nextState));
+    return !commonReact.shallowEqual(this, nextProps, nextState);
   },
   setData: function (data) {
     this.setState({data});
@@ -63,8 +70,10 @@ export default React.createClass({
       state = this.state;
     let content;
 
-    if (props.content.item && props.content.item.type == 'DataFrame') {
-      content = <DataFrame data={state.data} isLoading={state.isLoading} />;
+    console.log('VariableTableViewer', 'render', props);
+
+    if (props.item && props.item.type == 'DataFrame') {
+      content = <DataFrame data={state.data} isLoading={state.isLoading} visible={props.visible}/>;
     }
 
     if (!content) {
