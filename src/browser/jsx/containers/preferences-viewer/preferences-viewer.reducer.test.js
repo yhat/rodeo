@@ -63,6 +63,36 @@ describe(__filename, () => {
     });
   });
 
+  describe('PREFERENCE_CHANGE_DETAIL_ADDED', () => {
+    it('changes from validating to valid', function () {
+      const state = Immutable({
+          active: 'a',
+          preferenceMap: [{id: 'a'}, {id: 'b'}],
+          changes: {b: {key: 'b', value: 'c', state: 'validating'}},
+          canSave: false
+        }),
+        action = {type: 'PREFERENCE_CHANGE_DETAIL_ADDED', change: {key: 'b', value: 'c', state: 'valid'}};
+
+      let result = lib(state, action);
+
+      expect(result.changes).toEqual({b: {key: 'b', value: 'c', state: 'valid'}});
+    });
+
+    it('does not change value', function () {
+      const state = Immutable({
+          active: 'a',
+          preferenceMap: [{id: 'a'}, {id: 'b'}],
+          changes: {b: {key: 'b', value: 'c', state: 'valid'}},
+          canSave: false
+        }),
+        action = {type: 'PREFERENCE_CHANGE_DETAIL_ADDED', change: {key: 'b', value: 'd'}};
+
+      let result = lib(state, action);
+
+      expect(result.changes).toEqual({b: {key: 'b', value: 'c', state: 'valid'}});
+    });
+  });
+
   describe('PREFERENCE_CHANGE_ADDED', () => {
     it('adds', function () {
       const state = Immutable({

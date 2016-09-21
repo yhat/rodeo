@@ -7,6 +7,7 @@ import PreferencesSelect from './items/preferences-select.jsx';
 import PreferencesPythonCmd from './items/preferences-python-cmd.jsx';
 import PreferencesFolder from './items/preferences-folder.jsx';
 import './preferences-item.css';
+import commonReact from '../../services/common-react';
 
 /**
  * @class DocCode
@@ -20,6 +21,9 @@ export default React.createClass({
     onChange: React.PropTypes.func.isRequired,
     onSelectFile: React.PropTypes.func.isRequired,
     onSelectFolder: React.PropTypes.func.isRequired
+  },
+  shouldComponentUpdate: function (nextProps) {
+    return commonReact.shouldComponentUpdate(this, nextProps);
   },
   render: function () {
     const props = this.props,

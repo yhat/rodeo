@@ -1,5 +1,6 @@
 import _ from 'lodash';
 import React from 'react';
+import commonReact from '../../services/common-react';
 
 /**
  * @param {Error} error
@@ -19,6 +20,9 @@ export default React.createClass({
   displayName: 'PreferencesItemErrors',
   propTypes: {
     errors: React.PropTypes.array.isRequired
+  },
+  shouldComponentUpdate: function (nextProps) {
+    return commonReact.shouldComponentUpdate(this, nextProps);
   },
   render: function () {
     const props = this.props,

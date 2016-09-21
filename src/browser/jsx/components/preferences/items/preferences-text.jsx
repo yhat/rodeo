@@ -1,6 +1,6 @@
 import _ from 'lodash';
 import React from 'react';
-import PreferencesItemErrors from '../preferences-item-errors.jsx';
+import commonReact from '../../../services/common-react';
 
 /**
  * @class PreferencesText
@@ -13,6 +13,9 @@ export default React.createClass({
     className: React.PropTypes.string,
     item: React.PropTypes.object.isRequired,
     onChange: React.PropTypes.func.isRequired
+  },
+  shouldComponentUpdate: function (nextProps) {
+    return commonReact.shouldComponentUpdate(this, nextProps);
   },
   render: function () {
     const displayName = this.constructor.displayName,
