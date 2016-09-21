@@ -11,15 +11,13 @@ export default React.createClass({
     title: React.PropTypes.string.isRequired
   },
   shouldComponentUpdate(nextProps) {
-    console.log('TabButton', 'shouldComponentUpdate', !commonReact.shallowEqual(this, nextProps));
-    return !commonReact.shallowEqual(this, nextProps);
+    return commonReact.shouldComponentUpdate(this, nextProps);
   },
   render: function () {
     const props = this.props,
       className = commonReact.getClassNameList(this),
       iconClassName = ['fa', 'fa-' + props.icon];
 
-    console.log('TabButton', 'render');
 
     return (
       <li className={className.join(' ')}>

@@ -8,6 +8,20 @@ import {local} from '../../services/store';
 const initialState = Immutable.from([]),
   maxPlots = 50;
 
+function eachTabByAction(state, action, fn) {
+  _.each(state, (group, groupIndex) => {
+    if (action.groupId === group.groupId || action.groupId === undefined) {
+      _.each(group.tabs, (tab, tabIndex) => {
+        if (action.id === tab.id || action.id === undefined) {
+          const cursor = {group, groupIndex, tab, tabIndex};
+
+          fn(cursor);
+        }
+      });
+    }
+  });
+}
+
 /**
  * Focus the tab that has a certain plot in it
  * @param {object} state
@@ -15,12 +29,14 @@ const initialState = Immutable.from([]),
  * @returns {object}
  */
 function focusPlot(state, action) {
-  _.each(state, (group, groupIndex) => {
-    _.each(group.tabs, (tab, tabIndex) => {
-      if (tab.contentType === 'plot-viewer') {
-        state = state.updateIn([groupIndex, 'tabs', tabIndex, 'content'], obj => obj.set('active', action.plot.id));
+  eachTabByAction(state, action, (cursor) => {
+    if (cursor.tab.contentType === 'plot-viewer') {
+      const plots = state[cursor.groupIndex].tabs[cursor.tabIndex].content.plots;
+
+      if (_.find(plots, {id: action.plot.id})) {
+        state = state.updateIn([cursor.groupIndex, 'tabs', cursor.tabIndex, 'content'], obj => obj.set('active', action.plot.id));
       }
-    });
+    }
   });
 
   return state;
@@ -98,7 +114,7 @@ function addPlot(state, action) {
           }
 
           obj = obj.set('active', newPlot.id);
-          obj = obj.set('plots', plots);
+          obj = obj.merge({plots});
 
           return obj;
         });
@@ -110,21 +126,21 @@ function addPlot(state, action) {
 }
 
 function removePlot(state, action) {
-  _.each(state, (group, groupIndex) => {
-    _.each(group.tabs, (tab, tabIndex) => {
-      if (tab.contentType === 'plot-viewer') {
-        const plots = state[groupIndex].tabs[tabIndex].content.plots,
-          plotIndex = _.findIndex(plots, {id: action.plot.id});
+  eachTabByAction(state, action, (cursor) => {
+    if (cursor.tab.contentType === 'plot-viewer') {
+      const plots = state[cursor.groupIndex].tabs[cursor.tabIndex].content.plots,
+        plotIndex = _.findIndex(plots, {id: action.plot.id});
 
-        if (plotIndex > -1) {
-          state = state.updateIn([groupIndex, 'tabs', tabIndex, 'content', 'plots'], plots => {
-            plots = plots.asMutable();
-            plots.splice(plotIndex, 1);
-            return plots;
-          });
-        }
+      if (plotIndex > -1) {
+        state = state.updateIn([cursor.groupIndex, 'tabs', cursor.tabIndex, 'content'], content => {
+          const plots = content.plots.asMutable();
+
+          plots.splice(plotIndex, 1);
+
+          return content.merge({plots});
+        });
       }
-    });
+    }
   });
 
   return state;

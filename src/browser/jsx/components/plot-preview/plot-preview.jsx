@@ -16,14 +16,13 @@ export default React.createClass({
   displayName: 'PlotPreview',
   propTypes: {
     active: React.PropTypes.string,
-    onItemClick: React.PropTypes.func.isRequired,
-    onItemRemove: React.PropTypes.func.isRequired,
-    onItemSave: React.PropTypes.func.isRequired,
+    onFocusPlot: React.PropTypes.func.isRequired,
+    onRemovePlot: React.PropTypes.func.isRequired,
+    onSavePlot: React.PropTypes.func.isRequired,
     plots: React.PropTypes.array.isRequired
   },
   shouldComponentUpdate: function (nextProps) {
-    console.log('PlotPreview', 'shouldComponentUpdate', !commonReact.shallowEqual(this, nextProps));
-    return !commonReact.shallowEqual(this, nextProps);
+    return commonReact.shouldComponentUpdate(this, nextProps);
   },
   render: function () {
     const props = this.props;
@@ -42,8 +41,6 @@ export default React.createClass({
       return plotComponent;
     }
 
-    console.log('PlotPreview', 'render', props);
-
     return (
       <section className="plot-preview">
         {getActivePlotComponent(_.find(props.plots, {id: props.active}))}
@@ -54,9 +51,9 @@ export default React.createClass({
               <BackgroundPlot
                 active={props.active === plot.id}
                 key={plot.id}
-                onClick={_.partial(props.onItemClick, plot)}
-                onRemove={_.partial(props.onItemRemove, plot)}
-                onSave={_.partial(props.onItemSave, plot)}
+                onClick={_.partial(props.onFocusPlot, plot)}
+                onRemove={_.partial(props.onRemovePlot, plot)}
+                onSave={_.partial(props.onSavePlot, plot)}
                 {...plot}
               />
             );

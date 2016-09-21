@@ -1,6 +1,9 @@
 import _ from 'lodash';
 import commonTabsActions from '../../services/common-tabs-actions';
 import cid from '../../services/cid';
+import applicationControl from '../../services/application-control';
+import ipc from 'ipc';
+import {local} from '../../services/store';
 
 /**
  * Any focus on the tab should redirect the focus to the contents.
@@ -70,6 +73,7 @@ function focusNewestPlot() {
     });
 
     if (latestGroupId && latestTabId && latestPlot) {
+      dispatch(focusTab(latestGroupId, latestTabId));
       dispatch(focusPlot(latestGroupId, latestTabId, latestPlot));
     }
   };
@@ -107,6 +111,76 @@ function showDataFrame(groupId, item) {
   };
 }
 
+function popActiveTab(groupId) {
+  return function (dispatch, getState) {
+    const state = getState(),
+      groupIndex = _.findIndex(state.freeTabGroups, {groupId});
+
+    if (groupIndex > -1) {
+      const id = state.freeTabGroups[groupIndex].active,
+        tabIndex = _.findIndex(state.freeTabGroups[groupIndex].tabs, {id}),
+        tab = state.freeTabGroups[groupIndex].tabs[tabIndex],
+        windowName = cid();
+
+      applicationControl.createWindow(windowName, {
+        url: 'freeTabsOnlyWindow',
+        startActions: [
+          _.assign({type: 'ADD_TAB', groupId: null}, tab)
+        ]
+      });
+    }
+  };
+}
+
+function removePlot(groupId, id, plot) {
+  return {type: 'REMOVE_PLOT', groupId, id, plot};
+}
+
+function savePlot(plot) {
+  return function () {
+    // copy file somewhere else
+    if (plot.data) {
+      const data = plot.data,
+        defaultPath = local.get('workingDirectory') || '~';
+
+      if (data['text/html']) {
+        return ipc.send('saveDialog', {
+          defaultPath,
+          filters: [{name: 'html', extensions: ['html']}]
+        }).then(function (filename) {
+          if (!_.includes(filename, '.')) {
+            filename += '.html';
+          }
+
+          return ipc.send('savePlot', data['text/html'], filename);
+        }).catch(error => console.error(error));
+      } else if (data['image/png']) {
+        return ipc.send('saveDialog', {
+          defaultPath,
+          filters: [{name: 'png', extensions: ['png']}]
+        }).then(function (filename) {
+          if (!_.includes(filename, '.')) {
+            filename += '.png';
+          }
+
+          return ipc.send('savePlot', data['image/png'], filename);
+        }).catch(error => console.error(error));
+      } else if (data['image/svg']) {
+        return ipc.send('saveDialog', {
+          defaultPath,
+          filters: [{name: 'svg', extensions: ['svg']}]
+        }).then(function (filename) {
+          if (!_.includes(filename, '.')) {
+            filename += '.svg';
+          }
+
+          return ipc.send('savePlot', data['image/svg'], filename);
+        }).catch(error => console.error(error));
+      }
+    }
+  };
+}
+
 export default {
   closeTab,
   focusNewestPlot,
@@ -114,5 +188,8 @@ export default {
   focusTab,
   focusFirstTabByType,
   moveTab,
-  showDataFrame
+  removePlot,
+  savePlot,
+  showDataFrame,
+  popActiveTab
 };

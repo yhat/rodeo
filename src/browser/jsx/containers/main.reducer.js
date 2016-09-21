@@ -1,6 +1,5 @@
 import { combineReducers } from 'redux';
 import applicationControl from '../services/application-control';
-import plots from './plot-viewer/plot-viewer.reducer';
 import fileView from './file-viewer/file-viewer.reducer';
 import modalDialogs from './modal-dialog-viewer/modal-dialog.reducer';
 import sidebar from '../components/sidebar/sidebar.reducer';
@@ -9,12 +8,10 @@ import terminalTabGroups from './terminal-tab-group/terminal-tab-group.reducer';
 import freeTabGroups from './free-tab-group/free-tab-group.reducer';
 import editorTabGroups from './editor-tab-group/editor-tab-group.reducer';
 import preferences from './preferences-viewer/preferences-viewer.reducer';
-import packages from './package-viewer/package-viewer.reducer';
 import packageSearch from './package-search-viewer/package-search-viewer.reducer';
 
 function broadcast(state, action) {
   console.log(action.type, action);
-
   applicationControl.shareAction(action);
 
   if (!state) {

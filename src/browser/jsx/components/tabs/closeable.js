@@ -11,14 +11,12 @@ export default React.createClass({
     onClick: React.PropTypes.func.isRequired
   },
   shouldComponentUpdate(nextProps) {
-    console.log('Closeable', 'shouldComponentUpdate', !commonReact.shallowEqual(this, nextProps));
-    return !commonReact.shallowEqual(this, nextProps);
+    return commonReact.shouldComponentUpdate(this, nextProps);
   },
   render: function () {
     const props = this.props,
       className = commonReact.getClassNameList(this).concat(['fa', 'fa-times', closeTabClass]);
 
-    console.log('Closable', 'render');
 
     return (
       <span

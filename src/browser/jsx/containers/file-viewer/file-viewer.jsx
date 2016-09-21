@@ -72,7 +72,6 @@ export default connect(mapStateToProps, mapDispatchToProps)(React.createClass({
     const props = this.props;
     let files = props.files;
 
-    console.log('FileViewer', 'render', props);
 
     if (props.filter) {
       files = _.filter(files, item => item.filename.indexOf(props.filter) > -1);
@@ -85,8 +84,6 @@ export default connect(mapStateToProps, mapDispatchToProps)(React.createClass({
     return (
       <FileList onGoToParent={props.onGoToParentDirectory}>
         {files.map(file => {
-          console.log('FileViewer', 'render2', props);
-
           return (
             <FileListItem
               basePath={props.path}

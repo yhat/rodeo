@@ -56,7 +56,7 @@ export default connect(mapStateToProps, mapDispatchToProps)(React.createClass({
     _.defer(() => el.classList.add(showClass));
   },
   shouldComponentUpdate(nextProps) {
-    return !commonReact.shallowEqual(this, nextProps);
+    return commonReact.shouldComponentUpdate(this, nextProps);
   },
   render: function () {
     const props = this.props,

@@ -25,13 +25,10 @@ export default React.createClass({
     className: React.PropTypes.string
   },
   shouldComponentUpdate: function (nextProps) {
-    console.log('TabContentList', 'shouldComponentUpdate', !commonReact.shallowEqual(this, nextProps));
-    return !commonReact.shallowEqual(this, nextProps);
+    return commonReact.shouldComponentUpdate(this, nextProps);
   },
   render: function () {
     const props = this.props;
-
-    console.log('TabContentList', 'render', props);
 
     return (
       <div className={commonReact.getClassNameList(this).join(' ')}>

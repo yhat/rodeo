@@ -21,7 +21,6 @@ export default React.createClass({
     const props = this.props,
       className = commonReact.getClassNameList(this);
 
-    console.log('EmptySuggestion', 'render', props);
 
     return <div className={className}><Marked>{props.label}</Marked></div>;
   }

@@ -14,7 +14,7 @@ export default React.createClass({
     text: React.PropTypes.object.isRequired
   },
   shouldComponentUpdate: function (nextProps) {
-    return commonReact.shallowEqual(this, nextProps);
+    return commonReact.shouldComponentUpdate(this, nextProps);
   },
   render: function () {
     const props = this.props,
@@ -26,6 +26,7 @@ export default React.createClass({
         <div className="explanation"><Marked>{text.explainMissingDependences}</Marked></div>
         <FakeTerminal {...props.terminal}/>
         <button className="btn btn-primary btn-setup-action" onClick={_.partial(props.onTransition, 'installJupyter')}>{text.installJupyter}</button>
+        <button className="btn btn-default btn-setup-action" onClick={_.partial(props.onTransition, 'manualCommand')}>{text.uniqueCommandForPython}</button>
         <div className="secondary-explanation"><Marked>{text.explainJupyter}</Marked></div>
       </div>
     );

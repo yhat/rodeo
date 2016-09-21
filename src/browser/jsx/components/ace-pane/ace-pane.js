@@ -78,9 +78,8 @@ export default React.createClass({
     this.loadContentFromFile();
   },
   shouldComponentUpdate(nextProps) {
-    console.log('AcePane', 'shouldComponentUpdate', !commonReact.shallowEqual(this, nextProps));
 
-    return !commonReact.shallowEqual(this, nextProps);
+    return commonReact.shouldComponentUpdate(this, nextProps);
   },
   componentDidUpdate: function (oldProps) {
     const props = this.props,
@@ -122,7 +121,6 @@ export default React.createClass({
     }
   },
   render: function () {
-    console.log('AcePane', 'render', this.props);
 
     return <div className="ace-pane" id={this.props.id}></div>;
   }

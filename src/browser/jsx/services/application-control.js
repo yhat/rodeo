@@ -27,6 +27,7 @@ function quit() {
  * @param {string} name
  * @param {object} options
  * @returns {Promise}
+
  */
 function createWindow(name, options) {
   return send('createWindow', name, options);

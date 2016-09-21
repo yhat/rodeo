@@ -19,7 +19,7 @@ export default React.createClass({
     };
   },
   shouldComponentUpdate: function (nextProps) {
-    return !commonReact.shallowEqual(this, nextProps);
+    return commonReact.shouldComponentUpdate(this, nextProps);
   },
   handleChange: function (e) {
     this.props.onTest(e.target.value);

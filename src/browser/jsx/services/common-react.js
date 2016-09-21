@@ -50,10 +50,21 @@ function getClassNameList(instance) {
     className.push(props.className);
   }
 
+  console.log(displayName, 'render', props);
+
   return className;
+}
+
+function shouldComponentUpdate(instance, newProps, newState) {
+  const result = !shallowEqual(instance, newProps, newState);
+
+  console.log(instance.constructor.displayName, 'shouldComponentUpdate', result);
+
+  return result;
 }
 
 export default {
   shallowEqual,
-  getClassNameList
+  getClassNameList,
+  shouldComponentUpdate
 };

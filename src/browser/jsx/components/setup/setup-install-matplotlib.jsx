@@ -18,7 +18,7 @@ export default React.createClass({
     this.props.onPackageInstall('matplotlib');
   },
   shouldComponentUpdate: function (nextProps) {
-    return commonReact.shallowEqual(this, nextProps);
+    return commonReact.shouldComponentUpdate(this, nextProps);
   },
   render: function () {
     const props = this.props,

@@ -11,9 +11,24 @@ import VariableViewer from '../../components/variable-viewer/variable-viewer.jsx
 import VariableTableViewer from '../variable-table-viewer.jsx';
 import PackageViewer from '../package-viewer/package-viewer.jsx';
 import PackageSearchViewer from '../package-search-viewer/package-search-viewer.jsx';
-import { getParentNodeOf } from '../../services/dom';
+import ActionestButton from '../../components/actionest/actionest-button';
+import {getParentNodeOf} from '../../services/dom';
 import freeTabActions from './free-tab-group.actions';
 import commonReact from '../../services/common-react';
+
+const allowedPopoutTypes = ['plot-viewer'];
+
+function isPopoutAllowed(props) {
+  const activeIndex = _.findIndex(props.tabs, {id: props.active});
+
+  if (activeIndex > -1) {
+    const contentType = props.tabs[activeIndex].contentType;
+
+    return allowedPopoutTypes.indexOf(contentType) > -1;
+  }
+
+  return false;
+}
 
 /**
  * @param {function} dispatch
@@ -27,7 +42,11 @@ function mapDispatchToProps(dispatch, ownProps) {
     onCloseTab: id => dispatch(freeTabActions.closeTab(groupId, id)),
     onFocusTab: id => dispatch(freeTabActions.focusTab(groupId, id)),
     onMoveTab: id => dispatch(freeTabActions.moveTab(groupId, id)),
-    onShowDataFrame: item => dispatch(freeTabActions.showDataFrame(groupId, item))
+    onPopActiveTab: () => dispatch(freeTabActions.popActiveTab(groupId)),
+    onShowDataFrame: item => dispatch(freeTabActions.showDataFrame(groupId, item)),
+    onFocusPlot: (id, plot) => dispatch(freeTabActions.focusPlot(groupId, id, plot)),
+    onRemovePlot: (id, plot) => dispatch(freeTabActions.removePlot(groupId, id, plot)),
+    onSavePlot: plot => dispatch(freeTabActions.savePlot(plot))
   };
 }
 
@@ -50,8 +69,7 @@ export default connect(null, mapDispatchToProps)(React.createClass({
     return {searchFilter: ''};
   },
   shouldComponentUpdate: function (nextProps, nextState) {
-    console.log('FreeTabGroup', 'shouldComponentUpdate', !commonReact.shallowEqual(this, nextProps, nextState));
-    return !commonReact.shallowEqual(this, nextProps, nextState);
+    return commonReact.shouldComponentUpdate(this, nextProps, nextState);
   },
   handleTabClick: function (id, event) {
     event.preventDefault();
@@ -63,8 +81,8 @@ export default connect(null, mapDispatchToProps)(React.createClass({
   },
   /**
    * NOTE: preventDefault to reject drag
+   * @param {string} id
    * @param {DragEvent} event
-   * @param {string} tabId
    */
   handleTabDragStart: function (id, event) {
     const el = getParentNodeOf(event.target, 'li'),
@@ -130,7 +148,14 @@ export default connect(null, mapDispatchToProps)(React.createClass({
       filter = state.searchFilter,
       types = {
         'history-viewer': tab => <HistoryViewer filter={filter} {...tab.content}/>,
-        'plot-viewer': tab => <PlotViewer {...tab.content}/>,
+        'plot-viewer': tab => (
+          <PlotViewer
+            onFocusPlot={_.partial(props.onFocusPlot, tab.id)}
+            onRemovePlot={_.partial(props.onRemovePlot, tab.id)}
+            onSavePlot={props.onSavePlot}
+            {...tab.content}
+          />
+        ),
         'file-viewer': tab => <FileViewer filter={filter} {...tab.content}/>,
         'variable-viewer': tab => (
           <VariableViewer filter={filter} onShowDataFrame={props.onShowDataFrame} visible={tab.id === props.active} {...tab.content}/>
@@ -141,11 +166,17 @@ export default connect(null, mapDispatchToProps)(React.createClass({
         'package-viewer': tab => <PackageViewer filter={filter} {...tab.content}/>,
         'package-search-viewer': tab => <PackageSearchViewer filter={filter} {...tab.content}/>
       };
+    let popoutButton;
 
-    console.log('FreeTabGroup', 'render', props);
+    if (isPopoutAllowed(props)) {
+      popoutButton = <ActionestButton icon="expand" onClick={props.onPopActiveTab}/>;
+    } else {
+      popoutButton = <ActionestButton className="disabled" icon="expand"/>;
+    }
 
     return (
       <TabbedPane
+        filter={filter}
         onTabClick={this.handleTabClick}
         onTabClose={this.handleTabClose}
         onTabDragEnd={this.handleTabDragEnd}
@@ -156,16 +187,11 @@ export default connect(null, mapDispatchToProps)(React.createClass({
         onTabListDrop={this.handleTabListDrop}
         {...props}
       >
+        <li className="right">{popoutButton}</li>
         <li className="right">
           <SearchTextBox onChange={searchFilter => this.setState({searchFilter})}/>
         </li>
-
-        {props.tabs.map(tab => {
-          console.log('FreeTabGroup', 'render3', tab);
-
-          return <TabbedPaneItem key={tab.id}{...tab}>{types[tab.contentType](tab)}</TabbedPaneItem>;
-        })}
-
+        {props.tabs.map(tab => <TabbedPaneItem filter={filter} key={tab.id} {...tab}>{types[tab.contentType](tab)}</TabbedPaneItem>)}
       </TabbedPane>
     );
   }

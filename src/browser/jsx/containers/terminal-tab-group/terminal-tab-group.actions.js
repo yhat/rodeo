@@ -5,11 +5,11 @@ import client from '../../services/client';
 import cid from '../../services/cid';
 import {errorCaught} from '../../actions/application';
 import kernelActions from '../../actions/kernel';
-import plotViewerActions from '../plot-viewer/plot-viewer.actions';
 import freeTabGroupActions from '../free-tab-group/free-tab-group.actions';
 import {local} from '../../services/store';
 import textUtil from '../../services/text-util';
 import commonTabsActions from '../../services/common-tabs-actions';
+import ipc from 'ipc';
 const convertor = new AsciiToHtml(),
   inputBuffer = [],
   tabGroupName = 'terminalTabGroups';
@@ -108,9 +108,12 @@ function addInputText(groupId, id, context) {
           if (context.isCodeIsolated) {
             // isolated code leaves the prompt alone, still visibly runs the code
             // even if the code is not runnable, run it anyway so they can see the error
+            jqConsole.SetPromptText(text);
+            jqConsole.AbortPrompt();
             jqConsole.SetHistory(jqConsole.GetHistory().concat([text]));
             return client.execute(text)
-              .catch(error => dispatch(errorCaught(error)));
+              .catch(error => dispatch(errorCaught(error)))
+              .then(() => _.defer(() => dispatch(startPrompt(groupId, id))));
           } else if (context.isCodeRunnable) {
             // pretend to run from the prompt: kill the prompt, run the code, start the prompt, lie
             jqConsole.SetPromptText(fullText);
@@ -581,6 +584,35 @@ function byClientIdToActiveTab(fn) {
   };
 }
 
+function showSelectWorkingDirectoryDialog(groupId, id) {
+  return function (dispatch, getState) {
+    const state = getState(),
+      content = commonTabsActions.getContent(state.terminalTabGroups, groupId, id);
+
+    return ipc.send('openDialog', {
+      title: 'Select a folder',
+      defaultPath: content.cwd || local.get('workingDirectory'),
+      properties: ['openDirectory']
+    }).then(function (result) {
+      if (_.isArray(result) && result.length > 0) {
+        result = result[0];
+      }
+
+      console.log('results!!', {result, groupId, id});
+
+      if (_.isString(result)) {
+        return dispatch(addInputText(groupId, id, {text: `cd "${result}"`, isCodeIsolated: true}));
+      }
+    }).catch(error => dispatch(errorCaught(error)));
+  };
+}
+
+function detectVariables() {
+  return function (dispatch) {
+    return dispatch(kernelActions.detectKernelVariables());
+  };
+}
+
 export default {
   addDisplayData,
   addDisplayDataByClientId: byClientIdToActiveTab(addDisplayData),
@@ -602,6 +634,8 @@ export default {
   restart,
   restartActiveTab: commonTabsActions.toActiveTab(tabGroupName, restart),
   startPrompt,
+  detectVariables,
   autoComplete,
-  handleProcessClose
+  handleProcessClose,
+  showSelectWorkingDirectoryDialog
 };

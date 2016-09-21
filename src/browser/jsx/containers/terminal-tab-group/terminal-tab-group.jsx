@@ -5,8 +5,11 @@ import TabButton from '../../components/tabs/tab-button';
 import TabbedPane from '../../components/tabs/tabbed-pane.js';
 import TabbedPaneItem from '../../components/tabs/tabbed-pane-item.js';
 import Terminal from '../../components/terminal/terminal.jsx';
+import GrayInfo from '../../components/gray-info/gray-info';
+import GrayInfoLink from '../../components/gray-info/gray-info-link';
 import actions from './terminal-tab-group.actions';
 import commonReact from '../../services/common-react';
+import './terminal-tab-group.css';
 
 /**
  * @param {function} dispatch
@@ -22,10 +25,12 @@ function mapDispatchToProps(dispatch, ownProps) {
     onAutoComplete: id => dispatch(actions.autoComplete(groupId, id)),
     onStart: id => dispatch(actions.startPrompt(groupId, id)),
     onRestart: id => dispatch(actions.restart(groupId, id)),
+    onDetectVariables: () => dispatch(actions.detectVariables()),
     onClearBuffer: id => dispatch(actions.clearBuffer(groupId, id)),
     onRestartActiveTerminal: () => dispatch(actions.restartActiveTab(groupId)),
     onInterruptActiveTerminal: () => dispatch(actions.interruptActiveTab(groupId)),
-    onClearBufferActiveTerminal: () => dispatch(actions.clearBufferOfActiveTab(groupId))
+    onClearBufferActiveTerminal: () => dispatch(actions.clearBufferOfActiveTab(groupId)),
+    onShowSelectWorkingDirectoryDialog: id => dispatch(actions.showSelectWorkingDirectoryDialog(groupId, id))
   };
 }
 
@@ -43,14 +48,14 @@ export default connect(null, mapDispatchToProps)(React.createClass({
     groupId: React.PropTypes.string.isRequired,
     tabs: React.PropTypes.array.isRequired
   },
+  componentDidMount: function () {
+    this.props.onDetectVariables();
+  },
   shouldComponentUpdate: function (nextProps) {
-    console.log('TerminalTabGroup', 'shouldComponentUpdate', !commonReact.shallowEqual(this, nextProps));
-    return !commonReact.shallowEqual(this, nextProps);
+    return commonReact.shouldComponentUpdate(this, nextProps);
   },
   handleNoop: _.noop,
   render: function () {
-    console.log('TerminalTabGroup', 'render');
-
     const props = this.props,
       runClearTerminalBuffer = 'Ctrl + L',
       runTerminalInterrupt = 'Ctrl + C',
@@ -67,8 +72,6 @@ export default connect(null, mapDispatchToProps)(React.createClass({
           />
         )
       };
-
-    console.log('TerminalTabGroup', 'render2');
 
     return (
       <TabbedPane
@@ -106,9 +109,17 @@ export default connect(null, mapDispatchToProps)(React.createClass({
         />
 
         {props.tabs.map(function (tab) {
-          console.log('TerminalTabGroup', 'render3');
-
-          return <TabbedPaneItem key={tab.id}{...tab}>{types[tab.contentType](tab)}</TabbedPaneItem>;
+          return (
+            <TabbedPaneItem key={tab.id}{...tab}>
+              {types[tab.contentType](tab)}
+              <GrayInfo content={tab.content}>
+                <GrayInfoLink
+                  cwd={tab.content.cwd}
+                  onClick={_.partial(props.onShowSelectWorkingDirectoryDialog, tab.id)}
+                >{tab.content.cwd}</GrayInfoLink>
+              </GrayInfo>
+            </TabbedPaneItem>
+          );
         })}
       </TabbedPane>
     );

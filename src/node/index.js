@@ -819,11 +819,10 @@ function onSaveDialog(options) {
  * @returns {Promise}
  */
 function onToggleDevTools() {
-  const currentWindow = this;
+  const window = browserWindows.getFocusedWindow() || this;
 
-  return new bluebird(function (resolve) {
-    currentWindow.toggleDevTools();
-    resolve();
+  return bluebird.try(function () {
+    window.toggleDevTools();
   });
 }
 
@@ -832,12 +831,10 @@ function onToggleDevTools() {
  * @returns {Promise}
  */
 function onToggleFullScreen() {
-  return new bluebird(function (resolve) {
-    const currentWindow = this,
-      isFull = currentWindow.isFullScreen();
+  const window = browserWindows.getFocusedWindow() || this;
 
-    currentWindow.setFullScreen(!isFull);
-    resolve();
+  return bluebird.try(function () {
+    window.setFullScreen(!window.isFullScreen());
   });
 }
 

@@ -18,7 +18,7 @@ export default React.createClass({
     this.props.onPackageInstall('jupyter');
   },
   shouldComponentUpdate: function (nextProps) {
-    return commonReact.shallowEqual(this, nextProps);
+    return commonReact.shouldComponentUpdate(this, nextProps);
   },
   render: function () {
     const buttons = [],

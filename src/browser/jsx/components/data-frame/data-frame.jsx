@@ -45,8 +45,7 @@ export default React.createClass({
     }
   },
   shouldComponentUpdate: function (nextProps, nextState) {
-    console.log('DataFrame', 'shouldComponentUpdate', !commonReact.shallowEqual(this, nextProps, nextState));
-    return !commonReact.shallowEqual(this, nextProps, nextState);
+    return commonReact.shouldComponentUpdate(this, nextProps, nextState);
   },
   componentWillUnmount: function () {
     globalObserver.off(null, null, this);
@@ -98,7 +97,6 @@ export default React.createClass({
       loadingIcon = <DataFrameLoadingIcon isLoading={props.isLoading} label="Loading DataFrame" />;
     }
 
-    console.log('DataFrame', 'render', props, state);
 
     return (
       <div className="data-frame-container">

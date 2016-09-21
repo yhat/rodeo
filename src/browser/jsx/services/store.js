@@ -6,51 +6,54 @@ let Store;
  * @param {string|undefined} key
  */
 function assertCamelCase(key) {
-  if (_.isString(key) && _.camelCase(key) !== key) {
+  if (!_.isString(key)) {
+    throw new Error('key must be a string');
+  } else if (_.isString(key) && _.camelCase(key) !== key) {
     throw new Error('key ' + key + ' should be ' + _.camelCase(key));
   }
 }
 
 Store = (function () {
-  let source;
+  return function (name, source) {
+    Object.defineProperty(this, 'name', {get: () => source});
+    Object.defineProperty(this, 'source', {get: () => source});
 
-  const constructor = function (storageSource) {
-    source = storageSource;
-  };
-
-  constructor.prototype = {
-    get(key) {
+    this.get = function (key) {
       assertCamelCase(key);
-      let result = source.getItem(key);
+      let value = source.getItem(key);
 
-      if (typeof result === 'string') {
+      if (typeof value === 'string') {
         try {
-          result = JSON.parse(result);
+          value = JSON.parse(value);
         } catch (ex) {
           // we're okay with this
         }
       }
-      return result;
-    },
 
-    set(key, value) {
+      console.log(name, 'get', key, value);
+
+      return value;
+    };
+
+    this.set = function (key, value) {
       assertCamelCase(key);
+      console.log(name, 'set', key, value);
+
       if (typeof value === 'object') {
         value = JSON.stringify(value);
       }
+
       source.setItem(key, value);
-    },
+    };
 
-    setSource(storageSource) {
+    this.setSource = function (storageSource) {
       source = storageSource;
-    }
+    };
   };
-
-  return constructor;
 }());
 
-export const local = new Store(window.localStorage),
-  session = new Store(window.sessionStorage);
+export const local = new Store('local', window.localStorage),
+  session = new Store('session', window.sessionStorage);
 export default {
   local,
   session,

@@ -28,8 +28,7 @@ export default React.createClass({
     };
   },
   shouldComponentUpdate(nextProps) {
-    console.log('TabItem', 'shouldComponentUpdate', !commonReact.shallowEqual(this, nextProps));
-    return !commonReact.shallowEqual(this, nextProps);
+    return commonReact.shouldComponentUpdate(this, nextProps);
   },
   render: function () {
     let closeable;
@@ -37,7 +36,6 @@ export default React.createClass({
       className = commonReact.getClassNameList(this),
       iconClassName = ['fa', 'fa-before', 'fa-' + props.icon];
 
-    console.log('TabItem', 'render', props);
 
     if (props.closeable && props.onClose) {
       closeable = <Closeable onClick={props.onClose} />;

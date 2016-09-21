@@ -71,35 +71,23 @@ export default React.createClass({
     };
   },
   shouldComponentUpdate: function (nextProps) {
-    console.log('TabbedPane', 'shouldComponentUpdate', !commonReact.shallowEqual(this, nextProps));
-    return !commonReact.shallowEqual(this, nextProps);
+    return commonReact.shouldComponentUpdate(this, nextProps);
   },
   render: function () {
     const props = this.props,
       className = commonReact.getClassNameList(this);
 
-    console.log('TabbedPane', 'render', props);
-
+    // update content when _anything_ changes that we've been given
     return (
       <div className={className.join(' ')}>
         <TabList
-          active={props.active}
-          focusable={props.focusable}
           onDragEnter={props.onTabListDragEnter}
           onDragLeave={props.onTabListDragLeave}
           onDragOver={props.onTabListDragOver}
           onDrop={props.onTabListDrop}
-          onTabClick={props.onTabClick}
-          onTabClose={props.onTabClose}
-          onTabDragEnd={props.onTabDragEnd}
-          onTabDragStart={props.onTabDragStart}
-          tabs={props.tabs} // update when tabs reference changes
+          {...props}
         >{props.children}</TabList>
-        <TabContentList
-          active={props.active}
-          focusable={props.focusable}
-          tabs={props.tabs} // update when tabs reference changes
-        >{props.children}</TabContentList>
+        <TabContentList {...props}>{props.children}</TabContentList>
       </div>
     );
   }

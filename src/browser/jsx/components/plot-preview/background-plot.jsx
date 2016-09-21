@@ -19,8 +19,7 @@ export default React.createClass({
     onSave: React.PropTypes.func.isRequired
   },
   shouldComponentUpdate(nextProps) {
-    console.log('BackgroundPlot', 'shouldComponentUpdate', !commonReact.shallowEqual(this, nextProps));
-    return !commonReact.shallowEqual(this, nextProps);
+    return commonReact.shouldComponentUpdate(this, nextProps);
   },
   render: function () {
     const props = this.props,
@@ -28,7 +27,6 @@ export default React.createClass({
     let itemStyle,
       className = commonReact.getClassNameList(this);
 
-    console.log('BackgroundPlot', 'render', props);
 
     if (props.active) {
       className.push('active');

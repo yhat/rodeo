@@ -21,7 +21,7 @@ export default React.createClass({
     }
   },
   shouldComponentUpdate(nextProps, nextState) {
-    return !commonReact.shallowEqual(this, nextProps, nextState);
+    return commonReact.shouldComponentUpdate(this, nextProps, nextState);
   },
   render: function () {
     const className = commonReact.getClassNameList(this);

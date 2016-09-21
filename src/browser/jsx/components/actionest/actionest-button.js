@@ -1,26 +1,27 @@
 import _ from 'lodash';
 import React from 'react';
 import commonReact from '../../services/common-react';
+import './actionest.css';
 
 export default React.createClass({
-  displayName: 'SetupReady',
+  displayName: 'ActionestButton',
   propTypes: {
-    className: React.PropTypes.string,
-    onCancel: React.PropTypes.func.isRequired,
-    onFinish: React.PropTypes.func.isRequired
+    icon: React.PropTypes.string.isRequired,
+    onClick: React.PropTypes.func.isRequired
+  },
+  getDefaultProps: function () {
+    return {onClick: _.noop};
   },
   shouldComponentUpdate: function (nextProps) {
     return commonReact.shouldComponentUpdate(this, nextProps);
   },
   render: function () {
     const props = this.props,
-      text = props.text,
       className = commonReact.getClassNameList(this);
 
-    return (
-      <div className={className.join(' ')}>
-        <button className="btn btn-default btn-setup-action" onClick={props.onFinish}>{text.readyToRodeo}</button>
-      </div>
-    );
+    className.push('actionest');
+    className.push('fa', 'fa-' + props.icon);
+
+    return <div className={className.join(' ')} onClick={props.onClick} />;
   }
 });

@@ -13,15 +13,13 @@ export default React.createClass({
     history: React.PropTypes.array.isRequired
   },
   shouldComponentUpdate: function (nextProps) {
-    console.log('HistoryList', 'shouldComponentUpdate', !commonReact.shallowEqual(this, nextProps));
-    return !commonReact.shallowEqual(this, nextProps);
+    return commonReact.shouldComponentUpdate(this, nextProps);
   },
   render: function () {
     const props = this.props,
       className = commonReact.getClassNameList(this),
       history = _.filter(props.history, item => !props.filter || item.text.indexOf(props.filter) > -1);
 
-    console.log('HistoryList', 'render', props);
 
     return (
       <div className={className.join(' ')}>

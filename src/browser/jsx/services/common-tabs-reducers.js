@@ -1,8 +1,18 @@
 import _ from 'lodash';
 
+/**
+ * Special Initialization Case:  When groupId is null and there is no sender, assume they meant the first group available
+ * @param {object} state
+ * @param {object} action
+ * @param {object} item
+ * @returns {object}
+ */
 function addItem(state, action, item) {
-  const groupId = action.groupId,
+  const isInitializationCase = state.length > 0 && action.groupId === null && !action.senderName,
+    groupId = isInitializationCase ? state[0].groupId : action.groupId,
     groupIndex = _.findIndex(state, {groupId});
+
+  console.log('addItem', {groupId, groupIndex, item, state, action});
 
   if (groupIndex > -1) {
     state = state.updateIn([groupIndex, 'tabs'], tabs => {

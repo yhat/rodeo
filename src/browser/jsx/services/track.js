@@ -2,6 +2,7 @@ import _ from 'lodash';
 import {local} from './store';
 import clientDiscovery from './client-discovery';
 import bluebird from 'bluebird';
+import textUtil from './text-util';
 
 const appName = 'Rodeo',
   optOutMessage = 'Usage/Metric tracking is disabled.',
@@ -46,23 +47,6 @@ function serialize(obj) {
       str.push(encodeURIComponent(p) + '=' + encodeURIComponent(obj[p]));
     }
   return str.join('&');
-}
-
-/**
- * @param {number} size
- * @returns {string}
- */
-function getRandomCharacters(size) {
-  let str = '';
-
-  while (str.length < size) {
-    let sub = Math.floor((Math.random() * (Number.MAX_SAFE_INTEGER / 36 * 10))).toString(36);
-
-    str += sub.substr(1); // remove the first character, which is less random than the others
-  }
-
-  // cut down to the exact size
-  return str.substr(Math.max(str.length - size, 0));
 }
 
 /**
@@ -254,7 +238,7 @@ export default function track(event) {
     clientDiscovery.getUserId(),
     clientDiscovery.getAppVersion()
   ]).spread(function (userId, appVersion) {
-    const cacheBust = getRandomCharacters(20),
+    const cacheBust = textUtil.getRandomCharacters(20),
       locals = {userId, appName, appVersion, cacheBust, isTracking};
 
     return bluebird.join(

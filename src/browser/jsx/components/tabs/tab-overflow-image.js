@@ -9,8 +9,7 @@ export default React.createClass({
     src: React.PropTypes.string.isRequired
   },
   shouldComponentUpdate(nextProps) {
-    console.log('TabOverflowImage', 'shouldComponentUpdate', !commonReact.shallowEqual(this, nextProps));
-    return !commonReact.shallowEqual(this, nextProps);
+    return commonReact.shouldComponentUpdate(this, nextProps);
   },
   render: function () {
     const props = this.props,
@@ -19,7 +18,6 @@ export default React.createClass({
         backgroundImage: 'url(' + props.src + ')'
       };
 
-    console.log('TabOverflowImage', 'render');
 
     return (
       <li className={className.join(' ')}><a onClick={props.onClick} style={style}>{' '}</a></li>

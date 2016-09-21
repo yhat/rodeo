@@ -48,8 +48,7 @@ export default React.createClass({
     }
   },
   shouldComponentUpdate: function (nextProps, nextState) {
-    console.log('VariableTableViewer', 'shouldComponentUpdate', !commonReact.shallowEqual(this, nextProps, nextState));
-    return !commonReact.shallowEqual(this, nextProps, nextState);
+    return commonReact.shouldComponentUpdate(this, nextProps, nextState);
   },
   setData: function (data) {
     this.setState({data});
@@ -70,7 +69,6 @@ export default React.createClass({
       state = this.state;
     let content;
 
-    console.log('VariableTableViewer', 'render', props);
 
     if (props.item && props.item.type == 'DataFrame') {
       content = <DataFrame data={state.data} isLoading={state.isLoading} visible={props.visible}/>;

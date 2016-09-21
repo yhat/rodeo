@@ -2,6 +2,7 @@ import _ from 'lodash';
 import React from 'react';
 import ReactDOM from 'react-dom';
 import {Table, Column, Cell} from 'fixed-data-table-2';
+import ActionestButton from '../actionest/actionest-button';
 import 'fixed-data-table-2/dist/fixed-data-table.min.css';
 import globalObserver from '../../services/global-observer';
 import './variable-table.css';
@@ -45,8 +46,7 @@ export default React.createClass({
     }
   },
   shouldComponentUpdate: function (nextProps, nextState) {
-    console.log('VariableTable', 'shouldComponentUpdate', !commonReact.shallowEqual(this, nextProps, nextState), nextProps, nextState);
-    return !commonReact.shallowEqual(this, nextProps, nextState);
+    return commonReact.shouldComponentUpdate(this, nextProps, nextState);
   },
   componentWillUnmount: function () {
     globalObserver.off(null, null, this);
@@ -79,7 +79,6 @@ export default React.createClass({
       state = this.state;
     let items;
 
-    console.log('VariableTable', 'render', props);
 
     // flatten type with the rest; give a unique id to use as the key
     items = _.flatten(_.map(props.variables, function (list, type) {
@@ -140,7 +139,7 @@ export default React.createClass({
               if (item.value) {
                 value = item.value;
               } else if (_.includes(structuredVariableTypes, item.type)) {
-                value = <button className="actionest fa fa-table" onClick={_.partial(props.onShowDataFrame, item)} />;
+                value = <ActionestButton icon="table" onClick={_.partial(props.onShowDataFrame, item)}/>;
               }
 
               return <Cell>{value}</Cell>;

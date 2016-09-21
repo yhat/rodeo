@@ -16,7 +16,7 @@ export default React.createClass({
     placeholder: React.PropTypes.string
   },
   shouldComponentUpdate(nextProps) {
-    return !commonReact.shallowEqual(this, nextProps);
+    return commonReact.shouldComponentUpdate(this, nextProps);
   },
   handleFilterChange: _.debounce(function () {
     const value = this.refs.search.value;

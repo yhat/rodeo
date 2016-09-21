@@ -15,7 +15,7 @@ function remove(plot) {
   return {type: 'REMOVE_PLOT', plot};
 }
 
-function save(plot) {
+function savePlot(plot) {
   return function () {
     // copy file somewhere else
     if (plot.data) {
@@ -63,6 +63,5 @@ function save(plot) {
 export default {
   focus,
   remove,
-  save,
   openActivePlot
 };

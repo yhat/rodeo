@@ -74,8 +74,27 @@ function changePreference(state, action) {
   }
 }
 
+function workingDirectoryChanged(state, action) {
+  _.each(state, (group, groupIndex) => {
+    _.each(group.tabs, (tab, tabIndex) => {
+      if (action.cwd && tab.contentType === 'terminal') {
+        state = state.updateIn([groupIndex, 'tabs', tabIndex], tab => {
+
+          tab = tab.setIn(['content', 'cwd'], action.cwd);
+
+
+          return tab;
+        });
+      }
+    });
+  });
+
+  return state;
+}
+
 export default mapReducers({
   FOCUS_TAB: commonTabsReducers.focus,
   KERNEL_DETECTED: updateAllTerminalsWithKernel,
-  CHANGE_PREFERENCE: changePreference
+  CHANGE_PREFERENCE: changePreference,
+  WORKING_DIRECTORY_CHANGED: workingDirectoryChanged
 }, initialState);

@@ -10,7 +10,7 @@ import commonReact from '../../services/common-react';
 export default React.createClass({
   displayName: 'FakeTerminal',
   shouldComponentUpdate: function (nextProps) {
-    return !commonReact.shallowEqual(this, nextProps);
+    return commonReact.shouldComponentUpdate(this, nextProps);
   },
   render: function () {
     const props = this.props,

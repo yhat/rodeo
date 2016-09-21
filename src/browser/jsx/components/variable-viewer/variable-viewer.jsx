@@ -35,15 +35,13 @@ export default React.createClass({
     };
   },
   shouldComponentUpdate: function (nextProps, nextState) {
-    console.log('VariableViewer', 'shouldComponentUpdate', !commonReact.shallowEqual(this, nextProps, nextState), nextProps, nextState);
-    return !commonReact.shallowEqual(this, nextProps, nextState);
+    return commonReact.shouldComponentUpdate(this, nextProps, nextState);
   },
   render: function () {
     const props = this.props,
       className = commonReact.getClassNameList(this),
       content = [];
 
-    console.log('VariableViewer', 'render', props);
 
     if (!props.variables) {
       content.push(<EmptySuggestion label="Assign a variable." />);

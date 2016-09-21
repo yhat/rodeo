@@ -65,8 +65,7 @@ export default connect(null, mapDispatchToProps)(React.createClass({
     tabs: React.PropTypes.array.isRequired
   },
   shouldComponentUpdate(nextProps) {
-    console.log('EditorTabGroup', 'shouldComponentUpdate', !commonReact.shallowEqual(this, nextProps));
-    return !commonReact.shallowEqual(this, nextProps);
+        return commonReact.shouldComponentUpdate(this, nextProps);
   },
   handleTabClick: function (id, event) {
     event.preventDefault();
@@ -150,7 +149,6 @@ export default connect(null, mapDispatchToProps)(React.createClass({
         )
       };
 
-    console.log('EditorTabGroup', 'render', props);
 
     return (
       <TabbedPane

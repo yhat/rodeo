@@ -16,15 +16,13 @@ export default React.createClass({
     history: React.PropTypes.array.isRequired
   },
   shouldComponentUpdate: function (nextProps) {
-    console.log('HistoryViewer', 'shouldComponentUpdate', !commonReact.shallowEqual(this, nextProps));
-    return !commonReact.shallowEqual(this, nextProps);
+    return commonReact.shouldComponentUpdate(this, nextProps);
   },
   render: function () {
     const props = this.props,
       className = commonReact.getClassNameList(this),
       contents = [];
 
-    console.log('HistoryViewer', 'render', props);
 
     if (props.history && props.history.length) {
       contents.push(<HistoryList {...props}/>);

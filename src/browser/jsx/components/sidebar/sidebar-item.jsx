@@ -16,7 +16,7 @@ export default React.createClass({
     onClick: React.PropTypes.func
   },
   shouldComponentUpdate(nextProps) {
-    return !commonReact.shallowEqual(this, nextProps);
+    return commonReact.shouldComponentUpdate(this, nextProps);
   },
   render: function () {
     const props = this.props,

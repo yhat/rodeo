@@ -1,22 +1,19 @@
 import React from 'react';
+import './gray-info.css';
 import commonReact from '../../services/common-react';
-import './tab-add.css';
 
 export default React.createClass({
-  displayName: 'TabAdd',
+  displayName: 'GrayInfoLink',
   propTypes: {
     onClick: React.PropTypes.func.isRequired
   },
-  shouldComponentUpdate() {
-    return false;
+  shouldComponentUpdate: function (nextProps) {
+    return commonReact.shouldComponentUpdate(this, nextProps);
   },
   render: function () {
     const props = this.props,
       className = commonReact.getClassNameList(this);
 
-
-    return <li className={className.join(' ')}>
-      <a onClick={props.onClick}><span className="fa fa-plus-square-o" /></a>
-    </li>;
+    return <div className={className} onClick={props.onClick}>{props.children}</div>;
   }
 });

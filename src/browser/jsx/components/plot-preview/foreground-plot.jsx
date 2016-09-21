@@ -15,7 +15,7 @@ export default React.createClass({
     id: React.PropTypes.string.isRequired
   },
   shouldComponentUpdate(nextProps) {
-    return !commonReact.shallowEqual(this, nextProps);
+    return commonReact.shouldComponentUpdate(this, nextProps);
   },
   render: function () {
     const props = this.props,
