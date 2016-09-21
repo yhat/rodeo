@@ -108,7 +108,7 @@ function changeAdded(state, action) {
     } else if (state.changes[key].value !== value) {
       state = state.setIn(
         ['changes', key],
-        _.pick(_.assign({}, state.changes[key], action.change), ['key', 'value', 'type', 'state'])
+        Immutable(_.pick(_.assign({}, state.changes[key], action.change), ['key', 'value', 'type', 'state']))
       );
     } // else we shouldn't change anything
   } else {
@@ -124,7 +124,7 @@ function changeDetailAdded(state, action) {
     key = change.key;
 
   if (changes[key] && changes[key].value === change.value) {
-    state = state.setIn(['changes', key], _.assign(changes[key], change));
+    state = state.setIn(['changes', key], Immutable(_.assign({}, changes[key], change)));
   }
 
   return updateCanSave(state);

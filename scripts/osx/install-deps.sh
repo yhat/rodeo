@@ -3,7 +3,7 @@
 
 STARTING_DIR=$(pwd)
 TARGET_DIR=~/Projects/yhat/rodeo
-NODE_VERSION=6
+NODE_VERSION=6.4
 CACHE_MIN=999999999
 
 #guarantee nvm

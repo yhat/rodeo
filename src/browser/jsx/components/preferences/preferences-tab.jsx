@@ -1,6 +1,7 @@
 import _ from 'lodash';
 import React from 'react';
 import './preferences-tab.css';
+import commonReact from '../../services/common-react';
 
 const tabClass = 'preferences-tab',
   activeTabClass = 'preferences-tab-active',
@@ -24,6 +25,9 @@ export default React.createClass({
     return {
       onClick: _.noop
     };
+  },
+  shouldComponentUpdate: function (nextProps) {
+    return commonReact.shouldComponentUpdate(this, nextProps);
   },
   render: function () {
     const props = this.props,

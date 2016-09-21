@@ -1,5 +1,6 @@
 import _ from 'lodash';
 import React from 'react';
+import commonReact from '../../../services/common-react';
 
 /**
  * @class PreferencesSelect
@@ -18,6 +19,9 @@ export default React.createClass({
       onChange: _.noop,
       type: 'text'
     };
+  },
+  shouldComponentUpdate: function (nextProps) {
+    return commonReact.shouldComponentUpdate(this, nextProps);
   },
   render: function () {
     const content = [],

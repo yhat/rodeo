@@ -4,6 +4,7 @@ import PreferencesTab from './preferences-tab.jsx';
 import PreferencesItem from './preferences-item.jsx';
 import SaveChangesButtonGroup from './save-changes-button-group.jsx';
 import './preferences-list.css';
+import commonReact from '../../services/common-react';
 
 /**
  * @class PreferencesList
@@ -24,6 +25,9 @@ export default React.createClass({
     onSelectFolder: React.PropTypes.func.isRequired,
     onTabClick: React.PropTypes.func.isRequired,
     preferenceMap: React.PropTypes.array.isRequired
+  },
+  shouldComponentUpdate: function (nextProps) {
+    return commonReact.shouldComponentUpdate(this, nextProps);
   },
   render: function () {
     const props = this.props,

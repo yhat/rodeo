@@ -1,6 +1,7 @@
 import _ from 'lodash';
 import React from 'react';
 import PreferencesItemErrors from '../preferences-item-errors.jsx';
+import commonReact from '../../../services/common-react';
 
 /**
  * @class PreferencesFolder
@@ -12,6 +13,9 @@ export default React.createClass({
     item: React.PropTypes.object.isRequired,
     onChange: React.PropTypes.func.isRequired,
     onSelectFolder: React.PropTypes.func.isRequired
+  },
+  shouldComponentUpdate: function (nextProps) {
+    return commonReact.shouldComponentUpdate(this, nextProps);
   },
   render: function () {
     const displayName = this.constructor.displayName,
@@ -36,8 +40,8 @@ export default React.createClass({
       </span>
     </div>);
 
-    if (item.fileStats) {
-      const errors = item.fileStats.errors;
+    if (item.errors) {
+      const errors = item.errors;
 
       if (errors && errors.length) {
         content.push(<PreferencesItemErrors errors={errors} key="errors" />);

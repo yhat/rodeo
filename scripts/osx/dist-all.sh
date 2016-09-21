@@ -1,6 +1,7 @@
 #!/bin/bash
 STARTING_DIR=$(pwd)
 TARGET_DIR=~/Projects/yhat/rodeo
+NODE_VERSION=6.4
 
 cd $TARGET_DIR
 
