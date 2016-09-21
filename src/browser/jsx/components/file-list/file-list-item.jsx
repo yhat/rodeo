@@ -31,18 +31,13 @@ export default React.createClass({
   },
   render: function () {
     const props = this.props,
-      className = [
-        fileListItemClass,
-        props.isSelected ? selectedClass : ''
-      ].join(' '),
-      nameClassName = ['fa',
-        'fa-before',
-        props.isDirectory ? 'fa-folder' : 'fa-file-o'
-      ].join(' ');
+      className = [fileListItemClass, props.isSelected ? selectedClass : ''],
+      iconClassName = ['fa', 'fa-before', props.isDirectory ? 'fa-folder' : 'fa-file-o'];
 
     return (
-      <div className={className} onClick={props.onClick} onContextMenu={props.onContextMenu} onDoubleClick={props.onDoubleClick}>
-        <span className={nameClassName}>{props.filename}</span>
+      <div className={className.join(' ')} onClick={props.onClick} onContextMenu={props.onContextMenu} onDoubleClick={props.onDoubleClick}>
+        <span className={iconClassName.join(' ')} />
+        <span className="font-sans">{props.filename}</span>
       </div>
     );
   }

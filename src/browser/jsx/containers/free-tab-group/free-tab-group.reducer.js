@@ -1,68 +1,47 @@
 import _ from 'lodash';
+import cid from '../../services/cid';
+import Immutable from 'seamless-immutable';
 import mapReducers from '../../services/map-reducers';
+import commonTabsReducers from '../../services/common-tabs-reducers';
+import {local} from '../../services/store';
 
-const initialState = [];
+const initialState = Immutable.from([]),
+  maxPlots = 50;
 
-function updateIn(state, list, fn) {
-  list = _.clone(list);
-  let stateClone = _.clone(state),
-    cursor = stateClone,
-    key = list.shift(),
-    target;
+function eachTabByAction(state, action, fn) {
+  _.each(state, (group, groupIndex) => {
+    if (action.groupId === group.groupId || action.groupId === undefined) {
+      _.each(group.tabs, (tab, tabIndex) => {
+        if (action.id === tab.id || action.id === undefined) {
+          const cursor = {group, groupIndex, tab, tabIndex};
 
-  while (list.length) {
-    cursor[key] = _.clone(cursor[key]);
-    cursor = cursor[key];
-    key = list.shift();
-  }
-  target = _.clone(cursor[key]);
-  cursor[key] = fn(target) || target;
-
-  return stateClone;
-}
-
-/**
- * @param {Array} items
- */
-function removeFocusFromAll(items) {
-  _.each(items, function (item) {
-    item.hasFocus = false;
+          fn(cursor);
+        }
+      });
+    }
   });
 }
 
 /**
  * Focus the tab that has a certain plot in it
  * @param {object} state
+ * @param {object} action
  * @returns {object}
  */
-function focusPlot(state) {
+function focusPlot(state, action) {
+  eachTabByAction(state, action, (cursor) => {
+    if (cursor.tab.contentType === 'plot-viewer') {
+      const plots = state[cursor.groupIndex].tabs[cursor.tabIndex].content.plots;
+
+      if (_.find(plots, {id: action.plot.id})) {
+        state = state.updateIn([cursor.groupIndex, 'tabs', cursor.tabIndex, 'content'], obj => obj.set('active', action.plot.id));
+      }
+    }
+  });
+
   return state;
 }
 
-function focusTab(state, action) {
-  const groupId = action.groupId,
-    groupIndex = _.findIndex(state, {groupId}),
-    group = state[groupIndex],
-    items = group && group.items,
-    targetIndex = _.findIndex(items, {id: action.id}),
-    targetItem = items && items[targetIndex];
-
-  if (!targetItem || targetItem.hasFocus) {
-    return state;
-  }
-
-  return updateIn(state, [groupIndex, 'items'], function (items) {
-    let focusIndex = _.findIndex(items, {hasFocus: true}),
-      focusItem = items[focusIndex],
-      targetIndex = _.findIndex(items, {id: action.id}),
-      targetItem = items[targetIndex];
-
-    targetItem.hasFocus = true;
-    if (focusItem) {
-      focusItem.hasFocus = false;
-    }
-  });
-}
 /**
  * Move the tab to a different group
  * @param {object} oldState
@@ -76,27 +55,24 @@ function moveTab(oldState, action) {
   const state = _.cloneDeep(oldState),
     toGroup = state[_.findIndex(state, {groupId: action.toGroupId})],
     fromGroup = state[_.findIndex(state, {groupId: action.fromGroupId})],
-    fromGroupItemIndex = fromGroup && _.findIndex(fromGroup.items, {id: action.id}),
-    removedItems = fromGroup && fromGroupItemIndex !== -1 && fromGroup.items.splice(fromGroupItemIndex, 1);
+    fromGroupItemIndex = fromGroup && _.findIndex(fromGroup.tabs, {id: action.id}),
+    removedItems = fromGroup && fromGroupItemIndex !== -1 && fromGroup.tabs.splice(fromGroupItemIndex, 1);
 
   if (!toGroup) {
     return oldState;
   }
 
-  toGroup.items = toGroup.items.concat(removedItems);
+  toGroup.tabs = toGroup.tabs.concat(removedItems);
 
   // dragged item takes focus in the new location
-  toGroup.items = toGroup.items.map(function (item) {
-    item.hasFocus = item.id === action.id;
-    return item;
-  });
+  toGroup.active = action.id;
 
   // if moving to new group and item had focus, move focus to left item
-  if (toGroup !== fromGroup && removedItems && removedItems.length && removedItems[0].hasFocus) {
-    if (fromGroupItemIndex === 0 && fromGroup.items.length) {
-      fromGroup.items[0].hasFocus = true;
-    } else if (fromGroup.items[fromGroupItemIndex - 1]) {
-      fromGroup.items[fromGroupItemIndex - 1].hasFocus = true;
+  if (toGroup !== fromGroup && removedItems && removedItems.length && removedItems[0].id === fromGroup.active) {
+    if (fromGroupItemIndex === 0 && fromGroup.tabs.length) {
+      fromGroup.active = fromGroup.tabs[0].id;
+    } else if (fromGroup.tabs[fromGroupItemIndex - 1]) {
+      fromGroup.active = fromGroup.tabs[fromGroupItemIndex - 1].id;
     }
   }
 
@@ -104,63 +80,123 @@ function moveTab(oldState, action) {
 }
 
 /**
- * @param {object} oldState
+ * @param {Array} state
  * @param {object} action
- * @returns {object}
+ * @returns {Array}
  */
-function createTab(oldState, action) {
-  const state = _.cloneDeep(oldState);
-  let group = state[_.findIndex(state, {groupId: action.groupId})];
+function add(state, action) {
+  return commonTabsReducers.addItem(state, action, _.omit(action, 'type'));
+}
 
-  if (!group) {
-    group = _.head(state);
-  }
+/**
+ * Add new plot to _every_ plot viewer
+ * @param {Immutable} state
+ * @param {object} action
+ * @param {object|string} action.data
+ * @returns {immutable.List}
+ */
+function addPlot(state, action) {
+  _.each(state, (group, groupIndex) => {
+    _.each(group.tabs, (tab, tabIndex) => {
+      if (tab.contentType === 'plot-viewer') {
+        state = state.updateIn([groupIndex, 'tabs', tabIndex, 'content'], obj => {
+          const newPlot = {
+              id: cid(),
+              data: action.data,
+              createdAt: new Date().getTime()
+            },
+            plots = obj.plots.asMutable();
 
-  if (group) {
-    const item = _.omit(action, 'type');
+          plots.unshift(newPlot);
 
-    if (item.hasFocus) {
-      removeFocusFromAll(group.items);
-    }
+          if (plots.length > maxPlots) {
+            plots.pop();
+          }
 
-    group.items.push(item);
-  }
+          obj = obj.set('active', newPlot.id);
+          obj = obj.merge({plots});
+
+          return obj;
+        });
+      }
+    });
+  });
 
   return state;
 }
 
-/**
- * @param {object} oldState
- * @param {object} action
- * @returns {object}
- */
-function closeTab(oldState, action) {
-  const state = _.cloneDeep(oldState);
-  let groupIndex = _.findIndex(state, {groupId: action.groupId}),
-    group = state[groupIndex],
-    itemIndex = group && _.findIndex(group.items, {id: action.id});
+function removePlot(state, action) {
+  eachTabByAction(state, action, (cursor) => {
+    if (cursor.tab.contentType === 'plot-viewer') {
+      const plots = state[cursor.groupIndex].tabs[cursor.tabIndex].content.plots,
+        plotIndex = _.findIndex(plots, {id: action.plot.id});
 
-  if (groupIndex > -1 && itemIndex > -1) {
-    const item = _.find(group.items, {id: action.id});
+      if (plotIndex > -1) {
+        state = state.updateIn([cursor.groupIndex, 'tabs', cursor.tabIndex, 'content'], content => {
+          const plots = content.plots.asMutable();
 
-    if (item.hasFocus && group.items.length > 1) {
-      if (itemIndex === 0) {
-        group.items[1].hasFocus = true;
-      } else {
-        group.items[itemIndex - 1].hasFocus = true;
+          plots.splice(plotIndex, 1);
+
+          return content.merge({plots});
+        });
       }
     }
+  });
 
-    _.pull(group.items, item);
+  return state;
+}
+
+function variablesChanged(state, action) {
+  // put new variables into each environment viewer
+  _.each(state, (group, groupIndex) => {
+    _.each(group.tabs, (tab, tabIndex) => {
+      if (tab.contentType === 'variable-viewer') {
+        state = state.setIn([groupIndex, 'tabs', tabIndex, 'content', 'variables'], action.variables);
+      }
+    });
+  });
+
+  // put new dataframes into each data table
+
+  return state;
+}
+
+function iopubInputExecuted(state, action) {
+  const historyMaxSetting = local.get('terminalHistory'),
+    historyMax = historyMaxSetting === null ? 50 : historyMaxSetting;
+
+  if (historyMax > 0 && _.isString(action.text) && action.text.trim().length > 0) {
+    // put new history into each history viewer
+    _.each(state, (group, groupIndex) => {
+      _.each(group.tabs, (tab, tabIndex) => {
+        if (tab.contentType === 'history-viewer') {
+          state = state.updateIn([groupIndex, 'tabs', tabIndex, 'content'], content => {
+            const history = content.history.asMutable();
+
+            history.push({text: action.text});
+
+            if (history.length > historyMax) {
+              history.shift();
+            }
+
+            return content.merge({history});
+          });
+        }
+      });
+    });
   }
 
   return state;
 }
 
 export default mapReducers({
-  CLOSE_TAB: closeTab,
-  CREATE_TAB: createTab,
+  CLOSE_TAB: commonTabsReducers.close,
+  ADD_TAB: add,
   FOCUS_PLOT: focusPlot,
-  FOCUS_TAB: focusTab,
-  MOVE_TAB: moveTab
+  FOCUS_TAB: commonTabsReducers.focus,
+  MOVE_TAB: moveTab,
+  IOPUB_DATA_DISPLAYED: addPlot,
+  REMOVE_PLOT: removePlot,
+  VARIABLES_CHANGED: variablesChanged,
+  IOPUB_EXECUTED_INPUT: iopubInputExecuted
 }, initialState);

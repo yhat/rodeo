@@ -18,6 +18,7 @@ import SetupPythonError from './setup-python-error.jsx';
 import SetupReady from './setup-ready.jsx';
 import CSSTransitionGroup from 'react-addons-css-transition-group';
 import './setup.css';
+import commonReact from '../../services/common-react';
 
 /**
  * @class Setup
@@ -28,10 +29,12 @@ export default React.createClass({
   propTypes: {
     contentType: React.PropTypes.string.isRequired
   },
+  shouldComponentUpdate: function (nextProps) {
+    return commonReact.shouldComponentUpdate(this, nextProps);
+  },
   render: function () {
-    const displayName = this.constructor.displayName,
-      props = this.props,
-      className = _.kebabCase(displayName),
+    const props = this.props,
+      className = commonReact.getClassNameList(this),
       types = {
         initial: () => <SetupInitial className={className} key="initial" {...props}/>,
         installAnaconda: () => <SetupInstallAnaconda className={className} key="installAnaconda" {...props}/>,

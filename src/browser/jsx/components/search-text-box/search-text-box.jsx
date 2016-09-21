@@ -1,6 +1,7 @@
 import _ from 'lodash';
 import React from 'react';
 import './search-text-box.css';
+import commonReact from '../../services/common-react';
 
 /**
  * @class FilterTextBox
@@ -14,10 +15,8 @@ export default React.createClass({
     onChange: React.PropTypes.func,
     placeholder: React.PropTypes.string
   },
-  getDefaultProps: function () {
-    return {
-      onChange: _.noop
-    };
+  shouldComponentUpdate(nextProps) {
+    return commonReact.shouldComponentUpdate(this, nextProps);
   },
   handleFilterChange: _.debounce(function () {
     const value = this.refs.search.value;

@@ -31,9 +31,40 @@ function padRight(str, length) {
   return str + _.repeat(' ', length - str.length);
 }
 
+function hash() {
+  let hash = 0, i, chr, len;
+
+  if (this.length === 0) {
+    return hash;
+  }
+
+  for (i = 0, len = this.length; i < len; i++) {
+    chr   = this.charCodeAt(i);
+    hash  = ((hash << 5) - hash) + chr;
+    hash |= 0; // Convert to 32bit integer
+  }
+
+  return hash;
+}
+
+function getRandomCharacters(size) {
+  let str = '';
+
+  while (str.length < size) {
+    let sub = Math.floor((Math.random() * (Number.MAX_SAFE_INTEGER / 36 * 10))).toString(36);
+
+    str += sub.substr(1); // remove the first character, which is less random than the others
+  }
+
+  // cut down to the exact size
+  return str.substr(Math.max(str.length - size, 0));
+}
+
 export default {
   getCursorPosFromRowColumn,
   spliceString,
   longestLength,
-  padRight
+  padRight,
+  hash,
+  getRandomCharacters
 };

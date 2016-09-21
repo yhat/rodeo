@@ -1,0 +1,50 @@
+@font-face {
+  font-family: 'Lato-Regular';
+  src: url('Lato-Regular.ttf') format('truetype');
+  font-weight: normal;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: 'NotoSans-Regular';
+  src: url('NotoSans-Regular.ttf') format('truetype');
+  font-weight: normal;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: 'NotoSerif-Regular';
+  src: url('NotoSerif-Regular.ttf') format('truetype');
+  font-weight: normal;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: 'NotoMono-Regular';
+  src: url('NotoMono-Regular.ttf') format('truetype');
+  font-weight: normal;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: 'Roboto-Regular';
+  src: url('Roboto-Regular.ttf') format('truetype');
+  font-weight: normal;
+  font-style: normal;
+}
+
+.font-heading {
+  font-family: 'Lato-Regular', 'NotoSerif-Regular', 'Helvetica Neue', serif;
+}
+
+.font-monospaced {
+  font-family: 'NotoMono-Regular', 'Consolas', 'Monaco', 'Lucida Console', 'Liberation Mono', 'DejaVu Sans Mono', 'Bitstream Vera Sans Mono', 'Courier New', monospace;
+}
+
+.font-serif {
+  font-family: 'NotoSerif-Regular', serif;
+}
+
+.font-sans {
+  font-family: 'Helvetica Neue', 'Roboto-Regular', 'NotoSans-Regular', 'Helvetica Neue', sans-serif;
+}

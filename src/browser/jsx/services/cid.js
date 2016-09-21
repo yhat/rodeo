@@ -3,6 +3,10 @@
  * @module
  */
 
+import textUtil from './text-util';
+
+const windowPostfix = textUtil.getRandomCharacters(5);
+
 /**
  * @returns {function}
  */
@@ -13,6 +17,6 @@ export default (function () {
     if (i == Number.MAX_SAFE_INTEGER) {
       i = 0;
     }
-    return 'cid-' + (i++).toString(36);
+    return 'cid-' + (i++).toString(36) + '-' + windowPostfix;
   };
 }());

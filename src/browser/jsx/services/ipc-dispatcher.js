@@ -6,10 +6,10 @@ import track from './track';
 import dialogActions from '../actions/dialogs';
 import applicationActions from '../actions/application';
 import editorTabGroupActions from '../containers/editor-tab-group/editor-tab-group.actions';
-import terminalActions from '../containers/terminal/terminal.actions';
+import terminalTabGroupActions from '../containers/terminal-tab-group/terminal-tab-group.actions';
+import freeTabGroupActions from '../containers/free-tab-group/free-tab-group.actions';
 import iopubActions from '../actions/iopub';
 import kernelActions from '../actions/kernel';
-import plotViewerActions from '../containers/plot-viewer/plot-viewer.actions';
 
 /**
  * These are dispatched from the server, usually from interaction with native menus.
@@ -26,11 +26,11 @@ const dispatchMap = {
     SAVE_ACTIVE_FILE: () => editorTabGroupActions.saveActiveFile(),
     SHOW_SAVE_FILE_DIALOG: () => editorTabGroupActions.showSaveFileDialogForActiveFile(),
     SHOW_OPEN_FILE_DIALOG: () => editorTabGroupActions.showOpenFileDialogForActiveFile(),
-    FOCUS_ACTIVE_ACE_EDITOR: () => editorTabGroupActions.focus(),
-    FOCUS_ACTIVE_TERMINAL: () => terminalActions.focus(),
-    FOCUS_NEWEST_PLOT: () => plotViewerActions.focusNewestPlot(),
-    TERMINAL_INTERRUPT: () => terminalActions.interrupt(),
-    TERMINAL_RESTART: () => terminalActions.restart()
+    FOCUS_ACTIVE_ACE_EDITOR: () => editorTabGroupActions.focusActive(),
+    FOCUS_ACTIVE_TERMINAL: () => terminalTabGroupActions.focusActiveTab(null),
+    FOCUS_NEWEST_PLOT: () => freeTabGroupActions.focusNewestPlot(),
+    TERMINAL_INTERRUPT: () => terminalTabGroupActions.interruptActiveTab(null),
+    TERMINAL_RESTART: () => terminalTabGroupActions.restartActiveTab(null)
   },
   iopubDispatchMap = {
     executeInput: dispatchIOPubExecuteInput,
@@ -64,7 +64,7 @@ function internalDispatcher(dispatch) {
   });
 }
 
-function dispatchShellExecuteReply(dispatch, content) {
+function dispatchShellExecuteReply(dispatch, clientId, content) {
   let payload = content && content.payload;
 
   // it's okay if lots of things have no payloads.  Ones that have payloads are really important though.
@@ -73,20 +73,20 @@ function dispatchShellExecuteReply(dispatch, content) {
 
     if (text) {
       // this text includes ANSI color
-      dispatch(terminalActions.addOutputBlock(text));
+      dispatch(terminalTabGroupActions.addOutputBlockByClientId(clientId, text));
     } else {
       console.log('dispatchShellExecuteReply', 'unknown content type', result);
     }
   });
 }
 
-function dispatchIOPubResult(dispatch, content) {
+function dispatchIOPubResult(dispatch, clientId, content) {
   track({category:'iopub', action: 'execute_result'});
   let data = content && content.data,
     text = data && data['text/plain'];
 
   if (text) {
-    dispatch(terminalActions.addOutputText(text));
+    dispatch(terminalTabGroupActions.addOutputTextByClientId(clientId, text));
   } else {
     console.log('dispatchIOPubResult', 'unknown content type', data);
   }
@@ -95,37 +95,37 @@ function dispatchIOPubResult(dispatch, content) {
   detectVariables(dispatch);
 }
 
-function dispatchIOPubDisplayData(dispatch, content) {
+function dispatchIOPubDisplayData(dispatch, clientId, content) {
   track({category:'iopub', action: 'display_data'});
-  dispatch(terminalActions.addDisplayData(content.data));
+  dispatch(terminalTabGroupActions.addDisplayDataByClientId(clientId, content.data));
   dispatch(iopubActions.dataDisplayed(content.data));
   if (local.get('plotsFocusOnNew') !== false) {
-    dispatch(plotViewerActions.focusNewestPlot());
+    dispatch(freeTabGroupActions.focusNewestPlot());
   }
   detectVariables(dispatch);
 }
 
-function dispatchIOPubError(dispatch, content) {
+function dispatchIOPubError(dispatch, clientId, content) {
   track({category:'iopub', action: 'error'});
-  dispatch(terminalActions.addErrorText(content.ename, content.evalue, content.traceback));
+  dispatch(terminalTabGroupActions.addErrorTextByClientId(clientId, content.ename, content.evalue, content.traceback));
   dispatch(iopubActions.errorOccurred(content.ename, content.evalue, content.traceback));
   detectVariables(dispatch);
 }
 
-function dispatchIOPubStream(dispatch, content) {
+function dispatchIOPubStream(dispatch, clientId, content) {
   track({category:'iopub', action: 'stream'});
-  dispatch(terminalActions.addOutputText(content.text));
+  dispatch(terminalTabGroupActions.addOutputTextByClientId(clientId, content.text));
   dispatch(iopubActions.dataStreamed(content.name, content.text));
   detectVariables(dispatch);
 }
 
-function dispatchIOPubExecuteInput(dispatch, content) {
+function dispatchIOPubExecuteInput(dispatch, clientId, content) {
   track({category:'iopub', action: 'execute_input'});
   dispatch(iopubActions.inputExecuted(content.code));
   detectVariables(dispatch);
 }
 
-function dispatchIOPubStatus(dispatch, content) {
+function dispatchIOPubStatus(dispatch, clientId, content) {
   // track({category:'iopub', action: 'status'}); // TOO MANY!~
   dispatch(iopubActions.stateChanged(content.execution_state));
 }
@@ -140,13 +140,13 @@ function dispatchNoop() {
  * @param {function} dispatch
  */
 function iopubDispatcher(dispatch) {
-  ipc.on('iopub', function (event, data) {
+  ipc.on('iopub', function (event, clientId, data) {
     const result = data.result,
       content = _.get(data, 'result.content'),
       type = result && _.camelCase(result.msg_type);
 
     if (iopubDispatchMap[type]) {
-      return iopubDispatchMap[type](dispatch, content);
+      return iopubDispatchMap[type](dispatch, clientId, content);
     }
 
     return dispatch(iopubActions.unknownEventOccurred(data));
@@ -154,13 +154,13 @@ function iopubDispatcher(dispatch) {
 }
 
 function shellDispatcher(dispatch) {
-  ipc.on('shell', function (event, data) {
+  ipc.on('shell', function (event, clientId, data) {
     const result = data.result,
       content = _.get(data, 'result.content'),
       type = result && _.camelCase(result.msg_type);
 
     if (shellDispatchMap[type]) {
-      return shellDispatchMap[type](dispatch, content);
+      return shellDispatchMap[type](dispatch, clientId, content);
     }
 
     console.log('shell', {data});
@@ -168,7 +168,7 @@ function shellDispatcher(dispatch) {
 }
 
 function stdinDispatcher(dispatch) {
-  ipc.on('stdin', function (event, data) {
+  ipc.on('stdin', function (event, clientId, data) {
     const result = data.result,
       content = _.get(data, 'result.content'),
       type = result && _.camelCase(result.msg_type);
@@ -182,19 +182,19 @@ function stdinDispatcher(dispatch) {
 }
 
 function otherDispatcher(dispatch) {
-  ipc.on('event', function (event, source, data) {
-    // dispatch(terminalActions.addOutputText(source + ': ' + data));
+  ipc.on('event', function (event, clientId, source, data) {
+    // dispatch(terminalTabGroupActions.addOutputText(source + ': ' + data));
     console.log('event', data);
   });
 
-  ipc.on('error', function (event, data) {
-    dispatch(terminalActions.addOutputText('Error: ' + JSON.stringify(data)));
+  ipc.on('error', function (event, clientId, data) {
+    dispatch(terminalTabGroupActions.addOutputTextByClientId(clientId, 'Error: ' + JSON.stringify(data)));
     console.log('error', data);
   });
 
-  ipc.on('close', function (event, code, signal) {
-    dispatch(terminalActions.handleProcessClose(code, signal));
-    console.log('close', code, signal);
+  ipc.on('close', function (event, clientId, code, signal) {
+    dispatch(terminalTabGroupActions.handleProcessClose(clientId, code, signal));
+    console.log('close', clientId, code, signal);
   });
 
   ipc.on('sharedAction', function (event, action) {

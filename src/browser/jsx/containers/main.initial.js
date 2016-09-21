@@ -1,108 +1,94 @@
-import _ from 'lodash';
 import cid from '../services/cid';
+import Immutable from 'seamless-immutable';
 import {local} from '../services/store';
+import {getInitialState as getFileViewerInitialState} from './file-viewer/file-viewer.reducer';
+import {getInitialState as getPlotViewerInitialState} from './plot-viewer/plot-viewer.reducer';
+import {getInitialState as getPackageSearchViewerInitialState} from './package-search-viewer/package-search-viewer.reducer';
 
-function getSplitState() {
-  return local.get('splitPanePositions') || {
-    'split-pane-center': window.innerWidth / 2 + 'px',
-    'split-pane-right': window.innerHeight / 2 + 'px',
-    'split-pane-left': window.innerHeight / 2 + 'px'
-  };
-}
+function getTerminalTabGroups() {
+  const bottomLeftFocusId = cid();
 
-function getTerminalState() {
-  return [{
-    label: 'Console',
-    id: cid(),
-    tabId: cid(),
-    hasFocus: true,
-    icon: 'terminal',
-    fontSize: _.toNumber(local.get('fontSize')) || 12,
-    status: 'idle',
-    history: []
-  }];
-}
-
-function getPlotsState() {
-  return [];
-}
-
-function getFileViewState() {
-  const facts = local.get('systemFacts'),
-    homedir = facts && facts.homedir;
-
-  return {
-    id: cid(),
-    path: local.get('workingDirectory') || homedir || '~',
-    files: [],
-    showDotFiles: local.get('displayDotFiles') || false
-  };
+  return Immutable.from([
+    {
+      groupId: 'bottom-left',
+      active: bottomLeftFocusId,
+      tabs: [
+        {
+          contentType: 'terminal',
+          icon: 'terminal',
+          label: 'Console',
+          id: bottomLeftFocusId,
+          content: {
+            fontSize: 12,
+            id: cid()
+          }
+        }
+      ]
+    }
+  ]);
 }
 
 function getFreeTabGroups() {
-  return [
+  const topRightFocusId = cid(),
+    bottomRightFocusId = cid();
+
+  return Immutable.from([
     {
       groupId: 'top-right',
-      items: [
+      active: topRightFocusId,
+      tabs: [
         {
           contentType: 'variable-viewer',
           icon: 'table',
           label: 'Environment',
-          tabId: cid(),
-          id: cid()
+          id: topRightFocusId,
+          content: {}
         },
         {
           contentType: 'history-viewer',
           icon: 'history',
           label: 'History',
-          tabId: cid(),
-          id: cid()
+          id: cid(),
+          content: {
+            history: []
+          }
         }
       ]
     },
     {
       groupId: 'bottom-right',
-      items: [
+      active: bottomRightFocusId,
+      tabs: [
         {
           contentType: 'file-viewer',
           icon: 'file-text-o',
           label: 'Files',
-          tabId: cid(),
-          id: cid()
+          id: bottomRightFocusId,
+          content: getFileViewerInitialState()
         },
         {
           contentType: 'plot-viewer',
           icon: 'bar-chart',
           label: 'Plots',
-          tabId: cid(),
-          id: cid()
+          id: cid(),
+          content: getPlotViewerInitialState()
         },
-        // {
-        //   contentType: 'package-viewer',
-        //   icon: 'archive',
-        //   label: 'Packages',
-        //   tabId: cid(),
-        //   id: cid()
-        // },
         {
           contentType: 'package-search-viewer',
           icon: 'archive',
           label: 'Packages',
-          tabId: cid(),
-          id: cid()
+          id: cid(),
+          content: getPackageSearchViewerInitialState()
         }
       ]
     }
-  ];
+  ]);
 }
 
 function getState() {
   return {
-    splitPanes: getSplitState(),
-    terminals: getTerminalState(),
-    plots: getPlotsState(),
-    fileView: getFileViewState(),
-    freeTabGroups: getFreeTabGroups()
+    freeTabGroups: getFreeTabGroups(),
+    terminalTabGroups: getTerminalTabGroups()
   };
 }
 

@@ -1,0 +1,8 @@
+.rodeo .history-viewer {
+  height: 100%;
+  overflow: auto;
+}
+
+.rodeo .history-viewer td {
+  border: 0
+}

@@ -1,0 +1,46 @@
+.full-screen div.tabbed-pane { /* annoyingly specific over vsplitter */
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  align-items: stretch;
+  overflow: hidden;
+  align-content: stretch;
+}
+
+.tabbed-pane .left {
+  float: left;
+  min-height: 30px;
+  min-width: 20px;
+}
+
+.tabbed-pane .right {
+  float: right;
+  min-height: 30px;
+  min-width: 20px;
+}
+
+.tabbed-pane .right .search-text-box {
+  margin-top: 3px;
+  margin-right: 10px;
+}
+
+.tabbed-pane .fa-before:before {
+  padding-right: 6px;
+}
+
+.tab-content {
+  flex: 1 1;
+  position: relative;
+}
+
+/* override bootstrap... */
+.tab-pane {
+  display: block;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  position: absolute;
+  overflow: auto;
+}
+

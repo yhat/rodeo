@@ -1,0 +1,5 @@
+.tab-content-list {
+  flex: 1 1;
+  overflow: hidden; /* allow individual components decide if they scroll / take the full space */
+}
+

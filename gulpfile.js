@@ -76,7 +76,13 @@ gulp.task('html', function () {
  */
 gulp.task('fonts', function () {
   return gulp.src([
-    'node_modules/font-awesome/fonts/**/*'
+    'node_modules/font-awesome/fonts/**/*',
+    'src/browser/fonts/lato/Lato-Regular.ttf',
+    'src/browser/fonts/NotoMono-hinted/NotoMono-Regular.ttf',
+    'src/browser/fonts/NotoSans-unhinted/NotoSans-Regular.ttf',
+    'src/browser/fonts/NotoSerif-unhinted/NotoSerif-Regular.ttf',
+    'src/browser/fonts/roboto/Roboto-Regular.ttf',
+    'src/browser/fonts/fonts.css'
   ]).pipe(gulp.dest(outputMap.fonts));
 });
 

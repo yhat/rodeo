@@ -72,6 +72,7 @@ export default connect(mapStateToProps, mapDispatchToProps)(React.createClass({
     const props = this.props;
     let files = props.files;
 
+
     if (props.filter) {
       files = _.filter(files, item => item.filename.indexOf(props.filter) > -1);
     }

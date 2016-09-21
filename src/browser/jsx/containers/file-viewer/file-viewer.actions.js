@@ -1,6 +1,6 @@
 import path from 'path';
 import {send} from 'ipc';
-import {addFile} from '../../containers/editor-tab-group/editor-tab-group.actions';
+import editorTabGroupActions from '../../containers/editor-tab-group/editor-tab-group.actions';
 
 /**
  * @param {string} file
@@ -13,9 +13,13 @@ export function openViewedFile(file) {
 
     if (file.isDirectory) {
       return dispatch(setViewedPath(filename));
-    } else {
+    } else if (state.editorTabGroups.length) {
+      // find first editorTabGroup, put it there
+      const groupId = state.editorTabGroups[0].groupId;
+
       return send('fileStats', filename)
-        .then(stats => dispatch(addFile(filename, stats)));
+        .then(stats => dispatch(editorTabGroupActions.add(groupId, filename, stats)));
+
     }
   };
 }

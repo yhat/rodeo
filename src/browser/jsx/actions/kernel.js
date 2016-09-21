@@ -100,54 +100,16 @@ function restart() {
 }
 
 function detectKernelVariables() {
-  return function (dispatch, getState) {
-    const state = getState(),
-      terminal = _.find(state.terminals, {hasFocus: true}),
-      id = terminal.id;
-
+  return function (dispatch) {
     return client.getStatus().then(function (status) {
       const variables = status.variables,
         cwd = status.cwd;
 
-      dispatch({type: 'VARIABLES_CHANGED', variables, id});
-      dispatch({type: 'WORKING_DIRECTORY_CHANGED', cwd, id});
+      dispatch({type: 'VARIABLES_CHANGED', variables});
+      dispatch({type: 'WORKING_DIRECTORY_CHANGED', cwd});
 
       return status;
     }).catch(error => dispatch(errorCaught(error)));
-  };
-}
-
-function executeActiveFileInActiveConsole() {
-  return function (dispatch, getState) {
-    const state = getState(),
-      items = _.head(state.editorTabGroups).items,
-      focusedAce = state && _.find(items, {hasFocus: true}),
-      el = focusedAce && document.querySelector('#' + focusedAce.id),
-      aceInstance = el && ace.edit(el),
-      filename = focusedAce.filename,
-      focusedTerminal = state && _.find(state.terminals, {hasFocus: true}),
-      id = focusedTerminal.id,
-      content = aceInstance && aceInstance.getSession().getValue();
-
-    if (content) {
-      dispatch({type: 'EXECUTING', filename, id});
-
-      return client.execute(content)
-        .then(() => dispatch({type: 'EXECUTED', id}))
-        .catch(error => dispatch(errorCaught(error)));
-    }
-  };
-}
-
-function executeActiveFileSelectionInActiveConsole() {
-  return function (dispatch, getState) {
-    const state = getState(),
-      items = _.head(state.editorTabGroups).items,
-      focusedAce = state && _.find(items, {hasFocus: true}),
-      el = focusedAce && document.querySelector('#' + focusedAce.id),
-      aceInstance = el && ace.edit(el);
-
-    aceInstance.commands.exec('liftSelection', aceInstance);
   };
 }
 
@@ -155,8 +117,6 @@ export default {
   askForPythonOptions,
   detectKernel,
   detectKernelVariables,
-  executeActiveFileInActiveConsole,
-  executeActiveFileSelectionInActiveConsole,
   isBusy,
   isIdle,
   interrupt,

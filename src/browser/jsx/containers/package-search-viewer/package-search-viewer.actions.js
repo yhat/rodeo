@@ -2,7 +2,7 @@ import _ from 'lodash';
 import bluebird from 'bluebird';
 import ipc from 'ipc';
 import pypi from '../../services/pypi';
-import terminalActions from '../terminal/terminal.actions';
+import terminalActions from '../terminal-tab-group/terminal-tab-group.actions';
 import recommendedPackages from './recommended.yml';
 
 function list() {
@@ -159,7 +159,7 @@ function installPackage(packageName, version) {
     const isCodeIsolated = true;
 
     dispatch({type: 'PACKAGE_INSTALLING', packageName, version});
-    dispatch(terminalActions.addInputText({text: `! pip install ${packageName}==${version}`, isCodeIsolated}))
+    dispatch(terminalActions.addInputTextToActiveTab(null, {text: `! pip install ${packageName}==${version}`, isCodeIsolated}))
       .then(() => dispatch({type: 'PACKAGE_INSTALLED', packageName, version}))
       .catch(error => dispatch({type: 'PACKAGE_INSTALLED', packageName, version, error}));
   };

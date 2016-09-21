@@ -1,6 +1,7 @@
+import _ from 'lodash';
 import React from 'react';
-import {Provider} from 'react-redux';
-
+import {connect, Provider} from 'react-redux';
+import Immutable from 'seamless-immutable';
 import cid from '../services/cid';
 import FullScreen from '../components/full-screen/full-screen.jsx';
 import FreeTabGroup from './free-tab-group/free-tab-group.jsx';
@@ -9,7 +10,8 @@ import rootReducer from './free-tabs-only.reducer';
 import reduxReducer from '../services/redux-store';
 
 const groupId = cid(),
-  store = reduxReducer.create(rootReducer, {freeTabGroups: [{groupId: groupId, items: []}]});
+  store = reduxReducer.create(rootReducer, {freeTabGroups: Immutable([{groupId: groupId, active: '', tabs: []}])}),
+  ConnectedFreeTabGroup = connect((state, ownProps) => _.find(state.freeTabGroups, {groupId: ownProps.groupId}))(FreeTabGroup);
 
 ipcDispatcher(store.dispatch);
 
@@ -33,7 +35,7 @@ export default React.createClass({
     return (
       <Provider store={store}>
         <FullScreen row>
-          <FreeTabGroup id={groupId} />
+          <ConnectedFreeTabGroup groupId={groupId} />
         </FullScreen>
       </Provider>
     );

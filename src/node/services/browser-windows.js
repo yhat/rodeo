@@ -189,6 +189,7 @@ function create(name, options) {
  * @param {[{type: string}]} startActions
  */
 function runStartActions(name, startActions) {
+  log('info', 'HEEEY', name, startActions);
   if (_.isArray(startActions)) {
     _.each(startActions, function (action) {
       dispatchActionToWindow(name, action);
@@ -293,6 +294,18 @@ function getWindowNames() {
   return Object.keys(windows);
 }
 
+function getNameOfWindow(window) {
+  const token = _.find(windows, {instance: window});
+
+  if (token) {
+    return token.name;
+  }
+}
+
+function getFocusedWindow() {
+  return electron.BrowserWindow.getFocusedWindow();
+}
+
 module.exports.create = create;
 module.exports.createMainWindow = createMainWindow;
 module.exports.createStartupWindow = createStartupWindow;
@@ -300,3 +313,5 @@ module.exports.getByName = getByName;
 module.exports.send = send;
 module.exports.getCommonErrors = _.memoize(getCommonErrors);
 module.exports.getWindowNames = getWindowNames;
+module.exports.getNameOfWindow = getNameOfWindow;
+module.exports.getFocusedWindow = getFocusedWindow;

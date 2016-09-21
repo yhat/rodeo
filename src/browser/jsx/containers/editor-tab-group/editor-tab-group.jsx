@@ -1,15 +1,19 @@
 import _ from 'lodash';
 import React from 'react';
-import ReactDOM from 'react-dom';
 import {connect} from 'react-redux';
-import TabbedPane from '../../components/tabbed-pane/tabbed-pane.jsx';
-import TabbedPaneItem from '../../components/tabbed-pane/tabbed-pane-item.jsx';
-import AcePane from '../../components/ace-pane/ace-pane.jsx';
+import TabbedPane from '../../components/tabs/tabbed-pane.js';
+import TabbedPaneItem from '../../components/tabs/tabbed-pane-item.js';
+import TabButton from '../../components/tabs/tab-button';
+import TabAdd from '../../components/tabs/tab-add';
+import TabOverflowImage from '../../components/tabs/tab-overflow-image';
+import AcePane from '../../components/ace-pane/ace-pane.js';
 import { getParentNodeOf } from '../../services/dom';
 import editorTabGroupActions from '../../containers/editor-tab-group/editor-tab-group.actions';
 import dialogActions from '../../actions/dialogs';
 import kernelActions from '../../actions/kernel';
-import terminalActions from '../terminal/terminal.actions';
+import terminalActions from '../terminal-tab-group/terminal-tab-group.actions';
+import commonReact from '../../services/common-react';
+import rodeoLogo from './rodeo-logo/rodeo-logo.4x.png';
 
 /**
  * @param {Element} el
@@ -23,90 +27,68 @@ function focusAcePaneInActiveElement(el) {
 }
 
 /**
- * @param {object} state  New state after an action occurred
- * @param {object} ownProps  Props given to this object from parent
- * @returns {object}
- */
-function mapStateToProps(state, ownProps) {
-  return _.find(state.editorTabGroups, {groupId: ownProps.id});
-}
-
-/**
  * @param {function} dispatch
+ * @param {object} ownProps
  * @returns {object}
  */
-function mapDispatchToProps(dispatch) {
+function mapDispatchToProps(dispatch, ownProps) {
+  const groupId = ownProps.groupId;
+
   return {
-    onAddAcePane: () => dispatch(editorTabGroupActions.addFile()),
-    onInterrupt: () => dispatch(terminalActions.interrupt()),
-    onFocusTab: (id) => dispatch(editorTabGroupActions.focusFile(id)),
-    onLiftText: (text, context) => dispatch(terminalActions.addInputText(context)),
+    onAddAcePane: () => dispatch(editorTabGroupActions.add(groupId)),
+    onInterrupt: () => dispatch(terminalActions.interruptActiveTab(null)),
+    onFocusTab: (id) => dispatch(editorTabGroupActions.focus(groupId, id)),
+    onLiftText: (text, context) => dispatch(terminalActions.addInputTextToActiveTab(null, context)),
+    onLoadError: tab => dispatch(editorTabGroupActions.handleLoadError(groupId, tab)),
+    onLoading: tab => dispatch(editorTabGroupActions.handleLoading(groupId, tab)),
+    onLoaded: tab => dispatch(editorTabGroupActions.handleLoaded(groupId, tab)),
+    onSave: tab => dispatch(editorTabGroupActions.save(groupId, tab)),
     onOpenPreferences: () => dispatch(dialogActions.showPreferences()),
-    onRemoveAcePane: (id) => dispatch(editorTabGroupActions.closeFile(id)),
-    onRunActiveAcePane: () => dispatch(kernelActions.executeActiveFileInActiveConsole()),
-    onRunActiveAcePaneSelection: () => dispatch(kernelActions.executeActiveFileSelectionInActiveConsole()),
+    onRemoveAcePane: (id) => dispatch(editorTabGroupActions.close(groupId, id)),
+    onRunActiveAcePane: () => dispatch(editorTabGroupActions.executeActiveFileInActiveConsole(groupId)),
+    onRunActiveAcePaneSelection: () => dispatch(editorTabGroupActions.executeActiveFileSelectionInActiveConsole(groupId)),
     onRodeo: () => dispatch(dialogActions.showAboutRodeo())
   };
 }
 
 /**
- * @class FreeTabGroup
+ * @class EditorTabGroup
  * @extends ReactComponent
  * @property props
  */
-export default connect(mapStateToProps, mapDispatchToProps)(React.createClass({
-  displayName: 'FreeTabGroup',
+export default connect(null, mapDispatchToProps)(React.createClass({
+  displayName: 'EditorTabGroup',
   propTypes: {
+    active: React.PropTypes.string.isRequired,
     disabled: React.PropTypes.bool,
-    id: React.PropTypes.string.isRequired,
-    items: React.PropTypes.array.isRequired
+    groupId: React.PropTypes.string.isRequired,
+    tabs: React.PropTypes.array.isRequired
   },
-  getDefaultProps: function () {
-    return {
-      onAddAcePane: _.noop,
-      onInterrupt: _.noop,
-      onFocusTab: _.noop,
-      onLiftText: _.noop,
-      onOpenPreferences: _.noop,
-      onRemoveAcePane: _.noop,
-      onRunActiveAcePane: _.noop,
-      onRodeo: _.noop
-    };
+  shouldComponentUpdate(nextProps) {
+        return commonReact.shouldComponentUpdate(this, nextProps);
   },
-  handleTabClose: function (tabId) {
-    const props = this.props,
-      items = props.items,
-      targetPane = _.find(items, {tabId});
-
-    props.onRemoveAcePane(targetPane.id);
+  handleTabClick: function (id, event) {
+    event.preventDefault();
+    this.props.onFocusTab(id);
   },
-  handleTabChanged: function (oldTabId, tabId) {
-    // todo: remove 'refs', we can find it by id instead
-    // find the active ace-pane, and focus on it
-    const props = this.props,
-      items = props.items,
-      editorTabs = ReactDOM.findDOMNode(this.refs.editorTabs),
-      newPane = _.find(items, {tabId});
-
-    props.onFocusTab(newPane.id);
-
-    // if there is an active editor tab, focus on the ace pane inside of it
-    focusAcePaneInActiveElement(editorTabs);
+  handleTabClose: function (id, event) {
+    event.preventDefault();
+    this.props.onRemoveAcePane(id);
   },
   /**
    * NOTE: preventDefault to reject drag
+   * @param {string} id
    * @param {MouseEvent} event
-   * @param {string} tabId
    */
-  handleTabDragStart: function (event, tabId) {
+  handleTabDragStart: function (id, event) {
     const el = getParentNodeOf(event.target, 'li'),
-      item = _.find(this.props.items, {tabId});
+      tab = _.find(this.props.tabs, {id});
 
-    if (item && item.filename) {
+    if (tab && tab.content.filename) {
       event.dataTransfer.effectAllowed = 'move';
       event.dataTransfer.setData('text/html', el.outerHTML);
-      event.dataTransfer.setData('text/uri-list', item.filename);  // used by outside file system viewers
-      event.dataTransfer.setData('text/plain', item.filename);  //  used by outside file system viewers
+      event.dataTransfer.setData('text/uri-list', tab.filename);  // used by outside file system viewers
+      event.dataTransfer.setData('text/plain', tab.filename);  //  used by outside file system viewers
     } else {
       // prevent default in this case means to _deny_ the start of the drag
       event.preventDefault();
@@ -128,10 +110,10 @@ export default connect(mapStateToProps, mapDispatchToProps)(React.createClass({
     const targetEl = getParentNodeOf(event.target, 'li'),
       targetId = targetEl && targetEl.getAttribute('data-child'),
       props = this.props,
-      items = props.items,
-      targetAcePane = _.find(items, {id: targetId}),
+      tabs = props.tabs,
+      targetAcePane = _.find(tabs, {id: targetId}),
       sourceId = event.dataTransfer.getData('rodeo/cid'),
-      sourceAcePane = _.find(items, {id: sourceId});
+      sourceAcePane = _.find(tabs, {id: sourceId});
 
     console.log('handleTabListDrop', {targetAcePane, sourceAcePane});
   },
@@ -140,64 +122,53 @@ export default connect(mapStateToProps, mapDispatchToProps)(React.createClass({
     event.preventDefault();
     event.dataTransfer.dropEffect = 'move';
   },
+  handleTabListDragLeave: function (event) {
+    console.log('handleTabListDragLeave', event);
+  },
+  handleTabDragEnd: function (event) {
+    console.log('handleTabListDragEnd', event);
+  },
   render: function () {
     const props = this.props,
-      items = props.items,
       runLineTitle = process.platform === 'darwin' ? '⌘ + Enter' : 'Alt + Enter',
       runScriptTitle = process.platform === 'darwin' ? '⌘ + Shift + Enter' : 'Alt + Shift + Enter',
       types = {
-        'ace-pane': item => (
+        'ace-pane': content => (
           <AcePane
             disabled={props.disabled}
-            key={item.id}
             onInterrupt={props.onInterrupt}
             onLiftFile={props.onRunActiveAcePane}
             onLiftSelection={props.onLiftText}
+            onLoadError={props.onLoadError}
+            onLoaded={props.onLoaded}
+            onLoading={props.onLoading}
             onOpenPreferences={props.onOpenPreferences}
-            {...item}
+            onSave={props.onSave}
+            {...content}
           />
         )
       };
 
+
     return (
       <TabbedPane
-        focusable={props.disabled}
-        onChanged={this.handleTabChanged}
+        focusable={!props.disabled}
+        onTabClick={this.handleTabClick}
         onTabClose={this.handleTabClose}
+        onTabDragEnd={this.handleTabDragEnd}
         onTabDragStart={this.handleTabDragStart}
         onTabListDragEnter={this.handleTabListDragEnter}
+        onTabListDragLeave={this.handleTabListDragLeave}
         onTabListDragOver={this.handleTabListDragOver}
         onTabListDrop={this.handleTabListDrop}
         ref="editorTabs"
+        {...props}
       >
-        <li><a className="icon-overflowing not-tab" onClick={props.onRodeo}><span /></a></li>
-        <li className="right">
-          <a className="not-tab" onClick={props.onRunActiveAcePane} title={runScriptTitle}>
-            <span className="fa fa-play-circle" />
-            <span className="icon-text-right">{'Run Script'}</span>
-          </a>
-        </li>
-        <li className="right">
-          <a className="not-tab" onClick={props.onRunActiveAcePaneSelection} title={runLineTitle}>
-            <span className="fa fa-play" />
-            <span className="icon-text-right">{'Run Line'}</span>
-          </a>
-        </li>
-
-        {items.map(function (item) {
-          return (
-            <TabbedPaneItem hasFocus={item.hasFocus} icon={item.icon} id={item.tabId} isCloseable key={item.id} label={item.label}>
-              {types[item.contentType](item)}
-            </TabbedPaneItem>
-          );
-        })}
-
-        <li>
-          <a className="not-tab" onClick={props.onAddAcePane}>
-            <span className="fa fa-plus-square-o"/>
-          </a>
-        </li>
-
+        <TabOverflowImage onClick={props.onRodeo} src={rodeoLogo}/>
+        <TabButton className="right" icon="play-circle" label="Run Script" onClick={props.onRunActiveAcePane} title={runScriptTitle}/>
+        <TabButton className="right" icon="play" label="Run Line" onClick={props.onRunActiveAcePaneSelection} title={runLineTitle}/>
+        {props.tabs.map(tab => <TabbedPaneItem key={tab.id} {...tab}>{types[tab.contentType](tab.content)}</TabbedPaneItem>)}
+        <TabAdd onClick={props.onAddAcePane} />
       </TabbedPane>
     );
   }

@@ -1,5 +1,7 @@
 .file-list {
   position: relative;
+  overflow: auto;
+  height: 100%;
 }
 
 .file-list-item {

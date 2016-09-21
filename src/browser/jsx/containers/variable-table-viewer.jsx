@@ -2,6 +2,7 @@ import _ from 'lodash';
 import React from 'react';
 import client from '../services/client';
 import DataFrame from '../components/data-frame/data-frame.jsx';
+import commonReact from '../services/common-react';
 
 /**
  * @class DataFrameViewer
@@ -11,15 +12,18 @@ import DataFrame from '../components/data-frame/data-frame.jsx';
 export default React.createClass({
   displayName: 'DataFrameViewer',
   propTypes: {
-    filter: React.PropTypes.string,
-    options: React.PropTypes.object.isRequired
+    filter: React.PropTypes.string.isRequired,
+    item: React.PropTypes.object.isRequired,
+    visible: React.PropTypes.bool.isRequired
   },
   getInitialState: function () {
-    return {};
+    return {
+      isLoading: false
+    };
   },
   componentDidMount: function () {
     const props = this.props,
-      item = _.get(props, 'options.item'),
+      item = _.get(props, 'item'),
       setData = this.setData,
       setError = this.setError;
 
@@ -43,6 +47,9 @@ export default React.createClass({
       }).finally(() => this.showLoading(false));
     }
   },
+  shouldComponentUpdate: function (nextProps, nextState) {
+    return commonReact.shouldComponentUpdate(this, nextProps, nextState);
+  },
   setData: function (data) {
     this.setState({data});
   },
@@ -62,8 +69,9 @@ export default React.createClass({
       state = this.state;
     let content;
 
-    if (props.options.item && props.options.item.type == 'DataFrame') {
-      content = <DataFrame data={state.data} isLoading={state.isLoading} />;
+
+    if (props.item && props.item.type == 'DataFrame') {
+      content = <DataFrame data={state.data} isLoading={state.isLoading} visible={props.visible}/>;
     }
 
     if (!content) {

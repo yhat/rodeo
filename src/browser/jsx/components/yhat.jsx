@@ -1,5 +1,6 @@
 import React from 'react';
 import {send} from 'ipc';
+import commonReact from '../services/common-react';
 
 /**
  * @class Yhat
@@ -7,6 +8,9 @@ import {send} from 'ipc';
  */
 export default React.createClass({
   displayName: 'Yhat',
+  shouldComponentUpdate(nextProps, nextState) {
+    return commonReact.shouldComponentUpdate(this, nextProps, nextState);
+  },
   handleYhat: () => send('openExternal', 'http://yhat.com/').catch(error => console.error(error)),
   render: function () {
     return (

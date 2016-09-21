@@ -1,38 +1,39 @@
 import _ from 'lodash';
-import AcePane from '../../components/ace-pane/ace-pane.jsx';
+import Immutable from 'seamless-immutable';
 import cid from '../../services/cid';
 import mapReducers from '../../services/map-reducers';
 import {local} from '../../services/store';
 import initialStory from 'raw!./initial-story.py';
+import commonTabsReducers from '../../services/common-tabs-reducers';
 
-const refreshPanes = _.throttle(() => AcePane.resizeAll(), 50),
-  initialState = [{groupId: 'top-left', items: [getFirst()]}];
+const initialState = getFirst();
 
 function getFirst() {
   const first = getDefault();
 
   if (local.get('editorStartingTutorial') !== false) {
-    first.initialValue = initialStory;
+    first.content.initialValue = initialStory;
   }
 
-  return first;
+  return Immutable([{groupId: 'top-left', active: first.id, tabs: [first]}]);
 }
 
 function getDefault() {
   return {
     label: 'New File',
-    mode: 'python',
     contentType: 'ace-pane',
     id: cid(),
-    tabId: cid(),
-    hasFocus: true,
-    keyBindings: local.get('aceKeyBindings') || 'default',
-    tabSize: _.toNumber(local.get('aceTabSpaces')) || 4,
     icon: 'file-code-o',
-    isCloseable: true,
-    fontSize: _.toNumber(local.get('fontSize')) || 12,
-    theme: local.get('aceTheme') || 'chrome',
-    useSoftTabs: local.get('aceUseSoftTabs') || true
+    closeable: true,
+    content: {
+      fontSize: _.toNumber(local.get('fontSize')) || 12,
+      highlightLine: true,
+      keyBindings: local.get('aceKeyBindings') || 'default',
+      mode: 'python',
+      tabSize: _.toNumber(local.get('aceTabSpaces')) || 4,
+      theme: local.get('aceTheme') || 'chrome',
+      useSoftTabs: local.get('aceUseSoftTabs') || true
+    }
   };
 }
 
@@ -42,54 +43,34 @@ function getDefault() {
  * @returns {Array}
  */
 function add(state, action) {
-  state = _.cloneDeep(state);
-  let items = _.head(state).items,
-    focusIndex = _.findIndex(items, {hasFocus: true}),
-    focusItem = items[focusIndex],
-    newItem = getDefault();
+  const newItem = getDefault();
 
   if (action.filename) {
-    newItem.filename = action.filename;
+    newItem.content.filename = action.filename;
     newItem.label = _.last(action.filename.split(/[\\\/]/));
 
     if (action.stats) {
-      newItem.stats = action.stats;
+      newItem.content.stats = action.stats;
     }
   }
 
-  // focus changed to new file
-
-  if (focusItem) {
-    focusItem.hasFocus = false;
-  }
-
-  items.push(newItem);
-
-  return state;
+  return commonTabsReducers.addItem(state, action, newItem);
 }
 
 /**
- * @param {Array} state
+ * This is different from the regular add because they may not know the group id, but we still know it is specifically
+ * for a editor-tab-group.  We're not handling the cases where there are multiple editor groups yet.
+ * @param {object} state
  * @param {object} action
- * @returns {Array}
+ * @returns {object}
  */
-function remove(state, action) {
-  state = _.cloneDeep(state);
-  let items = _.head(state).items,
-    targetIndex = _.findIndex(items, {id: action.id}),
-    targetItem = items[targetIndex];
+function addFile(state, action) {
+  const groupIndex = commonTabsReducers.getGroupIndex(state, action);
 
-  // only allow removal if they have more than one item
-  if (targetItem && items.length > 1) {
-    items = _.pull(items, targetItem);
+  if (groupIndex > -1) {
+    const groupId = state[groupIndex].groupId;
 
-    if (targetItem.hasFocus) {
-      if (targetIndex === 0 && items[0]) {
-        items[0].hasFocus = true;
-      } else {
-        items[targetIndex - 1].hasFocus = true;
-      }
-    }
+    state = add(state, _.assign({groupId}, action));
   }
 
   return state;
@@ -100,43 +81,32 @@ function remove(state, action) {
  * @param {object} action
  * @returns {Array}
  */
-function focus(state, action) {
-  state = _.cloneDeep(state);
-  const items = _.head(state).items,
-    focusIndex = _.findIndex(items, {hasFocus: true}),
-    focusItem = items[focusIndex],
-    targetIndex = _.findIndex(items, {id: action.id}),
-    targetItem = items[targetIndex];
+function closeActiveTab(state, action) {
+  const groupId = action.groupId,
+    groupIndex = _.findIndex(state, {groupId});
 
-  if (targetItem.hasFocus) {
-    return state;
-  } else {
-    targetItem.hasFocus = true;
-    focusItem.hasFocus = false;
-    return state;
+  // later, files might be special, but for now they're just like regular tabs
+  if (groupIndex > -1 && state[groupIndex].tabs.length > 1) {
+    state = commonTabsReducers.closeActive(state, action);
   }
-}
 
-/**
- * @param {Array} state
- * @returns {Array}
- */
-function splitPaneDrag(state) {
-  refreshPanes();
   return state;
 }
 
 /**
+ * Closes the active tab in the first group.
+ *
+ * Likely from a keyboard shortcut.
+ *
  * @param {Array} state
- * @param {object} action
  * @returns {Array}
  */
-function closeActive(state, action) {
-  const items = _.head(state).items,
-    focusIndex = _.findIndex(items, {hasFocus: true}),
-    focusItem = items[focusIndex];
+function closeActiveFile(state) {
+  if (state[0]) {
+    state = closeActiveTab(state, {groupId: state[0].groupId});
+  }
 
-  return remove(state, _.assign({id: focusItem.id}, action));
+  return state;
 }
 
 /**
@@ -146,51 +116,37 @@ function closeActive(state, action) {
  * @returns {Array}
  */
 function shiftFocus(state, action, move) {
-  state = _.cloneDeep(state);
-  const items = _.head(state).items,
-    focusIndex = _.findIndex(items, {hasFocus: true}),
-    focusItem = items[focusIndex],
-    newFocusIndex = focusIndex + move,
-    newFocusItem = items[newFocusIndex];
+  const groupIndex = commonTabsReducers.getGroupIndex(state, action);
 
-  if (newFocusItem) {
-    focusItem.hasFocus = false;
-    newFocusItem.hasFocus = true;
+  if (groupIndex > -1) {
+    const active = state[groupIndex].active,
+      tabIndex = _.findIndex(state[groupIndex].tabs, {id: active});
+
+    if (tabIndex > -1) {
+      const newTabIndex = tabIndex + move,
+        newTab = state[groupIndex].tabs[newTabIndex];
+
+      if (newTab) {
+        state = state.setIn([groupIndex, 'active'], state[groupIndex].tabs[newTabIndex].id);
+      }
+    }
   }
-
-  return state;
-}
-
-/**
- * @param {object} state
- * @param {string} propertyName
- * @param {*} value
- * @param {function} [transform]
- * @returns {object}
- */
-function changeProperty(state, propertyName, value, transform) {
-  state = _.cloneDeep(state);
-
-  if (transform) {
-    value = transform(value);
-  }
-
-  const items = _.head(state).items;
-
-  _.each(items, (item) => _.set(item, propertyName, value));
 
   return state;
 }
 
 function fileSaved(state, action) {
   if (action.filename) {
-    state = _.cloneDeep(state);
+    const groupIndex = commonTabsReducers.getGroupIndex(state, action),
+      id = action.id,
+      tabIndex = _.findIndex(state[groupIndex].tabs, {id});
 
-    const items = _.head(state).items,
-      focusedAce = state && _.find(items, {hasFocus: true});
+    state = state.updateIn([groupIndex, 'tabs', tabIndex], tab => {
+      tab = tab.setIn(['content', 'filename'], action.filename);
+      tab = tab.set('label', _.last(action.filename.split(/[\\\/]/)));
 
-    focusedAce.filename = action.filename;
-    focusedAce.label = _.last(action.filename.split(/[\\\/]/));
+      return tab;
+    });
   }
 
   return state;
@@ -200,22 +156,23 @@ function changePreference(state, action) {
   const change = action.change;
 
   switch (change.key) {
-    case 'fontSize': return changeProperty(state, 'fontSize', change.value, _.toNumber);
-    case 'aceTabSpaces': return changeProperty(state, 'tabSize', change.value, _.toNumber);
-    case 'aceKeyBindings': return changeProperty(state, 'keyBindings', change.value);
-    case 'aceUseSoftTabs': return changeProperty(state, 'useSoftTabs', change.value);
-    case 'aceTheme': return changeProperty(state, 'theme', change.value);
+    case 'fontSize': return commonTabsReducers.changeProperty(state, 'fontSize', change.value, _.toNumber);
+    case 'aceTabSpaces': return commonTabsReducers.changeProperty(state, 'tabSize', change.value, _.toNumber);
+    case 'aceKeyBindings': return commonTabsReducers.changeProperty(state, 'keyBindings', change.value);
+    case 'aceUseSoftTabs': return commonTabsReducers.changeProperty(state, 'useSoftTabs', change.value);
+    case 'aceTheme': return commonTabsReducers.changeProperty(state, 'theme', change.value);
     default: return state;
   }
 }
 
 export default mapReducers({
-  ADD_FILE: add,
-  CLOSE_FILE: remove,
-  FOCUS_FILE: focus,
+  ADD_TAB: add,
+  ADD_FILE: addFile,
+  CLOSE_TAB: commonTabsReducers.close,
+  FOCUS_TAB: commonTabsReducers.focus,
   FILE_IS_SAVED: fileSaved,
-  CLOSE_ACTIVE_FILE: closeActive,
-  SPLIT_PANE_DRAG: splitPaneDrag,
+  CLOSE_ACTIVE_TAB: closeActiveTab,
+  CLOSE_ACTIVE_FILE: closeActiveFile,
   MOVE_ONE_RIGHT: _.partialRight(shiftFocus, +1),
   MOVE_ONE_LEFT: _.partialRight(shiftFocus, -1),
   PREFERENCE_CHANGE_SAVED: changePreference

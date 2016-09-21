@@ -1,5 +1,6 @@
 import _ from 'lodash';
 import mapReducers from '../../services/map-reducers';
+import {local} from '../../services/store';
 
 const initialState = {
   contentType: 'initial',
@@ -15,7 +16,7 @@ const initialState = {
   terminal: {
     state: 'initial',
     prompt: '$',
-    cmd: 'python',
+    cmd: local.get('pythonCmd') || 'python',
     errors: [],
     stdout: '',
     stderr: '',

@@ -10,6 +10,7 @@ import logoScienceOps from './logo-scienceops.png';
 import logoYhat from './logo-yhat.svg';
 import actions from './sidebar.actions';
 import dialogActions from '../../actions/dialogs';
+import commonReact from '../../services/common-react';
 
 const showClass = 'sidebar-show';
 
@@ -54,11 +55,15 @@ export default connect(mapStateToProps, mapDispatchToProps)(React.createClass({
 
     _.defer(() => el.classList.add(showClass));
   },
+  shouldComponentUpdate(nextProps) {
+    return commonReact.shouldComponentUpdate(this, nextProps);
+  },
   render: function () {
-    const props = this.props;
+    const props = this.props,
+      className = commonReact.getClassNameList(this);
 
     return (
-      <section className="sidebar">
+      <section className={className.join(' ')}>
         <SlideoutDialog isExpanded={props.isExpanded} url={props.url} />
         <div className="sidebar-container">
           <div className="sidebar-top">

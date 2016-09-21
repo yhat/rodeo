@@ -1,5 +1,6 @@
 import _ from 'lodash';
 import React from 'react';
+import commonReact from '../../services/common-react';
 
 /**
  * @class SidebarItem
@@ -14,16 +15,15 @@ export default React.createClass({
     label: React.PropTypes.string,
     onClick: React.PropTypes.func
   },
-  getDefaultProps: function () {
-    return {
-      onClick: _.noop
-    };
+  shouldComponentUpdate(nextProps) {
+    return commonReact.shouldComponentUpdate(this, nextProps);
   },
   render: function () {
-    const props = this.props;
+    const props = this.props,
+      className = commonReact.getClassNameList(this);
 
     return (
-      <div className="sidebar-item" onClick={props.onClick}>{props.children}</div>
+      <div className={className.join(' ')} onClick={props.onClick}>{props.children}</div>
     );
   }
 });

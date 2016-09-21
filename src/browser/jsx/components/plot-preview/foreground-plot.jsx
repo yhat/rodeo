@@ -1,6 +1,7 @@
 import React from 'react';
 import UnsafeHTML from '../unsafe-html.jsx';
 import './plot-preview.css';
+import commonReact from '../../services/common-react';
 
 /**
  * @class ForegroundPlot
@@ -12,6 +13,9 @@ export default React.createClass({
   propTypes: {
     data: React.PropTypes.object.isRequired,
     id: React.PropTypes.string.isRequired
+  },
+  shouldComponentUpdate(nextProps) {
+    return commonReact.shouldComponentUpdate(this, nextProps);
   },
   render: function () {
     const props = this.props,

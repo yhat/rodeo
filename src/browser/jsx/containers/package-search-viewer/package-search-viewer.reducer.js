@@ -1,9 +1,11 @@
 import _ from 'lodash';
 import mapReducers from '../../services/map-reducers';
 
-const initialState = {
-  searchValue: ''
-};
+export function getInitialState() {
+  return {
+    searchValue: ''
+  };
+}
 
 function searchValueChanged(state, action) {
   if (state.searchValue !== action.value) {
@@ -103,4 +105,4 @@ export default mapReducers({
   PACKAGE_SEARCH_RELEASE_DATA_FETCHING: releaseDataFetching,
   PACKAGE_SEARCH_RELEASE_DATA_FETCHED: releaseDataFetched,
   PACKAGE_SEARCH_VALUE_CHANGED: searchValueChanged
-}, initialState);
+}, getInitialState());

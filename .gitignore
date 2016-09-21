@@ -11,3 +11,4 @@ npm-debug.log*
 app
 dist
 node_modules
+coverage

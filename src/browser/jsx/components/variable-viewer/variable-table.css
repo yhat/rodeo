@@ -1,0 +1,11 @@
+.variable-table {
+  height: 100%;
+}
+
+.variable-table .public_fixedDataTableCell_cellContent {
+  white-space: nowrap;
+}
+
+.variable-table .public_fixedDataTableCell_wrap1 {
+  width: 100%;
+}

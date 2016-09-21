@@ -1,0 +1,9 @@
+.tabbed-pane-item {
+  display: none;
+  overflow: hidden;
+}
+
+.tabbed-pane-item.active {
+  display: block;
+  height: 100%;
+}

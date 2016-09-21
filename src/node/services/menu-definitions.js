@@ -6,9 +6,11 @@
 
 const _ = require('lodash'),
   bluebird = require('bluebird'),
+  browserWindows = require('./browser-windows'),
   cuid = require('cuid'),
   files = require('./files'),
   jsYaml = require('js-yaml'),
+  log = require('./log').asInternal(__filename),
   path = require('path'),
   util = require('util');
 
@@ -31,7 +33,18 @@ function convertMenu(ipcEmitter, definition) {
     }
 
     if (_.isString(clickActionType)) {
-      item.click = ipcEmitter.send.bind(ipcEmitter, 'dispatch', cuid(), clickAction);
+      item.click = function (item, focusedWindow) {
+        const args = ['dispatch', cuid(), clickAction],
+          windowName = browserWindows.getNameOfWindow(focusedWindow);
+
+        if (windowName) {
+          args.push(windowName);
+        }
+
+        log('info', 'menu clicked', args);
+
+        ipcEmitter.send.apply(ipcEmitter, args);
+      };
     }
 
     return item;
