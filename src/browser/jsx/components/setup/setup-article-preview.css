@@ -5,8 +5,17 @@
   flex-wrap: wrap;
   text-align: left;
   width: 80%;
-  margin: 40px auto;
+  margin: 20px auto;
   font-size: 14px;
+  border: 1px solid #eee;
+  padding: 20px 5px;
+  box-shadow: 1px 5px 6px #aaa;
+  cursor: pointer;
+}
+
+.setup-article-preview:hover {
+  border: 1px solid #ccc;
+  color: #333;
 }
 
 .setup-article-preview h2 {
@@ -15,7 +24,12 @@
 }
 
 .setup-article-preview a {
-  color: #333;
+  color: #666;
+  text-decoration: none;
+}
+
+.setup-article-preview a:hover {
+  color: #666;
   text-decoration: none;
 }
 
