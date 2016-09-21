@@ -1,25 +1,9 @@
 %YAML 1.2
 ---
 -
-  href: http://blog.yhat.com/posts/olympic-medals.html
-  imageSrc: http://blog.yhat.com/static/img/rodeo-olympics-gif.png
+  href: http://blog.yhat.com/posts/moving-from-r-to-python.html
+  imageSrc: http://blog.yhat.com/static/img/r-to-python.jpg
   description: |
-    ## Using Rodeo To Transform Olympics Data Into GIFs
+    ## Moving from R to Python: The Libraries You Need to Know
 
-    Using pandas, cartopy, matplotlib.pyplot and images2gif to visualize olympic medal count data!
-
--
-  href: http://blog.yhat.com/posts/ML-resources-you-should-know.html
-  imageSrc: http://blog.yhat.com/static/img/mental-kaleidoscope.jpg
-  description: |
-    ## Machine Learning and Data Science Resources You Should Know About
-
-    The short list of my favorite places to learn new things.
-
--
-  href: http://blog.yhat.com/posts/grouping-pandas.html
-  imageSrc: http://blog.yhat.com/static/img/grouping-buddies.jpg
-  description: |
-    ## Grouping in pandas
-
-    A quick introduction to grouping in pandas with NYC Citi Bike data.
+    Migrating from R to Python? Make sure you know about these packages.

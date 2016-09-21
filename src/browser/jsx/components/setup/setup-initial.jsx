@@ -10,6 +10,7 @@ export default React.createClass({
   propTypes: {
     articles: React.PropTypes.array.isRequired,
     onCancel: React.PropTypes.func.isRequired,
+    onOpenExternal: React.PropTypes.func.isRequired,
     text: React.PropTypes.object.isRequired
   },
   componentDidMount: function () {
@@ -33,7 +34,7 @@ export default React.createClass({
             <Marked>{props.text.loading}</Marked>
           </div>
         </div>
-        <SetupArticlePreview {...props}/>
+        <SetupArticlePreview articles={props.articles} onOpenExternal={props.onOpenExternal}/>
       </div>
     );
   }
