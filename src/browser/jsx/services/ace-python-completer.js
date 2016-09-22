@@ -5,7 +5,7 @@ import textUtil from './text-util';
 import AsciiToHtml from 'ansi-to-html';
 
 const convertor = new AsciiToHtml(),
-  className = 'docstring';
+  className = 'rodeo-ace-pane-docstring';
 
 /**
  * @param {Error} error
