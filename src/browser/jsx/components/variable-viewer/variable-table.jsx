@@ -54,15 +54,12 @@ export default React.createClass({
   handleColumnResize: function (newColumnWidth, columnKey) {
     const columnWidths = _.clone(this.state.columnWidths);
 
-    console.log('VariableTable', 'handleColumnResize', {newColumnWidth, columnKey});
-
     columnWidths[columnKey] = newColumnWidth;
 
     this.setState({columnWidths});
   },
   resize: function () {
     if (this.props.visible) {
-      console.log('VariableTable', 'resizing');
       const el = ReactDOM.findDOMNode(this),
         height = el.parentNode.offsetHeight,
         width = el.offsetWidth;
@@ -78,7 +75,6 @@ export default React.createClass({
       className = commonReact.getClassNameList(this),
       state = this.state;
     let items;
-
 
     // flatten type with the rest; give a unique id to use as the key
     items = _.flatten(_.map(props.variables, function (list, type) {
@@ -139,7 +135,7 @@ export default React.createClass({
               if (item.value) {
                 value = item.value;
               } else if (_.includes(structuredVariableTypes, item.type)) {
-                value = <ActionestButton icon="table" onClick={_.partial(props.onShowDataFrame, item)}/>;
+                value = <ActionestButton icon="table" item={item} onClick={_.partial(props.onShowDataFrame, item)}/>;
               }
 
               return <Cell>{value}</Cell>;
