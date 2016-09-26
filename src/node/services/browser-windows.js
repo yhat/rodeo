@@ -189,7 +189,6 @@ function create(name, options) {
  * @param {[{type: string}]} startActions
  */
 function runStartActions(name, startActions) {
-  log('info', 'HEEEY', name, startActions);
   if (_.isArray(startActions)) {
     _.each(startActions, function (action) {
       dispatchActionToWindow(name, action);

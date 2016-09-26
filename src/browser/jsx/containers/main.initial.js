@@ -1,6 +1,5 @@
 import cid from '../services/cid';
 import Immutable from 'seamless-immutable';
-import {local} from '../services/store';
 import {getInitialState as getFileViewerInitialState} from './file-viewer/file-viewer.reducer';
 import {getInitialState as getPlotViewerInitialState} from './plot-viewer/plot-viewer.reducer';
 import {getInitialState as getPackageSearchViewerInitialState} from './package-search-viewer/package-search-viewer.reducer';

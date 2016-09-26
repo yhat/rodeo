@@ -1,8 +1,8 @@
 import _ from 'lodash';
 import {connect} from 'react-redux';
 import React from 'react';
-import FileList from '../../components/file-list/file-list.jsx';
-import FileListItem from '../../components/file-list/file-list-item.jsx';
+import commonReact from '../../services/common-react';
+import FileTree from '../../components/files/file-tree.jsx';
 import fileViewerActions from './file-viewer.actions.js';
 
 function mapStateToProps(state) {
@@ -14,12 +14,14 @@ function mapDispatchToProps(dispatch) {
     onRefresh: (filePath) => dispatch(fileViewerActions.getViewedFiles(filePath)),
     onClick: (file) => dispatch(fileViewerActions.selectViewedFile(file)),
     onOpenFile: (file) => dispatch(fileViewerActions.openViewedFile(file)),
-    onGoToParentDirectory: (file) => dispatch(fileViewerActions.goToParentDirectory(file))
+    onGoToParent: (file) => dispatch(fileViewerActions.goToParentDirectory(file)),
+    onExpandFolder: indexPath => dispatch(fileViewerActions.expandFolder(indexPath)),
+    onContractFolder: indexPath => dispatch(fileViewerActions.contractFolder(indexPath))
   };
 }
 
-function isDotFile(filename) {
-  return _.startsWith(_.last(filename.split(/[\/\\]/)), '.');
+function isDotFile(file) {
+  return _.startsWith(file.base, '.');
 }
 
 /**
@@ -50,52 +52,28 @@ export default connect(mapStateToProps, mapDispatchToProps)(React.createClass({
   componentDidMount: function () {
     const props = this.props;
 
-    if (!props.files.length) {
-      props.onRefresh();
-    }
+    props.onRefresh();
   },
   shouldComponentUpdate: function (nextProps) {
-    const props = this.props;
-
-    return props.path !== nextProps.path || props.filter !== nextProps.filter ||
-        props.showDotFiles !== nextProps.showDotFiles ||
-        !_.isEqual(props.files, nextProps.files);
-  },
-  componentDidUpdate: function () {
-    const props = this.props;
-
-    if (!props.files.length) {
-      props.onRefresh();
-    }
+    return commonReact.shouldComponentUpdate(this, nextProps);
   },
   render: function () {
     const props = this.props;
     let files = props.files;
 
-
     if (props.filter) {
-      files = _.filter(files, item => item.filename.indexOf(props.filter) > -1);
+      files = _.filter(files, item => item.base.indexOf(props.filter) > -1);
     }
 
     if (!props.showDotFiles) {
-      files = _.filter(files, item => !isDotFile(item.filename));
+      files = _.filter(files, file => !isDotFile(file));
     }
 
     return (
-      <FileList onGoToParent={props.onGoToParentDirectory}>
-        {files.map(file => {
-          return (
-            <FileListItem
-              basePath={props.path}
-              id={file.id}
-              key={file.id}
-              onClick={_.partial(props.onClick, file)}
-              onDoubleClick={_.partial(props.onOpenFile, file)}
-              {...file}
-            />
-          );
-        })}
-      </FileList>
+      <FileTree
+        {...props}
+        files={files}
+      />
     );
   }
 }));

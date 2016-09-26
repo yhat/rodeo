@@ -23,7 +23,6 @@ export default React.createClass({
       className = commonReact.getClassNameList(this),
       contents = [];
 
-
     if (props.history && props.history.length) {
       contents.push(<HistoryList {...props}/>);
     } else {
