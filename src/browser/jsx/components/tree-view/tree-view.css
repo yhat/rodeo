@@ -1,0 +1,79 @@
+.tree-view {
+  white-space: nowrap;
+  -webkit-user-select: none;
+  user-select: none;
+}
+
+/* root children don't need a margin */
+.tree-view > .tree-view-item-children {
+  margin-left: 0;
+}
+
+.tree-view-item-children {
+  margin-left: 10px;
+}
+
+.tree-view-item .tree-view-caret {
+  margin-right: 5px;
+  cursor: pointer;
+  min-height: 18px;
+  min-width: 18px;
+  text-align: center;
+}
+
+.tree-view-item .tree-view-caret-placeholder {
+  margin-right: 23px;
+}
+
+.tree-view-item-icon {
+  margin-right: 5px;
+  min-width: 18px;
+}
+
+.tree-view-item .tree-view-item-label {
+  cursor: pointer;
+  color: #666;
+  transition: all 0.2s;
+  padding: 4px;
+}
+
+.tree-view-item .tree-view-item-label:hover {
+  color: #333;
+  background-color: rgba(51, 122, 183, 0.12);
+}
+
+.tree-view-item .tree-view-item-label:active {
+  color: #aaa;
+}
+
+.tree-view-item.expanded > .tree-view-caret {
+  transform: rotate(90deg);
+}
+
+.tree-view-item .tree-view-item-children-appear {
+  opacity: 0.01;
+  transition: opacity 0.2s ease-in;
+}
+
+.tree-view-item .tree-view-item-children-appear.tree-view-item-children-appear-active {
+  opacity: 1;
+}
+
+.tree-view-item .tree-view-item-children-enter {
+  opacity: 0.01;
+}
+
+.tree-view-item .tree-view-item-children-enter.tree-view-item-children-enter-active {
+  opacity: 1;
+  transition: opacity 0.2s ease-in;
+}
+
+.tree-view-item .tree-view-item-children-leave {
+  opacity: 1;
+  transition: opacity 0.2s ease-in;
+}
+
+.tree-view-item .tree-view-item-children-leave.tree-view-item-children-leave-active {
+  opacity: 0.01;
+
+}

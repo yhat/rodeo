@@ -108,7 +108,7 @@ ul.horizontal li {
 
 .setup-appear.setup-appear-active {
   opacity: 1;
-  transition: opacity .2s ease-in;
+  transition: opacity 0.2s ease-in;
 }
 
 .setup-enter {
@@ -117,7 +117,7 @@ ul.horizontal li {
 
 .setup-enter.setup-enter-active {
   opacity: 1;
-  transition: opacity .2s ease-in;
+  transition: opacity 0.2s ease-in;
 }
 
 .setup-leave {
@@ -128,6 +128,7 @@ ul.horizontal li {
   opacity: 0.01;
   transition: opacity 0.2s ease-in;
 }
+
 .setup .input-python-cmd {
   width: 80%;
   margin-right: auto;

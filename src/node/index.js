@@ -110,6 +110,9 @@ function getPkg() {
 function quitApplication() {
   const app = electron.app;
 
+  log('info', 'stopping all file watchers');
+  files.stopWatching();
+
   log('info', 'killing all children processes');
 
   return bluebird.all(processes.getChildren().map(function (child) {
@@ -149,7 +152,26 @@ function onFiles(dir) {
     throw new Error('onFiles expects a string as the first argument');
   }
 
-  return files.readDirectory(path.resolve(files.resolveHomeDirectory(dir)));
+  const filePath = path.resolve(files.resolveHomeDirectory(dir));
+
+  return files.readDirectory(filePath).then(function (fileList) {
+    return {
+      path: filePath,
+      files: fileList
+    };
+  });
+}
+
+function onStartWatchingFiles(requesterId, fileTarget) {
+  return files.startWatching(this, requesterId, fileTarget);
+}
+
+function onStopWatchingFiles(requesterId) {
+  return files.stopWatching(requesterId);
+}
+
+function onAddWatchingFiles(requesterId, fileTarget) {
+  return files.addWatching(requesterId, fileTarget);
 }
 
 /**
@@ -902,6 +924,7 @@ function attachIpcMainEvents() {
   const ipcMain = electron.ipcMain;
 
   ipcPromises.exposeElectronIpcEvents(ipcMain, [
+    onAddWatchingFiles,
     onCheckForUpdates,
     onCheckKernel,
     onCloseWindow,
@@ -933,6 +956,8 @@ function attachIpcMainEvents() {
     onSaveFile,
     onSavePlot,
     onShareAction,
+    onStartWatchingFiles,
+    onStopWatchingFiles,
     onQuitAndInstall,
     onOpenExternal,
     onOpenTerminal,

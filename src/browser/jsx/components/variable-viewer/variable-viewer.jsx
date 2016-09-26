@@ -42,11 +42,10 @@ export default React.createClass({
       className = commonReact.getClassNameList(this),
       content = [];
 
-
-    if (!props.variables) {
-      content.push(<EmptySuggestion label="Assign a variable." />);
-    } else {
+    if (props.variables && props.variables.length) {
       content.push(<VariableTable {...props} />);
+    } else {
+      content.push(<EmptySuggestion label="Assign a variable."/>);
     }
 
     return <div className={className.join(' ')}>{content}</div>;

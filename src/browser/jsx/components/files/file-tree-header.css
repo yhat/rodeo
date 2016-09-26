@@ -1,0 +1,18 @@
+.file-tree-header {
+  padding: 2px;
+  border-bottom: 1px solid #ccc;
+}
+
+.file-tree-header .item {
+  cursor: pointer;
+  color: #999;
+  transition: all 0.2s;
+}
+
+.file-tree-header .item:hover {
+  color: #333;
+}
+
+.file-tree-header .item .fa {
+  padding-right: 5px;
+}

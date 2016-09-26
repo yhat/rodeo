@@ -202,6 +202,10 @@ function otherDispatcher(dispatch) {
       dispatch(action);
     }
   });
+
+  ipc.on('files', function (event, clientId, data) {
+    console.log('files', data);
+  });
 }
 
 /**

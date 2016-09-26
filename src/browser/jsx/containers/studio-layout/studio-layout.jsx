@@ -7,11 +7,6 @@ import TerminalTabGroup from '../../containers/terminal-tab-group/terminal-tab-g
 import FreeTabGroup from '../../containers/free-tab-group/free-tab-group.jsx';
 import commonReact from '../../services/common-react';
 
-/**
- * @class StudioLayout
- * @extends ReactComponent
- * @property props
- */
 export default connect(state => state)(React.createClass({
   displayName: 'StudioLayout',
   shouldComponentUpdate: function (nextProps) {
@@ -24,7 +19,6 @@ export default connect(state => state)(React.createClass({
       bottomLeft = _.find(props.terminalTabGroups, {groupId: 'bottom-left'}),
       topRight = _.find(props.freeTabGroups, {groupId: 'top-right'}),
       bottomRight = _.find(props.freeTabGroups, {groupId: 'bottom-right'});
-
 
     return (
       <SplitPane direction="left-right" id="split-pane-center">
