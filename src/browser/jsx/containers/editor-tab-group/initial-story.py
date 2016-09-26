@@ -1,5 +1,5 @@
 # Press COMMAND + ENTER to run a single line in the console
-print 'Welcome to Rodeo!'
+print('Welcome to Rodeo!')
 
 # Press COMMAND + ENTER with text selected to run multiple lines
 # For example, select the following lines
