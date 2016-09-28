@@ -120,7 +120,7 @@ describe(dirname + '/' + filename, function () {
       fn(client, {source: 'link', id: 'abc', result: 'def'}); // request link
       fn(client, response);
 
-      sinon.assert.notCalled(resolveSpy, content);
+      sinon.assert.notCalled(resolveSpy);
       sinon.assert.calledOnce(emitSpy);
       expect(lib.getOutputMap()).to.deep.equal({
         def: {

@@ -42,7 +42,7 @@ describe(dirname + '/' + filename, function () {
 
       processes.create.returns(bluebird.resolve(child));
 
-      return fn().then(function (client) {
+      return fn({cmd: 'some cmd', cwd: 'some working directory'}).then(function (client) {
         return new bluebird(function (resolve) {
           // client notes when underlying process is ready for input
           client.on('ready', () => resolve());
@@ -129,7 +129,7 @@ describe(dirname + '/' + filename, function () {
 
     before(function () {
       return new Promise(function (resolve) {
-        return lib.create().then(function (result) {
+        return lib.create({cmd: 'python', cwd: '~'}).then(function (result) {
 
           client = result;
           client.on('ready', function () {

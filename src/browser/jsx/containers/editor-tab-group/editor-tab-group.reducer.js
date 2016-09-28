@@ -1,10 +1,12 @@
 import _ from 'lodash';
 import Immutable from 'seamless-immutable';
+import path from 'path';
 import cid from '../../services/cid';
 import mapReducers from '../../services/map-reducers';
 import {local} from '../../services/store';
 import initialStory from 'raw!./initial-story.py';
 import commonTabsReducers from '../../services/common-tabs-reducers';
+import knownFileTypes from './known-file-types.yml';
 
 const initialState = getFirst();
 
@@ -46,8 +48,16 @@ function add(state, action) {
   const newItem = getDefault();
 
   if (action.filename) {
+    const parts = path.posix.parse(action.filename),
+      ext = parts.ext,
+      knownFileType = _.find(knownFileTypes, {ext});
+
     newItem.content.filename = action.filename;
-    newItem.label = _.last(action.filename.split(/[\\\/]/));
+    newItem.label = parts.base;
+
+    if (knownFileType) {
+      newItem.content.mode = knownFileType.mode;
+    }
 
     if (action.stats) {
       newItem.content.stats = action.stats;
@@ -165,10 +175,28 @@ function changePreference(state, action) {
   }
 }
 
+function modeChanged(state, action) {
+  if (action.value) {
+    const groupIndex = commonTabsReducers.getGroupIndex(state, action),
+      id = action.id;
+
+    if (groupIndex > -1) {
+      const tabIndex = groupIndex > -1 && _.findIndex(state[groupIndex].tabs, {id});
+
+      if (tabIndex > -1) {
+        state = state.setIn([groupIndex, 'tabs', tabIndex, 'content', 'mode'], action.value);
+      }
+    }
+  }
+
+  return state;
+}
+
 export default mapReducers({
   ADD_TAB: add,
   ADD_FILE: addFile,
   CLOSE_TAB: commonTabsReducers.close,
+  EDITOR_TAB_MODE_CHANGED: modeChanged,
   FOCUS_TAB: commonTabsReducers.focus,
   FILE_IS_SAVED: fileSaved,
   CLOSE_ACTIVE_TAB: closeActiveTab,

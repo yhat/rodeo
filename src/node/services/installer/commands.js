@@ -1,7 +1,6 @@
 'use strict';
 
 const _ = require('lodash'),
-  bluebird = require('bluebird'),
   files = require('../files'),
   path = require('path'),
   win32System = require('../win32/system');

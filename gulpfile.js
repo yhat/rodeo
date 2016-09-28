@@ -32,10 +32,17 @@ gulp.task('ace:core', function () {
   return gulp.src([
     'src/browser/ace/ace.js',
     'src/browser/ace/**/*.js',
+    '!src/browser/ace/mode-*.js',
     '!src/browser/ace/theme-*.js'
   ]).pipe(concat('ace.min.js'))
     .pipe(uglify())
     .pipe(gulp.dest(outputMap.browser));
+});
+
+gulp.task('ace:modes-js', function () {
+  return gulp.src([
+    'src/browser/ace/mode-*.js'
+  ]).pipe(gulp.dest(outputMap.browser));
 });
 
 gulp.task('ace:themes-js', function () {
@@ -49,7 +56,7 @@ gulp.task('ace:themes-js', function () {
  * Ace is so large that its easier to keep it separate.
  * Also, it minifies well, unlike other ext
  */
-gulp.task('ace', ['ace:core', 'ace:themes-js']);
+gulp.task('ace', ['ace:core', 'ace:themes-js', 'ace:modes-js']);
 
 /**
  * This files should be included in every screen, and have already been processed, so keep it separate.

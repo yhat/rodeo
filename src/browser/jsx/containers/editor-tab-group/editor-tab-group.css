@@ -1,0 +1,4 @@
+.tab-content-list .ace-pane {
+  /* temporary until moved into own component */
+  height: calc(100% - 20px);
+}

@@ -1,0 +1,52 @@
+- label: Python
+  mode: python
+  ext: ".py"
+  features:
+    - label: Run Line
+      action: Run Line
+    - label: Run Script
+      action: Run Script
+
+- label: SQL
+  mode: sql
+  ext: ".sql"
+  features:
+    - label: Run Line
+      action: Coming Soon
+    - label: Run Script
+      action: Coming Soon
+
+- label: Markdown
+  mode: markdown
+  ext: ".md"
+  features:
+    - label: Generate HTML
+      action: Coming Soon
+
+- label: YAML
+  mode: yaml
+  ext: ".yml"
+
+- label: YAML
+  mode: yaml
+  ext: ".yaml"
+
+- label: JSON
+  mode: json
+  ext: ".json"
+
+- label: Plain Text
+  mode: plain_text
+  ext: ".txt"
+
+- label: Plain Text
+  mode: plain_text
+  ext: ".csv"
+
+- label: Scala
+  mode: scala
+  ext: ".scala"
+
+- label: Julia
+  mode: julia
+  ext: ".jl"

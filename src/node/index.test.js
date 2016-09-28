@@ -60,10 +60,13 @@ describe(dirname + '/' + filename, function () {
 
     it('returns files', function () {
       const dirPath = 'test',
-        expectedResult = [{}];
+        expectedResult = {
+          files: [{}],
+          path: '/Users/danestuckel/Projects/yhat/rodeo/test'
+        };
 
       files.resolveHomeDirectory.returnsArg(0);
-      files.readDirectory.returns(bluebird.resolve(expectedResult));
+      files.readDirectory.returns(bluebird.resolve([{}]));
 
       return fn(dirPath).then(function (result) {
         expect(result).to.deep.equal(expectedResult);
