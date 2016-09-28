@@ -108,7 +108,7 @@ export function showSaveFileDialogForActiveFile() {
       filename = focusedAce && focusedAce.content && focusedAce.content.filename,
       defaultPath = filename || (local.get('workingDirectory') || '~');
 
-    return send('saveDialog', {title, defaultPath, filters: [{ name: 'Python', extensions: ['py'] }]})
+    return send('saveDialog', {title, defaultPath})
       .then(filename => dispatch(saveActiveFileAs(filename)))
       .catch(error => dispatch(errorCaught(error)));
   };

@@ -48,7 +48,7 @@ function add(state, action) {
   const newItem = getDefault();
 
   if (action.filename) {
-    const parts = path.posix.parse(action.filename),
+    const parts = path.parse(action.filename),
       ext = parts.ext,
       knownFileType = _.find(knownFileTypes, {ext});
 
