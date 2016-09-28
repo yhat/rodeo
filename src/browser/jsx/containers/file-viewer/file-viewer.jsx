@@ -14,7 +14,7 @@ function mapDispatchToProps(dispatch) {
     onRefresh: (filePath) => dispatch(fileViewerActions.getViewedFiles(filePath)),
     onClick: (file) => dispatch(fileViewerActions.selectViewedFile(file)),
     onOpenFile: (file) => dispatch(fileViewerActions.openViewedFile(file)),
-    onGoToParent: (file) => dispatch(fileViewerActions.goToParentDirectory(file)),
+    onGoToSpecialDirectory: target => dispatch(fileViewerActions.goToSpecialDirectory(target)),
     onExpandFolder: indexPath => dispatch(fileViewerActions.expandFolder(indexPath)),
     onContractFolder: indexPath => dispatch(fileViewerActions.contractFolder(indexPath))
   };

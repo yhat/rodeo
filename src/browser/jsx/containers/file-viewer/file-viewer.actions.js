@@ -3,6 +3,7 @@ import bluebird from 'bluebird';
 import path from 'path';
 import editorTabGroupActions from '../../containers/editor-tab-group/editor-tab-group.actions';
 import fileService from '../../services/files';
+import os from 'os';
 
 const requesterId = 'file-viewer';
 
@@ -53,7 +54,7 @@ export function getViewedFiles(filePath) {
 
     const promise = bluebird.all([
       fileService.getFiles(filePath),
-      bluebird.delay(200) // animation takes 200ms
+      bluebird.delay(100) // animation takes 100ms
     ]).then(result => result[0]);
 
     return promise
@@ -77,7 +78,7 @@ function setViewedPath(filePath) {
 
     const promise = bluebird.all([
       fileService.getFiles(filePath),
-      bluebird.delay(200) // animation takes 200ms
+      bluebird.delay(100) // animation takes 100ms
     ]).then(result => result[0]);
 
     return promise
@@ -90,11 +91,18 @@ function setViewedPath(filePath) {
 /**
  * @returns {function}
  */
-export function goToParentDirectory() {
+export function goToSpecialDirectory(target) {
   return function (dispatch, getState) {
-    const fileView = getState().fileView;
+    const state = getState(),
+      fileView = state.fileView,
+      firstTerminalWorkingDirectory = _.get(state, 'terminalTabGroups[0].tabs[0].content.cwd');
 
-    dispatch(setViewedPath(path.resolve(fileView.path, '..')));
+    switch (target) {
+      case 'parent': return dispatch(setViewedPath(path.resolve(fileView.path, '..')));
+      case 'home': return dispatch(setViewedPath(path.resolve(os.homedir())));
+      case 'workingDirectory': return firstTerminalWorkingDirectory && dispatch(setViewedPath(path.resolve(firstTerminalWorkingDirectory)));
+      default: return dispatch(setViewedPath(path.resolve(fileView.path, '..')));
+    }
   };
 }
 
@@ -124,7 +132,7 @@ export default {
   selectViewedFile,
   setViewedPath,
   getViewedFiles,
-  goToParentDirectory,
+  goToSpecialDirectory,
   expandFolder,
   contractFolder
 };

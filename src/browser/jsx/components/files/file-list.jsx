@@ -13,7 +13,7 @@ export default React.createClass({
   displayName: 'FileList',
   propTypes: {
     id: React.PropTypes.string,
-    onGoToParent: React.PropTypes.func
+    onGoToSpecialDirectory: React.PropTypes.func
   },
   render: function () {
     const props = this.props;
@@ -22,13 +22,13 @@ export default React.createClass({
 
     files = _.filter(files, item => !props.filter || item.props.label.indexOf(props.filter) > -1);
 
-    if (props.onGoToParent) {
+    if (props.onGoToSpecialDirectory) {
       parent = (
         <FileListItem
           basePath={props.path}
           filename=".."
           key=".."
-          onDoubleClick={props.onGoToParent}
+          onDoubleClick={props.onGoToSpecialDirectory}
         />
       );
     }

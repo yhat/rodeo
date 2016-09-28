@@ -21,7 +21,7 @@ export default React.createClass({
     files: React.PropTypes.array,
     onContractFolder: React.PropTypes.func.isRequired,
     onExpandFolder: React.PropTypes.func.isRequired,
-    onGoToParent: React.PropTypes.func.isRequired,
+    onGoToSpecialDirectory: React.PropTypes.func.isRequired,
     onOpen: React.PropTypes.func.isRequired
   },
   handleCaretClick: function (path, event) {
@@ -72,7 +72,7 @@ export default React.createClass({
 
     return (
       <div className={className}>
-        <FileTreeHeader onGoToParent={props.onGoToParent}/>
+        <FileTreeHeader onGoToSpecialDirectory={props.onGoToSpecialDirectory}/>
         <TreeView
           items={props.files}
           onCaretClick={this.handleCaretClick}
