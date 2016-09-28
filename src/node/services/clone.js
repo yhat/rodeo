@@ -1,5 +1,6 @@
-const _ = require('lodash'),
-  log = require('./log').asInternal(__filename);
+'use strict';
+
+const _ = require('lodash');
 
 function toObject(source) {
 

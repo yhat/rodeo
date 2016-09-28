@@ -2,6 +2,7 @@
 
 const _ = require('lodash'),
   bluebird = require('bluebird'),
+  db = require('./services/db'),
   kernelsPythonClient = require('./kernels/python/client'),
   cuid = require('cuid'),
   electron = require('electron'),
@@ -83,6 +84,18 @@ function assertValidObject(obj, validOptions) {
       throw new Error('Invalid property ' + key + ': expected ' + expectedType + ' but got ' + value);
     }
   });
+}
+
+function onDatabaseConnect(name, type, options) {
+  return db.connect(name, type, options);
+}
+
+function onDatabaseQuery(name, str) {
+  return db.query(name, str);
+}
+
+function onDatabaseDisconnect(name) {
+  return db.disconnect(name);
 }
 
 /**
@@ -930,6 +943,9 @@ function attachIpcMainEvents() {
     onCloseWindow,
     onCreateKernelInstance,
     onCreateWindow,
+    onDatabaseConnect,
+    onDatabaseQuery,
+    onDatabaseDisconnect,
     onEval,
     onExecuteWithKernel,
     onExecuteWithNewKernel,

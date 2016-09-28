@@ -62,14 +62,34 @@ describe(dirname + '/' + filename, function () {
     it('reads directory', function () {
       const filename = 'some directory',
         expectedList = ['some', 'result'],
-        expectedStats = {isDirectory: _.constant(true)},
         expectedResult = [
-          {path: 'some directory/some', filename: 'some', isDirectory: true},
-          {path: 'some directory/result', filename: 'result', isDirectory: true}
+          {
+            base: 'some',
+            dir: 'some directory',
+            name: 'some',
+            ext: '',
+            path: 'some directory/some',
+            isDirectory: true,
+            isFile: false,
+            isSymbolicLink: false,
+            root: ''
+          },
+          {
+            base: 'result',
+            dir: 'some directory',
+            name: 'result',
+            ext: '',
+            path: 'some directory/result',
+            isDirectory: false,
+            isFile: false,
+            isSymbolicLink: false,
+            root: ''
+          }
         ];
 
       fs.readdir.yields(null, expectedList);
-      fs.lstat.yields(null, expectedStats);
+      fs.lstat.onCall(0).yields(null, {isDirectory: _.constant(true)});
+      fs.lstat.onCall(1).yields(null, {isDirectory: _.constant(false)});
 
       return fn(filename).reflect().then(function (result) {
         expect(result.value()).to.deep.equal(expectedResult);

@@ -220,10 +220,15 @@ function executeActiveFileSelectionInActiveConsole(groupId) {
   };
 }
 
+function changeTabMode(groupId, id, option) {
+  return {type: 'EDITOR_TAB_MODE_CHANGED', groupId, id, value: option.value};
+}
+
 export default {
   add,
   focus,
   focusActive,
+  changeTabMode,
   close,
   executeActiveFileInActiveConsole,
   executeActiveFileSelectionInActiveConsole,

@@ -6,25 +6,17 @@ import TabbedPaneItem from '../../components/tabs/tabbed-pane-item.js';
 import TabButton from '../../components/tabs/tab-button';
 import TabAdd from '../../components/tabs/tab-add';
 import TabOverflowImage from '../../components/tabs/tab-overflow-image';
-import AcePane from '../../components/ace-pane/ace-pane.js';
+import AcePane from '../../components/ace-pane/ace-pane';
+import GrayInfo from '../../components/gray-info/gray-info';
+import GrayInfoSelect from '../../components/gray-info/gray-info-select';
 import { getParentNodeOf } from '../../services/dom';
 import editorTabGroupActions from '../../containers/editor-tab-group/editor-tab-group.actions';
 import dialogActions from '../../actions/dialogs';
-import kernelActions from '../../actions/kernel';
 import terminalActions from '../terminal-tab-group/terminal-tab-group.actions';
 import commonReact from '../../services/common-react';
 import rodeoLogo from './rodeo-logo/rodeo-logo.4x.png';
-
-/**
- * @param {Element} el
- */
-function focusAcePaneInActiveElement(el) {
-  const activeAcePane = el.querySelector('.active .ace-pane');
-
-  if (activeAcePane) {
-    AcePane.focusByElement(activeAcePane);
-  }
-}
+import './editor-tab-group.css';
+import knownFileTypes from './known-file-types.yml';
 
 /**
  * @param {function} dispatch
@@ -47,7 +39,8 @@ function mapDispatchToProps(dispatch, ownProps) {
     onRemoveAcePane: (id) => dispatch(editorTabGroupActions.close(groupId, id)),
     onRunActiveAcePane: () => dispatch(editorTabGroupActions.executeActiveFileInActiveConsole(groupId)),
     onRunActiveAcePaneSelection: () => dispatch(editorTabGroupActions.executeActiveFileSelectionInActiveConsole(groupId)),
-    onRodeo: () => dispatch(dialogActions.showAboutRodeo())
+    onRodeo: () => dispatch(dialogActions.showAboutRodeo()),
+    onTabModeChange: (tab, option) => dispatch(editorTabGroupActions.changeTabMode(groupId, tab.id, option))
   };
 }
 
@@ -65,7 +58,7 @@ export default connect(null, mapDispatchToProps)(React.createClass({
     tabs: React.PropTypes.array.isRequired
   },
   shouldComponentUpdate(nextProps) {
-        return commonReact.shouldComponentUpdate(this, nextProps);
+    return commonReact.shouldComponentUpdate(this, nextProps);
   },
   handleTabClick: function (id, event) {
     event.preventDefault();
@@ -149,7 +142,6 @@ export default connect(null, mapDispatchToProps)(React.createClass({
         )
       };
 
-
     return (
       <TabbedPane
         focusable={!props.disabled}
@@ -167,7 +159,20 @@ export default connect(null, mapDispatchToProps)(React.createClass({
         <TabOverflowImage onClick={props.onRodeo} src={rodeoLogo}/>
         <TabButton className="right" icon="play-circle" label="Run Script" onClick={props.onRunActiveAcePane} title={runScriptTitle}/>
         <TabButton className="right" icon="play" label="Run Line" onClick={props.onRunActiveAcePaneSelection} title={runLineTitle}/>
-        {props.tabs.map(tab => <TabbedPaneItem key={tab.id} {...tab}>{types[tab.contentType](tab.content)}</TabbedPaneItem>)}
+        {props.tabs.map(tab => {
+          return (
+            <TabbedPaneItem key={tab.id} {...tab}>
+              {types[tab.contentType](tab.content)}
+              <GrayInfo content={tab.content}>
+                <GrayInfoSelect
+                  onChange={_.partial(props.onTabModeChange, tab)}
+                  options={_.map(knownFileTypes, knownFileType => _.assign({value: knownFileType.mode}, knownFileType))}
+                  value={tab.content.mode}
+                >{tab.content.mode}</GrayInfoSelect>
+              </GrayInfo>
+            </TabbedPaneItem>
+          );
+        })}
         <TabAdd onClick={props.onAddAcePane} />
       </TabbedPane>
     );

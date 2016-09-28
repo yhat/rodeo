@@ -1,7 +1,7 @@
 .gray-info {
   height: 20px;
-  background-color: #dddddd;
-  box-shadow: inset 0 1px 1px #c1c1c1;
+  background-color: #ebebeb;
+  box-shadow: inset 0 1px 1px #dddddd;
   position: absolute;
   bottom: 0;
   width: 100%;
@@ -14,22 +14,63 @@
 .gray-info > * {
   margin-right: 10px;
   margin-left: 10px;
-  padding-right: 5px;
-  padding-left: 7px;
-  border-left: 2px solid #cacaca;
-  border-radius: 7px;
 }
 
 .gray-info-link {
   cursor: pointer;
+  padding-right: 5px;
+  padding-left: 7px;
+  border-left: 2px solid #dddddd;
+  border-top-left-radius: 7px;
 }
 
 .gray-info-link:hover {
-  cursor: pointer;
   color: #999;
 }
 
 .gray-info-link:active {
-  cursor: pointer;
   color: #bbb;
+}
+
+.gray-info-select {
+  position: relative;
+}
+
+.gray-info-select .item {
+  cursor: pointer;
+}
+
+.gray-info-select .item:hover {
+  color: #999;
+}
+
+.gray-info-select .item:active {
+  color: #bbb;
+}
+
+.gray-info-select .single-value {
+  cursor: pointer;
+  padding-right: 5px;
+  padding-left: 7px;
+  border-left: 2px solid #dddddd;
+  border-top: 2px solid #dddddd;
+  border-right: 2px solid #dddddd;
+  border-top-left-radius: 7px;
+  border-top-right-radius: 7px;
+}
+
+.gray-info-select .options {
+  cursor: pointer;
+  position: absolute;
+  bottom: 0;
+  width: 100%;
+  padding-right: 5px;
+  padding-left: 7px;
+  border-left: 2px solid #dddddd;
+  border-right: 2px solid #dddddd;
+  border-top: 2px solid #dddddd;
+  border-top-left-radius: 7px;
+  border-top-right-radius: 7px;
+  background-color: #ebebeb;
+  box-shadow: inset 0 1px 1px #dddddd;
 }
