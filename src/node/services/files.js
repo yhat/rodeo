@@ -48,7 +48,7 @@ function readDirectory(dirPath) {
 
     return getStats(fullPath).then(function (fileStats) {
       fileStats.path = fullPath;
-      _.assign(fileStats, path.posix.parse(fullPath));
+      _.assign(fileStats, path.parse(fullPath));
 
       return fileStats;
     }).catch(function (statEx) {
@@ -216,7 +216,7 @@ function getFileSystemChangeToken(eventType, filePath, details) {
   if (details && details.isDirectory !== undefined) {
     details = normalizeStats(details);
     details.path = filePath;
-    _.assign(details, path.posix.parse(filePath));
+    _.assign(details, path.parse(filePath));
     event.details = details;
   } else {
     log('info', 'HEEEEEY', eventType, filePath, details);
