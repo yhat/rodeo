@@ -12,7 +12,7 @@ import './file-tree-header.css';
 export default React.createClass({
   displayName: 'FileTreeHeader',
   propTypes: {
-    onGoToParent: React.PropTypes.func.isRequired
+    onGoToSpecialDirectory: React.PropTypes.func.isRequired
   },
   render: function () {
     const props = this.props,
@@ -20,7 +20,9 @@ export default React.createClass({
 
     return (
       <div className={className}>
-        <div className="item" onClick={props.onGoToParent}><span className="fa fa-arrow-left"/><span>{'Go To Parent'}</span></div>
+        <div className="item" onClick={_.partial(props.onGoToSpecialDirectory, 'parent')}><span className="fa fa-arrow-left"/><span>{'Parent'}</span></div>
+        <div className="item" onClick={_.partial(props.onGoToSpecialDirectory, 'home')}><span className="fa fa-home"/><span>{'Home'}</span></div>
+        <div className="item" onClick={_.partial(props.onGoToSpecialDirectory, 'workingDirectory')}><span className="fa fa-terminal"/><span>{'Working Directory'}</span></div>
       </div>
     );
   }

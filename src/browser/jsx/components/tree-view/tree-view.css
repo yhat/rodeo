@@ -33,7 +33,7 @@
 .tree-view-item .tree-view-item-label {
   cursor: pointer;
   color: #666;
-  transition: all 0.2s;
+  transition: all 0.1s;
   padding: 4px;
 }
 
@@ -52,7 +52,7 @@
 
 .tree-view-item .tree-view-item-children-appear {
   opacity: 0.01;
-  transition: opacity 0.2s ease-in;
+  transition: opacity 0.1s ease-in;
 }
 
 .tree-view-item .tree-view-item-children-appear.tree-view-item-children-appear-active {
@@ -65,15 +65,14 @@
 
 .tree-view-item .tree-view-item-children-enter.tree-view-item-children-enter-active {
   opacity: 1;
-  transition: opacity 0.2s ease-in;
+  transition: opacity 0.1s ease-in;
 }
 
 .tree-view-item .tree-view-item-children-leave {
   opacity: 1;
-  transition: opacity 0.2s ease-in;
+  transition: opacity 0.1s ease-in;
 }
 
 .tree-view-item .tree-view-item-children-leave.tree-view-item-children-leave-active {
   opacity: 0.01;
-
 }

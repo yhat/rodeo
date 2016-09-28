@@ -67,9 +67,9 @@ const TreeViewItem = React.createClass({
           className="tree-view-item-children"
           component="div"
           transitionAppear
-          transitionAppearTimeout={200}
-          transitionEnterTimeout={200}
-          transitionLeaveTimeout={200}
+          transitionAppearTimeout={100}
+          transitionEnterTimeout={100}
+          transitionLeaveTimeout={100}
           transitionName="tree-view-item-children"
         >
           {_.map(_.sortBy(props.items, props.sort), item => {
