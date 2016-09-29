@@ -10,7 +10,6 @@ import commonReact from '../../../services/common-react';
 export default React.createClass({
   displayName: 'PreferencesNumber',
   propTypes: {
-    className: React.PropTypes.string,
     item: React.PropTypes.object,
     onChange: React.PropTypes.func.isRequired
   },
@@ -18,21 +17,21 @@ export default React.createClass({
     return commonReact.shouldComponentUpdate(this, nextProps);
   },
   render: function () {
-    const displayName = this.constructor.displayName,
-      props = this.props,
+    const props = this.props,
       content = [],
-      className = [_.kebabCase(displayName)],
-      item = props.item;
-
-    if (props.className) {
-      className.push(props.className);
-    }
+      className = commonReact.getClassNameList(this),
+      item = props.item,
+      handleClick = props.onClick && _.isFunction(props[props.onClick]) && props[props.onClick];
 
     if (item.label) {
       content.push(<label htmlFor={item.id} key="label">{_.startCase(item.label)}</label>);
     }
 
-    content.push(<input key="input" onChange={props.onChange}  {...item} type="number"/>);
+    if (handleClick) {
+      content.push(<button key="input" onClick={handleClick}  {...item}/>);
+    } else {
+      content.push(<button disabled key="input"  {...item}/>);
+    }
 
     return <div className={className.join(' ')}>{content}</div>;
   }

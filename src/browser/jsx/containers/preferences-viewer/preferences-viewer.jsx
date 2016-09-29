@@ -24,7 +24,8 @@ function mapDispatchToProps(dispatch) {
     onApply: () => dispatch(actions.save()),
     onCancel: () => dispatch(actions.cancelAll()),
     onSelectFile: change => dispatch(actions.selectFile(change)),
-    onSelectFolder: change => dispatch(actions.selectFolder(change))
+    onSelectFolder: change => dispatch(actions.selectFolder(change)),
+    onManageConnections: () => dispatch(actions.manageConnections())
   };
 }
 

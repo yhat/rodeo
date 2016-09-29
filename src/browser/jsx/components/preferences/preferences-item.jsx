@@ -1,11 +1,12 @@
 import React from 'react';
 import Marked from '../marked/marked.jsx';
-import PreferencesText from './items/preferences-text.jsx';
-import PreferencesNumber from './items/preferences-number.jsx';
-import PreferencesCheckbox from './items/preferences-checkbox.jsx';
-import PreferencesSelect from './items/preferences-select.jsx';
-import PreferencesPythonCmd from './items/preferences-python-cmd.jsx';
-import PreferencesFolder from './items/preferences-folder.jsx';
+import PreferencesText from './items/preferences-text';
+import PreferencesNumber from './items/preferences-number';
+import PreferencesCheckbox from './items/preferences-checkbox';
+import PreferencesSelect from './items/preferences-select';
+import PreferencesPythonCmd from './items/preferences-python-cmd';
+import PreferencesFolder from './items/preferences-folder';
+import PreferencesButton from './items/preferences-button';
 import './preferences-item.css';
 import commonReact from '../../services/common-react';
 
@@ -27,7 +28,7 @@ export default React.createClass({
   },
   render: function () {
     const props = this.props,
-      className = 'preferences-item',
+      className = commonReact.getClassNameList(this).join(' '),
       types = {
         select: () => <PreferencesSelect {...props} className={className}/>,
         text: () => <PreferencesText {...props} className={className}/>,
@@ -35,7 +36,8 @@ export default React.createClass({
         checkbox: () => <PreferencesCheckbox {...props} className={className}/>,
         pythonCmd: () => <PreferencesPythonCmd {...props} className={className}/>,
         folder: () => <PreferencesFolder {...props} className={className}/>,
-        marked: () => <div className={className}><Marked>{props.item.explanation}</Marked></div>
+        marked: () => <div className={className}><Marked>{props.item.explanation}</Marked></div>,
+        button: () => <PreferencesButton {...props} className={className}/>
       };
 
     return types[props.item.type] ? types[props.item.type]() : null;

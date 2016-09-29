@@ -3,14 +3,13 @@ import React from 'react';
 import commonReact from '../../../services/common-react';
 
 /**
- * @class PreferencesText
+ * @class PreferencesCheckbox
  * @extends ReactComponent
  * @property props
  */
 export default React.createClass({
-  displayName: 'PreferencesText',
+  displayName: 'PreferencesCheckbox',
   propTypes: {
-    className: React.PropTypes.string,
     item: React.PropTypes.object.isRequired,
     onChange: React.PropTypes.func.isRequired
   },
@@ -18,22 +17,19 @@ export default React.createClass({
     return commonReact.shouldComponentUpdate(this, nextProps);
   },
   render: function () {
-    const displayName = this.constructor.displayName,
-      props = this.props,
-      item = props.item,
-      content = [];
-    let label,
-      className = [_.kebabCase(displayName)];
-
-    if (props.className) {
-      className.push(props.className);
-    }
+    const props = this.props,
+      className = commonReact.getClassNameList(this),
+      content = [],
+      item = _.clone(props.item);
 
     if (item.label) {
       content.push(<label htmlFor={item.id} key="label">{_.startCase(item.label)}</label>);
     }
 
-    content.push(<input key="input" onChange={props.onChange} {...item} type="text"/>);
+    item.checked = item.value;
+    delete item.value;
+
+    content.push(<input key="input" onChange={props.onChange} {...item} type="checkbox"/>);
 
     return <div className={className.join(' ')}>{content}</div>;
   }

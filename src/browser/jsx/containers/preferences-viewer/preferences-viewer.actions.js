@@ -127,11 +127,16 @@ function cancelAll() {
   return {type: 'PREFERENCE_CANCEL_ALL_CHANGES'};
 }
 
+function manageConnections() {
+  return {type: 'SHOW_DIALOG', contentType: 'MANAGE_CONNECTIONS'};
+}
+
 export default {
   add,
   cancelAll,
   save,
   selectFile,
   selectFolder,
-  selectTab
+  selectTab,
+  manageConnections
 };

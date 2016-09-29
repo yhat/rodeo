@@ -20,6 +20,29 @@
         key: environmentVariables
         label: Environment Variables
   -
+    label: SQL
+      -
+        explanation: sqlSettingsText
+        type: marked
+      -
+        key: sqlDefaultConnectionType
+        label: Default Connection Type
+        type: select
+        options:
+          - label: redshift
+            value: redshift
+          - label: postgresql
+            value: postgresql
+          - label: sqlserver
+            value: sqlserver
+          - label: mysql
+            value: mysql
+        value: postgresql
+      -
+        type: button
+        value: Manage Connections
+        onClick: onManageConnections
+  -
     label: Editor
     items:
       -

@@ -4,25 +4,21 @@ import PreferencesItemErrors from '../preferences-item-errors.jsx';
 import commonReact from '../../../services/common-react';
 
 /**
- * @class PreferencesPythonCmd
- * @extends ReactComponent
- * @property props
+ * @class PreferencesFolder
  */
 export default React.createClass({
-  displayName: 'PreferencesPythonCmd',
+  displayName: 'PreferencesFolder',
   propTypes: {
-    className: React.PropTypes.string,
     item: React.PropTypes.object.isRequired,
     onChange: React.PropTypes.func.isRequired,
-    onSelectFile: React.PropTypes.func.isRequired
+    onSelectFolder: React.PropTypes.func.isRequired
   },
   shouldComponentUpdate: function (nextProps) {
     return commonReact.shouldComponentUpdate(this, nextProps);
   },
   render: function () {
-    const displayName = this.constructor.displayName,
-      props = this.props,
-      className = [_.kebabCase(displayName)],
+    const props = this.props,
+      className = commonReact.getClassNameList(this),
       item = props.item;
     let label,
       content = [];
@@ -31,14 +27,10 @@ export default React.createClass({
       content.push(<label htmlFor={item.id}>{_.startCase(item.label)}</label>);
     }
 
-    if (props.className) {
-      className.push(props.className);
-    }
-
     content.push(<div className="input-group">
       <input className="form-control" key="input" onChange={props.onChange} {...item} type="text"/>
       <span className="input-group-container">
-        <button className="btn btn-default" onClick={props.onSelectFile}>{'…'}</button>
+        <button className="btn btn-default" onClick={props.onSelectFolder}>{'…'}</button>
       </span>
     </div>);
 

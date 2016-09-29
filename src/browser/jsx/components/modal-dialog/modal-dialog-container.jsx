@@ -6,7 +6,9 @@ import AboutRodeo from '../about-rodeo/about-rodeo.jsx';
 import StickersPane from '../stickers-pane/stickers-pane.jsx';
 import Acknowledgements from '../acknowledgements/acknowledgements.jsx';
 import PreferencesViewer from '../../containers/preferences-viewer/preferences-viewer.jsx';
+import ManageConnectionsViewer from '../../containers/manage-connections-viewer/manage-connections-viewer';
 import RegisterRodeo from '../register-rodeo/register-rodeo.jsx';
+import ManageConnections from '../manage-connections/manage-connections';
 import './modal-dialog-container.css';
 
 /**
@@ -72,6 +74,11 @@ export default React.createClass({
           REGISTER_RODEO: modal => (
             <ModalDialog key={modal.id} {...modal}>
               <RegisterRodeo {...modal} />
+            </ModalDialog>
+          ),
+          MANAGE_CONNECTIONS: modal => (
+            <ModalDialog key={modal.id} {...modal}>
+              <ManageConnectionsViewer {...modal} />
             </ModalDialog>
           )
         };

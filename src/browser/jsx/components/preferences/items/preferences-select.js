@@ -25,14 +25,9 @@ export default React.createClass({
   },
   render: function () {
     const content = [],
-      displayName = this.constructor.displayName,
       props = this.props,
       item = props.item,
-      className = [_.kebabCase(displayName)];
-
-    if (props.className) {
-      className.push(props.className);
-    }
+      className = commonReact.getClassNameList(this);
 
     if (item.label) {
       content.push(<label htmlFor={item.id}>{_.startCase(item.label)}</label>);
