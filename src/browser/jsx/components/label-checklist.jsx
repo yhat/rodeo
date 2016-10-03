@@ -2,11 +2,6 @@ import _ from 'lodash';
 import React from 'react';
 import LabelCheckbox from './label-checkbox.jsx';
 
-/**
- * @param {ReactElement} component
- * @param {*} type
- * @returns {boolean}
- */
 function isComponentOfType(component, type) {
   // react-hot-module mocks the type, but the displayNames are still okay
   return component.type.displayName === type.displayName;

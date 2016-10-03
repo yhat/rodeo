@@ -1,10 +1,5 @@
 import React from 'react';
 
-/**
- * @class DocCode
- * @extends ReactComponent
- * @property props
- */
 export default React.createClass({
   displayName: 'DocCode',
   propTypes: {

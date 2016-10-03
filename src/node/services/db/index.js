@@ -9,45 +9,52 @@ const _ = require('lodash'),
   },
   instances = {};
 
-function connect(name, type, options) {
+function connect(options) {
   return bluebird.try(function () {
-    log('info', 'connect', {name, type, options});
+    log('info', 'connect', {options});
+    const id = options.id,
+      type = options.type,
+      config = _.omit(options, ['name', 'type', 'id']);
 
     if (types[type]) {
-      const adapter = types[type].create(),
-        connection = types[type].connect(adapter, options);
+      log('info', 'found type', type, types[type]);
+      const adapter = types[type].create();
 
-      instances[name] = {
-        type,
-        adapter,
-        connection
-      };
+      return types[type].connect(adapter, config).then(function (connection) {
+        instances[id] = {
+          type,
+          adapter,
+          connection
+        };
+      });
+    } else {
+      throw new Error('DB type does not exist: ' + type);
     }
   });
 }
 
-function disconnect(name) {
+function disconnect(id) {
   return bluebird.try(function () {
-    log('info', 'disconnect', {name});
+    log('info', 'disconnect', {id});
 
-    if (name) {
-      if (instances[name]) {
-        types[instances[name].type].disconnect(instances[name].adapter, instances[name].connection);
+    if (id) {
+      if (instances[id]) {
+        types[instances[id].type].disconnect(instances[id].adapter, instances[id].connection);
       }
     } else {
-      _.each(instances, function (item, name) {
-        types[instances[name].type].disconnect(instances[name].adapter, instances[name].connection);
+      _.each(instances, function (item, id) {
+        types[instances[id].type].disconnect(instances[id].adapter, instances[id].connection);
       });
     }
   });
 }
 
-function query(name, str) {
+function query(id, str) {
   return bluebird.try(function () {
-    log('info', 'query', {name, str});
+    log('info', 'query', {id, str});
 
-    if (instances[name]) {
-      return types[instances[name].type].query(instances[name].connection, str);
+    if (instances[id]) {
+      return types[instances[id].type].query(instances[id].connection, str);
     }
   });
 }

@@ -2,11 +2,6 @@ import React from 'react';
 import ReactDOM from 'react-dom';
 import commonReact from '../services/common-react';
 
-/**
- * @class UnsafeHTML
- * @extends ReactComponent
- * @property props
- */
 export default React.createClass({
   displayName: 'UnsafeHTML',
   propTypes: {

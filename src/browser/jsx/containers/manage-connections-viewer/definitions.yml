@@ -3,12 +3,27 @@ types:
   -
     name: postgresql
     label: Postgresql
+    knownConfigurationOptions:
+      host: string
+      port: number
+      database: string
+      username: string
+      password: string
+    defaults:
+      host: localhost
+      port: 5432
+      database: postgres
+      username: postgres
+      password: mysecretpassword
   -
     name: redshift
     label: Redshift
+    defaults: {}
   -
     name: sqlserver
     label: SqlServer
+    defaults: {}
   -
     name: mysql
     label: MySql
+    defaults: {}

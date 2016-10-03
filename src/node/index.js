@@ -86,8 +86,8 @@ function assertValidObject(obj, validOptions) {
   });
 }
 
-function onDatabaseConnect(name, type, options) {
-  return db.connect(name, type, options);
+function onDatabaseConnect(options) {
+  return db.connect(options);
 }
 
 function onDatabaseQuery(name, str) {

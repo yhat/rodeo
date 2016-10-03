@@ -5,10 +5,13 @@ import commonReact from '../../../services/common-react';
 export default React.createClass({
   displayName: 'PostgresqlSettings',
   propTypes: {
-    id: React.PropTypes.func.isRequired,
+    connected: React.PropTypes.string,
+    definitions: React.PropTypes.object.isRequired,
+    id: React.PropTypes.string.isRequired,
     onChange: React.PropTypes.func.isRequired,
-    text: React.PropTypes.object.isRequired,
-    types: React.PropTypes.array.isRequired
+    onConnect: React.PropTypes.func.isRequired,
+    onDisconnect: React.PropTypes.func.isRequired,
+    text: React.PropTypes.object.isRequired
   },
   shouldComponentUpdate: function (nextProps) {
     return commonReact.shouldComponentUpdate(this, nextProps);
@@ -24,15 +27,13 @@ export default React.createClass({
   },
   render: function () {
     const props = this.props,
-      className = commonReact.getClassNameList(this);
+      connected = props.id === props.connected,
+      className = commonReact.getClassNameList(this),
+      definition = _.find(props.definitions.types, {name: props.type});
 
     return (
       <div className={className.join(' ')}>
         <form onSubmit={this.handleNoop}>
-          <div className="layout-buttons--align-right">
-            <button className="btn btn-success">{'Connect'}</button>
-          </div>
-          <hr />
           <div className="layout-label-input layout-50-50">
             <label>
               {'Nickname'}
@@ -41,7 +42,7 @@ export default React.createClass({
             <label>
               {'Type'}
               <select name="type" onChange={_.partial(this.handleChange, 'type')} value={props.type || ''}>
-                {_.map(props.types, type => <option value={type.name}>{type.label}</option>)}
+                {_.map(props.definitions.types, type => <option key={type.name} value={type.name}>{type.label}</option>)}
               </select>
             </label>
           </div>

@@ -1,6 +1,7 @@
 .manage-connections {
   display: flex;
   flex-direction: row;
+  min-height: 300px;
 }
 
 .manage-connections .connection-list-header {
@@ -57,6 +58,10 @@
 .manage-connections .connection-details {
   padding-top: 10px;
   padding-bottom: 10px;
+  margin-left: 10px;
+  margin-right: 10px;
+  width: 500px;
+  min-height: 400px;
 }
 
 .manage-connections hr {

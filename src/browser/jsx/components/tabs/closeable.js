@@ -17,7 +17,6 @@ export default React.createClass({
     const props = this.props,
       className = commonReact.getClassNameList(this).concat(['fa', 'fa-times', closeTabClass]);
 
-
     return (
       <span
         className={className.join(' ')}

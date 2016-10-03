@@ -14,6 +14,8 @@ function mapDispatchToProps(dispatch) {
     onCancel: id => dispatch(actions.cancel(id)),
     onOK: (id, result) => dispatch(actions.ok(id, result)),
     onAddConnection: () => dispatch(actions.addConnection()),
+    onConnect: id => dispatch(actions.connect(id)),
+    onDisconnect: id => dispatch(actions.disconnect(id)),
     onRemoveConnection: id => dispatch(actions.removeConnection(id)),
     onChange: change => dispatch(actions.addChange(change)),
     onSelectConnection: id => dispatch(actions.selectConnection(id))

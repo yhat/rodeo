@@ -1,6 +1,7 @@
 'use strict';
 
 const _ = require('lodash'),
+  bluebird = require('bluebird'),
   cuid = require('cuid'),
   electron = require('electron'),
   fs = require('fs'),
@@ -246,31 +247,62 @@ function getByName(name) {
 /**
  * Only if the named window exists, send arguments.
  * @param {string} windowName
- * @param {string} eventName
  *
  * NOTE:  This function exists to prevent a race-condition where the window is closed or destroyed before some
  * asynchronous task completes and tries to contact a window at the end (for logging, next step, etc.)
+ *
+ * @returns {Promise}
  */
-function send(windowName, eventName) {
-  const target = getByName(windowName),
+function send(windowName) {
+  let emitter = getByName(windowName).webContents,
     eventId = cuid(),
-    args = _.map(_.slice(arguments, 2), arg => _.isBuffer(arg) ? arg.toString() : arg);
+    startTime = new Date().getTime(),
+    args = _.map(_.slice(arguments, 1), arg => _.isBuffer(arg) ? arg.toString() : arg),
+    eventName = args[1];
 
-  if (target && !target.isDestroyed()) {
-    let webContents = target.webContents;
+  return new Promise(function (resolve, reject) {
+    // noinspection JSDuplicatedDeclaration
+    let response,
+      eventReplyName = eventName + '_reply',
+      timer = setInterval(function () {
+        console.warn('ipc ' + eventId + ': still waiting for', eventName);
+      }, 1000);
 
-    webContents.send.apply(webContents, [eventName, eventId].concat(args));
-  }
+    emitter.send.apply(emitter, [eventName, eventId].concat(args.slice(1)));
+    response = function (event, id) {
+      let result, endTime;
+
+      if (id === eventId) {
+        emitter.removeListener(eventReplyName, response);
+        clearInterval(timer);
+        result = _.slice(arguments, 2);
+        endTime = (new Date().getTime() - startTime);
+
+        if (result[0]) {
+          console.log('ipc ' + eventId + ': error', endTime + 'ms', result[0]);
+          reject(new Error(result[0].message));
+        } else {
+          console.log('ipc ' + eventId + ': completed', endTime + 'ms', result[1]);
+          resolve(result[1]);
+        }
+      } else {
+        console.log('ipc ' + eventId + ':', eventName, id, 'is not for us.');
+      }
+    };
+    console.log('ipc ' + eventId + ': waiting for ', eventName, 'on', eventReplyName);
+    emitter.on(eventReplyName, response);
+  });
 }
 
 /**
  * @param {string} name
  * @param {{type: string}} action
+ * @returns {Promise}
  */
 function dispatchActionToWindow(name, action) {
   log('info', 'dispatch', name, action);
 
-  send(name, 'dispatch', action);
+  return send(name, 'dispatch', action);
 }
 
 /**
@@ -278,11 +310,11 @@ function dispatchActionToWindow(name, action) {
  * @param {{type: string}} action
  */
 function dispatchActionToOtherWindows(name, action) {
-  _.each(windows, window => {
+  return bluebird.all(_.map(windows, window => {
     if (window.name !== name) {
-      dispatchActionToWindow(window.name, action);
+      return dispatchActionToWindow(window.name, action);
     }
-  });
+  }));
 }
 
 /**
