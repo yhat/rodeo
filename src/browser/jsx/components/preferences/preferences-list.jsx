@@ -20,6 +20,7 @@ export default React.createClass({
     onApply: React.PropTypes.func.isRequired,
     onCancel: React.PropTypes.func.isRequired,
     onChange: React.PropTypes.func.isRequired,
+    onManageConnections: React.PropTypes.func.isRequired,
     onOK: React.PropTypes.func.isRequired,
     onSelectFile: React.PropTypes.func.isRequired,
     onSelectFolder: React.PropTypes.func.isRequired,
@@ -58,6 +59,7 @@ export default React.createClass({
               item={_.assign({}, item, props.changes[item.key])}
               key={item.key || itemIndex}
               onChange={_.partial(props.onChange, item)}
+              onManageConnections={props.onManageConnections}
               onSelectFile={_.partial(props.onSelectFile, item)}
               onSelectFolder={_.partial(props.onSelectFolder, item)}
             />

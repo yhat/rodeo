@@ -8,7 +8,6 @@ import Acknowledgements from '../acknowledgements/acknowledgements.jsx';
 import PreferencesViewer from '../../containers/preferences-viewer/preferences-viewer.jsx';
 import ManageConnectionsViewer from '../../containers/manage-connections-viewer/manage-connections-viewer';
 import RegisterRodeo from '../register-rodeo/register-rodeo.jsx';
-import ManageConnections from '../manage-connections/manage-connections';
 import './modal-dialog-container.css';
 
 /**

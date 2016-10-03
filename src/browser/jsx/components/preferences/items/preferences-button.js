@@ -8,7 +8,7 @@ import commonReact from '../../../services/common-react';
  * @property props
  */
 export default React.createClass({
-  displayName: 'PreferencesNumber',
+  displayName: 'PreferencesButton',
   propTypes: {
     item: React.PropTypes.object,
     onChange: React.PropTypes.func.isRequired
@@ -21,16 +21,16 @@ export default React.createClass({
       content = [],
       className = commonReact.getClassNameList(this),
       item = props.item,
-      handleClick = props.onClick && _.isFunction(props[props.onClick]) && props[props.onClick];
+      handleClick = item.onClickHandler && _.isFunction(props[item.onClickHandler]) && props[item.onClickHandler];
 
     if (item.label) {
       content.push(<label htmlFor={item.id} key="label">{_.startCase(item.label)}</label>);
     }
 
     if (handleClick) {
-      content.push(<button key="input" onClick={handleClick}  {...item}/>);
+      content.push(<button className="btn btn-default" key="input" onClick={handleClick} {...item}>{item.value}</button>);
     } else {
-      content.push(<button disabled key="input"  {...item}/>);
+      content.push(<button className="btn btn-default" disabled key="input" {...item}/>);
     }
 
     return <div className={className.join(' ')}>{content}</div>;

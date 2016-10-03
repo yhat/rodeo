@@ -9,6 +9,7 @@ import freeTabGroups from './free-tab-group/free-tab-group.reducer';
 import editorTabGroups from './editor-tab-group/editor-tab-group.reducer';
 import preferences from './preferences-viewer/preferences-viewer.reducer';
 import packageSearch from './package-search-viewer/package-search-viewer.reducer';
+import manageConnections from './manage-connections-viewer/manage-connections.reducer';
 
 function broadcast(state, action) {
   console.log(action.type, action);
@@ -70,6 +71,10 @@ export default combineReducers({
    * to interact and change themselves based on the state of the fileview.
    */
   fileView,
+  /**
+   * map!
+   */
+  manageConnections,
   /**
    * Unneeded. This just logs all the actions that pass through.
    */

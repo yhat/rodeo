@@ -128,7 +128,7 @@ function cancelAll() {
 }
 
 function manageConnections() {
-  return {type: 'SHOW_DIALOG', contentType: 'MANAGE_CONNECTIONS'};
+  return {type: 'ADD_MODAL_DIALOG', contentType: 'MANAGE_CONNECTIONS', title: 'Manage Connections'};
 }
 
 export default {

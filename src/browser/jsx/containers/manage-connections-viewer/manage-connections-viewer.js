@@ -1,7 +1,9 @@
 import React from 'react';
 import {connect} from 'react-redux';
-import ModalDialogContainer from '../../components/modal-dialog/modal-dialog-container.jsx';
+import ManageConnections from '../../components/manage-connections/manage-connections';
 import actions from './manage-connections.actions';
+import definitions from './definitions.yml';
+import text from '../text.yml';
 
 /**
  * @param {function} dispatch
@@ -10,13 +12,17 @@ import actions from './manage-connections.actions';
 function mapDispatchToProps(dispatch) {
   return {
     onCancel: id => dispatch(actions.cancel(id)),
-    onOK: (id, result) => dispatch(actions.ok(id, result))
+    onOK: (id, result) => dispatch(actions.ok(id, result)),
+    onAddConnection: () => dispatch(actions.addConnection()),
+    onRemoveConnection: id => dispatch(actions.removeConnection(id)),
+    onChange: change => dispatch(actions.addChange(change)),
+    onSelectConnection: id => dispatch(actions.selectConnection(id))
   };
 }
 
-export default connect(state => state, mapDispatchToProps)(React.createClass({
+export default connect(state => state.manageConnections, mapDispatchToProps)(React.createClass({
   displayName: 'ManageConnectionsViewer',
   render: function () {
-    return <ModalDialogContainer {...this.props} />;
+    return <ManageConnections definitions={definitions} text={text} {...this.props} />;
   }
 }));

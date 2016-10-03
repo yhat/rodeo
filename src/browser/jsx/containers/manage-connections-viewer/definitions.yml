@@ -1,0 +1,14 @@
+defaultType: postgresql
+types:
+  -
+    name: postgresql
+    label: Postgresql
+  -
+    name: redshift
+    label: Redshift
+  -
+    name: sqlserver
+    label: SqlServer
+  -
+    name: mysql
+    label: MySql

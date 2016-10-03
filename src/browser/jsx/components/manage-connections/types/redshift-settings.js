@@ -3,7 +3,7 @@ import React from 'react';
 import commonReact from '../../../services/common-react';
 
 export default React.createClass({
-  displayName: 'PostgresqlSettings',
+  displayName: 'RedshiftSettings',
   propTypes: {
     id: React.PropTypes.func.isRequired,
     onChange: React.PropTypes.func.isRequired,
