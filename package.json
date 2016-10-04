@@ -24,11 +24,12 @@
     "helper-bundle-id": "com.yhat.rodeo.helper",
     "publish": "always",
     "asar": false,
-    "compression": "store",
     "linux": {
       "target": [
         "deb",
-        "zip"
+        "zip",
+        "tar.gz",
+        "rpm"
       ]
     }
   },
@@ -81,7 +82,6 @@
     "react-test-renderer": "^15.3.1",
     "redux-devtools": "^3.2.0",
     "redux-thunk": "^2.0.1",
-    "rework-plugin-url": "^1.1.0",
     "rimraf": "^2.4.3",
     "sandboxed-module": "^2.0.2",
     "sinon": "^1.17.3",
