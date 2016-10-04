@@ -12,7 +12,7 @@ const bluebird = require('bluebird'),
  */
 function dispatch(type, data) {
   log('info', 'dispatch', {type, data});
-  browserWindows.send('mainWindow', 'dispatch', {type, data});
+  return browserWindows.send('mainWindow', 'dispatch', {type, data});
 }
 
 /**

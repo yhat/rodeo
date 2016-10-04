@@ -322,8 +322,8 @@ function subscribeBrowserWindowToEvent(windowName, emitter, eventName, instanceI
   emitter.on(eventName, function () {
     const list = _.map(_.toArray(arguments), arg => displayDataTransform(arg));
 
-    bluebird.all(list).then(function (normalizedList) {
-      browserWindows.send.apply(browserWindows, [windowName, eventName, instanceId].concat(normalizedList));
+    return bluebird.all(list).then(function (normalizedList) {
+      return browserWindows.send.apply(browserWindows, [windowName, eventName, instanceId].concat(normalizedList));
     }).catch(error => log('error', error));
   });
 }
@@ -911,6 +911,7 @@ function onFinishStartup() {
 /**
  * Share an action with every window except the window that send the action.
  * @param {object} action
+ * @returns {Promise}
  */
 function onShareAction(action) {
   const names = browserWindows.getWindowNames(),
@@ -923,11 +924,11 @@ function onShareAction(action) {
 
   action.senderName = senderName;
 
-  _.each(names, function (name) {
+  return bluebird.all(_.map(names, function (name) {
     if (name !== senderName) {
-      browserWindows.send(name, 'sharedAction', action);
+      return browserWindows.send(name, 'sharedAction', action);
     }
-  });
+  }));
 }
 
 /**

@@ -137,7 +137,10 @@ function create(name, options) {
       instance: window,
       name
     },
-    announceReady = _.once(() => dispatchActionToOtherWindows(name, {type: 'READY_TO_SHOW', name}));
+    announceReady = _.once(() =>
+      dispatchActionToOtherWindows(name, {type: 'READY_TO_SHOW', name})
+        .catch(error => log('error', 'announceReady', error))
+    );
 
   if (!options.url) {
     throw new Error('BrowserWindows should always start with a target.  No flickering allowed.');
@@ -247,50 +250,59 @@ function getByName(name) {
 /**
  * Only if the named window exists, send arguments.
  * @param {string} windowName
+ * @param {string} eventName
  *
  * NOTE:  This function exists to prevent a race-condition where the window is closed or destroyed before some
  * asynchronous task completes and tries to contact a window at the end (for logging, next step, etc.)
  *
  * @returns {Promise}
  */
-function send(windowName) {
-  let emitter = getByName(windowName).webContents,
+function send(windowName, eventName) {
+  let inboundEmitter = electron.ipcMain,
+    window = getByName(windowName),
+    outboundEmitter = window.webContents,
     eventId = cuid(),
     startTime = new Date().getTime(),
-    args = _.map(_.slice(arguments, 1), arg => _.isBuffer(arg) ? arg.toString() : arg),
-    eventName = args[1];
+    args = _.map(_.slice(arguments, 2), arg => _.isBuffer(arg) ? arg.toString() : arg);
 
   return new Promise(function (resolve, reject) {
     // noinspection JSDuplicatedDeclaration
     let response,
       eventReplyName = eventName + '_reply',
       timer = setInterval(function () {
-        console.warn('ipc ' + eventId + ': still waiting for', eventName);
+        if (outboundEmitter.isDestroyed()) {
+          log('info', 'ipc ' + eventId + ': will never complete because target window is gone', eventName);
+          inboundEmitter.removeListener(eventReplyName, response);
+          clearInterval(timer);
+        } else {
+          log('warn', 'ipc ' + eventId + ': still waiting for', eventName);
+        }
       }, 1000);
 
-    emitter.send.apply(emitter, [eventName, eventId].concat(args.slice(1)));
+    log('info', 'sending', [eventName, eventId].concat(args));
+    outboundEmitter.send.apply(outboundEmitter, [eventName, eventId].concat(args));
     response = function (event, id) {
       let result, endTime;
 
       if (id === eventId) {
-        emitter.removeListener(eventReplyName, response);
+        inboundEmitter.removeListener(eventReplyName, response);
         clearInterval(timer);
         result = _.slice(arguments, 2);
         endTime = (new Date().getTime() - startTime);
 
         if (result[0]) {
-          console.log('ipc ' + eventId + ': error', endTime + 'ms', result[0]);
+          log('error', 'ipc ' + eventId + ': error', endTime + 'ms', result[0]);
           reject(new Error(result[0].message));
         } else {
-          console.log('ipc ' + eventId + ': completed', endTime + 'ms', result[1]);
+          log('info', 'ipc ' + eventId + ': completed', endTime + 'ms', result[1]);
           resolve(result[1]);
         }
       } else {
-        console.log('ipc ' + eventId + ':', eventName, id, 'is not for us.');
+        log('info', 'ipc ' + eventId + ':', eventName, id, 'is not for us.');
       }
     };
-    console.log('ipc ' + eventId + ': waiting for ', eventName, 'on', eventReplyName);
-    emitter.on(eventReplyName, response);
+    log('info', 'ipc ' + eventId + ': waiting for', eventName, 'on', eventReplyName);
+    inboundEmitter.on(eventReplyName, response);
   });
 }
 
@@ -308,6 +320,7 @@ function dispatchActionToWindow(name, action) {
 /**
  * @param {string} name
  * @param {{type: string}} action
+ * @returns {Promise}
  */
 function dispatchActionToOtherWindows(name, action) {
   return bluebird.all(_.map(windows, window => {
