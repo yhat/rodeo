@@ -1,0 +1,5 @@
+.file-tree {
+  position: relative;
+  overflow: auto;
+  height: 100%;
+}

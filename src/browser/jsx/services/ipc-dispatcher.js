@@ -206,6 +206,14 @@ function otherDispatcher(dispatch) {
   ipc.on('files', function (event, clientId, data) {
     console.log('files', data);
   });
+
+  ipc.on('getTabs', function () {
+    return dispatch(function (dispatch, getState) {
+      const state = getState();
+
+      return _.pick(state, ['freeTabGroups', 'editorTabGroups', 'terminalTabGroups']);
+    });
+  });
 }
 
 /**

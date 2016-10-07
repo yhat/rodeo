@@ -18,6 +18,7 @@ const _ = require('lodash'),
   argv = require('./services/args').getArgv(),
   log = require('./services/log').asInternal(__filename),
   staticFileDir = path.resolve(__dirname, '../browser/'),
+  surveyService = require('./services/survey'),
   kernelClients = {},
   processes = require('./services/processes'),
   windowUrls = {
@@ -86,16 +87,24 @@ function assertValidObject(obj, validOptions) {
   });
 }
 
+function onSurveyTabs() {
+  return surveyService.getTabs();
+}
+
 function onDatabaseConnect(options) {
   return db.connect(options);
 }
 
-function onDatabaseQuery(name, str) {
-  return db.query(name, str);
+function onDatabaseInfo(id) {
+  return db.getInfo(id);
 }
 
-function onDatabaseDisconnect(name) {
-  return db.disconnect(name);
+function onDatabaseQuery(id, str) {
+  return db.query(id, str);
+}
+
+function onDatabaseDisconnect(id) {
+  return db.disconnect(id);
 }
 
 /**
@@ -926,7 +935,8 @@ function onShareAction(action) {
 
   return bluebird.all(_.map(names, function (name) {
     if (name !== senderName) {
-      return browserWindows.send(name, 'sharedAction', action);
+      return browserWindows.send(name, 'sharedAction', action)
+        .catch(_.noop); // we don't care about failure
     }
   }));
 }
@@ -945,6 +955,7 @@ function attachIpcMainEvents() {
     onCreateKernelInstance,
     onCreateWindow,
     onDatabaseConnect,
+    onDatabaseInfo,
     onDatabaseQuery,
     onDatabaseDisconnect,
     onEval,
@@ -975,6 +986,7 @@ function attachIpcMainEvents() {
     onShareAction,
     onStartWatchingFiles,
     onStopWatchingFiles,
+    onSurveyTabs,
     onQuitAndInstall,
     onOpenExternal,
     onOpenTerminal,

@@ -3,6 +3,7 @@ import React from 'react';
 import {connect} from 'react-redux';
 import TabbedPane from '../../components/tabs/tabbed-pane.js';
 import TabbedPaneItem from '../../components/tabs/tabbed-pane-item.js';
+import DatabaseViewer from '../database-viewer/database-viewer';
 import SearchTextBox from '../../components/search-text-box/search-text-box.jsx';
 import HistoryViewer from '../../components/history-viewer/history-viewer.jsx';
 import PlotViewer from '../plot-viewer/plot-viewer.jsx';
@@ -147,7 +148,18 @@ export default connect(null, mapDispatchToProps)(React.createClass({
       state = this.state,
       filter = state.searchFilter,
       types = {
+        'database-viewer': tab => (
+          <DatabaseViewer
+            filter={filter}
+            groupId={props.groupId}
+            id={tab.id}
+            {...tab.content}
+          />
+        ),
         'history-viewer': tab => <HistoryViewer filter={filter} {...tab.content}/>,
+        'file-viewer': tab => <FileViewer filter={filter} {...tab.content}/>,
+        'package-search-viewer': tab => <PackageSearchViewer filter={filter} {...tab.content}/>,
+        'package-viewer': tab => <PackageViewer filter={filter} {...tab.content}/>,
         'plot-viewer': tab => (
           <PlotViewer
             onFocusPlot={_.partial(props.onFocusPlot, tab.id)}
@@ -156,15 +168,12 @@ export default connect(null, mapDispatchToProps)(React.createClass({
             {...tab.content}
           />
         ),
-        'file-viewer': tab => <FileViewer filter={filter} {...tab.content}/>,
         'variable-viewer': tab => (
           <VariableViewer filter={filter} onShowDataFrame={props.onShowDataFrame} visible={tab.id === props.active} {...tab.content}/>
         ),
         'variable-table-viewer': tab => (
           <VariableTableViewer filter={filter} visible={tab.id === props.active} {...tab.content}/>
-        ),
-        'package-viewer': tab => <PackageViewer filter={filter} {...tab.content}/>,
-        'package-search-viewer': tab => <PackageSearchViewer filter={filter} {...tab.content}/>
+        )
       };
     let popoutButton;
 
@@ -191,7 +200,11 @@ export default connect(null, mapDispatchToProps)(React.createClass({
         <li className="right">
           <SearchTextBox onChange={searchFilter => this.setState({searchFilter})}/>
         </li>
-        {props.tabs.map(tab => <TabbedPaneItem filter={filter} key={tab.id} {...tab}>{types[tab.contentType](tab)}</TabbedPaneItem>)}
+        {props.tabs.map(tab => (
+          <TabbedPaneItem filter={filter} key={tab.id} {...tab}>
+            {_.isFunction(types[tab.contentType]) ? types[tab.contentType](tab) : `Not a known tab type: ${tab.contentType}`}
+          </TabbedPaneItem>
+        ))}
       </TabbedPane>
     );
   }

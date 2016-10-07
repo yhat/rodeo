@@ -1,9 +1,5 @@
 import _ from 'lodash';
 import React from 'react';
-import ReactDOM from 'react-dom';
-import 'fixed-data-table-2/dist/fixed-data-table.min.css';
-import globalObserver from '../../services/global-observer';
-import './variable-viewer.css';
 import commonReact from '../../services/common-react';
 import EmptySuggestion from '../empty/empty-suggestion';
 import VariableTable from './variable-table.jsx';
@@ -22,32 +18,19 @@ export default React.createClass({
     variables: React.PropTypes.object,
     visible: React.PropTypes.bool.isRequired
   },
-  getInitialState: function () {
-    return {
-      height: 30,
-      rowHeight: 30,
-      width: 100 * 3,
-      columnWidths: {
-        name: 150,
-        type: 150,
-        value: 150
-      }
-    };
-  },
   shouldComponentUpdate: function (nextProps, nextState) {
     return commonReact.shouldComponentUpdate(this, nextProps, nextState);
   },
   render: function () {
-    const props = this.props,
-      className = commonReact.getClassNameList(this),
-      content = [];
+    const props = this.props;
+    let content;
 
     if (props.variables && _.some(props.variables, variable => variable.length > 0)) {
-      content.push(<VariableTable {...props} />);
+      content = <VariableTable {...props} />;
     } else {
-      content.push(<EmptySuggestion label="Assign a variable."/>);
+      content = <EmptySuggestion label="Assign a variable."/>;
     }
 
-    return <div className={className.join(' ')}>{content}</div>;
+    return content;
   }
 });

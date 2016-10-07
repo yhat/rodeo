@@ -274,12 +274,12 @@ function send(windowName, eventName) {
           log('info', 'ipc ' + eventId + ': will never complete because target window is gone', eventName);
           inboundEmitter.removeListener(eventReplyName, response);
           clearInterval(timer);
+          reject(new Error('Target window ' + windowName + ' is gone'));
         } else {
           log('warn', 'ipc ' + eventId + ': still waiting for', eventName);
         }
       }, 1000);
 
-    log('info', 'sending', [eventName, eventId].concat(args));
     outboundEmitter.send.apply(outboundEmitter, [eventName, eventId].concat(args));
     response = function (event, id) {
       let result, endTime;
@@ -291,10 +291,10 @@ function send(windowName, eventName) {
         endTime = (new Date().getTime() - startTime);
 
         if (result[0]) {
-          log('error', 'ipc ' + eventId + ': error', endTime + 'ms', result[0]);
+          log('error', 'ipc ' + eventId + ': error', endTime + 'ms');
           reject(new Error(result[0].message));
         } else {
-          log('info', 'ipc ' + eventId + ': completed', endTime + 'ms', result[1]);
+          log('info', 'ipc ' + eventId + ': completed', endTime + 'ms');
           resolve(result[1]);
         }
       } else {

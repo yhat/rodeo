@@ -1,8 +1,7 @@
+import _ from 'lodash';
 import cid from '../services/cid';
 import Immutable from 'seamless-immutable';
-import {getInitialState as getFileViewerInitialState} from './file-viewer/file-viewer.reducer';
-import {getInitialState as getPlotViewerInitialState} from './plot-viewer/plot-viewer.reducer';
-import {getInitialState as getPackageSearchViewerInitialState} from './package-search-viewer/package-search-viewer.reducer';
+import freeTabTypes from './free-tab-group/tab-types';
 
 function getTerminalTabGroups() {
   const bottomLeftFocusId = cid();
@@ -36,49 +35,17 @@ function getFreeTabGroups() {
       groupId: 'top-right',
       active: topRightFocusId,
       tabs: [
-        {
-          contentType: 'variable-viewer',
-          icon: 'table',
-          label: 'Environment',
-          id: topRightFocusId,
-          content: {}
-        },
-        {
-          contentType: 'history-viewer',
-          icon: 'history',
-          label: 'History',
-          id: cid(),
-          content: {
-            history: []
-          }
-        }
+        _.merge(freeTabTypes.getDefaultTab('variable-viewer'), {id: topRightFocusId}),
+        freeTabTypes.getDefaultTab('history-viewer')
       ]
     },
     {
       groupId: 'bottom-right',
       active: bottomRightFocusId,
       tabs: [
-        {
-          contentType: 'file-viewer',
-          icon: 'file-text-o',
-          label: 'Files',
-          id: bottomRightFocusId,
-          content: getFileViewerInitialState()
-        },
-        {
-          contentType: 'plot-viewer',
-          icon: 'bar-chart',
-          label: 'Plots',
-          id: cid(),
-          content: getPlotViewerInitialState()
-        },
-        {
-          contentType: 'package-search-viewer',
-          icon: 'archive',
-          label: 'Packages',
-          id: cid(),
-          content: getPackageSearchViewerInitialState()
-        }
+        _.merge(freeTabTypes.getDefaultTab('file-viewer'), {id: bottomRightFocusId}),
+        freeTabTypes.getDefaultTab('plot-viewer'),
+        freeTabTypes.getDefaultTab('package-search-viewer')
       ]
     }
   ]);

@@ -59,6 +59,17 @@ function query(id, str) {
   });
 }
 
+function getInfo(id) {
+  return bluebird.try(function () {
+    log('info', 'infoss', {id});
+
+    if (instances[id]) {
+      return types[instances[id].type].getInfo(instances[id].connection);
+    }
+  });
+}
+
 module.exports.connect = connect;
 module.exports.disconnect = disconnect;
+module.exports.getInfo = getInfo;
 module.exports.query = query;

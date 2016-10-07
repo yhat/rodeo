@@ -1,9 +1,11 @@
 import _ from 'lodash';
+import bluebird from 'bluebird';
 import commonTabsActions from '../../services/common-tabs-actions';
 import cid from '../../services/cid';
 import applicationControl from '../../services/application-control';
-import ipc from 'ipc';
+import api from '../../services/api';
 import {local} from '../../services/store';
+const tabGroupName = 'freeTabGroups';
 
 /**
  * Any focus on the tab should redirect the focus to the contents.
@@ -21,6 +23,41 @@ function focusPlot(groupId, tabId, plot) {
 
 function closeTab(groupId, id) {
   return {type: 'CLOSE_TAB', groupId, id};
+}
+
+/**
+ * @param {string} contentType
+ * @param {object} state
+ * @returns {Promise.boolean}
+ */
+function getTabExists(contentType, state) {
+  const groups = state[tabGroupName];
+
+  if (commonTabsActions.isTabContentTypeInGroups(contentType, groups)) {
+    return bluebird.resolve(true);
+  } else {
+    return applicationControl.surveyTabs().then(function (tabSurvey) {
+      return commonTabsActions.isTabContentTypeInWindowList(contentType, tabSurvey, tabGroupName);
+    });
+  }
+}
+
+function guaranteeTab(contentType) {
+  return function (dispatch, getState) {
+    const state = getState();
+
+    return getTabExists(contentType, state).then(function (exists) {
+      if (!exists) {
+        const state = getState(),
+          firstGroup = _.head(state[tabGroupName]),
+          groupId = firstGroup && firstGroup.groupId;
+
+        // If the tab didn't exist before, then it's going to be closeable now so they can
+        // return to their previous good state.
+        dispatch({type: 'ADD_TAB', groupId, tab: {contentType, closeable: true}});
+      }
+    }).catch(error => console.error('LAME', error));
+  };
 }
 
 /**
@@ -101,12 +138,11 @@ function showDataFrame(groupId, item) {
     dispatch({
       type: 'ADD_TAB',
       groupId,
-      id: cid(),
-      closeable: true,
-      content: {item},
-      contentType: 'variable-table-viewer',
-      icon: 'table',
-      label: item.name || 'DataFrame'
+      tab: {
+        content: {item},
+        contentType: 'variable-table-viewer',
+        label: item.name
+      }
     });
   };
 }
@@ -136,46 +172,33 @@ function removePlot(groupId, id, plot) {
   return {type: 'REMOVE_PLOT', groupId, id, plot};
 }
 
+function showSaveDialog(mime, ext, data) {
+  const defaultPath = local.get('workingDirectory') || '~';
+
+  return api.send('saveDialog', {
+    defaultPath,
+    filters: [{name: ext, extensions: [ext]}]
+  }).then(function (filename) {
+    if (!_.includes(filename, '.')) {
+      filename += '.' + ext;
+    }
+
+    return api.send('savePlot', data[mime], filename);
+  }).catch(error => console.error(error));
+}
+
 function savePlot(plot) {
   return function () {
+    const data = plot.data;
+
     // copy file somewhere else
-    if (plot.data) {
-      const data = plot.data,
-        defaultPath = local.get('workingDirectory') || '~';
-
+    if (data) {
       if (data['text/html']) {
-        return ipc.send('saveDialog', {
-          defaultPath,
-          filters: [{name: 'html', extensions: ['html']}]
-        }).then(function (filename) {
-          if (!_.includes(filename, '.')) {
-            filename += '.html';
-          }
-
-          return ipc.send('savePlot', data['text/html'], filename);
-        }).catch(error => console.error(error));
+        return showSaveDialog('text/html', 'html', data);
       } else if (data['image/png']) {
-        return ipc.send('saveDialog', {
-          defaultPath,
-          filters: [{name: 'png', extensions: ['png']}]
-        }).then(function (filename) {
-          if (!_.includes(filename, '.')) {
-            filename += '.png';
-          }
-
-          return ipc.send('savePlot', data['image/png'], filename);
-        }).catch(error => console.error(error));
+        return showSaveDialog('image/png', 'png', data);
       } else if (data['image/svg']) {
-        return ipc.send('saveDialog', {
-          defaultPath,
-          filters: [{name: 'svg', extensions: ['svg']}]
-        }).then(function (filename) {
-          if (!_.includes(filename, '.')) {
-            filename += '.svg';
-          }
-
-          return ipc.send('savePlot', data['image/svg'], filename);
-        }).catch(error => console.error(error));
+        return showSaveDialog('image/svg', 'svg', data);
       }
     }
   };
@@ -187,6 +210,7 @@ export default {
   focusPlot,
   focusTab,
   focusFirstTabByType,
+  guaranteeTab,
   moveTab,
   removePlot,
   savePlot,

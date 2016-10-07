@@ -3,24 +3,12 @@ import cid from '../../services/cid';
 import Immutable from 'seamless-immutable';
 import mapReducers from '../../services/map-reducers';
 import commonTabsReducers from '../../services/common-tabs-reducers';
+import databaseViewerReducer from '../database-viewer/database-viewer.reducer';
 import {local} from '../../services/store';
+import tabTypes from './tab-types';
 
 const initialState = Immutable.from([]),
   maxPlots = 50;
-
-function eachTabByAction(state, action, fn) {
-  _.each(state, (group, groupIndex) => {
-    if (action.groupId === group.groupId || action.groupId === undefined) {
-      _.each(group.tabs, (tab, tabIndex) => {
-        if (action.id === tab.id || action.id === undefined) {
-          const cursor = {group, groupIndex, tab, tabIndex};
-
-          fn(cursor);
-        }
-      });
-    }
-  });
-}
 
 /**
  * Focus the tab that has a certain plot in it
@@ -29,7 +17,7 @@ function eachTabByAction(state, action, fn) {
  * @returns {object}
  */
 function focusPlot(state, action) {
-  eachTabByAction(state, action, (cursor) => {
+  commonTabsReducers.eachTabByAction(state, action, (cursor) => {
     if (cursor.tab.contentType === 'plot-viewer') {
       const plots = state[cursor.groupIndex].tabs[cursor.tabIndex].content.plots;
 
@@ -85,7 +73,15 @@ function moveTab(oldState, action) {
  * @returns {Array}
  */
 function add(state, action) {
-  return commonTabsReducers.addItem(state, action, _.omit(action, 'type'));
+  const tab = action.tab && tabTypes.getDefaultTab(action.tab.contentType);
+
+  if (tab) {
+    let item = _.merge(tab, action.tab);
+
+    state = commonTabsReducers.addItem(state, action, item);
+  }
+
+  return state;
 }
 
 /**
@@ -126,7 +122,7 @@ function addPlot(state, action) {
 }
 
 function removePlot(state, action) {
-  eachTabByAction(state, action, (cursor) => {
+  commonTabsReducers.eachTabByAction(state, action, (cursor) => {
     if (cursor.tab.contentType === 'plot-viewer') {
       const plots = state[cursor.groupIndex].tabs[cursor.tabIndex].content.plots,
         plotIndex = _.findIndex(plots, {id: action.plot.id});
@@ -189,7 +185,7 @@ function iopubInputExecuted(state, action) {
   return state;
 }
 
-export default mapReducers({
+export default mapReducers(_.assign({
   CLOSE_TAB: commonTabsReducers.close,
   ADD_TAB: add,
   FOCUS_PLOT: focusPlot,
@@ -199,4 +195,4 @@ export default mapReducers({
   REMOVE_PLOT: removePlot,
   VARIABLES_CHANGED: variablesChanged,
   IOPUB_EXECUTED_INPUT: iopubInputExecuted
-}, initialState);
+}, databaseViewerReducer), initialState);

@@ -1,4 +1,5 @@
 import api from '../services/api';
+import freeTabGroupActions from '../containers/free-tab-group/free-tab-group.actions';
 
 function connect(connectionConfig) {
   return function (dispatch) {
@@ -8,7 +9,7 @@ function connect(connectionConfig) {
         return dispatch({type: 'DATABASE_CONNECTION_CHANGED', id: connectionConfig.id, connected: true});
       })
       .then(function () {
-
+        return dispatch(freeTabGroupActions.guaranteeTab('database-viewer'));
       })
       .catch(function (error) {
         return dispatch({type: 'DATABASE_CONNECTION_ERROR', error});

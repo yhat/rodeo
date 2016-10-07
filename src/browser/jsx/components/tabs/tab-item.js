@@ -1,5 +1,5 @@
 import React from 'react';
-import Closeable from './Closeable';
+import Closeable from './closeable';
 import commonReact from '../../services/common-react';
 import './tab-item.css';
 const activeTabClass = 'active';

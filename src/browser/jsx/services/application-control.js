@@ -4,22 +4,22 @@
  * Sometimes we want to do something _without_ visual indicators
  */
 
-import {send} from 'ipc';
+import api from '../services/api';
 
 function checkForUpdates() {
-  return send('checkForUpdates');
+  return api.send('checkForUpdates');
 }
 
 function toggleDevTools() {
-  return send('toggleDevTools');
+  return api.send('toggleDevTools');
 }
 
 function quitAndInstall() {
-  return send('quitAndInstall');
+  return api.send('quitAndInstall');
 }
 
 function quit() {
-  return send('quitApplication');
+  return api.send('quitApplication');
 }
 
 /**
@@ -30,7 +30,7 @@ function quit() {
 
  */
 function createWindow(name, options) {
-  return send('createWindow', name, options);
+  return api.send('createWindow', name, options);
 }
 
 /**
@@ -40,8 +40,12 @@ function createWindow(name, options) {
 function shareAction(action) {
   // only share action if we're the original creator
   if (!action.senderName) {
-    return send('shareAction', action);
+    return api.send('shareAction', action);
   }
+}
+
+function surveyTabs() {
+  return api.send('surveyTabs');
 }
 
 export default {
@@ -50,5 +54,6 @@ export default {
   shareAction,
   toggleDevTools,
   quitAndInstall,
-  quit
+  quit,
+  surveyTabs
 };

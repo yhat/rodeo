@@ -47,16 +47,16 @@ const ipc = (function () {
         if (isPromise(eventResult)) {
           eventResult.then(function(result) {
             endTime = (new Date().getTime() - startTime);
-            console.log('ipc: completed promise successfully', endTime + 'ms', eventReplyName, eventId, result);
+            console.log('ipc: completed promise successfully', endTime + 'ms', eventReplyName, eventId);
             ipcRenderer.send(eventReplyName, eventId, null, result);
           }).catch(function (error) {
             endTime = (new Date().getTime() - startTime);
-            console.log('ipc: completed promise with error', endTime + 'ms', eventReplyName, eventId, error);
+            console.log('ipc: completed promise with error', endTime + 'ms', eventReplyName, eventId);
             ipcRenderer.send(eventReplyName, eventId, error);
           });
         } else {
           endTime = (new Date().getTime() - startTime);
-          console.log('ipc: completed', endTime + 'ms', eventName, eventId, eventResult);
+          console.log('ipc: completed', endTime + 'ms', eventName, eventId);
           ipcRenderer.send(eventReplyName, eventId, null, eventResult);
         }
       });
