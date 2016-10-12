@@ -49,22 +49,25 @@ function getDefault() {
 
 /**
  * Update the terminal with the new python options
- * @param {immutable.List} state
+ * @param {Array} state
  * @param {object} action
- * @returns {[TerminalState]}
+ * @returns {Array}
  */
 function updateAllTerminalsWithKernel(state, action) {
-  _.each(state, (group, groupIndex) => {
-    _.each(group.tabs, (tab, tabIndex) => {
-      state = state.updateIn([groupIndex, 'tabs', tabIndex, 'content'], content => {
-        return content.merge(action.pythonOptions);
-      });
+  commonTabsReducers.eachTabByActionAndContentType(state, action, 'terminal', (tab, cursor) => {
+    state = state.updateIn([cursor.groupIndex, 'tabs', cursor.tabIndex, 'content'], content => {
+      return content.merge(action.pythonOptions);
     });
   });
 
   return state;
 }
 
+/**
+ * @param {Array} state
+ * @param {object} action
+ * @returns {Array}
+ */
 function changePreference(state, action) {
   switch (action.key) {
     case 'fontSize': return commonTabsReducers.changeProperty(state, 'fontSize', action.value, _.toNumber);
@@ -74,19 +77,16 @@ function changePreference(state, action) {
   }
 }
 
+/**
+ * @param {Array} state
+ * @param {object} action
+ * @returns {Array}
+ */
 function workingDirectoryChanged(state, action) {
-  _.each(state, (group, groupIndex) => {
-    _.each(group.tabs, (tab, tabIndex) => {
-      if (action.cwd && tab.contentType === 'terminal') {
-        state = state.updateIn([groupIndex, 'tabs', tabIndex], tab => {
-
-          tab = tab.setIn(['content', 'cwd'], action.cwd);
-
-
-          return tab;
-        });
-      }
-    });
+  commonTabsReducers.eachTabByActionAndContentType(state, action, 'terminal', (tab, cursor) => {
+    if (action.cwd) {
+      state = state.setIn([cursor.groupIndex, 'tabs', cursor.tabIndex, 'content', 'cwd'], action.cwd);
+    }
   });
 
   return state;

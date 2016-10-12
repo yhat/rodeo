@@ -6,7 +6,7 @@ import mapReducers from '../../services/map-reducers';
 import {local} from '../../services/store';
 import initialStory from 'raw!./initial-story.py';
 import commonTabsReducers from '../../services/common-tabs-reducers';
-import knownFileTypes from './known-file-types.yml';
+import knownFileTypes from './known-file-types';
 
 const initialState = getFirst();
 
@@ -21,22 +21,36 @@ function getFirst() {
 }
 
 function getDefault() {
-  return {
+  const item = {
     label: 'New File',
     contentType: 'ace-pane',
     id: cid(),
-    icon: 'file-code-o',
     closeable: true,
     content: {
       fontSize: _.toNumber(local.get('fontSize')) || 12,
       highlightLine: true,
       keyBindings: local.get('aceKeyBindings') || 'default',
-      mode: 'python',
       tabSize: _.toNumber(local.get('aceTabSpaces')) || 4,
       theme: local.get('aceTheme') || 'chrome',
       useSoftTabs: local.get('aceUseSoftTabs') || true
     }
   };
+
+  knownFileTypes.applyByFilename(item, '');
+
+  return item;
+}
+
+/**
+ * @param {object} item
+ * @returns {object}
+ */
+function applyLabel(item) {
+  const parts = path.parse(item.content.filename || '');
+
+  item.label = parts.base;
+
+  return item;
 }
 
 /**
@@ -48,16 +62,10 @@ function add(state, action) {
   const newItem = getDefault();
 
   if (action.filename) {
-    const parts = path.parse(action.filename),
-      ext = parts.ext,
-      knownFileType = _.find(knownFileTypes, {ext});
-
     newItem.content.filename = action.filename;
-    newItem.label = parts.base;
 
-    if (knownFileType) {
-      newItem.content.mode = knownFileType.mode;
-    }
+    applyLabel(newItem);
+    knownFileTypes.applyByFilename(newItem, action.filename);
 
     if (action.stats) {
       newItem.content.stats = action.stats;
@@ -184,7 +192,13 @@ function modeChanged(state, action) {
       const tabIndex = groupIndex > -1 && _.findIndex(state[groupIndex].tabs, {id});
 
       if (tabIndex > -1) {
-        state = state.setIn([groupIndex, 'tabs', tabIndex, 'content', 'mode'], action.value);
+        state = state.updateIn([groupIndex, 'tabs', tabIndex], item => {
+          item = item.asMutable({deep: true});
+
+          item = knownFileTypes.applyByMode(item, action.value);
+
+          return Immutable(item);
+        });
       }
     }
   }

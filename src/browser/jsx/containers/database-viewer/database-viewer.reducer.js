@@ -5,10 +5,8 @@ function refreshed(state, action) {
   const info = action.info;
 
   if (info && info.items) {
-    commonTabsReducers.eachTabByAction(state, action, cursor => {
-      if (cursor.tab.contentType === 'database-viewer') {
-        state = state.updateIn([cursor.groupIndex, 'tabs', cursor.tabIndex, 'content'], obj => obj.set('items', info.items));
-      }
+    commonTabsReducers.eachTabByActionAndContentType(state, action, 'database-viewer', (tab, cursor) => {
+      state = state.updateIn([cursor.groupIndex, 'tabs', cursor.tabIndex, 'content'], obj => obj.set('items', info.items));
     });
   }
 
@@ -16,16 +14,14 @@ function refreshed(state, action) {
 }
 
 function itemExpanded(state, action) {
-  commonTabsReducers.eachTabByAction(state, action, cursor => {
-    if (cursor.tab.contentType === 'database-viewer') {
-      const indexPath = action.itemPath && commonTabsReducers.convertItemPathToIndexPath(cursor.tab.content.items, action.itemPath);
+  commonTabsReducers.eachTabByActionAndContentType(state, action, 'database-viewer', (tab, cursor) => {
+    const indexPath = action.itemPath && commonTabsReducers.convertItemPathToIndexPath(tab.content.items, action.itemPath);
 
-      if (indexPath) {
-        indexPath.unshift('items');
-        state = state.updateIn([cursor.groupIndex, 'tabs', cursor.tabIndex, 'content'].concat(indexPath), item => {
-          return item.set('expanded', true);
-        });
-      }
+    if (indexPath) {
+      indexPath.unshift('items');
+      state = state.updateIn([cursor.groupIndex, 'tabs', cursor.tabIndex, 'content'].concat(indexPath), item => {
+        return item.set('expanded', true);
+      });
     }
   });
 
@@ -33,16 +29,14 @@ function itemExpanded(state, action) {
 }
 
 function itemContracted(state, action) {
-  commonTabsReducers.eachTabByAction(state, action, cursor => {
-    if (cursor.tab.contentType === 'database-viewer') {
-      const indexPath = action.itemPath && commonTabsReducers.convertItemPathToIndexPath(cursor.tab.content.items, action.itemPath);
+  commonTabsReducers.eachTabByActionAndContentType(state, action, 'database-viewer', (tab, cursor) => {
+    const indexPath = action.itemPath && commonTabsReducers.convertItemPathToIndexPath(tab.content.items, action.itemPath);
 
-      if (indexPath) {
-        indexPath.unshift('items');
-        state = state.updateIn([cursor.groupIndex, 'tabs', cursor.tabIndex, 'content'].concat(indexPath), item => {
-          return item.set('expanded', false);
-        });
-      }
+    if (indexPath) {
+      indexPath.unshift('items');
+      state = state.updateIn([cursor.groupIndex, 'tabs', cursor.tabIndex, 'content'].concat(indexPath), item => {
+        return item.set('expanded', false);
+      });
     }
   });
 

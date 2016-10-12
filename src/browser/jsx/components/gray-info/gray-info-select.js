@@ -41,7 +41,8 @@ export default React.createClass({
       state = this.state,
       className = commonReact.getClassNameList(this),
       len = textUtils.longestLength(_.map(props.options, 'value')),
-      style = {minWidth: len * 10};
+      style = {minWidth: len * 10},
+      selectedOption = _.find(props.options, {value: props.value});
     let content;
 
     if (state.expanded) {
@@ -59,7 +60,7 @@ export default React.createClass({
     } else {
       content = (
         <div className="single-value item">
-          {props.value}
+          {selectedOption.label}
         </div>
       );
     }

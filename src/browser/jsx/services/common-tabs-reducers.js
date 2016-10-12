@@ -136,9 +136,17 @@ function eachTabByAction(state, action, fn) {
         if (action.id === tab.id || action.id === undefined) {
           const cursor = {group, groupIndex, tab, tabIndex};
 
-          fn(cursor);
+          fn(tab, cursor);
         }
       });
+    }
+  });
+}
+
+function eachTabByActionAndContentType(state, action, contentType, fn) {
+  return eachTabByAction(state, action, function (tab, cursor) {
+    if (tab.contentType === contentType) {
+      return fn(tab, cursor);
     }
   });
 }
@@ -171,6 +179,7 @@ export default {
   close,
   closeActive,
   eachTabByAction,
+  eachTabByActionAndContentType,
   focus,
   changeProperty,
   convertItemPathToIndexPath,

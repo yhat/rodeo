@@ -1,0 +1,39 @@
+- name: executeFile
+  bindKey:
+    win: shift-ctrl-Enter
+    mac: Shift-Command-Enter
+
+- name: executeSelection
+  bindKey:
+    win: shift-ctrl-Enter
+    mac: Shift-Command-Enter
+
+- name: interrupt
+  bindKey:
+    win: ctrl-shift-c
+    mac: ctrl-c
+
+- name: indentSelection
+  bindKey:
+    win: ctrl-\]
+    mac: Command-\]
+
+- name: outdentSelection
+  bindKey:
+    win: ctrl-\[|Shift-Tab
+    mac: Command-\[|Shift-Tab
+
+- name: saveFile
+  bindKey:
+    win: ctrl-s
+    mac: Command-s
+
+- name: openPreferences
+  bindKey:
+    win: ctrl-,
+    mac: Command-,
+
+- name: autocomplete
+  bindKey:
+    win: Tab
+    mac: Tab

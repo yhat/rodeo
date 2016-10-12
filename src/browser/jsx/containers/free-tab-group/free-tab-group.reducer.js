@@ -1,34 +1,14 @@
 import _ from 'lodash';
-import cid from '../../services/cid';
 import Immutable from 'seamless-immutable';
 import mapReducers from '../../services/map-reducers';
 import commonTabsReducers from '../../services/common-tabs-reducers';
 import databaseViewerReducer from '../database-viewer/database-viewer.reducer';
+import historyViewerReducer from '../history-viewer/history-viewer.reducer';
+import plotViewerReducer from '../plot-viewer/plot-viewer.reducer';
 import {local} from '../../services/store';
 import tabTypes from './tab-types';
 
-const initialState = Immutable.from([]),
-  maxPlots = 50;
-
-/**
- * Focus the tab that has a certain plot in it
- * @param {object} state
- * @param {object} action
- * @returns {object}
- */
-function focusPlot(state, action) {
-  commonTabsReducers.eachTabByAction(state, action, (cursor) => {
-    if (cursor.tab.contentType === 'plot-viewer') {
-      const plots = state[cursor.groupIndex].tabs[cursor.tabIndex].content.plots;
-
-      if (_.find(plots, {id: action.plot.id})) {
-        state = state.updateIn([cursor.groupIndex, 'tabs', cursor.tabIndex, 'content'], obj => obj.set('active', action.plot.id));
-      }
-    }
-  });
-
-  return state;
-}
+const initialState = Immutable.from([]);
 
 /**
  * Move the tab to a different group
@@ -84,75 +64,10 @@ function add(state, action) {
   return state;
 }
 
-/**
- * Add new plot to _every_ plot viewer
- * @param {Immutable} state
- * @param {object} action
- * @param {object|string} action.data
- * @returns {immutable.List}
- */
-function addPlot(state, action) {
-  _.each(state, (group, groupIndex) => {
-    _.each(group.tabs, (tab, tabIndex) => {
-      if (tab.contentType === 'plot-viewer') {
-        state = state.updateIn([groupIndex, 'tabs', tabIndex, 'content'], obj => {
-          const newPlot = {
-              id: cid(),
-              data: action.data,
-              createdAt: new Date().getTime()
-            },
-            plots = obj.plots.asMutable();
-
-          plots.unshift(newPlot);
-
-          if (plots.length > maxPlots) {
-            plots.pop();
-          }
-
-          obj = obj.set('active', newPlot.id);
-          obj = obj.merge({plots});
-
-          return obj;
-        });
-      }
-    });
-  });
-
-  return state;
-}
-
-function removePlot(state, action) {
-  commonTabsReducers.eachTabByAction(state, action, (cursor) => {
-    if (cursor.tab.contentType === 'plot-viewer') {
-      const plots = state[cursor.groupIndex].tabs[cursor.tabIndex].content.plots,
-        plotIndex = _.findIndex(plots, {id: action.plot.id});
-
-      if (plotIndex > -1) {
-        state = state.updateIn([cursor.groupIndex, 'tabs', cursor.tabIndex, 'content'], content => {
-          const plots = content.plots.asMutable();
-
-          plots.splice(plotIndex, 1);
-
-          return content.merge({plots});
-        });
-      }
-    }
-  });
-
-  return state;
-}
-
 function variablesChanged(state, action) {
-  // put new variables into each environment viewer
-  _.each(state, (group, groupIndex) => {
-    _.each(group.tabs, (tab, tabIndex) => {
-      if (tab.contentType === 'variable-viewer') {
-        state = state.setIn([groupIndex, 'tabs', tabIndex, 'content', 'variables'], action.variables);
-      }
-    });
+  commonTabsReducers.eachTabByActionAndContentType(state, action, 'variable-viewer', (tab, cursor) => {
+    state = state.setIn([cursor.groupIndex, 'tabs', cursor.tabIndex, 'content', 'variables'], action.variables);
   });
-
-  // put new dataframes into each data table
 
   return state;
 }
@@ -163,21 +78,17 @@ function iopubInputExecuted(state, action) {
 
   if (historyMax > 0 && _.isString(action.text) && action.text.trim().length > 0) {
     // put new history into each history viewer
-    _.each(state, (group, groupIndex) => {
-      _.each(group.tabs, (tab, tabIndex) => {
-        if (tab.contentType === 'history-viewer') {
-          state = state.updateIn([groupIndex, 'tabs', tabIndex, 'content'], content => {
-            const history = content.history.asMutable();
+    commonTabsReducers.eachTabByActionAndContentType(state, action, 'history-viewer', (tab, cursor) => {
+      state = state.updateIn([cursor.groupIndex, 'tabs', cursor.tabIndex, 'content'], content => {
+        const history = content.history.asMutable();
 
-            history.push({text: action.text});
+        history.push({text: action.text});
 
-            if (history.length > historyMax) {
-              history.shift();
-            }
-
-            return content.merge({history});
-          });
+        if (history.length > historyMax) {
+          history.shift();
         }
+
+        return content.merge({history});
       });
     });
   }
@@ -186,13 +97,10 @@ function iopubInputExecuted(state, action) {
 }
 
 export default mapReducers(_.assign({
-  CLOSE_TAB: commonTabsReducers.close,
   ADD_TAB: add,
-  FOCUS_PLOT: focusPlot,
+  CLOSE_TAB: commonTabsReducers.close,
   FOCUS_TAB: commonTabsReducers.focus,
+  IOPUB_EXECUTED_INPUT: iopubInputExecuted,
   MOVE_TAB: moveTab,
-  IOPUB_DATA_DISPLAYED: addPlot,
-  REMOVE_PLOT: removePlot,
-  VARIABLES_CHANGED: variablesChanged,
-  IOPUB_EXECUTED_INPUT: iopubInputExecuted
-}, databaseViewerReducer), initialState);
+  VARIABLES_CHANGED: variablesChanged
+}, databaseViewerReducer, historyViewerReducer, plotViewerReducer), initialState);
