@@ -1,0 +1,16 @@
+.terminal-viewer {
+  position: relative;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  align-content: stretch;
+}
+
+.terminal-viewer .block-history {
+  flex-grow: 5;
+}
+
+.terminal-viewer .prompt {
+  flex-grow: 0;
+}

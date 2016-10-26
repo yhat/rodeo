@@ -4,7 +4,6 @@ import ace from 'ace';
 import './ace-pane.css';
 import _ from 'lodash';
 import { send } from 'ipc';
-import aceShortcuts from '../../services/ace-shortcuts';
 import aceSettings from '../../services/ace-settings';
 import commonReact from '../../services/common-react';
 import globalObserver from '../../services/global-observer';

@@ -598,8 +598,6 @@ function showSelectWorkingDirectoryDialog(groupId, id) {
         result = result[0];
       }
 
-      console.log('results!!', {result, groupId, id});
-
       if (_.isString(result)) {
         return dispatch(addInputText(groupId, id, {text: `cd "${result}"`, isCodeIsolated: true}));
       }

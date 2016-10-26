@@ -5,19 +5,21 @@ import TabbedPane from '../../components/tabs/tabbed-pane.js';
 import TabbedPaneItem from '../../components/tabs/tabbed-pane-item.js';
 import DatabaseViewer from '../database-viewer/database-viewer';
 import SearchTextBox from '../../components/search-text-box/search-text-box.jsx';
-import HistoryViewer from '../../components/history-viewer/history-viewer.jsx';
+import HistoryViewer from '../../components/history/history-viewer.jsx';
 import PlotViewer from '../plot-viewer/plot-viewer.jsx';
 import FileViewer from '../file-viewer/file-viewer.jsx';
 import VariableViewer from '../../components/variable-viewer/variable-viewer.jsx';
 import VariableTableViewer from '../variable-table-viewer.jsx';
 import PackageViewer from '../package-viewer/package-viewer.jsx';
 import PackageSearchViewer from '../package-search-viewer/package-search-viewer.jsx';
+import TerminalViewer from '../terminal-viewer/terminal-viewer';
 import ActionestButton from '../../components/actionest/actionest-button';
 import {getParentNodeOf} from '../../services/dom';
 import freeTabActions from './free-tab-group.actions';
+import promptViewerActions from '../prompt-viewer/prompt-viewer.actions';
 import commonReact from '../../services/common-react';
 
-const allowedPopoutTypes = ['plot-viewer'];
+const allowedPopoutTypes = ['plot-viewer', 'terminal-viewer', 'environment'];
 
 function isPopoutAllowed(props) {
   const activeIndex = _.findIndex(props.tabs, {id: props.active});
@@ -41,6 +43,7 @@ function mapDispatchToProps(dispatch, ownProps) {
 
   return {
     onCloseTab: id => dispatch(freeTabActions.closeTab(groupId, id)),
+    onPromptExecute: (id, context) => dispatch(promptViewerActions.execute(groupId, id, context)),
     onFocusTab: id => dispatch(freeTabActions.focusTab(groupId, id)),
     onMoveTab: id => dispatch(freeTabActions.moveTab(groupId, id)),
     onPopActiveTab: () => dispatch(freeTabActions.popActiveTab(groupId)),
@@ -66,7 +69,6 @@ export default connect(null, mapDispatchToProps)(React.createClass({
     tabs: React.PropTypes.array.isRequired
   },
   getInitialState: function () {
-    console.log('FreeTabGroup', 'getInitialState');
     return {searchFilter: ''};
   },
   shouldComponentUpdate: function (nextProps, nextState) {
@@ -168,8 +170,21 @@ export default connect(null, mapDispatchToProps)(React.createClass({
             {...tab.content}
           />
         ),
+        'terminal-viewer': tab => (
+          <TerminalViewer
+            filter={filter}
+            onExecute={_.partial(props.onPromptExecute, tab.id)}
+            visible={tab.id === props.active}
+            {...tab.content}
+          />
+        ),
         'variable-viewer': tab => (
-          <VariableViewer filter={filter} onShowDataFrame={props.onShowDataFrame} visible={tab.id === props.active} {...tab.content}/>
+          <VariableViewer
+            filter={filter}
+            onShowDataFrame={props.onShowDataFrame}
+            visible={tab.id === props.active}
+            {...tab.content}
+          />
         ),
         'variable-table-viewer': tab => (
           <VariableTableViewer filter={filter} visible={tab.id === props.active} {...tab.content}/>

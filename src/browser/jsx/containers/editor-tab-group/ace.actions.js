@@ -120,8 +120,7 @@ function outdentSelection(groupId, id, editor) {
 function executeText(editor, text, mode) {
   return function (dispatch, getState) {
     const hasText = _.trim(text) !== '',
-      state = getState(),
-      groupId
+      state = getState();
 
     if (hasText) {
       if (_.includes(pythonTypes, mode)) {

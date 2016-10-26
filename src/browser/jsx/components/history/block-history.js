@@ -1,16 +1,12 @@
 import _ from 'lodash';
 import React from 'react';
 import commonReact from '../../services/common-react';
-import './enhanced-history.css';
-import EnhancedHistoryBlock from './enhanced-history-block';
+import './block-history.css';
+import TextStreamBlock from './history-blocks/text-stream-block';
 import EmptySuggestion from '../empty/empty-suggestion';
 
-/**
- * @class PackagesViewer
- * @extends ReactComponent
- */
 export default React.createClass({
-  displayName: 'EnhancedHistory',
+  displayName: 'BlockHistory',
   propTypes: {
     blocks: React.PropTypes.array.isRequired
   },
@@ -23,7 +19,7 @@ export default React.createClass({
     let contents = [];
 
     if (props.blocks && props.blocks.length) {
-      contents = _.map(props.blocks, block => <EnhancedHistoryBlock key={block.id} {...props} {...block}/>);
+      contents = _.map(props.blocks, block => <TextStreamBlock key={block.id} {...props} {...block}/>);
     } else {
       contents.push(<EmptySuggestion label="Run a command."/>);
     }

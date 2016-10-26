@@ -63,6 +63,12 @@ const defaultTabTypes = {
       plots: []
     }
   }),
+  'terminal-viewer': () => ({
+    icon: 'terminal',
+    label: 'Terminal',
+    id: cid(),
+    content: {}
+  }),
   'variable-table-viewer': () => ({
     icon: 'table',
     label: 'DataFrame',
@@ -79,16 +85,12 @@ const defaultTabTypes = {
 };
 
 function getDefaultTab(contentType) {
-  console.log('getDefaultTab1', contentType);
-
   let tab = defaultTabTypes[contentType];
 
   if (_.isFunction(tab)) {
     tab = tab();
     tab.contentType = contentType;
   }
-
-  console.log('getDefaultTab2', contentType, tab);
 
   return tab;
 }

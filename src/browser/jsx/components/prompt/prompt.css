@@ -1,0 +1,34 @@
+.prompt {
+  color: #999;
+  display: block;
+  white-space: pre-wrap;
+  overflow: auto;
+  background-color: #fff;
+  font-family: monospace;
+  font-size: 12px;
+}
+
+.prompt--prompt,
+.prompt--continue {
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  -o-user-select: none;
+  user-select: none;
+}
+
+.prompt-cursor {
+  background-color: #666;
+  color: transparent;
+  display: inline;
+  position: absolute;
+  z-index: 0;
+}
+
+.prompt.focused {
+  color: #333;
+}
+
+.prompt.focused .prompt-cursor {
+  background-color: #ccc;
+}

@@ -113,10 +113,17 @@ function detectKernelVariables() {
   };
 }
 
+function execute(text) {
+  return function () {
+    return client.execute(text);
+  };
+}
+
 export default {
   askForPythonOptions,
   detectKernel,
   detectKernelVariables,
+  execute,
   isBusy,
   isIdle,
   interrupt,

@@ -5,8 +5,8 @@
  * @param {object} block
  * @returns {object}
  */
-function addExecutionBlock(groupId, id, block) {
-  return {type: 'EXECUTION_BLOCK_ADDED', groupId, id, block};
+function addHistoryBlock(groupId, id, block) {
+  return {type: 'HISTORY_VIEWER_BLOCK_ADDED', groupId, id, block};
 }
 
 /**
@@ -17,16 +17,16 @@ function addExecutionBlock(groupId, id, block) {
  * @param {object} item
  * @returns {object}
  */
-function addExecutionBlockItem(groupId, id, blockId, item) {
-  return {type: 'EXECUTION_BLOCK_ITEM_ADDED', groupId, id, blockId, item};
+function addHistoryBlockItem(groupId, id, blockId, item) {
+  return {type: 'HISTORY_VIEWER_BLOCK_ITEM_ADDED', groupId, id, blockId, item};
 }
 
-function removeExecutionBlock(groupId, id, blockId) {
+function removeHistoryBlock(groupId, id, blockId) {
   return {type: 'EXECUTION_BLOCK_REMOVED', groupId, id, blockId};
 }
 
 export default {
-  addExecutionBlock,
-  addExecutionBlockItem,
-  removeExecutionBlock
+  addHistoryBlock,
+  addHistoryBlockItem,
+  removeHistoryBlock
 };

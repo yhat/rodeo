@@ -7,7 +7,7 @@ import commonTabsReducers from '../../services/common-tabs-reducers';
  * @param {object} action
  * @returns {Array}
  */
-function executionBlockAdded(state, action) {
+function blockAdded(state, action) {
   commonTabsReducers.eachTabByActionAndContentType(state, action, 'history-viewer', (tab, cursor) => {
     state = state.updateIn([cursor.groupIndex, 'tabs', cursor.tabIndex, 'content'], content => {
       const block = action.block,
@@ -31,7 +31,7 @@ function executionBlockAdded(state, action) {
  * @param {object} action
  * @returns {Array}
  */
-function executionBlockItemAdded(state, action) {
+function blockItemAdded(state, action) {
   commonTabsReducers.eachTabByActionAndContentType(state, action, 'history-viewer', (tab, cursor) => {
     const content = tab.content,
       blockIndex = _.findIndex(content.blocks, {id: action.blockId});
@@ -46,7 +46,7 @@ function executionBlockItemAdded(state, action) {
   return state;
 }
 
-function executionBlockRemoved(state, action) {
+function blockRemoved(state, action) {
   commonTabsReducers.eachTabByActionAndContentType(state, action, 'history-viewer', (tab, cursor) => {
     state = state.updateIn([cursor.groupIndex, 'tabs', cursor.tabIndex, 'content'], content => {
       const blockIndex = _.findIndex(content.blocks, {id: action.block.id});
@@ -67,7 +67,7 @@ function executionBlockRemoved(state, action) {
 }
 
 export default {
-  EXECUTION_BLOCK_ADDED: executionBlockAdded,
-  EXECUTION_BLOCK_ITEM_ADDED: executionBlockItemAdded,
-  EXECUTION_BLOCK_REMOVED: executionBlockRemoved
+  HISTORY_VIEWER_BLOCK_ADDED: blockAdded,
+  HISTORY_VIEWER_BLOCK_ITEM_ADDED: blockItemAdded,
+  HISTORY_VIEWER_BLOCK_REMOVED: blockRemoved
 };

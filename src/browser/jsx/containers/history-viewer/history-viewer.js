@@ -1,7 +1,7 @@
 import {connect} from 'react-redux';
 import React from 'react';
 import commonReact from '../../services/common-react';
-import EnhancedHistory from '../../components/history-viewer/enhanced-history';
+import EnhancedHistory from '../../components/history/block-history';
 import actions from './history-viewer.actions';
 
 function mapDispatchToProps(dispatch, ownProps) {
@@ -14,7 +14,7 @@ function mapDispatchToProps(dispatch, ownProps) {
 }
 
 export default connect(null, mapDispatchToProps)(React.createClass({
-  displayName: 'HistoryViewer2',
+  displayName: 'HistoryViewer',
   shouldComponentUpdate: function (nextProps) {
     return commonReact.shouldComponentUpdate(this, nextProps);
   },
