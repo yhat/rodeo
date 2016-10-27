@@ -2,6 +2,8 @@ import _ from 'lodash';
 import cid from '../../services/cid';
 import kernel from '../../actions/kernel';
 import historyViewerActions from '../history-viewer/history-viewer.actions';
+import jupyterHistory from '../../services/jupyter/history';
+
 
 function execute(groupId, id, context) {
   return function (dispatch) {
@@ -11,28 +13,16 @@ function execute(groupId, id, context) {
     dispatch({type: 'PROMPT_STATE_CHANGED', groupId, id, state: 'paused'});
     return dispatch(kernel.execute(text)).then(function (executionDetails) {
       const request = executionDetails.request,
-        response = executionDetails.response;
+        response = executionDetails.response,
+        responseMsgId = _.get(response, 'result.parent_header.msg_id'),
+        type = 'jupyterResponse',
+        items = _.filter(
+          _.map(request.unmatchedResponses, jupyterHistory.responseToHistoryBlockItem),
+          item => !!item && !!item.type
+        );
 
       console.log('YAY!', executionDetails);
-      dispatch(historyViewerActions.addHistoryBlock(groupId, id, {
-        id: cid(),
-        responseMsgId: _.get(response, 'result.parent_header.msg_id'),
-        type: 'jupyterResponse',
-        items: _.filter(_.map(request.unmatchedResponses, response => {
-          const id = cid();
-          let buffer = _.get(response, 'result.content');
-
-          if (_.isObject(buffer)) {
-            buffer = JSON.stringify(buffer);
-
-            return {
-              id: cid(),
-              chunks: [{id, buffer}],
-              type: 'textStream'
-            };
-          }
-        }), item => !!item && !!item.type)
-      }));
+      dispatch(historyViewerActions.addHistoryBlock(groupId, id, {id: cid(), responseMsgId, type, items}));
       return dispatch({type: 'PROMPT_STATE_CHANGED', groupId, id, state: 'prompt'});
     }).catch(function (error) {
       console.error(error);
