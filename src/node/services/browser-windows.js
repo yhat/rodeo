@@ -297,8 +297,6 @@ function send(windowName, eventName) {
           log('info', 'ipc ' + eventId + ': completed', endTime + 'ms');
           resolve(result[1]);
         }
-      } else {
-        log('info', 'ipc ' + eventId + ':', eventName, id, 'is not for us.');
       }
     };
     log('info', 'ipc ' + eventId + ': waiting for', eventName, 'on', eventReplyName);

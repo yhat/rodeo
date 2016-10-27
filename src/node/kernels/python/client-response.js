@@ -4,12 +4,12 @@ const _ = require('lodash');
 let outputMap = {};
 
 /**
- *
  * @param {JupyterClient} client
  * @param {JupyterClientResponse} response
  */
 function linkRequestToOutput(client, response) {
-  const requestMap = client.requestMap;
+  const requestMap = client.requestMap,
+    request = requestMap[response.id];
 
   if (!_.isString(response.result)) {
     throw new Error('Expected result to be msg_id of a later response');
@@ -19,8 +19,13 @@ function linkRequestToOutput(client, response) {
     throw new Error('Expected id to be a key referring to an earlier request');
   }
 
-  requestMap[response.id].msg_id = response.result;
-  outputMap[response.result] = {id: response.id, msg_id: response.result};
+  if (request.resolveEvent === 'link' && response.source === 'link') {
+    // they have what they wanted; resolve immediately, do not create outputMap item
+    request.deferred.resolve(response.result);
+  } else {
+    request.msg_id = response.result;
+    outputMap[response.result] = {id: response.id, msg_id: response.result};
+  }
 }
 
 /**
@@ -41,7 +46,7 @@ function broadcastKernelStatus(client, message) {
  */
 function resolveRequest(request, result) {
   // execution_count doesn't apply to us
-  request.deferred.resolve(_.omit(result.content, 'engine_info', 'execution_count'));
+  request.deferred.resolve(result.content);
   delete outputMap[request.msg_id];
 }
 
@@ -174,6 +179,8 @@ function resolveEvalResult(client, response) {
  * @param {JupyterClientResponse} response
  */
 function handle(client, response) {
+  client.emit('jupyter', response);
+
   if (isStartComplete(response)) {
     client.emit('ready');
   } else if (isRequestToOutputLink(client, response)) {

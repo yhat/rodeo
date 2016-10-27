@@ -9,9 +9,9 @@
 import _ from 'lodash';
 import bluebird from 'bluebird';
 import {send} from 'ipc';
-import {local, session} from './store';
-import guid from './guid';
-import track from './track';
+import {local, session} from '../store';
+import guid from '../guid';
+import track from '../track';
 
 const pythonOptionsTimeout = 2 * 60 * 1000;
 

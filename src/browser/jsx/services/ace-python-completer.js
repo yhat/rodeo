@@ -1,6 +1,6 @@
 import _ from 'lodash';
 import cid from './cid';
-import client from './client';
+import client from './jupyter/client';
 import textUtil from './text-util';
 import AsciiToHtml from 'ansi-to-html';
 

@@ -1,4 +1,4 @@
-import clientDiscovery from '../services/client-discovery';
+import clientDiscovery from '../services/jupyter/client-discovery';
 import {errorCaught} from './application';
 import registration from '../services/registration';
 

@@ -1,6 +1,6 @@
 import _ from 'lodash';
 import {local} from './store';
-import clientDiscovery from './client-discovery';
+import clientDiscovery from './jupyter/client-discovery';
 import bluebird from 'bluebird';
 import textUtil from './text-util';
 

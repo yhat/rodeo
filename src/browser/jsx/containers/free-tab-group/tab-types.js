@@ -67,7 +67,9 @@ const defaultTabTypes = {
     icon: 'terminal',
     label: 'Terminal',
     id: cid(),
-    content: {}
+    content: {
+      blocks: []
+    }
   }),
   'variable-table-viewer': () => ({
     icon: 'table',

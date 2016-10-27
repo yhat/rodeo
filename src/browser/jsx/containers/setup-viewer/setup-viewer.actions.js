@@ -1,7 +1,7 @@
 import _ from 'lodash';
 import {send} from 'ipc';
 import preferenceActions from '../../actions/preferences';
-import clientDiscovery from '../../services/client-discovery';
+import clientDiscovery from '../../services/jupyter/client-discovery';
 import {local} from '../../services/store';
 import track from '../../services/track';
 

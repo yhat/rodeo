@@ -343,6 +343,12 @@ function subscribeBrowserWindowToEvent(windowName, emitter, eventName, instanceI
  * @param {string} instanceId
  */
 function subscribeWindowToKernelEvents(windowName, client, instanceId) {
+  // all jupyter events
+  subscribeBrowserWindowToEvent(windowName, client, 'jupyter', instanceId);
+  // terminal closed
+  subscribeBrowserWindowToEvent(windowName, client, 'close', instanceId);
+
+  // old events that we need to eventually transfer to the browser-side
   subscribeBrowserWindowToEvent(windowName, client, 'shell', instanceId);
   subscribeBrowserWindowToEvent(windowName, client, 'iopub', instanceId);
   subscribeBrowserWindowToEvent(windowName, client, 'stdin', instanceId);
@@ -638,6 +644,18 @@ function onExecuteWithKernel(options, text) {
 
   return getKernelInstanceById(options.instanceId)
     .then(client => client.execute(text));
+}
+
+/**
+ * @param {object} options
+ * @param {string} options.instanceId
+ * @param {string} text
+ * @returns {Promise}
+ */
+function onInvokeWithKernel(options, params) {
+  log('info', 'onInvokeWithKernel', options, params);
+  return getKernelInstanceById(options.instanceId)
+    .then(client => client.invoke(params));
 }
 
 /**
@@ -976,6 +994,7 @@ function attachIpcMainEvents() {
     onGetStatus,
     onIsComplete,
     onInterrupt,
+    onInvokeWithKernel,
     onKnitHTML,
     onQuitApplication,
     onPDF,

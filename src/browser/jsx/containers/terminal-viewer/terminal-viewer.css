@@ -9,8 +9,10 @@
 
 .terminal-viewer .block-history {
   flex-grow: 5;
+  overflow-y: auto;
 }
 
 .terminal-viewer .prompt {
   flex-grow: 0;
+  flex-shrink: 0;
 }

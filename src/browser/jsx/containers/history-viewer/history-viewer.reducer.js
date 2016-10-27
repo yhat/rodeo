@@ -8,14 +8,11 @@ import commonTabsReducers from '../../services/common-tabs-reducers';
  * @returns {Array}
  */
 function blockAdded(state, action) {
-  commonTabsReducers.eachTabByActionAndContentType(state, action, 'history-viewer', (tab, cursor) => {
+  commonTabsReducers.eachTabByActionAndContentType(state, action, 'terminal-viewer', (tab, cursor) => {
     state = state.updateIn([cursor.groupIndex, 'tabs', cursor.tabIndex, 'content'], content => {
-      const block = action.block,
-        blockIndex = _.findIndex(content.blocks, {id: action.block.id});
+      const blockIndex = _.findIndex(content.blocks, {id: action.block.id});
 
       if (blockIndex === -1) {
-        block.items = block.item || [];
-
         content = content.set('blocks', content.blocks.concat([action.block]));
       }
 
@@ -32,7 +29,7 @@ function blockAdded(state, action) {
  * @returns {Array}
  */
 function blockItemAdded(state, action) {
-  commonTabsReducers.eachTabByActionAndContentType(state, action, 'history-viewer', (tab, cursor) => {
+  commonTabsReducers.eachTabByActionAndContentType(state, action, 'terminal-viewer', (tab, cursor) => {
     const content = tab.content,
       blockIndex = _.findIndex(content.blocks, {id: action.blockId});
 
@@ -47,7 +44,7 @@ function blockItemAdded(state, action) {
 }
 
 function blockRemoved(state, action) {
-  commonTabsReducers.eachTabByActionAndContentType(state, action, 'history-viewer', (tab, cursor) => {
+  commonTabsReducers.eachTabByActionAndContentType(state, action, 'terminal-viewer', (tab, cursor) => {
     state = state.updateIn([cursor.groupIndex, 'tabs', cursor.tabIndex, 'content'], content => {
       const blockIndex = _.findIndex(content.blocks, {id: action.block.id});
 

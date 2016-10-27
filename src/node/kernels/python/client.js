@@ -215,6 +215,10 @@ class JupyterClient extends EventEmitter {
     return write(this.childProcess, {method, target, id});
   }
 
+  invoke(params) {
+    return request(this, params, {resolveEvent: 'link'});
+  }
+
   /**
    * @param {string} str
    * @returns {Promise}

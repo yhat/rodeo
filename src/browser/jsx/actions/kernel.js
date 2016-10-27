@@ -4,11 +4,11 @@
  */
 
 import _ from 'lodash';
-import ace from 'ace';
 import { send } from 'ipc';
 import {local} from '../services/store';
-import client from '../services/client';
-import clientDiscovery from '../services/client-discovery';
+import client from '../services/jupyter/client';
+import clientDiscovery from '../services/jupyter/client-discovery';
+import pythonLanguage from '../services/jupyter/python-language';
 import {errorCaught} from './application';
 import track from '../services/track';
 
@@ -113,9 +113,13 @@ function detectKernelVariables() {
   };
 }
 
-function execute(text) {
+/**
+ * @param {string} code
+ * @returns {function}
+ */
+function execute(code) {
   return function () {
-    return client.execute(text);
+    return client.execute(code);
   };
 }
 

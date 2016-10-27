@@ -10,6 +10,7 @@ import terminalTabGroupActions from '../containers/terminal-tab-group/terminal-t
 import freeTabGroupActions from '../containers/free-tab-group/free-tab-group.actions';
 import iopubActions from '../actions/iopub';
 import kernelActions from '../actions/kernel';
+import jupyterResponse from './jupyter/response';
 
 /**
  * These are dispatched from the server, usually from interaction with native menus.
@@ -195,6 +196,11 @@ function otherDispatcher(dispatch) {
   ipc.on('close', function (event, clientId, code, signal) {
     dispatch(terminalTabGroupActions.handleProcessClose(clientId, code, signal));
     console.log('close', clientId, code, signal);
+  });
+
+  ipc.on('jupyter', function (event, clientId, response) {
+    console.log('jupyter', {event, clientId, response});
+    jupyterResponse.handle(dispatch, response);
   });
 
   ipc.on('sharedAction', function (event, action) {

@@ -1,6 +1,6 @@
 import _ from 'lodash';
 import ipc from 'ipc';
-import clientDiscovery from '../../services/client-discovery';
+import clientDiscovery from '../../services/jupyter/client-discovery';
 import preferenceActions from '../../actions/preferences';
 import errors from '../../services/errors';
 /**

@@ -10,7 +10,7 @@ import commonReact from '../../../services/common-react';
 export default React.createClass({
   displayName: 'TextStreamBlock',
   propTypes: {
-    chunks: React.PropTypes.object,
+    chunks: React.PropTypes.array,
     expanded: React.PropTypes.bool,
     previewCount: React.PropTypes.number,
     onBlur: React.PropTypes.func,
@@ -50,35 +50,40 @@ export default React.createClass({
         className.push(chunk.source);
       }
 
-      return <span className={className.join(' ')} key={chunk.id} id={chunk.id}>{chunk.buffer}</span>;
+      return <span className={className.join(' ')} id={chunk.id} key={chunk.id}>{chunk.buffer}</span>;
     }
 
     if (props.expanded) {
       className.push('yhat-text-stream-block--expanded');
       contents = props.chunks.map(getChunk);
     } else {
+      const len = Math.max(chunks.length - previewCount, 0);
+
       contents = [];
-      for (let i = chunks.length - 1; i >= chunks.length - previewCount; i--) {
+      for (let i = chunks.length - 1; i >= len; i--) {
         contents.unshift(getChunk(chunks[i]));
       }
 
-      contents.unshift(<div className="yhat-text-stream-expander" onClick={props.onExpand}>{'(...)'}</div>);
+      if (previewCount < chunks.length) {
+        contents.unshift(<div className="yhat-text-stream-expander" onClick={props.onExpand}>{'(...)'}</div>);
+      }
+
       className.push('yhat-text-stream-block--compressed');
     }
 
     return (
       <div
         className={className.join(' ')}
-        tabIndex={props.tabIndex || 0}
-        onFocus={props.onFocus}
         onBlur={props.onBlur}
-        onKeyPress={props.onKeyPress}
-        onKeyDown={props.onKeyDown}
-        onKeyUp={props.onKeyUp}
-        onPaste={props.onPaste}
+        onClick={props.onClick}
         onCopy={props.onCopy}
         onCut={props.onCut}
-        onClick={props.onClick}
+        onFocus={props.onFocus}
+        onKeyDown={props.onKeyDown}
+        onKeyPress={props.onKeyPress}
+        onKeyUp={props.onKeyUp}
+        onPaste={props.onPaste}
+        tabIndex={props.tabIndex || 0}
       >{contents}</div>
     );
   }

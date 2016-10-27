@@ -1,5 +1,5 @@
 import {local} from '../../services/store';
-import clientDiscovery from '../../services/client-discovery';
+import clientDiscovery from '../../services/jupyter/client-discovery';
 
 export function detectPackages() {
   return function (dispatch) {

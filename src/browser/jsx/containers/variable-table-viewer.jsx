@@ -1,6 +1,6 @@
 import _ from 'lodash';
 import React from 'react';
-import client from '../services/client';
+import client from '../services/jupyter/client';
 import DataFrame from '../components/data-frame/data-frame.jsx';
 import commonReact from '../services/common-react';
 
