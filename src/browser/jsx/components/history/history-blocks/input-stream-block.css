@@ -1,0 +1,40 @@
+.input-stream-block {
+  background-color: #eff1f1;
+  margin: 10px;
+  border-radius: 5px;
+  padding: 6px;
+  padding-top: 17px;
+  border: 1px solid #ddd;
+  box-shadow: 1px 2px 3px #999;
+  color: #333;
+  position: relative;
+}
+
+.input-stream-block--compressed {
+  max-height: 45px;
+  overflow: hidden;
+}
+
+.input-stream-block > header {
+  font-size: 10px;
+  font-weight: bold;
+  position: absolute;
+  top: 2px;
+  left: 4px;
+  color: #aaa;
+  text-transform: lowercase;
+}
+
+.input-stream-block__menu {
+  font-size: 10px;
+  font-weight: bold;
+  position: absolute;
+  top: 2px;
+  right: 4px;
+  color: #aaa;
+  text-transform: lowercase;
+}
+
+.input-stream-block__menu .fa {
+  margin-left: 5px;
+}

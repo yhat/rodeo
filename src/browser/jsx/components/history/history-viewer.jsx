@@ -24,9 +24,9 @@ export default React.createClass({
       contents = [];
 
     if (props.history && props.history.length) {
-      contents.push(<HistoryList {...props}/>);
+      contents.push(<HistoryList key="historyList" {...props}/>);
     } else {
-      contents.push(<EmptySuggestion label="Run a command."/>);
+      contents.push(<EmptySuggestion key="suggestion" label="Run a command."/>);
     }
 
     return <div className={className.join(' ')}>{contents}</div>;

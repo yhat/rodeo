@@ -1,24 +1,13 @@
-import {connect} from 'react-redux';
 import React from 'react';
 import commonReact from '../../services/common-react';
-import EnhancedHistory from '../../components/history/block-history';
-import actions from './history-viewer.actions';
+import BlockHistory from '../../components/history/block-history';
 
-function mapDispatchToProps(dispatch, ownProps) {
-  const groupId = ownProps.groupId,
-    id = ownProps.id;
-
-  return {
-    onHistoryViewerExecutionBlockRemoved: blockId => dispatch(actions.removeExecutionBlock(groupId, id, blockId))
-  };
-}
-
-export default connect(null, mapDispatchToProps)(React.createClass({
+export default React.createClass({
   displayName: 'HistoryViewer',
   shouldComponentUpdate: function (nextProps) {
     return commonReact.shouldComponentUpdate(this, nextProps);
   },
   render: function () {
-    return <EnhancedHistory {...this.props} />;
+    return <BlockHistory {...this.props} />;
   }
-}));
+});

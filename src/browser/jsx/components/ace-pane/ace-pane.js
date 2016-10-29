@@ -11,7 +11,7 @@ import globalObserver from '../../services/global-observer';
 export default React.createClass({
   displayName: 'AcePane',
   propTypes: {
-    commands: React.PropTypes.object,
+    commands: React.PropTypes.array,
     disabled: React.PropTypes.bool,
     filename: React.PropTypes.string,
     fontSize: React.PropTypes.number.isRequired,

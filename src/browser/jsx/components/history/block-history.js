@@ -9,7 +9,11 @@ import EmptySuggestion from '../empty/empty-suggestion';
 export default React.createClass({
   displayName: 'BlockHistory',
   propTypes: {
-    blocks: React.PropTypes.array.isRequired
+    blocks: React.PropTypes.array.isRequired,
+    onBlockRemove: React.PropTypes.func.isRequired,
+    onCopyToPrompt: React.PropTypes.func.isRequired,
+    onInstallPythonModule: React.PropTypes.func.isRequired,
+    onReRun: React.PropTypes.func.isRequired
   },
   shouldComponentUpdate: function (nextProps) {
     return commonReact.shouldComponentUpdate(this, nextProps);
@@ -30,14 +34,23 @@ export default React.createClass({
     const props = this.props,
       className = commonReact.getClassNameList(this),
       types = {
-        jupyterResponse: block => <JupyterResponseBlock key={block.id} {...props} {...block}/>
+        jupyterResponse: block => (
+          <JupyterResponseBlock
+            key={block.id}
+            {...block}
+            onCopyToPrompt={_.partial(props.onCopyToPrompt, block.id)}
+            onInstallPythonModule={_.partial(props.onInstallPythonModule, block.id)}
+            onReRun={_.partial(props.onReRun, block.id)}
+            onRemove={_.partial(props.onBlockRemove, block.id)}
+          />
+        )
       };
     let contents = [];
 
     if (props.blocks && props.blocks.length) {
       contents = _.map(props.blocks, block => types[block.type](block));
     } else {
-      contents.push(<EmptySuggestion label="Run a command."/>);
+      contents.push(<EmptySuggestion key="empty" label="Run a command."/>);
     }
 
     return <div className={className.join(' ')}>{contents}</div>;

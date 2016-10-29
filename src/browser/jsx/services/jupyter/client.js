@@ -90,6 +90,27 @@ function dropInstance() {
  * @param {boolean} [args.stopOnError]
  * @returns {Promise}
  */
+function invokeExecute(instance, code, args) {
+  const startTime = new Date().getTime();
+
+  args = args || {};
+  return invoke(instance, {
+    method: 'execute',
+    kwargs: _.assign({code}, pythonLanguage.toPythonArgs(args))
+  });
+}
+
+/**
+ * @param {{instanceId: string}} instance
+ * @param {string} code
+ * @param {object} [args={}]
+ * @param {boolean} [args.silent]
+ * @param {boolean} [args.storeHistory]
+ * @param {object} [args.userExpressions]
+ * @param {boolean} [args.allowStdin]
+ * @param {boolean} [args.stopOnError]
+ * @returns {Promise}
+ */
 function execute(instance, code, args) {
   const startTime = new Date().getTime();
 
@@ -110,6 +131,8 @@ function execute(instance, code, args) {
     return result;
   });
 }
+
+
 
 /**
  * Lighter-weight version of execution; new code should use this instead
@@ -243,6 +266,7 @@ export default _.assign({
   execute,
   executeHidden,
   invoke,
+  invokeExecute,
   interrupt,
   getInspection,
   getAutoComplete,

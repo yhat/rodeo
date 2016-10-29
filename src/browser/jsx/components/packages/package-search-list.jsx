@@ -47,7 +47,7 @@ export default React.createClass({
     }
 
     contents.push(
-      <header className="input-group">
+      <header className="input-group" key="header">
         <input className="form-control" onChange={this.handleSearchValueChange} onKeyPress={this.handleSearchKeyPress} ref="search" value={props.searchValue} />
         <span className="button-shift">
           {searchButton}
@@ -56,20 +56,20 @@ export default React.createClass({
     );
 
     if (props.searching) {
-      contents.push(<div className="suggestion"><span>{'Searching'}</span></div>);
+      contents.push(<div className="suggestion" key="suggestion"><span>{'Searching'}</span></div>);
     } else if (props.packages) {
       const list = _.filter(props.packages, item => !props.filter || item.name.indexOf(props.filter) > -1);
 
       if (props.packages.length === 0) {
-        contents.push(<div className="suggestion"><span>{'No packages found'}</span></div>);
+        contents.push(<div className="suggestion" key="suggestion"><span>{'No packages found'}</span></div>);
       } else if (list.length === 0) {
-        contents.push(<span>{'Filtered by "' + props.filter + '"'}</span>);
+        contents.push(<span key="filteredBy">{'Filtered by "' + props.filter + '"'}</span>);
       } else {
         if (props.limit) {
-          contents.push(<div className="suggestion">{'Showing ' + props.limit + ' of ' + props.size  + ' found packages'}</div>);
+          contents.push(<div className="suggestion" key="limit">{'Showing ' + props.limit + ' of ' + props.size  + ' found packages'}</div>);
         }
 
-        contents.push(<div>{_.map(list, item => {
+        contents.push(<div key="contents">{_.map(list, item => {
           if (!item.downloads) {
             return <PackageSearchItem {...props} {...item} />;
           } else {
@@ -78,7 +78,7 @@ export default React.createClass({
         })}</div>);
       }
     } else {
-      contents.push(<div className="suggestion"><span>{'Search for a package'}</span></div>);
+      contents.push(<div className="suggestion" key="suggestion"><span>{'Search for a package'}</span></div>);
     }
 
     return <div className={className.join(' ')}>{contents}</div>;

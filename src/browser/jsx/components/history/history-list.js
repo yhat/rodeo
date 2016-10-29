@@ -20,16 +20,11 @@ export default React.createClass({
       className = commonReact.getClassNameList(this),
       history = _.filter(props.history, item => !props.filter || item.text.indexOf(props.filter) > -1);
 
-
     return (
       <div className={className.join(' ')}>
         <table className="table">
           <tbody>
-          {_.map(history, item => <tr key={item.id}>
-            <td>
-              <pre>{item.text}</pre>
-            </td>
-          </tr>)}
+          {_.map(history, (item, index) => <tr key={item.id || index}><td><pre>{item.text}</pre></td></tr>)}
           </tbody>
         </table>
       </div>

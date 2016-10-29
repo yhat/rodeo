@@ -16,7 +16,7 @@ import TerminalViewer from '../terminal-viewer/terminal-viewer';
 import ActionestButton from '../../components/actionest/actionest-button';
 import {getParentNodeOf} from '../../services/dom';
 import freeTabActions from './free-tab-group.actions';
-import promptViewerActions from '../prompt-viewer/prompt-viewer.actions';
+import terminalViewerActions from '../terminal-viewer/terminal-viewer.actions';
 import commonReact from '../../services/common-react';
 
 const allowedPopoutTypes = ['plot-viewer', 'terminal-viewer', 'environment'];
@@ -42,13 +42,17 @@ function mapDispatchToProps(dispatch, ownProps) {
   const groupId = ownProps.groupId;
 
   return {
+    onBlockRemove: (id, blockId) => dispatch(terminalViewerActions.removeHistoryBlock(groupId, id, blockId)),
     onCloseTab: id => dispatch(freeTabActions.closeTab(groupId, id)),
-    onPromptExecute: (id, context) => dispatch(promptViewerActions.execute(groupId, id, context)),
+    onCopyToPrompt: (id, details) => dispatch(terminalViewerActions.copyToPrompt(groupId, id, details)),
+    onPromptExecute: (id, context) => dispatch(terminalViewerActions.execute(groupId, id, context)),
     onFocusTab: id => dispatch(freeTabActions.focusTab(groupId, id)),
     onMoveTab: id => dispatch(freeTabActions.moveTab(groupId, id)),
     onPopActiveTab: () => dispatch(freeTabActions.popActiveTab(groupId)),
+    onInstallPythonModule: (id, moduleName) => dispatch(terminalViewerActions.installPythonModule(groupId, id, moduleName)),
     onShowDataFrame: item => dispatch(freeTabActions.showDataFrame(groupId, item)),
     onFocusPlot: (id, plot) => dispatch(freeTabActions.focusPlot(groupId, id, plot)),
+    onReRunHistoryBlock: (id, blockId) => dispatch(terminalViewerActions.reRunHistoryBlock(groupId, id, blockId)),
     onRemovePlot: (id, plot) => dispatch(freeTabActions.removePlot(groupId, id, plot)),
     onSavePlot: plot => dispatch(freeTabActions.savePlot(plot))
   };
@@ -173,7 +177,11 @@ export default connect(null, mapDispatchToProps)(React.createClass({
         'terminal-viewer': tab => (
           <TerminalViewer
             filter={filter}
+            onBlockRemove={_.partial(props.onBlockRemove, tab.id)}
+            onCopyToPrompt={_.partial(props.onCopyToPrompt, tab.id)}
             onExecute={_.partial(props.onPromptExecute, tab.id)}
+            onInstallPythonModule={_.partial(props.onInstallPythonModule, tab.id)}
+            onReRun={_.partial(props.onReRunHistoryBlock, tab.id)}
             visible={tab.id === props.active}
             {...tab.content}
           />

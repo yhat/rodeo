@@ -43,7 +43,7 @@ export default React.createClass({
       if (props.cursor.row === index) {
         content = [
           line.substr(0, props.cursor.column),
-          <span className="prompt-cursor">&nbsp;</span>,
+          <span className="prompt-cursor" key="promptCursor">&nbsp;</span>,
           line.substr(props.cursor.column)
         ];
       } else {
@@ -51,12 +51,12 @@ export default React.createClass({
       }
 
       if (index === 0) {
-        content.unshift(<span className="prompt--prompt">{props.promptLabel}</span>);
+        content.unshift(<span className="prompt--prompt" key="promptLabel">{props.promptLabel}</span>);
       } else {
-        content.unshift(<span className="prompt--continue">{props.continueLabel}</span>);
+        content.unshift(<span className="prompt--continue" key="promptContinue">{props.continueLabel}</span>);
       }
 
-      return <div className="prompt-line">{content}</div>;
+      return <div className="prompt-line" key={index}>{content}</div>;
     }
 
     return (

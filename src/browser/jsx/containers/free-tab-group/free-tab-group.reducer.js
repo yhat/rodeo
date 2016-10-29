@@ -3,7 +3,7 @@ import Immutable from 'seamless-immutable';
 import mapReducers from '../../services/map-reducers';
 import commonTabsReducers from '../../services/common-tabs-reducers';
 import databaseViewerReducer from '../database-viewer/database-viewer.reducer';
-import historyViewerReducer from '../history-viewer/history-viewer.reducer';
+import terminalViewerReducer from '../terminal-viewer/terminal-viewer.reducer';
 import plotViewerReducer from '../plot-viewer/plot-viewer.reducer';
 import {local} from '../../services/store';
 import tabTypes from './tab-types';
@@ -103,4 +103,4 @@ export default mapReducers(_.assign({
   IOPUB_EXECUTED_INPUT: iopubInputExecuted,
   MOVE_TAB: moveTab,
   VARIABLES_CHANGED: variablesChanged
-}, databaseViewerReducer, historyViewerReducer, plotViewerReducer), initialState);
+}, databaseViewerReducer, terminalViewerReducer, plotViewerReducer), initialState);

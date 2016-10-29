@@ -119,7 +119,7 @@ function detectKernelVariables() {
  */
 function execute(code) {
   return function () {
-    return client.execute(code);
+    return client.invokeExecute(code);
   };
 }
 

@@ -1,9 +1,7 @@
 import _ from 'lodash';
 import React from 'react';
-import {connect} from 'react-redux';
 import Prompt from '../../components/prompt/prompt';
 import commonReact from '../../services/common-react';
-import actions from './prompt-viewer.actions';
 import promptActions from '../../services/prompt-actions';
 
 const keyDownCommands = [

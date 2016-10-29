@@ -29,25 +29,10 @@ function blockAdded(state, action) {
  * @param {object} action
  * @returns {Array}
  */
-function blockItemAdded(state, action) {
-  commonTabsReducers.eachTabByActionAndContentType(state, action, 'terminal-viewer', (tab, cursor) => {
-    const content = tab.content,
-      blockIndex = _.findIndex(content.blocks, {id: action.blockId});
-
-    if (blockIndex > -1) {
-      state = state.updateIn([cursor.groupIndex, 'tabs', cursor.tabIndex, 'content', 'blocks', blockIndex], block => {
-        return block.set('items', block.items.concat([action.item]));
-      });
-    }
-  });
-
-  return state;
-}
-
 function blockRemoved(state, action) {
   commonTabsReducers.eachTabByActionAndContentType(state, action, 'terminal-viewer', (tab, cursor) => {
     state = state.updateIn([cursor.groupIndex, 'tabs', cursor.tabIndex, 'content'], content => {
-      const blockIndex = _.findIndex(content.blocks, {id: action.block.id});
+      const blockIndex = _.findIndex(content.blocks, {id: action.blockId});
 
       if (blockIndex > -1) {
         let blocks = content.blocks.asMutable();
@@ -66,9 +51,9 @@ function blockRemoved(state, action) {
 
 /**
  * If any of the history blocks are jupyterResponse types, then they might need to be updated with new content
- * @param {object} state
+ * @param {Array} state
  * @param {object} action
- * @returns {object}
+ * @returns {Array}
  */
 function jupyterResponseDetected(state, action) {
   commonTabsReducers.eachTabByActionAndContentType(state, action, 'terminal-viewer', (tab, cursor) => {
@@ -77,7 +62,7 @@ function jupyterResponseDetected(state, action) {
 
     if (blockIndex > -1) {
       state = state.updateIn([cursor.groupIndex, 'tabs', cursor.tabIndex, 'content', 'blocks', blockIndex, 'items'], items => {
-        return Immutable(items.concat([jupyterHistory.responseToHistoryBlockItem(action.response)]));
+        return Immutable(jupyterHistory.applyResponse(items, action.response));
       });
     }
   });
@@ -86,8 +71,7 @@ function jupyterResponseDetected(state, action) {
 }
 
 export default {
-  HISTORY_VIEWER_BLOCK_ADDED: blockAdded,
-  HISTORY_VIEWER_BLOCK_ITEM_ADDED: blockItemAdded,
-  HISTORY_VIEWER_BLOCK_REMOVED: blockRemoved,
+  TERMINAL_VIEWER_BLOCK_ADDED: blockAdded,
+  TERMINAL_VIEWER_BLOCK_REMOVED: blockRemoved,
   JUPYTER_RESPONSE: jupyterResponseDetected
 };

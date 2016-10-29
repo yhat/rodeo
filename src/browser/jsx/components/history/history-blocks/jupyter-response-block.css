@@ -1,0 +1,14 @@
+.jupyter-response-block {
+  margin: 15px;
+  border-radius: 5px;
+  padding: 5px;
+  border: 1px solid #ddd;
+  box-shadow: 1px 2px 3px #ccc;
+  position: relative;
+}
+
+.jupyter-response-block__menu {
+  position: absolute;
+  top: 1px;
+  right: 3px;
+}

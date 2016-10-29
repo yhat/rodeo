@@ -180,7 +180,7 @@ function getLineTreeWalker(target) {
     NodeFilter.SHOW_ELEMENT | NodeFilter.SHOW_TEXT,
     {
       acceptNode: function (node) {
-        if (node.classList && node.classList.contains('yhat-prompt-line')) {
+        if (node.classList && node.classList.contains('prompt-line')) {
           return NodeFilter.FILTER_ACCEPT;
         }
       }

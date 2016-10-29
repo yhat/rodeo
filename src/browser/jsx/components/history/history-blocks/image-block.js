@@ -6,14 +6,14 @@
 
 import React from 'react';
 import commonReact from '../../../services/common-react';
-import './text-stream-block.css';
+import './image-block.css';
 
 export default React.createClass({
-  displayName: 'TextStreamBlock',
+  displayName: 'ImageBlock',
   propTypes: {
-    chunks: React.PropTypes.array,
+    alt: React.PropTypes.string,
     expanded: React.PropTypes.bool,
-    previewCount: React.PropTypes.number,
+    href: React.PropTypes.string,
     onBlur: React.PropTypes.func,
     onContract: React.PropTypes.func,
     onFocus: React.PropTypes.func,
@@ -28,7 +28,6 @@ export default React.createClass({
   },
   getDefaultProps: function () {
     return {
-      chunks: [],
       expanded: false
     };
   },
@@ -40,38 +39,17 @@ export default React.createClass({
   render() {
     const props = this.props,
       className = commonReact.getClassNameList(this),
-      chunks = props.chunks,
-      previewCount = props.previewCount || 4,
       menu = [];
-    let contents;
+    let contents = [<img alt={props.alt} src={props.href}/>];
 
     className.push('font-monospaced');
 
-    function getChunk(chunk) {
-      const className = ['text-stream-block-chunk'];
-
-      if (chunk.source) {
-        className.push(chunk.source);
-      }
-
-      return <span className={className.join(' ')} id={chunk.id} key={chunk.id}>{chunk.buffer}</span>;
-    }
-
     if (props.expanded) {
-      className.push('text-stream-block--expanded');
       menu.push(<span className="fa fa-contract" key="contract" onClick={props.onContract}/>);
-      contents = props.chunks.map(getChunk);
+      className.push('image-block--expanded');
     } else {
-      const len = Math.max(chunks.length - previewCount, 0);
-
-      contents = [];
-      for (let i = chunks.length - 1; i >= len; i--) {
-        contents.unshift(getChunk(chunks[i]));
-      }
-
       menu.push(<span className="fa fa-expand" key="expand" onClick={props.onExpand}/>);
-
-      className.push('text-stream-block--compressed');
+      className.push('image-block--compressed');
     }
 
     return (
@@ -87,7 +65,7 @@ export default React.createClass({
         onKeyUp={props.onKeyUp}
         onPaste={props.onPaste}
         tabIndex={props.tabIndex || 0}
-      ><header>{'text'}</header><div className="text-stream-block__menu">{menu}</div>{contents}</div>
+      ><header>{'image'}</header><div className="input-block__menu">{menu}</div>{contents}</div>
     );
   }
 });
