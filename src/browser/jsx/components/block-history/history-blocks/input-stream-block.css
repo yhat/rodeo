@@ -1,5 +1,4 @@
 .input-stream-block {
-  background-color: #eff1f1;
   margin: 10px;
   border-radius: 5px;
   padding: 6px;
@@ -8,11 +7,24 @@
   box-shadow: 1px 2px 3px #999;
   color: #333;
   position: relative;
+  transition: all 0.2s;
+}
+
+.input-stream-block--expanded {
+  overflow: auto;
 }
 
 .input-stream-block--compressed {
-  max-height: 45px;
   overflow: hidden;
+}
+
+.input-stream-block__contents-outer {
+  overflow: hidden;
+  border-top: 1px solid #ccc;
+}
+
+.input-stream-block__contents {
+  white-space: pre-line;
 }
 
 .input-stream-block > header {

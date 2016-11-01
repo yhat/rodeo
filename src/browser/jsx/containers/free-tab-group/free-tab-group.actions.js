@@ -161,7 +161,7 @@ function popActiveTab(groupId) {
       applicationControl.createWindow(windowName, {
         url: 'freeTabsOnlyWindow',
         startActions: [
-          _.assign({type: 'ADD_TAB', groupId: null}, tab)
+          _.assign({type: 'ADD_TAB', groupId: null, tab})
         ]
       });
     }

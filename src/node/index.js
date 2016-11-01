@@ -942,17 +942,17 @@ function onFinishStartup() {
  */
 function onShareAction(action) {
   const names = browserWindows.getWindowNames(),
-    sender = this,
-    senderName = _.find(names, function (name) {
+    senderInstance = this,
+    sender = _.find(names, function (name) {
       const window = browserWindows.getByName(name);
 
-      return window && window.webContents === sender;
+      return window && window.webContents === senderInstance;
     });
 
-  action.senderName = senderName;
+  action.meta = {sender};
 
   return bluebird.all(_.map(names, function (name) {
-    if (name !== senderName) {
+    if (name !== sender) {
       return browserWindows.send(name, 'sharedAction', action)
         .catch(_.noop); // we don't care about failure
     }

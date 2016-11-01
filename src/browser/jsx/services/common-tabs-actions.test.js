@@ -1,6 +1,6 @@
 /* globals describe, it, expect, jest */
 
-jest.mock('./client');
+jest.mock('./jupyter/client');
 
 import Immutable from 'seamless-immutable';
 import lib from './common-tabs-actions';

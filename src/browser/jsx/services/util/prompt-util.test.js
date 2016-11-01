@@ -43,7 +43,7 @@ describe(__filename, function () {
     });
   });
 
-  describe('removeSelectionFromState', function () {
+  describe('removeSelection', function () {
     it('removes from middle of single line', function () {
       const state = {lines: ['abcd'], cursor: {row: 0, column: 0}},
         selection = [{
@@ -55,7 +55,7 @@ describe(__filename, function () {
           selectedCompletely: false
         }];
 
-      expect(lib.removeSelectionFromState(state, selection))
+      expect(lib.removeSelection(state, selection))
         .toEqual({lines: ['ad'], cursor: {row: 0, column: 1}});
     });
 
@@ -70,7 +70,7 @@ describe(__filename, function () {
           selectedCompletely: true
         }];
 
-      expect(lib.removeSelectionFromState(state, selection))
+      expect(lib.removeSelection(state, selection))
         .toEqual({lines: [''], cursor: {row: 0, column: 0}});
     });
 
@@ -99,7 +99,7 @@ describe(__filename, function () {
           selectedCompletely: false
         }];
 
-      expect(lib.removeSelectionFromState(state, selection))
+      expect(lib.removeSelection(state, selection))
         .toEqual({lines: ['abcd', 'abcd'], cursor: {row: 1, column: 0}});
     });
 
@@ -128,7 +128,7 @@ describe(__filename, function () {
           selectedCompletely: false
         }];
 
-      expect(lib.removeSelectionFromState(state, selection))
+      expect(lib.removeSelection(state, selection))
         .toEqual({lines: ['abcd', 'ad', 'abcd'], cursor: {row: 1, column: 1}});
     });
 
@@ -157,7 +157,7 @@ describe(__filename, function () {
           selectedCompletely: true
         }];
 
-      expect(lib.removeSelectionFromState(state, selection))
+      expect(lib.removeSelection(state, selection))
         .toEqual({lines: ['abcd'], cursor: {row: 0, column: 4}});
     });
 
@@ -186,7 +186,7 @@ describe(__filename, function () {
           selectedCompletely: false
         }];
 
-      expect(lib.removeSelectionFromState(state, selection))
+      expect(lib.removeSelection(state, selection))
         .toEqual({lines: ['abcd'], cursor: {row: 0, column: 4}});
     });
   });

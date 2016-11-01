@@ -4,6 +4,7 @@
  * Marked as different sources.  Should support ANSI colors.
  */
 
+import _ from 'lodash';
 import React from 'react';
 import commonReact from '../../../services/common-react';
 import Closeable from '../../tabs/closeable';
@@ -19,7 +20,9 @@ export default React.createClass({
   displayName: 'JupyterResponseBlock',
   propTypes: {
     items: React.PropTypes.array,
-    onCopyToPrompt: React.PropTypes.func.isRequired,
+    onContract: React.PropTypes.func.isRequired,
+    onCopyToPrompt: React.PropTypes.func,
+    onExpand: React.PropTypes.func.isRequired,
     onInstallPythonModule: React.PropTypes.func.isRequired,
     onReRun: React.PropTypes.func.isRequired,
     onRemove: React.PropTypes.func.isRequired
@@ -42,11 +45,35 @@ export default React.createClass({
       types = {
         executionReplyOK: item => <ExecutionReplyOKBlock key={item.id} {...props} {...item}/>,
         executionResult: item => <ExecutionResultBlock key={item.id} {...props} {...item}/>,
-        inputStream: item => <InputStreamBlock key={item.id} {...props} {...item}/>,
-        image: item => <ImageBlock key={item.id} {...props} {...item}/>,
+        inputStream: item => (
+          <InputStreamBlock
+            key={item.id}
+            {...props}
+            {...item}
+            onContract={_.partial(props.onContract, item.id)}
+            onExpand={_.partial(props.onExpand, item.id)}
+          />
+        ),
+        image: item => (
+          <ImageBlock
+            key={item.id}
+            {...props}
+            {...item}
+            onContract={_.partial(props.onContract, item.id)}
+            onExpand={_.partial(props.onExpand, item.id)}
+          />
+        ),
         pythonError: item => <PythonErrorBlock key={item.id} {...props} {...item}/>,
         statusChange: () => null,
-        textStream: item => <TextStreamBlock key={item.id} {...props} {...item}/>
+        textStream: item => (
+          <TextStreamBlock
+            key={item.id}
+            {...props}
+            {...item}
+            onContract={_.partial(props.onContract, item.id)}
+            onExpand={_.partial(props.onExpand, item.id)}
+          />
+        )
       };
 
     return (

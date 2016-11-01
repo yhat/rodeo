@@ -7,6 +7,7 @@ import terminalViewerReducer from '../terminal-viewer/terminal-viewer.reducer';
 import plotViewerReducer from '../plot-viewer/plot-viewer.reducer';
 import {local} from '../../services/store';
 import tabTypes from './tab-types';
+import reduxUtil from '../../services/redux-util';
 
 const initialState = Immutable.from([]);
 
@@ -96,11 +97,13 @@ function iopubInputExecuted(state, action) {
   return state;
 }
 
-export default mapReducers(_.assign({
-  ADD_TAB: add,
-  CLOSE_TAB: commonTabsReducers.close,
-  FOCUS_TAB: commonTabsReducers.focus,
-  IOPUB_EXECUTED_INPUT: iopubInputExecuted,
-  MOVE_TAB: moveTab,
-  VARIABLES_CHANGED: variablesChanged
-}, databaseViewerReducer, terminalViewerReducer, plotViewerReducer), initialState);
+export default reduxUtil.reduceReducers(
+  mapReducers(_.assign({
+    ADD_TAB: add,
+    CLOSE_TAB: commonTabsReducers.close,
+    FOCUS_TAB: commonTabsReducers.focus,
+    IOPUB_EXECUTED_INPUT: iopubInputExecuted,
+    MOVE_TAB: moveTab,
+    VARIABLES_CHANGED: variablesChanged
+  }, databaseViewerReducer, plotViewerReducer), initialState),
+  reduxUtil.tabReducer(terminalViewerReducer));

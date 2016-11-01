@@ -1,11 +1,11 @@
 /* globals describe, it, expect, jest */
 
-jest.mock('./client');
+jest.mock('./jupyter/client');
 
 import _ from 'lodash';
 import bluebird from 'bluebird';
 import lib from './ace-python-completer';
-import client from './client';
+import client from './jupyter/client';
 import textUtil from './text-util';
 
 global.Promise = bluebird;

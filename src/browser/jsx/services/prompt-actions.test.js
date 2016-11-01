@@ -535,6 +535,16 @@ describe(__filename, function () {
         cursor: {row: 0, column: 0}
       });
     });
+
+    it('merges lines when at beginning', function () {
+      expect(lib.removePreviousWord({
+        lines: ['abcd', 'efgh'],
+        cursor: {row: 1, column: 0}
+      })).toEqual({
+        lines: ['abcdefgh'],
+        cursor: {row: 0, column: 8}
+      });
+    });
   });
 
   describe('removeNextWord', function () {

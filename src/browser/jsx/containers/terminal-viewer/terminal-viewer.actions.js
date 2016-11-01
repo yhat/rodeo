@@ -1,6 +1,9 @@
 import _ from 'lodash';
 import cid from '../../services/cid';
 import kernel from '../../actions/kernel';
+import reduxUtil from '../../services/redux-util';
+
+const prefixType = reduxUtil.fromFilenameToPrefix(__filename);
 
 function execute(groupId, id, context) {
   return function (dispatch) {
@@ -24,7 +27,7 @@ function execute(groupId, id, context) {
  * @returns {object}
  */
 function addHistoryBlock(groupId, id, block) {
-  return {type: 'TERMINAL_VIEWER_BLOCK_ADDED', groupId, id, block};
+  return {type: prefixType + 'BLOCK_ADDED', groupId, id, block};
 }
 
 /**
@@ -35,7 +38,7 @@ function addHistoryBlock(groupId, id, block) {
  * @returns {object}
  */
 function removeHistoryBlock(groupId, id, blockId) {
-  return {type: 'TERMINAL_VIEWER_BLOCK_REMOVED', groupId, id, blockId};
+  return {type: prefixType + 'BLOCK_REMOVED', groupId, id, blockId};
 }
 
 function installPythonModule(groupId, id, pythonModuleName) {
@@ -51,38 +54,21 @@ function installPythonModule(groupId, id, pythonModuleName) {
   };
 }
 
-function getHistoryBlock(state, groupId, id, blockId) {
-
+function copyToPrompt(groupId, id, props) {
+  return {type: prefixType + 'COPY_TO_PROMPT', groupId, id, payload: props};
 }
 
-function setPrompt(groupId, id, prompt) {
-  return {type: 'TERMINAL_VIEWER_SET_PROMPT', groupId, id, prompt};
-}
+function reRunHistoryBlock(groupId, id, block) {
+  return function (dispatch) {
+    dispatch({type: prefixType + 'RERUNNING_BLOCK', groupId, id, payload: block});
+    const inputBlock = block && _.find(block.items, {type: 'inputStream'}),
+      lines = inputBlock && inputBlock.lines,
+      text = lines && lines.join('\n');
 
-function copyToPrompt(groupId, id, blockId) {
-  return function (dispatch, getState) {
-    const state = getState(),
-      block = getHistoryBlock(state, groupId, id, blockId),
-      inputBlock = block && _.find(block.items, {type: 'inputStream'}),
-      lines = inputBlock.lines || [''],
-      language = inputBlock.language || 'python';
-
-    if (inputBlock) {
-      dispatch(setPrompt(groupId, id, {lines, language}));
-    }
-  };
-}
-
-function reRunHistoryBlock(groupId, id, blockId) {
-  return function (dispatch, getState) {
-    const state = getState(),
-      block = getHistoryBlock(state, groupId, id, blockId),
-      inputBlock = block && _.find(block.items, {type: 'inputStream'}),
-      lines = inputBlock.lines || [''],
-      language = inputBlock.language || 'python';
-
-    if (inputBlock) {
-      dispatch(execute(groupId, id, {lines, language}));
+    if (text) {
+      return dispatch(kernel.execute(text)).then(function (responseMsgId) {
+        return dispatch({type: prefixType + 'RERAN_BLOCK', groupId, id, payload: {responseMsgId, blockId: block.id}});
+      }).catch(error => console.error(error));
     }
   };
 }

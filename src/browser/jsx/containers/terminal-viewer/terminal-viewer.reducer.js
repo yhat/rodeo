@@ -1,77 +1,45 @@
 import _ from 'lodash';
-import Immutable from 'seamless-immutable';
-import commonTabsReducers from '../../services/common-tabs-reducers';
-import jupyterHistory from '../../services/jupyter/history';
+import mapReducers from '../../services/map-reducers';
+import reduxUtil from '../../services/redux-util';
+import historyViewerReducer from '../history-viewer/history-viewer.reducer';
+import promptViewerReducer from '../prompt-viewer/prompt-viewer.reducer';
 
-/**
- * @param {Array} state
- * @param {object} action
- * @returns {Array}
- */
-function blockAdded(state, action) {
-  commonTabsReducers.eachTabByActionAndContentType(state, action, 'terminal-viewer', (tab, cursor) => {
-    state = state.updateIn([cursor.groupIndex, 'tabs', cursor.tabIndex, 'content'], content => {
-      const blockIndex = _.findIndex(content.blocks, {id: action.block.id});
+const prefix = reduxUtil.fromFilenameToPrefix(__filename);
 
-      if (blockIndex === -1) {
-        content = content.set('blocks', content.blocks.concat([action.block]));
-      }
+function copyToPrompt(state, action) {
+  const payload = action.payload,
+    lines = payload.lines;
 
-      return content;
-    });
+  // put lines
+  return _.assign({}, state, {
+    lines,
+    cursor: {row: lines.length - 1, column: _.last(lines).length},
+    historyIndex: -1
   });
-
-  return state;
 }
 
-/**
- * @param {Array} state
- * @param {object} action
- * @returns {Array}
- */
-function blockRemoved(state, action) {
-  commonTabsReducers.eachTabByActionAndContentType(state, action, 'terminal-viewer', (tab, cursor) => {
-    state = state.updateIn([cursor.groupIndex, 'tabs', cursor.tabIndex, 'content'], content => {
-      const blockIndex = _.findIndex(content.blocks, {id: action.blockId});
+function rerunningBlock(state, action) {
+  // clear the block's items
 
-      if (blockIndex > -1) {
-        let blocks = content.blocks.asMutable();
+  const blockIndex = _.findIndex(state.blocks, {id: action.payload.id}),
+    firstInputStreamIndex = _.findIndex(state.blocks[blockIndex].items, {type: 'inputStream'}),
+    items = _.clone([state.blocks[blockIndex].items[firstInputStreamIndex]]);
 
-        blocks.splice(blockIndex, 1);
-
-        content = content.set('blocks', Immutable(blocks));
-      }
-
-      return content;
-    });
-  });
-
-  return state;
+  return state.setIn(['blocks', blockIndex, 'items'], items);
 }
 
-/**
- * If any of the history blocks are jupyterResponse types, then they might need to be updated with new content
- * @param {Array} state
- * @param {object} action
- * @returns {Array}
- */
-function jupyterResponseDetected(state, action) {
-  commonTabsReducers.eachTabByActionAndContentType(state, action, 'terminal-viewer', (tab, cursor) => {
-    const responseMsgId = _.get(action, 'response.result.parent_header.msg_id'),
-      blockIndex = _.findIndex(tab.content.blocks, {responseMsgId});
+function reranBlock(state, action) {
+  const blockIndex = _.findIndex(state.blocks, {id: action.payload.blockId});
 
-    if (blockIndex > -1) {
-      state = state.updateIn([cursor.groupIndex, 'tabs', cursor.tabIndex, 'content', 'blocks', blockIndex, 'items'], items => {
-        return Immutable(jupyterHistory.applyResponse(items, action.response));
-      });
-    }
-  });
-
-  return state;
+  return state.setIn(['blocks', blockIndex, 'responseMsgId'], action.payload.responseMsgId);
 }
 
-export default {
-  TERMINAL_VIEWER_BLOCK_ADDED: blockAdded,
-  TERMINAL_VIEWER_BLOCK_REMOVED: blockRemoved,
-  JUPYTER_RESPONSE: jupyterResponseDetected
-};
+export default reduxUtil.reduceReducers(
+  mapReducers(reduxUtil.addPrefixToKeys(prefix, {
+    COPY_TO_PROMPT: copyToPrompt,
+    RERUNNING_BLOCK: rerunningBlock,
+    RERAN_BLOCK: reranBlock
+  }), {}),
+  historyViewerReducer,
+  promptViewerReducer
+);

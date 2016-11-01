@@ -27,14 +27,20 @@ function createUnknownContent(blocks, response) {
 }
 
 function createTextStream(blocks, response) {
-  let buffer,
+  let chunks,
     source = _.get(response, 'result.content.name'),
     text = _.get(response, 'result.content.text');
 
   if (text) {
     blocks = _.clone(blocks);
-    buffer = asciiToHtmlConvertor.toHtml(text);
-    blocks = blocks.concat([{id: cid(), chunks: [{id: cid(), buffer, source}], type: 'textStream'}]);
+    chunks = text.split('\n').map((buffer, index, list) => {
+      if (list.length - 1 !== index) {
+        buffer += '\n';
+      }
+
+      return ({id: cid(), buffer, source});
+    });
+    blocks = blocks.concat([{id: cid(), chunks, type: 'textStream'}]);
     blocks = mergeTextStreamBlocks(blocks);
   }
 
@@ -71,10 +77,13 @@ function createStatusChange(blocks, response) {
 
 function createInputStream(blocks, response) {
   const lines = _.get(response, 'result.content.code').split('\n'),
-    executionCount = _.get(response, 'result.content.execution_count');
+    executionCount = _.get(response, 'result.content.execution_count'),
+    oldInput = _.find(blocks, block => block.type === 'inputStream');
 
-  if (lines) {
+  // only add if we don't already have this type; only one allowed
+  if (!oldInput && lines) {
     blocks = _.clone(blocks);
+
     blocks = blocks.concat([{id: cid(), lines, executionCount, type: 'inputStream', language: 'python'}]);
   }
 

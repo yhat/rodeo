@@ -5,6 +5,7 @@
   border: 1px solid #ddd;
   box-shadow: 1px 2px 3px #ccc;
   position: relative;
+  transition: all 0.2s;
 }
 
 .jupyter-response-block__menu {

@@ -68,7 +68,12 @@ const defaultTabTypes = {
     label: 'Terminal',
     id: cid(),
     content: {
-      blocks: []
+      blocks: [],
+      lines: [''],
+      cursor: {row: 0, column: 0},
+      queue: [],
+      state: 'paused', // paused, prompt, busy, input
+      focused: false
     }
   }),
   'variable-table-viewer': () => ({

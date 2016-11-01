@@ -1,174 +1,5 @@
 import _ from 'lodash';
-
-function removeNextCharacter(state) {
-  const lines = _.clone(state.lines),
-    row = state.cursor.row,
-    column = state.cursor.column,
-    line = lines[row];
-
-  lines[row] = line.slice(0, column) + line.slice(column + 1);
-
-  return _.assign({}, state, {lines, cursor: {row, column: column - 1}});
-}
-
-function removePreviousCharacter(state) {
-  const lines = _.clone(state.lines),
-    row = state.cursor.row,
-    column = state.cursor.column,
-    line = lines[row];
-
-  lines[row] = line.slice(0, column - 1) + line.slice(column);
-
-  return _.assign({}, state, {lines, cursor: {row, column: column - 1}});
-}
-
-function mergeLineWithPrevious(state) {
-  const lines = _.clone(state.lines),
-    row = state.cursor.row,
-    line = lines[row];
-
-  // merge lines
-  let newLines = [(lines[row - 1] + line)];
-
-  if (row - 1 > 0) {
-    newLines = lines.slice(0, row - 1).concat(newLines);
-  }
-
-  if (row < lines.length - 1) {
-    newLines = newLines.concat(lines.slice(row + 1));
-  }
-
-  return _.assign({}, state, {lines: newLines, cursor: {row: row - 1, column: newLines[row - 1].length}});
-}
-
-function mergeLineWithNext(state) {
-  const lines = _.clone(state.lines),
-    row = state.cursor.row,
-    line = lines[row];
-
-  // merge lines
-  let newLines = [(lines[row - 1] + line)];
-
-  if (row - 1 > 0) {
-    newLines = lines.slice(0, row - 1).concat(newLines);
-  }
-
-  if (row < lines.length - 1) {
-    newLines = newLines.concat(lines.slice(row + 1));
-  }
-
-  return _.assign({}, state, {lines: newLines, cursor: {row: row - 1, column: newLines[row - 1].length}});
-}
-
-function insertText(state, text) {
-  state = _.clone(state);
-  const textSplit = text.split('\n'),
-    row = state.cursor.row,
-    column = state.cursor.column,
-    line = state.lines[row],
-    lines = state.lines,
-    newLines = _.clone(lines);
-
-  newLines[row] = line.slice(0, column) + textSplit[0] + line.slice(column);
-
-  return _.assign({}, state, {lines: newLines, cursor: {row, column: column + textSplit[0].length}});
-}
-
-function insertMultiLineText(state, text) {
-  state = _.clone(state);
-  const textSplit = text.split('\n'),
-    row = state.cursor.row,
-    column = state.cursor.column,
-    line = state.lines[row],
-    lines = state.lines,
-    before = line.slice(0, column),
-    after = line.slice(column);
-  let newLines = textSplit,
-    lastLineIndex = newLines.length - 1,
-    lastLineRow = textSplit.length - 1,
-    lastLineColumn = newLines[lastLineIndex].length;
-
-  newLines[0] = before + newLines[0];
-  newLines[lastLineIndex] = newLines[lastLineIndex] + after;
-
-  if (row > 0) {
-    lastLineRow += row;
-    newLines = lines.slice(0, row).concat(newLines);
-  }
-
-  if (row < lines.length - 1) {
-    newLines = newLines.concat(lines.slice(row + 1));
-  }
-
-  return _.assign({}, state, {lines: newLines, cursor: {row: lastLineRow, column: lastLineColumn}});
-}
-
-/**
- * End of the line counts as the start of a word.
- * Returns -1 if there are no words left
- *
- * @param {string} line
- * @param {number} [start=0]
- * @param {number} [end=line.length]
- * @returns {number}
- */
-function getNextWordIndex(line, start, end) {
-  start = start || 0;
-  end = line.length || end;
-  let index = line.substring(start, end).search(/\W/);
-
-  if (index === -1) {
-    if (start < end) {
-      return end;
-    }
-
-    return index;
-  } else {
-    // the index is relative to the start, so move forward
-    index += start;
-  }
-
-  do {
-    index += 1;
-  } while (index < end && /\W/.test(line[index]));
-
-  return index;
-}
-
-/**
- * @param {string} line
- * @param {number} [start=0]
- * @returns {number}
- */
-function getPreviousWordIndex(line, start) {
-  start = start || 0;
-  let index = start;
-
-  // if we're already at the start, it's hopeless
-  if (index === 0) {
-    return -1;
-  }
-
-  // if we're already at the beginning of a word, first search for a new word
-  if (/\W/.test(line[index - 1])) {
-    do {
-      index -= 1;
-    } while (index > 0 && /\W/.test(line[index]));
-  }
-
-  // find first whitespace going backward
-  while (index > 0 && /\w/.test(line[index])) {
-    index -= 1;
-  }
-
-  if (index === 0) {
-    // we're at the very beginning
-    return index;
-  }
-
-  // else we hit whitespace, so move forward by one
-  return index + 1;
-}
+import selectionUtil from '../selection-util';
 
 /**
  * @param {Node} target
@@ -256,14 +87,14 @@ function getSelection(event) {
 
     start = start || 0;
     length = length || selectedText.length;
-    lineElements.push({length, node, selected, selectedCompletely, selectedText, start, text});
+    lineElements.push({length, selected, selectedCompletely, selectedText, start, text});
   }
 
   return lineElements;
 }
 
 /**
- * @param {Selection} selection
+ * @param {Array} selection
  * @returns {string}
  */
 function getSelectedText(selection) {
@@ -285,7 +116,7 @@ function getSelectedText(selection) {
  * @param {Selection} selection
  * @returns {object}
  */
-function removeSelectionFromState(state, selection) {
+function removeSelection(state, selection) {
   let row, column,
     lines = _.reduce(selection, (lines, lineInfo, index) => {
       if (!lineInfo.selectedCompletely) {
@@ -325,13 +156,6 @@ function removeSelectionFromState(state, selection) {
 }
 
 /**
- * @param {Selection} selection
- */
-function isSelectionClick(selection) {
-  return selection.anchorOffset === selection.focusOffset && selection.anchorNode === selection.focusNode;
-}
-
-/**
  * @param {MouseEvent} event
  * @returns {{row: number, column: number}}
  */
@@ -341,7 +165,7 @@ function getCursorOfClick(event) {
     treeWalker = getLineTreeWalker(target);
   let row = 0;
 
-  if (isSelectionClick(selection)) {
+  if (selectionUtil.isSelectionClick(selection)) {
     while (treeWalker.nextNode()) {
       const node = treeWalker.currentNode,
         selected = selection.containsNode(node, true);
@@ -372,16 +196,8 @@ function getCursorOfClick(event) {
 
 export default {
   getLineTreeWalker,
-  getNextWordIndex,
-  getPreviousWordIndex,
   getCursorOfClick,
   getSelection,
   getSelectedText,
-  insertMultiLineText,
-  insertText,
-  mergeLineWithNext,
-  mergeLineWithPrevious,
-  removeNextCharacter,
-  removePreviousCharacter,
-  removeSelectionFromState
+  removeSelection
 };

@@ -2,18 +2,20 @@ import _ from 'lodash';
 import React from 'react';
 import ReactDOM from 'react-dom';
 import commonReact from '../../services/common-react';
-import './block-history.css';
-import JupyterResponseBlock from './history-blocks/jupyter-response-block';
+import './terminal-history.css';
+import DocumentHistory from '../../components/document-terminal/document';
+import Prompt from '../prompt/prompt';
 import EmptySuggestion from '../empty/empty-suggestion';
 
 export default React.createClass({
-  displayName: 'BlockHistory',
+  displayName: 'DocumentTerminal',
   propTypes: {
-    blocks: React.PropTypes.array.isRequired,
-    onBlockRemove: React.PropTypes.func.isRequired,
-    onCopyToPrompt: React.PropTypes.func.isRequired,
+    items: React.PropTypes.array.isRequired,
+    onAnnotationFocus: React.PropTypes.func.isRequired,
+    onAnnotationCopy: React.PropTypes.func.isRequired,
     onInstallPythonModule: React.PropTypes.func.isRequired,
-    onReRun: React.PropTypes.func.isRequired
+    onPromptFocus: React.PropTypes.func.isRequired,
+    onPromptCommand: React.PropTypes.func.isRequired
   },
   shouldComponentUpdate: function (nextProps) {
     return commonReact.shouldComponentUpdate(this, nextProps);
@@ -34,13 +36,15 @@ export default React.createClass({
     const props = this.props,
       className = commonReact.getClassNameList(this),
       types = {
-        jupyterResponse: block => (
-          <JupyterResponseBlock
+        line: item => (
+          <Line
             key={block.id}
             {...block}
-            onCopyToPrompt={_.partial(props.onCopyToPrompt, block.id)}
+            onContract={_.partial(props.onContract, block.id)}
+            onCopyToPrompt={props.onCopyToPrompt}
+            onExpand={_.partial(props.onExpand, block.id)}
             onInstallPythonModule={_.partial(props.onInstallPythonModule, block.id)}
-            onReRun={_.partial(props.onReRun, block.id)}
+            onReRun={_.partial(props.onReRun, block)}
             onRemove={_.partial(props.onBlockRemove, block.id)}
           />
         )
@@ -53,7 +57,12 @@ export default React.createClass({
       contents.push(<EmptySuggestion key="empty" label="Run a command."/>);
     }
 
-    return <div className={className.join(' ')}>{contents}</div>;
+    return (
+      <div className={className.join(' ')}>
+        <div>{contents}</div>
+        <Prompt/>
+      </div>
+    );
   }
 });
 /**

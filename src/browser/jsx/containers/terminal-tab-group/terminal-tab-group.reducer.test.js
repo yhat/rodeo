@@ -17,10 +17,10 @@ describe(__filename, () => {
 
   describe('KERNEL_DETECTED', () => {
     it('updates single terminal', () => {
-      const state = Immutable([{groupId: 'a', tabs: [{id: 'b', content: {}}]}]),
+      const state = Immutable([{groupId: 'a', tabs: [{id: 'b', contentType: 'terminal', content: {}}]}]),
         action = {type: 'KERNEL_DETECTED', groupId: 'a', id: 'b', pythonOptions: {c: 'd'}};
 
-      expect(lib(state, action)).toEqual([{groupId: 'a', tabs: [{id: 'b', content: {c: 'd'}}]}]);
+      expect(lib(state, action)).toEqual([{groupId: 'a', tabs: [{id: 'b', contentType: 'terminal', content: {c: 'd'}}]}]);
     });
   });
 

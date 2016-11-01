@@ -199,12 +199,12 @@ function otherDispatcher(dispatch) {
   });
 
   ipc.on('jupyter', function (event, clientId, response) {
-    console.log('jupyter', {event, clientId, response});
     jupyterResponse.handle(dispatch, response);
   });
 
   ipc.on('sharedAction', function (event, action) {
-    if (action.senderName) {
+    // if there is a sender, allow it
+    if (action.meta && action.meta.sender) {
       dispatch(action);
     }
   });

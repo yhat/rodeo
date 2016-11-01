@@ -16,10 +16,12 @@ import TerminalViewer from '../terminal-viewer/terminal-viewer';
 import ActionestButton from '../../components/actionest/actionest-button';
 import {getParentNodeOf} from '../../services/dom';
 import freeTabActions from './free-tab-group.actions';
+import promptViewerActions from '../prompt-viewer/prompt-viewer.actions';
 import terminalViewerActions from '../terminal-viewer/terminal-viewer.actions';
+import historyViewerActions from '../history-viewer/history-viewer.actions';
 import commonReact from '../../services/common-react';
 
-const allowedPopoutTypes = ['plot-viewer', 'terminal-viewer', 'environment'];
+const allowedPopoutTypes = ['plot-viewer', 'terminal-viewer', 'variable-viewer', 'variable-table-viewer', 'history-viewer'];
 
 function isPopoutAllowed(props) {
   const activeIndex = _.findIndex(props.tabs, {id: props.active});
@@ -44,7 +46,10 @@ function mapDispatchToProps(dispatch, ownProps) {
   return {
     onBlockRemove: (id, blockId) => dispatch(terminalViewerActions.removeHistoryBlock(groupId, id, blockId)),
     onCloseTab: id => dispatch(freeTabActions.closeTab(groupId, id)),
-    onCopyToPrompt: (id, details) => dispatch(terminalViewerActions.copyToPrompt(groupId, id, details)),
+    onCopyToPrompt: (id, props) => dispatch(terminalViewerActions.copyToPrompt(groupId, id, props)),
+    onHistoryBlockContract: (id, blockId, itemId) => dispatch(historyViewerActions.createContract(groupId, id, blockId, itemId)),
+    onHistoryBlockExpand: (id, blockId, itemId) => dispatch(historyViewerActions.createExpand(groupId, id, blockId, itemId)),
+    onPromptCommand: (id, command) => dispatch(promptViewerActions.createCommand(groupId, id, command)),
     onPromptExecute: (id, context) => dispatch(terminalViewerActions.execute(groupId, id, context)),
     onFocusTab: id => dispatch(freeTabActions.focusTab(groupId, id)),
     onMoveTab: id => dispatch(freeTabActions.moveTab(groupId, id)),
@@ -178,8 +183,11 @@ export default connect(null, mapDispatchToProps)(React.createClass({
           <TerminalViewer
             filter={filter}
             onBlockRemove={_.partial(props.onBlockRemove, tab.id)}
+            onCommand={_.partial(props.onPromptCommand, tab.id)}
+            onContract={_.partial(props.onHistoryBlockContract, tab.id)}
             onCopyToPrompt={_.partial(props.onCopyToPrompt, tab.id)}
             onExecute={_.partial(props.onPromptExecute, tab.id)}
+            onExpand={_.partial(props.onHistoryBlockExpand, tab.id)}
             onInstallPythonModule={_.partial(props.onInstallPythonModule, tab.id)}
             onReRun={_.partial(props.onReRunHistoryBlock, tab.id)}
             visible={tab.id === props.active}

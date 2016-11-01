@@ -8,11 +8,13 @@ import _ from 'lodash';
 import React from 'react';
 import commonReact from '../../../services/common-react';
 import './input-stream-block.css';
+import ExpandBlockButton from '../expand-block-button';
 
 export default React.createClass({
   displayName: 'InputStreamBlock',
   propTypes: {
     expanded: React.PropTypes.bool,
+    language: React.PropTypes.string,
     lines: React.PropTypes.array,
     onBlur: React.PropTypes.func,
     onClick: React.PropTypes.func,
@@ -26,17 +28,16 @@ export default React.createClass({
     onKeyPress: React.PropTypes.func,
     onKeyUp: React.PropTypes.func,
     onPaste: React.PropTypes.func,
-    onReRun: React.PropTypes.func,
-    previewCount: React.PropTypes.number
+    onReRun: React.PropTypes.func
   },
-  getDefaultProps: function () {
+  getDefaultProps () {
     return {
       chunks: [],
       expanded: false
     };
   },
 
-  shouldComponentUpdate: function (nextProps) {
+  shouldComponentUpdate(nextProps) {
     return commonReact.shouldComponentUpdate(this, nextProps);
   },
 
@@ -44,38 +45,41 @@ export default React.createClass({
     const props = this.props,
       className = commonReact.getClassNameList(this),
       lines = props.lines,
-      previewCount = props.previewCount || 4,
       getLine = (line, index) => <div className="input-stream-block-line" id={index} key={index}>{line}</div>,
-      menu = [
+      menu = [];
+
+    if (props.onCopyToPrompt) {
+      menu.unshift(
         <span
           className="fa fa-arrow-down"
-          onClick={props.onCopyToPrompt}
+          onClick={_.partial(props.onCopyToPrompt, _.clone(props))}
           title="Copy To Prompt"
-        />,
+        />
+      );
+    }
+
+    if (props.onReRun) {
+      menu.unshift(
         <span
           className="fa fa-refresh"
           onClick={props.onReRun}
           title="Re-run"
         />
-      ];
+      );
+    }
+
     let contents;
 
     className.push('font-monospaced');
 
-    if (props.expanded) {
+    if (props.expanded || lines.length < 2) {
       className.push('input-stream-block--expanded');
-      menu.push(<span className="fa fa-contract" key="contract" onClick={props.onContract} title="Contract"/>);
+      menu.push(<span className="fa fa-compress" key="contract" onClick={props.onContract} title="Contract"/>);
       contents = lines.map(getLine);
     } else {
-      const len = Math.max(lines.length - previewCount, 0);
-
-      contents = [];
-      for (let i = lines.length - 1; i >= len; i--) {
-        contents.unshift(getLine(lines[i], i));
-      }
+      contents = _.map(_.takeRight(lines, 2), getLine);
 
       menu.push(<span className="fa fa-expand" key="expand" onClick={props.onExpand} title="Expand"/>);
-
       className.push('input-stream-block--compressed');
     }
 
@@ -92,7 +96,17 @@ export default React.createClass({
         onKeyUp={props.onKeyUp}
         onPaste={props.onPaste}
         tabIndex={props.tabIndex || 0}
-      ><header>{'input'}</header><div className="input-stream-block__menu">{menu}</div>{contents}</section>
+      >
+        <header>{'input'}</header>
+        <div className="input-stream-block__menu">{menu}</div>
+        <div className="input-stream-block__contents-outer">
+          <div className="input-stream-block__contents">{contents}</div>
+        </div>
+        <ExpandBlockButton
+          direction={props.expanded ? 'up' : 'down'}
+          onClick={props.expanded ? props.onContract : props.onExpand}
+        />
+      </section>
     );
   }
 });

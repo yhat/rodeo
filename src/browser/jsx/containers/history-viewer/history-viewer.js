@@ -1,6 +1,6 @@
 import React from 'react';
 import commonReact from '../../services/common-react';
-import BlockHistory from '../../components/history/block-history';
+import BlockHistory from '../../components/block-history/block-history';
 
 export default React.createClass({
   displayName: 'HistoryViewer',

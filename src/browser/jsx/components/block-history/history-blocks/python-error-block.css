@@ -10,6 +10,7 @@
   white-space: pre;
   overflow-x: auto;
   position: relative;
+  transition: all 0.2s;
 }
 
 .python-error-block > header {

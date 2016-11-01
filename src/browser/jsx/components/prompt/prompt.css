@@ -18,17 +18,17 @@
 }
 
 .prompt-cursor {
-  background-color: #666;
+  background-color: #ccc;
   color: transparent;
   display: inline;
   position: absolute;
   z-index: 0;
 }
 
-.prompt.focused {
+.prompt:focus {
   color: #333;
 }
 
-.prompt.focused .prompt-cursor {
-  background-color: #ccc;
+.prompt:focus .prompt-cursor {
+  background-color: #666;
 }

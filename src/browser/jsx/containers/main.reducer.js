@@ -12,7 +12,6 @@ import packageSearch from './package-search-viewer/package-search-viewer.reducer
 import manageConnections from './manage-connections-viewer/manage-connections.reducer';
 
 function broadcast(state, action) {
-  console.log(action.type, action);
   applicationControl.shareAction(action);
 
   if (!state) {

@@ -2,47 +2,19 @@ import _ from 'lodash';
 import React from 'react';
 import Prompt from '../../components/prompt/prompt';
 import commonReact from '../../services/common-react';
-import promptActions from '../../services/prompt-actions';
-
-const keyDownCommands = [
-    {key: 'Meta', fn: _.noop},
-    {key: 'Shift', fn: _.noop},
-    {key: 'Control', fn: _.noop},
-    {key: 'ArrowLeft', alt: false, meta: false, shift: false, ctrl: false, fn: promptActions.moveLeft},
-    {key: 'ArrowRight', alt: false, meta: false, shift: false, ctrl: false, fn: promptActions.moveRight},
-    {key: 'ArrowUp', alt: false, meta: false, shift: false, ctrl: false, fn: promptActions.moveUp},
-    {key: 'ArrowDown', alt: false, meta: false, shift: false, ctrl: false, fn: promptActions.moveDown},
-    {key: 'ArrowLeft', alt: true, meta: false, shift: false, ctrl: false, fn: promptActions.moveToPrecedingWord},
-    {key: 'ArrowRight', alt: true, meta: false, shift: false, ctrl: false, fn: promptActions.moveToFollowingWord},
-    {key: 'ArrowLeft', alt: false, meta: false, shift: false, ctrl: true, fn: promptActions.moveToBeginningLine},
-    {key: 'ArrowRight', alt: false, meta: false, shift: false, ctrl: true, fn: promptActions.moveToEndLine},
-    {key: 'ArrowLeft', alt: false, meta: true, shift: false, ctrl: false, fn: promptActions.moveToBeginningLine},
-    {key: 'ArrowRight', alt: false, meta: true, shift: false, ctrl: false, fn: promptActions.moveToEndLine},
-    {key: 'Backspace', alt: false, meta: false, shift: false, ctrl: false, fn: promptActions.backspace},
-    {key: 'Backspace', alt: false, meta: false, shift: false, ctrl: true, fn: promptActions.removePreviousWord},
-    {key: 'Backspace', alt: false, meta: true, shift: false, ctrl: false, fn: promptActions.removePreviousWord},
-    {key: 'Delete', alt: false, meta: false, shift: false, ctrl: false, fn: promptActions.deleteSpecial},
-    {key: 'Delete', alt: false, meta: false, shift: false, ctrl: true, fn: promptActions.removeNextWord},
-    {key: 'Delete', alt: false, meta: true, shift: false, ctrl: false, fn: promptActions.removeNextWord},
-    {key: 'Enter', alt: false, meta: true, shift: false, ctrl: false, fn: promptActions.breakLine},
-    {key: 'Enter', alt: false, meta: false, shift: true, ctrl: false, fn: promptActions.breakLine},
-    {key: 'c', alt: false, meta: false, shift: false, ctrl: true, fn: promptActions.clear}
-  ],
-  keyPressCommands = [
-    {key: 'Meta', fn: _.noop},
-    {key: 'Shift', fn: _.noop},
-    {key: 'Control', fn: _.noop},
-    {key: 'Enter', alt: false, meta: false, shift: false, ctrl: false, fn: promptActions.execute},
-    {key: 'Backspace', alt: false, meta: false, shift: false, ctrl: false, fn: promptActions.backspace}
-  ];
+import commands from './default-commands.yml';
+import promptUtils from '../../services/util/prompt-util';
 
 export default React.createClass({
   displayName: 'PromptViewer',
   propTypes: {
-    indentWidth: React.PropTypes.number
+    onBlur: React.PropTypes.func,
+    onCommand: React.PropTypes.func.isRequired,
+    onExecute: React.PropTypes.func.isRequired,
+    onFocus: React.PropTypes.func
   },
 
-  getInitialState: function () {
+  getDefaultProps: function () {
     return {
       lines: [''],
       cursor: {row: 0, column: 0},
@@ -52,34 +24,25 @@ export default React.createClass({
     };
   },
 
-  shouldComponentUpdate: function (nextProps, nextState) {
-    return commonReact.shouldComponentUpdate(this, nextProps, nextState);
-  },
-
-  handleFocus: function () {
-    this.setState({focused: true});
-  },
-
-  handleBlur: function () {
-    this.setState({focused: false});
+  shouldComponentUpdate: function (nextProps) {
+    return commonReact.shouldComponentUpdate(this, nextProps);
   },
 
   handleKeyDown: function (event) {
-    const key = event.key,
+    const props = this.props,
+      key = event.key,
       alt = event.altKey,
       ctrl = event.ctrlKey,
       meta = event.metaKey,
       shift = event.shiftKey,
       targetCommand = {key, alt, meta, ctrl, shift},
       matches = _.matches(targetCommand),
-      command = _.find(keyDownCommands, matches);
-
-    console.log('keyDown', {key, command, targetCommand});
+      command = _.find(commands.keyDown, matches);
 
     if (command) {
       event.preventDefault();
       event.stopPropagation();
-      this.setState(command.fn(this.state, event));
+      props.onCommand(command);
     }
   },
   /**
@@ -90,50 +53,85 @@ export default React.createClass({
     event.preventDefault();
     event.stopPropagation();
 
-    const key = event.key,
+    const props = this.props,
+      key = event.key,
       alt = event.altKey,
       ctrl = event.ctrlKey,
       meta = event.metaKey,
       shift = event.shiftKey,
       targetCommand = {key, alt, meta, ctrl, shift},
       matches = _.matches(targetCommand),
-      command = _.find(keyPressCommands, matches);
-
-    console.log('keyPress', {key, command, targetCommand});
+      command = _.find(commands.keyPress, matches);
 
     if (command) {
-      if (command.fn === promptActions.execute) {
-        this.props.onExecute(_.clone(this.state));
+      if (command.name === 'execute') {
+        props.onExecute(_.clone(props));
       }
 
-      this.setState(command.fn(this.state, event));
+      props.onCommand(command);
     } else if (key && key.length === 1) {
-      this.setState(promptActions.insertKey(this.state, event));
+      props.onCommand({name: 'insertKey', key});
     }
   },
 
   handlePaste: function (event) {
-    this.setState(promptActions.paste(this.state, event));
+    event.preventDefault();
+    const text = event.clipboardData.getData('text');
+    let command = {};
+
+    if (text) {
+      const textSplit = text.split('\n');
+
+      if (textSplit.length === 1) {
+        command = {name: 'insertSingleLineText', text};
+      } else {
+        command = {name: 'insertMultiLineText', text};
+      }
+    }
+
+    window.getSelection().collapseToStart();
+    this.props.onCommand(command);
   },
 
+  /**
+   * NOTE: No state change, so no need to create action/reducers
+   * @param {Event} event
+   */
   handleCopy: function (event) {
-    this.setState(promptActions.copy(this.state, event));
+    event.preventDefault();
+    const text = promptUtils.getSelectedText(promptUtils.getSelection(event));
+
+    if (text) {
+      event.clipboardData.setData('text', text);
+    }
   },
 
+  /**
+   * @param {Event} event
+   */
   handleCut: function (event) {
-    this.setState(promptActions.cut(this.state, event));
+    event.preventDefault();
+    const selection = promptUtils.getSelection(event),
+      text = promptUtils.getSelectedText(selection);
+
+    window.getSelection().collapseToStart();
+    event.clipboardData.setData('text', text);
+    this.props.onCommand({name: 'removeSelection', selection, text});
   },
 
   handleClick: function (event) {
-    this.setState(promptActions.moveToClick(this.state, event));
+    const cursor = promptUtils.getCursorOfClick(event);
+
+    if (cursor) {
+      this.props.onCommand({name: 'move', cursor});
+    }
   },
 
   render() {
     const props = this.props,
-      state = this.state,
       className = commonReact.getClassNameList(this);
 
-    if (this.state.focused) {
+    if (props.focused) {
       className.push('focused');
     }
 
@@ -141,12 +139,11 @@ export default React.createClass({
       <Prompt
         className={className.join(' ')}
         {...props}
-        {...state}
-        onBlur={this.handleBlur}
+        onBlur={props.onBlur}
         onClick={this.handleClick}
         onCopy={this.handleCopy}
         onCut={this.handleCut}
-        onFocus={this.handleFocus}
+        onFocus={props.onFocus}
         onKeyDown={this.handleKeyDown}
         onKeyPress={this.handleKeyPress}
         onPaste={this.handlePaste}

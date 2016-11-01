@@ -1,0 +1,17 @@
+.expand-block-button {
+  height: 15px;
+  text-align: center;
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  cursor: pointer;
+  border-bottom-left-radius: 5px;
+  border-bottom-right-radius: 5px;
+  transition: all 0.2s;
+  box-shadow: none;
+}
+
+.expand-block-button:hover {
+  box-shadow: inset 0 -6px 5px -2px #ccc;
+}

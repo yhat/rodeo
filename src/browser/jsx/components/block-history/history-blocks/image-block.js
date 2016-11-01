@@ -65,7 +65,12 @@ export default React.createClass({
         onKeyUp={props.onKeyUp}
         onPaste={props.onPaste}
         tabIndex={props.tabIndex || 0}
-      ><header>{'image'}</header><div className="input-block__menu">{menu}</div>{contents}</div>
+      ><header>{'image'}</header>
+        <div className="input-block__menu">{menu}</div>
+        <div className="image-block__contents-outer">
+          <div className="input-block__contents">{contents}</div>
+        </div>
+      </div>
     );
   }
 });

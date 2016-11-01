@@ -38,8 +38,15 @@ function createWindow(name, options) {
  * @returns {Promise}
  */
 function shareAction(action) {
-  // only share action if we're the original creator
-  if (!action.senderName) {
+  if (action.payload) {
+    console.log(action.type, action.payload);
+  } else {
+    console.log(action.type, action);
+  }
+
+  // Only share actions that are meant to be shared
+  // No sender means default behavior (therefore shareable)
+  if (!action.meta || !action.meta.sender) {
     return api.send('shareAction', action);
   }
 }

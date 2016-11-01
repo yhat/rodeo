@@ -1,5 +1,4 @@
-.text-stream-block {
-  background-color: #eff1f1;
+.image-block {
   margin: 10px;
   border-radius: 5px;
   padding: 6px;
@@ -8,14 +7,23 @@
   box-shadow: 1px 2px 3px #999;
   color: #333;
   position: relative;
+  transition: all 0.2s;
 }
 
-.text-stream-block--compressed {
-  max-height: 45px;
+.image-block--expanded {
+  overflow: auto;
+}
+
+.image-block--compressed {
   overflow: hidden;
 }
 
-.text-stream-block > header {
+.image-block__contents-outer {
+  overflow: hidden;
+  border-top: 1px solid #ccc;
+}
+
+.image-block > header {
   font-size: 10px;
   font-weight: bold;
   position: absolute;
@@ -25,7 +33,7 @@
   text-transform: lowercase;
 }
 
-.text-stream-block__menu {
+.input-block__menu {
   font-size: 10px;
   font-weight: bold;
   position: absolute;
