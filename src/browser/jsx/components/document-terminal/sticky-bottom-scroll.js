@@ -1,13 +1,13 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
 import commonReact from '../../services/common-react';
-import './history.css';
+import './sticky-bottom-scroll.css';
 
+/**
+ * If already scrolled to the bottom, when new content it added, it remains scrolled to the bottom
+ */
 export default React.createClass({
-  displayName: 'History',
-  propTypes: {
-    onClick: React.PropTypes.func
-  },
+  displayName: 'StickyBottomScroll',
   shouldComponentUpdate: function (nextProps) {
     return commonReact.shouldComponentUpdate(this, nextProps);
   },
@@ -27,10 +27,6 @@ export default React.createClass({
     const props = this.props,
       className = commonReact.getClassNameList(this);
 
-    return (
-      <div className={className.join(' ')} onClick={props.onClick}>
-        {props.children}
-      </div>
-    );
+    return <div className={className.join(' ')}>{props.children}</div>;
   }
 });

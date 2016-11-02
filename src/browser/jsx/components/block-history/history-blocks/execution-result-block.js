@@ -28,8 +28,6 @@ export default React.createClass({
 
     className.push('font-monospaced');
 
-    console.log('HEY', data);
-
     if (size > 1) {
       if (data['text/html']) {
         content = <div dangerouslySetInnerHTML={{__html: data['text/html']}} />;

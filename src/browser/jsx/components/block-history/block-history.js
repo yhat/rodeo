@@ -60,6 +60,3 @@ export default React.createClass({
     return <div className={className.join(' ')}>{contents}</div>;
   }
 });
-/**
- * Created by danestuckel on 10/11/16.
- */

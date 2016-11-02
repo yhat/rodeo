@@ -4,11 +4,6 @@ import client from '../services/jupyter/client';
 import DataFrame from '../components/data-frame/data-frame.jsx';
 import commonReact from '../services/common-react';
 
-/**
- * @class DataFrameViewer
- * @extends ReactComponent
- * @property {object} props
- */
 export default React.createClass({
   displayName: 'DataFrameViewer',
   propTypes: {

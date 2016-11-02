@@ -24,7 +24,7 @@
 }
 
 .input-stream-block__contents {
-  white-space: pre-line;
+  white-space: pre-wrap;
 }
 
 .input-stream-block > header {

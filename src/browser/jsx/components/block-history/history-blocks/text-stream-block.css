@@ -24,7 +24,7 @@
 }
 
 .text-stream-block__contents {
-  white-space: pre-line;
+  white-space: pre-wrap;
 }
 
 .text-stream-block > header {

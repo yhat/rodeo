@@ -16,11 +16,11 @@ export default React.createClass({
 
   getDefaultProps: function () {
     return {
+      focusable: true,
       lines: [''],
       cursor: {row: 0, column: 0},
       queue: [],
-      state: 'paused', // paused, prompt, busy, input
-      focused: false
+      state: 'paused'
     };
   },
 
@@ -28,6 +28,9 @@ export default React.createClass({
     return commonReact.shouldComponentUpdate(this, nextProps);
   },
 
+  /**
+   * @param {KeyboardEvent} event
+   */
   handleKeyDown: function (event) {
     const props = this.props,
       key = event.key,
@@ -35,9 +38,19 @@ export default React.createClass({
       ctrl = event.ctrlKey,
       meta = event.metaKey,
       shift = event.shiftKey,
-      targetCommand = {key, alt, meta, ctrl, shift},
+      selection = promptUtils.getSelectionLength(event) !== 0,
+      targetCommand = {key, alt, meta, ctrl, shift, selection},
       matches = _.matches(targetCommand),
-      command = _.find(commands.keyDown, matches);
+      command = _.find(commands.keyDownByOS[process.platform], matches) || _.find(commands.keyDown, matches);
+
+    console.log('keydown', {
+      selectionLength: promptUtils.getSelectionLength(event),
+      targetCommand,
+      command,
+      commands: commands.keyDownByOS[process.platform],
+      find1: _.find(commands.keyDownByOS[process.platform], matches),
+      find2: _.find(commands.keyDown, matches)
+    });
 
     if (command) {
       event.preventDefault();
@@ -46,30 +59,35 @@ export default React.createClass({
     }
   },
   /**
-   *
    * @param {KeyboardEvent} event
    */
   handleKeyPress: function (event) {
-    event.preventDefault();
-    event.stopPropagation();
-
     const props = this.props,
       key = event.key,
       alt = event.altKey,
       ctrl = event.ctrlKey,
       meta = event.metaKey,
       shift = event.shiftKey,
-      targetCommand = {key, alt, meta, ctrl, shift},
+      selection = promptUtils.getSelectionLength(event) !== 0,
+      targetCommand = {key, alt, meta, ctrl, shift, selection},
       matches = _.matches(targetCommand),
       command = _.find(commands.keyPress, matches);
 
     if (command) {
+      // if one of our commands
+      event.preventDefault();
+      event.stopPropagation();
+
       if (command.name === 'execute') {
         props.onExecute(_.clone(props));
       }
 
       props.onCommand(command);
-    } else if (key && key.length === 1) {
+    } else if (key && key.length === 1 && !ctrl && !meta && !alt) {
+      // if they held down keys, they're trying to do a command of some other component, not typing
+      event.preventDefault();
+      event.stopPropagation();
+
       props.onCommand({name: 'insertKey', key});
     }
   },
@@ -130,10 +148,6 @@ export default React.createClass({
   render() {
     const props = this.props,
       className = commonReact.getClassNameList(this);
-
-    if (props.focused) {
-      className.push('focused');
-    }
 
     return (
       <Prompt

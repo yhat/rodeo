@@ -39,6 +39,7 @@ function focus(state, action) {
 
     if (tabIndex !== -1) {
       state = state.setIn([groupIndex, 'active'], id);
+      state = state.setIn([groupIndex, 'tabs', tabIndex, 'lastFocused'], new Date().getTime());
     }
   }
 

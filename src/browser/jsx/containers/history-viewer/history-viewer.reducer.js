@@ -44,12 +44,12 @@ function blockRemoved(state, action) {
  * @returns {Array}
  */
 function jupyterResponseDetected(state, action) {
-  const responseMsgId = _.get(action, 'response.result.parent_header.msg_id'),
+  const responseMsgId = _.get(action, 'payload.result.parent_header.msg_id'),
     blockIndex = _.findIndex(state.blocks, {responseMsgId});
 
   if (blockIndex > -1) {
     state = state.updateIn(['blocks', blockIndex, 'items'], items => {
-      return Immutable(jupyterHistory.applyResponse(items, action.response));
+      return Immutable(jupyterHistory.applyResponse(items, action.payload));
     });
   }
 

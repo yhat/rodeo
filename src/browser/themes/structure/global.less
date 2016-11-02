@@ -6,6 +6,15 @@ html {
   outline: none;
 }
 
+*:focus {
+  outline: Highlight auto 1px;
+  transition: outline-offset 0.2s, outline-width 0.2s;
+}
+
+*:focus:hover {
+  outline: Highlight auto 2px;
+}
+
 body {
   height: 100%;
 }
@@ -37,3 +46,4 @@ main .row {
   margin-left: 0;
   margin-right: 0;
 }
+

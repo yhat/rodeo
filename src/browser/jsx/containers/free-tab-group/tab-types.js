@@ -33,6 +33,22 @@ const defaultTabTypes = {
       showHidden: false
     }
   }),
+  'document-terminal-viewer': () => ({
+    icon: 'terminal',
+    label: 'Terminal',
+    id: cid(),
+    content: {
+      actives: {},
+      fontSize: _.toNumber(local.get('fontSize')) || 12,
+      items: [],
+      lines: [''],
+      cursor: {row: 0, column: 0},
+      queue: [],
+      state: 'paused', // paused, prompt, busy, input
+      promptLabel: '>>> ',
+      continueLabel: '... '
+    }
+  }),
   'file-viewer': () => ({
     icon: 'file-text-o',
     label: 'Files',
@@ -63,7 +79,7 @@ const defaultTabTypes = {
       plots: []
     }
   }),
-  'terminal-viewer': () => ({
+  'block-terminal-viewer': () => ({
     icon: 'terminal',
     label: 'Terminal',
     id: cid(),

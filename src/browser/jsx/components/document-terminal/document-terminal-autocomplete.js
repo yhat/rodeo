@@ -1,13 +1,11 @@
 import React from 'react';
 import commonReact from '../../services/common-react';
-import './line.css';
+import './document-terminal-autocomplete.css';
 
 export default React.createClass({
-  displayName: 'BlockHistory',
+  displayName: 'DocumentTerminalAutocomplete',
   propTypes: {
-    id: React.PropTypes.string.isRequired,
-    source: React.PropTypes.string.isRequired,
-    text: React.PropTypes.string.isRequired
+    text: React.PropTypes.array.isRequired
   },
   shouldComponentUpdate: function (nextProps) {
     return commonReact.shouldComponentUpdate(this, nextProps);
@@ -16,7 +14,9 @@ export default React.createClass({
     const props = this.props,
       className = commonReact.getClassNameList(this);
 
-    className.push(props.source);
-    return <div className={className.join(' ')} id={props.id}>{props.text}</div>;
+    return <div className={className.join(' ')}>{props.text}</div>;
   }
 });
+/**
+ * Created by danestuckel on 10/11/16.
+ */

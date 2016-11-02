@@ -1,9 +1,8 @@
 import mapReducers from '../../services/map-reducers';
 import promptActions from '../../services/prompt-actions';
+import reduxUtil from '../../services/redux-util';
 
-export function insertKey(state, action) {
-  return promptActions.insertKey(state, action.key);
-}
+const prefixType = reduxUtil.fromFilenameToPrefix(__filename);
 
 function command(state, action) {
   const payload = action.payload,
@@ -16,6 +15,19 @@ function command(state, action) {
   return state;
 }
 
-export default mapReducers({
-  PROMPT_VIEWER_COMMAND: command
-}, {});
+function copyToPrompt(state, action) {
+  const payload = action.payload,
+    lines = payload.lines;
+
+  // put lines
+  return _.assign({}, state, {
+    lines,
+    cursor: {row: lines.length - 1, column: _.last(lines).length},
+    historyIndex: -1
+  });
+}
+
+export default mapReducers(reduxUtil.addPrefixToKeys(prefixType, {
+  COPY_TO_PROMPT: copyToPrompt,
+  COMMAND: command
+}), {});

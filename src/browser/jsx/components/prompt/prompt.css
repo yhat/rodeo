@@ -6,6 +6,12 @@
   background-color: #fff;
   font-family: monospace;
   font-size: 12px;
+  position: relative;
+  outline: none;
+}
+
+.prompt .prompt-line {
+  position: relative;
 }
 
 .prompt--prompt,
@@ -27,6 +33,7 @@
 
 .prompt:focus {
   color: #333;
+  outline: none;
 }
 
 .prompt:focus .prompt-cursor {

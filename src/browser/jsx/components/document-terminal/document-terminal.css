@@ -1,3 +1,19 @@
-.block-history {
-  color: red;
+.document-terminal {
+  position: relative;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  align-content: stretch;
+}
+
+.document-terminal .sticky-bottom-scroll {
+  flex-grow: 5;
+  overflow-y: auto;
+  white-space: pre-wrap;
+}
+
+.document-terminal .prompt {
+  flex-grow: 0;
+  flex-shrink: 0;
 }

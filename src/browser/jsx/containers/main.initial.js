@@ -37,7 +37,8 @@ function getFreeTabGroups() {
       tabs: [
         _.merge(freeTabTypes.getDefaultTab('variable-viewer'), {id: topRightFocusId}),
         freeTabTypes.getDefaultTab('history-viewer'),
-        freeTabTypes.getDefaultTab('terminal-viewer')
+        freeTabTypes.getDefaultTab('block-terminal-viewer'),
+        freeTabTypes.getDefaultTab('document-terminal-viewer')
       ]
     },
     {

@@ -1,4 +1,3 @@
-import _ from 'lodash';
 import reduxUtil from '../../services/redux-util';
 
 // Don't share with other windows
@@ -10,6 +9,11 @@ function createCommand(groupId, id, payload) {
   return {type: prefixType + 'COMMAND', groupId, id, payload, meta: {sender}};
 }
 
+function copyToPrompt(groupId, id, props) {
+  return {type: prefixType + 'COPY_TO_PROMPT', groupId, id, payload: props};
+}
+
 export default {
-  createCommand
+  createCommand,
+  copyToPrompt
 };

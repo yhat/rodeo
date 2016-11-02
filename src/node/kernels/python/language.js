@@ -40,6 +40,11 @@ function setDefaultEnvVars(env) {
     }
   }
 
+  // we support colors
+  if (process.platform !== '32' && env.CLICOLOR === undefined) {
+    env.CLICOLOR = 1;
+  }
+
   if (process.platform === 'win32' && !env.NUMBER_OF_PROCESSORS) {
     try {
       env.NUMBER_OF_PROCESSORS = os.cpus().length;

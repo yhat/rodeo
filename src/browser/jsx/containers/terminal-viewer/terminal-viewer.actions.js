@@ -54,10 +54,6 @@ function installPythonModule(groupId, id, pythonModuleName) {
   };
 }
 
-function copyToPrompt(groupId, id, props) {
-  return {type: prefixType + 'COPY_TO_PROMPT', groupId, id, payload: props};
-}
-
 function reRunHistoryBlock(groupId, id, block) {
   return function (dispatch) {
     dispatch({type: prefixType + 'RERUNNING_BLOCK', groupId, id, payload: block});
@@ -75,7 +71,6 @@ function reRunHistoryBlock(groupId, id, block) {
 
 export default {
   addHistoryBlock,
-  copyToPrompt,
   installPythonModule,
   reRunHistoryBlock,
   removeHistoryBlock,

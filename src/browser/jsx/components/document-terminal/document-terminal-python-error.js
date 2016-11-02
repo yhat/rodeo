@@ -1,7 +1,7 @@
 import _ from 'lodash';
 import React from 'react';
 import commonReact from '../../services/common-react';
-import './python-error.css';
+import './document-terminal-python-error.css';
 
 function getFirstLine(props) {
   if (props.name && props.value) {
@@ -24,7 +24,7 @@ function getImportErrorModuleName(props) {
 }
 
 export default React.createClass({
-  displayName: 'PythonError',
+  displayName: 'DocumentTerminalPythonError',
   propTypes: {
     name: React.PropTypes.string.isRequired,
     onInstallPythonModule: React.PropTypes.func.isRequired,

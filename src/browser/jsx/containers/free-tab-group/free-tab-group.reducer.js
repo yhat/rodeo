@@ -3,7 +3,8 @@ import Immutable from 'seamless-immutable';
 import mapReducers from '../../services/map-reducers';
 import commonTabsReducers from '../../services/common-tabs-reducers';
 import databaseViewerReducer from '../database-viewer/database-viewer.reducer';
-import terminalViewerReducer from '../terminal-viewer/terminal-viewer.reducer';
+import blockTerminalViewerReducer from '../terminal-viewer/terminal-viewer.reducer';
+import documentTerminalViewerReducer from '../document-terminal-viewer/document-terminal-viewer.reducer';
 import plotViewerReducer from '../plot-viewer/plot-viewer.reducer';
 import {local} from '../../services/store';
 import tabTypes from './tab-types';
@@ -106,4 +107,6 @@ export default reduxUtil.reduceReducers(
     MOVE_TAB: moveTab,
     VARIABLES_CHANGED: variablesChanged
   }, databaseViewerReducer, plotViewerReducer), initialState),
-  reduxUtil.tabReducer(terminalViewerReducer));
+  reduxUtil.tabReducer(blockTerminalViewerReducer),
+  reduxUtil.tabReducer(documentTerminalViewerReducer)
+);

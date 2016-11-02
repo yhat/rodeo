@@ -35,19 +35,19 @@ function convertKeysToConstantCase(obj) {
 /**
  * Scope each reducer to within xpath
  * @param xpath
- * @param reducer
- * @returns {Object}
+ * @param {object} reducerMap
+ * @returns {object}
  */
-function scopeReducer(xpath, reducer) {
-  return _.mapValues(reducer, (fn) => {
+function scopeReducer(xpath, reducerMap) {
+  return _.mapValues(reducerMap, (fn) => {
     return (state, action) => _.set(state, xpath, fn(_.get(xpath, state), action));
   });
 }
 
 /**
  * Scope each reducer to within the content of a tab
- * @param {object }reducer
- * @returns {object}
+ * @param {function} reducer
+ * @returns {function}
  */
 function tabReducer(reducer) {
   return function (state, action) {

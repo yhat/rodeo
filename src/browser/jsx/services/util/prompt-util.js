@@ -29,7 +29,7 @@ function isTextNode(node) {
 }
 
 /**
- * @param {MouseEvent} event
+ * @param {Event} event
  * @returns {Array}
  */
 function getSelection(event) {
@@ -194,10 +194,17 @@ function getCursorOfClick(event) {
   }
 }
 
+function getSelectionLength(event) {
+  const selection = getSelection(event);
+
+  return _.isArray(selection) && _.reduce(selection, (sum, line) => sum + line.length, 0) || 0;
+}
+
 export default {
   getLineTreeWalker,
   getCursorOfClick,
   getSelection,
+  getSelectionLength,
   getSelectedText,
   removeSelection
 };

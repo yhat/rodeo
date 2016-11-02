@@ -1,4 +1,5 @@
 import _ from 'lodash';
+import reselect from 'reselect';
 
 /**
  * @param {[object]} groups

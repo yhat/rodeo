@@ -4,25 +4,38 @@ import {connect} from 'react-redux';
 import TabbedPane from '../../components/tabs/tabbed-pane.js';
 import TabbedPaneItem from '../../components/tabs/tabbed-pane-item.js';
 import DatabaseViewer from '../database-viewer/database-viewer';
+import DocumentTerminalViewer from '../document-terminal-viewer/document-terminal-viewer';
 import SearchTextBox from '../../components/search-text-box/search-text-box.jsx';
-import HistoryViewer from '../../components/history/history-viewer.jsx';
+import HistoryViewer from '../../components/block-history/history-viewer.jsx';
 import PlotViewer from '../plot-viewer/plot-viewer.jsx';
 import FileViewer from '../file-viewer/file-viewer.jsx';
 import VariableViewer from '../../components/variable-viewer/variable-viewer.jsx';
 import VariableTableViewer from '../variable-table-viewer.jsx';
 import PackageViewer from '../package-viewer/package-viewer.jsx';
 import PackageSearchViewer from '../package-search-viewer/package-search-viewer.jsx';
-import TerminalViewer from '../terminal-viewer/terminal-viewer';
+import BlockTerminalViewer from '../terminal-viewer/terminal-viewer';
 import ActionestButton from '../../components/actionest/actionest-button';
 import {getParentNodeOf} from '../../services/dom';
 import freeTabActions from './free-tab-group.actions';
+import documentTerminalViewerActions from '../document-terminal-viewer/document-terminal-viewer.actions';
 import promptViewerActions from '../prompt-viewer/prompt-viewer.actions';
 import terminalViewerActions from '../terminal-viewer/terminal-viewer.actions';
 import historyViewerActions from '../history-viewer/history-viewer.actions';
 import commonReact from '../../services/common-react';
 
-const allowedPopoutTypes = ['plot-viewer', 'terminal-viewer', 'variable-viewer', 'variable-table-viewer', 'history-viewer'];
+const allowedPopoutTypes = [
+  'block-terminal-viewer',
+  'document-terminal-viewer',
+  'history-viewer',
+  'plot-viewer',
+  'variable-viewer',
+  'variable-table-viewer',
+];
 
+/**
+ * @param {object} props
+ * @returns {boolean}
+ */
 function isPopoutAllowed(props) {
   const activeIndex = _.findIndex(props.tabs, {id: props.active});
 
@@ -44,9 +57,12 @@ function mapDispatchToProps(dispatch, ownProps) {
   const groupId = ownProps.groupId;
 
   return {
+    onAnnotationCopy: (id, event) => dispatch(documentTerminalViewerActions.copyAnnotation(groupId, id, event)),
     onBlockRemove: (id, blockId) => dispatch(terminalViewerActions.removeHistoryBlock(groupId, id, blockId)),
     onCloseTab: id => dispatch(freeTabActions.closeTab(groupId, id)),
-    onCopyToPrompt: (id, props) => dispatch(terminalViewerActions.copyToPrompt(groupId, id, props)),
+    onCopyToPrompt: (id, props) => dispatch(promptViewerActions.copyToPrompt(groupId, id, props)),
+    onDocumentTerminalPromptExecute: (id, context) => dispatch(documentTerminalViewerActions.execute(groupId, id, context)),
+    onDocumentTerminalHistoryClear: id => dispatch(documentTerminalViewerActions.clear(groupId, id)),
     onHistoryBlockContract: (id, blockId, itemId) => dispatch(historyViewerActions.createContract(groupId, id, blockId, itemId)),
     onHistoryBlockExpand: (id, blockId, itemId) => dispatch(historyViewerActions.createExpand(groupId, id, blockId, itemId)),
     onPromptCommand: (id, command) => dispatch(promptViewerActions.createCommand(groupId, id, command)),
@@ -59,16 +75,13 @@ function mapDispatchToProps(dispatch, ownProps) {
     onFocusPlot: (id, plot) => dispatch(freeTabActions.focusPlot(groupId, id, plot)),
     onReRunHistoryBlock: (id, blockId) => dispatch(terminalViewerActions.reRunHistoryBlock(groupId, id, blockId)),
     onRemovePlot: (id, plot) => dispatch(freeTabActions.removePlot(groupId, id, plot)),
-    onSavePlot: plot => dispatch(freeTabActions.savePlot(plot))
+    onTerminalInterrupt: id => dispatch(documentTerminalViewerActions.interrupt(groupId, id)),
+    onTerminalRestart: id => dispatch(documentTerminalViewerActions.restart(groupId, id)),
+    onSavePlot: plot => dispatch(freeTabActions.savePlot(plot)),
+    onShowSelectWorkingDirectoryDialog: id => dispatch(documentTerminalViewerActions.showSelectWorkingDirectoryDialog(groupId, id))
   };
 }
 
-/**
- * @class FreeTabGroup
- * @extends ReactComponent
- * @property props
- * @property state
- */
 export default connect(null, mapDispatchToProps)(React.createClass({
   displayName: 'FreeTabGroup',
   propTypes: {
@@ -167,6 +180,20 @@ export default connect(null, mapDispatchToProps)(React.createClass({
             {...tab.content}
           />
         ),
+        'document-terminal-viewer': tab => (
+          <DocumentTerminalViewer
+            filter={filter}
+            onAnnotationCopy={_.partial(props.onAnnotationCopy, tab.id)}
+            onClear={_.partial(props.onDocumentTerminalHistoryClear, tab.id)}
+            onInstallPythonModule={_.partial(props.onInstallPythonModule, tab.id)}
+            onInterrupt={_.partial(props.onTerminalInterrupt, tab.id)}
+            onPromptCommand={_.partial(props.onPromptCommand, tab.id)}
+            onPromptExecute={_.partial(props.onDocumentTerminalPromptExecute, tab.id)}
+            onRestart={_.partial(props.onTerminalRestart, tab.id)}
+            onShowSelectWorkingDirectoryDialog={_.partial(props.onShowSelectWorkingDirectoryDialog, tab.id)}
+            {...tab.content}
+          />
+        ),
         'history-viewer': tab => <HistoryViewer filter={filter} {...tab.content}/>,
         'file-viewer': tab => <FileViewer filter={filter} {...tab.content}/>,
         'package-search-viewer': tab => <PackageSearchViewer filter={filter} {...tab.content}/>,
@@ -179,8 +206,8 @@ export default connect(null, mapDispatchToProps)(React.createClass({
             {...tab.content}
           />
         ),
-        'terminal-viewer': tab => (
-          <TerminalViewer
+        'block-terminal-viewer': tab => (
+          <BlockTerminalViewer
             filter={filter}
             onBlockRemove={_.partial(props.onBlockRemove, tab.id)}
             onCommand={_.partial(props.onPromptCommand, tab.id)}
@@ -190,7 +217,6 @@ export default connect(null, mapDispatchToProps)(React.createClass({
             onExpand={_.partial(props.onHistoryBlockExpand, tab.id)}
             onInstallPythonModule={_.partial(props.onInstallPythonModule, tab.id)}
             onReRun={_.partial(props.onReRunHistoryBlock, tab.id)}
-            visible={tab.id === props.active}
             {...tab.content}
           />
         ),
@@ -203,7 +229,11 @@ export default connect(null, mapDispatchToProps)(React.createClass({
           />
         ),
         'variable-table-viewer': tab => (
-          <VariableTableViewer filter={filter} visible={tab.id === props.active} {...tab.content}/>
+          <VariableTableViewer
+            filter={filter}
+            visible={tab.id === props.active}
+            {...tab.content}
+          />
         )
       };
     let popoutButton;

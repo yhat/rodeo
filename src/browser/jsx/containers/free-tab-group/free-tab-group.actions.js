@@ -56,7 +56,7 @@ function guaranteeTab(contentType) {
         // return to their previous good state.
         dispatch({type: 'ADD_TAB', groupId, tab: {contentType, closeable: true}});
       }
-    }).catch(error => console.error('LAME', error));
+    }).catch(error => console.error(error));
   };
 }
 

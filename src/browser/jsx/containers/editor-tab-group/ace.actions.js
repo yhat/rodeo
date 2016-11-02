@@ -6,7 +6,8 @@
 
 import _ from 'lodash';
 import commonTabsActions from '../../services/common-tabs-actions';
-import terminalTabActions from '../../containers/terminal-tab-group/terminal-tab-group.actions';
+import freeTabActions from '../free-tab-group/free-tab-group.actions';
+import terminalTabActions from '../terminal-tab-group/terminal-tab-group.actions';
 import dialogActions from '../../actions/dialogs';
 
 const editorTabGroupName = 'editorTabGroups',

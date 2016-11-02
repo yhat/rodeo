@@ -4,115 +4,160 @@ keyDown:
   meta: false
   shift: false
   ctrl: false
+  selection: false
   name: moveLeft
 - key: ArrowRight
   alt: false
   meta: false
   shift: false
   ctrl: false
+  selection: false
   name: moveRight
 - key: ArrowUp
   alt: false
   meta: false
   shift: false
   ctrl: false
+  selection: false
   name: moveUp
 - key: ArrowDown
   alt: false
   meta: false
   shift: false
   ctrl: false
+  selection: false
   name: moveDown
 - key: ArrowLeft
   alt: true
   meta: false
   shift: false
   ctrl: false
+  selection: false
   name: moveToPrecedingWord
 - key: ArrowRight
   alt: true
   meta: false
   shift: false
   ctrl: false
+  selection: false
   name: moveToFollowingWord
 - key: ArrowLeft
   alt: false
   meta: false
   shift: false
   ctrl: true
+  selection: false
   name: moveToBeginningLine
 - key: ArrowRight
   alt: false
   meta: false
   shift: false
   ctrl: true
+  selection: false
   name: moveToEndLine
 - key: ArrowLeft
   alt: false
   meta: true
   shift: false
   ctrl: false
+  selection: false
   name: moveToBeginningLine
 - key: ArrowRight
   alt: false
   meta: true
   shift: false
   ctrl: false
+  selection: false
   name: moveToEndLine
 - key: Backspace
   alt: false
   meta: false
   shift: false
   ctrl: false
+  selection: false
   name: backspace
 - key: Backspace
   alt: false
   meta: false
   shift: false
   ctrl: true
+  selection: false
   name: removePreviousWord
 - key: Backspace
   alt: false
   meta: true
   shift: false
   ctrl: false
+  selection: false
   name: removePreviousWord
 - key: Delete
   alt: false
   meta: false
   shift: false
   ctrl: false
+  selection: false
   name: deleteSpecial
 - key: Delete
   alt: false
   meta: false
   shift: false
   ctrl: true
+  selection: false
   name: removeNextWord
 - key: Delete
   alt: false
   meta: true
   shift: false
   ctrl: false
+  selection: false
   name: removeNextWord
 - key: Enter
   alt: false
   meta: true
   shift: false
   ctrl: false
+  selection: false
   name: breakLine
 - key: Enter
   alt: false
   meta: false
   shift: true
   ctrl: false
+  selection: false
   name: breakLine
-- key: c
+- key: Tab
   alt: false
   meta: false
   shift: false
-  ctrl: true
-  name: clear
+  ctrl: false
+  selection: false
+  name: insertSpecific
+  specific: "\t"
+- key: Tab
+  alt: false
+  meta: false
+  shift: true
+  ctrl: false
+  selection: false
+  name: backspace
+
+keyDownByOS:
+  darwin:
+    - key: c
+      alt: false
+      meta: true
+      shift: false
+      ctrl: false
+      selection: false
+      name: clear
+  win32:
+    - key: c
+      alt: false
+      meta: false
+      shift: false
+      ctrl: true
+      selection: false
+      name: clear
 
 keyPress:
 - key: Enter
@@ -120,10 +165,12 @@ keyPress:
   meta: false
   shift: false
   ctrl: false
+  selection: false
   name: execute
 - key: Backspace
   alt: false
   meta: false
   shift: false
   ctrl: false
+  selection: false
   name: backspace

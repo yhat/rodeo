@@ -9,11 +9,12 @@
   justify-content: flex-end;
   color: #666;
   transition: all 0.2s;
+  white-space: nowrap;
 }
 
 .gray-info > * {
   margin-right: 10px;
-  margin-left: 10px;
+  white-space: nowrap;
 }
 
 .gray-info-link {
@@ -22,6 +23,22 @@
   padding-left: 7px;
   border-left: 2px solid #dddddd;
   border-top-left-radius: 7px;
+  display: inline-block;
+}
+
+.gray-info-link .fa {
+  padding-right: 5px;
+}
+
+.gray-info-link-list {
+  cursor: pointer;
+  border-left: 2px solid #dddddd;
+  border-top-left-radius: 7px;
+  display: inline-block;
+}
+
+.gray-info-link-list .gray-info-link {
+  border-left: 0;
 }
 
 .gray-info-link:hover {

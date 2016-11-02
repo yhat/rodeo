@@ -506,6 +506,10 @@ function move(state, command) {
   return _.assign({}, state, command);
 }
 
+function insertSpecific(state, command) {
+  return insertSingleLineText(state, {text: command.specific});
+}
+
 export default {
   backspace,
   breakLine,
@@ -515,6 +519,7 @@ export default {
   insertKey,
   insertMultiLineText,
   insertSingleLineText,
+  insertSpecific,
   move,
   moveToBeginningFirstLine,
   moveToBeginningLine,
