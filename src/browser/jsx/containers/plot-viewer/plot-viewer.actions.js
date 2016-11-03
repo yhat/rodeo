@@ -1,17 +1,16 @@
-function openActivePlot() {
-  return {type: 'OPEN_ACTIVE_PLOT'};
+import reduxUtil from '../../services/redux-util';
+
+const prefix = reduxUtil.fromFilenameToPrefix(__filename);
+
+function focus(groupId, id, plot) {
+  return {type: prefix + 'FOCUS_PLOT', groupId, id, plot};
 }
 
-function focus(plot) {
-  return {type: 'FOCUS_PLOT', plot};
-}
-
-function remove(plot) {
-  return {type: 'REMOVE_PLOT', plot};
+function remove(groupId, id, plot) {
+  return {type: prefix + 'REMOVE_PLOT', groupId, id, plot};
 }
 
 export default {
   focus,
-  remove,
-  openActivePlot
+  remove
 };

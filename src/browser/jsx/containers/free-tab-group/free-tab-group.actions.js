@@ -5,6 +5,7 @@ import cid from '../../services/cid';
 import applicationControl from '../../services/application-control';
 import api from '../../services/api';
 import {local} from '../../services/store';
+import plotViewerActions from '../plot-viewer/plot-viewer.actions';
 const tabGroupName = 'freeTabGroups';
 
 /**
@@ -15,10 +16,6 @@ const tabGroupName = 'freeTabGroups';
  */
 function focusTab(groupId, id) {
   return {type: 'FOCUS_TAB', groupId, id};
-}
-
-function focusPlot(groupId, tabId, plot) {
-  return {type: 'FOCUS_PLOT', groupId, tabId, plot};
 }
 
 function closeTab(groupId, id) {
@@ -111,7 +108,7 @@ function focusNewestPlot() {
 
     if (latestGroupId && latestTabId && latestPlot) {
       dispatch(focusTab(latestGroupId, latestTabId));
-      dispatch(focusPlot(latestGroupId, latestTabId, latestPlot));
+      dispatch(plotViewerActions.focus(latestGroupId, latestTabId, latestPlot));
     }
   };
 }
@@ -168,10 +165,6 @@ function popActiveTab(groupId) {
   };
 }
 
-function removePlot(groupId, id, plot) {
-  return {type: 'REMOVE_PLOT', groupId, id, plot};
-}
-
 function showSaveDialog(mime, ext, data) {
   const defaultPath = local.get('workingDirectory') || '~';
 
@@ -207,12 +200,10 @@ function savePlot(plot) {
 export default {
   closeTab,
   focusNewestPlot,
-  focusPlot,
   focusTab,
   focusFirstTabByType,
   guaranteeTab,
   moveTab,
-  removePlot,
   savePlot,
   showDataFrame,
   popActiveTab

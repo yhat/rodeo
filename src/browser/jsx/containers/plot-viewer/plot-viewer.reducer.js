@@ -1,8 +1,11 @@
 import _ from 'lodash';
 import cid from '../../services/cid';
-import commonTabsReducers from '../../services/common-tabs-reducers';
+import mapReducers from '../../services/map-reducers';
+import reduxUtil from '../../services/redux-util';
+import Immutable from 'seamless-immutable';
 
-const maxPlots = 50;
+const maxPlots = 50,
+  prefix = reduxUtil.fromFilenameToPrefix(__filename);
 
 /**
  * Focus the tab that has a certain plot in it
@@ -11,33 +14,39 @@ const maxPlots = 50;
  * @returns {object}
  */
 function focusPlot(state, action) {
-  commonTabsReducers.eachTabByActionAndContentType(state, action, 'plot-viewer', (tab, cursor) => {
-    const plots = tab.content.plots;
+  const plots = state.plots;
 
-    if (_.find(plots, {id: action.plot.id})) {
-      state = state.updateIn([cursor.groupIndex, 'tabs', cursor.tabIndex, 'content'], obj => obj.set('active', action.plot.id));
-    }
-  });
+  if (_.find(plots, {id: action.plot.id})) {
+    state = state.set('active', action.plot.id);
+  }
 
   return state;
 }
 
-/**
- * Add new plot to _every_ plot viewer
- * @param {Immutable} state
- * @param {object} action
- * @param {object|string} action.data
- * @returns {immutable.List}
- */
-function addPlot(state, action) {
-  commonTabsReducers.eachTabByActionAndContentType(state, action, 'plot-viewer', (tab, cursor) => {
-    state = state.updateIn([cursor.groupIndex, 'tabs', cursor.tabIndex, 'content'], obj => {
-      const newPlot = {
-          id: cid(),
-          data: action.data,
-          createdAt: new Date().getTime()
-        },
-        plots = obj.plots.asMutable();
+function removePlot(state, action) {
+  const plotIndex = _.findIndex(state.plots, {id: action.plot.id});
+
+  if (plotIndex > -1) {
+    const plots = state.plots.asMutable();
+
+    plots.splice(plotIndex, 1);
+
+    state = state.set('plots', Immutable(plots));
+  }
+
+  return state;
+}
+
+function jupyterResponse(state, action) {
+  if (state.plots) {
+    const id = cid(),
+      messageType = _.get(action, 'payload.result.msg_type'),
+      data = _.get(action, 'payload.result.content.data');
+
+    if (data && messageType === 'display_data') {
+      const createdAt = new Date().getTime(),
+        newPlot = {id, data, createdAt},
+        plots = state.plots.asMutable();
 
       plots.unshift(newPlot);
 
@@ -45,37 +54,20 @@ function addPlot(state, action) {
         plots.pop();
       }
 
-      obj = obj.set('active', newPlot.id);
-      obj = obj.merge({plots});
-
-      return obj;
-    });
-  });
-
-  return state;
-}
-
-function removePlot(state, action) {
-  commonTabsReducers.eachTabByActionAndContentType(state, action, 'plot-viewer', (tab, cursor) => {
-    const plots = tab.content.plots,
-      plotIndex = _.findIndex(plots, {id: action.plot.id});
-
-    if (plotIndex > -1) {
-      state = state.updateIn([cursor.groupIndex, 'tabs', cursor.tabIndex, 'content'], content => {
-        const plots = content.plots.asMutable();
-
-        plots.splice(plotIndex, 1);
-
-        return content.merge({plots});
-      });
+      state = state.set('active', newPlot.id);
+      state = state.merge({plots});
     }
-  });
+  }
 
   return state;
 }
 
-export default {
-  FOCUS_PLOT: focusPlot,
-  IOPUB_DATA_DISPLAYED: addPlot,
-  REMOVE_PLOT: removePlot
-};
+export default mapReducers(
+  _.assign(reduxUtil.addPrefixToKeys(prefix, {
+    FOCUS_PLOT: focusPlot,
+    REMOVE_PLOT: removePlot
+  }), {
+    JUPYTER_RESPONSE: jupyterResponse,
+  }, {})
+);
+

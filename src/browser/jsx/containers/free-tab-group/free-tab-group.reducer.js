@@ -106,7 +106,8 @@ export default reduxUtil.reduceReducers(
     IOPUB_EXECUTED_INPUT: iopubInputExecuted,
     MOVE_TAB: moveTab,
     VARIABLES_CHANGED: variablesChanged
-  }, databaseViewerReducer, plotViewerReducer), initialState),
+  }, databaseViewerReducer), initialState),
+  reduxUtil.tabReducer(plotViewerReducer),
   reduxUtil.tabReducer(blockTerminalViewerReducer),
   reduxUtil.tabReducer(documentTerminalViewerReducer)
 );

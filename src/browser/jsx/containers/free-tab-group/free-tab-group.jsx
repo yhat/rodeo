@@ -21,6 +21,7 @@ import documentTerminalViewerActions from '../document-terminal-viewer/document-
 import promptViewerActions from '../prompt-viewer/prompt-viewer.actions';
 import terminalViewerActions from '../terminal-viewer/terminal-viewer.actions';
 import historyViewerActions from '../history-viewer/history-viewer.actions';
+import plotViewerActions from '../plot-viewer/plot-viewer.actions';
 import commonReact from '../../services/common-react';
 
 const allowedPopoutTypes = [
@@ -72,9 +73,9 @@ function mapDispatchToProps(dispatch, ownProps) {
     onPopActiveTab: () => dispatch(freeTabActions.popActiveTab(groupId)),
     onInstallPythonModule: (id, moduleName) => dispatch(terminalViewerActions.installPythonModule(groupId, id, moduleName)),
     onShowDataFrame: item => dispatch(freeTabActions.showDataFrame(groupId, item)),
-    onFocusPlot: (id, plot) => dispatch(freeTabActions.focusPlot(groupId, id, plot)),
+    onFocusPlot: (id, plot) => dispatch(plotViewerActions.focus(groupId, id, plot)),
     onReRunHistoryBlock: (id, blockId) => dispatch(terminalViewerActions.reRunHistoryBlock(groupId, id, blockId)),
-    onRemovePlot: (id, plot) => dispatch(freeTabActions.removePlot(groupId, id, plot)),
+    onRemovePlot: (id, plot) => dispatch(plotViewerActions.remove(groupId, id, plot)),
     onTerminalInterrupt: id => dispatch(documentTerminalViewerActions.interrupt(groupId, id)),
     onTerminalRestart: id => dispatch(documentTerminalViewerActions.restart(groupId, id)),
     onSavePlot: plot => dispatch(freeTabActions.savePlot(plot)),
