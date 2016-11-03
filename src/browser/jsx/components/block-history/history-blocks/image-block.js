@@ -36,6 +36,36 @@ export default React.createClass({
     return commonReact.shouldComponentUpdate(this, nextProps);
   },
 
+  handleClick: function (event) {
+    event.preventDefault();
+    const props = this.props;
+
+    if (props.expanded) {
+      if (!this.clickTimer) {
+        this.clickTimer = setTimeout(() => {
+          this.clickTimer = null;
+          if (props.onClick) {
+            props.onClick();
+          }
+        }, 250);
+      } else {
+        clearTimeout(this.clickTimer);
+        this.clickTimer = null;
+      }
+    }
+  },
+
+  handleDoubleClick: function (event) {
+    event.preventDefault();
+    const props = this.props;
+
+    if (props.expanded) {
+      props.onContract(event);
+    } else {
+      props.onExpand(event);
+    }
+  },
+
   render() {
     const props = this.props,
       className = commonReact.getClassNameList(this),
@@ -53,24 +83,29 @@ export default React.createClass({
     }
 
     return (
-      <div
+      <section
         className={className.join(' ')}
         onBlur={props.onBlur}
-        onClick={props.onClick}
+        onClick={this.handleClick}
         onCopy={props.onCopy}
         onCut={props.onCut}
+        onDoubleClick={this.handleDoubleClick}
         onFocus={props.onFocus}
         onKeyDown={props.onKeyDown}
         onKeyPress={props.onKeyPress}
         onKeyUp={props.onKeyUp}
         onPaste={props.onPaste}
         tabIndex={props.tabIndex || 0}
-      ><header>{'image'}</header>
-        <div className="input-block__menu">{menu}</div>
+      >
+        <header>
+          {'image'}
+          <div className="input-block__menu">{menu}</div>
+        </header>
+
         <div className="image-block__contents-outer">
           <div className="input-block__contents">{contents}</div>
         </div>
-      </div>
+      </section>
     );
   }
 });

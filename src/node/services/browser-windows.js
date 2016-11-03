@@ -15,7 +15,8 @@ const _ = require('lodash'),
   ],
   windows = {},
   os = require('os'),
-  homedir = os.homedir();
+  homedir = os.homedir(),
+  performance = {};
 
 function getCommonErrors() {
   const targetFile = path.resolve(path.join(__dirname, 'chromium-errors.yml'));
@@ -82,8 +83,6 @@ function onGetResponseDetails() {
   const args = sanitizeArguments(arguments, [
     'event', 'status', 'newURL', 'url', 'code', 'method', 'referrer', 'headers', 'type'
   ]);
-
-  log('info', 'onGetResponseDetails', _.pick(args, ['code', 'url']));
 }
 
 /**
@@ -156,10 +155,6 @@ function create(name, options) {
   });
   window.on('responsive', () => log('info', 'responsive', name));
   window.on('unresponsive', () => log('info', 'unresponsive', name));
-  window.on('show', () => log('info', 'show', name));
-  window.on('hide', () => log('info', 'hide', name));
-  window.on('focus', () => log('info', 'focus', name));
-  window.on('blur', () => log('info', 'blur', name));
   window.on('ready-to-show', () => {
     log('info', 'ready-to-show', name);
     announceReady();
@@ -278,7 +273,7 @@ function send(windowName, eventName) {
         } else {
           log('warn', 'ipc ' + eventId + ': still waiting for', eventName);
         }
-      }, 1000);
+      }, 5000);
 
     outboundEmitter.send.apply(outboundEmitter, [eventName, eventId].concat(args));
     response = function (event, id) {
@@ -294,12 +289,11 @@ function send(windowName, eventName) {
           log('error', 'ipc ' + eventId + ': error', endTime + 'ms');
           reject(new Error(result[0].message));
         } else {
-          log('info', 'ipc ' + eventId + ': completed', endTime + 'ms');
+          log('info', 'ipc ' + eventId + ':', eventName, 'completed', endTime + 'ms');
           resolve(result[1]);
         }
       }
     };
-    log('info', 'ipc ' + eventId + ': waiting for', eventName, 'on', eventReplyName);
     inboundEmitter.on(eventReplyName, response);
   });
 }

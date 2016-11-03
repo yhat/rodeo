@@ -5,6 +5,32 @@ import commonReact from '../../services/common-react';
 import selectionUtil from '../../services/selection-util';
 import './terminal-viewer.css';
 
+/**
+ *
+ * @param {Event} event
+ */
+function isHighestFocusableTarget(event) {
+  /**
+   * @type {Element}
+   */
+  const currentTarget = event.currentTarget;
+  let cursor = event.target;
+
+  while (cursor && cursor.getAttribute) {
+    const tabIndex = cursor.getAttribute('tabIndex');
+
+    if (currentTarget === cursor) {
+      return true;
+    } else if (tabIndex !== null && parseInt(tabIndex, 10) >= 0) {
+      return false;
+    }
+
+    cursor = cursor.parentNode;
+  }
+
+  return false;
+}
+
 export default React.createClass({
   displayName: 'TerminalViewer',
 
@@ -13,12 +39,12 @@ export default React.createClass({
   },
 
   handleClick: function (event) {
-    event.preventDefault();
-    event.stopPropagation();
     const el = event.currentTarget.querySelector('.prompt'),
       isSelectionClick = selectionUtil.isSelectionClick(window.getSelection());
 
-    if (el && isSelectionClick) {
+    if (el && isSelectionClick && isHighestFocusableTarget(event)) {
+      event.preventDefault();
+      event.stopPropagation();
       el.focus();
       window.getSelection().collapse(el, 0);
     }

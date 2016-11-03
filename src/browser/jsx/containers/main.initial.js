@@ -3,49 +3,32 @@ import cid from '../services/cid';
 import Immutable from 'seamless-immutable';
 import freeTabTypes from './free-tab-group/tab-types';
 
-function getTerminalTabGroups() {
-  const bottomLeftFocusId = cid();
-
-  return Immutable.from([
-    {
-      groupId: 'bottom-left',
-      active: bottomLeftFocusId,
-      tabs: [
-        {
-          contentType: 'terminal',
-          icon: 'terminal',
-          label: 'Console',
-          id: bottomLeftFocusId,
-          content: {
-            fontSize: 12,
-            id: cid()
-          }
-        }
-      ]
-    }
-  ]);
-}
-
 function getFreeTabGroups() {
   const topRightFocusId = cid(),
     bottomRightFocusId = cid();
 
   return Immutable.from([
     {
+      groupId: 'bottom-left',
+      active: topRightFocusId,
+      tabs: [
+        _.merge(freeTabTypes.getDefaultTab('document-terminal-viewer'), {id: topRightFocusId, lastFocused: new Date().getTime()}),
+      ]
+    },
+    {
       groupId: 'top-right',
       active: topRightFocusId,
       tabs: [
-        _.merge(freeTabTypes.getDefaultTab('variable-viewer'), {id: topRightFocusId}),
+        _.merge(freeTabTypes.getDefaultTab('variable-viewer'), {id: topRightFocusId, lastFocused: new Date().getTime()}),
         freeTabTypes.getDefaultTab('history-viewer'),
-        freeTabTypes.getDefaultTab('block-terminal-viewer'),
-        freeTabTypes.getDefaultTab('document-terminal-viewer')
+        freeTabTypes.getDefaultTab('block-terminal-viewer')
       ]
     },
     {
       groupId: 'bottom-right',
       active: bottomRightFocusId,
       tabs: [
-        _.merge(freeTabTypes.getDefaultTab('file-viewer'), {id: bottomRightFocusId}),
+        _.merge(freeTabTypes.getDefaultTab('file-viewer'), {id: bottomRightFocusId, lastFocused: new Date().getTime()}),
         freeTabTypes.getDefaultTab('plot-viewer'),
         freeTabTypes.getDefaultTab('package-search-viewer')
       ]
@@ -55,8 +38,7 @@ function getFreeTabGroups() {
 
 function getState() {
   return {
-    freeTabGroups: getFreeTabGroups(),
-    terminalTabGroups: getTerminalTabGroups()
+    freeTabGroups: getFreeTabGroups()
   };
 }
 

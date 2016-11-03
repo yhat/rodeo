@@ -7,10 +7,7 @@ const prefixType = reduxUtil.fromFilenameToPrefix(__filename);
 
 function execute(groupId, id, context) {
   return function (dispatch) {
-    const text = context.lines.join('\n');
-
-    // pause prompt
-    return dispatch(kernel.execute(text)).then(function (responseMsgId) {
+    return dispatch(kernel.execute(context.text)).then(function (responseMsgId) {
       const type = 'jupyterResponse',
         items = [];
 

@@ -3,7 +3,7 @@
   margin: 10px;
   border-radius: 5px;
   padding: 6px;
-  padding-top: 17px;
+  padding-top: 2px;
   border: 1px solid #feb4af;
   box-shadow: 1px 2px 3px #feebeb;
   color: #b32327;
@@ -13,24 +13,21 @@
   transition: all 0.2s;
 }
 
+.python-error-block:focus {
+  box-shadow: 0 2px 15px #ffb2b2, 1px 2px 3px #999;
+  outline: none;
+}
+
 .python-error-block > header {
   font-size: 10px;
   font-weight: bold;
-  position: absolute;
-  top: 2px;
-  left: 4px;
   color: #b32327;
   text-transform: lowercase;
-}
-
-.python-error-block__menu {
-  font-size: 10px;
-  font-weight: bold;
-  position: absolute;
-  top: 2px;
-  right: 4px;
-  color: #b32327;
-  text-transform: lowercase;
+  display: flex;
+  flex-direction: row;
+  align-content: space-between;
+  align-items: center;
+  justify-content: space-between;
 }
 
 .python-error-block__suggestions {

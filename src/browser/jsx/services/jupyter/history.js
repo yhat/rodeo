@@ -110,8 +110,10 @@ function createExecutionResult(blocks, response) {
   const data = _.get(response, 'result.content.data');
 
   if (_.isObject(data)) {
-    blocks = _.clone(blocks);
-    blocks = blocks.concat([{id: cid(), data, type: 'executionResult'}]);
+    if (!(data['text/plain'] && _.startsWith(data['text/plain'], '<ggplot:'))) {
+      blocks = _.clone(blocks);
+      blocks = blocks.concat([{id: cid(), data, type: 'executionResult'}]);
+    }
   }
 
   return blocks;

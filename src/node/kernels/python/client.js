@@ -522,22 +522,10 @@ function listenTo(jupyterClient, source, events) {
 }
 
 function addSourceData(result) {
-  log('warn', 'addSourceData', {
-    result,
-    stdoutType: typeof result.stdout,
-    stderrType: typeof result.stderr
-  });
-
   return function (source, data) {
     if (_.isBuffer(data)) {
       data = data.toString();
     }
-
-    log('warn', 'addSourceData2', {
-      result,
-      stdoutType: typeof result.stdout,
-      stderrType: typeof result.stderr
-    });
 
     switch (source) {
       case 'stderr.data':

@@ -56,7 +56,7 @@ function getContent(tabGroups, groupId, id) {
 
 /**
  * Note:  Caller must pass null if they want _any_ group
- * @param {string} tabGroupName  ex., freeTabGroups, terminalTabGroups
+ * @param {string} tabGroupName  ex., freeTabGroups, editorTabGroups
  * @param {function} fn
  * @returns {function}
  */

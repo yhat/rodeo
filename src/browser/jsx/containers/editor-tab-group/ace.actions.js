@@ -6,8 +6,10 @@
 
 import _ from 'lodash';
 import commonTabsActions from '../../services/common-tabs-actions';
+import applicationControl from '../../services/application-control';
 import freeTabActions from '../free-tab-group/free-tab-group.actions';
-import terminalTabActions from '../terminal-tab-group/terminal-tab-group.actions';
+import documentTerminalViewerActions from '../document-terminal-viewer/document-terminal-viewer.actions';
+import blockTerminalViewerActions from '../terminal-viewer/terminal-viewer.actions';
 import dialogActions from '../../actions/dialogs';
 
 const editorTabGroupName = 'editorTabGroups',
@@ -84,7 +86,7 @@ function getSelectionOrLine(editor) {
 }
 
 function interrupt() {
-  return terminalTabActions.interruptActiveTab();
+  return freeTabActions.interrupt();
 }
 
 function openPreferences() {
@@ -111,6 +113,45 @@ function outdentSelection(groupId, id, editor) {
   };
 }
 
+function findTabTokens(groups, fn) {
+  const tabTokens = [];
+
+  _.each(groups, group => {
+    _.each(group.tabs, tab => {
+      if (fn(tab)) {
+        const groupId = group.id,
+          tabId = tab.id;
+
+        tabTokens.push({groupId, tabId, tab});
+      }
+    })
+  });
+
+  return tabTokens;
+}
+
+function getLastFocusedTabToken(tabTokens) {
+  if (tabTokens.length === 0) {
+    return null;
+  } else if (tabTokens.length === 1) {
+    return tabTokens[0];
+  }
+
+  let bestTabToken = tabTokens[0],
+    bestTabTokenTime = tabTokens[0].tab.lastFocused;
+
+  for (let i = 1; i < tabTokens.length; i++) {
+    const tab = tabTokens[i].tab,
+      newTime = tab.lastFocused;
+    if (bestTabTokenTime < tab.lastFocused) {
+      bestTabToken = tabTokens[i];
+      bestTabTokenTime = newTime;
+    }
+  }
+
+  return bestTabToken;
+}
+
 /**
  * Execute some text from an editor in a certain kind of mode
  * @param {ace.Editor} editor
@@ -119,20 +160,31 @@ function outdentSelection(groupId, id, editor) {
  * @returns {function}
  */
 function executeText(editor, text, mode) {
-  return function (dispatch, getState) {
-    const hasText = _.trim(text) !== '',
-      state = getState();
+  return function (dispatch) {
+    const hasText = _.trim(text) !== '';
 
     if (hasText) {
       if (_.includes(pythonTypes, mode)) {
-        return terminalTabActions.addInputTextToActiveTab({
-          text,
-          codeType: 'python',
-          isCodeRunnable: isCodeRunnable(editor),
-          isCodeIsolated: false
+        // todo: find if code is runnable
+
+        // find recent python terminal tab
+        return applicationControl.surveyTabs().then(function (result) {
+          const groups = _.flatten(_.map(result, 'freeTabGroups')),
+            isTerminal = tab => _.includes(['document-terminal-viewer', 'block-terminal-viewer'], tab.contentType),
+            tabTokens = findTabTokens(groups, isTerminal),
+            latestTabToken = getLastFocusedTabToken(tabTokens);
+
+          if (latestTabToken) {
+            const terminalTypes = {
+              'block-terminal-viewer': blockTerminalViewerActions.execute,
+              'document-terminal-viewer': documentTerminalViewerActions.execute
+            };
+
+            return dispatch(terminalTypes[latestTabToken.tab.contentType](latestTabToken.groupId, latestTabToken.tabId, {text}));
+          }
         });
       } else if (_.includes(sqlTypes, mode)) {
-        return terminalTabActions.addInputTextToActiveTab({
+        return freeTabActions.execute({
           text,
           codeType: 'sql',
           isCodeRunnable: true,

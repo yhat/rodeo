@@ -24,9 +24,7 @@ function addResponse(groupId, id, responseMsgId) {
 
 function execute(groupId, id, context) {
   return function (dispatch) {
-    const text = context.lines.join('\n');
-
-    return dispatch(kernel.execute(text)).then(function (responseMsgId) {
+    return dispatch(kernel.execute(context.text)).then(function (responseMsgId) {
       return dispatch(addResponse(groupId, id, responseMsgId));
     }).catch(error => console.error(error));
   };
@@ -57,7 +55,7 @@ function showSelectWorkingDirectoryDialog(groupId, id) {
       }
 
       if (_.isString(result)) {
-        return dispatch(execute(groupId, id, {lines: [`cd "${result}"`]}));
+        return dispatch(execute(groupId, id, {text: `cd "${result}"`}));
       }
     }).catch(error => console.error(error));
   };

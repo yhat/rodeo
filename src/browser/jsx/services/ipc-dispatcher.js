@@ -1,14 +1,10 @@
 import _ from 'lodash';
 import ipc from 'ipc';
-import {local} from './store';
 import track from './track';
-
 import dialogActions from '../actions/dialogs';
 import applicationActions from '../actions/application';
 import editorTabGroupActions from '../containers/editor-tab-group/editor-tab-group.actions';
-import terminalTabGroupActions from '../containers/terminal-tab-group/terminal-tab-group.actions';
 import freeTabGroupActions from '../containers/free-tab-group/free-tab-group.actions';
-import iopubActions from '../actions/iopub';
 import kernelActions from '../actions/kernel';
 import jupyterResponse from './jupyter/response';
 
@@ -28,33 +24,20 @@ const dispatchMap = {
     SHOW_SAVE_FILE_DIALOG: () => editorTabGroupActions.showSaveFileDialogForActiveFile(),
     SHOW_OPEN_FILE_DIALOG: () => editorTabGroupActions.showOpenFileDialogForActiveFile(),
     FOCUS_ACTIVE_ACE_EDITOR: () => editorTabGroupActions.focusActive(),
-    FOCUS_ACTIVE_TERMINAL: () => terminalTabGroupActions.focusActiveTab(null),
-    FOCUS_NEWEST_PLOT: () => freeTabGroupActions.focusNewestPlot(),
-    TERMINAL_INTERRUPT: () => terminalTabGroupActions.interruptActiveTab(null),
-    TERMINAL_RESTART: () => terminalTabGroupActions.restartActiveTab(null)
+    FOCUS_ACTIVE_TERMINAL: () => freeTabGroupActions.focusTerminal(),
+    FOCUS_NEWEST_PLOT: () => freeTabGroupActions.focusPlot(),
+    TERMINAL_INTERRUPT: () => freeTabGroupActions.interruptTerminal(null),
+    TERMINAL_RESTART: () => freeTabGroupActions.restartTerminal(null)
   },
-  iopubDispatchMap = {
-    executeInput: dispatchIOPubExecuteInput,
-    stream: dispatchIOPubStream,
-    executeResult: dispatchIOPubResult,
-    displayData: dispatchIOPubDisplayData,
-    error: dispatchIOPubError,
-    status: dispatchIOPubStatus,
-    commMsg: dispatchNoop,
-    commOpen: dispatchNoop,
-    clearOutput: dispatchNoop
-  },
-  shellDispatchMap = {
-    executeReply: dispatchShellExecuteReply
-  },
-  stdinDispatchMap = {},
   detectVariables = _.debounce(function (dispatch) {
     dispatch(kernelActions.detectKernelVariables());
-  }, 500);
+  }, 500),
+  detectVariableEvents = {
+    'execute_result': {},
+    'display_data': {},
+    'execute_reply': {}
+  };
 
-/**
- * @param {function} dispatch
- */
 function internalDispatcher(dispatch) {
   ipc.on('dispatch', function (event, action) {
     if (dispatchMap[action.type]) {
@@ -65,141 +48,45 @@ function internalDispatcher(dispatch) {
   });
 }
 
-function dispatchShellExecuteReply(dispatch, clientId, content) {
-  let payload = content && content.payload;
-
-  // it's okay if lots of things have no payloads.  Ones that have payloads are really important though.
-  _.each(payload, function (result) {
-    const text = _.get(result, 'data["text/plain"]');
-
-    if (text) {
-      // this text includes ANSI color
-      dispatch(terminalTabGroupActions.addOutputBlockByClientId(clientId, text));
-    } else {
-      console.log('dispatchShellExecuteReply', 'unknown content type', result);
-    }
-  });
-}
-
-function dispatchIOPubResult(dispatch, clientId, content) {
-  track({category:'iopub', action: 'execute_result'});
-  let data = content && content.data,
-    text = data && data['text/plain'];
-
-  if (text) {
-    dispatch(terminalTabGroupActions.addOutputTextByClientId(clientId, text));
-  } else {
-    console.log('dispatchIOPubResult', 'unknown content type', data);
-  }
-
-  dispatch(iopubActions.resultComputed(content.data));
-  detectVariables(dispatch);
-}
-
-function dispatchIOPubDisplayData(dispatch, clientId, content) {
-  track({category:'iopub', action: 'display_data'});
-  dispatch(terminalTabGroupActions.addDisplayDataByClientId(clientId, content.data));
-  dispatch(iopubActions.dataDisplayed(content.data));
-  if (local.get('plotsFocusOnNew') !== false) {
-    dispatch(freeTabGroupActions.focusNewestPlot());
-  }
-  detectVariables(dispatch);
-}
-
-function dispatchIOPubError(dispatch, clientId, content) {
-  track({category:'iopub', action: 'error'});
-  dispatch(terminalTabGroupActions.addErrorTextByClientId(clientId, content.ename, content.evalue, content.traceback));
-  dispatch(iopubActions.errorOccurred(content.ename, content.evalue, content.traceback));
-  detectVariables(dispatch);
-}
-
-function dispatchIOPubStream(dispatch, clientId, content) {
-  track({category:'iopub', action: 'stream'});
-  dispatch(terminalTabGroupActions.addOutputTextByClientId(clientId, content.text));
-  dispatch(iopubActions.dataStreamed(content.name, content.text));
-  detectVariables(dispatch);
-}
-
-function dispatchIOPubExecuteInput(dispatch, clientId, content) {
-  track({category:'iopub', action: 'execute_input'});
-  dispatch(iopubActions.inputExecuted(content.code));
-  detectVariables(dispatch);
-}
-
-function dispatchIOPubStatus(dispatch, clientId, content) {
-  // track({category:'iopub', action: 'status'}); // TOO MANY!~
-  dispatch(iopubActions.stateChanged(content.execution_state));
-}
-
-function dispatchNoop() {
-  // eat it; we don't care about these yet
-}
-
-/**
- * Jupyter sends IOPUB events to broadcast to every client connected to a session.  Various components may be
- * listening and reacting to these independently, without connection to each other.
- * @param {function} dispatch
- */
-function iopubDispatcher(dispatch) {
-  ipc.on('iopub', function (event, clientId, data) {
-    const result = data.result,
-      content = _.get(data, 'result.content'),
-      type = result && _.camelCase(result.msg_type);
-
-    if (iopubDispatchMap[type]) {
-      return iopubDispatchMap[type](dispatch, clientId, content);
-    }
-
-    return dispatch(iopubActions.unknownEventOccurred(data));
-  });
-}
-
-function shellDispatcher(dispatch) {
-  ipc.on('shell', function (event, clientId, data) {
-    const result = data.result,
-      content = _.get(data, 'result.content'),
-      type = result && _.camelCase(result.msg_type);
-
-    if (shellDispatchMap[type]) {
-      return shellDispatchMap[type](dispatch, clientId, content);
-    }
-
-    console.log('shell', {data});
-  });
-}
-
-function stdinDispatcher(dispatch) {
-  ipc.on('stdin', function (event, clientId, data) {
-    const result = data.result,
-      content = _.get(data, 'result.content'),
-      type = result && _.camelCase(result.msg_type);
-
-    if (stdinDispatchMap[type]) {
-      return stdinDispatchMap[type](dispatch, content);
-    }
-
-    console.log('stdin', {data});
-  });
-}
-
 function otherDispatcher(dispatch) {
-  ipc.on('event', function (event, clientId, source, data) {
-    // dispatch(terminalTabGroupActions.addOutputText(source + ': ' + data));
-    console.log('event', data);
-  });
-
-  ipc.on('error', function (event, clientId, data) {
-    dispatch(terminalTabGroupActions.addOutputTextByClientId(clientId, 'Error: ' + JSON.stringify(data)));
-    console.log('error', data);
-  });
-
-  ipc.on('close', function (event, clientId, code, signal) {
-    dispatch(terminalTabGroupActions.handleProcessClose(clientId, code, signal));
-    console.log('close', clientId, code, signal);
-  });
+  ipc.on('error', (event, clientId, data) => dispatch({type: 'JUPYTER_PROCESS_ERROR', clientId, data}));
+  ipc.on('close', (event, clientId, code, signal) => dispatch({type: 'JUPYTER_PROCESS_CLOSED', clientId, code, signal}));
 
   ipc.on('jupyter', function (event, clientId, response) {
+    const category = response.source,
+      action = _.get(response, 'result.msg_type'),
+      responseMsgId = _.get(response, 'result.parent_header.msg_id');
+
+    if (category && action) {
+      track({category, action});
+    }
+
     jupyterResponse.handle(dispatch, response);
+
+    if (detectVariableEvents[action]) {
+      // if the parent id matches any of the things we're looking for, detect state as well
+
+      dispatch(function (dispatch, getState) {
+        const state = getState();
+        let isCurious = false;
+
+        _.each(state.freeTabGroups, group => {
+          _.each(group.tabs, tab => {
+            if (tab.contentType === 'document-terminal-viewer' && tab.content.responses[responseMsgId]) {
+              isCurious = true;
+            }
+
+            if (tab.contentType === 'block-terminal-viewer' && _.some(tab.content.blocks, {id: responseMsgId})) {
+              isCurious = true;
+            }
+          });
+        });
+
+        if (isCurious) {
+          detectVariables(dispatch);
+        }
+      });
+    }
   });
 
   ipc.on('sharedAction', function (event, action) {
@@ -217,7 +104,7 @@ function otherDispatcher(dispatch) {
     return dispatch(function (dispatch, getState) {
       const state = getState();
 
-      return _.pick(state, ['freeTabGroups', 'editorTabGroups', 'terminalTabGroups']);
+      return _.pick(state, ['freeTabGroups', 'editorTabGroups']);
     });
   });
 }
@@ -230,9 +117,6 @@ function otherDispatcher(dispatch) {
  * @param {function} dispatch
  */
 export default function (dispatch) {
-  iopubDispatcher(dispatch);
-  shellDispatcher(dispatch);
-  stdinDispatcher(dispatch);
   internalDispatcher(dispatch);
   otherDispatcher(dispatch);
 }

@@ -44,6 +44,7 @@ const defaultTabTypes = {
       lines: [''],
       cursor: {row: 0, column: 0},
       queue: [],
+      responses: {},
       state: 'paused', // paused, prompt, busy, input
       promptLabel: '>>> ',
       continueLabel: '... '
@@ -80,6 +81,7 @@ const defaultTabTypes = {
     }
   }),
   'block-terminal-viewer': () => ({
+    closeable: true,
     icon: 'terminal',
     label: 'Terminal',
     id: cid(),
@@ -89,14 +91,14 @@ const defaultTabTypes = {
       cursor: {row: 0, column: 0},
       queue: [],
       state: 'paused', // paused, prompt, busy, input
-      focused: false
+
     }
   }),
   'variable-table-viewer': () => ({
+    closeable: true,
     icon: 'table',
     label: 'DataFrame',
     id: cid(),
-    closeable: true,
     content: {}
   }),
   'variable-viewer': () => ({
@@ -113,6 +115,7 @@ function getDefaultTab(contentType) {
   if (_.isFunction(tab)) {
     tab = tab();
     tab.contentType = contentType;
+    tab.lastFocused = 0; // never focused
   }
 
   return tab;

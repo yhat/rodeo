@@ -347,15 +347,8 @@ function subscribeWindowToKernelEvents(windowName, client, instanceId) {
   subscribeBrowserWindowToEvent(windowName, client, 'jupyter', instanceId);
   // terminal closed
   subscribeBrowserWindowToEvent(windowName, client, 'close', instanceId);
-
-  // old events that we need to eventually transfer to the browser-side
-  subscribeBrowserWindowToEvent(windowName, client, 'shell', instanceId);
-  subscribeBrowserWindowToEvent(windowName, client, 'iopub', instanceId);
-  subscribeBrowserWindowToEvent(windowName, client, 'stdin', instanceId);
-  subscribeBrowserWindowToEvent(windowName, client, 'event', instanceId);
-  subscribeBrowserWindowToEvent(windowName, client, 'input_request', instanceId);
+  // errors without association
   subscribeBrowserWindowToEvent(windowName, client, 'error', instanceId);
-  subscribeBrowserWindowToEvent(windowName, client, 'close', instanceId);
 }
 
 /**
@@ -437,7 +430,7 @@ function startMainWindowWithWorkingDirectory(filename) {
     let window = browserWindows.createMainWindow(windowName, {
       url: 'file://' + path.join(staticFileDir, windowUrls[windowName]),
       startActions: [
-        {type: 'SET_VIEWED_PATH', path: filename, files}
+        {type: 'SET_VIEWED_PATH', path: filename, files, meta: {sender: 'self'}}
       ]
     });
 
@@ -459,8 +452,6 @@ function startStartupWindow() {
       window = browserWindows.createStartupWindow(windowName, {
         url: 'file://' + path.join(staticFileDir, windowUrls[windowName])
       });
-
-    log('info', 'startStartupWindow');
 
     if (argv.dev === true) {
       window.openDevTools();
@@ -490,8 +481,6 @@ function startStartupWindow() {
  */
 function onReady() {
   let windowName, window;
-
-  log('info', 'onReady');
 
   return bluebird.try(function () {
     if (argv.design) {
@@ -620,8 +609,6 @@ function onKillKernelInstance(id) {
  * @returns {Promise}
  */
 function getKernelInstanceById(id) {
-  log('info', 'getKernelInstanceById', id);
-
   if (!kernelClients[id]) {
     throw new Error('Kernel with this id does not exist: ' + id);
   }
@@ -640,8 +627,6 @@ function onExecuteWithKernel(options, text) {
     throw Error('Missing text to execute');
   }
 
-  log('info', 'onExecuteWithKernel', options, text);
-
   return getKernelInstanceById(options.instanceId)
     .then(client => client.execute(text));
 }
@@ -649,11 +634,10 @@ function onExecuteWithKernel(options, text) {
 /**
  * @param {object} options
  * @param {string} options.instanceId
- * @param {string} text
+ * @param {object} params
  * @returns {Promise}
  */
 function onInvokeWithKernel(options, params) {
-  log('info', 'onInvokeWithKernel', options, params);
   return getKernelInstanceById(options.instanceId)
     .then(client => client.invoke(params));
 }
@@ -665,9 +649,7 @@ function onInvokeWithKernel(options, params) {
  * @returns {Promise}
  */
 function onExecuteWithNewKernel(options, text) {
-  log('info', 'onExecuteWithNewKernel', {options, text});
-  return kernelsPythonClient.exec(options, text)
-    .tap(result => log('info', 'onExecuteWithNewKernel result', {options, text}, result));
+  return kernelsPythonClient.exec(options, text);
 }
 
 function onExecuteProcess(cmd, args, options) {
@@ -796,8 +778,6 @@ function onCheckForUpdates() {
 function onOpenExternal(url) {
   const shell = electron.shell;
 
-  log('debug', 'opening in default browser', url);
-
   shell.openExternal(url);
 }
 
@@ -807,8 +787,6 @@ function onOpenExternal(url) {
 function onOpenTerminal() {
   const shell = electron.shell,
     isWindows = process.platform === 'win32';
-
-  log('debug', 'opening terminal');
 
   // todo: obviously, this may go badly on linux
   shell.openItem(isWindows ? 'cmd.exe' : '/Applications/Utilities/Terminal.app');

@@ -19,7 +19,7 @@ function handle(dispatch, response) {
       request.unmatchedResponses.push(response);
     }
   } else {
-    dispatch({type: 'JUPYTER_RESPONSE', payload: response});
+    return dispatch({type: 'JUPYTER_RESPONSE', payload: response});
   }
 }
 

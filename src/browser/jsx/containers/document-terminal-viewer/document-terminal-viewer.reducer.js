@@ -97,7 +97,9 @@ function addHistoryItem(state, item) {
 }
 
 function responseAdded(state, action) {
-  return state.setIn(['responses', action.payload], {});
+  if (state.responses) {
+    return state.setIn(['responses', action.payload], {});
+  }
 }
 
 /**

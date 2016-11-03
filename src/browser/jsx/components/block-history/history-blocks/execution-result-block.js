@@ -45,7 +45,15 @@ export default React.createClass({
     }
 
     return (
-      <div className={className.join(' ')}><header>{'result'}</header>{content}</div>
+      <section
+        className={className.join(' ')}
+        tabIndex={props.tabIndex || 0}
+      >
+        <header>
+          {'result'}
+        </header>
+        {content}
+      </section>
     );
   }
 });

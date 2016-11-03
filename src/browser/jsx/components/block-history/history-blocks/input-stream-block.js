@@ -30,6 +30,7 @@ export default React.createClass({
     onPaste: React.PropTypes.func,
     onReRun: React.PropTypes.func
   },
+
   getDefaultProps () {
     return {
       chunks: [],
@@ -41,12 +42,43 @@ export default React.createClass({
     return commonReact.shouldComponentUpdate(this, nextProps);
   },
 
+  handleClick: function (event) {
+    event.preventDefault();
+    const props = this.props;
+
+    if (props.expanded) {
+      if (!this.clickTimer) {
+        this.clickTimer = setTimeout(() => {
+          this.clickTimer = null;
+          if (props.onClick) {
+            props.onClick();
+          }
+        }, 250);
+      } else {
+        clearTimeout(this.clickTimer);
+        this.clickTimer = null;
+      }
+    }
+  },
+
+  handleDoubleClick: function (event) {
+    event.preventDefault();
+    const props = this.props;
+
+    if (props.expanded) {
+      props.onContract(event);
+    } else {
+      props.onExpand(event);
+    }
+  },
+
   render() {
     const props = this.props,
       className = commonReact.getClassNameList(this),
       lines = props.lines,
       getLine = (line, index) => <div className="input-stream-block-line" id={index} key={index}>{line}</div>,
       menu = [];
+      let expandButton;
 
     if (props.onCopyToPrompt) {
       menu.unshift(
@@ -72,24 +104,36 @@ export default React.createClass({
 
     className.push('font-monospaced');
 
-    if (props.expanded || lines.length < 2) {
-      className.push('input-stream-block--expanded');
-      menu.push(<span className="fa fa-compress" key="contract" onClick={props.onContract} title="Contract"/>);
-      contents = lines.map(getLine);
-    } else {
-      contents = _.map(_.takeRight(lines, 2), getLine);
+    if (lines.length > 1) {
+      if (props.expanded || lines.length < 2) {
+        className.push('input-stream-block--expanded');
+        menu.push(<span className="fa fa-compress" key="contract" onClick={props.onContract} title="Contract"/>);
+        contents = lines.map(getLine);
+      } else {
+        contents = _.map(_.takeRight(lines, 2), getLine);
 
-      menu.push(<span className="fa fa-expand" key="expand" onClick={props.onExpand} title="Expand"/>);
-      className.push('input-stream-block--compressed');
+        menu.push(<span className="fa fa-expand" key="expand" onClick={props.onExpand} title="Expand"/>);
+        className.push('input-stream-block--compressed');
+      }
+
+      expandButton = (
+        <ExpandBlockButton
+          direction={props.expanded ? 'up' : 'down'}
+          onClick={props.expanded ? props.onContract : props.onExpand}
+        />
+      );
+    } else {
+      contents = lines.map(getLine);
     }
 
     return (
       <section
         className={className.join(' ')}
         onBlur={props.onBlur}
-        onClick={props.onClick}
+        onClick={this.handleClick}
         onCopy={props.onCopy}
         onCut={props.onCut}
+        onDoubleClick={this.handleDoubleClick}
         onFocus={props.onFocus}
         onKeyDown={props.onKeyDown}
         onKeyPress={props.onKeyPress}
@@ -97,15 +141,14 @@ export default React.createClass({
         onPaste={props.onPaste}
         tabIndex={props.tabIndex || 0}
       >
-        <header>{'input'}</header>
-        <div className="input-stream-block__menu">{menu}</div>
+        <header>
+          {'input'}
+          <div className="input-stream-block__menu">{menu}</div>
+        </header>
         <div className="input-stream-block__contents-outer">
           <div className="input-stream-block__contents">{contents}</div>
         </div>
-        <ExpandBlockButton
-          direction={props.expanded ? 'up' : 'down'}
-          onClick={props.expanded ? props.onContract : props.onExpand}
-        />
+        {expandButton}
       </section>
     );
   }

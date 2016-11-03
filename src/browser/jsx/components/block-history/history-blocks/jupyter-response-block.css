@@ -3,7 +3,7 @@
   border-radius: 5px;
   padding: 5px;
   border: 1px solid #ddd;
-  box-shadow: 1px 2px 3px #ccc;
+  box-shadow: 0 0 15px #e4f1fd, inset -1px -2px 3px #ccc;
   position: relative;
   transition: all 0.2s;
 }

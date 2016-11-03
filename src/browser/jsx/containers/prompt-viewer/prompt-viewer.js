@@ -79,7 +79,10 @@ export default React.createClass({
       event.stopPropagation();
 
       if (command.name === 'execute') {
-        props.onExecute(_.clone(props));
+        const context = _.clone(props);
+
+        context.text = props.lines.join('\n');
+        props.onExecute(context);
       }
 
       props.onCommand(command);

@@ -4,7 +4,6 @@ import fileView from './file-viewer/file-viewer.reducer';
 import modalDialogs from './modal-dialog-viewer/modal-dialog.reducer';
 import sidebar from '../components/sidebar/sidebar.reducer';
 import notifications from '../components/notifications/notifications.reducer';
-import terminalTabGroups from './terminal-tab-group/terminal-tab-group.reducer';
 import freeTabGroups from './free-tab-group/free-tab-group.reducer';
 import editorTabGroups from './editor-tab-group/editor-tab-group.reducer';
 import preferences from './preferences-viewer/preferences-viewer.reducer';
@@ -53,10 +52,6 @@ export default combineReducers({
    * in the editor.
    */
   editorTabGroups,
-  /**
-   * list! The tab and the terminals are tightly coupled so the tab can change its look based on the state of the terminal.
-   */
-  terminalTabGroups,
   /**
    * map!
    */

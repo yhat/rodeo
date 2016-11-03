@@ -4,6 +4,7 @@
  * Sometimes we want to do something _without_ visual indicators
  */
 
+import _ from 'lodash';
 import api from '../services/api';
 
 function checkForUpdates() {
@@ -46,7 +47,7 @@ function shareAction(action) {
 
   // Only share actions that are meant to be shared
   // No sender means default behavior (therefore shareable)
-  if (!action.meta || !action.meta.sender) {
+  if (!(action.meta && action.meta.sender) && !_.startsWith(action.type, '@@redux')) {
     return api.send('shareAction', action);
   }
 }

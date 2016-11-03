@@ -77,14 +77,14 @@ export default React.createClass({
       };
 
     return (
-      <div className={className.join(' ')}>
+      <section className={className.join(' ')}>
         <div className="jupyter-response-block__menu">
           <Closeable onClick={props.onRemove}/>
         </div>
         <div className="jupyter-response-block-items">
           {items.map(item => types[item.type](item))}
         </div>
-      </div>
+      </section>
     );
   }
 });

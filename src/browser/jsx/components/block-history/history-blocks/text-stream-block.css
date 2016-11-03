@@ -2,12 +2,17 @@
   margin: 10px;
   border-radius: 5px;
   padding: 6px;
-  padding-top: 17px;
+  padding-top: 2px;
   border: 1px solid #ddd;
   box-shadow: 1px 2px 3px #999;
   color: #333;
   position: relative;
   transition: all 0.2s;
+}
+
+.text-stream-block:focus {
+  box-shadow: 0 2px 15px #4eaaff, 1px 2px 3px #999;
+  outline: none;
 }
 
 .text-stream-block--expanded {
@@ -30,19 +35,11 @@
 .text-stream-block > header {
   font-size: 10px;
   font-weight: bold;
-  position: absolute;
-  top: 2px;
-  left: 4px;
   color: #aaa;
   text-transform: lowercase;
-}
-
-.text-stream-block__menu {
-  font-size: 10px;
-  font-weight: bold;
-  position: absolute;
-  top: 2px;
-  right: 4px;
-  color: #aaa;
-  text-transform: lowercase;
+  display: flex;
+  flex-direction: row;
+  align-content: space-between;
+  align-items: center;
+  justify-content: space-between;
 }

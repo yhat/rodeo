@@ -91,7 +91,7 @@ export default React.createClass({
     }
 
     return (
-      <div
+      <section
         className={className.join(' ')}
         onBlur={props.onBlur}
         onClick={props.onClick}
@@ -103,7 +103,7 @@ export default React.createClass({
         onKeyUp={props.onKeyUp}
         onPaste={props.onPaste}
         tabIndex={props.tabIndex || 0}
-      ><header>{'python error'}</header><div className="python-error-block__menu">{menu}</div>{contents}</div>
+      ><header>{'python error'}</header><div className="python-error-block__menu">{menu}</div>{contents}</section>
     );
   }
 });
