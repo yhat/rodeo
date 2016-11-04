@@ -9,7 +9,7 @@ import commonTabsActions from '../../services/common-tabs-actions';
 import applicationControl from '../../services/application-control';
 import freeTabActions from '../free-tab-group/free-tab-group.actions';
 import documentTerminalViewerActions from '../document-terminal-viewer/document-terminal-viewer.actions';
-import blockTerminalViewerActions from '../terminal-viewer/terminal-viewer.actions';
+import blockTerminalViewerActions from '../block-terminal-viewer/block-terminal-viewer.actions';
 import dialogActions from '../../actions/dialogs';
 
 const editorTabGroupName = 'editorTabGroups',

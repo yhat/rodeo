@@ -28,7 +28,16 @@ function copyToPrompt(state, action) {
   });
 }
 
+function autocomplete(state, action) {
+  const suggestions = action.payload;
+
+  console.log(suggestions);
+
+  return state;
+}
+
 export default mapReducers(reduxUtil.addPrefixToKeys(prefixType, {
+  AUTOCOMPLETE: autocomplete,
   COPY_TO_PROMPT: copyToPrompt,
   COMMAND: command
 }), {});

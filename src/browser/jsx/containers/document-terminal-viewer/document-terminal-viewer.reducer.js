@@ -2,10 +2,9 @@ import _ from 'lodash';
 import mapReducers from '../../services/map-reducers';
 import reduxUtil from '../../services/redux-util';
 import promptViewerReducer from '../prompt-viewer/prompt-viewer.reducer';
-import AsciiToHtml from 'ansi-to-html';
+import textUtil from '../../services/text-util';
 
-const asciiToHtmlConvertor = new AsciiToHtml(),
-  prefix = reduxUtil.fromFilenameToPrefix(__filename),
+const prefix = reduxUtil.fromFilenameToPrefix(__filename),
   responseTypeHandlers = {
     display_data: function (state, result) {
       const data = _.get(result, 'content.data');
@@ -17,11 +16,12 @@ const asciiToHtmlConvertor = new AsciiToHtml(),
       return state;
     },
     error: function (state, result) {
-      const responseMsgId = _.get(result, 'parent_header.msg_id'),
+      const converter = textUtil.getAsciiToHtmlStream(),
+        responseMsgId = _.get(result, 'parent_header.msg_id'),
         name = _.get(result, 'content.ename'),
         value = _.get(result, 'content.evalue'),
         traceback = _.get(result, 'content.traceback'),
-        stacktrace = traceback.map(line => asciiToHtmlConvertor.toHtml(line));
+        stacktrace = traceback.map(line => converter.toHtml(line));
 
       state = addHistoryItem(state, {name, stacktrace, traceback, type: 'pythonError', value});
 
@@ -48,7 +48,7 @@ const asciiToHtmlConvertor = new AsciiToHtml(),
         }).join('\n');
       }
 
-      html = asciiToHtmlConvertor.toHtml(text);
+      html = textUtil.fromAsciiToHtml(text);
 
       return addHistoryItem(state, {html, type: 'text', source});
     },
@@ -57,7 +57,7 @@ const asciiToHtmlConvertor = new AsciiToHtml(),
 
       if (data) {
         if (data['text/plain']) {
-          const html = asciiToHtmlConvertor.toHtml(data['text/plain']);
+          const html = textUtil.fromAsciiToHtml(data['text/plain']);
 
           state = addHistoryItem(state, {html, source: 'stdout', type: 'text'});
         } else {
@@ -84,7 +84,7 @@ const asciiToHtmlConvertor = new AsciiToHtml(),
     },
     stream: function (state, result) {
       const source = _.get(result, 'content.name'),
-        html = asciiToHtmlConvertor.toHtml(_.get(result, 'content.text'));
+        html = textUtil.fromAsciiToHtml(_.get(result, 'content.text'));
 
       return addHistoryItem(state, {html, type: 'text', source});
     }
@@ -178,9 +178,54 @@ function clear(state) {
   return state.set('items', []);
 }
 
+/**
+ * @param {Array} state
+ * @returns {Array};
+ */
+function removeLastHistoryItem(state) {
+  const items = state.items.asMutable();
+
+  items.pop();
+
+  return state.set('items', items);
+}
+
+function autocomplete(state, action) {
+  const matches = action.payload,
+    lastItem = _.last(state.items);
+
+  if (lastItem && lastItem.type === 'autocomplete') {
+    state = removeLastHistoryItem(state);
+  }
+
+  return addHistoryItem(state, {type: 'autocomplete', matches});
+}
+
+function clearAutocomplete(state) {
+  const lastItem = _.last(state.items);
+
+  if (lastItem && lastItem.type === 'autocomplete') {
+    state = removeLastHistoryItem(state);
+  }
+
+  return state;
+}
+
+function promptCommand(state, action) {
+  const command = action.payload;
+
+  if (command.clearAutocomplete) {
+    state = clearAutocomplete(state, action);
+  }
+
+  return state;
+}
+
 export default reduxUtil.reduceReducers(
   mapReducers(
     _.assign(reduxUtil.addPrefixToKeys(prefix, {
+      AUTOCOMPLETE: autocomplete,
+      CLEAR_AUTOCOMPLETE: clearAutocomplete,
       CLEAR: clear,
       INTERRUPTING: interrupting,
       INTERRUPTED: interrupted,
@@ -190,7 +235,8 @@ export default reduxUtil.reduceReducers(
     }), {
       JUPYTER_RESPONSE: jupyterResponseDetected,
       CHANGE_PREFERENCE: changePreference,
-      WORKING_DIRECTORY_CHANGED: workingDirectoryChanged
+      WORKING_DIRECTORY_CHANGED: workingDirectoryChanged,
+      PROMPT_VIEWER_COMMAND: promptCommand
     }), {}),
   promptViewerReducer
 );

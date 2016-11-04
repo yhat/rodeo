@@ -2,12 +2,50 @@ import _ from 'lodash';
 import React from 'react';
 import Prompt from '../../components/prompt/prompt';
 import commonReact from '../../services/common-react';
-import commands from './default-commands.yml';
+import defaultCommands from './default-commands.yml';
+import client from '../../services/jupyter/client';
 import promptUtils from '../../services/util/prompt-util';
+import textUtil from '../../services/text-util';
+
+function getTargetCommand(event) {
+  const key = event.key,
+    alt = event.altKey,
+    ctrl = event.ctrlKey,
+    meta = event.metaKey,
+    shift = event.shiftKey,
+    selection = promptUtils.getSelectionLength(event) !== 0;
+
+  return {key, alt, meta, ctrl, shift, selection};
+}
+
+/**
+ *
+ * @param {Array} commands
+ * @param {object} targetCommand
+ * @returns {Array}
+ */
+function getKeyDownCommands(commands, targetCommand) {
+  const matches = _.matches(targetCommand),
+    byOS = commands.keyDownByOS[process.platform];
+  let keyDownCommands = commands.keyDown.filter(matches);
+
+  if (byOS) {
+    keyDownCommands = byOS.filter(matches).concat(keyDownCommands);
+  }
+
+  return keyDownCommands;
+}
+
+function getKeyPressCommands(commands, targetCommand) {
+  const matches = _.matches(targetCommand);
+
+  return commands.keyPress.filter(matches);
+}
 
 export default React.createClass({
   displayName: 'PromptViewer',
   propTypes: {
+    onAutocomplete: React.PropTypes.func.isRequired,
     onBlur: React.PropTypes.func,
     onCommand: React.PropTypes.func.isRequired,
     onExecute: React.PropTypes.func.isRequired,
@@ -28,34 +66,70 @@ export default React.createClass({
     return commonReact.shouldComponentUpdate(this, nextProps);
   },
 
+  shouldAutocomplete: function () {
+    const props = this.props,
+      currentLine = props.lines[props.cursor.row],
+      trimmedStartCurrentLine = _.trimStart(currentLine);
+
+    // if blank line, don't autocomplete
+    return trimmedStartCurrentLine.length !== 0;
+  },
+
+  autocomplete: function () {
+    const props = this.props,
+      cursor = props.cursor,
+      code = props.lines.join('\n');
+
+    return client.getAutoComplete(code, textUtil.getCursorPosFromRowColumn(code, cursor.row, cursor.column)).then(function (result) {
+      const matches = result.matches;
+
+      if (matches.length === 1) {
+        const start = result.cursor_start,
+          len = result.cursor_end - start,
+          newCode = textUtil.spliceString(code, start, len, matches[0]),
+          lines = newCode.split('\n'),
+          cursor = textUtil.getRowColumnFromCursorPos(newCode, result.cursor_start + matches[0].length);
+
+        // if only a single match, just replace it
+        return props.onCommand({
+          name: 'move',
+          lines,
+          clearAutocomplete: true,
+          cursor
+        });
+      } else if (matches.length > 0) {
+        return props.onAutocomplete(matches);
+      }
+    });
+  },
+
   /**
    * @param {KeyboardEvent} event
    */
   handleKeyDown: function (event) {
     const props = this.props,
-      key = event.key,
-      alt = event.altKey,
-      ctrl = event.ctrlKey,
-      meta = event.metaKey,
-      shift = event.shiftKey,
-      selection = promptUtils.getSelectionLength(event) !== 0,
-      targetCommand = {key, alt, meta, ctrl, shift, selection},
-      matches = _.matches(targetCommand),
-      command = _.find(commands.keyDownByOS[process.platform], matches) || _.find(commands.keyDown, matches);
+      matchingCommands = getKeyDownCommands(defaultCommands, getTargetCommand(event));
 
-    console.log('keydown', {
-      selectionLength: promptUtils.getSelectionLength(event),
-      targetCommand,
-      command,
-      commands: commands.keyDownByOS[process.platform],
-      find1: _.find(commands.keyDownByOS[process.platform], matches),
-      find2: _.find(commands.keyDown, matches)
-    });
+    if (matchingCommands[0]) {
+      let command = matchingCommands[0];
 
-    if (command) {
-      event.preventDefault();
-      event.stopPropagation();
-      props.onCommand(command);
+      if (command.name === 'autocomplete') {
+        if (this.shouldAutocomplete()) {
+          event.preventDefault();
+          event.stopPropagation();
+          this.autocomplete();
+        } else {
+          // next please
+          matchingCommands.shift();
+          command = matchingCommands[0];
+        }
+      }
+
+      if (command) {
+        event.preventDefault();
+        event.stopPropagation();
+        props.onCommand(command);
+      }
     }
   },
   /**
@@ -67,11 +141,8 @@ export default React.createClass({
       alt = event.altKey,
       ctrl = event.ctrlKey,
       meta = event.metaKey,
-      shift = event.shiftKey,
-      selection = promptUtils.getSelectionLength(event) !== 0,
-      targetCommand = {key, alt, meta, ctrl, shift, selection},
-      matches = _.matches(targetCommand),
-      command = _.find(commands.keyPress, matches);
+      matchingCommands = getKeyPressCommands(defaultCommands, getTargetCommand(event)),
+      command = matchingCommands[0];
 
     if (command) {
       // if one of our commands

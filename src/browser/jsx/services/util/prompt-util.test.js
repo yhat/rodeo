@@ -3,46 +3,6 @@
 import lib from './prompt-util';
 
 describe(__filename, function () {
-  describe('getNextWordIndex', function () {
-    it('returns end of line when there are no words', function () {
-      expect(lib.getNextWordIndex('abcd', 0)).toEqual(4);
-    });
-
-    it('returns end of line when starting in last word', function () {
-      expect(lib.getNextWordIndex('abcd efgh', 5)).toEqual(9);
-    });
-
-    it('returns second word when starting in first word', function () {
-      expect(lib.getNextWordIndex('abcd efgh', 2)).toEqual(5);
-    });
-
-    it('returns second word when starting at beginning of line', function () {
-      expect(lib.getNextWordIndex('abcd efgh', 0)).toEqual(5);
-    });
-
-    it('returns -1 when starting at the end', function () {
-      expect(lib.getNextWordIndex('abcd', 4)).toEqual(-1);
-    });
-  });
-
-  describe('getPreviousWordIndex', function () {
-    it('returns -1 when at beginning of line', function () {
-      expect(lib.getPreviousWordIndex('abcd', 0)).toEqual(-1);
-    });
-
-    it('returns 0 when at middle of first word', function () {
-      expect(lib.getPreviousWordIndex('abcd', 2)).toEqual(0);
-    });
-
-    it('returns start of second word when at middle of second word', function () {
-      expect(lib.getPreviousWordIndex('abcd efgh', 7)).toEqual(5);
-    });
-
-    it('returns start of second word when at beginning of third word', function () {
-      expect(lib.getPreviousWordIndex('abcd efgh ijkl', 10)).toEqual(5);
-    });
-  });
-
   describe('removeSelection', function () {
     it('removes from middle of single line', function () {
       const state = {lines: ['abcd'], cursor: {row: 0, column: 0}},

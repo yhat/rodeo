@@ -1,9 +1,8 @@
 import _ from 'lodash';
 import cid from '../cid';
-import AsciiToHtml from 'ansi-to-html';
+import textUtil from '../text-util';
 
-const asciiToHtmlConvertor = new AsciiToHtml(),
-  itemFactories = {
+const itemFactories = {
     display_data: createDisplayData,
     status: createStatusChange,
     error: createError,
@@ -65,7 +64,8 @@ function createError(container, response) {
   if (!oldError && traceback) {
     container = _.clone(container);
     let items = _.clone(container.items);
-    const stacktrace = traceback.map(line => asciiToHtmlConvertor.toHtml(line));
+    const converter = textUtil.getAsciiToHtmlStream(),
+      stacktrace = traceback.map(line => converter.toHtml(line));
 
     container.hasVisibleContent = true;
     items = items.concat([{id: cid(), name, value, stacktrace, traceback, type: 'pythonError'}]);

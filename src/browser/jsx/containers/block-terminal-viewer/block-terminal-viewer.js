@@ -3,16 +3,13 @@ import HistoryViewer from '../history-viewer/history-viewer';
 import PromptViewer from '../prompt-viewer/prompt-viewer';
 import commonReact from '../../services/common-react';
 import selectionUtil from '../../services/selection-util';
-import './terminal-viewer.css';
+import './block-terminal-viewer.css';
 
 /**
  *
  * @param {Event} event
  */
 function isHighestFocusableTarget(event) {
-  /**
-   * @type {Element}
-   */
   const currentTarget = event.currentTarget;
   let cursor = event.target;
 
@@ -32,7 +29,7 @@ function isHighestFocusableTarget(event) {
 }
 
 export default React.createClass({
-  displayName: 'TerminalViewer',
+  displayName: 'BlockTerminalViewer',
 
   shouldComponentUpdate: function (nextProps) {
     return commonReact.shouldComponentUpdate(this, nextProps);

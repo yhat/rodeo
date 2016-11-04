@@ -1,4 +1,4 @@
-.terminal-viewer {
+.block-terminal-viewer {
   position: relative;
   height: 100%;
   display: flex;
@@ -7,12 +7,12 @@
   align-content: stretch;
 }
 
-.terminal-viewer .block-history {
+.block-terminal-viewer .block-history {
   flex-grow: 5;
   overflow-y: auto;
 }
 
-.terminal-viewer .prompt {
+.block-terminal-viewer .prompt {
   flex-grow: 0;
   flex-shrink: 0;
 }

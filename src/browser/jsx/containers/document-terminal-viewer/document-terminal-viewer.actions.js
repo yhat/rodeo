@@ -4,10 +4,11 @@ import kernel from '../../actions/kernel';
 import reduxUtil from '../../services/redux-util';
 import commonTabsActions from '../../services/common-tabs-actions';
 import client from '../../services/jupyter/client';
+import {local} from '../../services/store';
 
 const prefixType = reduxUtil.fromFilenameToPrefix(__filename);
 
-function copyAnnotation(groupId, id, event) {
+function copyAnnotation(groupId, id) {
   return {type: 'DOCUMENT_TERMINAL_VIEWER_COPY_ANNOTATION', groupId, id};
 }
 
@@ -75,11 +76,16 @@ function clear(groupId, id) {
   return {type: prefixType + 'CLEAR', groupId, id};
 }
 
+function autocomplete(groupId, id, payload) {
+  return {type: prefixType + 'AUTOCOMPLETE', groupId, id, payload, meta: {sender: 'self'}};
+}
+
 export default {
+  autocomplete,
   clear,
   copyAnnotation,
   execute,
   interrupt,
   showSelectWorkingDirectoryDialog,
   restart
-}
+};

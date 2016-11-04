@@ -7,9 +7,9 @@
 import _ from 'lodash';
 import React from 'react';
 import commonReact from '../../../services/common-react';
+import textUtil from '../../../services/text-util';
 import './text-stream-block.css';
 import ExpandBlockButton from '../expand-block-button';
-import AsciiToHtml from 'ansi-to-html';
 
 export default React.createClass({
   displayName: 'TextStreamBlock',
@@ -34,11 +34,6 @@ export default React.createClass({
       chunks: [],
       expanded: false
     };
-  },
-
-  componentWillMount() {
-    // just for this component's use, so streaming colors works
-    this.asciiToHtmlConvertor = new AsciiToHtml({stream: true});
   },
 
   shouldComponentUpdate: function (nextProps) {
@@ -81,7 +76,7 @@ export default React.createClass({
       chunks = props.chunks,
       previewCount = props.previewCount || 2,
       menu = [],
-      convertor = this.asciiToHtmlConvertor;
+      converter = textUtil.getAsciiToHtmlStream();
     let contents, expandButton;
 
     className.push('font-monospaced');
@@ -98,7 +93,7 @@ export default React.createClass({
         buffer = _.trimEnd(buffer);
       }
 
-      buffer = convertor.toHtml(buffer);
+      buffer = converter.toHtml(buffer);
 
       if (chunk.source) {
         className.push(chunk.source);

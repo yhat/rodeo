@@ -13,13 +13,13 @@ import VariableViewer from '../../components/variable-viewer/variable-viewer.jsx
 import VariableTableViewer from '../variable-table-viewer.jsx';
 import PackageViewer from '../package-viewer/package-viewer.jsx';
 import PackageSearchViewer from '../package-search-viewer/package-search-viewer.jsx';
-import BlockTerminalViewer from '../terminal-viewer/terminal-viewer';
+import BlockTerminalViewer from '../block-terminal-viewer/block-terminal-viewer';
 import ActionestButton from '../../components/actionest/actionest-button';
 import {getParentNodeOf} from '../../services/dom';
 import freeTabActions from './free-tab-group.actions';
 import documentTerminalViewerActions from '../document-terminal-viewer/document-terminal-viewer.actions';
 import promptViewerActions from '../prompt-viewer/prompt-viewer.actions';
-import terminalViewerActions from '../terminal-viewer/terminal-viewer.actions';
+import terminalViewerActions from '../block-terminal-viewer/block-terminal-viewer.actions';
 import historyViewerActions from '../history-viewer/history-viewer.actions';
 import plotViewerActions from '../plot-viewer/plot-viewer.actions';
 import commonReact from '../../services/common-react';
@@ -58,10 +58,12 @@ function mapDispatchToProps(dispatch, ownProps) {
   const groupId = ownProps.groupId;
 
   return {
+    onAutocomplete: (id, props) => dispatch(promptViewerActions.autocomplete(groupId, id, props)),
     onAnnotationCopy: (id, event) => dispatch(documentTerminalViewerActions.copyAnnotation(groupId, id, event)),
     onBlockRemove: (id, blockId) => dispatch(terminalViewerActions.removeHistoryBlock(groupId, id, blockId)),
     onCloseTab: id => dispatch(freeTabActions.closeTab(groupId, id)),
     onCopyToPrompt: (id, props) => dispatch(promptViewerActions.copyToPrompt(groupId, id, props)),
+    onDocumentTerminalAutocomplete: (id, props) => dispatch(documentTerminalViewerActions.autocomplete(groupId, id, props)),
     onDocumentTerminalPromptExecute: (id, context) => dispatch(documentTerminalViewerActions.execute(groupId, id, context)),
     onDocumentTerminalHistoryClear: id => dispatch(documentTerminalViewerActions.clear(groupId, id)),
     onHistoryBlockContract: (id, blockId, itemId) => dispatch(historyViewerActions.createContract(groupId, id, blockId, itemId)),
@@ -173,6 +175,21 @@ export default connect(null, mapDispatchToProps)(React.createClass({
       state = this.state,
       filter = state.searchFilter,
       types = {
+        'block-terminal-viewer': tab => (
+          <BlockTerminalViewer
+            filter={filter}
+            onAutocomplete={_.partial(props.onAutocomplete, tab.id)}
+            onBlockRemove={_.partial(props.onBlockRemove, tab.id)}
+            onCommand={_.partial(props.onPromptCommand, tab.id)}
+            onContract={_.partial(props.onHistoryBlockContract, tab.id)}
+            onCopyToPrompt={_.partial(props.onCopyToPrompt, tab.id)}
+            onExecute={_.partial(props.onPromptExecute, tab.id)}
+            onExpand={_.partial(props.onHistoryBlockExpand, tab.id)}
+            onInstallPythonModule={_.partial(props.onInstallPythonModule, tab.id)}
+            onReRun={_.partial(props.onReRunHistoryBlock, tab.id)}
+            {...tab.content}
+          />
+        ),
         'database-viewer': tab => (
           <DatabaseViewer
             filter={filter}
@@ -188,6 +205,7 @@ export default connect(null, mapDispatchToProps)(React.createClass({
             onClear={_.partial(props.onDocumentTerminalHistoryClear, tab.id)}
             onInstallPythonModule={_.partial(props.onInstallPythonModule, tab.id)}
             onInterrupt={_.partial(props.onTerminalInterrupt, tab.id)}
+            onPromptAutocomplete={_.partial(props.onDocumentTerminalAutocomplete, tab.id)}
             onPromptCommand={_.partial(props.onPromptCommand, tab.id)}
             onPromptExecute={_.partial(props.onDocumentTerminalPromptExecute, tab.id)}
             onRestart={_.partial(props.onTerminalRestart, tab.id)}
@@ -213,20 +231,6 @@ export default connect(null, mapDispatchToProps)(React.createClass({
             onFocusPlot={_.partial(props.onFocusPlot, tab.id)}
             onRemovePlot={_.partial(props.onRemovePlot, tab.id)}
             onSavePlot={props.onSavePlot}
-            {...tab.content}
-          />
-        ),
-        'block-terminal-viewer': tab => (
-          <BlockTerminalViewer
-            filter={filter}
-            onBlockRemove={_.partial(props.onBlockRemove, tab.id)}
-            onCommand={_.partial(props.onPromptCommand, tab.id)}
-            onContract={_.partial(props.onHistoryBlockContract, tab.id)}
-            onCopyToPrompt={_.partial(props.onCopyToPrompt, tab.id)}
-            onExecute={_.partial(props.onPromptExecute, tab.id)}
-            onExpand={_.partial(props.onHistoryBlockExpand, tab.id)}
-            onInstallPythonModule={_.partial(props.onInstallPythonModule, tab.id)}
-            onReRun={_.partial(props.onReRunHistoryBlock, tab.id)}
             {...tab.content}
           />
         ),

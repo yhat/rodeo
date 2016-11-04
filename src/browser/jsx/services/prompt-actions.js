@@ -382,13 +382,14 @@ function showPrevious(state) {
 function showNext(state) {
   if (state.history && _.isNumber(state.historyIndex) && state.historyIndex > 0) {
     const history = state.history,
-      historyIndex = state.historyIndex - 1;
+      historyIndex = state.historyIndex - 1,
+      oldCursor = state.cursor;
 
     if (history[historyIndex]) {
       const lines = history[historyIndex].lines,
         cursor = {
           row: 0,
-          column: 0
+          column: Math.min(oldCursor.column, lines[0].length)
         };
 
       if (historyIndex === 0) {

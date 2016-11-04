@@ -32,6 +32,7 @@ export default React.createClass({
     onInstallPythonModule: React.PropTypes.func.isRequired,
     onInterrupt: React.PropTypes.func,
     onRestart: React.PropTypes.func,
+    onPromptAutocomplete: React.PropTypes.func.isRequired,
     onPromptBlur: React.PropTypes.func.isRequired,
     onPromptExecute: React.PropTypes.func.isRequired,
     onPromptFocus: React.PropTypes.func.isRequired,
@@ -64,14 +65,9 @@ export default React.createClass({
       matches = _.matches(targetCommand),
       feature = _.find(features, feature => _.some(feature.keyboardShortcuts, matches));
 
-    console.log('feature keydown', {
-      selectionLength: promptUtils.getSelectionLength(event),
-      targetCommand,
-      feature
-    });
-
     if (feature && _.isFunction(props[feature.onClick])) {
-      console.log('YAY!  Ran!');
+      event.preventDefault();
+      event.stopPropagation();
       props[feature.onClick](event);
     }
   },
@@ -130,6 +126,7 @@ export default React.createClass({
           <StickyBottomScroll {...props}>
             {contents}
             <PromptViewer
+              onAutocomplete={props.onPromptAutocomplete}
               onCommand={props.onPromptCommand}
               onExecute={props.onPromptExecute}
               {...props}

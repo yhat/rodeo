@@ -414,6 +414,34 @@ describe(__filename, function () {
       });
     });
 
+    it('shows next command while keeping the same cursor position', function () {
+      expect(lib.showNext({
+        lines: ['abcd'],
+        cursor: {row: 0, column: 2},
+        historyIndex: 2,
+        history: [{lines: ['ef']}, {lines: ['gh']}, {lines: ['abcd']}]
+      })).toEqual({
+        lines: ['gh'],
+        cursor: {row: 0, column: 2},
+        history: [{lines: ['ef']}, {lines: ['gh']}, {lines: ['abcd']}],
+        historyIndex: 1
+      });
+    });
+
+    it('shows next command while keeping max cursor position when lines is shorter than last', function () {
+      expect(lib.showNext({
+        lines: ['abcd'],
+        cursor: {row: 0, column: 4},
+        historyIndex: 2,
+        history: [{lines: ['ef']}, {lines: ['gh']}, {lines: ['abcd']}]
+      })).toEqual({
+        lines: ['gh'],
+        cursor: {row: 0, column: 2},
+        history: [{lines: ['ef']}, {lines: ['gh']}, {lines: ['abcd']}],
+        historyIndex: 1
+      });
+    });
+
     it('exits history', function () {
       expect(lib.showNext(lib.showNext({
         lines: ['abcd'],

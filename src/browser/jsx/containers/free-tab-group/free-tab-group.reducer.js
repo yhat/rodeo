@@ -3,7 +3,7 @@ import Immutable from 'seamless-immutable';
 import mapReducers from '../../services/map-reducers';
 import commonTabsReducers from '../../services/common-tabs-reducers';
 import databaseViewerReducer from '../database-viewer/database-viewer.reducer';
-import blockTerminalViewerReducer from '../terminal-viewer/terminal-viewer.reducer';
+import blockTerminalViewerReducer from '../block-terminal-viewer/block-terminal-viewer.reducer';
 import documentTerminalViewerReducer from '../document-terminal-viewer/document-terminal-viewer.reducer';
 import plotViewerReducer from '../plot-viewer/plot-viewer.reducer';
 import globalHistoryViewerReducer from '../global-history-viewer/global-history-viewer.reducer';

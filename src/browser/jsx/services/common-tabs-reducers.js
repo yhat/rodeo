@@ -1,4 +1,5 @@
 import _ from 'lodash';
+import dateUtil from './dateUtil';
 
 /**
  * Special Initialization Case:  When groupId is null and there is no sender, assume they meant the first group available
@@ -39,7 +40,7 @@ function focus(state, action) {
 
     if (tabIndex !== -1) {
       state = state.setIn([groupIndex, 'active'], id);
-      state = state.setIn([groupIndex, 'tabs', tabIndex, 'lastFocused'], new Date().getTime());
+      state = state.setIn([groupIndex, 'tabs', tabIndex, 'lastFocused'], dateUtil.getCurrentTime());
     }
   }
 
