@@ -20,6 +20,18 @@ function appendEmptyJupyterResponseBlock(state, responseMsgId) {
 }
 
 /**
+ * @param {Array} state
+ * @param {object} action
+ * @returns {Array}
+ */
+function changePreference(state, action) {
+  switch (action.change.key) {
+    case 'fontSize': return state.set('fontSize', _.toNumber(action.change.value));
+    default: return state;
+  }
+}
+
+/**
  * If any of the history blocks are jupyterResponse types, then they might need to be updated with new content
  * @param {Array} state
  * @param {object} action
@@ -27,6 +39,7 @@ function appendEmptyJupyterResponseBlock(state, responseMsgId) {
  */
 function jupyterResponseDetected(state, action) {
   const responseMsgId = _.get(action, 'payload.result.parent_header.msg_id');
+
   if (responseMsgId) {
     let blockIndex = _.findIndex(state.blocks, {responseMsgId});
 
@@ -43,5 +56,6 @@ function jupyterResponseDetected(state, action) {
 }
 
 export default reduxUtil.reduceReducers(mapReducers({
+  PREFERENCE_CHANGE_SAVED: changePreference,
   JUPYTER_RESPONSE: jupyterResponseDetected
 }, {}), historyViewerReducer);

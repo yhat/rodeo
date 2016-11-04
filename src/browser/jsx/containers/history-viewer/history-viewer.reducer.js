@@ -87,7 +87,7 @@ function expand(state, action) {
 export default mapReducers({
   HISTORY_VIEWER_CONTRACT: contract,
   HISTORY_VIEWER_EXPAND: expand,
-  TERMINAL_VIEWER_BLOCK_ADDED: blockAdded,
-  TERMINAL_VIEWER_BLOCK_REMOVED: blockRemoved,
+  BLOCK_TERMINAL_VIEWER_BLOCK_ADDED: blockAdded,
+  BLOCK_TERMINAL_VIEWER_BLOCK_REMOVED: blockRemoved,
   JUPYTER_RESPONSE: jupyterResponseDetected
 }, {});

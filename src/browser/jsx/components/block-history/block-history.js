@@ -25,7 +25,7 @@ export default React.createClass({
       onExpand: _.noop,
       onInstallPythonModule: _.noop,
       onReRun: _.noop
-    }
+    };
   },
   shouldComponentUpdate(nextProps) {
     return commonReact.shouldComponentUpdate(this, nextProps);
@@ -58,13 +58,14 @@ export default React.createClass({
             onRemove={_.partial(props.onBlockRemove, block.id)}
           />
         )
-      };
+      },
+      style = {fontSize: props.fontSize};
     let contents = _.map(_.filter(props.blocks, block => block.hasVisibleContent), block => types[block.type](block));
 
     if (!(contents && contents.length)) {
       contents = <EmptySuggestion key="empty" label="Run a command."/>;
     }
 
-    return <div className={className.join(' ')}>{contents}</div>;
+    return <div className={className.join(' ')} style={style}>{contents}</div>;
   }
 });

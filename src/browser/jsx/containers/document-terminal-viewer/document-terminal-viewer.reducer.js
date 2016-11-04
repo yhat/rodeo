@@ -134,8 +134,8 @@ function jupyterResponseDetected(state, action) {
  * @returns {Array}
  */
 function changePreference(state, action) {
-  switch (action.key) {
-    case 'fontSize': return state.set('fontSize', _.toNumber(action.value));
+  switch (action.change.key) {
+    case 'fontSize': return state.set('fontSize', _.toNumber(action.change.value));
     default: return state;
   }
 }
@@ -240,7 +240,7 @@ export default reduxUtil.reduceReducers(
       RESTARTED: restarted
     }), {
       JUPYTER_RESPONSE: jupyterResponseDetected,
-      CHANGE_PREFERENCE: changePreference,
+      PREFERENCE_CHANGE_SAVED: changePreference,
       WORKING_DIRECTORY_CHANGED: workingDirectoryChanged,
       PROMPT_VIEWER_COMMAND: promptCommand
     }), {}),

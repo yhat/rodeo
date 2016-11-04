@@ -61,7 +61,8 @@ const defaultTabTypes = {
     label: 'History',
     id: cid(),
     content: {
-      blocks: []
+      blocks: [],
+      fontSize: _.toNumber(local.get('fontSize')) || 12,
     }
   }),
   'package-search-viewer': () => ({
