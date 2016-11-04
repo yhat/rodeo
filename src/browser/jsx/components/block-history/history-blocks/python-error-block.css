@@ -1,10 +1,10 @@
 .python-error-block {
   background-color: #feebeb;
-  margin: 10px;
+  margin: 10px 4px 10px 2px;
   border-radius: 5px;
   padding: 6px;
   padding-top: 2px;
-  border: 1px solid #feb4af;
+  border: 1px solid #d69fa0;
   box-shadow: 1px 2px 3px #feebeb;
   color: #b32327;
   white-space: pre;
@@ -21,13 +21,28 @@
 .python-error-block > header {
   font-size: 10px;
   font-weight: bold;
-  color: #b32327;
+  color: #d69fa0;
   text-transform: lowercase;
   display: flex;
   flex-direction: row;
   align-content: space-between;
   align-items: center;
   justify-content: space-between;
+  border-bottom: 1px solid #d69fa0;
+}
+
+.python-error-block--compressed {
+  overflow: hidden;
+}
+
+.python-error-block__contents-outer {
+  overflow: hidden;
+  margin-left:10px;
+  margin-top: 7px;
+}
+
+.python-error-block__contents {
+  overflow-x: auto;
 }
 
 .python-error-block__suggestions {

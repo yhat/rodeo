@@ -44,7 +44,7 @@ export default React.createClass({
     const props = this.props,
       className = commonReact.getClassNameList(this),
       menu = [], actions = [];
-    let contents = [], stacktrace = [], suggestions;
+    let contents = [], stacktrace = [], suggestions, expandButton;
 
     className.push('font-monospaced');
 
@@ -59,15 +59,30 @@ export default React.createClass({
       contents.push(<div key="firstLine">{props.name}</div>);
     }
 
-    if (props.expanded) {
+    if (props.stacktrace.length > 5) {
+      if (props.expanded) {
+        menu.push(<span className="fa fa-compress" key="contract" onClick={props.onContract}/>);
+        stacktrace = props.stacktrace.map(asHTML);
+        contents.push(<div className="python-error-block-stacktrace" key="stacktrace">{stacktrace}</div>);
+        className.push('python-error-block--expanded');
+      } else {
+        menu.push(<span className="fa fa-expand" key="expand" onClick={props.onExpand}/>);
+        stacktrace = _.takeRight(props.stacktrace, 5).map(asHTML);
+        contents.push(<div className="python-error-block-stacktrace" key="stacktrace">{stacktrace}</div>);
+        className.push('python-error-block--compressed');
+      }
+
+      expandButton = (
+        <ExpandBlockButton
+          direction={props.expanded ? 'up' : 'down'}
+          onClick={props.expanded ? props.onContract : props.onExpand}
+        />
+      );
+    } else {
       stacktrace = props.stacktrace.map(asHTML);
       contents.push(<div className="python-error-block-stacktrace" key="stacktrace">{stacktrace}</div>);
-      className.push('python-error-block--expanded');
-    } else {
-      stacktrace = _.takeRight(props.stacktrace, 5).map(asHTML);
-      contents.push(<div className="python-error-block-stacktrace" key="stacktrace">{stacktrace}</div>);
-      className.push('python-error-block--compressed');
     }
+
 
     if (_.isString(props.value) && props.name === 'ImportError') {
       const match = props.value.match(/No module named (.*)/);
@@ -103,7 +118,16 @@ export default React.createClass({
         onKeyUp={props.onKeyUp}
         onPaste={props.onPaste}
         tabIndex={props.tabIndex || 0}
-      ><header>{'python error'}</header><div className="python-error-block__menu">{menu}</div>{contents}</section>
+      >
+        <header>{'python error'}</header>
+        <div className="python-error-block__menu">
+          {menu}
+        </div>
+        <div className="python-error-block__contents-outer">
+          <div className="python-error-block__contents">{contents}</div>
+        </div>
+        {expandButton}
+        </section>
     );
   }
 });

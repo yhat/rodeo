@@ -17,22 +17,32 @@ export default React.createClass({
     onInstallPythonModule: React.PropTypes.func.isRequired,
     onReRun: React.PropTypes.func.isRequired
   },
-  shouldComponentUpdate: function (nextProps) {
+  getDefaultProps() {
+    return {
+      onBlockRemove: _.noop,
+      onContract: _.noop,
+      onCopyToPrompt: _.noop,
+      onExpand: _.noop,
+      onInstallPythonModule: _.noop,
+      onReRun: _.noop
+    }
+  },
+  shouldComponentUpdate(nextProps) {
     return commonReact.shouldComponentUpdate(this, nextProps);
   },
-  componentWillUpdate: function () {
+  componentWillUpdate() {
     const el = ReactDOM.findDOMNode(this);
 
     this.shouldScrollBottom = el.scrollTop + el.offsetHeight === el.scrollHeight;
   },
-  componentDidUpdate: function () {
+  componentDidUpdate() {
     if (this.shouldScrollBottom) {
       const el = ReactDOM.findDOMNode(this);
 
       el.scrollTop = el.scrollHeight;
     }
   },
-  render: function () {
+  render() {
     const props = this.props,
       className = commonReact.getClassNameList(this),
       types = {
@@ -49,12 +59,10 @@ export default React.createClass({
           />
         )
       };
-    let contents = [];
+    let contents = _.map(_.filter(props.blocks, block => block.hasVisibleContent), block => types[block.type](block));
 
-    if (props.blocks && props.blocks.length) {
-      contents = _.map(props.blocks, block => types[block.type](block));
-    } else {
-      contents.push(<EmptySuggestion key="empty" label="Run a command."/>);
+    if (!(contents && contents.length)) {
+      contents = <EmptySuggestion key="empty" label="Run a command."/>;
     }
 
     return <div className={className.join(' ')}>{contents}</div>;

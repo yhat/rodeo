@@ -56,12 +56,12 @@ const defaultTabTypes = {
     id: cid(),
     content: getFileViewerDefault()
   }),
-  'history-viewer': () => ({
+  'global-history-viewer': () => ({
     icon: 'history',
     label: 'History',
     id: cid(),
     content: {
-      history: []
+      blocks: []
     }
   }),
   'package-search-viewer': () => ({

@@ -6,7 +6,7 @@ import databaseViewerReducer from '../database-viewer/database-viewer.reducer';
 import blockTerminalViewerReducer from '../terminal-viewer/terminal-viewer.reducer';
 import documentTerminalViewerReducer from '../document-terminal-viewer/document-terminal-viewer.reducer';
 import plotViewerReducer from '../plot-viewer/plot-viewer.reducer';
-import {local} from '../../services/store';
+import globalHistoryViewerReducer from '../global-history-viewer/global-history-viewer.reducer';
 import tabTypes from './tab-types';
 import reduxUtil from '../../services/redux-util';
 
@@ -74,40 +74,16 @@ function variablesChanged(state, action) {
   return state;
 }
 
-function iopubInputExecuted(state, action) {
-  const historyMaxSetting = local.get('terminalHistory'),
-    historyMax = historyMaxSetting === null ? 50 : historyMaxSetting;
-
-  if (historyMax > 0 && _.isString(action.text) && action.text.trim().length > 0) {
-    // put new history into each history viewer
-    commonTabsReducers.eachTabByActionAndContentType(state, action, 'history-viewer', (tab, cursor) => {
-      state = state.updateIn([cursor.groupIndex, 'tabs', cursor.tabIndex, 'content'], content => {
-        const history = content.history.asMutable();
-
-        history.push({text: action.text});
-
-        if (history.length > historyMax) {
-          history.shift();
-        }
-
-        return content.merge({history});
-      });
-    });
-  }
-
-  return state;
-}
-
 export default reduxUtil.reduceReducers(
   mapReducers(_.assign({
     ADD_TAB: add,
     CLOSE_TAB: commonTabsReducers.close,
     FOCUS_TAB: commonTabsReducers.focus,
-    IOPUB_EXECUTED_INPUT: iopubInputExecuted,
     MOVE_TAB: moveTab,
     VARIABLES_CHANGED: variablesChanged
   }, databaseViewerReducer), initialState),
-  reduxUtil.tabReducer(plotViewerReducer),
-  reduxUtil.tabReducer(blockTerminalViewerReducer),
-  reduxUtil.tabReducer(documentTerminalViewerReducer)
+  reduxUtil.tabReducer('global-history-viewer', globalHistoryViewerReducer),
+  reduxUtil.tabReducer('plot-viewer', plotViewerReducer),
+  reduxUtil.tabReducer('block-terminal-viewer', blockTerminalViewerReducer),
+  reduxUtil.tabReducer('document-terminal-viewer', documentTerminalViewerReducer)
 );

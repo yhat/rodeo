@@ -82,7 +82,7 @@ export default React.createClass({
       previewCount = props.previewCount || 2,
       menu = [],
       convertor = this.asciiToHtmlConvertor;
-    let contents;
+    let contents, expandButton;
 
     className.push('font-monospaced');
 
@@ -108,16 +108,26 @@ export default React.createClass({
       return <span className={className.join(' ')} dangerouslySetInnerHTML={{__html: buffer}} id={chunk.id} key={chunk.id} />;
     }
 
-    if (props.expanded || chunks.length < 2) {
-      className.push('text-stream-block--expanded');
-      menu.push(<span className="fa fa-compress" key="contract" onClick={props.onContract}/>);
-      contents = props.chunks.map(getChunk);
+
+    if (chunks.length > 1) {
+      if (props.expanded) {
+        className.push('text-stream-block--expanded');
+        menu.push(<span className="fa fa-compress" key="contract" onClick={props.onContract}/>);
+        contents = props.chunks.map(getChunk);
+      } else {
+        menu.push(<span className="fa fa-expand" key="expand" onClick={props.onExpand}/>);
+        className.push('text-stream-block--compressed');
+        contents = _.map(_.takeRight(chunks, previewCount), getChunk);
+      }
+
+      expandButton = (
+        <ExpandBlockButton
+          direction={props.expanded ? 'up' : 'down'}
+          onClick={props.expanded ? props.onContract : props.onExpand}
+        />
+      );
     } else {
-      contents = _.map(_.takeRight(chunks, previewCount), getChunk);
-
-      menu.push(<span className="fa fa-expand" key="expand" onClick={props.onExpand}/>);
-
-      className.push('text-stream-block--compressed');
+      contents = props.chunks.map(getChunk);
     }
 
     return (
@@ -143,10 +153,7 @@ export default React.createClass({
         <div className="text-stream-block__contents-outer">
           <div className="text-stream-block__contents">{contents}</div>
         </div>
-        <ExpandBlockButton
-          direction={props.expanded ? 'up' : 'down'}
-          onClick={props.expanded ? props.onContract : props.onExpand}
-        />
+        {expandButton}
       </section>
     );
   }

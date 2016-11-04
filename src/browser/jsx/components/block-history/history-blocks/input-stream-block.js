@@ -80,7 +80,7 @@ export default React.createClass({
       menu = [];
       let expandButton;
 
-    if (props.onCopyToPrompt) {
+    if (props.allowCopyToPrompt) {
       menu.unshift(
         <span
           className="fa fa-arrow-down"
@@ -90,7 +90,7 @@ export default React.createClass({
       );
     }
 
-    if (props.onReRun) {
+    if (props.allowReRun) {
       menu.unshift(
         <span
           className="fa fa-refresh"

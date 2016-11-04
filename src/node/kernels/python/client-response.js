@@ -19,25 +19,13 @@ function linkRequestToOutput(client, response) {
     throw new Error('Expected id to be a key referring to an earlier request');
   }
 
+  // they have what they wanted; resolve immediately
   if (request.resolveEvent === 'link' && response.source === 'link') {
-    // they have what they wanted; resolve immediately, do not create outputMap item
     request.deferred.resolve(response.result);
-  } else {
-    request.msg_id = response.result;
-    outputMap[response.result] = {id: response.id, msg_id: response.result};
   }
-}
 
-/**
- * @param {JupyterClient} client
- * @param {*} message
- */
-function requestInputFromUser(client, message) {
-  client.emit('input_request', message);
-}
-
-function broadcastKernelStatus(client, message) {
-  client.emit('status', message.content.execution_state);
+  request.msg_id = response.result;
+  outputMap[response.result] = {id: response.id, msg_id: response.result};
 }
 
 /**
@@ -47,7 +35,6 @@ function broadcastKernelStatus(client, message) {
 function resolveRequest(request, result) {
   // execution_count doesn't apply to us
   request.deferred.resolve(result.content);
-  delete outputMap[request.msg_id];
 }
 
 /**
@@ -96,16 +83,16 @@ function doesRequestMatchEvent(event, parent, child) {
 }
 
 /**
- * @param {{id: string}} parent  Original request
- * @param {{msg_type: string}} child  Resulting action
+ * @param {{id: string}} outputItem  Original request
+ * @param {{msg_type: string}} result  Resulting action
  * @param {JupyterClient} client  Map of all current requests
  * @returns {boolean}
  */
-function isRequestResolution(parent, child, client) {
+function isRequestResolution(outputItem, result, client) {
   const requestMap = client.requestMap,
-    request = requestMap[parent.id];
+    request = requestMap[outputItem.id];
 
-  return !!(request && doesRequestMatchEvent(request.resolveEvent, parent, child));
+  return !!(request && doesRequestMatchEvent(request.resolveEvent, outputItem, result));
 }
 
 /**
@@ -123,31 +110,18 @@ function isInputRequestMessage(source, child) {
  * @param {JupyterClientResponse} response
  */
 function resolveExecutionResult(client, response) {
-  const source = response.source,
-    result = response.result,
+  const result = response.result,
     outputMapId = _.get(result, 'parent_header.msg_id');
 
-  let parent = outputMap[outputMapId],
-    child = _.omit(result, ['msg_id', 'parent_header']),
-    requestId = parent.id,
-    request = client.requestMap[requestId];
+  let outputItem = outputMap[outputMapId],
+    request = client.requestMap[outputItem.id];
 
-  child.header = _.omit(child.header, ['version', 'msg_id', 'session', 'username', 'msg_type']);
-  if (!parent.header) {
-    parent.header = result.parent_header;
-  }
-
-  if (isInputRequestMessage(source, child)) {
-    requestInputFromUser(client, result);
-  } else if (isRequestResolution(parent, child, client)) {
+  if (isRequestResolution(outputItem, result, client)) {
     resolveRequest(request, result);
-
-  } else if (child.msg_type === 'status') {
-    broadcastKernelStatus(client, result);
   }
 
   if (!request.hidden) {
-    client.emit(response.source, response);
+    client.emit('jupyter', response);
   }
 }
 
@@ -179,7 +153,7 @@ function resolveEvalResult(client, response) {
  * @param {JupyterClientResponse} response
  */
 function handle(client, response) {
-  client.emit('jupyter', response);
+  // client.emit('jupyter', response);
 
   if (isStartComplete(response)) {
     client.emit('ready');
@@ -210,6 +184,15 @@ function resetOutputMap() {
   outputMap = {};
 }
 
+function removeOutputEntry(key) {
+  if (outputMap[key]) {
+    delete outputMap[key];
+    return true;
+  }
+  return false;
+}
+
 module.exports.handle = handle;
 module.exports.getOutputMap = getOutputMap;
 module.exports.resetOutputMap = resetOutputMap;
+module.exports.removeOutputEntry = removeOutputEntry;

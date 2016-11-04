@@ -1,7 +1,7 @@
 .jupyter-response-block {
   margin: 15px;
   border-radius: 5px;
-  padding: 5px;
+  padding: 0 5px 5px;
   border: 1px solid #ddd;
   box-shadow: 0 0 15px #e4f1fd, inset -1px -2px 3px #ccc;
   position: relative;
@@ -9,7 +9,14 @@
 }
 
 .jupyter-response-block__menu {
-  position: absolute;
-  top: 1px;
-  right: 3px;
+  text-align: right;
+}
+
+.jupyter-response-block-items > *:first-child {
+  margin-top: 0;
+  padding-top: 0;
+}
+
+.jupyter-response-block-items > *:last-child {
+  margin-bottom: 5px;
 }

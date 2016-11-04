@@ -1,0 +1,4 @@
+.global-history-viewer {
+  overflow: auto;
+  height: 100%;
+}

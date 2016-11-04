@@ -48,8 +48,8 @@ function jupyterResponseDetected(state, action) {
     blockIndex = _.findIndex(state.blocks, {responseMsgId});
 
   if (blockIndex > -1) {
-    state = state.updateIn(['blocks', blockIndex, 'items'], items => {
-      return Immutable(jupyterHistory.applyResponse(items, action.payload));
+    state = state.updateIn(['blocks', blockIndex], container => {
+      return jupyterHistory.applyResponse(container, action.payload);
     });
   }
 

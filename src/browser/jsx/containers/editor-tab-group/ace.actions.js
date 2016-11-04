@@ -152,6 +152,22 @@ function getLastFocusedTabToken(tabTokens) {
   return bestTabToken;
 }
 
+function hasCode(text) {
+  const hasNewLines = text.indexOf('\n') > -1;
+
+
+  // If a single line, then has no code if blank line or a comment
+  if (!hasNewLines) {
+    const trimmedStart = _.trimStart(text);
+
+    if (trimmedStart.length <= 0 || trimmedStart[0] === '#') {
+      return false;
+    }
+  }
+
+  return true;
+}
+
 /**
  * Execute some text from an editor in a certain kind of mode
  * @param {ace.Editor} editor
@@ -167,22 +183,25 @@ function executeText(editor, text, mode) {
       if (_.includes(pythonTypes, mode)) {
         // todo: find if code is runnable
 
-        // find recent python terminal tab
-        return applicationControl.surveyTabs().then(function (result) {
-          const groups = _.flatten(_.map(result, 'freeTabGroups')),
-            isTerminal = tab => _.includes(['document-terminal-viewer', 'block-terminal-viewer'], tab.contentType),
-            tabTokens = findTabTokens(groups, isTerminal),
-            latestTabToken = getLastFocusedTabToken(tabTokens);
+        // if it starts with #, it's not runnable
+        if (hasCode(text)) {
+          // find recent python terminal tab
+          return applicationControl.surveyTabs().then(function (result) {
+            const groups = _.flatten(_.map(result, 'freeTabGroups')),
+              isTerminal = tab => _.includes(['document-terminal-viewer', 'block-terminal-viewer'], tab.contentType),
+              tabTokens = findTabTokens(groups, isTerminal),
+              latestTabToken = getLastFocusedTabToken(tabTokens);
 
-          if (latestTabToken) {
-            const terminalTypes = {
-              'block-terminal-viewer': blockTerminalViewerActions.execute,
-              'document-terminal-viewer': documentTerminalViewerActions.execute
-            };
+            if (latestTabToken) {
+              const terminalTypes = {
+                'block-terminal-viewer': blockTerminalViewerActions.execute,
+                'document-terminal-viewer': documentTerminalViewerActions.execute
+              };
 
-            return dispatch(terminalTypes[latestTabToken.tab.contentType](latestTabToken.groupId, latestTabToken.tabId, {text}));
-          }
-        });
+              return dispatch(terminalTypes[latestTabToken.tab.contentType](latestTabToken.groupId, latestTabToken.tabId, {text}));
+            }
+          });
+        }
       } else if (_.includes(sqlTypes, mode)) {
         return freeTabActions.execute({
           text,

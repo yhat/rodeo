@@ -5,8 +5,8 @@
 
 - name: executeSelection
   bindKey:
-    win: shift-ctrl-Enter
-    mac: Shift-Command-Enter
+    win: ctrl-Enter
+    mac: Command-Enter
 
 - name: interrupt
   bindKey:

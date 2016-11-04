@@ -160,12 +160,31 @@ function request(client, invocation, options) {
   return inputPromise
     .then(() => outputPromise)
     .finally(function () {
-      const endTime = (new Date().getTime() - startTime) + 'ms';
-
-      log('info', 'request', invocation, endTime);
+      const endTime = (new Date().getTime() - startTime) + 'ms',
+        timeoutTime = endTime - 60000 * 10, // ten minutes
+        maxSize = 50;
+      let currentSize = _.size(requestMap);
 
       // clean up reference, no matter what the result
-      delete requestMap[id];
+      for (let key in requestMap) {
+        if (requestMap.hasOwnProperty(key)) {
+          if (currentSize > maxSize) {
+            delete requestMap[key];
+            currentSize--;
+          } else {
+            const oldTime = parseInt(key, 10);
+
+            if (oldTime < timeoutTime) {
+              const wasRemoved = clientResponse.removeOutputEntry(requestMap[key].msg_id);
+
+              log('log', {wasRemoved});
+
+              delete requestMap[key];
+              currentSize--;
+            }
+          }
+        }
+      }
     });
 }
 

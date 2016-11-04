@@ -3,7 +3,7 @@ import cid from '../cid';
 import AsciiToHtml from 'ansi-to-html';
 
 const asciiToHtmlConvertor = new AsciiToHtml(),
-  blockFactories = {
+  itemFactories = {
     display_data: createDisplayData,
     status: createStatusChange,
     error: createError,
@@ -14,163 +14,190 @@ const asciiToHtmlConvertor = new AsciiToHtml(),
     unknown: createUnknownContent
   };
 
-function createUnknownContent(blocks, response) {
+function createUnknownContent(container, response) {
   let buffer = _.get(response, 'result.content');
 
   if (_.isObject(buffer)) {
-    blocks = _.clone(blocks);
+    container = _.clone(container);
+    let items = _.clone(container.items);
+
+    container.hasVisibleContent = true;
     buffer = JSON.stringify(buffer);
-    blocks = blocks.concat([{id: cid(), chunks: [{id: cid(), buffer}], type: 'textStream'}]);
+    items = items.concat([{id: cid(), chunks: [{id: cid(), buffer}], type: 'textStream'}]);
+    container.items = items;
   }
 
-  return blocks;
+  return container;
 }
 
-function createTextStream(blocks, response) {
+function createTextStream(container, response) {
   let chunks,
     source = _.get(response, 'result.content.name'),
     text = _.get(response, 'result.content.text');
 
   if (text) {
-    blocks = _.clone(blocks);
-    chunks = text.split('\n').map((buffer, index, list) => {
+    container = _.clone(container);
+    let items = _.clone(container.items);
+
+    container.hasVisibleContent = true;
+    chunks = text.split('\n').filter(_.identity).map((buffer, index, list) => {
       if (list.length - 1 !== index) {
         buffer += '\n';
       }
 
       return ({id: cid(), buffer, source});
     });
-    blocks = blocks.concat([{id: cid(), chunks, type: 'textStream'}]);
-    blocks = mergeTextStreamBlocks(blocks);
+    items = items.concat([{id: cid(), chunks, type: 'textStream'}]);
+    items = mergeTextStreamItems(items);
+    container.items = items;
   }
 
-  return blocks;
+  return container;
 }
 
-function createError(blocks, response) {
+function createError(container, response) {
   let name = _.get(response, 'result.content.ename'),
     value = _.get(response, 'result.content.evalue'),
     traceback = _.get(response, 'result.content.traceback'),
-    oldError = _.find(blocks, block => isResponseBlockErrorEqual(response, block));
+    oldError = _.find(container.items, item => isResponseBlockErrorEqual(response, item));
 
   // only report if error isn't already reported
   if (!oldError && traceback) {
-    blocks = _.clone(blocks);
+    container = _.clone(container);
+    let items = _.clone(container.items);
     const stacktrace = traceback.map(line => asciiToHtmlConvertor.toHtml(line));
 
-    blocks = blocks.concat([{id: cid(), name, value, stacktrace, traceback, type: 'pythonError'}]);
+    container.hasVisibleContent = true;
+    items = items.concat([{id: cid(), name, value, stacktrace, traceback, type: 'pythonError'}]);
+    container.items = items;
   }
 
-  return blocks;
+  return container;
 }
 
-function createStatusChange(blocks, response) {
+function createStatusChange(container, response) {
   let executionState = _.get(response, 'result.content.execution_state');
 
   if (_.isString(executionState)) {
-    blocks = _.clone(blocks);
-    blocks = blocks.concat([{id: cid(), executionState, type: 'statusChange'}]);
+    container = _.clone(container);
+    let items = _.clone(container.items);
+
+    items = items.concat([{id: cid(), executionState, type: 'statusChange'}]);
+    container.items = items;
   }
 
-  return blocks;
+  return container;
 }
 
-function createInputStream(blocks, response) {
+function createInputStream(container, response) {
   const lines = _.get(response, 'result.content.code').split('\n'),
     executionCount = _.get(response, 'result.content.execution_count'),
-    oldInput = _.find(blocks, block => block.type === 'inputStream');
+    oldInput = _.find(container.items, item => item.type === 'inputStream');
 
   // only add if we don't already have this type; only one allowed
   if (!oldInput && lines) {
-    blocks = _.clone(blocks);
+    container = _.clone(container);
+    let items = _.clone(container.items);
 
-    blocks = blocks.concat([{id: cid(), lines, executionCount, type: 'inputStream', language: 'python'}]);
+    container.hasVisibleContent = true;
+    items = items.concat([{id: cid(), lines, executionCount, type: 'inputStream', language: 'python'}]);
+    container.items = items;
   }
 
-  return blocks;
+  return container;
 }
 
-function createDisplayData(blocks, response) {
+function createDisplayData(container, response) {
   const data = _.get(response, 'result.content.data');
 
   if (_.isObject(data)) {
     if (data['image/png']) {
-      blocks = _.clone(blocks);
-      const href = data['image/png'],
+      container = _.clone(container);
+      let items = _.clone(container.items),
+        href = data['image/png'],
         alt = data['text/plain'];
 
-      blocks = blocks.concat([{id: cid(), href, alt, type: 'image'}]);
+      container.hasVisibleContent = true;
+      items = items.concat([{id: cid(), href, alt, type: 'image'}]);
+      container.items = items;
     }
   }
 
-  return blocks;
+  return container;
 }
 
-function createExecutionResult(blocks, response) {
+function createExecutionResult(container, response) {
   const data = _.get(response, 'result.content.data');
 
   if (_.isObject(data)) {
     if (!(data['text/plain'] && _.startsWith(data['text/plain'], '<ggplot:'))) {
-      blocks = _.clone(blocks);
-      blocks = blocks.concat([{id: cid(), data, type: 'executionResult'}]);
+      container = _.clone(container);
+      let items = _.clone(container.items);
+
+      items = items.concat([{id: cid(), data, type: 'executionResult'}]);
+      container.items = items;
     }
   }
 
-  return blocks;
+  return container;
 }
 
-function isResponseBlockErrorEqual(response, block) {
+function isResponseBlockErrorEqual(response, item) {
   const name = _.get(response, 'result.content.ename'),
     value = _.get(response, 'result.content.evalue'),
     traceback = _.get(response, 'result.content.traceback');
 
-  return block.type === 'pythonError' &&
-    block.name === name &&
-    block.value === value &&
-    _.isEqual(block.traceback, traceback);
+  return item.type === 'pythonError' &&
+    item.name === name &&
+    item.value === value &&
+    _.isEqual(item.traceback, traceback);
 }
 
-function createExecutionReply(blocks, response) {
+function createExecutionReply(container, response) {
   const status = _.get(response, 'result.content.status');
 
   if (status === 'error') {
-    blocks = createError(blocks, response);
+    container = createError(container, response);
   } else if (status === 'ok') {
-    blocks = _.clone(blocks);
-    blocks = blocks.concat([{type: 'executionReplyOK'}]);
+    container = _.clone(container);
+    let items = _.clone(container.items);
+
+    items = items.concat([{type: 'executionReplyOK'}]);
+
+    container.items = items;
   } else {
-    blocks = createUnknownContent(blocks, response);
+    container = createUnknownContent(container, response);
   }
 
-  return blocks;
+  return container;
 }
 
 /**
- * Needs to be able to handle Immutable blocks too
+ * Needs to be able to handle Immutable items too
  * Try to clone responsibly, please
- * @param {Array} blocks
+ * @param {Array} items
  * @returns {Array}
  */
-function mergeTextStreamBlocks(blocks) {
-  const firstIndex = _.findIndex(blocks, {type: 'textStream'});
+function mergeTextStreamItems(items) {
+  const firstIndex = _.findIndex(items, {type: 'textStream'});
 
   if (firstIndex !== -1) {
-    blocks = _.clone(blocks);
-    const firstBlock = _.clone(blocks[firstIndex]),
-      removedBlocks = _.remove(blocks, (block, index) => index !== firstIndex && block.type === 'textStream'),
-      firstChunks = firstBlock.chunks;
+    items = _.clone(items);
+    const firstItem = _.clone(items[firstIndex]),
+      removedItems = _.remove(items, (item, index) => index !== firstIndex && item.type === 'textStream'),
+      firstChunks = firstItem.chunks;
 
-    firstBlock.chunks = firstChunks.concat.apply(firstChunks, _.map(removedBlocks, 'chunks'));
-    blocks[firstIndex] = firstBlock;
+    firstItem.chunks = firstChunks.concat.apply(firstChunks, _.map(removedItems, 'chunks'));
+    items[firstIndex] = firstItem;
   }
 
-  return blocks;
+  return items;
 }
 
-function applyResponse(blocks, response) {
+function applyResponse(container, response) {
   const type = _.get(response, 'result.msg_type');
 
-  return blockFactories[type] ? blockFactories[type](blocks, response) : blockFactories['unknown'](blocks, response);
+  return itemFactories[type] ? itemFactories[type](container, response) : itemFactories['unknown'](container, response);
 }
 
 export default {

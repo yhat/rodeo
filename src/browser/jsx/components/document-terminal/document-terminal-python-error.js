@@ -62,7 +62,7 @@ export default React.createClass({
     }
 
     if (suggestions.length) {
-      contents.push(<div className="python-error-block__suggestions">{suggestions}</div>);
+      contents.push(<div className="python-error-block__suggestions" key="suggestions">{suggestions}</div>);
     }
 
     return <div className={className.join(' ')}>{contents}</div>;

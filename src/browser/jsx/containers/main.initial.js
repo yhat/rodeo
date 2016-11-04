@@ -20,7 +20,7 @@ function getFreeTabGroups() {
       active: topRightFocusId,
       tabs: [
         _.merge(freeTabTypes.getDefaultTab('variable-viewer'), {id: topRightFocusId, lastFocused: new Date().getTime()}),
-        freeTabTypes.getDefaultTab('history-viewer'),
+        freeTabTypes.getDefaultTab('global-history-viewer'),
         freeTabTypes.getDefaultTab('block-terminal-viewer')
       ]
     },

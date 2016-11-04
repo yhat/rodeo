@@ -8,7 +8,6 @@ import _ from 'lodash';
 import React from 'react';
 import commonReact from '../../../services/common-react';
 import Closeable from '../../tabs/closeable';
-import ExecutionReplyOKBlock from './execution-reply-ok-block';
 import ExecutionResultBlock from './execution-result-block';
 import InputStreamBlock from './input-stream-block';
 import ImageBlock from './image-block';
@@ -43,7 +42,7 @@ export default React.createClass({
       className = commonReact.getClassNameList(this),
       items = props.items,
       types = {
-        executionReplyOK: item => <ExecutionReplyOKBlock key={item.id} {...props} {...item}/>,
+        executionReplyOK: item => null,
         executionResult: item => <ExecutionResultBlock key={item.id} {...props} {...item}/>,
         inputStream: item => (
           <InputStreamBlock

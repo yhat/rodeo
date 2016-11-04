@@ -1,5 +1,5 @@
 .execution-result-block {
-  margin: 10px;
+  margin: 10px 4px 10px 2px;
   border-radius: 5px;
   padding: 6px;
   padding-top: 2px;
@@ -11,7 +11,7 @@
 }
 
 .execution-result-block:focus {
-  box-shadow: 0 2px 15px #4eaaff, 1px 2px 3px #999;
+  box-shadow: 0 2px 10px #cce6ff, 1px 2px 3px #999;
   outline: none;
 }
 

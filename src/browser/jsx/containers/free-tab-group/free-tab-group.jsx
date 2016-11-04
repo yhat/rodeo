@@ -6,7 +6,7 @@ import TabbedPaneItem from '../../components/tabs/tabbed-pane-item.js';
 import DatabaseViewer from '../database-viewer/database-viewer';
 import DocumentTerminalViewer from '../document-terminal-viewer/document-terminal-viewer';
 import SearchTextBox from '../../components/search-text-box/search-text-box.jsx';
-import HistoryViewer from '../../components/block-history/history-viewer.jsx';
+import GlobalHistoryViewer from '../global-history-viewer/global-history-viewer';
 import PlotViewer from '../plot-viewer/plot-viewer.jsx';
 import FileViewer from '../file-viewer/file-viewer.jsx';
 import VariableViewer from '../../components/variable-viewer/variable-viewer.jsx';
@@ -27,7 +27,7 @@ import commonReact from '../../services/common-react';
 const allowedPopoutTypes = [
   'block-terminal-viewer',
   'document-terminal-viewer',
-  'history-viewer',
+  'global-history-viewer',
   'plot-viewer',
   'variable-viewer',
   'variable-table-viewer',
@@ -195,7 +195,16 @@ export default connect(null, mapDispatchToProps)(React.createClass({
             {...tab.content}
           />
         ),
-        'history-viewer': tab => <HistoryViewer filter={filter} {...tab.content}/>,
+        'global-history-viewer': tab => (
+          <GlobalHistoryViewer
+            filter={filter}
+            onBlockRemove={_.partial(props.onBlockRemove, tab.id)}
+            onContract={_.partial(props.onHistoryBlockContract, tab.id)}
+            onExpand={_.partial(props.onHistoryBlockExpand, tab.id)}
+            onInstallPythonModule={_.partial(props.onInstallPythonModule, tab.id)}
+            {...tab.content}
+          />
+        ),
         'file-viewer': tab => <FileViewer filter={filter} {...tab.content}/>,
         'package-search-viewer': tab => <PackageSearchViewer filter={filter} {...tab.content}/>,
         'package-viewer': tab => <PackageViewer filter={filter} {...tab.content}/>,

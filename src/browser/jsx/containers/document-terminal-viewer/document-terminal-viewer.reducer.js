@@ -191,7 +191,6 @@ export default reduxUtil.reduceReducers(
       JUPYTER_RESPONSE: jupyterResponseDetected,
       CHANGE_PREFERENCE: changePreference,
       WORKING_DIRECTORY_CHANGED: workingDirectoryChanged
-    }, {}),
-    promptViewerReducer
-  )
+    }), {}),
+  promptViewerReducer
 );

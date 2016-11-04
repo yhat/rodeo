@@ -46,10 +46,11 @@ function scopeReducer(xpath, reducerMap) {
 
 /**
  * Scope each reducer to within the content of a tab
+ * @param {string} contentType
  * @param {function} reducer
  * @returns {function}
  */
-function tabReducer(reducer) {
+function tabReducer(contentType, reducer) {
   return function (state, action) {
 
     if (!state) {
@@ -67,7 +68,7 @@ function tabReducer(reducer) {
         for (let tabIndex = 0; tabIndex < tabs.length; tabIndex++) {
           const tab = tabs[tabIndex];
 
-          if (action.id === tab.id || action.id === undefined) {
+          if (tab.contentType === contentType && (action.id === tab.id || action.id === undefined)) {
             const xpath = [groupIndex, 'tabs', tabIndex, 'content'],
               target = _.get(state, xpath),
               newState = target && reducer(_.get(state, xpath), action);
