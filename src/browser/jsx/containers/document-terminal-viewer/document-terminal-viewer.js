@@ -112,12 +112,20 @@ export default React.createClass({
           />
         )
       };
-    let contents;
+    let contents, suggestionClassName, suggestionLabel;
 
     if (props.items && props.items.length) {
       contents = props.items.map(item => types[item.type](item));
     } else {
-      contents = <EmptySuggestion key="empty" label="Run a command."/>;
+      suggestionClassName = 'empty-suggestion--visible';
+      suggestionLabel = [];
+
+      if (props.cwd) {
+        suggestionLabel.push('Working Directory: ' + props.cwd);
+      }
+
+      suggestionLabel.push('\nExample:\n    print("Welcome to Rodeo!")');
+      suggestionLabel = suggestionLabel.join('\n');
     }
 
     return (
@@ -131,6 +139,7 @@ export default React.createClass({
               onExecute={props.onPromptExecute}
               {...props}
             />
+            <EmptySuggestion className={suggestionClassName} key="empty" label={suggestionLabel}/>
           </StickyBottomScroll>
         </DocumentTerminal>
         <GrayInfo cwd={props.cwd}>

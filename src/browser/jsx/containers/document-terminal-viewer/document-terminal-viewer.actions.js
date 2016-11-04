@@ -25,8 +25,9 @@ function addResponse(groupId, id, responseMsgId) {
 
 function execute(groupId, id, context) {
   return function (dispatch) {
+    dispatch({type: prefixType + 'EXECUTING', groupId, id});
     return dispatch(kernel.execute(context.text)).then(function (responseMsgId) {
-      return dispatch(addResponse(groupId, id, responseMsgId));
+      return dispatch({type: prefixType + 'EXECUTED', groupId, id, payload: responseMsgId});
     }).catch(error => console.error(error));
   };
 }

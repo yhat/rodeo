@@ -91,8 +91,6 @@ function dropInstance() {
  * @returns {Promise}
  */
 function invokeExecute(instance, code, args) {
-  const startTime = new Date().getTime();
-
   args = args || {};
   return invoke(instance, {
     method: 'execute',
@@ -218,6 +216,10 @@ function getInspection(instance, code, cursorPos, detailLevel) {
   return send('getInspection', instance, code, cursorPos, detailLevel);
 }
 
+function isComplete(instance, code) {
+  return send('isComplete', instance, code);
+}
+
 /**
  * Run the prepended function before the original function.
  * @param {function} prependedFn
@@ -265,6 +267,7 @@ export default _.assign({
 }, _.mapValues({
   execute,
   executeHidden,
+  isComplete,
   invoke,
   invokeExecute,
   interrupt,

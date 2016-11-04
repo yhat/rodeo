@@ -14,13 +14,15 @@ export default React.createClass({
   propTypes: {
     label: React.PropTypes.string.isRequired
   },
-  shouldComponentUpdate: function () {
-    return false;
+  shouldComponentUpdate: function (nextProps) {
+    return commonReact.shouldComponentUpdate(this, nextProps);
   },
   render: function () {
     const props = this.props,
       className = commonReact.getClassNameList(this);
 
-    return <div className={className}><Marked>{props.label}</Marked></div>;
+    className.push('font-sans');
+
+    return <div className={className.join(' ')}><Marked>{props.label}</Marked></div>;
   }
 });

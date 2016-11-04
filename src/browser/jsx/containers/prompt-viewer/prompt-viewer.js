@@ -62,11 +62,11 @@ export default React.createClass({
     };
   },
 
-  shouldComponentUpdate: function (nextProps) {
+  shouldComponentUpdate(nextProps) {
     return commonReact.shouldComponentUpdate(this, nextProps);
   },
 
-  shouldAutocomplete: function () {
+  shouldAutocomplete() {
     const props = this.props,
       currentLine = props.lines[props.cursor.row],
       trimmedStartCurrentLine = _.trimStart(currentLine);
@@ -75,10 +75,12 @@ export default React.createClass({
     return trimmedStartCurrentLine.length !== 0;
   },
 
-  autocomplete: function () {
+  autocomplete() {
     const props = this.props,
       cursor = props.cursor,
       code = props.lines.join('\n');
+
+    this.isComplete().catch(error => console.error(error));
 
     return client.getAutoComplete(code, textUtil.getCursorPosFromRowColumn(code, cursor.row, cursor.column)).then(function (result) {
       const matches = result.matches;
@@ -103,10 +105,17 @@ export default React.createClass({
     });
   },
 
+  isComplete() {
+    const props = this.props,
+      code = props.lines.join('\n');
+
+    return client.isComplete(code);
+  },
+
   /**
    * @param {KeyboardEvent} event
    */
-  handleKeyDown: function (event) {
+  handleKeyDown(event) {
     const props = this.props,
       matchingCommands = getKeyDownCommands(defaultCommands, getTargetCommand(event));
 
@@ -135,7 +144,7 @@ export default React.createClass({
   /**
    * @param {KeyboardEvent} event
    */
-  handleKeyPress: function (event) {
+  handleKeyPress(event) {
     const props = this.props,
       key = event.key,
       alt = event.altKey,
@@ -150,13 +159,24 @@ export default React.createClass({
       event.stopPropagation();
 
       if (command.name === 'execute') {
-        const context = _.clone(props);
+        const text = props.lines.join('\n');
 
-        context.text = props.lines.join('\n');
-        props.onExecute(context);
+        this.isComplete(text).then(function (result) {
+          const status = result.status,
+            indent = result.indent;
+
+          if (status === 'incomplete' && _.isString(result.indent)) {
+            props.onCommand({name: 'insertMultiLineText', text: '\n' + indent});
+          } else {
+            const context = _.clone(props);
+
+            context.text = text;
+            props.onExecute({text});
+          }
+        }).catch(error => console.error(error));
+      } else {
+        props.onCommand(command);
       }
-
-      props.onCommand(command);
     } else if (key && key.length === 1 && !ctrl && !meta && !alt) {
       // if they held down keys, they're trying to do a command of some other component, not typing
       event.preventDefault();
@@ -166,7 +186,7 @@ export default React.createClass({
     }
   },
 
-  handlePaste: function (event) {
+  handlePaste(event) {
     event.preventDefault();
     const text = event.clipboardData.getData('text');
     let command = {};
@@ -189,7 +209,7 @@ export default React.createClass({
    * NOTE: No state change, so no need to create action/reducers
    * @param {Event} event
    */
-  handleCopy: function (event) {
+  handleCopy(event) {
     event.preventDefault();
     const text = promptUtils.getSelectedText(promptUtils.getSelection(event));
 
@@ -201,7 +221,7 @@ export default React.createClass({
   /**
    * @param {Event} event
    */
-  handleCut: function (event) {
+  handleCut(event) {
     event.preventDefault();
     const selection = promptUtils.getSelection(event),
       text = promptUtils.getSelectedText(selection);
@@ -211,7 +231,7 @@ export default React.createClass({
     this.props.onCommand({name: 'removeSelection', selection, text});
   },
 
-  handleClick: function (event) {
+  handleClick(event) {
     const cursor = promptUtils.getCursorOfClick(event);
 
     if (cursor) {

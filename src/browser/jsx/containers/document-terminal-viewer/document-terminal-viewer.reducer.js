@@ -3,6 +3,7 @@ import mapReducers from '../../services/map-reducers';
 import reduxUtil from '../../services/redux-util';
 import promptViewerReducer from '../prompt-viewer/prompt-viewer.reducer';
 import textUtil from '../../services/text-util';
+import promptActionService from '../../services/prompt-actions';
 
 const prefix = reduxUtil.fromFilenameToPrefix(__filename),
   responseTypeHandlers = {
@@ -96,7 +97,11 @@ function addHistoryItem(state, item) {
   });
 }
 
-function responseAdded(state, action) {
+function executing(state) {
+  return promptActionService.execute(state);
+}
+
+function executed(state, action) {
   if (state.responses) {
     return state.setIn(['responses', action.payload], {});
   }
@@ -229,7 +234,8 @@ export default reduxUtil.reduceReducers(
       CLEAR: clear,
       INTERRUPTING: interrupting,
       INTERRUPTED: interrupted,
-      RESPONSE_ADDED: responseAdded,
+      EXECUTING: executing,
+      EXECUTED: executed,
       RESTARTING: restarting,
       RESTARTED: restarted
     }), {

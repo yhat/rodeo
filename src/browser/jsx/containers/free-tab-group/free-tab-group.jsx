@@ -22,6 +22,7 @@ import promptViewerActions from '../prompt-viewer/prompt-viewer.actions';
 import terminalViewerActions from '../block-terminal-viewer/block-terminal-viewer.actions';
 import historyViewerActions from '../history-viewer/history-viewer.actions';
 import plotViewerActions from '../plot-viewer/plot-viewer.actions';
+import kernelActions from '../../actions/kernel';
 import commonReact from '../../services/common-react';
 
 const allowedPopoutTypes = [
@@ -30,7 +31,7 @@ const allowedPopoutTypes = [
   'global-history-viewer',
   'plot-viewer',
   'variable-viewer',
-  'variable-table-viewer',
+  'variable-table-viewer'
 ];
 
 /**
@@ -72,6 +73,7 @@ function mapDispatchToProps(dispatch, ownProps) {
     onPromptExecute: (id, context) => dispatch(terminalViewerActions.execute(groupId, id, context)),
     onFocusTab: id => dispatch(freeTabActions.focusTab(groupId, id)),
     onMoveTab: id => dispatch(freeTabActions.moveTab(groupId, id)),
+    onMount: () => dispatch(kernelActions.detectKernelVariables()),
     onPopActiveTab: () => dispatch(freeTabActions.popActiveTab(groupId)),
     onInstallPythonModule: (id, moduleName) => dispatch(terminalViewerActions.installPythonModule(groupId, id, moduleName)),
     onShowDataFrame: item => dispatch(freeTabActions.showDataFrame(groupId, item)),
@@ -95,6 +97,9 @@ export default connect(null, mapDispatchToProps)(React.createClass({
   },
   getInitialState: function () {
     return {searchFilter: ''};
+  },
+  componentDidMount() {
+    this.props.onMount();
   },
   shouldComponentUpdate: function (nextProps, nextState) {
     return commonReact.shouldComponentUpdate(this, nextProps, nextState);

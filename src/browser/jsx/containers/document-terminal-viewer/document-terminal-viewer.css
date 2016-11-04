@@ -33,3 +33,15 @@
   background-color: #333;
 }
 
+.document-terminal-viewer .empty-suggestion.empty-suggestion--visible {
+  opacity: 1;
+}
+
+.document-terminal-viewer .empty-suggestion {
+  position: absolute;
+  width: 100%;
+  opacity: 0;
+  transition: opacity 0.5s;
+  top: 0;
+}
+
