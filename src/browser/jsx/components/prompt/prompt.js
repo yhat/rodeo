@@ -18,6 +18,7 @@ export default React.createClass({
     onKeyUp: React.PropTypes.func,
     onPaste: React.PropTypes.func,
     promptLabel: React.PropTypes.string,
+    showPrompt: React.PropTypes.bool,
     tabIndex: React.PropTypes.number
   },
   getDefaultProps: function () {
@@ -50,10 +51,12 @@ export default React.createClass({
         content = [line];
       }
 
-      if (index === 0) {
-        content.unshift(<span className="prompt--prompt" key="promptLabel">{props.promptLabel}</span>);
-      } else {
-        content.unshift(<span className="prompt--continue" key="promptContinue">{props.continueLabel}</span>);
+      if (props.showPrompt !== false) {
+        if (index === 0) {
+          content.unshift(<span className="prompt--prompt" key="promptLabel">{props.promptLabel}</span>);
+        } else {
+          content.unshift(<span className="prompt--continue" key="promptContinue">{props.continueLabel}</span>);
+        }
       }
 
       return <div className="prompt-line" key={index}>{content}</div>;

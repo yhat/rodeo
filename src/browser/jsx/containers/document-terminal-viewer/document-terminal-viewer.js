@@ -131,15 +131,16 @@ export default React.createClass({
     return (
       <div className={className.join(' ')} onClick={this.handleClick} onKeyDown={this.handleKeyDown}>
         <DocumentTerminal {...props}>
+          <EmptySuggestion className={suggestionClassName} key="empty" label={suggestionLabel}/>
           <StickyBottomScroll {...props}>
             {contents}
             <PromptViewer
               onAutocomplete={props.onPromptAutocomplete}
               onCommand={props.onPromptCommand}
               onExecute={props.onPromptExecute}
+              showPrompt={!props.busy}
               {...props}
             />
-            <EmptySuggestion className={suggestionClassName} key="empty" label={suggestionLabel}/>
           </StickyBottomScroll>
         </DocumentTerminal>
         <GrayInfo cwd={props.cwd}>

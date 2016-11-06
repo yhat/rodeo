@@ -309,7 +309,7 @@ class JupyterClient extends EventEmitter {
     return request(this, {
       method: 'complete', // sends complete_request
       args: [code, cursorPos]
-    }, {resolveEvent: 'complete_reply'});
+    }, {resolveEvent: 'complete_reply', hidden: true});
   }
 
   /**
@@ -351,7 +351,7 @@ class JupyterClient extends EventEmitter {
     return request(this, {
       method: 'is_complete', // sends is_complete_request
       args: [code]
-    }, {resolveEvent: 'is_complete_reply'});
+    }, {resolveEvent: 'is_complete_reply', hidden: true});
   }
 
   /**

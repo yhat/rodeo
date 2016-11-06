@@ -4,40 +4,6 @@ import jupyterHistory from '../../services/jupyter/history';
 import mapReducers from '../../services/map-reducers';
 
 /**
- * @param {Array} state
- * @param {object} action
- * @returns {Array}
- */
-function blockAdded(state, action) {
-  const blockIndex = _.findIndex(state.blocks, {id: action.block.id});
-
-  if (blockIndex === -1) {
-    state = state.set('blocks', state.blocks.concat([action.block]));
-  }
-
-  return state;
-}
-
-/**
- * @param {Array} state
- * @param {object} action
- * @returns {Array}
- */
-function blockRemoved(state, action) {
-  const blockIndex = _.findIndex(state.blocks, {id: action.blockId});
-
-  if (blockIndex > -1) {
-    let blocks = state.blocks.asMutable();
-
-    blocks.splice(blockIndex, 1);
-
-    state = state.set('blocks', Immutable(blocks));
-  }
-
-  return state;
-}
-
-/**
  * If any of the history blocks are jupyterResponse types, then they might need to be updated with new content
  * @param {Array} state
  * @param {object} action
@@ -87,7 +53,5 @@ function expand(state, action) {
 export default mapReducers({
   HISTORY_VIEWER_CONTRACT: contract,
   HISTORY_VIEWER_EXPAND: expand,
-  BLOCK_TERMINAL_VIEWER_BLOCK_ADDED: blockAdded,
-  BLOCK_TERMINAL_VIEWER_BLOCK_REMOVED: blockRemoved,
   JUPYTER_RESPONSE: jupyterResponseDetected
 }, {});

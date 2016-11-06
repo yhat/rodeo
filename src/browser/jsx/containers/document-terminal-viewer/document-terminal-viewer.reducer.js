@@ -56,19 +56,15 @@ const prefix = reduxUtil.fromFilenameToPrefix(__filename),
     execute_result: function (state, result) {
       const data = _.get(result, 'content.data');
 
-      if (data) {
-        if (data['text/plain']) {
-          const html = textUtil.fromAsciiToHtml(data['text/plain']);
-
-          state = addHistoryItem(state, {html, source: 'stdout', type: 'text'});
-        } else {
-          state = addHistoryItem(state, {data, type: 'annotation'});
-        }
-      }
-
-      return state;
+      return addMimeData(state, data);
     },
-    execute_reply: function (state) {
+    execute_reply: function (state, result) {
+      const payload = _.get(result, 'content.payload');
+
+      _.each(payload, item => {
+        state = addMimeData(state, item.data);
+      });
+
       return state;
     },
     status: function (state, result) {
@@ -81,6 +77,8 @@ const prefix = reduxUtil.fromFilenameToPrefix(__filename),
         state = state.update('actives', actives => actives.without(responseMsgId));
       }
 
+      state = updateBusy(state);
+
       return addHistoryItem(state, {type: 'pageBreak'});
     },
     stream: function (state, result) {
@@ -90,6 +88,32 @@ const prefix = reduxUtil.fromFilenameToPrefix(__filename),
       return addHistoryItem(state, {html, type: 'text', source});
     }
   };
+
+function updateBusy(state) {
+  let isBusy = _.size(state.actives) > 0;
+
+  if (isBusy && !state.busy) {
+    state = state.set('busy', true);
+  } else if (!isBusy && state.busy) {
+    state = state.set('busy', false);
+  }
+
+  return state;
+}
+
+function addMimeData(state, data) {
+  if (_.isObject(data) && data !== null) {
+    if (data['text/plain']) {
+      const html = textUtil.fromAsciiToHtml(data['text/plain']);
+
+      state = addHistoryItem(state, {html, source: 'stdout', type: 'text'});
+    } else {
+      state = addHistoryItem(state, {data, type: 'annotation'});
+    }
+  }
+
+  return state;
+}
 
 function addHistoryItem(state, item) {
   return state.updateIn(['items'], items => {
