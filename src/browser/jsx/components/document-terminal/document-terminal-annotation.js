@@ -18,6 +18,7 @@ export default React.createClass({
     onDrag: React.PropTypes.func.isRequired,
     onFocus: React.PropTypes.func.isRequired,
     onGoTo: React.PropTypes.func.isRequired,
+    onLoad: React.PropTypes.func,
     onSave: React.PropTypes.func.isRequired,
     tabIndex: React.PropTypes.number
   },
@@ -27,7 +28,7 @@ export default React.createClass({
   render() {
     const props = this.props,
       className = commonReact.getClassNameList(this),
-      data = _.clone(props.data), //shallow clone
+      data = _.clone(props.data), // shallow clone
       images = [],
       html = [],
       text = [];
@@ -38,6 +39,7 @@ export default React.createClass({
           <img
             className="document-terminal-annotation__image"
             id={getId(props, mimeType)}
+            onLoad={props.onLoad}
             src={data[mimeType]}
           />
         );
@@ -51,6 +53,7 @@ export default React.createClass({
           <UnsafeHtml
             className="document-terminal-annotation__html"
             id={getId(props, mimeType)}
+            onLoad={props.onLoad}
             src={data[mimeType]}
           />);
         delete data[mimeType];

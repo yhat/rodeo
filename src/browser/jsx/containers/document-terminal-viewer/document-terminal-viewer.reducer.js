@@ -1,5 +1,6 @@
 import _ from 'lodash';
 import mapReducers from '../../services/map-reducers';
+import cid from '../../services/cid';
 import reduxUtil from '../../services/redux-util';
 import promptViewerReducer from '../prompt-viewer/prompt-viewer.reducer';
 import textUtil from '../../services/text-util';
@@ -117,7 +118,7 @@ function addMimeData(state, data) {
 
 function addHistoryItem(state, item) {
   return state.updateIn(['items'], items => {
-    return items.concat([item]);
+    return items.concat([_.assign({id: cid()}, item)]);
   });
 }
 

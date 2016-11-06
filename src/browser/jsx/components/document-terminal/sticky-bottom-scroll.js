@@ -23,10 +23,25 @@ export default React.createClass({
       el.scrollTop = el.scrollHeight;
     }
   },
+  handleScroll: function () {
+    const el = ReactDOM.findDOMNode(this);
+
+    this.shouldScrollBottom = el.scrollTop + el.offsetHeight === el.scrollHeight;
+  },
+  /**
+   * If we were at the bottom after the last update or scroll, maintain it
+   */
+  update: function () {
+    if (this.shouldScrollBottom) {
+      const el = ReactDOM.findDOMNode(this);
+
+      el.scrollTop = el.scrollHeight;
+    }
+  },
   render: function () {
     const props = this.props,
       className = commonReact.getClassNameList(this);
 
-    return <div className={className.join(' ')}>{props.children}</div>;
+    return <div className={className.join(' ')} onScroll={this.handleScroll}>{props.children}</div>;
   }
 });

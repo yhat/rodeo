@@ -31,18 +31,18 @@ export default React.createClass({
     onClear: React.PropTypes.func,
     onInstallPythonModule: React.PropTypes.func.isRequired,
     onInterrupt: React.PropTypes.func,
-    onRestart: React.PropTypes.func,
     onPromptAutocomplete: React.PropTypes.func.isRequired,
     onPromptBlur: React.PropTypes.func.isRequired,
+    onPromptCommand: React.PropTypes.func.isRequired,
     onPromptExecute: React.PropTypes.func.isRequired,
     onPromptFocus: React.PropTypes.func.isRequired,
-    onPromptCommand: React.PropTypes.func.isRequired,
+    onRestart: React.PropTypes.func,
     onShowSelectWorkingDirectoryDialog: React.PropTypes.func.isRequired
   },
-  shouldComponentUpdate: function (nextProps) {
+  shouldComponentUpdate(nextProps) {
     return commonReact.shouldComponentUpdate(this, nextProps);
   },
-  handleClick: function (event) {
+  handleClick(event) {
     event.preventDefault();
     event.stopPropagation();
     const el = event.currentTarget.querySelector('.prompt'),
@@ -53,7 +53,7 @@ export default React.createClass({
       window.getSelection().collapse(el, 0);
     }
   },
-  handleKeyDown: function (event) {
+  handleKeyDown(event) {
     const props = this.props,
       key = event.key,
       alt = event.altKey,
@@ -71,7 +71,14 @@ export default React.createClass({
       props[feature.onClick](event);
     }
   },
-  render: function () {
+  handleAnnotationLoad() {
+    const stickyBottomScroll = this.refs.stickyBottomScroll;
+
+    if (stickyBottomScroll) {
+      stickyBottomScroll.update();
+    }
+  },
+  render() {
     const props = this.props,
       className = commonReact.getClassNameList(this),
       types = {
@@ -85,6 +92,7 @@ export default React.createClass({
             onDrag={props.onAnnotationDrag}
             onFocus={props.onAnnotationFocus}
             onGoTo={props.onAnnotationGoTo}
+            onLoad={this.handleAnnotationLoad}
             onSave={props.onAnnotationSave}
             tabIndex="0"
           />
@@ -132,7 +140,7 @@ export default React.createClass({
       <div className={className.join(' ')} onClick={this.handleClick} onKeyDown={this.handleKeyDown}>
         <DocumentTerminal {...props}>
           <EmptySuggestion className={suggestionClassName} key="empty" label={suggestionLabel}/>
-          <StickyBottomScroll {...props}>
+          <StickyBottomScroll ref="stickyBottomScroll" {...props}>
             {contents}
             <PromptViewer
               onAutocomplete={props.onPromptAutocomplete}

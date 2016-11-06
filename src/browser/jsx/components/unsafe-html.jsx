@@ -6,6 +6,7 @@ export default React.createClass({
   displayName: 'UnsafeHTML',
   propTypes: {
     id: React.PropTypes.string.isRequired,
+    onLoad: React.PropTypes.func,
     src: React.PropTypes.string.isRequired
   },
   componentDidMount: function () {
@@ -19,8 +20,17 @@ export default React.createClass({
     return commonReact.shouldComponentUpdate(this, nextProps, nextState);
   },
   render: function () {
-    const className = commonReact.getClassNameList(this);
+    const props = this.props,
+      className = commonReact.getClassNameList(this);
 
-    return <iframe className={className.join(' ')} frameBorder="0" id={this.props.id} sandbox="allow-scripts"></iframe>;
+    return (
+      <iframe
+        className={className.join(' ')}
+        frameBorder="0"
+        id={props.id}
+        onLoad={props.onLoad}
+        sandbox="allow-scripts"
+      ></iframe>
+    );
   }
 });
