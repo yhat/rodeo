@@ -6,7 +6,7 @@ import commonReact from '../../services/common-react';
 import './tab-list.css';
 
 /**
- * @param {ReactElement} component
+ * @param {ReactChild} component
  * @param {*} type
  * @returns {boolean}
  */

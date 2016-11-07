@@ -4,15 +4,16 @@ import Immutable from 'seamless-immutable';
 import freeTabTypes from './free-tab-group/tab-types';
 
 function getFreeTabGroups() {
-  const topRightFocusId = cid(),
+  const bottomLeftFocusId = cid(),
+    topRightFocusId = cid(),
     bottomRightFocusId = cid();
 
   return Immutable.from([
     {
       groupId: 'bottom-left',
-      active: topRightFocusId,
+      active: bottomLeftFocusId,
       tabs: [
-        _.merge(freeTabTypes.getDefaultTab('document-terminal-viewer'), {id: topRightFocusId, lastFocused: new Date().getTime()}),
+        _.merge(freeTabTypes.getDefaultTab('document-terminal-viewer'), {id: bottomLeftFocusId, lastFocused: new Date().getTime()}),
       ]
     },
     {

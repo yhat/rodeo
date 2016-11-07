@@ -114,20 +114,11 @@ function focusNewestPlot() {
 }
 
 /**
- * @param {string} toGroupId
- * @param {string} id
- * @returns {function}
+ * @param {object} payload
+ * @returns {object}
  */
-function moveTab(toGroupId, id) {
-  return function (dispatch, getState) {
-    const state = getState(),
-      fromGroupId = commonTabsActions.findGroupIdByTabId(state.freeTabGroups, id);
-
-    if (fromGroupId) {
-      // tab is local to this window, move it
-      dispatch({type: 'MOVE_TAB', toGroupId, fromGroupId, id});
-    }
-  };
+function moveTab(payload) {
+  return {type: 'MOVE_TAB', payload};
 }
 
 function showDataFrame(groupId, item) {
@@ -158,7 +149,7 @@ function popActiveTab(groupId) {
       applicationControl.createWindow(windowName, {
         url: 'freeTabsOnlyWindow',
         startActions: [
-          _.assign({type: 'ADD_TAB', groupId: null, tab})
+          _.assign({type: 'ADD_TAB', groupId: null, tab, meta: {sender: 'self'}})
         ]
       });
     }

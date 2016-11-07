@@ -1,5 +1,6 @@
 import _ from 'lodash';
 import dateUtil from './dateUtil';
+import immutableUtil from './immutable-util';
 
 /**
  * Special Initialization Case:  When groupId is null and there is no sender, assume they meant the first group available
@@ -14,10 +15,7 @@ function addItem(state, action, item) {
     groupIndex = _.findIndex(state, {groupId});
 
   if (groupIndex > -1) {
-    state = state.updateIn([groupIndex, 'tabs'], tabs => {
-      return tabs.concat([item]);
-    });
-
+    state = immutableUtil.pushAtPath(state, [groupIndex, 'tabs'], item);
     state = state.setIn([groupIndex, 'active'], item.id);
   }
 
@@ -63,7 +61,7 @@ function close(state, action) {
 
     // only allow removal if they have more than one item
     if (tabs.length > 1) {
-      state = state.updateIn([groupIndex, 'tabs'], tabs =>  tabs.filter(tab => tab.id !== id));
+      state = immutableUtil.removeAtPath(state, [groupIndex, 'tabs'], tabIndex);
 
       if (state[groupIndex].active === id) {
         let newActive;

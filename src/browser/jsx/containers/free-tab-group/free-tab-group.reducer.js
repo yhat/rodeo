@@ -7,44 +7,68 @@ import blockTerminalViewerReducer from '../block-terminal-viewer/block-terminal-
 import documentTerminalViewerReducer from '../document-terminal-viewer/document-terminal-viewer.reducer';
 import plotViewerReducer from '../plot-viewer/plot-viewer.reducer';
 import globalHistoryViewerReducer from '../global-history-viewer/global-history-viewer.reducer';
+import variableViewerReducer from '../variable-viewer/variable-viewer.reducer';
 import tabTypes from './tab-types';
 import reduxUtil from '../../services/redux-util';
+import immutableUtil from '../../services/immutable-util';
 
 const initialState = Immutable.from([]);
 
-/**
- * Move the tab to a different group
- * @param {object} oldState
- * @param {object} action
- * @param {string} action.toGroupId
- * @param {string} action.fromGroupId
- * @param {string} action.id
- * @returns {object}
- */
-function moveTab(oldState, action) {
-  const state = _.cloneDeep(oldState),
-    toGroup = state[_.findIndex(state, {groupId: action.toGroupId})],
-    fromGroup = state[_.findIndex(state, {groupId: action.fromGroupId})],
-    fromGroupItemIndex = fromGroup && _.findIndex(fromGroup.tabs, {id: action.id}),
-    removedItems = fromGroup && fromGroupItemIndex !== -1 && fromGroup.tabs.splice(fromGroupItemIndex, 1);
-
-  if (!toGroup) {
-    return oldState;
+function getLastFocusedTabIndex(tabs) {
+  if (tabs.length === 0) {
+    return -1;
+  } else if (tabs.length === 1) {
+    return 0;
   }
 
-  toGroup.tabs = toGroup.tabs.concat(removedItems);
+  let bestTime = tabs[0].lastFocused,
+    bestIndex = 0;
 
-  // dragged item takes focus in the new location
-  toGroup.active = action.id;
+  for (let i = 1; i < tabs.length; i++) {
+    const tab = tabs[i];
 
-  // if moving to new group and item had focus, move focus to left item
-  if (toGroup !== fromGroup && removedItems && removedItems.length && removedItems[0].id === fromGroup.active) {
-    if (fromGroupItemIndex === 0 && fromGroup.tabs.length) {
-      fromGroup.active = fromGroup.tabs[0].id;
-    } else if (fromGroup.tabs[fromGroupItemIndex - 1]) {
-      fromGroup.active = fromGroup.tabs[fromGroupItemIndex - 1].id;
+    if (bestTime < tab.lastFocused) {
+      bestTime = tab.lastFocused;
+      bestIndex = i;
     }
   }
+
+  return bestIndex;
+}
+
+function remove(state, groupId, id) {
+  const groupIndex = _.findIndex(state, {groupId}),
+    tabs = _.get(state, [groupIndex, 'tabs']),
+    tabIndex = _.findIndex(tabs, {id});
+
+  if (tabIndex > -1) {
+    const lastFocusedIndex = getLastFocusedTabIndex(tabs);
+
+    state = immutableUtil.removeAtPath(state, [groupIndex, 'tabs'], tabIndex);
+    if (lastFocusedIndex > -1) {
+      // we're not setting a new lastFocused time because we're not really focusing, but going back to a previously
+      // focused tab
+      state.set('active', tabs[lastFocusedIndex].id);
+    }
+  }
+
+  return state;
+}
+
+/**
+ * Move the tab to a different group
+ * @param {object} state
+ * @param {object} action
+ * @returns {object}
+ */
+function moveTab(state, action) {
+  const payload = action.payload,
+    sourceGroupId = payload.sourceGroupId,
+    destinationGroupId = payload.destinationGroupId,
+    tab = payload.tab;
+
+  state = remove(state, sourceGroupId, tab.id);
+  state = add(state, {groupId: destinationGroupId, tab});
 
   return state;
 }
@@ -66,22 +90,14 @@ function add(state, action) {
   return state;
 }
 
-function variablesChanged(state, action) {
-  commonTabsReducers.eachTabByActionAndContentType(state, action, 'variable-viewer', (tab, cursor) => {
-    state = state.setIn([cursor.groupIndex, 'tabs', cursor.tabIndex, 'content', 'variables'], action.variables);
-  });
-
-  return state;
-}
-
 export default reduxUtil.reduceReducers(
   mapReducers(_.assign({
     ADD_TAB: add,
     CLOSE_TAB: commonTabsReducers.close,
     FOCUS_TAB: commonTabsReducers.focus,
     MOVE_TAB: moveTab,
-    VARIABLES_CHANGED: variablesChanged
   }, databaseViewerReducer), initialState),
+  reduxUtil.tabReducer('variable-viewer', variableViewerReducer),
   reduxUtil.tabReducer('global-history-viewer', globalHistoryViewerReducer),
   reduxUtil.tabReducer('plot-viewer', plotViewerReducer),
   reduxUtil.tabReducer('block-terminal-viewer', blockTerminalViewerReducer),

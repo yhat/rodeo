@@ -72,7 +72,7 @@ function mapDispatchToProps(dispatch, ownProps) {
     onPromptCommand: (id, command) => dispatch(promptViewerActions.createCommand(groupId, id, command)),
     onPromptExecute: (id, context) => dispatch(terminalViewerActions.execute(groupId, id, context)),
     onFocusTab: id => dispatch(freeTabActions.focusTab(groupId, id)),
-    onMoveTab: id => dispatch(freeTabActions.moveTab(groupId, id)),
+    onMoveTab: context => dispatch(freeTabActions.moveTab(context)),
     onMount: () => dispatch(kernelActions.detectKernelVariables()),
     onPopActiveTab: () => dispatch(freeTabActions.popActiveTab(groupId)),
     onInstallPythonModule: (id, moduleName) => dispatch(terminalViewerActions.installPythonModule(groupId, id, moduleName)),
@@ -118,13 +118,14 @@ export default connect(null, mapDispatchToProps)(React.createClass({
    * @param {DragEvent} event
    */
   handleTabDragStart: function (id, event) {
-    const el = getParentNodeOf(event.target, 'li'),
-      tab = _.find(this.props.tabs, {id});
+    const props = this.props,
+      el = getParentNodeOf(event.target, 'li'),
+      tab = _.find(this.props.tabs, {id}),
+      sourceGroupId = props.groupId;
 
     if (tab) {
       event.dataTransfer.effectAllowed = 'move';
-      event.dataTransfer.setData('text/html', el.outerHTML);
-      event.dataTransfer.setData('application/json', JSON.stringify(tab));
+      event.dataTransfer.setData('rodeo/free-tab', JSON.stringify({sourceGroupId, tab}));
     } else {
       // prevent default in this case means to _deny_ the start of the drag
       event.preventDefault();
@@ -135,18 +136,10 @@ export default connect(null, mapDispatchToProps)(React.createClass({
    * @param {DragEvent} event
    */
   handleTabListDragOver: function (event) {
-    const itemStr = event.dataTransfer.getData('application/json');
-    let item;
+    const itemStr = event.dataTransfer.getData('rodeo/free-tab');
 
+    // NOTE that chrome only allows reading of data in the Drop event, so we only check for existence
     if (_.isString(itemStr)) {
-      try {
-        item = JSON.parse(itemStr);
-      } catch (ex) {
-        console.error('handleTabListDragOver', ex);
-      }
-    }
-
-    if (item) {
       event.preventDefault();
     }
   },
@@ -159,14 +152,16 @@ export default connect(null, mapDispatchToProps)(React.createClass({
     console.log('handleTabListDragLeave', event);
   },
   handleTabListDrop: function (event) {
-    const itemStr = event.dataTransfer.getData('application/json');
-    let item;
+    const props = this.props,
+      tabStr = event.dataTransfer.getData('rodeo/free-tab'),
+      destinationGroupId = props.groupId;
+    let context;
 
-    if (_.isString(itemStr)) {
+    if (_.isString(tabStr)) {
       try {
-        item = JSON.parse(itemStr);
+        context = _.assign({destinationGroupId}, JSON.parse(tabStr));
 
-        this.props.onMoveTab(item.id);
+        props.onMoveTab(context);
       } catch (ex) {
         console.log(ex);
       }
