@@ -37,13 +37,16 @@ noJupyter: Rodeo is a Data Science IDE and needs a few more libraries
 noPython: Looks like there is no python available on your path
 pythonError: There was an error running python
 loading: Rodeo is Loading
-installPython: I haven't installed python yet
 installAnaconda: Install Anaconda
+installFail: We couldn't install the package :(
+installPython: I haven't installed python yet
 installJupyter: Install Jupyter
 installMatplotlib: Install matplotlib
 installNumpy: Install numpy
-installScipy: Install scipy
 installPandas: Install pandas
+installScipy: Install scipy
+installSuccess: Nice job! You've installed the package!
+installing: Installing...
 installingJupyter: |
   ## Installing Jupyter
 installingMatplotlib: |

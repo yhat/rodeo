@@ -2,11 +2,7 @@ import _ from 'lodash';
 import React from 'react';
 import SetupInitial from './setup-initial.jsx';
 import SetupInstallAnaconda from './setup-install-anaconda.jsx';
-import SetupInstallJupyter from './setup-install-jupyter.jsx';
-import SetupInstallNumpy from './setup-install-numpy.jsx';
-import SetupInstallScipy from './setup-install-scipy.jsx';
-import SetupInstallPandas from './setup-install-pandas.jsx';
-import SetupInstallMatplotlib from './setup-install-matplotlib.jsx';
+import SetupInstallPackage from './setup-install-package.jsx';
 import SetupManualCommand from './setup-manual-command.jsx';
 import SetupNoJupyter from './setup-no-jupyter.jsx';
 import SetupNoPython from './setup-no-python.jsx';
@@ -35,14 +31,60 @@ export default React.createClass({
   render: function () {
     const props = this.props,
       className = commonReact.getClassNameList(this),
+      text = props.text,
       types = {
         initial: () => <SetupInitial className={className} key="initial" {...props}/>,
         installAnaconda: () => <SetupInstallAnaconda className={className} key="installAnaconda" {...props}/>,
-        installJupyter: () => <SetupInstallJupyter className={className} key="installJupyter" {...props}/>,
-        installScipy: () => <SetupInstallScipy className={className} key="installScipy" {...props}/>,
-        installNumpy: () => <SetupInstallNumpy className={className} key="installNumpy" {...props}/>,
-        installPandas: () => <SetupInstallPandas className={className} key="installPandas" {...props}/>,
-        installMatplotlib: () => <SetupInstallMatplotlib className={className} key="installMatplotlib" {...props}/>,
+        installJupyter: () => (
+          <SetupInstallPackage
+            {...props}
+            className={className}
+            explanationLabel={text.explainJupyter}
+            key="installJupyter"
+            packageName="jupyter"
+            terminal={props.secondaryTerminal}
+          />
+        ),
+        installScipy: () => (
+          <SetupInstallPackage
+            {...props}
+            className={className}
+            explanationLabel={text.explainScipy}
+            key="installScipy"
+            packageName="scipy"
+            terminal={props.secondaryTerminal}
+          />
+        ),
+        installNumpy: () => (
+          <SetupInstallPackage
+            {...props}
+            className={className}
+            explanationLabel={text.explainNumpy}
+            key="installNumpy"
+            packageName="numpy"
+            terminal={props.secondaryTerminal}
+          />
+        ),
+        installPandas: () => (
+          <SetupInstallPackage
+            {...props}
+            className={className}
+            explanationLabel={text.explainPandas}
+            key="installPandas"
+            packageName="pandas"
+            terminal={props.secondaryTerminal}
+          />
+        ),
+        installMatplotlib: () => (
+          <SetupInstallPackage
+            {...props}
+            className={className}
+            explanationLabel={text.explainMatplotlib}
+            key="installMatplotlib"
+            packageName="matplotlib"
+            terminal={props.secondaryTerminal}
+          />
+        ),
         manualCommand: () => <SetupManualCommand className={className} key="manualCommand" {...props}/>,
         noJupyter: () => <SetupNoJupyter className={className} key="noJupyter" {...props}/>,
         noPython: () => <SetupNoPython className={className} key="noPython" {...props}/>,

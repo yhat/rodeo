@@ -2,7 +2,7 @@
 body {
   -webkit-app-region: drag;
   -webkit-user-select: none;
-  padding: 30px 5px;
+  padding: 0;
   text-align: center;
   margin: 0;
   position: relative;
@@ -45,6 +45,13 @@ ul.horizontal li {
   align-content: center;
   align-items: center;
   height: 100%;
+  overflow: hidden;
+}
+
+.setup .setup-inner {
+  overflow: hidden;
+  overflow-y: auto;
+  padding: 20px;
 }
 
 .setup button.btn-setup-action {
@@ -54,7 +61,7 @@ ul.horizontal li {
 }
 
 .setup .fake-terminal {
-  width: 95%;
+  width: 85%;
   margin: 20px auto;
 }
 
@@ -146,4 +153,25 @@ ul.horizontal li {
   margin-left: auto;
   margin-right: auto;
   height: 20px;
+}
+
+.setup .btn.btn-primary {
+  color: #fff;
+  animation: setup-best-action 1s linear infinite;
+}
+
+.setup .btn {
+  color: #666;
+}
+
+@keyframes setup-best-action {
+  0% {
+    box-shadow: 1px 1px 1px 1px rgb(178, 206, 237);
+  }
+  50% {
+    box-shadow: 1px 1px 15px 1px rgb(178, 206, 237);
+  }
+  100% {
+    box-shadow: 1px 1px 1px 1px rgb(178, 206, 237);
+  }
 }
