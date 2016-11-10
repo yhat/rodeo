@@ -28,7 +28,7 @@ export default React.createClass({
 
     return (
       <div className={className.join(' ')}>
-        <div>
+        <div className="setup-inner">
           <div className="brand"><img src={logo} /></div>
           <div className="progress">
             <div className="progress-bar progress-bar-striped active" style={progressBarStyle}>

@@ -22,7 +22,7 @@ export default React.createClass({
 
     return (
       <div className={className.join(' ')}>
-        <div>
+        <div className="setup-inner">
           <div className="explanation"><Marked>{text.pythonError}</Marked></div>
           <FakeTerminal {...props.terminal}/>
           <button className="btn btn-primary btn-setup-action" onClick={_.partial(props.onTransition, 'installAnaconda')}>{text.installAnaconda}</button>

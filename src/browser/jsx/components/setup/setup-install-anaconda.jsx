@@ -21,7 +21,7 @@ export default React.createClass({
 
     return (
       <div className={className.join(' ')}>
-        <div>
+        <div className="setup-inner">
           <div className="explanation"><Marked>{text.explainAnaconda}</Marked></div>
           <div>
             <div>{'Install Anaconda and restart Rodeo'}</div>

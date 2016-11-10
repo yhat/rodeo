@@ -29,7 +29,7 @@ export default React.createClass({
 
     return (
       <div className={className.join(' ')}>
-        <div>
+        <div className="setup-inner">
           <div className="explanation"><Marked>{props.text.askForPythonCommand}</Marked></div>
           <div className="input-group input-python-cmd">
             <input

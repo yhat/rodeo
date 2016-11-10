@@ -19,7 +19,7 @@ export default React.createClass({
 
     return (
       <div className={className.join(' ')}>
-          <div>
+        <div className="setup-inner">
         {_.map(props.articles, article => {
           const style = {
             backgroundImage: `url(${article.imageSrc})`

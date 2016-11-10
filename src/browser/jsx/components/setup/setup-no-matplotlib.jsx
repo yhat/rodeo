@@ -23,12 +23,12 @@ export default React.createClass({
 
     return (
       <div className={className.join(' ')}>
-        <div>
+        <div className="setup-inner">
           <div className="explanation"><Marked>{text.explainMissingDependences}</Marked></div>
           <FakeTerminal {...props.terminal}/>
           <button className="btn btn-primary btn-setup-action" onClick={_.partial(props.onTransition, 'installMatplotlib')}>{text.installMatplotlib}</button>
           <div className="secondary-explanation"><Marked>{text.explainMatplotlib}</Marked></div>
-          </div>
+        </div>
       </div>
     );
   }
