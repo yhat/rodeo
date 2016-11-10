@@ -1,7 +1,10 @@
 import _ from 'lodash';
-import Immutable from 'seamless-immutable';
 import jupyterHistory from '../../services/jupyter/history';
 import mapReducers from '../../services/map-reducers';
+import immutableUtil from '../../services/immutable-util';
+import errorsService from '../../services/errors';
+import cid from '../../services/cid';
+import textUtil from '../../services/text-util';
 
 /**
  * If any of the history blocks are jupyterResponse types, then they might need to be updated with new content
@@ -50,8 +53,84 @@ function expand(state, action) {
   return state;
 }
 
+function databaseConnectionQuerying(state, action) {
+  const id = action.queryId,
+    blockIndex = _.findIndex(state.blocks, {id});
+
+  if (blockIndex === -1) {
+    state = immutableUtil.pushAtPath(state, ['blocks'], {
+      id,
+      hasVisibleContent: true,
+      type: 'postgresqlResponse',
+      items: [{
+        type: 'input',
+        lines: action.payload.text.split('\n')
+      }]
+    });
+  }
+
+  return state;
+}
+
+function addHTMLTable(data, result) {
+  const headers = '<tr>' + _.map(result.columns, column => '<th>' + column.name + '</th>').join('\n') + '</tr>',
+    rows = _.map(_.take(result.rows, 10), row => {
+      return '<tr>' + _.map(row, cellContent => {
+        return '<td>' + cellContent + '</td>';
+      }).join('') + '</tr>';
+    }).join('\n');
+
+  data['text/html'] = '<table border="1" class="dataframe">' + headers + rows + '</table>';
+
+  return data;
+}
+
+function addPlainTextTable(data, result) {
+  let columnWidths = _.map(_.zip.apply(_, result.rows), textUtil.longestLength),
+    headers = _.map(result.columns, 'name'),
+    rows = [headers].concat(_.take(result.rows, 10)),
+    textTable = _.map(rows, row => _.map(row, (cellContent, columnIndex) => textUtil.padRight(cellContent, columnWidths[columnIndex] - cellContent.length)));
+
+  data['text/plain'] = textTable.join('\n');
+}
+
+function convertPostgresqlResult(result) {
+  const data = {};
+
+  addHTMLTable(data, result);
+  addPlainTextTable(data, result);
+
+  return data;
+}
+
+function databaseConnectionQueried(state, action) {
+  const id = action.queryId,
+    payload = action.payload,
+    blockIndex = _.findIndex(state.blocks, {id});
+
+  if (blockIndex > -1) {
+    const itemId = cid();
+
+    if (action.error) {
+      const type = 'error',
+        error = errorsService.toObject(payload);
+
+      state = immutableUtil.pushAtPath(state, ['blocks', blockIndex, 'items'], _.assign({id: itemId, type}, error));
+    } else {
+      const type = 'result',
+        data = convertPostgresqlResult(payload);
+
+      state = immutableUtil.pushAtPath(state, ['blocks', blockIndex, 'items'], {id: itemId, type, data});
+    }
+  }
+
+  return state;
+}
+
 export default mapReducers({
   HISTORY_VIEWER_CONTRACT: contract,
   HISTORY_VIEWER_EXPAND: expand,
-  JUPYTER_RESPONSE: jupyterResponseDetected
+  JUPYTER_RESPONSE: jupyterResponseDetected,
+  DATABASE_CONNECTION_QUERYING: databaseConnectionQuerying,
+  DATABASE_CONNECTION_QUERIED: databaseConnectionQueried
 }, {});

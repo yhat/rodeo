@@ -49,7 +49,8 @@ export default React.createClass({
     onBlur: React.PropTypes.func,
     onCommand: React.PropTypes.func.isRequired,
     onExecute: React.PropTypes.func.isRequired,
-    onFocus: React.PropTypes.func
+    onFocus: React.PropTypes.func,
+    onInput: React.PropTypes.func.isRequired
   },
 
   getDefaultProps: function () {
@@ -161,19 +162,26 @@ export default React.createClass({
       if (command.name === 'execute') {
         const text = props.lines.join('\n');
 
-        this.isComplete(text).then(function (result) {
-          const status = result.status,
-            indent = result.indent;
+        if (props.inputPrompt) {
+          const context = _.clone(props);
 
-          if (status === 'incomplete' && _.isString(result.indent)) {
-            props.onCommand({name: 'insertMultiLineText', text: '\n' + indent});
-          } else {
-            const context = _.clone(props);
+          context.text = text;
+          props.onInput({text});
+        } else {
+          this.isComplete(text).then(function (result) {
+            const status = result.status,
+              indent = result.indent;
 
-            context.text = text;
-            props.onExecute({text});
-          }
-        }).catch(error => console.error(error));
+            if (status === 'incomplete' && _.isString(result.indent)) {
+              props.onCommand({name: 'insertMultiLineText', text: '\n' + indent});
+            } else {
+              const context = _.clone(props);
+
+              context.text = text;
+              props.onExecute({text});
+            }
+          }).catch(error => console.error(error));
+        }
       } else {
         props.onCommand(command);
       }

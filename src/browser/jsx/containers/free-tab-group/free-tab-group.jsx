@@ -66,11 +66,14 @@ function mapDispatchToProps(dispatch, ownProps) {
     onCopyToPrompt: (id, props) => dispatch(promptViewerActions.copyToPrompt(groupId, id, props)),
     onDocumentTerminalAutocomplete: (id, props) => dispatch(documentTerminalViewerActions.autocomplete(groupId, id, props)),
     onDocumentTerminalPromptExecute: (id, context) => dispatch(documentTerminalViewerActions.execute(groupId, id, context)),
+    onDocumentTerminalPromptInput: (id, context) => dispatch(documentTerminalViewerActions.input(groupId, id, context)),
     onDocumentTerminalHistoryClear: id => dispatch(documentTerminalViewerActions.clear(groupId, id)),
     onHistoryBlockContract: (id, blockId, itemId) => dispatch(historyViewerActions.createContract(groupId, id, blockId, itemId)),
     onHistoryBlockExpand: (id, blockId, itemId) => dispatch(historyViewerActions.createExpand(groupId, id, blockId, itemId)),
+    onHistoryBlockSave: (id, blockId, itemId, data) => dispatch(freeTabActions.saveData(data)),
     onPromptCommand: (id, command) => dispatch(promptViewerActions.createCommand(groupId, id, command)),
     onPromptExecute: (id, context) => dispatch(terminalViewerActions.execute(groupId, id, context)),
+    onPromptInput: (id, context) => dispatch(terminalViewerActions.input(groupId, id, context)),
     onFocusTab: id => dispatch(freeTabActions.focusTab(groupId, id)),
     onMoveTab: context => dispatch(freeTabActions.moveTab(context)),
     onMount: () => dispatch(kernelActions.detectKernelVariables()),
@@ -185,8 +188,10 @@ export default connect(null, mapDispatchToProps)(React.createClass({
             onCopyToPrompt={_.partial(props.onCopyToPrompt, tab.id)}
             onExecute={_.partial(props.onPromptExecute, tab.id)}
             onExpand={_.partial(props.onHistoryBlockExpand, tab.id)}
+            onInput={_.partial(props.onPromptInput, tab.id)}
             onInstallPythonModule={_.partial(props.onInstallPythonModule, tab.id)}
             onReRun={_.partial(props.onReRunHistoryBlock, tab.id)}
+            onSave={_.partial(props.onHistoryBlockSave, tab.id)}
             {...tab.content}
           />
         ),
@@ -208,6 +213,7 @@ export default connect(null, mapDispatchToProps)(React.createClass({
             onPromptAutocomplete={_.partial(props.onDocumentTerminalAutocomplete, tab.id)}
             onPromptCommand={_.partial(props.onPromptCommand, tab.id)}
             onPromptExecute={_.partial(props.onDocumentTerminalPromptExecute, tab.id)}
+            onPromptInput={_.partial(props.onDocumentTerminalPromptInput, tab.id)}
             onRestart={_.partial(props.onTerminalRestart, tab.id)}
             onShowSelectWorkingDirectoryDialog={_.partial(props.onShowSelectWorkingDirectoryDialog, tab.id)}
             {...tab.content}
@@ -220,6 +226,7 @@ export default connect(null, mapDispatchToProps)(React.createClass({
             onContract={_.partial(props.onHistoryBlockContract, tab.id)}
             onExpand={_.partial(props.onHistoryBlockExpand, tab.id)}
             onInstallPythonModule={_.partial(props.onInstallPythonModule, tab.id)}
+            onSave={_.partial(props.onHistoryBlockSave, tab.id)}
             {...tab.content}
           />
         ),

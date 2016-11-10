@@ -1,12 +1,19 @@
-import Immutable from 'seamless-immutable';
 import commonTabsReducers from '../../services/common-tabs-reducers';
 
-function refreshed(state, action) {
-  const info = action.info;
+function refreshing(state) {
+  return state;
+}
 
-  if (info && info.items) {
+function refreshed(state, action) {
+  const payload = action.payload;
+
+  if (action.error) {
+    return state;
+  }
+
+  if (payload && payload.items) {
     commonTabsReducers.eachTabByActionAndContentType(state, action, 'database-viewer', (tab, cursor) => {
-      state = state.updateIn([cursor.groupIndex, 'tabs', cursor.tabIndex, 'content'], obj => obj.set('items', info.items));
+      state = state.updateIn([cursor.groupIndex, 'tabs', cursor.tabIndex, 'content'], obj => obj.set('items', payload.items));
     });
   }
 
@@ -46,5 +53,6 @@ function itemContracted(state, action) {
 export default {
   DATABASE_VIEWER_ITEM_EXPANDED: itemExpanded,
   DATABASE_VIEWER_ITEM_CONTRACTED: itemContracted,
+  DATABASE_VIEWER_REFRESHING: refreshing,
   DATABASE_VIEWER_REFRESHED: refreshed
 };

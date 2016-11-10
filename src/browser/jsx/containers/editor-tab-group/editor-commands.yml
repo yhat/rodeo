@@ -13,20 +13,15 @@
     win: ctrl-shift-c
     mac: ctrl-c
 
-- name: indentSelection
+- name: blockindent
   bindKey:
     win: ctrl-\]
     mac: Command-\]
 
-- name: outdentSelection
+- name: blockoutdent
   bindKey:
     win: ctrl-\[|Shift-Tab
     mac: Command-\[|Shift-Tab
-
-- name: saveFile
-  bindKey:
-    win: ctrl-s
-    mac: Command-s
 
 - name: openPreferences
   bindKey:

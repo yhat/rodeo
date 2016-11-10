@@ -265,8 +265,6 @@ function onSavePlot(url, filename) {
     throw new Error('No such url: ' + url);
   }
 
-  log('info', 'onSavePlot', {url, filename});
-
   const tempFilename = plotServerInstance.urls.get(url);
 
   return files.copy(tempFilename, filename);
@@ -644,6 +642,17 @@ function onInvokeWithKernel(options, params) {
 
 /**
  * @param {object} options
+ * @param {string} options.instanceId
+ * @param {object} text
+ * @returns {Promise}
+ */
+function onInputWithKernel(options, text) {
+  return getKernelInstanceById(options.instanceId)
+    .then(client => client.input(text));
+}
+
+/**
+ * @param {object} options
  * @param {string} options.cmd
  * @param {string} text
  * @returns {Promise}
@@ -971,6 +980,7 @@ function attachIpcMainEvents() {
     onGetSystemFacts,
     onGetStatus,
     onIsComplete,
+    onInputWithKernel,
     onInterrupt,
     onInvokeWithKernel,
     onKnitHTML,

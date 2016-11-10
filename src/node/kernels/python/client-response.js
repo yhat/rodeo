@@ -96,15 +96,6 @@ function isRequestResolution(outputItem, result, client) {
 }
 
 /**
- * @param {string} source
- * @param {{msg_type: string}} child
- * @returns {boolean}
- */
-function isInputRequestMessage(source, child) {
-  return source === 'stdin' && child.msg_type === 'input_request';
-}
-
-/**
  *
  * @param {JupyterClient} client
  * @param {JupyterClientResponse} response

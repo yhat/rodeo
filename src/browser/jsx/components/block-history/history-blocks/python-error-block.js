@@ -7,6 +7,7 @@
 import _ from 'lodash';
 import React from 'react';
 import commonReact from '../../../services/common-react';
+import ExpandBlockButton from '../expand-block-button';
 import './python-error-block.css';
 
 export default React.createClass({
@@ -82,7 +83,6 @@ export default React.createClass({
       stacktrace = props.stacktrace.map(asHTML);
       contents.push(<div className="python-error-block-stacktrace" key="stacktrace">{stacktrace}</div>);
     }
-
 
     if (_.isString(props.value) && props.name === 'ImportError') {
       const match = props.value.match(/No module named (.*)/);

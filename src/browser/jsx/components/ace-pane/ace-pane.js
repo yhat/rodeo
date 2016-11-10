@@ -54,14 +54,14 @@ export default React.createClass({
     // add each command
     _.each(props.commands, command => {
       command = _.clone(command);
-      command.exec = editor => props.onCommand(command.name, editor);
 
-      if (instance.commands[command.name]) {
-        command.previousCommand = instance.commands[command.name];
-        instance.removeCommand(command.name);
+      // if name already exists, reuse that command, bind the key
+      if (instance.commands.byName[command.name]) {
+        instance.commands.bindKey(command.bindKey, instance.commands.byName[command.name]);
+      } else { // if name doesn't exist, link to our version
+        command.exec = editor => props.onCommand(command, editor);
+        instance.commands.addCommand(command);
       }
-
-      instance.commands.addCommand(command);
     });
 
     globalObserver.on('resize', this.resize, this);
@@ -112,6 +112,8 @@ export default React.createClass({
   },
   render: function () {
     const className = commonReact.getClassNameList(this);
+
+    className.push('font-monospaced');
 
     return <div className={className.join(' ')} id={this.props.id}></div>;
   }

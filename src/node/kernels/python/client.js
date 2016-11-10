@@ -223,7 +223,7 @@ class JupyterClient extends EventEmitter {
    * @returns {Promise}
    */
   input(str) {
-    return request(this, {method: 'input', args: [str]}, {resolveEvent: 'execute_reply'});
+    return write(this.childProcess, {id: uuid.v4().toString(), method: 'input', args: [str]});
   }
 
   interrupt() {
@@ -606,10 +606,7 @@ function exec(options, text) {
         jupyterClient.on('error', error => result.errors.push(error));
         jupyterClient.on('close', (code, signal) => { resolve(_.assign({code, signal}, result)); });
 
-        listenTo(jupyterClient, 'shell', result.events);
-        listenTo(jupyterClient, 'iopub', result.events);
-        listenTo(jupyterClient, 'stdin', result.events);
-        listenTo(jupyterClient, 'input_request', result.events);
+        listenTo(jupyterClient, 'jupyter', result.events);
       }).timeout(timeout, new ProcessError('Timed out waiting for Jupyter to start', {options, result}));
     });
   }).catch(function (error) {

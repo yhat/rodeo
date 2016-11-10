@@ -24,7 +24,8 @@ export default React.createClass({
     onExpand: React.PropTypes.func.isRequired,
     onInstallPythonModule: React.PropTypes.func.isRequired,
     onReRun: React.PropTypes.func.isRequired,
-    onRemove: React.PropTypes.func.isRequired
+    onRemove: React.PropTypes.func.isRequired,
+    onSave: React.PropTypes.func.isRequired
   },
   getDefaultProps: function () {
     return {
@@ -42,8 +43,15 @@ export default React.createClass({
       className = commonReact.getClassNameList(this),
       items = props.items,
       types = {
-        executionReplyOK: item => null,
-        executionResult: item => <ExecutionResultBlock key={item.id} {...props} {...item}/>,
+        executionReplyOK: () => null,
+        executionResult: item => (
+          <ExecutionResultBlock
+            key={item.id}
+            {...props}
+            {...item}
+            onSave={_.partial(props.onSave, item.id)}
+          />
+        ),
         inputStream: item => (
           <InputStreamBlock
             key={item.id}

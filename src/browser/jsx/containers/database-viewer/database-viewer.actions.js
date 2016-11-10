@@ -34,14 +34,15 @@ function refreshItems(groupId, id) {
       connectedId = manageConnections && manageConnections.connected;
 
     if (_.isString(connectedId)) {
+      dispatch({type: 'DATABASE_VIEWER_REFRESHING', groupId, id})
       return api.send('databaseInfo', connectedId)
         .then(info => {
           info.items = _.map(info.items, item => normalizeItemForTreeView(item));
 
           return info;
         })
-        .then(info => dispatch({type: 'DATABASE_VIEWER_REFRESHED', groupId, id, info}))
-        .catch(error => console.error(error));
+        .then(payload => dispatch({type: 'DATABASE_VIEWER_REFRESHED', groupId, id, payload}))
+        .catch(error => dispatch({type: 'DATABASE_VIEWER_REFRESHED', groupId, id, payload: error, error: true}));
     }
   };
 }

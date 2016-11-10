@@ -1,12 +1,18 @@
+import _ from 'lodash';
 import React from 'react';
 import commonReact from '../../services/common-react';
 import './prompt.css';
+
+function getStars(isStars, str) {
+  return !isStars && str || _.repeat('*', str.length);
+}
 
 export default React.createClass({
   displayName: 'Prompt',
   propTypes: {
     continueLabel: React.PropTypes.string,
     cursor: React.PropTypes.object,
+    inputPrompt: React.PropTypes.object,
     lines: React.PropTypes.array,
     onBlur: React.PropTypes.func,
     onClick: React.PropTypes.func,
@@ -36,22 +42,27 @@ export default React.createClass({
 
   render() {
     const props = this.props,
-      className = commonReact.getClassNameList(this);
+      className = commonReact.getClassNameList(this),
+      isPassword = _.get(props, 'inputPrompt.password');
 
     function getLine(line, index) {
       let content;
 
       if (props.cursor.row === index) {
         content = [
-          line.substr(0, props.cursor.column),
+          getStars(isPassword, line.substr(0, props.cursor.column)),
           <span className="prompt-cursor" key="promptCursor">&nbsp;</span>,
-          line.substr(props.cursor.column)
+          getStars(isPassword, line.substr(props.cursor.column))
         ];
       } else {
-        content = [line];
+        content = [getStars(isPassword, line)];
       }
 
-      if (props.showPrompt !== false) {
+      if (props.inputPrompt && props.inputPrompt.prompt) {
+        if (index === 0) {
+          content.unshift(<span className="prompt--prompt" key="promptLabel">{props.inputPrompt.prompt}</span>);
+        }
+      } else if (props.showPrompt !== false) {
         if (index === 0) {
           content.unshift(<span className="prompt--prompt" key="promptLabel">{props.promptLabel}</span>);
         } else {

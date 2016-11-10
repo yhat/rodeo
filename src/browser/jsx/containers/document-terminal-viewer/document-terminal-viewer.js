@@ -36,6 +36,7 @@ export default React.createClass({
     onPromptCommand: React.PropTypes.func.isRequired,
     onPromptExecute: React.PropTypes.func.isRequired,
     onPromptFocus: React.PropTypes.func.isRequired,
+    onPromptInput: React.PropTypes.func.isRequired,
     onRestart: React.PropTypes.func,
     onShowSelectWorkingDirectoryDialog: React.PropTypes.func.isRequired
   },
@@ -146,6 +147,7 @@ export default React.createClass({
               onAutocomplete={props.onPromptAutocomplete}
               onCommand={props.onPromptCommand}
               onExecute={props.onPromptExecute}
+              onInput={props.onPromptInput}
               showPrompt={!props.busy}
               {...props}
             />

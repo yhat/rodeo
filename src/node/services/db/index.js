@@ -11,39 +11,28 @@ const _ = require('lodash'),
 
 function connect(options) {
   return bluebird.try(function () {
-    log('info', 'connect', {options});
     const id = options.id,
-      type = options.type,
-      config = _.omit(options, ['name', 'type', 'id']);
+      type = options.type;
 
-    if (types[type]) {
-      log('info', 'found type', type, types[type]);
-      const adapter = types[type].create();
-
-      return types[type].connect(adapter, config).then(function (connection) {
-        instances[id] = {
-          type,
-          adapter,
-          connection
-        };
-      });
-    } else {
+    if (!types[type]) {
       throw new Error('DB type does not exist: ' + type);
     }
+
+    return types[type]
+      .create(options)
+      .then(token => instances[id] = token);
   });
 }
 
 function disconnect(id) {
   return bluebird.try(function () {
-    log('info', 'disconnect', {id});
-
     if (id) {
       if (instances[id]) {
-        types[instances[id].type].disconnect(instances[id].adapter, instances[id].connection);
+        instances[id].disconnect.apply(instances[id], arguments);
       }
     } else {
       _.each(instances, function (item, id) {
-        types[instances[id].type].disconnect(instances[id].adapter, instances[id].connection);
+        instances[id].disconnect.apply(instances[id], arguments);
       });
     }
   });
@@ -51,20 +40,16 @@ function disconnect(id) {
 
 function query(id, str) {
   return bluebird.try(function () {
-    log('info', 'query', {id, str});
-
     if (instances[id]) {
-      return types[instances[id].type].query(instances[id].connection, str);
+      return instances[id].query(str);
     }
   });
 }
 
 function getInfo(id) {
   return bluebird.try(function () {
-    log('info', 'infoss', {id});
-
     if (instances[id]) {
-      return types[instances[id].type].getInfo(instances[id].connection);
+      return instances[id].getInfo();
     }
   });
 }

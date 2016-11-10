@@ -12,22 +12,20 @@ function copyAnnotation(groupId, id) {
   return {type: 'DOCUMENT_TERMINAL_VIEWER_COPY_ANNOTATION', groupId, id};
 }
 
-/**
- * An execution is an id
- * @param {string} groupId
- * @param {string} id
- * @param {string} responseMsgId
- * @returns {object}
- */
-function addResponse(groupId, id, responseMsgId) {
-  return {type: prefixType + 'RESPONSE_ADDED', groupId, id, payload: responseMsgId};
-}
-
 function execute(groupId, id, context) {
   return function (dispatch) {
     dispatch({type: prefixType + 'EXECUTING', groupId, id});
     return dispatch(kernel.execute(context.text)).then(function (responseMsgId) {
       return dispatch({type: prefixType + 'EXECUTED', groupId, id, payload: responseMsgId});
+    }).catch(error => console.error(error));
+  };
+}
+
+function input(groupId, id, context) {
+  return function (dispatch) {
+    dispatch({type: prefixType + 'INPUTTING', groupId, id});
+    return dispatch(kernel.input(context.text)).then(function (responseMsgId) {
+      return dispatch({type: prefixType + 'INPUTTED', groupId, id, payload: responseMsgId});
     }).catch(error => console.error(error));
   };
 }
@@ -86,6 +84,7 @@ export default {
   clear,
   copyAnnotation,
   execute,
+  input,
   interrupt,
   showSelectWorkingDirectoryDialog,
   restart

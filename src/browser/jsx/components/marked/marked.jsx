@@ -17,7 +17,7 @@ export default React.createClass({
   },
   getRawMarkup: function () {
     const renderer = new marked.Renderer(),
-      str = this.props.children.toString();
+      str = this.props.children && this.props.children.toString();
 
     function templateLink(href, title, text) {
       return `<a onclick="require('electron').shell.openExternal('${href}');" title="${title}">${text}</a>`;
@@ -42,7 +42,7 @@ export default React.createClass({
       return paragraphHandler(text);
     };
 
-    return {__html: marked(str, {renderer: renderer})};
+    return str && {__html: marked(str, {renderer: renderer})} || {__html: '<span />'};
   },
   render: function () {
     const displayName = this.constructor.displayName,

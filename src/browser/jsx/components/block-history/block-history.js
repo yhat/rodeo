@@ -4,6 +4,7 @@ import ReactDOM from 'react-dom';
 import commonReact from '../../services/common-react';
 import './block-history.css';
 import JupyterResponseBlock from './history-blocks/jupyter-response-block';
+import PostgresqlResponseBlock from './history-blocks/postgresql-response-block';
 import EmptySuggestion from '../empty/empty-suggestion';
 
 export default React.createClass({
@@ -15,7 +16,8 @@ export default React.createClass({
     onCopyToPrompt: React.PropTypes.func.isRequired,
     onExpand: React.PropTypes.func.isRequired,
     onInstallPythonModule: React.PropTypes.func.isRequired,
-    onReRun: React.PropTypes.func.isRequired
+    onReRun: React.PropTypes.func.isRequired,
+    onSave: React.PropTypes.func.isRequired
   },
   getDefaultProps() {
     return {
@@ -56,6 +58,17 @@ export default React.createClass({
             onInstallPythonModule={_.partial(props.onInstallPythonModule, block.id)}
             onReRun={_.partial(props.onReRun, block)}
             onRemove={_.partial(props.onBlockRemove, block.id)}
+            onSave={_.partial(props.onSave, block.id)}
+          />
+        ),
+        postgresqlResponse: block => (
+          <PostgresqlResponseBlock
+            key={block.id}
+            {...block}
+            onContract={_.partial(props.onContract, block.id)}
+            onExpand={_.partial(props.onExpand, block.id)}
+            onRemove={_.partial(props.onBlockRemove, block.id)}
+            onSave={_.partial(props.onSave, block.id)}
           />
         )
       },

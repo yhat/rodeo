@@ -7,12 +7,24 @@ const prefixType = reduxUtil.fromFilenameToPrefix(__filename);
 
 function execute(groupId, id, context) {
   return function (dispatch) {
+    dispatch({type: prefixType + 'EXECUTING', groupId, id});
     return dispatch(kernel.execute(context.text)).then(function (responseMsgId) {
       const type = 'jupyterResponse',
         items = [];
 
-      return dispatch(addHistoryBlock(groupId, id, {id: cid(), responseMsgId, type, items}));
-    }).catch(error => console.error(error));
+      dispatch(addHistoryBlock(groupId, id, {id: cid(), responseMsgId, type, items}));
+      return dispatch({type: prefixType + 'EXECUTED', groupId, id});
+    }).catch(error => dispatch({type: prefixType + 'EXECUTED', groupId, id, payload: error, error: true}));
+  };
+}
+
+function input(groupId, id, context) {
+  return function (dispatch) {
+
+    dispatch({type: prefixType + 'INPUTTING', groupId, id});
+    return dispatch(kernel.input(context.text)).then(function (payload) {
+      return dispatch({type: prefixType + 'INPUTTED', groupId, id, payload});
+    }).catch(error => dispatch({type: prefixType + 'INPUTTED', groupId, id, payload: error, error: true}));
   };
 }
 
@@ -61,15 +73,16 @@ function reRunHistoryBlock(groupId, id, block) {
     if (text) {
       return dispatch(kernel.execute(text)).then(function (responseMsgId) {
         return dispatch({type: prefixType + 'RERAN_BLOCK', groupId, id, payload: {responseMsgId, blockId: block.id}});
-      }).catch(error => console.error(error));
+      }).catch(error => dispatch({type: prefixType + 'RERAN_BLOCK', groupId, id, payload: error, error: true}));
     }
   };
 }
 
 export default {
   addHistoryBlock,
+  execute,
+  input,
   installPythonModule,
   reRunHistoryBlock,
-  removeHistoryBlock,
-  execute
+  removeHistoryBlock
 };

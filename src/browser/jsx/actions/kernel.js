@@ -120,11 +120,18 @@ function execute(code) {
   };
 }
 
+function input(text) {
+  return function () {
+    return client.input(text);
+  };
+}
+
 export default {
   askForPythonOptions,
   detectKernel,
   detectKernelVariables,
   execute,
+  input,
   isBusy,
   isIdle,
   interrupt,

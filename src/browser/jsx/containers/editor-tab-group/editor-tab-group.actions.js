@@ -5,6 +5,7 @@ import {local} from '../../services/store';
 import {errorCaught} from '../../actions/application';
 import aceActions from './ace.actions';
 import commonTabsActions from '../../services/common-tabs-actions';
+import freeTabGroupActions from '../free-tab-group/free-tab-group.actions';
 const tabGroupName = 'editorTabGroups';
 
 function getAceInstance(id) {
@@ -199,10 +200,21 @@ function changeTabMode(groupId, id, option) {
   return {type: 'EDITOR_TAB_MODE_CHANGED', groupId, id, value: option.value};
 }
 
-function executeAceCommand(groupId, id, commandName, editor) {
-  if (aceActions[commandName]) {
-    return aceActions[commandName](groupId, id, editor);
+function executeAceCommand(groupId, id, command, editor) {
+  if (aceActions[command.name]) {
+    return aceActions[command.name](groupId, id, editor);
   }
+
+  return _.noop;
+}
+
+function execute(groupId, id, payload) {
+  return function (dispatch, getState) {
+    const state = getState(),
+      editorTabContents = commonTabsActions.getContent(state[tabGroupName], groupId, id);
+
+    return dispatch(freeTabGroupActions.execute(_.assign({mode: editorTabContents.mode}, payload)));
+  };
 }
 
 export default {
@@ -211,6 +223,7 @@ export default {
   focusActive,
   changeTabMode,
   close,
+  execute,
   executeAceCommand,
   triggerAceCommand,
   triggerAceCommandForActiveTab: commonTabsActions.toActiveTab(tabGroupName, triggerAceCommand),

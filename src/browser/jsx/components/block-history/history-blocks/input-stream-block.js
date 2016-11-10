@@ -6,9 +6,11 @@
 
 import _ from 'lodash';
 import React from 'react';
+import ReactDOM from 'react-dom';
 import commonReact from '../../../services/common-react';
 import './input-stream-block.css';
 import ExpandBlockButton from '../expand-block-button';
+import selectionUtil from '../../../services/selection-util';
 
 export default React.createClass({
   displayName: 'InputStreamBlock',
@@ -31,9 +33,9 @@ export default React.createClass({
     onReRun: React.PropTypes.func
   },
 
-  getDefaultProps () {
+  getDefaultProps() {
     return {
-      chunks: [],
+      lines: [],
       expanded: false
     };
   },
@@ -42,7 +44,7 @@ export default React.createClass({
     return commonReact.shouldComponentUpdate(this, nextProps);
   },
 
-  handleClick: function (event) {
+  handleClick(event) {
     event.preventDefault();
     const props = this.props;
 
@@ -61,7 +63,7 @@ export default React.createClass({
     }
   },
 
-  handleDoubleClick: function (event) {
+  handleDoubleClick(event) {
     event.preventDefault();
     const props = this.props;
 
@@ -72,13 +74,29 @@ export default React.createClass({
     }
   },
 
+  handleCopy(event) {
+    const props = this.props,
+      text = props.lines.join('\n');
+
+    event.preventDefault();
+    event.clipboardData.setData('text/plain', text);
+  },
+
+  handleCopyButton() {
+    const el = ReactDOM.findDOMNode(this);
+
+    selectionUtil.copy(el);
+  },
+
   render() {
     const props = this.props,
       className = commonReact.getClassNameList(this),
       lines = props.lines,
       getLine = (line, index) => <div className="input-stream-block-line" id={index} key={index}>{line}</div>,
       menu = [];
-      let expandButton;
+    let expandButton, contents;
+
+    menu.push(<span className="fa fa-copy" key="copy" onClick={this.handleCopyButton} title="Copy"/>);
 
     if (props.allowCopyToPrompt) {
       menu.unshift(
@@ -99,8 +117,6 @@ export default React.createClass({
         />
       );
     }
-
-    let contents;
 
     className.push('font-monospaced');
 
@@ -131,7 +147,7 @@ export default React.createClass({
         className={className.join(' ')}
         onBlur={props.onBlur}
         onClick={this.handleClick}
-        onCopy={props.onCopy}
+        onCopy={this.handleCopy}
         onCut={props.onCut}
         onDoubleClick={this.handleDoubleClick}
         onFocus={props.onFocus}

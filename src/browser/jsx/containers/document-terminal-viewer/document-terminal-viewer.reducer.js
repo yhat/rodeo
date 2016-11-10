@@ -68,6 +68,9 @@ const prefix = reduxUtil.fromFilenameToPrefix(__filename),
 
       return state;
     },
+    input_request: function (state, result) {
+      return state.set('inputPrompt', result.content);
+    },
     status: function (state, result) {
       const responseMsgId = _.get(result, 'parent_header.msg_id'),
         executionState = _.get(result, 'content.execution_state');
@@ -178,6 +181,19 @@ function workingDirectoryChanged(state, action) {
   return state;
 }
 
+function inputting(state) {
+  return promptActionService.clear(state);
+}
+
+function inputted(state, action) {
+  if (action.error) {
+    console.error(action.payload);
+    return addHistoryItem(state, {html: 'Unable to input', source: 'stderr', type: 'text'});
+  }
+
+  return state.without('inputPrompt');
+}
+
 function interrupting(state) {
   return state;
 }
@@ -201,6 +217,9 @@ function restarted(state, action) {
     return addHistoryItem(state, {html: 'Unable to restart terminal', source: 'stderr', type: 'text'});
   }
 
+  state = promptActionService.clear(state);
+  state = state.set('actives', {});
+  state = updateBusy(state);
   return addHistoryItem(state, {html: 'done', source: 'stdout', type: 'text'});
 }
 
@@ -262,7 +281,9 @@ export default reduxUtil.reduceReducers(
       EXECUTING: executing,
       EXECUTED: executed,
       RESTARTING: restarting,
-      RESTARTED: restarted
+      RESTARTED: restarted,
+      INPUTTING: inputting,
+      INPUTTED: inputted
     }), {
       JUPYTER_RESPONSE: jupyterResponseDetected,
       PREFERENCE_CHANGE_SAVED: changePreference,

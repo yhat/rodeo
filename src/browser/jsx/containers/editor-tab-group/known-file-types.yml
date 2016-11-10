@@ -64,10 +64,6 @@
       mode: sql
     - label: Markdown
       mode: markdown
-  featuredActions:
-    - name: previewHTML
-      label: Preview HTML
-      enabled: false
 
 - label: YAML
   mode: yaml

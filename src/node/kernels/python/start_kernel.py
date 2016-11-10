@@ -113,7 +113,8 @@ def kernel(wd=None, verbose=0):
             if method:
                 if getattr(target, method, False):
                     result = getattr(target, method)(*args, **kwargs)
-                    sys.stdout.write(json.dumps({"source": "link", "result": result, "id": uid }) + '\n')
+                    if result:
+                        sys.stdout.write(json.dumps({"source": "link", "result": result, "id": uid }) + '\n')
                 else:
                     sys.stdout.write(json.dumps({ "error": "Missing method " + method, "id": uid }) + '\n')
 
@@ -160,6 +161,7 @@ def kernel(wd=None, verbose=0):
         try:
             data = kernel_client.get_stdin_msg(timeout=current_timeout)
             sys.stdout.write(json.dumps({"source": "stdin", "result": data}, default=json_serial) + '\n')
+            sys.stdout.flush()
             current_timeout = current_timeout_min
         except Empty:
             pass

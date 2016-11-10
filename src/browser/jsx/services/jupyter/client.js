@@ -51,7 +51,6 @@ function guaranteeInstance() {
  * @returns {*}
  */
 function killInstance(instance) {
-  console.log(__filename, 'killInstance');
   return send('killKernelInstance', instance.instanceId).then(function () {
     instancePromise = false;
   });
@@ -63,7 +62,6 @@ function killInstance(instance) {
  * @returns {Promise}
  */
 function restartInstance(instance) {
-  console.log(__filename, 'restartInstance');
   return send('killKernelInstance', instance.instanceId).then(function () {
     instancePromise = false;
     return createInstance();
@@ -95,6 +93,23 @@ function invokeExecute(instance, code, args) {
   return invoke(instance, {
     method: 'execute',
     kwargs: _.assign({code}, pythonLanguage.toPythonArgs(args))
+  });
+}
+
+function input(instance, text) {
+  const startTime = new Date().getTime();
+
+  return send('inputWithKernel', instance, text).then(function (result) {
+    const name = 'input time',
+      ms = (new Date().getTime() - startTime) + 'ms';
+
+    if (ms > 250) {
+      console.warn(name, ms);
+    } else {
+      console.log(name, ms);
+    }
+
+    return result;
   });
 }
 
@@ -270,6 +285,7 @@ export default _.assign({
   isComplete,
   invoke,
   invokeExecute,
+  input,
   interrupt,
   getInspection,
   getAutoComplete,

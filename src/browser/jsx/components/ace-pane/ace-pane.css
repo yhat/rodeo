@@ -24,6 +24,5 @@ div.ace_editor.ace_autocomplete {
   box-shadow: 2px 5px 10px #aaafb3;
   transition: opacity 0.2s;
   white-space: pre-wrap;
-  font-family: Menlo, Monaco, Consolas, "Courier New", monospace;
   font-size: smaller;
 }

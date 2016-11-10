@@ -16,6 +16,7 @@ import commonReact from '../../services/common-react';
 import rodeoLogo from './rodeo-logo/rodeo-logo.4x.png';
 import './editor-tab-group.css';
 import editorCommands from './editor-commands.yml';
+import aceActions from './ace.actions';
 
 /**
  * @param {function} dispatch
@@ -32,9 +33,10 @@ function mapDispatchToProps(dispatch, ownProps) {
     onLoading: tab => dispatch(actions.handleLoading(groupId, tab)),
     onLoaded: tab => dispatch(actions.handleLoaded(groupId, tab)),
     onRemoveAcePane: id => dispatch(actions.close(groupId, id)),
-    onAceCommand: (id, commandName, editor) => dispatch(actions.executeAceCommand(groupId, id, commandName, editor)),
+    onAceCommand: (id, command, editor) => dispatch(actions.executeAceCommand(groupId, id, command, editor)),
     onExecuteSelection: id => dispatch(actions.triggerAceCommand(groupId, id, 'executeSelection')),
     onExecuteFile: id => dispatch(actions.triggerAceCommand(groupId, id, 'executeFile')),
+    onExecute: (id, context) => dispatch(actions.execute(groupId, id, context)),
     onRodeo: () => dispatch(dialogActions.showAboutRodeo()),
     onTabModeChange: (tab, option) => dispatch(actions.changeTabMode(groupId, tab.id, option))
   };
@@ -125,6 +127,11 @@ export default connect(null, mapDispatchToProps)(React.createClass({
       this.props[feature.onClick](activeTab.id);
     }
   },
+  handleAceCommand: function (tabId, command, editor) {
+    if (aceActions[command.name]) {
+      return aceActions[command.name](this.props, tabId, command, editor);
+    }
+  },
   render: function () {
     const props = this.props,
       activeTab = _.find(props.tabs, {id: props.active}),
@@ -133,7 +140,7 @@ export default connect(null, mapDispatchToProps)(React.createClass({
           <AcePane
             commands={editorCommands}
             disabled={props.disabled}
-            onCommand={_.partial(props.onAceCommand, tab.id)}
+            onCommand={_.partial(this.handleAceCommand, tab.id)}
             onLoadError={props.onLoadError}
             onLoaded={props.onLoaded}
             onLoading={props.onLoading}

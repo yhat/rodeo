@@ -12,23 +12,25 @@ import mapReducers from '../../services/map-reducers';
 import definitions from './definitions.yml';
 import errorService from '../../services/errors';
 import {local} from '../../services/store';
+import reduxUtil from '../../services/redux-util';
+import immutableUtil from '../../services/immutable-util';
 
-const storageKey = 'manageConnections',
+const prefix = reduxUtil.fromFilenameToPrefix(__filename),
+  storageKey = 'manageConnections',
   initialState = Immutable({
     list: local.get(storageKey) || []
   });
 
 function selectConnection(state, action) {
-  return state.set('active', action.active);
+  return state.set('active', action.payload);
 }
 
 function addChange(state, action) {
-  const change = action.change,
+  const change = action.payload,
     itemIndex = _.findIndex(state.list, {id: change.id});
 
   if (itemIndex > -1) {
-    state = state.updateIn(['list', itemIndex], item => item.set(change.key, change.value));
-
+    state = state.setIn(['list', itemIndex, change.key], change.value);
     local.set(storageKey, state.list);
   }
 
@@ -36,18 +38,11 @@ function addChange(state, action) {
 }
 
 function removeConnection(state, action) {
-  const itemIndex = _.findIndex(state.list, {id: action.id});
+  const itemIndex = _.findIndex(state.list, {id: action.payload});
 
   if (itemIndex > -1) {
     state = clearErrors(state);
-
-    state = state.updateIn(['list'], list => {
-      list = list.asMutable();
-
-      list.splice(itemIndex, 1);
-
-      return list;
-    });
+    state = immutableUtil.removeAtPath(state, ['list'], itemIndex);
 
     if (state.list[itemIndex]) {
       state = state.set('active', state.list[itemIndex].id);
@@ -67,34 +62,40 @@ function addConnection(state) {
     closeable = true;
 
   state = clearErrors(state);
-
-  state = state.updateIn(['list'], list => {
-    list = list.asMutable();
-
-    list.push({id, type, closeable});
-
-    return list;
-  });
-
+  state = immutableUtil.pushAtPath(state, ['list'], {id, type, closeable});
   state = state.set('active', id);
 
   return state;
 }
 
-function connectionChanged(state, action) {
-  const id = action.id,
-    connected = action.connected,
-    connectionConfig = _.find(state.list, {id: action.id});
+function setErrors(state, action) {
+  const error = action.payload;
 
-  state = clearErrors(state);
-
-  if (connected === true && connectionConfig) {
-    state = state.set('connected', id);
-  } else if (connected === false) {
-    state = state.without('connected');
+  if (error && error.message) {
+    state = state.set('errors', [errorService.toObject(error)]);
   }
 
   return state;
+}
+
+function connected(state, action) {
+  if (action.error) {
+    return setErrors(state, action);
+  }
+
+  state = clearErrors(state);
+
+  return state.set('connected', action.payload.id);
+}
+
+function disconnected(state, action) {
+  if (action.error) {
+    return setErrors(state, action);
+  }
+
+  state = clearErrors(state);
+
+  return state.without('connected');
 }
 
 function clearErrors(state) {
@@ -105,21 +106,12 @@ function clearErrors(state) {
   return state;
 }
 
-function connectionError(state, action) {
-  const error = action.error;
-
-  if (error && error.message) {
-    state = state.set('errors', [errorService.toObject(error)]);
-  }
-
-  return state;
-}
-
-export default mapReducers({
-  MANAGE_CONNECTIONS_ADD_CHANGE: addChange,
-  MANAGE_CONNECTIONS_ADD_CONNECTION: addConnection,
-  MANAGE_CONNECTIONS_REMOVE_CONNECTION: removeConnection,
-  MANAGE_CONNECTIONS_SELECT_CONNECTION: selectConnection,
-  DATABASE_CONNECTION_CHANGED: connectionChanged,
-  DATABASE_CONNECTION_ERROR: connectionError
-}, initialState);
+export default mapReducers(_.assign(reduxUtil.addPrefixToKeys(prefix, {
+  ADD_CHANGE: addChange,
+  ADD_CONNECTION: addConnection,
+  REMOVE_CONNECTION: removeConnection,
+  SELECT_CONNECTION: selectConnection
+}), {
+  DATABASE_CONNECTION_CONNECTED: connected,
+  DATABASE_CONNECTION_DISCONNECTED: disconnected
+}), initialState);

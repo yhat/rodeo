@@ -6,8 +6,8 @@ import selectionUtil from '../../services/selection-util';
 import './block-terminal-viewer.css';
 
 /**
- *
  * @param {Event} event
+ * @returns {boolean}
  */
 function isHighestFocusableTarget(event) {
   const currentTarget = event.currentTarget;
