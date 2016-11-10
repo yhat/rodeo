@@ -1,5 +1,8 @@
 import _ from 'lodash';
 import mapReducers from '../../services/map-reducers';
+import reduxUtil from '../../services/redux-util';
+
+const prefix = reduxUtil.fromFilenameToPrefix(__filename);
 
 export function getInitialState() {
   return {
@@ -8,101 +11,92 @@ export function getInitialState() {
 }
 
 function searchValueChanged(state, action) {
-  if (state.searchValue !== action.value) {
-    state = _.clone(state);
-    state.searchValue = action.value;
+  if (state.searchValue !== action.payload) {
+    state = state.set('searchValue', action.payload);
   }
 
   return state;
 }
 
 function searchFetching(state, action) {
-  state = _.clone(state);
+  state = state.without('packages', 'limit', 'size');
 
-  delete state.packages;
-  delete state.limit;
-  delete state.size;
-  state.searching = action.term;
-
-  return state;
+  return state.set('searching', action.payload);
 }
 
 function searchFetched(state, action) {
-  state = _.clone(state);
-  delete state.searching;
+  state = state.without('searching');
 
-  if (action.error) {
-    console.error(__filename, 'searchFetched', action);
-    return state;
+  if (!action.error) {
+    state = state.merge(_.pick(action.payload, ['packages', 'limit', 'size']));
   }
-
-  state.packages = action.packages;
-  state.limit = action.limit;
-  state.size = action.size;
 
   return state;
 }
 
 function releaseDataFetching(state, action) {
-  const resultIndex = _.findIndex(state.packages, {name: action.packageName});
+  const payload = action.payload,
+    name = payload,
+    resultIndex = _.findIndex(state.packages, {name});
 
   if (resultIndex > -1) {
-    state = _.clone(state);
-    state.packages = _.clone(state.packages);
-    state.packages[resultIndex] = _.assign({loading: true}, state.packages[resultIndex]);
+    state.setIn(['packages', resultIndex, 'loading'], true);
   }
 
   return state;
 }
 
 function releaseDataFetched(state, action) {
-  const resultIndex = _.findIndex(state.packages, {name: action.packageName});
+  const payload = action.payload;
 
-  if (resultIndex > -1) {
-    state = _.clone(state);
-    state.packages = _.clone(state.packages);
-    state.packages[resultIndex] = action.releaseData;
-  }
+  if (!payload.error) {
+    const name = payload.name,
+      resultIndex = _.findIndex(state.packages, {name});
 
-  return state;
-}
-
-function packageInstalling(state, action) {
-  const resultIndex = _.findIndex(state.packages, {name: action.packageName});
-
-  if (resultIndex > -1) {
-    state = _.clone(state);
-    state.packages = _.clone(state.packages);
-    state.packages[resultIndex] = _.assign({installing: action.version}, state.packages[resultIndex]);
-  }
-
-  return state;
-}
-
-function packageInstalled(state, action) {
-  const resultIndex = _.findIndex(state.packages, {name: action.packageName});
-
-  if (resultIndex > -1) {
-    state = _.clone(state);
-    state.packages = _.clone(state.packages);
-    if (action.error) {
-      console.error(__filename, 'packageInstalled', action);
-      state.packages[resultIndex] = _.assign({installing: false}, state.packages[resultIndex]);
-    } else {
-      console.log(__filename, 'packageInstalled', action);
-      state.packages[resultIndex] = _.assign({installing: false, installed: action.version}, state.packages[resultIndex]);
+    if (resultIndex > -1) {
+      state = state.setIn(['packages', resultIndex], action.payload.releaseData);
     }
   }
 
   return state;
 }
 
-export default mapReducers({
+function packageInstalling(state, action) {
+  const payload = action.payload,
+    name = payload.name,
+    version = payload.version,
+    resultIndex = _.findIndex(state.packages, {name});
+
+  if (resultIndex > -1) {
+    state = state.setIn(['packages', resultIndex, 'installing'], version);
+  }
+
+  return state;
+}
+
+function packageInstalled(state, action) {
+  const payload = action.payload,
+    name = payload.name,
+    version = payload.version,
+    resultIndex = _.findIndex(state.packages, {name});
+
+  if (resultIndex > -1) {
+    state = state.setIn(['packages', resultIndex, 'installing'], false);
+
+    if (!action.error) {
+      state = state.setIn(['packages', resultIndex, 'installed'], version);
+    }
+  }
+
+  return state;
+}
+
+export default mapReducers(reduxUtil.addPrefixToKeys(prefix, {
   PACKAGE_INSTALLING: packageInstalling,
   PACKAGE_INSTALLED: packageInstalled,
-  PACKAGE_SEARCH_FETCHING: searchFetching,
-  PACKAGE_SEARCH_FETCHED: searchFetched,
-  PACKAGE_SEARCH_RELEASE_DATA_FETCHING: releaseDataFetching,
-  PACKAGE_SEARCH_RELEASE_DATA_FETCHED: releaseDataFetched,
-  PACKAGE_SEARCH_VALUE_CHANGED: searchValueChanged
-}, getInitialState());
+  FETCHING: searchFetching,
+  FETCHED: searchFetched,
+  RELEASE_DATA_FETCHING: releaseDataFetching,
+  RELEASE_DATA_FETCHED: releaseDataFetched,
+  VALUE_CHANGED: searchValueChanged
+}), getInitialState());

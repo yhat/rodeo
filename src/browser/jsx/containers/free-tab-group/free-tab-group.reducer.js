@@ -8,6 +8,7 @@ import documentTerminalViewerReducer from '../document-terminal-viewer/document-
 import plotViewerReducer from '../plot-viewer/plot-viewer.reducer';
 import globalHistoryViewerReducer from '../global-history-viewer/global-history-viewer.reducer';
 import variableViewerReducer from '../variable-viewer/variable-viewer.reducer';
+import packageSearchViewerReducer from '../package-search-viewer/package-search-viewer.reducer';
 import tabTypes from './tab-types';
 import reduxUtil from '../../services/redux-util';
 import immutableUtil from '../../services/immutable-util';
@@ -101,5 +102,6 @@ export default reduxUtil.reduceReducers(
   reduxUtil.tabReducer('global-history-viewer', globalHistoryViewerReducer),
   reduxUtil.tabReducer('plot-viewer', plotViewerReducer),
   reduxUtil.tabReducer('block-terminal-viewer', blockTerminalViewerReducer),
-  reduxUtil.tabReducer('document-terminal-viewer', documentTerminalViewerReducer)
+  reduxUtil.tabReducer('document-terminal-viewer', documentTerminalViewerReducer),
+  reduxUtil.tabReducer('package-search-viewer', packageSearchViewerReducer),
 );

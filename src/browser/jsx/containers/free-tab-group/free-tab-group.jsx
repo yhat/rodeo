@@ -22,6 +22,7 @@ import promptViewerActions from '../prompt-viewer/prompt-viewer.actions';
 import terminalViewerActions from '../block-terminal-viewer/block-terminal-viewer.actions';
 import historyViewerActions from '../history-viewer/history-viewer.actions';
 import plotViewerActions from '../plot-viewer/plot-viewer.actions';
+import packageSearchActions from '../package-search-viewer/package-search-viewer.actions';
 import kernelActions from '../../actions/kernel';
 import commonReact from '../../services/common-react';
 
@@ -71,12 +72,18 @@ function mapDispatchToProps(dispatch, ownProps) {
     onHistoryBlockContract: (id, blockId, itemId) => dispatch(historyViewerActions.createContract(groupId, id, blockId, itemId)),
     onHistoryBlockExpand: (id, blockId, itemId) => dispatch(historyViewerActions.createExpand(groupId, id, blockId, itemId)),
     onHistoryBlockSave: (id, blockId, itemId, data) => dispatch(freeTabActions.saveData(data)),
+    onPackageSearchPythonModule: (id, name, version) => dispatch(packageSearchActions.installPackage(groupId, id, name, version)),
+    onPackageSearchShowMore: (id, packageName, version) => dispatch(packageSearchActions.showMore(groupId, id, packageName, version)),
+    onPackageSearchList: id => dispatch(packageSearchActions.list(groupId, id)),
+    onPackageSearchValueChange: (id, value) => dispatch(packageSearchActions.changeSearchValue(groupId, id, value)),
+    onPackageSearchByTerm: (id, term) => dispatch(packageSearchActions.searchByTerm(groupId, id, term)),
     onPromptCommand: (id, command) => dispatch(promptViewerActions.createCommand(groupId, id, command)),
     onPromptExecute: (id, context) => dispatch(terminalViewerActions.execute(groupId, id, context)),
     onPromptInput: (id, context) => dispatch(terminalViewerActions.input(groupId, id, context)),
     onFocusTab: id => dispatch(freeTabActions.focusTab(groupId, id)),
     onMoveTab: context => dispatch(freeTabActions.moveTab(context)),
     onMount: () => dispatch(kernelActions.detectKernelVariables()),
+    onOpenExternal: url => dispatch(freeTabActions.openExternal(url)),
     onPopActiveTab: () => dispatch(freeTabActions.popActiveTab(groupId)),
     onInstallPythonModule: (id, moduleName) => dispatch(terminalViewerActions.installPythonModule(groupId, id, moduleName)),
     onShowDataFrame: item => dispatch(freeTabActions.showDataFrame(groupId, item)),
@@ -231,7 +238,17 @@ export default connect(null, mapDispatchToProps)(React.createClass({
           />
         ),
         'file-viewer': tab => <FileViewer filter={filter} {...tab.content}/>,
-        'package-search-viewer': tab => <PackageSearchViewer filter={filter} {...tab.content}/>,
+        'package-search-viewer': tab => (
+          <PackageSearchViewer
+            filter={filter}
+            onInstallPythonModule={_.partial(props.onPackageSearchPythonModule, tab.id)}
+            onOpenExternal={props.onOpenExternal}
+            onShowMore={_.partial(props.onPackageSearchShowMore, tab.id)}
+            onList={_.partial(props.onPackageSearchList, tab.id)}
+            onSearchValueChange={_.partial(props.onPackageSearchValueChange, tab.id)}
+            onSearchByTerm={_.partial(props.onPackageSearchByTerm, tab.id)}
+            {...tab.content}
+          />),
         'package-viewer': tab => <PackageViewer filter={filter} {...tab.content}/>,
         'plot-viewer': tab => (
           <PlotViewer

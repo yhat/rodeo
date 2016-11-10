@@ -1,17 +1,13 @@
 import _ from 'lodash';
 import bluebird from 'bluebird';
-import ipc from 'ipc';
+import api from '../../services/api';
 import pypi from '../../services/pypi';
 import freeTabGroupActions from '../free-tab-group/free-tab-group.actions';
+import kernel from '../../actions/kernel';
 import recommendedPackages from './recommended.yml';
+import reduxUtil from '../../services/redux-util';
 
-function list() {
-  return function (dispatch) {
-    return pypi.list().then(function (list) {
-      dispatch({type: 'PACKAGE_SEARCH_LIST', list});
-    });
-  };
-}
+const prefix = reduxUtil.fromFilenameToPrefix(__filename);
 
 /**
  * @param {string} term
@@ -56,10 +52,10 @@ function sortSearchResultsWithTerm(term, packages, specificPackage) {
   return exactTerm.concat(recommended, includesTerm, packages);
 }
 
-function getReleaseByNameOnly(packageName) {
-  return pypi.getReleases(packageName).then(function (versions) {
+function getReleaseByNameOnly(name) {
+  return pypi.getReleases(name).then(function (versions) {
     if (_.isArray(versions) && versions.length > 0) {
-      return pypi.getReleaseData(packageName, _.head(versions));
+      return pypi.getReleaseData(name, _.head(versions));
     }
 
     return null;
@@ -87,11 +83,11 @@ function removeExtraTitleFromDescription(packageInfo) {
   const lines = description.split('\n', 2),
     firstLine = lines[0] && lines[0].trim().toLowerCase(),
     secondLine = lines[1] && lines[1].trim(),
-    packageName = packageInfo.name.toLowerCase(),
+    name = packageInfo.name.toLowerCase(),
     summary = packageInfo.summary && packageInfo.summary.toLowerCase();
 
   // remove extra title
-  if (firstLine === packageName || firstLine === summary) {
+  if (firstLine === name || firstLine === summary) {
     if (secondLine && secondLine && secondLine[0] === secondLine[secondLine.length - 1]) {
       packageInfo.description = description.substr(firstLine.length + secondLine.length + 2).trim();
     } else {
@@ -109,16 +105,17 @@ function normalizePackage(packageInfo) {
   }
 }
 
-function searchByTerm(term) {
+function searchByTerm(groupId, id, payload) {
   return function (dispatch) {
-    dispatch({type: 'PACKAGE_SEARCH_FETCHING', term});
+    const term = payload;
 
+    dispatch({type: prefix + 'FETCHING', groupId, id, payload});
     return bluebird.all([
       getReleaseByNameOnly(term).catch(error => console.error('searchByTerm', {term, error})),
       pypi.search({name: term, summary: term, keywords: term}, 'or')
     ]).spread(function (specificPackage, packages) {
       if (!_.isArray(packages)) {
-        return dispatch({type: 'PACKAGE_SEARCH_FETCHED', error: packages});
+        return dispatch({type: prefix + 'FETCHED', groupId, id, payload: new Error('Nothing returned'), error: true});
       }
 
       packages = sortSearchResultsWithTerm(term, packages, specificPackage);
@@ -134,54 +131,40 @@ function searchByTerm(term) {
 
       _.each(packages, normalizePackage);
 
-      console.log('pypi', {packages});
-      dispatch({type: 'PACKAGE_SEARCH_FETCHED', term, packages, limit, size});
+      dispatch({type: prefix + 'FETCHED', groupId, id, payload: {term, packages, limit, size}});
     });
   };
 }
 
-function changeSearchValue(value) {
-  return {type: 'PACKAGE_SEARCH_VALUE_CHANGED', value};
+function changeSearchValue(groupId, id, payload) {
+  return {type: prefix + 'VALUE_CHANGED', groupId, id, payload};
 }
 
-function openExternal(url) {
-  return function () {
-    return ipc.send('openExternal', url);
+function installPackage(groupId, id, name, version) {
+  return function (dispatch) {
+    const text = version ? `! pip install ${name}==${version}` : `! pip install ${name}`;
+
+    dispatch({type: prefix + 'PACKAGE_INSTALLING', payload: {name, version}});
+    return dispatch(kernel.execute(text))
+      .then(() => dispatch({type: prefix + 'PACKAGE_INSTALLED', payload: {name, version}}))
+      .catch(error => dispatch({type: prefix + 'PACKAGE_INSTALLED', payload: error, error: true}));
   };
 }
 
-function installPackage(packageName, version) {
-  if (!_.isString(packageName) || !_.isString(version)) {
-    throw new Error('installPackage expects string');
-  }
-
+function showMore(groupId, id, name, version) {
   return function (dispatch) {
-    const isCodeIsolated = true;
-
-    dispatch({type: 'PACKAGE_INSTALLING', packageName, version});
-    dispatch(freeTabGroupActions.execute({text: `! pip install ${packageName}==${version}`, isCodeIsolated}))
-      .then(() => dispatch({type: 'PACKAGE_INSTALLED', packageName, version}))
-      .catch(error => dispatch({type: 'PACKAGE_INSTALLED', packageName, version, error}));
-  };
-}
-
-function showMore(packageName, version) {
-  return function (dispatch) {
-    dispatch({type: 'PACKAGE_SEARCH_RELEASE_DATA_FETCHING', packageName, version});
-    return pypi.getReleaseData(packageName, version)
+    dispatch({type: prefix + 'RELEASE_DATA_FETCHING', groupId, id, payload: {name, version}});
+    return pypi.getReleaseData(name, version)
       .then(function (releaseData) {
-        console.log('showMore', {releaseData});
         normalizePackage(releaseData);
-        dispatch({type: 'PACKAGE_SEARCH_RELEASE_DATA_FETCHED', packageName, version, releaseData});
-      }).catch(error => console.error(error));
+        dispatch({type: prefix + 'RELEASE_DATA_FETCHED', groupId, id, payload: {name, version, releaseData}});
+      }).catch(error => dispatch({type: prefix + 'RELEASE_DATA_FETCHED', groupId, id, payload: error}, error: true));
   };
 }
 
 export default {
   changeSearchValue,
   installPackage,
-  list,
   searchByTerm,
-  showMore,
-  openExternal
+  showMore
 };

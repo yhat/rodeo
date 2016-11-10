@@ -50,9 +50,9 @@ function removeHistoryBlock(groupId, id, blockId) {
   return {type: prefixType + 'BLOCK_REMOVED', groupId, id, blockId};
 }
 
-function installPythonModule(groupId, id, pythonModuleName) {
+function installPythonModule(groupId, id, name, version) {
   return function (dispatch) {
-    const text = `! pip install ${pythonModuleName}`;
+    const text = version ? `! pip install ${name}==${version}` : `! pip install ${name}`;
 
     return dispatch(kernel.execute(text)).then(function (responseMsgId) {
       const type = 'jupyterResponse',

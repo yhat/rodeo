@@ -11,7 +11,7 @@ export default React.createClass({
   displayName: 'PackageSearchItem',
   propTypes: {
     className: React.PropTypes.string,
-    onInstallPackage: React.PropTypes.func.isRequired,
+    onInstallPythonModule: React.PropTypes.func.isRequired,
     onOpenExternal: React.PropTypes.func.isRequired,
     onShowMore: React.PropTypes.func.isRequired
   },
@@ -89,7 +89,7 @@ export default React.createClass({
               </table>
             </section>
             <section>
-              <button className="btn btn-primary" onClick={_.partial(props.onInstallPackage, props.name, props.version)}>
+              <button className="btn btn-primary" onClick={_.partial(props.onInstallPythonModule, props.name, props.version)}>
                 {'Install Package'}
               </button>
             </section>
