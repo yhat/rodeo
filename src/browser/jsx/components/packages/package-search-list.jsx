@@ -10,6 +10,8 @@ export default React.createClass({
   propTypes: {
     className: React.PropTypes.string,
     filter: React.PropTypes.string.isRequired,
+    onInstallPythonModule: React.PropTypes.func.isRequired,
+    onOpenExternal: React.PropTypes.func.isRequired,
     onSearchByTerm: React.PropTypes.func.isRequired,
     onSearchValueChange: React.PropTypes.func.isRequired,
     packages: React.PropTypes.array
@@ -43,7 +45,7 @@ export default React.createClass({
     if (props.searching) {
       searchButton = <button className="btn btn-default" disabled>{'Search'}</button>;
     } else {
-      searchButton = <button className="btn btn-default" onClick={_.partial(props.onSearchByTerm, props.searchValue)}>{'Search'}</button>
+      searchButton = <button className="btn btn-default" onClick={_.partial(props.onSearchByTerm, props.searchValue)}>{'Search'}</button>;
     }
 
     contents.push(
@@ -71,9 +73,9 @@ export default React.createClass({
 
         contents.push(<div key="contents">{_.map(list, item => {
           if (!item.downloads) {
-            return <PackageSearchItem {...props} {...item} />;
+            return <PackageSearchItem key={item.name} {...props} {...item} />;
           } else {
-            return <PackageSearchItemDetails {...props} {...item} />;
+            return <PackageSearchItemDetails key={item.name} {...props} {...item} />;
           }
         })}</div>);
       }

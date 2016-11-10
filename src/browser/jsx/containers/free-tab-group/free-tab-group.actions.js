@@ -1,11 +1,11 @@
 import _ from 'lodash';
+import api from '../../services/api';
 import bluebird from 'bluebird';
 import path from 'path';
 import commonTabsActions from '../../services/common-tabs-actions';
 import cid from '../../services/cid';
 import applicationControl from '../../services/application-control';
 import databaseConnectionActions from '../../actions/database-connection';
-import api from '../../services/api';
 import {local} from '../../services/store';
 import blockTerminalViewerActions from '../block-terminal-viewer/block-terminal-viewer.actions';
 import documentTerminalViewerActions from '../document-terminal-viewer/document-terminal-viewer.actions';
@@ -366,6 +366,12 @@ function execute(context) {
   };
 }
 
+function openExternal(url) {
+  return function () {
+    return api.send('openExternal', url);
+  };
+}
+
 export default {
   closeTab,
   execute,
@@ -374,6 +380,7 @@ export default {
   focusFirstTabByType,
   guaranteeTab,
   moveTab,
+  openExternal,
   savePlot,
   saveData,
   showDataFrame,

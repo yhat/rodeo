@@ -7,7 +7,6 @@ import notifications from '../components/notifications/notifications.reducer';
 import freeTabGroups from './free-tab-group/free-tab-group.reducer';
 import editorTabGroups from './editor-tab-group/editor-tab-group.reducer';
 import preferences from './preferences-viewer/preferences-viewer.reducer';
-import packageSearch from './package-search-viewer/package-search-viewer.reducer';
 import manageConnections from './manage-connections-viewer/manage-connections.reducer';
 
 function broadcast(state, action) {
@@ -56,10 +55,6 @@ export default combineReducers({
    * map!
    */
   preferences,
-  /**
-   * map!
-   */
-  packageSearch,
   /**
    * singleton! Only one file view should ever be on the screen at the time for the sake of other components
    * to interact and change themselves based on the state of the fileview.

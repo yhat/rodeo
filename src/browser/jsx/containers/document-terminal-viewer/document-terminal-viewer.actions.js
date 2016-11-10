@@ -79,6 +79,17 @@ function autocomplete(groupId, id, payload) {
   return {type: prefixType + 'AUTOCOMPLETE', groupId, id, payload, meta: {sender: 'self'}};
 }
 
+function installPackage(groupId, id, name, version) {
+  return function (dispatch) {
+    const text = version ? `! pip install ${name}==${version}` : `! pip install ${name}`;
+
+    dispatch({type: prefix + 'PACKAGE_INSTALLING', name, version});
+    return dispatch(kernel.execute(text))
+      .then(() => dispatch({type: prefix + 'PACKAGE_INSTALLED', payload: {name, version}}))
+      .catch(error => dispatch({type: prefix + 'PACKAGE_INSTALLED', payload: error, error: true}));
+  };
+}
+
 export default {
   autocomplete,
   clear,
