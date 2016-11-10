@@ -36,7 +36,6 @@ function getBashEnv() {
 }
 
 /**
- *
  * @returns {Promise}
  */
 function getPlatformEnv() {
@@ -53,7 +52,11 @@ function getPlatformEnv() {
     }
 
     return promise;
-  });
+  }).timeout(60000 * 2, 'Timed out trying to get environment variables from platform')
+    .catch(error => {
+      log('error', error);
+      return {};
+    });
 }
 
 /**

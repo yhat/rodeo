@@ -130,6 +130,7 @@
     "redux": "^3.5",
     "redux-actions": "^0.13.0",
     "reselect": "^2.5.4",
+    "rulejs": "^0.1.0",
     "seamless-immutable": "^6.1.1",
     "stream-splitter": "^0.3.2",
     "temp": "^0.8.3",

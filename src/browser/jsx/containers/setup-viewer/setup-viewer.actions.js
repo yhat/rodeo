@@ -1,9 +1,10 @@
 import _ from 'lodash';
-import {send} from 'ipc';
+import api from '../../services/api';
 import preferenceActions from '../../actions/preferences';
 import clientDiscovery from '../../services/jupyter/client-discovery';
 import {local} from '../../services/store';
 import track from '../../services/track';
+import rules from 'rulejs';
 
 /**
  * @param {Error} error
@@ -21,7 +22,7 @@ function handleError(error) {
 function finish() {
   return function () {
     track({category: 'setup', action: 'finish'});
-    return send('finishStartup').catch(handleError);
+    return api.send('finishStartup').catch(handleError);
   };
 }
 
@@ -54,45 +55,70 @@ function convertErrorToIconMessage(error) {
   return {icon, message};
 }
 
-function handleExecuted(dispatch, getState) {
-  return function (result) {
-    const terminal = result;
-
-    terminal.state = 'executed';
-
-    if (terminal.errors.length) {
+const executedHandlerRules = [
+  {
+    when: (dispatch, getState, terminal) => terminal.errors.length,
+    then: (dispatch, getState, terminal) => {
       terminal.errors = terminal.errors.map(convertErrorToIconMessage);
       dispatch(transition('pythonError'));
-    } else if (terminal.stderr.match(/Jupyter is not installed/)) {
+    }
+  },
+  {
+    when: (dispatch, getState, terminal) => terminal.stderr.match(/Jupyter is not installed/),
+    then: (dispatch, getState, terminal) => {
       terminal.stdout = 'from jupyter_client import manager';
       terminal.stderr = '';
       terminal.errors.unshift({icon: 'fa-asterisk', message: 'Jupyter is not installed'});
       dispatch(transition('noJupyter'));
-    } else if (terminal.stderr.match(/Numpy is not installed/)) {
+    }
+  },
+  {
+    when: (dispatch, getState, terminal) => terminal.stderr.match(/Numpy is not installed/),
+    then: (dispatch, getState, terminal) => {
       terminal.stdout = 'import numpy';
       terminal.stderr = '';
       terminal.errors.unshift({icon: 'fa-asterisk', message: 'Numpy is not installed'});
       dispatch(transition('noNumpy'));
-    } else if (terminal.stderr.match(/Scipy is not installed/)) {
+    }
+  },
+  {
+    when: (dispatch, getState, terminal) => terminal.stderr.match(/Scipy is not installed/),
+    then: (dispatch, getState, terminal) => {
       terminal.stdout = 'import scipy';
       terminal.stderr = '';
       terminal.errors.unshift({icon: 'fa-asterisk', message: 'Scipy is not installed'});
       dispatch(transition('noScipy'));
-    } else if (terminal.stderr.match(/Matplotlib is not installed/)) {
+    }
+  },
+  {
+    when: (dispatch, getState, terminal) => terminal.stderr.match(/Matplotlib is not installed/),
+    then: (dispatch, getState, terminal) => {
       terminal.stdout = 'import matplotlib';
       terminal.stderr = '';
       terminal.errors.unshift({icon: 'fa-asterisk', message: 'Matplotlib is not installed'});
       dispatch(transition('noMatplotlib'));
-    } else if (terminal.stderr.match(/Pandas is not installed/)) {
+    }
+  },
+  {
+    when: (dispatch, getState, terminal) => terminal.stderr.match(/Pandas is not installed/),
+    then: (dispatch, getState, terminal) => {
       terminal.stdout = 'import pandas';
       terminal.stderr = '';
       terminal.errors.unshift({icon: 'fa-asterisk', message: 'Pandas is not installed'});
       dispatch(transition('noPandas'));
-    } else if (terminal.code === 127) {
-      dispatch(transition('noPython'));
-    } else if (terminal.code !== 0) {
-      dispatch(transition('pythonError'));
-    } else {
+    }
+  },
+  {
+    when: (dispatch, getState, terminal) => terminal.code === 127,
+    then: (dispatch) => dispatch(transition('noPython'))
+  },
+  {
+    when: (dispatch, getState, terminal) => terminal.code !== 0,
+    then: (dispatch) => dispatch(transition('pythonError'))
+  },
+  {
+    when: () => true,
+    then: (dispatch, getState) => {
       const state = getState(),
         cmd = _.get(state, 'setup.terminal.cmd'),
         isMainWindowReady = _.get(state, 'setup.isMainWindowReady');
@@ -104,6 +130,16 @@ function handleExecuted(dispatch, getState) {
         dispatch(transition('ready'));
       }
     }
+  }
+];
+
+function handleExecuted(dispatch, getState) {
+  return function (result) {
+    const terminal = result;
+
+    terminal.state = 'executed';
+
+    rules.first(executedHandlerRules, dispatch, getState, terminal);
 
     dispatch({type: 'SETUP_EXECUTED', result, meta: {sender: 'self'}});
   };
@@ -113,9 +149,7 @@ function execute() {
   return function (dispatch, getState) {
     const state = getState(),
       cmd = _.get(state, 'setup.terminal.cmd'),
-      code = [
-        'print("Welcome to Rodeo!")'
-      ].join('\n');
+      code = 'print("Welcome to Rodeo!")';
 
     dispatch({type: 'SETUP_EXECUTING', cmd, code, meta: {sender: 'self'}});
     return clientDiscovery.executeWithNewKernel({cmd}, code)
@@ -163,12 +197,12 @@ function installPackage(targetPackage) {
       cmd = _.get(state, 'setup.terminal.cmd'),
       code = [
         'import pip',
-        `pip.main(["install", "-vvvv", "${targetPackage}"])`
+        `pip.main(["install", "${targetPackage}"])`
       ].join('\n'),
       args = ['-u', '-c', code];
 
     dispatch({type: 'SETUP_PACKAGE_INSTALLING', cmd, args, meta: {sender: 'self'}});
-    return send('executeProcess', cmd, ['-u', '-c', code])
+    return api.send('executeProcess', cmd, ['-u', '-c', code])
       .then(handlePackageInstalled(dispatch))
       .catch(handleError);
   };
@@ -177,19 +211,19 @@ function installPackage(targetPackage) {
 function cancel() {
   track({category: 'setup', action: 'cancel'});
 
-  return send('quitApplication');
+  return api.send('quitApplication');
 }
 
 function openExternal(url) {
   track({category: 'setup', action: 'openExternal', label: url});
 
-  return send('openExternal', url);
+  return api.send('openExternal', url);
 }
 
 function restart() {
   track({category: 'setup', action: 'restart'});
 
-  return send('restartApplication');
+  return api.send('restartApplication');
 }
 
 export default {

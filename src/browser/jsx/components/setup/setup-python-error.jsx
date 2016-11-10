@@ -22,10 +22,12 @@ export default React.createClass({
 
     return (
       <div className={className.join(' ')}>
-        <div className="explanation"><Marked>{text.pythonError}</Marked></div>
-        <FakeTerminal {...props.terminal}/>
-        <button className="btn btn-primary btn-setup-action" onClick={_.partial(props.onTransition, 'installAnaconda')}>{text.installAnaconda}</button>
-        <button className="btn btn-default btn-setup-action" onClick={_.partial(props.onTransition, 'manualCommand')}>{text.uniqueCommandForPython}</button>
+        <div>
+          <div className="explanation"><Marked>{text.pythonError}</Marked></div>
+          <FakeTerminal {...props.terminal}/>
+          <button className="btn btn-primary btn-setup-action" onClick={_.partial(props.onTransition, 'installAnaconda')}>{text.installAnaconda}</button>
+          <button className="btn btn-default btn-setup-action" onClick={_.partial(props.onTransition, 'manualCommand')}>{text.uniqueCommandForPython}</button>
+        </div>
       </div>
     );
   }

@@ -113,11 +113,10 @@ function send(metricsUrl, metrics) {
       request.open('GET', url, true);
       request.onload = function () {
         if (!(request.status >= 200 && request.status < 400)) {
-          reject(new Error('HTTP ' + request.status));
-        } else {
-          console.log(successMessage, metrics);
-          resolve();
+          return reject(new Error('HTTP ' + request.status));
         }
+
+        resolve();
       };
       request.send();
     } else {
@@ -162,20 +161,8 @@ trackPiwik = (function () {
 }());
 
 trackGA = (function () {
-  const hitTypes = [
-      'pageview',
-      'screenview',
-      'event',
-      'transaction',
-      'item',
-      'social',
-      'exception',
-      'timing'
-    ],
-    sessionControls = [
-      'start',
-      'end'
-    ],
+  const hitTypes = ['pageview', 'screenview', 'event', 'transaction', 'item', 'social', 'exception', 'timing'],
+    sessionControls = ['start', 'end'],
     gaApiVersion = 1,
     trackingId = 'UA-37140626-2',
     metricsUrl = 'https://ssl.google-analytics.com/collect';
@@ -230,9 +217,10 @@ export default function track(event) {
   cleanPropertyForType(event, 'force', _.isBoolean);
 
   if (local.get('trackMetrics') === false && event.force !== true) {
-    console.log(optOutMessage);
-    return;
+    return console.log(optOutMessage);
   }
+
+  console.log(successMessage, event);
 
   return bluebird.all([
     clientDiscovery.getUserId(),

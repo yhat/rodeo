@@ -39,6 +39,11 @@ ul.horizontal li {
 
 .setup {
   font-size: 18px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-content: center;
+  align-items: center;
   height: 100%;
 }
 
