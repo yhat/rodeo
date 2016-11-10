@@ -24,12 +24,25 @@
     "helper-bundle-id": "com.yhat.rodeo.helper",
     "publish": "always",
     "asar": false,
+    "win": {
+      "target": [
+        "squirrel",
+        "nsis",
+        "zip"
+      ]
+    },
     "linux": {
       "target": [
         "deb",
-        "zip",
+        "rpm",
         "tar.gz",
-        "rpm"
+        "zip"
+      ]
+    },
+    "mac": {
+      "target": [
+        "dmg",
+        "zip"
       ]
     }
   },

@@ -13,4 +13,4 @@ brew install Caskroom/cask/xquartz wine mono
 
 #so we can build linux on mac
 echo '#so we can build linux on mac'
-brew install gnu-tar libicns graphicsmagick
+brew install gnu-tar libicns graphicsmagick rpm
