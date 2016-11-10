@@ -18,6 +18,7 @@ const _ = require('lodash'),
   argv = require('./services/args').getArgv(),
   log = require('./services/log').asInternal(__filename),
   staticFileDir = path.resolve(__dirname, '../browser/'),
+  surveyService = require('./services/survey'),
   kernelClients = {},
   processes = require('./services/processes'),
   windowUrls = {
@@ -86,16 +87,24 @@ function assertValidObject(obj, validOptions) {
   });
 }
 
-function onDatabaseConnect(name, type, options) {
-  return db.connect(name, type, options);
+function onSurveyTabs() {
+  return surveyService.getTabs();
 }
 
-function onDatabaseQuery(name, str) {
-  return db.query(name, str);
+function onDatabaseConnect(options) {
+  return db.connect(options);
 }
 
-function onDatabaseDisconnect(name) {
-  return db.disconnect(name);
+function onDatabaseInfo(id) {
+  return db.getInfo(id);
+}
+
+function onDatabaseQuery(id, str) {
+  return db.query(id, str);
+}
+
+function onDatabaseDisconnect(id) {
+  return db.disconnect(id);
 }
 
 /**
@@ -256,8 +265,6 @@ function onSavePlot(url, filename) {
     throw new Error('No such url: ' + url);
   }
 
-  log('info', 'onSavePlot', {url, filename});
-
   const tempFilename = plotServerInstance.urls.get(url);
 
   return files.copy(tempFilename, filename);
@@ -322,8 +329,8 @@ function subscribeBrowserWindowToEvent(windowName, emitter, eventName, instanceI
   emitter.on(eventName, function () {
     const list = _.map(_.toArray(arguments), arg => displayDataTransform(arg));
 
-    bluebird.all(list).then(function (normalizedList) {
-      browserWindows.send.apply(browserWindows, [windowName, eventName, instanceId].concat(normalizedList));
+    return bluebird.all(list).then(function (normalizedList) {
+      return browserWindows.send.apply(browserWindows, [windowName, eventName, instanceId].concat(normalizedList));
     }).catch(error => log('error', error));
   });
 }
@@ -334,13 +341,12 @@ function subscribeBrowserWindowToEvent(windowName, emitter, eventName, instanceI
  * @param {string} instanceId
  */
 function subscribeWindowToKernelEvents(windowName, client, instanceId) {
-  subscribeBrowserWindowToEvent(windowName, client, 'shell', instanceId);
-  subscribeBrowserWindowToEvent(windowName, client, 'iopub', instanceId);
-  subscribeBrowserWindowToEvent(windowName, client, 'stdin', instanceId);
-  subscribeBrowserWindowToEvent(windowName, client, 'event', instanceId);
-  subscribeBrowserWindowToEvent(windowName, client, 'input_request', instanceId);
-  subscribeBrowserWindowToEvent(windowName, client, 'error', instanceId);
+  // all jupyter events
+  subscribeBrowserWindowToEvent(windowName, client, 'jupyter', instanceId);
+  // terminal closed
   subscribeBrowserWindowToEvent(windowName, client, 'close', instanceId);
+  // errors without association
+  subscribeBrowserWindowToEvent(windowName, client, 'error', instanceId);
 }
 
 /**
@@ -422,7 +428,7 @@ function startMainWindowWithWorkingDirectory(filename) {
     let window = browserWindows.createMainWindow(windowName, {
       url: 'file://' + path.join(staticFileDir, windowUrls[windowName]),
       startActions: [
-        {type: 'SET_VIEWED_PATH', path: filename, files}
+        {type: 'SET_VIEWED_PATH', path: filename, files, meta: {sender: 'self'}}
       ]
     });
 
@@ -444,8 +450,6 @@ function startStartupWindow() {
       window = browserWindows.createStartupWindow(windowName, {
         url: 'file://' + path.join(staticFileDir, windowUrls[windowName])
       });
-
-    log('info', 'startStartupWindow');
 
     if (argv.dev === true) {
       window.openDevTools();
@@ -475,8 +479,6 @@ function startStartupWindow() {
  */
 function onReady() {
   let windowName, window;
-
-  log('info', 'onReady');
 
   return bluebird.try(function () {
     if (argv.design) {
@@ -605,8 +607,6 @@ function onKillKernelInstance(id) {
  * @returns {Promise}
  */
 function getKernelInstanceById(id) {
-  log('info', 'getKernelInstanceById', id);
-
   if (!kernelClients[id]) {
     throw new Error('Kernel with this id does not exist: ' + id);
   }
@@ -625,10 +625,30 @@ function onExecuteWithKernel(options, text) {
     throw Error('Missing text to execute');
   }
 
-  log('info', 'onExecuteWithKernel', options, text);
-
   return getKernelInstanceById(options.instanceId)
     .then(client => client.execute(text));
+}
+
+/**
+ * @param {object} options
+ * @param {string} options.instanceId
+ * @param {object} params
+ * @returns {Promise}
+ */
+function onInvokeWithKernel(options, params) {
+  return getKernelInstanceById(options.instanceId)
+    .then(client => client.invoke(params));
+}
+
+/**
+ * @param {object} options
+ * @param {string} options.instanceId
+ * @param {object} text
+ * @returns {Promise}
+ */
+function onInputWithKernel(options, text) {
+  return getKernelInstanceById(options.instanceId)
+    .then(client => client.input(text));
 }
 
 /**
@@ -638,9 +658,7 @@ function onExecuteWithKernel(options, text) {
  * @returns {Promise}
  */
 function onExecuteWithNewKernel(options, text) {
-  log('info', 'onExecuteWithNewKernel', {options, text});
-  return kernelsPythonClient.exec(options, text)
-    .tap(result => log('info', 'onExecuteWithNewKernel result', {options, text}, result));
+  return kernelsPythonClient.exec(options, text);
 }
 
 function onExecuteProcess(cmd, args, options) {
@@ -769,8 +787,6 @@ function onCheckForUpdates() {
 function onOpenExternal(url) {
   const shell = electron.shell;
 
-  log('debug', 'opening in default browser', url);
-
   shell.openExternal(url);
 }
 
@@ -780,8 +796,6 @@ function onOpenExternal(url) {
 function onOpenTerminal() {
   const shell = electron.shell,
     isWindows = process.platform === 'win32';
-
-  log('debug', 'opening terminal');
 
   // todo: obviously, this may go badly on linux
   shell.openItem(isWindows ? 'cmd.exe' : '/Applications/Utilities/Terminal.app');
@@ -911,23 +925,25 @@ function onFinishStartup() {
 /**
  * Share an action with every window except the window that send the action.
  * @param {object} action
+ * @returns {Promise}
  */
 function onShareAction(action) {
   const names = browserWindows.getWindowNames(),
-    sender = this,
-    senderName = _.find(names, function (name) {
+    senderInstance = this,
+    sender = _.find(names, function (name) {
       const window = browserWindows.getByName(name);
 
-      return window && window.webContents === sender;
+      return window && window.webContents === senderInstance;
     });
 
-  action.senderName = senderName;
+  action.meta = {sender};
 
-  _.each(names, function (name) {
-    if (name !== senderName) {
-      browserWindows.send(name, 'sharedAction', action);
+  return bluebird.all(_.map(names, function (name) {
+    if (name !== sender) {
+      return browserWindows.send(name, 'sharedAction', action)
+        .catch(_.noop); // we don't care about failure
     }
-  });
+  }));
 }
 
 /**
@@ -944,6 +960,7 @@ function attachIpcMainEvents() {
     onCreateKernelInstance,
     onCreateWindow,
     onDatabaseConnect,
+    onDatabaseInfo,
     onDatabaseQuery,
     onDatabaseDisconnect,
     onEval,
@@ -963,7 +980,9 @@ function attachIpcMainEvents() {
     onGetSystemFacts,
     onGetStatus,
     onIsComplete,
+    onInputWithKernel,
     onInterrupt,
+    onInvokeWithKernel,
     onKnitHTML,
     onQuitApplication,
     onPDF,
@@ -974,6 +993,7 @@ function attachIpcMainEvents() {
     onShareAction,
     onStartWatchingFiles,
     onStopWatchingFiles,
+    onSurveyTabs,
     onQuitAndInstall,
     onOpenExternal,
     onOpenTerminal,

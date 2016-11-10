@@ -1,0 +1,48 @@
+.document-terminal-viewer {
+  height: 100%;
+  position: relative;
+}
+
+.document-terminal-viewer .document-terminal {
+  height: calc(100% - 20px);
+}
+
+.document-terminal-viewer .gray-info {
+  height: 20px;
+}
+
+.document-terminal-viewer .prompt {
+  margin-left: 10px;
+  margin-right: 10px;
+  color: #666;
+  background-color: inherit;
+  font-family: inherit;
+  font-size: inherit;
+  transition: color 1s;
+}
+
+.document-terminal-viewer .prompt .prompt-cursor {
+  transition: background-color 1s;
+}
+
+.document-terminal-viewer .prompt:focus {
+  color: #333;
+}
+
+.document-terminal-viewer .prompt:focus .prompt-cursor {
+  background-color: #333;
+}
+
+.document-terminal-viewer .empty-suggestion.empty-suggestion--visible {
+  opacity: 1;
+}
+
+.document-terminal-viewer .empty-suggestion {
+  position: absolute;
+  width: 100%;
+  opacity: 0;
+  transition: opacity 0.5s;
+  top: 0;
+  z-index: -1;
+}
+

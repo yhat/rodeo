@@ -1,4 +1,4 @@
-import clientDiscovery from '../services/client-discovery';
+import clientDiscovery from '../services/jupyter/client-discovery';
 import {errorCaught} from './application';
 import registration from '../services/registration';
 
@@ -14,26 +14,26 @@ export function showAboutRodeo() {
 }
 
 export function showAboutStickers() {
-  return {type: 'ADD_MODAL_DIALOG', contentType: 'ABOUT_STICKERS'};
+  return {type: 'ADD_MODAL_DIALOG', contentType: 'ABOUT_STICKERS', title: 'Stickers'};
 }
 
 export function showPreferences() {
-  return {type: 'ADD_MODAL_DIALOG', contentType: 'PREFERENCES'};
+  return {type: 'ADD_MODAL_DIALOG', contentType: 'PREFERENCES', title: 'Preferences'};
 }
 
 export function showAcknowledgements() {
-  return {type: 'ADD_MODAL_DIALOG', contentType: 'ACKNOWLEDGEMENTS'};
+  return {type: 'ADD_MODAL_DIALOG', contentType: 'ACKNOWLEDGEMENTS', title: 'Acknowledgements'};
 }
 
 export function showNotification(content) {
-  return {type: 'ADD_MODAL_DIALOG', contentType: 'MARKED', content};
+  return {type: 'ADD_MODAL_DIALOG', contentType: 'MARKED', content, title: 'Notification'};
 }
 
 export function showRegisterRodeo(content) {
   return function (dispatch) {
     if (registration.shouldShowDialog()) {
       registration.rememberShowedDialog();
-      dispatch({type: 'ADD_MODAL_DIALOG', contentType: 'REGISTER_RODEO', content});
+      dispatch({type: 'ADD_MODAL_DIALOG', contentType: 'REGISTER_RODEO', content, title: 'Register'});
     }
   };
 }

@@ -11,7 +11,7 @@
   box-shadow: 1px 1px 4px rgba(0, 0, 0, 0.4);
   transition: all 0.8s;
   opacity: 0;
-  border-radius: 5px;
+  border-radius: 2px;
 }
 
 .modal-dialog-instance.modal-dialog-instance-full {
@@ -25,6 +25,12 @@
 .modal-dialog-instance > header {
   flex: 0 0 10px;
   position: relative;
+  background-color: #337ab7;
+  color: #fff;
+  padding: 2px 12px;
+  border-top-left-radius: 2px;
+  border-top-right-radius: 2px;
+  font-weight: bold;
 }
 
 .modal-dialog-instance > footer {

@@ -160,12 +160,31 @@ function request(client, invocation, options) {
   return inputPromise
     .then(() => outputPromise)
     .finally(function () {
-      const endTime = (new Date().getTime() - startTime) + 'ms';
-
-      log('info', 'request', invocation, endTime);
+      const endTime = (new Date().getTime() - startTime) + 'ms',
+        timeoutTime = endTime - 60000 * 10, // ten minutes
+        maxSize = 50;
+      let currentSize = _.size(requestMap);
 
       // clean up reference, no matter what the result
-      delete requestMap[id];
+      for (let key in requestMap) {
+        if (requestMap.hasOwnProperty(key)) {
+          if (currentSize > maxSize) {
+            delete requestMap[key];
+            currentSize--;
+          } else {
+            const oldTime = parseInt(key, 10);
+
+            if (oldTime < timeoutTime) {
+              const wasRemoved = clientResponse.removeOutputEntry(requestMap[key].msg_id);
+
+              log('log', {wasRemoved});
+
+              delete requestMap[key];
+              currentSize--;
+            }
+          }
+        }
+      }
     });
 }
 
@@ -204,7 +223,7 @@ class JupyterClient extends EventEmitter {
    * @returns {Promise}
    */
   input(str) {
-    return request(this, {method: 'input', args: [str]}, {resolveEvent: 'execute_reply'});
+    return write(this.childProcess, {id: uuid.v4().toString(), method: 'input', args: [str]});
   }
 
   interrupt() {
@@ -213,6 +232,10 @@ class JupyterClient extends EventEmitter {
       method = 'interrupt_kernel';
 
     return write(this.childProcess, {method, target, id});
+  }
+
+  invoke(params) {
+    return request(this, params, {resolveEvent: 'link'});
   }
 
   /**
@@ -286,7 +309,7 @@ class JupyterClient extends EventEmitter {
     return request(this, {
       method: 'complete', // sends complete_request
       args: [code, cursorPos]
-    }, {resolveEvent: 'complete_reply'});
+    }, {resolveEvent: 'complete_reply', hidden: true});
   }
 
   /**
@@ -328,7 +351,7 @@ class JupyterClient extends EventEmitter {
     return request(this, {
       method: 'is_complete', // sends is_complete_request
       args: [code]
-    }, {resolveEvent: 'is_complete_reply'});
+    }, {resolveEvent: 'is_complete_reply', hidden: true});
   }
 
   /**
@@ -518,22 +541,10 @@ function listenTo(jupyterClient, source, events) {
 }
 
 function addSourceData(result) {
-  log('warn', 'addSourceData', {
-    result,
-    stdoutType: typeof result.stdout,
-    stderrType: typeof result.stderr
-  });
-
   return function (source, data) {
     if (_.isBuffer(data)) {
       data = data.toString();
     }
-
-    log('warn', 'addSourceData2', {
-      result,
-      stdoutType: typeof result.stdout,
-      stderrType: typeof result.stderr
-    });
 
     switch (source) {
       case 'stderr.data':
@@ -595,10 +606,7 @@ function exec(options, text) {
         jupyterClient.on('error', error => result.errors.push(error));
         jupyterClient.on('close', (code, signal) => { resolve(_.assign({code, signal}, result)); });
 
-        listenTo(jupyterClient, 'shell', result.events);
-        listenTo(jupyterClient, 'iopub', result.events);
-        listenTo(jupyterClient, 'stdin', result.events);
-        listenTo(jupyterClient, 'input_request', result.events);
+        listenTo(jupyterClient, 'jupyter', result.events);
       }).timeout(timeout, new ProcessError('Timed out waiting for Jupyter to start', {options, result}));
     });
   }).catch(function (error) {

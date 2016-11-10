@@ -1,9 +1,20 @@
 import _ from 'lodash';
+import bluebird from 'bluebird';
+import path from 'path';
 import commonTabsActions from '../../services/common-tabs-actions';
 import cid from '../../services/cid';
 import applicationControl from '../../services/application-control';
-import ipc from 'ipc';
+import databaseConnectionActions from '../../actions/database-connection';
+import api from '../../services/api';
 import {local} from '../../services/store';
+import blockTerminalViewerActions from '../block-terminal-viewer/block-terminal-viewer.actions';
+import documentTerminalViewerActions from '../document-terminal-viewer/document-terminal-viewer.actions';
+import plotViewerActions from '../plot-viewer/plot-viewer.actions';
+import manageConnectionsSelectors from '../manage-connections-viewer/manage-connections.selectors';
+
+const tabGroupName = 'freeTabGroups',
+  pythonTypes = ['python'],
+  sqlTypes = ['sql', 'pgsql', 'mysql', 'sqlserver'];
 
 /**
  * Any focus on the tab should redirect the focus to the contents.
@@ -15,12 +26,43 @@ function focusTab(groupId, id) {
   return {type: 'FOCUS_TAB', groupId, id};
 }
 
-function focusPlot(groupId, tabId, plot) {
-  return {type: 'FOCUS_PLOT', groupId, tabId, plot};
-}
-
 function closeTab(groupId, id) {
   return {type: 'CLOSE_TAB', groupId, id};
+}
+
+/**
+ * @param {string} contentType
+ * @param {object} state
+ * @returns {Promise.boolean}
+ */
+function getTabExists(contentType, state) {
+  const groups = state[tabGroupName];
+
+  if (commonTabsActions.isTabContentTypeInGroups(contentType, groups)) {
+    return bluebird.resolve(true);
+  } else {
+    return applicationControl.surveyTabs().then(function (tabSurvey) {
+      return commonTabsActions.isTabContentTypeInWindowList(contentType, tabSurvey, tabGroupName);
+    });
+  }
+}
+
+function guaranteeTab(contentType) {
+  return function (dispatch, getState) {
+    const state = getState();
+
+    return getTabExists(contentType, state).then(function (exists) {
+      if (!exists) {
+        const state = getState(),
+          firstGroup = _.head(state[tabGroupName]),
+          groupId = firstGroup && firstGroup.groupId;
+
+        // If the tab didn't exist before, then it's going to be closeable now so they can
+        // return to their previous good state.
+        dispatch({type: 'ADD_TAB', groupId, tab: {contentType, closeable: true}});
+      }
+    }).catch(error => console.error(error));
+  };
 }
 
 /**
@@ -74,26 +116,17 @@ function focusNewestPlot() {
 
     if (latestGroupId && latestTabId && latestPlot) {
       dispatch(focusTab(latestGroupId, latestTabId));
-      dispatch(focusPlot(latestGroupId, latestTabId, latestPlot));
+      dispatch(plotViewerActions.focus(latestGroupId, latestTabId, latestPlot));
     }
   };
 }
 
 /**
- * @param {string} toGroupId
- * @param {string} id
- * @returns {function}
+ * @param {object} payload
+ * @returns {object}
  */
-function moveTab(toGroupId, id) {
-  return function (dispatch, getState) {
-    const state = getState(),
-      fromGroupId = commonTabsActions.findGroupIdByTabId(state.freeTabGroups, id);
-
-    if (fromGroupId) {
-      // tab is local to this window, move it
-      dispatch({type: 'MOVE_TAB', toGroupId, fromGroupId, id});
-    }
-  };
+function moveTab(payload) {
+  return {type: 'MOVE_TAB', payload};
 }
 
 function showDataFrame(groupId, item) {
@@ -101,12 +134,11 @@ function showDataFrame(groupId, item) {
     dispatch({
       type: 'ADD_TAB',
       groupId,
-      id: cid(),
-      closeable: true,
-      content: {item},
-      contentType: 'variable-table-viewer',
-      icon: 'table',
-      label: item.name || 'DataFrame'
+      tab: {
+        content: {item},
+        contentType: 'variable-table-viewer',
+        label: item.name
+      }
     });
   };
 }
@@ -125,57 +157,210 @@ function popActiveTab(groupId) {
       applicationControl.createWindow(windowName, {
         url: 'freeTabsOnlyWindow',
         startActions: [
-          _.assign({type: 'ADD_TAB', groupId: null}, tab)
+          _.assign({type: 'ADD_TAB', groupId: null, tab, meta: {sender: 'self'}})
         ]
       });
     }
   };
 }
 
-function removePlot(groupId, id, plot) {
-  return {type: 'REMOVE_PLOT', groupId, id, plot};
+function showSaveDialog(potentialTypes) {
+  const defaultPath = local.get('workingDirectory') || '~',
+    filters = _.map(potentialTypes, type => ({name: type.mime, extensions: [type.ext]}))
+      .concat([{name: 'All files', extensions: ['*']}]);
+
+  return api.send('saveDialog', _.cloneDeep({defaultPath, filters}));
+}
+
+function getTypeByExt(filename, potentialTypes) {
+  const filenameParts = path.parse(filename);
+
+  if (filenameParts.ext) {
+    return _.find(potentialTypes, {ext: filenameParts.ext.replace(/^\./, '')});
+  }
+}
+
+function savePlotToFilename(potentialTypes, data) {
+  return function (filename) {
+    let type = getTypeByExt(filename, potentialTypes);
+
+    if (!type || !data[type.mime]) {
+      type = _.head(potentialTypes);
+    }
+
+    if (type && !_.includes(filename, '.') && type.ext && type.ext !== '*') {
+      filename += '.' + type.ext;
+    }
+
+    if (type && data[type.mime]) {
+      return api.send('savePlot', data[type.mime], filename);
+    }
+  };
+}
+
+function saveDataToFilename(potentialTypes, data) {
+  return function (filename) {
+    let type = getTypeByExt(filename, potentialTypes);
+
+    if (!type || !data[type.mime]) {
+      type = _.head(potentialTypes);
+    }
+
+    if (type && !_.includes(filename, '.') && type.ext && type.ext !== '*') {
+      filename += '.' + type.ext;
+    }
+
+    if (type && data[type.mime]) {
+      return api.send('saveFile', filename, data[type.mime]);
+    }
+  };
 }
 
 function savePlot(plot) {
   return function () {
+    const data = plot.data,
+      types = [
+        {mime: 'text/html', ext: 'html'},
+        {mime: 'image/png', ext: 'png'},
+        {mime: 'image/svg', ext: 'svg'},
+        {mime: 'image/jpg', ext: 'jpg'},
+        {mime: 'image/jpeg', ext: 'jpeg'}
+      ],
+      potentialTypes = data && _.filter(types, type => data[type.mime]);
+
     // copy file somewhere else
-    if (plot.data) {
-      const data = plot.data,
-        defaultPath = local.get('workingDirectory') || '~';
+    if (potentialTypes && potentialTypes.length) {
+      return showSaveDialog(potentialTypes)
+        .then(savePlotToFilename(potentialTypes, data))
+        .catch(error => console.error(error));
+    }
+  };
+}
 
-      if (data['text/html']) {
-        return ipc.send('saveDialog', {
-          defaultPath,
-          filters: [{name: 'html', extensions: ['html']}]
-        }).then(function (filename) {
-          if (!_.includes(filename, '.')) {
-            filename += '.html';
-          }
+function saveData(data) {
+  return function () {
+    const types = [
+        {mime: 'text/html', ext: 'html'},
+        {mime: 'image/png', ext: 'png'},
+        {mime: 'image/svg', ext: 'svg'},
+        {mime: 'image/jpg', ext: 'jpg'},
+        {mime: 'image/jpeg', ext: 'jpeg'},
+        {mime: 'text/csv', ext: 'csv'},
+        {mime: 'text/plain', ext: '*'}
+      ],
+      potentialTypes = data && _.filter(types, type => data[type.mime]);
 
-          return ipc.send('savePlot', data['text/html'], filename);
-        }).catch(error => console.error(error));
-      } else if (data['image/png']) {
-        return ipc.send('saveDialog', {
-          defaultPath,
-          filters: [{name: 'png', extensions: ['png']}]
-        }).then(function (filename) {
-          if (!_.includes(filename, '.')) {
-            filename += '.png';
-          }
+    if (potentialTypes && potentialTypes.length) {
+      return showSaveDialog(potentialTypes)
+        .then(saveDataToFilename(potentialTypes, data))
+        .catch(error => console.error(error));
+    }
+  };
+}
 
-          return ipc.send('savePlot', data['image/png'], filename);
-        }).catch(error => console.error(error));
-      } else if (data['image/svg']) {
-        return ipc.send('saveDialog', {
-          defaultPath,
-          filters: [{name: 'svg', extensions: ['svg']}]
-        }).then(function (filename) {
-          if (!_.includes(filename, '.')) {
-            filename += '.svg';
-          }
+function findTabTokens(groups, fn) {
+  const tabTokens = [];
 
-          return ipc.send('savePlot', data['image/svg'], filename);
-        }).catch(error => console.error(error));
+  _.each(groups, group => {
+    _.each(group.tabs, tab => {
+      if (fn(tab)) {
+        const groupId = group.groupId,
+          tabId = tab.id;
+
+        tabTokens.push({groupId, tabId, tab});
+      }
+    });
+  });
+
+  return tabTokens;
+}
+
+function getLastFocusedTabToken(tabTokens) {
+  if (tabTokens.length === 0) {
+    return null;
+  } else if (tabTokens.length === 1) {
+    return tabTokens[0];
+  }
+
+  let bestTabToken = tabTokens[0],
+    bestTabTokenTime = tabTokens[0].tab.lastFocused;
+
+  for (let i = 1; i < tabTokens.length; i++) {
+    const tab = tabTokens[i].tab,
+      newTime = tab.lastFocused;
+
+    if (bestTabTokenTime < tab.lastFocused) {
+      bestTabToken = tabTokens[i];
+      bestTabTokenTime = newTime;
+    }
+  }
+
+  return bestTabToken;
+}
+
+function hasCode(text) {
+  const hasNewLines = text.indexOf('\n') > -1;
+
+  // If a single line, then has no code if blank line or a comment
+  if (!hasNewLines) {
+    const trimmedStart = _.trimStart(text);
+
+    if (trimmedStart.length <= 0 || trimmedStart[0] === '#') {
+      return false;
+    }
+  }
+
+  return true;
+}
+
+/**
+ * Execute some text from an editor in a certain kind of mode
+ * @param {object} context
+ * @returns {function}
+ */
+function execute(context) {
+  const text = context.text,
+    mode = context.mode;
+
+  return function (dispatch, getState) {
+    const hasText = _.trim(text) !== '';
+
+    if (hasText) {
+      if (_.includes(pythonTypes, mode)) {
+        // todo: find if code is runnable
+
+        // if it starts with #, it's not runnable
+        if (hasCode(text)) {
+          // find recent python terminal tab
+          return applicationControl.surveyTabs().then(function (result) {
+            const groups = _.flatten(_.map(result, 'freeTabGroups')),
+              isTerminal = tab => _.includes(['document-terminal-viewer', 'block-terminal-viewer'], tab.contentType),
+              tabTokens = findTabTokens(groups, isTerminal),
+              latestTabToken = getLastFocusedTabToken(tabTokens);
+
+            if (latestTabToken) {
+              const terminalTypes = {
+                'block-terminal-viewer': blockTerminalViewerActions.execute,
+                'document-terminal-viewer': documentTerminalViewerActions.execute
+              };
+
+              return dispatch(terminalTypes[latestTabToken.tab.contentType](latestTabToken.groupId, latestTabToken.tabId, {text}));
+            }
+          });
+        }
+      } else if (_.includes(sqlTypes, mode)) {
+        // if no connection, open manageConnectionsDialog
+        const state = getState(),
+          connection = manageConnectionsSelectors.getConnection(state);
+
+        if (connection) {
+          const id = connection.id;
+
+          return dispatch(databaseConnectionActions.query({id, text}));
+        } else {
+          // show manage connections dialog
+          dispatch({type: 'ADD_MODAL_DIALOG', contentType: 'MANAGE_CONNECTIONS', title: 'Manage Connections'});
+        }
       }
     }
   };
@@ -183,13 +368,14 @@ function savePlot(plot) {
 
 export default {
   closeTab,
+  execute,
   focusNewestPlot,
-  focusPlot,
   focusTab,
   focusFirstTabByType,
+  guaranteeTab,
   moveTab,
-  removePlot,
   savePlot,
+  saveData,
   showDataFrame,
   popActiveTab
 };

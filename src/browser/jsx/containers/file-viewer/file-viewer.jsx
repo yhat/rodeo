@@ -62,7 +62,7 @@ export default connect(mapStateToProps, mapDispatchToProps)(React.createClass({
     let files = props.files;
 
     if (props.filter) {
-      files = _.filter(files, item => item.base.indexOf(props.filter) > -1);
+      files = _.filter(files, item => item.label.indexOf(props.filter) > -1);
     }
 
     if (!props.showDotFiles) {

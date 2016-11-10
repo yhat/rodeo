@@ -1,0 +1,25 @@
+.file-tree-header {
+  padding: 2px;
+  border-bottom: 1px solid #ccc;
+}
+
+.file-tree-header .item {
+  cursor: pointer;
+  color: #999;
+  transition: all 0.2s;
+  display: inline-block;
+  margin-left: 8px;
+  margin-right: 8px;
+}
+
+.file-tree-header .item:first-child {
+  margin-left: 6px;
+}
+
+.file-tree-header .item:hover {
+  color: #333;
+}
+
+.file-tree-header .item .fa {
+  padding-right: 5px;
+}

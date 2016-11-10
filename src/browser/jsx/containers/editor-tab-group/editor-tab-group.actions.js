@@ -3,8 +3,9 @@ import {send} from 'ipc';
 import ace from 'ace';
 import {local} from '../../services/store';
 import {errorCaught} from '../../actions/application';
+import aceActions from './ace.actions';
 import commonTabsActions from '../../services/common-tabs-actions';
-import terminalTabGroupActions from '../terminal-tab-group/terminal-tab-group.actions';
+import freeTabGroupActions from '../free-tab-group/free-tab-group.actions';
 const tabGroupName = 'editorTabGroups';
 
 function getAceInstance(id) {
@@ -172,50 +173,25 @@ function handleLoaded(tab) {
   };
 }
 
-function save(tab) {
+/**
+ * The difference between this and this#executeAceCommand is that this triggers the command from within an Ace instance,
+ * which then leads to the execution of this#executeAceCommand
+ *
+ * If we want to do something to Ace that isn't in our codebase, we can use this to trigger that particalur command
+ *
+ * Examples of that:  Copy, Paste, Cut, Tabs, etc...
+ *
+ * @param {string} groupId
+ * @param {string} id
+ * @param {string} commandName
+ * @returns {function}
+ */
+function triggerAceCommand(groupId, id, commandName) {
   return function () {
-    console.log(__filename, 'save', tab);
-  };
-}
+    const aceInstance = getAceInstance(id);
 
-function executeActiveFileInActiveConsole(groupId) {
-  return function (dispatch, getState) {
-    const state = getState(),
-      groupIndex = commonTabsActions.getGroupIndex(state[tabGroupName], groupId);
-
-    if (groupIndex > -1) {
-      const activeTab = commonTabsActions.getActiveTab(state[tabGroupName], groupId);
-
-      if (activeTab) {
-        const aceInstance = getAceInstance(activeTab.id),
-          text = aceInstance && aceInstance.getSession().getValue(),
-          isCodeIsolated = true;
-
-        if (text) {
-          return dispatch(terminalTabGroupActions.addInputTextToActiveTab(null, {text, isCodeIsolated}));
-        }
-      }
-    }
-  };
-}
-
-function executeActiveFileSelectionInActiveConsole(groupId) {
-  return function (dispatch, getState) {
-    const state = getState(),
-      groupIndex = commonTabsActions.getGroupIndex(state[tabGroupName], groupId);
-
-    if (groupIndex > -1) {
-      const activeTab = commonTabsActions.getActiveTab(state[tabGroupName], groupId);
-
-      if (activeTab) {
-        const aceInstance = getAceInstance(activeTab.id);
-
-        if (aceInstance) {
-          aceInstance.commands.exec('liftSelection', aceInstance);
-        } else {
-          dispatch(errorCaught(new Error('No active Ace instance')));
-        }
-      }
+    if (aceInstance) {
+      aceInstance.commands.exec(commandName, aceInstance);
     }
   };
 }
@@ -224,15 +200,33 @@ function changeTabMode(groupId, id, option) {
   return {type: 'EDITOR_TAB_MODE_CHANGED', groupId, id, value: option.value};
 }
 
+function executeAceCommand(groupId, id, command, editor) {
+  if (aceActions[command.name]) {
+    return aceActions[command.name](groupId, id, editor);
+  }
+
+  return _.noop;
+}
+
+function execute(groupId, id, payload) {
+  return function (dispatch, getState) {
+    const state = getState(),
+      editorTabContents = commonTabsActions.getContent(state[tabGroupName], groupId, id);
+
+    return dispatch(freeTabGroupActions.execute(_.assign({mode: editorTabContents.mode}, payload)));
+  };
+}
+
 export default {
   add,
   focus,
   focusActive,
   changeTabMode,
   close,
-  executeActiveFileInActiveConsole,
-  executeActiveFileSelectionInActiveConsole,
-  save,
+  execute,
+  executeAceCommand,
+  triggerAceCommand,
+  triggerAceCommandForActiveTab: commonTabsActions.toActiveTab(tabGroupName, triggerAceCommand),
   fileIsSaved,
   saveActiveFile,
   showSaveFileDialogForActiveFile,

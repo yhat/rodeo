@@ -3,10 +3,15 @@ import Immutable from 'seamless-immutable';
 import cid from '../../services/cid';
 import mapReducers from '../../services/map-reducers';
 import fileService from '../../services/files';
+import commonTabsReducers from '../../services/common-tabs-reducers';
 
 const knownFiles = ['.py', '.sql'];
 
 export function getInitialState() {
+  return getDefault();
+}
+
+export function getDefault() {
   return Immutable({
     id: cid(),
     path: '~',
@@ -69,31 +74,8 @@ function changePreference(state, action) {
   }
 }
 
-function convertFileItemPathToIndexPath(files, itemPath) {
-  let item, fileIndex, indexPath = [];
-
-  for (let i = 0; i < itemPath.length; i++) {
-    item = itemPath[i];
-    fileIndex = _.findIndex(files, {cid: item.cid});
-
-    if (fileIndex <= -1) {
-      return null;
-    }
-
-    indexPath.push(fileIndex);
-    files = files[fileIndex].items;
-
-    // if not the last item in the list, add 'items'
-    if (i < itemPath.length - 1) {
-      indexPath.push('items');
-    }
-  }
-
-  return indexPath;
-}
-
 function folderExpanded(state, action) {
-  const indexPath = action.itemPath && convertFileItemPathToIndexPath(state.files, action.itemPath);
+  const indexPath = action.itemPath && commonTabsReducers.convertItemPathToIndexPath(state.files, action.itemPath);
 
   if (indexPath) {
     indexPath.unshift('files');
@@ -111,7 +93,7 @@ function folderExpanded(state, action) {
 }
 
 function folderContracted(state, action) {
-  const indexPath = action.itemPath && convertFileItemPathToIndexPath(state.files, action.itemPath);
+  const indexPath = action.itemPath && commonTabsReducers.convertItemPathToIndexPath(state.files, action.itemPath);
 
   if (indexPath) {
     indexPath.unshift('files');

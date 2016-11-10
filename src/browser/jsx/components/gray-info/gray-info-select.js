@@ -23,16 +23,12 @@ export default React.createClass({
     event.preventDefault();
     event.stopPropagation();
 
-    console.log('option clicked', option);
-
     this.props.onChange(option);
     this.setState({expanded: false});
   },
   handleClick: function (event) {
     event.preventDefault();
     event.stopPropagation();
-
-    console.log('clicked');
 
     this.setState({expanded: true});
   },
@@ -41,27 +37,32 @@ export default React.createClass({
       state = this.state,
       className = commonReact.getClassNameList(this),
       len = textUtils.longestLength(_.map(props.options, 'value')),
-      style = {minWidth: len * 10};
+      style = {minWidth: len * 10},
+      selectedOption = _.find(props.options, {value: props.value});
     let content;
 
-    if (state.expanded) {
-      const selectedOption = _.find(props.options, {value: props.value}),
-        rest = _.without(props.options, selectedOption);
+    if (selectedOption) {
+      if (state.expanded) {
+        const selectedOption = _.find(props.options, {value: props.value}),
+          rest = _.without(props.options, selectedOption);
 
-      content = (
-        <div className="options" style={style}>
-          {_.map(rest, option => (
-            <div className="item" key={option.value} onClick={_.partial(this.handleOptionClick, option)}>{option.label}</div>
-          ))}
-          <div className="item" key={selectedOption.value} onClick={_.partial(this.handleOptionClick, selectedOption)}>{selectedOption.label}</div>
-        </div>
-      );
+        content = (
+          <div className="options" style={style}>
+            {_.map(rest, option => (
+              <div className="item" key={option.value} onClick={_.partial(this.handleOptionClick, option)}>{option.label}</div>
+            ))}
+            <div className="item" key={selectedOption.value} onClick={_.partial(this.handleOptionClick, selectedOption)}>{selectedOption.label}</div>
+          </div>
+        );
+      } else {
+        content = (
+          <div className="single-value item">
+            {selectedOption.label}
+          </div>
+        );
+      }
     } else {
-      content = (
-        <div className="single-value item">
-          {props.value}
-        </div>
-      );
+      content = null;
     }
 
     return <div className={className} onClick={this.handleClick} style={style}>{content}</div>;

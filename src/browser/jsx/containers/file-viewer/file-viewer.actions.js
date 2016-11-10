@@ -58,7 +58,7 @@ export function getViewedFiles(filePath) {
     ]).then(result => result[0]);
 
     return promise
-      .tap(result => dispatch(_.assign({type: 'SET_VIEWED_PATH', targetPath: filePath}, result)))
+      .tap(result => dispatch(_.assign({type: 'SET_VIEWED_PATH', targetPath: filePath, meta: {sender: 'self'}}, result)))
       .tap(() => fileService.startWatching(requesterId, path.join(filePath, '*')))
       .catch(error => console.error(error));
   };
@@ -74,7 +74,7 @@ function setViewedPath(filePath) {
 
     console.log('setViewedPath, filePath', filePath);
 
-    dispatch({type: 'SET_VIEWED_PATH', targetPath: filePath}, {path: filePath, files: []});
+    dispatch({type: 'SET_VIEWED_PATH', targetPath: filePath, meta: {sender: 'self'}}, {path: filePath, files: []});
 
     const promise = bluebird.all([
       fileService.getFiles(filePath),
@@ -82,7 +82,7 @@ function setViewedPath(filePath) {
     ]).then(result => result[0]);
 
     return promise
-      .tap(result => dispatch(_.assign({type: 'SET_VIEWED_PATH', targetPath: filePath}, result)))
+      .tap(result => dispatch(_.assign({type: 'SET_VIEWED_PATH', targetPath: filePath, meta: {sender: 'self'}}, result)))
       .tap(() => fileService.startWatching(requesterId, path.join(filePath, '*')))
       .catch(error => console.error(error));
   };
@@ -95,7 +95,7 @@ export function goToSpecialDirectory(target) {
   return function (dispatch, getState) {
     const state = getState(),
       fileView = state.fileView,
-      firstTerminalWorkingDirectory = _.get(state, 'terminalTabGroups[0].tabs[0].content.cwd');
+      firstTerminalWorkingDirectory = _.get(state, 'freeTabGroups[0].tabs[0].content.cwd');
 
     switch (target) {
       case 'parent': return dispatch(setViewedPath(path.resolve(fileView.path, '..')));

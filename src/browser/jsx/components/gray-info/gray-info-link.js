@@ -5,7 +5,10 @@ import commonReact from '../../services/common-react';
 export default React.createClass({
   displayName: 'GrayInfoLink',
   propTypes: {
-    onClick: React.PropTypes.func.isRequired
+    icon: React.PropTypes.string,
+    label: React.PropTypes.string.isRequired,
+    onClick: React.PropTypes.func.isRequired,
+    title: React.PropTypes.string
   },
   shouldComponentUpdate: function (nextProps) {
     return commonReact.shouldComponentUpdate(this, nextProps);
@@ -13,7 +16,17 @@ export default React.createClass({
   render: function () {
     const props = this.props,
       className = commonReact.getClassNameList(this);
+    let icon;
 
-    return <div className={className} onClick={props.onClick}>{props.children}</div>;
+    if (props.icon) {
+      icon = <span className={['fa', 'fa-' + props.icon].join(' ')}/>;
+    }
+
+    return (
+      <div className={className} onClick={props.onClick} title={props.title}>
+        {icon}
+        {props.label}
+      </div>
+    );
   }
 });

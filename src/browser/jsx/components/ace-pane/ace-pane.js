@@ -4,19 +4,14 @@ import ace from 'ace';
 import './ace-pane.css';
 import _ from 'lodash';
 import { send } from 'ipc';
-import aceShortcuts from '../../services/ace-shortcuts';
 import aceSettings from '../../services/ace-settings';
 import commonReact from '../../services/common-react';
 import globalObserver from '../../services/global-observer';
 
-/**
- * @class AcePane
- * @extends ReactComponent
- * @property props
- */
 export default React.createClass({
   displayName: 'AcePane',
   propTypes: {
+    commands: React.PropTypes.array,
     disabled: React.PropTypes.bool,
     filename: React.PropTypes.string,
     fontSize: React.PropTypes.number.isRequired,
@@ -25,14 +20,10 @@ export default React.createClass({
     initialValue: React.PropTypes.string,
     keyBindings: React.PropTypes.string.isRequired,
     mode: React.PropTypes.string.isRequired,
-    onInterrupt: React.PropTypes.func.isRequired,
-    onLiftFile: React.PropTypes.func.isRequired,
-    onLiftSelection: React.PropTypes.func.isRequired,
+    onCommand: React.PropTypes.func,
     onLoadError: React.PropTypes.func.isRequired,
     onLoaded: React.PropTypes.func.isRequired,
     onLoading: React.PropTypes.func.isRequired,
-    onOpenPreferences: React.PropTypes.func.isRequired,
-    onSave: React.PropTypes.func.isRequired,
     tabSize: React.PropTypes.number.isRequired,
     theme: React.PropTypes.string.isRequired,
     useSoftTabs: React.PropTypes.bool.isRequired
@@ -60,15 +51,18 @@ export default React.createClass({
     aceSettings.applyStaticSettings(instance);
     aceSettings.applyDynamicSettings(instance, props);
 
-    // indent selection
-    aceShortcuts.indent(instance);
-    aceShortcuts.interrupt(instance, props.onInterrupt);
-    aceShortcuts.outdent(instance);
-    aceShortcuts.saveFile(instance, props.onSave);
-    aceShortcuts.autocomplete(instance);
-    aceShortcuts.liftSelection(instance, props.onLiftSelection);
-    aceShortcuts.liftFile(instance, props.onLiftFile);
-    aceShortcuts.openPreferences(instance, props.onOpenPreferences);
+    // add each command
+    _.each(props.commands, command => {
+      command = _.clone(command);
+
+      // if name already exists, reuse that command, bind the key
+      if (instance.commands.byName[command.name]) {
+        instance.commands.bindKey(command.bindKey, instance.commands.byName[command.name]);
+      } else { // if name doesn't exist, link to our version
+        command.exec = editor => props.onCommand(command, editor);
+        instance.commands.addCommand(command);
+      }
+    });
 
     globalObserver.on('resize', this.resize, this);
 
@@ -78,14 +72,11 @@ export default React.createClass({
     this.loadContentFromFile();
   },
   shouldComponentUpdate(nextProps) {
-
     return commonReact.shouldComponentUpdate(this, nextProps);
   },
   componentDidUpdate: function (oldProps) {
     const props = this.props,
       instance = ace.edit(ReactDOM.findDOMNode(this));
-
-    console.log('AcePane', 'componentDidUpdate', {newProps: this.props, oldProps});
 
     aceSettings.applyDynamicSettings(instance, props, oldProps);
   },
@@ -103,7 +94,6 @@ export default React.createClass({
     instance.resize();
   },
   loadContentFromFile: function () {
-    console.log('AcePane', 'loadContentFromFile', {props: this.props});
     const props = this.props,
       instance = ace.edit(ReactDOM.findDOMNode(this)),
       session = instance.getSession();
@@ -121,8 +111,11 @@ export default React.createClass({
     }
   },
   render: function () {
+    const className = commonReact.getClassNameList(this);
 
-    return <div className="ace-pane" id={this.props.id}></div>;
+    className.push('font-monospaced');
+
+    return <div className={className.join(' ')} id={this.props.id}></div>;
   }
 });
 

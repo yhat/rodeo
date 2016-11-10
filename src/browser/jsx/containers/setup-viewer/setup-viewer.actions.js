@@ -1,7 +1,7 @@
 import _ from 'lodash';
 import {send} from 'ipc';
 import preferenceActions from '../../actions/preferences';
-import clientDiscovery from '../../services/client-discovery';
+import clientDiscovery from '../../services/jupyter/client-discovery';
 import {local} from '../../services/store';
 import track from '../../services/track';
 
@@ -105,7 +105,7 @@ function handleExecuted(dispatch, getState) {
       }
     }
 
-    dispatch({type: 'SETUP_EXECUTED', result});
+    dispatch({type: 'SETUP_EXECUTED', result, meta: {sender: 'self'}});
   };
 }
 
@@ -117,7 +117,7 @@ function execute() {
         'print("Welcome to Rodeo!")'
       ].join('\n');
 
-    dispatch({type: 'SETUP_EXECUTING', cmd, code});
+    dispatch({type: 'SETUP_EXECUTING', cmd, code, meta: {sender: 'self'}});
     return clientDiscovery.executeWithNewKernel({cmd}, code)
       .then(handleExecuted(dispatch, getState))
       .catch(handleError);
@@ -126,13 +126,13 @@ function execute() {
 
 function transition(contentType) {
   track({category: 'setup', action: 'transition/' + contentType});
-  return {type: 'SETUP_TRANSITION', contentType};
+  return {type: 'SETUP_TRANSITION', contentType, meta: {sender: 'self'}};
 }
 
 function changeInput(key, event) {
   const value = _.isString(event) ? event : event.target.value;
 
-  return {type: 'SETUP_CHANGE', key, value};
+  return {type: 'SETUP_CHANGE', key, value, meta: {sender: 'self'}};
 }
 
 function handlePackageInstalled(dispatch) {
@@ -152,7 +152,7 @@ function handlePackageInstalled(dispatch) {
       dispatch(transition('pythonError'));
     }
 
-    dispatch({type: 'SETUP_PACKAGE_INSTALLED', result});
+    dispatch({type: 'SETUP_PACKAGE_INSTALLED', result, meta: {sender: 'self'}});
   };
 }
 
@@ -167,7 +167,7 @@ function installPackage(targetPackage) {
       ].join('\n'),
       args = ['-u', '-c', code];
 
-    dispatch({type: 'SETUP_PACKAGE_INSTALLING', cmd, args});
+    dispatch({type: 'SETUP_PACKAGE_INSTALLING', cmd, args, meta: {sender: 'self'}});
     return send('executeProcess', cmd, ['-u', '-c', code])
       .then(handlePackageInstalled(dispatch))
       .catch(handleError);

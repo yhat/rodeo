@@ -1,52 +1,93 @@
 - label: Python
   mode: python
-  ext: ".py"
-  features:
-    - label: Run Line
-      action: Run Line
-    - label: Run Script
-      action: Run Script
+  ext:
+    - ".py"
+    - ""  # no extension
+  syntaxHighlighters:
+    - label: Python
+      mode: python
+    - label: SQL
+      mode: sql
+    - label: Markdown
+      mode: markdown
+  featuredActions:
+    - name: runActiveFile
+      icon: play-circle
+      label: Run Script
+      onClick: onExecuteFile
+      title:
+        default: 'Alt + Shift + Enter'
+        darwin: '⌘ + Shift + Enter'
+    - name: runLine
+      icon: play
+      label: Run Line
+      onClick: onExecuteSelection
+      title:
+        default: 'Alt + Enter'
+        darwin: '⌘ + Enter'
 
 - label: SQL
   mode: sql
-  ext: ".sql"
-  features:
-    - label: Run Line
-      action: Coming Soon
-    - label: Run Script
-      action: Coming Soon
+  ext:
+    - ".sql"
+  syntaxHighlighters:
+    - label: Python
+      mode: python
+    - label: SQL
+      mode: sql
+    - label: Markdown
+      mode: markdown
+  featuredActions:
+    - name: runActiveFile
+      icon: play-circle
+      label: Run Script
+      onClick: onExecuteFile
+      title:
+        default: 'Alt + Shift + Enter'
+        darwin: '⌘ + Shift + Enter'
+    - name: runLine
+      icon: play
+      label: Run Line
+      onClick: onExecuteSelection
+      title:
+        default: 'Alt + Enter'
+        darwin: '⌘ + Enter'
 
 - label: Markdown
   mode: markdown
-  ext: ".md"
-  features:
-    - label: Generate HTML
-      action: Coming Soon
+  ext:
+    - ".md"
+  syntaxHighlighters:
+    - label: Python
+      mode: python
+    - label: SQL
+      mode: sql
+    - label: Markdown
+      mode: markdown
 
 - label: YAML
   mode: yaml
-  ext: ".yml"
-
-- label: YAML
-  mode: yaml
-  ext: ".yaml"
+  ext:
+    - ".yml"
+    - ".yaml"
 
 - label: JSON
   mode: json
-  ext: ".json"
+  ext:
+    - ".json"
 
 - label: Plain Text
   mode: plain_text
-  ext: ".txt"
-
-- label: Plain Text
-  mode: plain_text
-  ext: ".csv"
+  ext:
+    - ".txt"
+    - ".csv"
 
 - label: Scala
   mode: scala
-  ext: ".scala"
+  ext:
+    - ".scala"
 
 - label: Julia
   mode: julia
-  ext: ".jl"
+  ext:
+    - ".jl"

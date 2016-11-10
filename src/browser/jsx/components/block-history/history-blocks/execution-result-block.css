@@ -1,0 +1,43 @@
+.execution-result-block {
+  margin: 10px 4px 10px 2px;
+  border-radius: 5px;
+  padding: 6px;
+  padding-top: 2px;
+  border: 1px solid #ddd;
+  box-shadow: 1px 2px 3px #999;
+  color: #333;
+  position: relative;
+  transition: all 0.2s;
+}
+
+.execution-result-block:focus {
+  box-shadow: 0 2px 10px #cce6ff, 1px 2px 3px #999;
+  outline: none;
+}
+
+.execution-result-block--compressed {
+  max-height: 45px;
+  overflow: hidden;
+}
+
+.execution-result-block > header {
+  font-size: 10px;
+  font-weight: bold;
+  color: #aaa;
+  text-transform: lowercase;
+  display: flex;
+  flex-direction: row;
+  align-content: space-between;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.execution-result-block .dataframe {
+  border: 1px solid #ccc;
+  margin: 10px;
+}
+
+.execution-result-block .dataframe td,
+.execution-result-block .dataframe th {
+  padding: 0 5px;
+}

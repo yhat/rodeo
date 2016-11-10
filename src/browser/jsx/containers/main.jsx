@@ -1,6 +1,6 @@
 import React from 'react';
 import {Provider} from 'react-redux';
-
+import client from '../services/jupyter/client';
 import FullScreen from '../components/full-screen/full-screen.jsx';
 import StudioLayout from './studio-layout/studio-layout.jsx';
 import Sidebar from '../components/sidebar/sidebar.jsx';
@@ -22,6 +22,9 @@ store.dispatch(dialogActions.showRegisterRodeo());
 
 // no visual for this please
 applicationControl.checkForUpdates();
+
+// try and start an instance of the python client
+client.guaranteeInstance();
 
 /**
  * Expose the global application state/store in two ways:

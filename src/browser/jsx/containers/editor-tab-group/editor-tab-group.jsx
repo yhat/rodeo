@@ -10,13 +10,13 @@ import AcePane from '../../components/ace-pane/ace-pane';
 import GrayInfo from '../../components/gray-info/gray-info';
 import GrayInfoSelect from '../../components/gray-info/gray-info-select';
 import { getParentNodeOf } from '../../services/dom';
-import editorTabGroupActions from '../../containers/editor-tab-group/editor-tab-group.actions';
+import actions from '../../containers/editor-tab-group/editor-tab-group.actions';
 import dialogActions from '../../actions/dialogs';
-import terminalActions from '../terminal-tab-group/terminal-tab-group.actions';
 import commonReact from '../../services/common-react';
 import rodeoLogo from './rodeo-logo/rodeo-logo.4x.png';
 import './editor-tab-group.css';
-import knownFileTypes from './known-file-types.yml';
+import editorCommands from './editor-commands.yml';
+import aceActions from './ace.actions';
 
 /**
  * @param {function} dispatch
@@ -27,20 +27,18 @@ function mapDispatchToProps(dispatch, ownProps) {
   const groupId = ownProps.groupId;
 
   return {
-    onAddAcePane: () => dispatch(editorTabGroupActions.add(groupId)),
-    onInterrupt: () => dispatch(terminalActions.interruptActiveTab(null)),
-    onFocusTab: (id) => dispatch(editorTabGroupActions.focus(groupId, id)),
-    onLiftText: (text, context) => dispatch(terminalActions.addInputTextToActiveTab(null, context)),
-    onLoadError: tab => dispatch(editorTabGroupActions.handleLoadError(groupId, tab)),
-    onLoading: tab => dispatch(editorTabGroupActions.handleLoading(groupId, tab)),
-    onLoaded: tab => dispatch(editorTabGroupActions.handleLoaded(groupId, tab)),
-    onSave: tab => dispatch(editorTabGroupActions.save(groupId, tab)),
-    onOpenPreferences: () => dispatch(dialogActions.showPreferences()),
-    onRemoveAcePane: (id) => dispatch(editorTabGroupActions.close(groupId, id)),
-    onRunActiveAcePane: () => dispatch(editorTabGroupActions.executeActiveFileInActiveConsole(groupId)),
-    onRunActiveAcePaneSelection: () => dispatch(editorTabGroupActions.executeActiveFileSelectionInActiveConsole(groupId)),
+    onAddAcePane: () => dispatch(actions.add(groupId)),
+    onFocusTab: id => dispatch(actions.focus(groupId, id)),
+    onLoadError: tab => dispatch(actions.handleLoadError(groupId, tab)),
+    onLoading: tab => dispatch(actions.handleLoading(groupId, tab)),
+    onLoaded: tab => dispatch(actions.handleLoaded(groupId, tab)),
+    onRemoveAcePane: id => dispatch(actions.close(groupId, id)),
+    onAceCommand: (id, command, editor) => dispatch(actions.executeAceCommand(groupId, id, command, editor)),
+    onExecuteSelection: id => dispatch(actions.triggerAceCommand(groupId, id, 'executeSelection')),
+    onExecuteFile: id => dispatch(actions.triggerAceCommand(groupId, id, 'executeFile')),
+    onExecute: (id, context) => dispatch(actions.execute(groupId, id, context)),
     onRodeo: () => dispatch(dialogActions.showAboutRodeo()),
-    onTabModeChange: (tab, option) => dispatch(editorTabGroupActions.changeTabMode(groupId, tab.id, option))
+    onTabModeChange: (tab, option) => dispatch(actions.changeTabMode(groupId, tab.id, option))
   };
 }
 
@@ -121,26 +119,46 @@ export default connect(null, mapDispatchToProps)(React.createClass({
   handleTabDragEnd: function (event) {
     console.log('handleTabListDragEnd', event);
   },
+  handleFeatureClick: function (feature, activeTab, event) {
+    event.preventDefault();
+    event.stopPropagation();
+
+    if (_.isFunction(this.props[feature.onClick])) {
+      this.props[feature.onClick](activeTab.id);
+    }
+  },
+  handleAceCommand: function (tabId, command, editor) {
+    if (aceActions[command.name]) {
+      return aceActions[command.name](this.props, tabId, command, editor);
+    }
+  },
   render: function () {
     const props = this.props,
-      runLineTitle = process.platform === 'darwin' ? '⌘ + Enter' : 'Alt + Enter',
-      runScriptTitle = process.platform === 'darwin' ? '⌘ + Shift + Enter' : 'Alt + Shift + Enter',
+      activeTab = _.find(props.tabs, {id: props.active}),
       types = {
-        'ace-pane': content => (
+        'ace-pane': tab => (
           <AcePane
+            commands={editorCommands}
             disabled={props.disabled}
-            onInterrupt={props.onInterrupt}
-            onLiftFile={props.onRunActiveAcePane}
-            onLiftSelection={props.onLiftText}
+            onCommand={_.partial(this.handleAceCommand, tab.id)}
             onLoadError={props.onLoadError}
             onLoaded={props.onLoaded}
             onLoading={props.onLoading}
-            onOpenPreferences={props.onOpenPreferences}
-            onSave={props.onSave}
-            {...content}
+            {...tab.content}
           />
         )
       };
+    let featuredActions = [];
+
+    if (activeTab) {
+      _.each(activeTab.featuredActions, feature => {
+        if (feature.enabled === false || !_.isString(feature.onClick) || !_.isFunction(props[feature.onClick])) {
+          featuredActions.push(<TabButton className="right disabled" key={feature.name} {...feature}/>);
+        } else {
+          featuredActions.push(<TabButton className="right" key={feature.name} {...feature} onClick={_.partial(this.handleFeatureClick, feature, activeTab)}/>);
+        }
+      });
+    }
 
     return (
       <TabbedPane
@@ -157,18 +175,17 @@ export default connect(null, mapDispatchToProps)(React.createClass({
         {...props}
       >
         <TabOverflowImage onClick={props.onRodeo} src={rodeoLogo}/>
-        <TabButton className="right" icon="play-circle" label="Run Script" onClick={props.onRunActiveAcePane} title={runScriptTitle}/>
-        <TabButton className="right" icon="play" label="Run Line" onClick={props.onRunActiveAcePaneSelection} title={runLineTitle}/>
+        {featuredActions}
         {props.tabs.map(tab => {
           return (
             <TabbedPaneItem key={tab.id} {...tab}>
-              {types[tab.contentType](tab.content)}
+              {types[tab.contentType](tab)}
               <GrayInfo content={tab.content}>
                 <GrayInfoSelect
                   onChange={_.partial(props.onTabModeChange, tab)}
-                  options={_.map(knownFileTypes, knownFileType => _.assign({value: knownFileType.mode}, knownFileType))}
+                  options={_.map(tab.syntaxHighlighters, knownFileType => _.assign({value: knownFileType.mode}, knownFileType))}
                   value={tab.content.mode}
-                >{tab.content.mode}</GrayInfoSelect>
+                />
               </GrayInfo>
             </TabbedPaneItem>
           );

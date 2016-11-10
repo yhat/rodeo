@@ -1,19 +1,67 @@
 /* globals describe, it, expect, jest */
 
 jest.mock('../../services/store');
+jest.mock('./tab-types', () => {
+  const knownTypes = {
+    someKnownType: () => { return {}; },
+    someKnownTypeWithContent: () => { return {a: 'b', content: {c: 'd'}}; }
+  };
+
+  return {
+    getDefaultTab: jest.fn(contentType => {
+      return knownTypes[contentType] && knownTypes[contentType]();
+    })
+  };
+});
+jest.mock('../../services/dateUtil');
 
 import Immutable from 'seamless-immutable';
 import lib from './free-tab-group.reducer';
 
 describe(__filename, () => {
   describe('ADD_TAB', () => {
-    it('adds', function () {
+    it('does not add when missing context type', function () {
       const state = Immutable([{groupId: 'a', tabs: []}]),
-        action = {type: 'ADD_TAB', groupId: 'a'};
+        action = {type: 'ADD_TAB', groupId: 'a', tab: {}};
+
+      let result = lib(state, action);
+
+      expect(result[0].tabs.length).toEqual(0);
+    });
+
+    it('adds when known contextType', function () {
+      const state = Immutable([{groupId: 'a', tabs: []}]),
+        action = {type: 'ADD_TAB', groupId: 'a', tab: {contentType: 'someKnownType'}};
 
       let result = lib(state, action);
 
       expect(result[0].tabs.length).toEqual(1);
+    });
+
+    it('adds content', function () {
+      const state = Immutable([{groupId: 'a', tabs: []}]),
+        action = {type: 'ADD_TAB', groupId: 'a', tab: {contentType: 'someKnownTypeWithContent', content: {e: 'f'}}};
+
+      let result = lib(state, action);
+
+      expect(result[0].tabs[0]).toEqual({
+        a: 'b',
+        contentType: 'someKnownTypeWithContent',
+        content: {c: 'd', e: 'f'}
+      });
+    });
+
+    it('merges content', function () {
+      const state = Immutable([{groupId: 'a', tabs: []}]),
+        action = {type: 'ADD_TAB', groupId: 'a', tab: {contentType: 'someKnownTypeWithContent', a: 'f', content: {c: 'g'}}};
+
+      let result = lib(state, action);
+
+      expect(result[0].tabs[0]).toEqual({
+        a: 'f',
+        contentType: 'someKnownTypeWithContent',
+        content: {c: 'g'}
+      });
     });
   });
 

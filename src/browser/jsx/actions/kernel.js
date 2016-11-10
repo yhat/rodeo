@@ -4,11 +4,11 @@
  */
 
 import _ from 'lodash';
-import ace from 'ace';
 import { send } from 'ipc';
 import {local} from '../services/store';
-import client from '../services/client';
-import clientDiscovery from '../services/client-discovery';
+import client from '../services/jupyter/client';
+import clientDiscovery from '../services/jupyter/client-discovery';
+import pythonLanguage from '../services/jupyter/python-language';
 import {errorCaught} from './application';
 import track from '../services/track';
 
@@ -66,8 +66,6 @@ function detectKernel() {
             hasErrors = result.errors && result.errors.length > 0,
             isMissingJupter = !result.hasJupyterKernel;
 
-          console.log('HEY', result);
-
           if (isMissingCmd || hasErrors || isMissingJupter) {
             result = clientDiscovery.getFreshPythonOptions();
           }
@@ -84,7 +82,6 @@ function detectKernel() {
       .then(pythonOptions => dispatch(kernelDetected(pythonOptions)))
       .catch(error => {
         console.warn('error using detected python', error);
-
         return dispatch(askForPythonOptions());
       });
   };
@@ -102,10 +99,10 @@ function restart() {
 function detectKernelVariables() {
   return function (dispatch) {
     return client.getStatus().then(function (status) {
-      const variables = status.variables,
+      const payload = status.variables,
         cwd = status.cwd;
 
-      dispatch({type: 'VARIABLES_CHANGED', variables});
+      dispatch({type: 'VARIABLES_CHANGED', payload});
       dispatch({type: 'WORKING_DIRECTORY_CHANGED', cwd});
 
       return status;
@@ -113,10 +110,28 @@ function detectKernelVariables() {
   };
 }
 
+/**
+ * @param {string} code
+ * @returns {function}
+ */
+function execute(code) {
+  return function () {
+    return client.invokeExecute(code);
+  };
+}
+
+function input(text) {
+  return function () {
+    return client.input(text);
+  };
+}
+
 export default {
   askForPythonOptions,
   detectKernel,
   detectKernelVariables,
+  execute,
+  input,
   isBusy,
   isIdle,
   interrupt,

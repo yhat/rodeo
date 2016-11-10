@@ -4,7 +4,7 @@
 
 import _ from 'lodash';
 import {send} from 'ipc';
-import clientDiscovery from './client-discovery';
+import clientDiscovery from './jupyter/client-discovery';
 import ValidationError from './errors/validation-error';
 
 const email = /^(([^<>()[\]\.,;:\s@\"]+(\.[^<>()[\]\.,;:\s@\"]+)*)|(\".+\"))@(([^<>()[\]\.,;:\s@\"]+\.)+[^<>()[\]\.,;:\s@\"]{2,})$/i;

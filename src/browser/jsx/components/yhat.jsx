@@ -2,10 +2,6 @@ import React from 'react';
 import {send} from 'ipc';
 import commonReact from '../services/common-react';
 
-/**
- * @class Yhat
- * @extends ReactComponent
- */
 export default React.createClass({
   displayName: 'Yhat',
   shouldComponentUpdate(nextProps, nextState) {

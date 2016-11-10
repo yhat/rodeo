@@ -48,11 +48,11 @@ function define(definition, explanations) {
     let items = _.map(preferenceGroup.items, function (preference) {
       const item = _.clone(preference),
         explanation = explanations[preference.explanation],
-        storeValue = preference.key && local.get(preference.key);
+        storeValue = preference.key && local.get(preference.key) || null;
 
       if (storeValue === null) {
         if (preference.value !== undefined) {
-          item.value = preference.value !== undefined;
+          item.value = preference.value;
         } else {
           delete item.value;
         }

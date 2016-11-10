@@ -3,7 +3,6 @@ import applicationControl from '../services/application-control';
 import freeTabGroups from './free-tab-group/free-tab-group.reducer';
 
 function broadcast(state, action) {
-  console.log(action.type, action);
   applicationControl.shareAction(action);
 
   if (!state) {

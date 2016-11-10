@@ -1,0 +1,70 @@
+.manage-connections {
+  display: flex;
+  flex-direction: row;
+  min-height: 300px;
+}
+
+.manage-connections .connection-list-header {
+  border-bottom: 1px solid #ccc;
+  display: block;
+  background-color: #ededed;
+  padding: 2px 12px;
+}
+
+.manage-connections .connection-list-item {
+  padding: 5px 10px;
+  position: relative;
+  transition: all 0.2s;
+  box-shadow: none;
+}
+
+.manage-connections .connection-list-item .closeable {
+  position: absolute;
+  top: 3px;
+  right: 3px;
+}
+
+.manage-connections .connection-list-item-name {
+  color: #333;
+}
+
+.manage-connections .connection-list-item-type {
+  color: #666;
+  padding-left: 10px;
+}
+
+.manage-connections .connection-list-item-name--empty {
+  color: #999;
+}
+
+.manage-connections .connection-list {
+  width: 300px;
+  border-right: 1px solid #ccc;
+  flex: 0 0 300px;
+  display: flex;
+  flex-direction: column;
+  overflow-y: auto;
+  overflow-x: hidden;
+}
+
+.manage-connections .connection-list-item.active {
+  background-color: #dff0ff;
+}
+
+.manage-connections .connection-list > * {
+  cursor: pointer;
+}
+
+.manage-connections .connection-details {
+  padding-top: 10px;
+  padding-bottom: 10px;
+  margin-left: 10px;
+  margin-right: 10px;
+  width: 500px;
+  min-height: 400px;
+}
+
+.manage-connections hr {
+  margin-top: 5px;
+  margin-bottom: 5px;
+}

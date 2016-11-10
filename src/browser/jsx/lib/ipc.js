@@ -23,6 +23,12 @@ const ipc = (function () {
     return Array.prototype.slice.call(obj, num || 0);
   }
 
+  function isPromise(obj) {
+    return typeof obj === 'object' && obj !== null &&
+      typeof obj.then === 'function' &&
+      typeof obj.catch === 'function';
+  }
+
   /**
    * @param {string} eventName
    * @param {function} eventFn
@@ -32,23 +38,32 @@ const ipc = (function () {
     var eventReplyName = eventName + '_reply';
 
     try {
-      ipcRenderer.on(eventName, function (event, eventId, result) {
+      ipcRenderer.on(eventName, function (event, eventId) {
         var endTime,
           startTime = new Date().getTime(),
-          args = Array.prototype.slice.call(arguments, 2);
+          args = Array.prototype.slice.call(arguments, 2),
+          eventResult = eventFn.apply(null, [event].concat(args));
 
-        var eventResult = eventFn.apply(null, [event].concat(args));
-
-        endTime = (new Date().getTime() - startTime);
-
-        console.log('ipc: completed', endTime + 'ms', eventName, event, eventResult);
-
-        ipcRenderer.send(eventReplyName, eventId, eventResult);
+        if (isPromise(eventResult)) {
+          eventResult.then(function(result) {
+            endTime = (new Date().getTime() - startTime);
+            console.log('ipc', eventId + ':', eventName + 'completed', endTime + 'ms', {args, result});
+            ipcRenderer.send(eventReplyName, eventId, null, result);
+          }).catch(function (error) {
+            endTime = (new Date().getTime() - startTime);
+            console.log('ipc', eventId + ':', eventName + ' error', endTime + 'ms', {args, error});
+            ipcRenderer.send(eventReplyName, eventId, error);
+          });
+        } else {
+          endTime = (new Date().getTime() - startTime);
+          console.log('ipc', eventId + ':', eventName + ' completed', endTime + 'ms', {args, result: eventResult});
+          ipcRenderer.send(eventReplyName, eventId, null, eventResult);
+        }
       });
-      console.log('ipc: registered', eventName, eventFn.name);
+      console.log('ipc listening for', eventName, eventFn.name);
       return this;
     } catch (ex) {
-      console.error('ipc: error', eventName, ex);
+      console.error('ipc error', eventName, ex);
     }
   }
 
@@ -66,8 +81,8 @@ const ipc = (function () {
       var response,
         eventReplyName = eventName + '_reply',
         timer = setInterval(function () {
-          console.warn('ipc ' + eventId + ': still waiting for', eventName);
-        }, 1000);
+          console.warn('ipc ' + eventId + ': still waiting for', eventName, {args});
+        }, 5000);
 
       ipcRenderer.send.apply(ipcRenderer, [eventName, eventId].concat(args.slice(1)));
       response = function (event, id) {
@@ -80,17 +95,14 @@ const ipc = (function () {
           endTime = (new Date().getTime() - startTime);
 
           if (result[0]) {
-            console.log('ipc ' + eventId + ': error', endTime + 'ms', result[0]);
+            console.log('ipc', eventId + ':', eventName + ' error', endTime + 'ms', {args, result: result[0]});
             reject(new Error(result[0].message));
           } else {
-            console.log('ipc ' + eventId + ': completed', endTime + 'ms', result[1]);
+            console.log('ipc', eventId + ':', eventName + ' completed', endTime + 'ms', {args, result: result[1]});
             resolve(result[1]);
           }
-        } else {
-          console.log('ipc ' + eventId + ':', eventName, id, 'is not for us.');
         }
       };
-      console.log('ipc ' + eventId + ': waiting for ', eventName, 'on', eventReplyName);
       ipcRenderer.on(eventReplyName, response);
     });
   }

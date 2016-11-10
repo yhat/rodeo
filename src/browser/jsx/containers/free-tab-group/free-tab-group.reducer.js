@@ -1,80 +1,74 @@
 import _ from 'lodash';
-import cid from '../../services/cid';
 import Immutable from 'seamless-immutable';
 import mapReducers from '../../services/map-reducers';
 import commonTabsReducers from '../../services/common-tabs-reducers';
-import {local} from '../../services/store';
+import databaseViewerReducer from '../database-viewer/database-viewer.reducer';
+import blockTerminalViewerReducer from '../block-terminal-viewer/block-terminal-viewer.reducer';
+import documentTerminalViewerReducer from '../document-terminal-viewer/document-terminal-viewer.reducer';
+import plotViewerReducer from '../plot-viewer/plot-viewer.reducer';
+import globalHistoryViewerReducer from '../global-history-viewer/global-history-viewer.reducer';
+import variableViewerReducer from '../variable-viewer/variable-viewer.reducer';
+import tabTypes from './tab-types';
+import reduxUtil from '../../services/redux-util';
+import immutableUtil from '../../services/immutable-util';
 
-const initialState = Immutable.from([]),
-  maxPlots = 50;
+const initialState = Immutable.from([]);
 
-function eachTabByAction(state, action, fn) {
-  _.each(state, (group, groupIndex) => {
-    if (action.groupId === group.groupId || action.groupId === undefined) {
-      _.each(group.tabs, (tab, tabIndex) => {
-        if (action.id === tab.id || action.id === undefined) {
-          const cursor = {group, groupIndex, tab, tabIndex};
+function getLastFocusedTabIndex(tabs) {
+  if (tabs.length === 0) {
+    return -1;
+  } else if (tabs.length === 1) {
+    return 0;
+  }
 
-          fn(cursor);
-        }
-      });
+  let bestTime = tabs[0].lastFocused,
+    bestIndex = 0;
+
+  for (let i = 1; i < tabs.length; i++) {
+    const tab = tabs[i];
+
+    if (bestTime < tab.lastFocused) {
+      bestTime = tab.lastFocused;
+      bestIndex = i;
     }
-  });
+  }
+
+  return bestIndex;
 }
 
-/**
- * Focus the tab that has a certain plot in it
- * @param {object} state
- * @param {object} action
- * @returns {object}
- */
-function focusPlot(state, action) {
-  eachTabByAction(state, action, (cursor) => {
-    if (cursor.tab.contentType === 'plot-viewer') {
-      const plots = state[cursor.groupIndex].tabs[cursor.tabIndex].content.plots;
+function remove(state, groupId, id) {
+  const groupIndex = _.findIndex(state, {groupId}),
+    tabs = _.get(state, [groupIndex, 'tabs']),
+    tabIndex = _.findIndex(tabs, {id});
 
-      if (_.find(plots, {id: action.plot.id})) {
-        state = state.updateIn([cursor.groupIndex, 'tabs', cursor.tabIndex, 'content'], obj => obj.set('active', action.plot.id));
-      }
+  if (tabIndex > -1) {
+    const lastFocusedIndex = getLastFocusedTabIndex(tabs);
+
+    state = immutableUtil.removeAtPath(state, [groupIndex, 'tabs'], tabIndex);
+    if (lastFocusedIndex > -1) {
+      // we're not setting a new lastFocused time because we're not really focusing, but going back to a previously
+      // focused tab
+      state.set('active', tabs[lastFocusedIndex].id);
     }
-  });
+  }
 
   return state;
 }
 
 /**
  * Move the tab to a different group
- * @param {object} oldState
+ * @param {object} state
  * @param {object} action
- * @param {string} action.toGroupId
- * @param {string} action.fromGroupId
- * @param {string} action.id
  * @returns {object}
  */
-function moveTab(oldState, action) {
-  const state = _.cloneDeep(oldState),
-    toGroup = state[_.findIndex(state, {groupId: action.toGroupId})],
-    fromGroup = state[_.findIndex(state, {groupId: action.fromGroupId})],
-    fromGroupItemIndex = fromGroup && _.findIndex(fromGroup.tabs, {id: action.id}),
-    removedItems = fromGroup && fromGroupItemIndex !== -1 && fromGroup.tabs.splice(fromGroupItemIndex, 1);
+function moveTab(state, action) {
+  const payload = action.payload,
+    sourceGroupId = payload.sourceGroupId,
+    destinationGroupId = payload.destinationGroupId,
+    tab = payload.tab;
 
-  if (!toGroup) {
-    return oldState;
-  }
-
-  toGroup.tabs = toGroup.tabs.concat(removedItems);
-
-  // dragged item takes focus in the new location
-  toGroup.active = action.id;
-
-  // if moving to new group and item had focus, move focus to left item
-  if (toGroup !== fromGroup && removedItems && removedItems.length && removedItems[0].id === fromGroup.active) {
-    if (fromGroupItemIndex === 0 && fromGroup.tabs.length) {
-      fromGroup.active = fromGroup.tabs[0].id;
-    } else if (fromGroup.tabs[fromGroupItemIndex - 1]) {
-      fromGroup.active = fromGroup.tabs[fromGroupItemIndex - 1].id;
-    }
-  }
+  state = remove(state, sourceGroupId, tab.id);
+  state = add(state, {groupId: destinationGroupId, tab});
 
   return state;
 }
@@ -85,118 +79,27 @@ function moveTab(oldState, action) {
  * @returns {Array}
  */
 function add(state, action) {
-  return commonTabsReducers.addItem(state, action, _.omit(action, 'type'));
-}
+  const tab = action.tab && tabTypes.getDefaultTab(action.tab.contentType);
 
-/**
- * Add new plot to _every_ plot viewer
- * @param {Immutable} state
- * @param {object} action
- * @param {object|string} action.data
- * @returns {immutable.List}
- */
-function addPlot(state, action) {
-  _.each(state, (group, groupIndex) => {
-    _.each(group.tabs, (tab, tabIndex) => {
-      if (tab.contentType === 'plot-viewer') {
-        state = state.updateIn([groupIndex, 'tabs', tabIndex, 'content'], obj => {
-          const newPlot = {
-              id: cid(),
-              data: action.data,
-              createdAt: new Date().getTime()
-            },
-            plots = obj.plots.asMutable();
+  if (tab) {
+    let item = _.merge(tab, action.tab);
 
-          plots.unshift(newPlot);
-
-          if (plots.length > maxPlots) {
-            plots.pop();
-          }
-
-          obj = obj.set('active', newPlot.id);
-          obj = obj.merge({plots});
-
-          return obj;
-        });
-      }
-    });
-  });
-
-  return state;
-}
-
-function removePlot(state, action) {
-  eachTabByAction(state, action, (cursor) => {
-    if (cursor.tab.contentType === 'plot-viewer') {
-      const plots = state[cursor.groupIndex].tabs[cursor.tabIndex].content.plots,
-        plotIndex = _.findIndex(plots, {id: action.plot.id});
-
-      if (plotIndex > -1) {
-        state = state.updateIn([cursor.groupIndex, 'tabs', cursor.tabIndex, 'content'], content => {
-          const plots = content.plots.asMutable();
-
-          plots.splice(plotIndex, 1);
-
-          return content.merge({plots});
-        });
-      }
-    }
-  });
-
-  return state;
-}
-
-function variablesChanged(state, action) {
-  // put new variables into each environment viewer
-  _.each(state, (group, groupIndex) => {
-    _.each(group.tabs, (tab, tabIndex) => {
-      if (tab.contentType === 'variable-viewer') {
-        state = state.setIn([groupIndex, 'tabs', tabIndex, 'content', 'variables'], action.variables);
-      }
-    });
-  });
-
-  // put new dataframes into each data table
-
-  return state;
-}
-
-function iopubInputExecuted(state, action) {
-  const historyMaxSetting = local.get('terminalHistory'),
-    historyMax = historyMaxSetting === null ? 50 : historyMaxSetting;
-
-  if (historyMax > 0 && _.isString(action.text) && action.text.trim().length > 0) {
-    // put new history into each history viewer
-    _.each(state, (group, groupIndex) => {
-      _.each(group.tabs, (tab, tabIndex) => {
-        if (tab.contentType === 'history-viewer') {
-          state = state.updateIn([groupIndex, 'tabs', tabIndex, 'content'], content => {
-            const history = content.history.asMutable();
-
-            history.push({text: action.text});
-
-            if (history.length > historyMax) {
-              history.shift();
-            }
-
-            return content.merge({history});
-          });
-        }
-      });
-    });
+    state = commonTabsReducers.addItem(state, action, item);
   }
 
   return state;
 }
 
-export default mapReducers({
-  CLOSE_TAB: commonTabsReducers.close,
-  ADD_TAB: add,
-  FOCUS_PLOT: focusPlot,
-  FOCUS_TAB: commonTabsReducers.focus,
-  MOVE_TAB: moveTab,
-  IOPUB_DATA_DISPLAYED: addPlot,
-  REMOVE_PLOT: removePlot,
-  VARIABLES_CHANGED: variablesChanged,
-  IOPUB_EXECUTED_INPUT: iopubInputExecuted
-}, initialState);
+export default reduxUtil.reduceReducers(
+  mapReducers(_.assign({
+    ADD_TAB: add,
+    CLOSE_TAB: commonTabsReducers.close,
+    FOCUS_TAB: commonTabsReducers.focus,
+    MOVE_TAB: moveTab,
+  }, databaseViewerReducer), initialState),
+  reduxUtil.tabReducer('variable-viewer', variableViewerReducer),
+  reduxUtil.tabReducer('global-history-viewer', globalHistoryViewerReducer),
+  reduxUtil.tabReducer('plot-viewer', plotViewerReducer),
+  reduxUtil.tabReducer('block-terminal-viewer', blockTerminalViewerReducer),
+  reduxUtil.tabReducer('document-terminal-viewer', documentTerminalViewerReducer)
+);

@@ -1,4 +1,5 @@
 import _ from 'lodash';
+import reactPerformance from './react-performance';
 
 function equal(a, b) {
   if (a === b || (!a && !b)) {
@@ -50,7 +51,7 @@ function getClassNameList(instance) {
     className.push(props.className);
   }
 
-  console.log(displayName, 'render', props);
+  reactPerformance.mark(instance, 'render', props);
 
   return className;
 }
@@ -58,7 +59,7 @@ function getClassNameList(instance) {
 function shouldComponentUpdate(instance, newProps, newState) {
   const result = !shallowEqual(instance, newProps, newState);
 
-  console.log(instance.constructor.displayName, 'shouldComponentUpdate', result);
+  reactPerformance.mark(instance, 'shouldComponentUpdate', result);
 
   return result;
 }

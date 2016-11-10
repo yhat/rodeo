@@ -1,24 +1,21 @@
 import _ from 'lodash';
+import dateUtil from './dateUtil';
+import immutableUtil from './immutable-util';
 
 /**
  * Special Initialization Case:  When groupId is null and there is no sender, assume they meant the first group available
- * @param {object} state
+ * @param {Array} state
  * @param {object} action
  * @param {object} item
- * @returns {object}
+ * @returns {Array}
  */
 function addItem(state, action, item) {
   const isInitializationCase = state.length > 0 && action.groupId === null && !action.senderName,
     groupId = isInitializationCase ? state[0].groupId : action.groupId,
     groupIndex = _.findIndex(state, {groupId});
 
-  console.log('addItem', {groupId, groupIndex, item, state, action});
-
   if (groupIndex > -1) {
-    state = state.updateIn([groupIndex, 'tabs'], tabs => {
-      return tabs.concat([item]);
-    });
-
+    state = immutableUtil.pushAtPath(state, [groupIndex, 'tabs'], item);
     state = state.setIn([groupIndex, 'active'], item.id);
   }
 
@@ -41,6 +38,7 @@ function focus(state, action) {
 
     if (tabIndex !== -1) {
       state = state.setIn([groupIndex, 'active'], id);
+      state = state.setIn([groupIndex, 'tabs', tabIndex, 'lastFocused'], dateUtil.getCurrentTime());
     }
   }
 
@@ -63,7 +61,7 @@ function close(state, action) {
 
     // only allow removal if they have more than one item
     if (tabs.length > 1) {
-      state = state.updateIn([groupIndex, 'tabs'], tabs =>  tabs.filter(tab => tab.id !== id));
+      state = immutableUtil.removeAtPath(state, [groupIndex, 'tabs'], tabIndex);
 
       if (state[groupIndex].active === id) {
         let newActive;
@@ -131,11 +129,59 @@ function getGroupIndex(state, action) {
   return -1;
 }
 
+function eachTabByAction(state, action, fn) {
+  _.each(state, (group, groupIndex) => {
+    if (action.groupId === group.groupId || action.groupId === undefined) {
+      _.each(group.tabs, (tab, tabIndex) => {
+        if (action.id === tab.id || action.id === undefined) {
+          const cursor = {group, groupIndex, tab, tabIndex};
+
+          fn(tab, cursor);
+        }
+      });
+    }
+  });
+}
+
+function eachTabByActionAndContentType(state, action, contentType, fn) {
+  return eachTabByAction(state, action, function (tab, cursor) {
+    if (tab.contentType === contentType) {
+      return fn(tab, cursor);
+    }
+  });
+}
+
+function convertItemPathToIndexPath(items, itemPath) {
+  let item, itemIndex, indexPath = [];
+
+  for (let i = 0; i < itemPath.length; i++) {
+    item = itemPath[i];
+    itemIndex = _.findIndex(items, {cid: item.cid});
+
+    if (itemIndex <= -1) {
+      return null;
+    }
+
+    indexPath.push(itemIndex);
+    items = items[itemIndex].items;
+
+    // if not the last item in the list, add 'items'
+    if (i < itemPath.length - 1) {
+      indexPath.push('items');
+    }
+  }
+
+  return indexPath;
+}
+
 export default {
   addItem,
   close,
   closeActive,
+  eachTabByAction,
+  eachTabByActionAndContentType,
   focus,
   changeProperty,
+  convertItemPathToIndexPath,
   getGroupIndex
 };

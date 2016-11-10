@@ -4,12 +4,12 @@ const _ = require('lodash');
 let outputMap = {};
 
 /**
- *
  * @param {JupyterClient} client
  * @param {JupyterClientResponse} response
  */
 function linkRequestToOutput(client, response) {
-  const requestMap = client.requestMap;
+  const requestMap = client.requestMap,
+    request = requestMap[response.id];
 
   if (!_.isString(response.result)) {
     throw new Error('Expected result to be msg_id of a later response');
@@ -19,20 +19,13 @@ function linkRequestToOutput(client, response) {
     throw new Error('Expected id to be a key referring to an earlier request');
   }
 
-  requestMap[response.id].msg_id = response.result;
+  // they have what they wanted; resolve immediately
+  if (request.resolveEvent === 'link' && response.source === 'link') {
+    request.deferred.resolve(response.result);
+  }
+
+  request.msg_id = response.result;
   outputMap[response.result] = {id: response.id, msg_id: response.result};
-}
-
-/**
- * @param {JupyterClient} client
- * @param {*} message
- */
-function requestInputFromUser(client, message) {
-  client.emit('input_request', message);
-}
-
-function broadcastKernelStatus(client, message) {
-  client.emit('status', message.content.execution_state);
 }
 
 /**
@@ -41,8 +34,7 @@ function broadcastKernelStatus(client, message) {
  */
 function resolveRequest(request, result) {
   // execution_count doesn't apply to us
-  request.deferred.resolve(_.omit(result.content, 'engine_info', 'execution_count'));
-  delete outputMap[request.msg_id];
+  request.deferred.resolve(result.content);
 }
 
 /**
@@ -91,25 +83,16 @@ function doesRequestMatchEvent(event, parent, child) {
 }
 
 /**
- * @param {{id: string}} parent  Original request
- * @param {{msg_type: string}} child  Resulting action
+ * @param {{id: string}} outputItem  Original request
+ * @param {{msg_type: string}} result  Resulting action
  * @param {JupyterClient} client  Map of all current requests
  * @returns {boolean}
  */
-function isRequestResolution(parent, child, client) {
+function isRequestResolution(outputItem, result, client) {
   const requestMap = client.requestMap,
-    request = requestMap[parent.id];
+    request = requestMap[outputItem.id];
 
-  return !!(request && doesRequestMatchEvent(request.resolveEvent, parent, child));
-}
-
-/**
- * @param {string} source
- * @param {{msg_type: string}} child
- * @returns {boolean}
- */
-function isInputRequestMessage(source, child) {
-  return source === 'stdin' && child.msg_type === 'input_request';
+  return !!(request && doesRequestMatchEvent(request.resolveEvent, outputItem, result));
 }
 
 /**
@@ -118,31 +101,18 @@ function isInputRequestMessage(source, child) {
  * @param {JupyterClientResponse} response
  */
 function resolveExecutionResult(client, response) {
-  const source = response.source,
-    result = response.result,
+  const result = response.result,
     outputMapId = _.get(result, 'parent_header.msg_id');
 
-  let parent = outputMap[outputMapId],
-    child = _.omit(result, ['msg_id', 'parent_header']),
-    requestId = parent.id,
-    request = client.requestMap[requestId];
+  let outputItem = outputMap[outputMapId],
+    request = client.requestMap[outputItem.id];
 
-  child.header = _.omit(child.header, ['version', 'msg_id', 'session', 'username', 'msg_type']);
-  if (!parent.header) {
-    parent.header = result.parent_header;
-  }
-
-  if (isInputRequestMessage(source, child)) {
-    requestInputFromUser(client, result);
-  } else if (isRequestResolution(parent, child, client)) {
+  if (isRequestResolution(outputItem, result, client)) {
     resolveRequest(request, result);
-
-  } else if (child.msg_type === 'status') {
-    broadcastKernelStatus(client, result);
   }
 
   if (!request.hidden) {
-    client.emit(response.source, response);
+    client.emit('jupyter', response);
   }
 }
 
@@ -174,6 +144,8 @@ function resolveEvalResult(client, response) {
  * @param {JupyterClientResponse} response
  */
 function handle(client, response) {
+  // client.emit('jupyter', response);
+
   if (isStartComplete(response)) {
     client.emit('ready');
   } else if (isRequestToOutputLink(client, response)) {
@@ -203,6 +175,15 @@ function resetOutputMap() {
   outputMap = {};
 }
 
+function removeOutputEntry(key) {
+  if (outputMap[key]) {
+    delete outputMap[key];
+    return true;
+  }
+  return false;
+}
+
 module.exports.handle = handle;
 module.exports.getOutputMap = getOutputMap;
 module.exports.resetOutputMap = resetOutputMap;
+module.exports.removeOutputEntry = removeOutputEntry;

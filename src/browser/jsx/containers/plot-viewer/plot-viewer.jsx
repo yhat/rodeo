@@ -1,6 +1,5 @@
 import React from 'react';
 import PlotPreview from '../../components/plot-preview/plot-preview.jsx';
-import {connect} from 'react-redux';
 import commonReact from '../../services/common-react';
 
 /**

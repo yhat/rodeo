@@ -1,6 +1,7 @@
 'use strict';
 
 const _ = require('lodash'),
+  bluebird = require('bluebird'),
   cuid = require('cuid'),
   electron = require('electron'),
   fs = require('fs'),
@@ -14,7 +15,8 @@ const _ = require('lodash'),
   ],
   windows = {},
   os = require('os'),
-  homedir = os.homedir();
+  homedir = os.homedir(),
+  performance = {};
 
 function getCommonErrors() {
   const targetFile = path.resolve(path.join(__dirname, 'chromium-errors.yml'));
@@ -81,8 +83,6 @@ function onGetResponseDetails() {
   const args = sanitizeArguments(arguments, [
     'event', 'status', 'newURL', 'url', 'code', 'method', 'referrer', 'headers', 'type'
   ]);
-
-  log('info', 'onGetResponseDetails', _.pick(args, ['code', 'url']));
 }
 
 /**
@@ -136,7 +136,10 @@ function create(name, options) {
       instance: window,
       name
     },
-    announceReady = _.once(() => dispatchActionToOtherWindows(name, {type: 'READY_TO_SHOW', name}));
+    announceReady = _.once(() =>
+      dispatchActionToOtherWindows(name, {type: 'READY_TO_SHOW', name})
+        .catch(error => log('error', 'announceReady', error))
+    );
 
   if (!options.url) {
     throw new Error('BrowserWindows should always start with a target.  No flickering allowed.');
@@ -152,10 +155,6 @@ function create(name, options) {
   });
   window.on('responsive', () => log('info', 'responsive', name));
   window.on('unresponsive', () => log('info', 'unresponsive', name));
-  window.on('show', () => log('info', 'show', name));
-  window.on('hide', () => log('info', 'hide', name));
-  window.on('focus', () => log('info', 'focus', name));
-  window.on('blur', () => log('info', 'blur', name));
   window.on('ready-to-show', () => {
     log('info', 'ready-to-show', name);
     announceReady();
@@ -250,39 +249,77 @@ function getByName(name) {
  *
  * NOTE:  This function exists to prevent a race-condition where the window is closed or destroyed before some
  * asynchronous task completes and tries to contact a window at the end (for logging, next step, etc.)
+ *
+ * @returns {Promise}
  */
 function send(windowName, eventName) {
-  const target = getByName(windowName),
+  let inboundEmitter = electron.ipcMain,
+    window = getByName(windowName),
+    outboundEmitter = window.webContents,
     eventId = cuid(),
+    startTime = new Date().getTime(),
     args = _.map(_.slice(arguments, 2), arg => _.isBuffer(arg) ? arg.toString() : arg);
 
-  if (target && !target.isDestroyed()) {
-    let webContents = target.webContents;
+  return new Promise(function (resolve, reject) {
+    // noinspection JSDuplicatedDeclaration
+    let response,
+      eventReplyName = eventName + '_reply',
+      timer = setInterval(function () {
+        if (outboundEmitter.isDestroyed()) {
+          log('info', 'ipc ' + eventId + ': will never complete because target window is gone', eventName);
+          inboundEmitter.removeListener(eventReplyName, response);
+          clearInterval(timer);
+          reject(new Error('Target window ' + windowName + ' is gone'));
+        } else {
+          log('warn', 'ipc ' + eventId + ': still waiting for', eventName);
+        }
+      }, 5000);
 
-    webContents.send.apply(webContents, [eventName, eventId].concat(args));
-  }
+    outboundEmitter.send.apply(outboundEmitter, [eventName, eventId].concat(args));
+    response = function (event, id) {
+      let result, endTime;
+
+      if (id === eventId) {
+        inboundEmitter.removeListener(eventReplyName, response);
+        clearInterval(timer);
+        result = _.slice(arguments, 2);
+        endTime = (new Date().getTime() - startTime);
+
+        if (result[0]) {
+          log('error', 'ipc ' + eventId + ': error', endTime + 'ms');
+          reject(new Error(result[0].message));
+        } else {
+          log('info', 'ipc ' + eventId + ':', eventName, 'completed', endTime + 'ms');
+          resolve(result[1]);
+        }
+      }
+    };
+    inboundEmitter.on(eventReplyName, response);
+  });
 }
 
 /**
  * @param {string} name
  * @param {{type: string}} action
+ * @returns {Promise}
  */
 function dispatchActionToWindow(name, action) {
   log('info', 'dispatch', name, action);
 
-  send(name, 'dispatch', action);
+  return send(name, 'dispatch', action);
 }
 
 /**
  * @param {string} name
  * @param {{type: string}} action
+ * @returns {Promise}
  */
 function dispatchActionToOtherWindows(name, action) {
-  _.each(windows, window => {
+  return bluebird.all(_.map(windows, window => {
     if (window.name !== name) {
-      dispatchActionToWindow(window.name, action);
+      return dispatchActionToWindow(window.name, action);
     }
-  });
+  }));
 }
 
 /**

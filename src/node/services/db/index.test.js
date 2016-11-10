@@ -25,6 +25,8 @@ describe(dirname + '/' + filename, function () {
 
     it('postgresql', function () {
       return fn('test', 'postgresql', {
+        id: 'test',
+        type: 'postgresql',
         database: 'postgres',
         host: 'localhost',
         port: 5432,

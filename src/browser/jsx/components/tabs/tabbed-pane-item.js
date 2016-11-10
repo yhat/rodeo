@@ -23,7 +23,6 @@ export default React.createClass({
     const props = this.props,
       className = commonReact.getClassNameList(this);
 
-
     if (props.active) {
       className.push('active');
     }

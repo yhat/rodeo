@@ -1,6 +1,6 @@
 import _ from 'lodash';
 import ipc from 'ipc';
-import clientDiscovery from '../../services/client-discovery';
+import clientDiscovery from '../../services/jupyter/client-discovery';
 import preferenceActions from '../../actions/preferences';
 import errors from '../../services/errors';
 /**
@@ -127,11 +127,16 @@ function cancelAll() {
   return {type: 'PREFERENCE_CANCEL_ALL_CHANGES'};
 }
 
+function manageConnections() {
+  return {type: 'ADD_MODAL_DIALOG', contentType: 'MANAGE_CONNECTIONS', title: 'Manage Connections'};
+}
+
 export default {
   add,
   cancelAll,
   save,
   selectFile,
   selectFolder,
-  selectTab
+  selectTab,
+  manageConnections
 };

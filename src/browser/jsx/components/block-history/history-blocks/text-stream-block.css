@@ -1,0 +1,48 @@
+.text-stream-block {
+  margin: 10px 4px 10px 2px;
+  border-radius: 5px;
+  padding: 6px;
+  padding-top: 2px;
+  border: 1px solid #ddd;
+  box-shadow: 1px 2px 3px #999;
+  color: #333;
+  position: relative;
+  transition: all 0.2s;
+}
+
+.text-stream-block:focus {
+  box-shadow: 0 2px 10px #cce6ff, 1px 2px 3px #999;
+  outline: none;
+}
+
+.text-stream-block--expanded {
+  overflow-y: auto;
+  overflow-x: inherit;
+}
+
+.text-stream-block--compressed {
+  overflow: hidden;
+}
+
+.text-stream-block__contents-outer {
+  overflow: hidden;
+  margin-left:10px;
+}
+
+.text-stream-block__contents {
+  overflow: hidden;
+  white-space: pre-wrap;
+}
+
+.text-stream-block > header {
+  font-size: 10px;
+  font-weight: bold;
+  color: #aaa;
+  text-transform: lowercase;
+  display: flex;
+  flex-direction: row;
+  align-content: space-between;
+  align-items: center;
+  justify-content: space-between;
+  border-bottom: 1px solid #ccc;
+}

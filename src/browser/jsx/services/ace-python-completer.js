@@ -1,11 +1,9 @@
 import _ from 'lodash';
 import cid from './cid';
-import client from './client';
+import client from './jupyter/client';
 import textUtil from './text-util';
-import AsciiToHtml from 'ansi-to-html';
 
-const convertor = new AsciiToHtml(),
-  className = 'rodeo-ace-pane-docstring';
+const className = 'rodeo-ace-pane-docstring';
 
 /**
  * @param {Error} error
@@ -68,7 +66,7 @@ function fillAutocompleteElementById(id, value) {
     if (text && el) {
       el.style.display = 'block';
       el.style.opacity = 0;
-      el.innerHTML = convertor.toHtml(text);
+      el.innerHTML = textUtil.fromAsciiToHtml(text);
       _.defer(() => el.style.opacity = 1);
     }
   });

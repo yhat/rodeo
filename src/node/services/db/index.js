@@ -9,49 +9,52 @@ const _ = require('lodash'),
   },
   instances = {};
 
-function connect(name, type, options) {
+function connect(options) {
   return bluebird.try(function () {
-    log('info', 'connect', {name, type, options});
+    const id = options.id,
+      type = options.type;
 
-    if (types[type]) {
-      const adapter = types[type].create(),
-        connection = types[type].connect(adapter, options);
-
-      instances[name] = {
-        type,
-        adapter,
-        connection
-      };
+    if (!types[type]) {
+      throw new Error('DB type does not exist: ' + type);
     }
+
+    return types[type]
+      .create(options)
+      .then(token => instances[id] = token);
   });
 }
 
-function disconnect(name) {
+function disconnect(id) {
   return bluebird.try(function () {
-    log('info', 'disconnect', {name});
-
-    if (name) {
-      if (instances[name]) {
-        types[instances[name].type].disconnect(instances[name].adapter, instances[name].connection);
+    if (id) {
+      if (instances[id]) {
+        instances[id].disconnect.apply(instances[id], arguments);
       }
     } else {
-      _.each(instances, function (item, name) {
-        types[instances[name].type].disconnect(instances[name].adapter, instances[name].connection);
+      _.each(instances, function (item, id) {
+        instances[id].disconnect.apply(instances[id], arguments);
       });
     }
   });
 }
 
-function query(name, str) {
+function query(id, str) {
   return bluebird.try(function () {
-    log('info', 'query', {name, str});
+    if (instances[id]) {
+      return instances[id].query(str);
+    }
+  });
+}
 
-    if (instances[name]) {
-      return types[instances[name].type].query(instances[name].connection, str);
+function getInfo(id) {
+  return bluebird.try(function () {
+    if (instances[id]) {
+      return instances[id].getInfo();
     }
   });
 }
 
 module.exports.connect = connect;
 module.exports.disconnect = disconnect;
+module.exports.getInfo = getInfo;
 module.exports.query = query;

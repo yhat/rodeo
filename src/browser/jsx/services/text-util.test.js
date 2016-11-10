@@ -21,6 +21,24 @@ describe(__filename, function () {
     });
   });
 
+  describe('getRowColumnFromCursorPos', function () {
+    it('is correct on the first row', function () {
+      expect(lib.getRowColumnFromCursorPos('abcd', 2)).toEqual({row: 0, column: 2});
+    });
+
+    it('is correct on the third row', function () {
+      expect(lib.getRowColumnFromCursorPos('abcd\nefgh\nijkl', 12)).toEqual({row: 2, column: 2});
+    });
+
+    it('is correct at the very beginning', function () {
+      expect(lib.getRowColumnFromCursorPos('abcd\nefgh\nijkl', 0)).toEqual({row: 0, column: 0});
+    });
+
+    it('is correct at the end of a line', function () {
+      expect(lib.getRowColumnFromCursorPos('abcd\nefgh\nijkl', 8)).toEqual({row: 1, column: 3});
+    });
+  });
+
   describe('spliceString', function () {
     it('inserts into string', function () {
       expect(lib.spliceString('abcd', 2, 0, 'ef')).toEqual('abefcd');

@@ -1,4 +1,5 @@
 import _ from 'lodash';
+import reselect from 'reselect';
 
 /**
  * @param {[object]} groups
@@ -55,7 +56,7 @@ function getContent(tabGroups, groupId, id) {
 
 /**
  * Note:  Caller must pass null if they want _any_ group
- * @param {string} tabGroupName  ex., freeTabGroups, terminalTabGroups
+ * @param {string} tabGroupName  ex., freeTabGroups, editorTabGroups
  * @param {function} fn
  * @returns {function}
  */
@@ -104,11 +105,44 @@ function getActiveTab(tabGroups, groupId) {
   return null;
 }
 
+function isTabContentTypeInGroups(contentType, groups) {
+  for (let groupIndex = 0; groupIndex < groups.length; groupIndex++) {
+    const group = groups[groupIndex],
+      tabs = group && group.tabs;
+
+    if (tabs) {
+      for (let tabIndex = 0; tabIndex < tabs.length; tabIndex++) {
+        const tab = tabs[tabIndex];
+
+        if (tab.contentType === contentType) {
+          return true;
+        }
+      }
+    }
+  }
+
+  return false;
+}
+
+function isTabContentTypeInWindowList(contentType, windowList, tabGroupName) {
+  for (let windowTabsIndex = 0; windowTabsIndex < windowList.length; windowTabsIndex++) {
+    const windowTabs = windowList[windowTabsIndex],
+      groups = windowTabs && windowTabs[tabGroupName];
+
+    if (groups && isTabContentTypeInGroups(contentType, groups)) {
+      return true;
+    }
+  }
+  return false;
+}
+
 export default {
   findGroupIdByTabId,
   getGroupIndex,
   getContent,
   getActiveTabIndex,
   getActiveTab,
+  isTabContentTypeInGroups,
+  isTabContentTypeInWindowList,
   toActiveTab
 };

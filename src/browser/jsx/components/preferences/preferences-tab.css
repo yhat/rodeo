@@ -3,10 +3,6 @@
   padding: 10px 15px;
 }
 
-.preferences-tab:first-child {
-  border-top-left-radius: 5px;
-}
-
 .preferences-tab:hover {
   background-color: #e1e1e1;
 }
@@ -22,5 +18,5 @@
 }
 
 .preferences-tab.preferences-tab-active {
-  background-color: #cbcbcb;
+  background-color: #dff0ff;
 }

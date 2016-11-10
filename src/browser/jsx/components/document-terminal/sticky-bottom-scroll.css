@@ -1,0 +1,4 @@
+.sticky-bottom-scroll {
+  overflow-y: auto;
+  display: block;
+}

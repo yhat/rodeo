@@ -1,12 +1,6 @@
 import React from 'react';
 import cid from '../services/cid';
 
-/**
- * @class LabelInput
- * @extends ReactComponent
- * @property props
- * @property state
- */
 export default React.createClass({
   displayName: 'LabelInput',
   propTypes: {

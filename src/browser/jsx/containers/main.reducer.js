@@ -4,14 +4,13 @@ import fileView from './file-viewer/file-viewer.reducer';
 import modalDialogs from './modal-dialog-viewer/modal-dialog.reducer';
 import sidebar from '../components/sidebar/sidebar.reducer';
 import notifications from '../components/notifications/notifications.reducer';
-import terminalTabGroups from './terminal-tab-group/terminal-tab-group.reducer';
 import freeTabGroups from './free-tab-group/free-tab-group.reducer';
 import editorTabGroups from './editor-tab-group/editor-tab-group.reducer';
 import preferences from './preferences-viewer/preferences-viewer.reducer';
 import packageSearch from './package-search-viewer/package-search-viewer.reducer';
+import manageConnections from './manage-connections-viewer/manage-connections.reducer';
 
 function broadcast(state, action) {
-  console.log(action.type, action);
   applicationControl.shareAction(action);
 
   if (!state) {
@@ -54,10 +53,6 @@ export default combineReducers({
    */
   editorTabGroups,
   /**
-   * list! The tab and the terminals are tightly coupled so the tab can change its look based on the state of the terminal.
-   */
-  terminalTabGroups,
-  /**
    * map!
    */
   preferences,
@@ -70,6 +65,10 @@ export default combineReducers({
    * to interact and change themselves based on the state of the fileview.
    */
   fileView,
+  /**
+   * map!
+   */
+  manageConnections,
   /**
    * Unneeded. This just logs all the actions that pass through.
    */

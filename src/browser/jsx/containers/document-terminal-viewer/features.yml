@@ -1,0 +1,51 @@
+- onClick: onClear
+  icon: trash
+  label: Clear
+  title: Ctrl + L
+  keyboardShortcuts:
+  - key: l
+    alt: false
+    meta: false
+    shift: false
+    ctrl: true
+    selection: false
+  - key: k
+    alt: false
+    meta: false
+    shift: false
+    ctrl: true
+    selection: false
+  - key: l
+    alt: false
+    meta: false
+    shift: false
+    ctrl: true
+    selection: true
+  - key: k
+    alt: false
+    meta: false
+    shift: false
+    ctrl: true
+    selection: true
+- onClick: onInterrupt
+  icon: stop
+  label: Interrupt
+  title: Ctrl + C
+  keyboardShortcuts:
+  - key: c
+    alt: false
+    meta: false
+    shift: false
+    ctrl: true
+    selection: false
+- onClick: onRestart
+  icon: refresh
+  label: Restart
+  title: "⌘ + R"
+  keyboardShortcuts:
+  - key: r
+    alt: false
+    meta: true
+    shift: false
+    ctrl: false
+    selection: false

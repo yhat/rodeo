@@ -4,22 +4,23 @@
  * Sometimes we want to do something _without_ visual indicators
  */
 
-import {send} from 'ipc';
+import _ from 'lodash';
+import api from '../services/api';
 
 function checkForUpdates() {
-  return send('checkForUpdates');
+  return api.send('checkForUpdates');
 }
 
 function toggleDevTools() {
-  return send('toggleDevTools');
+  return api.send('toggleDevTools');
 }
 
 function quitAndInstall() {
-  return send('quitAndInstall');
+  return api.send('quitAndInstall');
 }
 
 function quit() {
-  return send('quitApplication');
+  return api.send('quitApplication');
 }
 
 /**
@@ -30,7 +31,7 @@ function quit() {
 
  */
 function createWindow(name, options) {
-  return send('createWindow', name, options);
+  return api.send('createWindow', name, options);
 }
 
 /**
@@ -38,10 +39,21 @@ function createWindow(name, options) {
  * @returns {Promise}
  */
 function shareAction(action) {
-  // only share action if we're the original creator
-  if (!action.senderName) {
-    return send('shareAction', action);
+  if (action.payload) {
+    console.log(action.type, action.payload);
+  } else {
+    console.log(action.type, action);
   }
+
+  // Only share actions that are meant to be shared
+  // No sender means default behavior (therefore shareable)
+  if (!(action.meta && action.meta.sender) && !_.startsWith(action.type, '@@redux')) {
+    return api.send('shareAction', action);
+  }
+}
+
+function surveyTabs() {
+  return api.send('surveyTabs');
 }
 
 export default {
@@ -50,5 +62,6 @@ export default {
   shareAction,
   toggleDevTools,
   quitAndInstall,
-  quit
+  quit,
+  surveyTabs
 };

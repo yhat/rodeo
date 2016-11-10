@@ -8,6 +8,7 @@ import preferencesMapper from '../../services/preferences-mapper';
 
 import globalSettingsText from './global-settings.md';
 import pythonSettingsText from './python-settings.md';
+import sqlSettingsText from './sql-settings.md';
 import aceEditorText from './ace-editor.md';
 import consoleText from './console.md';
 import plotSettingsText from './plot-settings.md';
@@ -19,6 +20,7 @@ export function getInitialState() {
   const preferenceMap = preferencesMapper.define(preferencesMapDefinition, {
     globalSettingsText,
     pythonSettingsText,
+    sqlSettingsText,
     aceEditorText,
     consoleText,
     plotSettingsText,

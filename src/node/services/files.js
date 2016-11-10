@@ -304,6 +304,24 @@ function addWatching(requesterId, fileTarget) {
   }
 }
 
+function readFileStatsListIntoObject(fileStatsList) {
+  return bluebird.reduce(fileStatsList,
+    (knownSql, fileStats) => exports.readFile(fileStats.path)
+      .then(contents => {
+        knownSql[_.camelCase(fileStats.base)] = contents;
+
+        return knownSql;
+      }),
+    {}
+  );
+}
+
+function readAllFilesOfExt(filepath, ext) {
+  return readDirectory(filepath)
+    .filter(fileStatsList => fileStatsList.ext === ext)
+    .then(readFileStatsListIntoObject);
+}
+
 module.exports.getJSONFileSafeSync = getJSONFileSafeSync;
 module.exports.readFile = _.partialRight(bluebird.promisify(fs.readFile), 'utf8');
 module.exports.writeFile = bluebird.promisify(fs.writeFile);
@@ -319,3 +337,4 @@ module.exports.copy = copy;
 module.exports.startWatching = startWatching;
 module.exports.stopWatching = stopWatching;
 module.exports.addWatching = addWatching;
+module.exports.readAllFilesOfExt = readAllFilesOfExt;
