@@ -45,11 +45,11 @@ function spliceString(str, index, count, add) {
 }
 
 function longestLength(strArray) {
-  return strArray.reduce((longest, str) => Math.max(str.length, longest), 0);
+  return strArray.reduce((longest, str) => Math.max(str.toString().length, longest), 0);
 }
 
 function padRight(str, length) {
-  return str + _.repeat(' ', length - str.length);
+  return str + _.repeat(' ', length - str.toString().length);
 }
 
 function hash() {

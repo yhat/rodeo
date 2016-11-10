@@ -19,7 +19,9 @@ export default React.createClass({
 
     return (
       <div className={className.join(' ')}>
-        <button className="btn btn-default btn-setup-action" onClick={props.onFinish}>{text.readyToRodeo}</button>
+        <div>
+          <button className="btn btn-default btn-setup-action" onClick={props.onFinish}>{text.readyToRodeo}</button>
+        </div>
       </div>
     );
   }

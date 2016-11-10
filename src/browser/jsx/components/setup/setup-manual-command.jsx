@@ -3,6 +3,7 @@ import React from 'react';
 import FakeTerminal from './fake-terminal.jsx';
 import Marked from '../marked/marked.jsx';
 import commonReact from '../../services/common-react';
+import './setup-manual-command.css';
 
 export default React.createClass({
   displayName: 'SetupManualCommand',
@@ -20,19 +21,36 @@ export default React.createClass({
     const props = this.props,
       text = props.text,
       className = commonReact.getClassNameList(this);
+    let fakeTerminal;
+
+    if (_.includes(['executed', 'executing'], props.terminal.state)) {
+      fakeTerminal = <FakeTerminal {...props.terminal}/>;
+    }
 
     return (
       <div className={className.join(' ')}>
-        <div className="explanation"><Marked>{props.text.askForPythonCommand}</Marked></div>
-        <div className="input-group input-python-cmd">
-          <input className="form-control" onChange={_.partial(props.onInputChange, 'terminal.cmd')} type="text" value={props.terminal.cmd} />
-          <span className="input-group-container">
-            <button className="btn btn-primary" onClick={props.onExecute}>{text.okay}</button>
-          </span>
+        <div>
+          <div className="explanation"><Marked>{props.text.askForPythonCommand}</Marked></div>
+          <div className="input-group input-python-cmd">
+            <input
+              className="form-control"
+              onChange={_.partial(props.onInputChange, 'terminal.cmd')}
+              type="text"
+              value={props.terminal.cmd}
+            />
+            <span className="input-group-container">
+              <button className="btn btn-primary" onClick={props.onExecute}>{text.okay}</button>
+            </span>
+          </div>
+          {fakeTerminal}
+          <hr />
+          <div>
+            <button
+              className="btn btn-default btn-setup-action"
+              onClick={_.partial(props.onTransition, 'installAnaconda')}
+            >{text.installAnaconda}</button>
+          </div>
         </div>
-        <FakeTerminal {...props.terminal}/>
-        <button className="btn btn-default btn-setup-action" onClick={props.onExecute}>{text.tryAgain}</button>
-        <button className="btn btn-default btn-setup-action" onClick={_.partial(props.onTransition, 'installAnaconda')}>{text.installAnaconda}</button>
       </div>
     );
   }

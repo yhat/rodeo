@@ -14,6 +14,22 @@ track({
   sessionControl: 'start'
 });
 
+// are they able to run multiple times?
+(function () {
+  let key = 'runs',
+    runs = local.get(key);
+
+  if (!runs) {
+    runs = [];
+  }
+
+  if (runs.length < 10) {
+    runs.push(new Date().getTime());
+    local.set(key, runs);
+    track({category: 'application', action: 'run:' + runs.length});
+  }
+}());
+
 const rootEl = document.querySelector('main');
 
 ReactDOM.render(

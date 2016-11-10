@@ -57,6 +57,18 @@ function executed(state, action) {
 
 function transition(state, action) {
   state = _.clone(state);
+
+  if (action.contentType === 'manualCommand') {
+    state.terminal = _.assign({}, state.terminal, {
+      state: '',
+      errors: [],
+      events: [],
+      stdout: '',
+      stderr: '',
+      code: 0
+    });
+  }
+
   state.contentType = action.contentType;
   return state;
 }

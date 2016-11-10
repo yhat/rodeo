@@ -42,10 +42,12 @@ export default React.createClass({
 
     return (
       <div className={className.join(' ')}>
-        <div className="explanation"><Marked>{text.explainScipy}</Marked></div>
-        <FakeTerminal {...props.terminal}/>
-        <FakeTerminal {...props.secondaryTerminal}/>
-        {buttons}
+        <div>
+          <div className="explanation"><Marked>{text.explainScipy}</Marked></div>
+          <FakeTerminal {...props.terminal}/>
+          <FakeTerminal {...props.secondaryTerminal}/>
+          {buttons}
+        </div>
       </div>
     );
   }

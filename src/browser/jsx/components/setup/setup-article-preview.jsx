@@ -19,18 +19,20 @@ export default React.createClass({
 
     return (
       <div className={className.join(' ')}>
-      {_.map(props.articles, article => {
-        const style = {
-          backgroundImage: `url(${article.imageSrc})`
-        };
+          <div>
+        {_.map(props.articles, article => {
+          const style = {
+            backgroundImage: `url(${article.imageSrc})`
+          };
 
-        return (
-          <a className="setup-article" onClick={() => props.onOpenExternal(article.href)}>
-            <span className="setup-article-image" style={style} />
-            <div className="description"><Marked>{article.description}</Marked></div>
-          </a>
-        );
-      })}
+          return (
+            <a className="setup-article" onClick={() => props.onOpenExternal(article.href)}>
+              <span className="setup-article-image" style={style} />
+              <div className="description"><Marked>{article.description}</Marked></div>
+            </a>
+          );
+        })}
+        </div>
       </div>
     );
   }

@@ -23,10 +23,12 @@ export default React.createClass({
 
     return (
       <div className={className.join(' ')}>
-        <div className="explanation"><Marked>{text.explainMissingDependences}</Marked></div>
-        <FakeTerminal {...props.terminal}/>
-        <button className="btn btn-primary btn-setup-action" onClick={_.partial(props.onTransition, 'installNumpy')}>{text.installNumpy}</button>
-        <div className="secondary-explanation"><Marked>{text.explainNumpy}</Marked></div>
+        <div>
+          <div className="explanation"><Marked>{text.explainMissingDependences}</Marked></div>
+          <FakeTerminal {...props.terminal}/>
+          <button className="btn btn-primary btn-setup-action" onClick={_.partial(props.onTransition, 'installNumpy')}>{text.installNumpy}</button>
+          <div className="secondary-explanation"><Marked>{text.explainNumpy}</Marked></div>
+        </div>
       </div>
     );
   }

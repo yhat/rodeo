@@ -252,17 +252,15 @@ function startWatching(ipcEmitter, requesterId, fileTarget) {
   });
 
   watcher
-    .on('add', (path, stats) => log('info', `File ${path} has been added`, stats))
-    .on('change', (path, stats) => log('info', `File ${path} has been changed`, stats))
-    .on('unlink', path => log('info', `File ${path} has been removed`))
-    .on('addDir', (path, stats) => log('info', `Directory ${path} has been added`, stats))
-    .on('unlinkDir', path => log('info', `Directory ${path} has been removed`))
-    .on('error', error => log('info', `Watcher error: ${error}`))
-    .on('ready', () => log('info', 'Initial scan complete. Ready for changes'))
+    // .on('add', (path, stats) => log('info', `File ${path} has been added`, stats))
+    // .on('change', (path, stats) => log('info', `File ${path} has been changed`, stats))
+    // .on('unlink', path => log('info', `File ${path} has been removed`))
+    // .on('addDir', (path, stats) => log('info', `Directory ${path} has been added`, stats))
+    // .on('unlinkDir', path => log('info', `Directory ${path} has been removed`))
+    // .on('error', error => log('info', `Watcher error: ${error}`))
+    // .on('ready', () => log('info', 'Initial scan complete. Ready for changes'))
     .on('all', (eventType, path, details) => {
       const event = getFileSystemChangeToken(eventType, path, details);
-
-      log('info', 'All event info:', event);
 
       dispatch(ipcEmitter, event);
     });

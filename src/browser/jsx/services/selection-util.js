@@ -1,3 +1,4 @@
+import _ from 'lodash';
 
 /**
  * @param {Selection} selection

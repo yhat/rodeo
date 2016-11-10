@@ -86,10 +86,11 @@ function addHTMLTable(data, result) {
 }
 
 function addPlainTextTable(data, result) {
-  let columnWidths = _.map(_.zip.apply(_, result.rows), textUtil.longestLength),
-    headers = _.map(result.columns, 'name'),
-    rows = [headers].concat(_.take(result.rows, 10)),
-    textTable = _.map(rows, row => _.map(row, (cellContent, columnIndex) => textUtil.padRight(cellContent, columnWidths[columnIndex] - cellContent.length)));
+  let headers = _.map(result.columns, 'name'),
+    rows = [headers].concat(_.take(result.rows, 100)),
+    pivot = _.zip.apply(_, rows),
+    columnWidths = _.map(pivot, textUtil.longestLength),
+    textTable = _.map(rows, row => _.map(row, (cellContent, columnIndex) => textUtil.padRight(cellContent, columnWidths[columnIndex])));
 
   data['text/plain'] = textTable.join('\n');
 }

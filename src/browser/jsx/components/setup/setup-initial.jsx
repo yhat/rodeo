@@ -28,13 +28,15 @@ export default React.createClass({
 
     return (
       <div className={className.join(' ')}>
-        <div className="brand"><img src={logo} /></div>
-        <div className="progress">
-          <div className="progress-bar progress-bar-striped active" style={progressBarStyle}>
-            <Marked>{props.text.loading}</Marked>
+        <div>
+          <div className="brand"><img src={logo} /></div>
+          <div className="progress">
+            <div className="progress-bar progress-bar-striped active" style={progressBarStyle}>
+              <Marked>{props.text.loading}</Marked>
+            </div>
           </div>
+          <SetupArticlePreview articles={props.articles} onOpenExternal={props.onOpenExternal}/>
         </div>
-        <SetupArticlePreview articles={props.articles} onOpenExternal={props.onOpenExternal}/>
       </div>
     );
   }

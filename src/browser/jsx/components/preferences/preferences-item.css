@@ -22,6 +22,7 @@
 .preferences-select select {
   min-width: 100px;
   padding-left: 10px;
+  height: 30px;
 }
 
 .preferences-item .validation-error-message {
