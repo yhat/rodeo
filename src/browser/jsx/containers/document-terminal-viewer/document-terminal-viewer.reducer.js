@@ -1,4 +1,5 @@
 import _ from 'lodash';
+import Immutable from 'seamless-immutable';
 import mapReducers from '../../services/map-reducers';
 import cid from '../../services/cid';
 import reduxUtil from '../../services/redux-util';
@@ -217,7 +218,7 @@ function restarted(state, action) {
     return addHistoryItem(state, {html: 'Unable to restart terminal', source: 'stderr', type: 'text'});
   }
 
-  state = promptActionService.clear(state);
+  state = Immutable(promptActionService.clear(state));
   state = state.set('actives', {});
   state = updateBusy(state);
   return addHistoryItem(state, {html: 'done', source: 'stdout', type: 'text'});
