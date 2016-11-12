@@ -1,3 +1,4 @@
+import _ from 'lodash';
 import Immutable from 'seamless-immutable';
 
 function pushAtPath(state, path, item) {
@@ -7,12 +8,16 @@ function pushAtPath(state, path, item) {
 }
 
 function removeAtPath(state, path, index) {
-  return state.updateIn(path, array => {
-    array = array.asMutable();
+  return state.updateIn(path, obj => {
+    if (_.isArray(obj)) {
+      obj = obj.asMutable();
 
-    array.splice(index, 1);
+      obj.splice(index, 1);
 
-    return Immutable(array);
+      return Immutable(obj);
+    }
+
+    return obj.without(index);
   });
 }
 

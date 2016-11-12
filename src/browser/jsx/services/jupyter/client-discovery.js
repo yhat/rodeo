@@ -68,16 +68,16 @@ function getSystemFacts() {
  * @returns {Promise}
  */
 function getAppVersion() {
-  let systemFacts = session.get('appVersion');
+  let appVersion = session.get('appVersion');
 
-  if (!systemFacts || !systemFacts.appVersion) {
+  if (!appVersion) {
     return send('getAppVersion').then(function (version) {
-      local.set('appVersion', version);
+      session.set('appVersion', version);
       return version;
     });
   }
 
-  return bluebird.resolve(systemFacts);
+  return bluebird.resolve(appVersion);
 }
 
 function getUserId() {

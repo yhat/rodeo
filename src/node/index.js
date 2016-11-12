@@ -928,8 +928,13 @@ function onFinishStartup() {
  * @returns {Promise}
  */
 function onShareAction(action) {
-  const names = browserWindows.getWindowNames(),
-    senderInstance = this,
+  const names = browserWindows.getWindowNames();
+
+  if (names.length === 1) {
+    return bluebird.resolve();
+  }
+
+  let senderInstance = this,
     sender = _.find(names, function (name) {
       const window = browserWindows.getByName(name);
 

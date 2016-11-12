@@ -32,10 +32,10 @@ export default React.createClass({
     onInstallPythonModule: React.PropTypes.func.isRequired,
     onInterrupt: React.PropTypes.func,
     onPromptAutocomplete: React.PropTypes.func.isRequired,
-    onPromptBlur: React.PropTypes.func.isRequired,
+    onPromptBlur: React.PropTypes.func,
     onPromptCommand: React.PropTypes.func.isRequired,
     onPromptExecute: React.PropTypes.func.isRequired,
-    onPromptFocus: React.PropTypes.func.isRequired,
+    onPromptFocus: React.PropTypes.func,
     onPromptInput: React.PropTypes.func.isRequired,
     onRestart: React.PropTypes.func,
     onShowSelectWorkingDirectoryDialog: React.PropTypes.func.isRequired
@@ -155,9 +155,9 @@ export default React.createClass({
         </DocumentTerminal>
         <GrayInfo cwd={props.cwd}>
           <GrayInfoLinkList>
-            {features.map(feature => {
+            {features.map((feature, featureIndex) => {
               if (_.isFunction(props[feature.onClick])) {
-                return <GrayInfoLink{...feature} onClick={props[feature.onClick]}/>;
+                return <GrayInfoLink{...feature} key={featureIndex} onClick={props[feature.onClick]}/>;
               }
             })}
           </GrayInfoLinkList>

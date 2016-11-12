@@ -40,20 +40,15 @@ const prefix = reduxUtil.fromFilenameToPrefix(__filename),
 
       return state;
     },
-    execute_input: function (state, result) {
+    execute_input: function (state, result, responseMsgId) {
       let source = _.get(result, 'content.name'),
-        text = _.get(result, 'content.code'),
-        html;
+        text = _.get(result, 'content.code');
 
-      if (state.promptLabel) {
-        text = text.split('\n').map((value, index) => {
-          return index === 0 ? state.promptLabel + value : (state.continueLabel || state.promptLabel) + value;
-        }).join('\n');
+      if (!_.has(state, ['responses', responseMsgId, 'input'])) {
+        state = addHistoryInputItem(state, source, text);
       }
 
-      html = textUtil.fromAsciiToHtml(text);
-
-      return addHistoryItem(state, {html, type: 'text', source});
+      return state;
     },
     execute_result: function (state, result) {
       const data = _.get(result, 'content.data');
@@ -120,19 +115,45 @@ function addMimeData(state, data) {
   return state;
 }
 
+function addHistoryInputItem(state, source, text) {
+  if (state.promptLabel) {
+    text = text.split('\n').map((value, index) => {
+      return index === 0 ? state.promptLabel + value : (state.continueLabel || state.promptLabel) + value;
+    }).join('\n');
+  }
+
+  return addHistoryItem(state, {html: text, type: 'text', source});
+}
+
 function addHistoryItem(state, item) {
   return state.updateIn(['items'], items => {
     return items.concat([_.assign({id: cid()}, item)]);
   });
 }
 
-function executing(state) {
+function executing(state, action) {
+  if (action.payload.input) {
+    state = state.set('busy', true); // assume busy immediately
+    state = addHistoryInputItem(state, 'stdout', action.payload.input);
+  }
+
   return promptActionService.execute(state);
 }
 
 function executed(state, action) {
+  const responseToken = {};
+
+  if (action.payload.input) {
+    // remember that we already posted the input
+    responseToken.input = action.payload.input;
+  }
+
+  if (action.error) {
+    return addHistoryItem(state, {html: 'Unable to execute', source: 'stderr', type: 'text'});
+  }
+
   if (state.responses) {
-    return state.setIn(['responses', action.payload], {});
+    return state.setIn(['responses', action.payload.responseMsgId], responseToken);
   }
 }
 
@@ -150,7 +171,7 @@ function jupyterResponseDetected(state, action) {
       responseType = _.get(result, 'msg_type');
 
     if (responseTypeHandlers[responseType]) {
-      state = responseTypeHandlers[responseType](state, result);
+      state = responseTypeHandlers[responseType](state, result, responseMsgId);
     }
   }
 
@@ -188,7 +209,6 @@ function inputting(state) {
 
 function inputted(state, action) {
   if (action.error) {
-    console.error(action.payload);
     return addHistoryItem(state, {html: 'Unable to input', source: 'stderr', type: 'text'});
   }
 
@@ -201,7 +221,6 @@ function interrupting(state) {
 
 function interrupted(state, action) {
   if (action.error) {
-    console.error(action.payload);
     return addHistoryItem(state, {html: 'Unable to interrupt terminal', source: 'stderr', type: 'text'});
   }
 
@@ -214,7 +233,6 @@ function restarting(state) {
 
 function restarted(state, action) {
   if (action.error) {
-    console.error(action.payload);
     return addHistoryItem(state, {html: 'Unable to restart terminal', source: 'stderr', type: 'text'});
   }
 

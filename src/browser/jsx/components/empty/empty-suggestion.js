@@ -3,16 +3,15 @@ import './empty-suggestion.css';
 import commonReact from '../../services/common-react';
 import Marked from '../marked/marked.jsx';
 
-/**
- * @class PlotPreview
- * @extends ReactComponent
- * @property props
- * @property {Array} props.plots
- */
 export default React.createClass({
   displayName: 'EmptySuggestion',
   propTypes: {
     label: React.PropTypes.string.isRequired
+  },
+  getDefaultProps() {
+    return {
+      label: ''
+    };
   },
   shouldComponentUpdate: function (nextProps) {
     return commonReact.shouldComponentUpdate(this, nextProps);

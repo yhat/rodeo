@@ -13,11 +13,19 @@ function copyAnnotation(groupId, id) {
 }
 
 function execute(groupId, id, context) {
-  return function (dispatch) {
-    dispatch({type: prefixType + 'EXECUTING', groupId, id});
+  return function (dispatch, getState) {
+    const state = getState(),
+      content = commonTabsActions.getContent(state['freeTabGroups'], groupId, id),
+      payload = {};
+
+    if (!content.busy) {
+      payload.input = context.text;
+    }
+
+    dispatch({type: prefixType + 'EXECUTING', groupId, id, payload});
     return dispatch(kernel.execute(context.text)).then(function (responseMsgId) {
-      return dispatch({type: prefixType + 'EXECUTED', groupId, id, payload: responseMsgId});
-    }).catch(error => console.error(error));
+      return dispatch({type: prefixType + 'EXECUTED', groupId, id, payload: _.assign({responseMsgId}, payload)});
+    }).catch(error => dispatch({type: prefixType + 'EXECUTED', groupId, id, payload: error, error: true}));
   };
 }
 
@@ -83,10 +91,10 @@ function installPackage(groupId, id, name, version) {
   return function (dispatch) {
     const text = version ? `! pip install ${name}==${version}` : `! pip install ${name}`;
 
-    dispatch({type: prefix + 'PACKAGE_INSTALLING', name, version});
+    dispatch({type: prefixType + 'PACKAGE_INSTALLING', name, version});
     return dispatch(kernel.execute(text))
-      .then(() => dispatch({type: prefix + 'PACKAGE_INSTALLED', payload: {name, version}}))
-      .catch(error => dispatch({type: prefix + 'PACKAGE_INSTALLED', payload: error, error: true}));
+      .then(() => dispatch({type: prefixType + 'PACKAGE_INSTALLED', payload: {name, version}}))
+      .catch(error => dispatch({type: prefixType + 'PACKAGE_INSTALLED', payload: error, error: true}));
   };
 }
 
@@ -96,6 +104,7 @@ export default {
   copyAnnotation,
   execute,
   input,
+  installPackage,
   interrupt,
   showSelectWorkingDirectoryDialog,
   restart

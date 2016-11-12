@@ -5,8 +5,8 @@ import './document-terminal.css';
 export default React.createClass({
   displayName: 'DocumentTerminal',
   propTypes: {
-    onClick: React.PropTypes.func.isRequired,
-    onPaste: React.PropTypes.func.isRequired
+    onClick: React.PropTypes.func,
+    onPaste: React.PropTypes.func
   },
   shouldComponentUpdate: function (nextProps) {
     return commonReact.shouldComponentUpdate(this, nextProps);
