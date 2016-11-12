@@ -1,9 +1,4 @@
 .document-terminal-annotation {
-  display: block;
-  height: auto;
-  width: 20%;
-  min-width: 100px;
-  max-width: 200px;
   overflow: hidden;
   padding: 2px;
   margin: 5px;
@@ -15,19 +10,14 @@
   height: auto;
 }
 
-.document-terminal-annotation__menu {
+.document-terminal-annotation__image {
   display: block;
-}
-
-.document-terminal-annotation__menu .fa {
-  margin-right: 2px;
-  margin-left: 2px;
-}
-
-.document-terminal-annotation__menu .fa:first-child {
-  margin-left: 0;
-}
-
-.document-terminal-annotation__menu .fa:last-child {
-  margin-right: 0;
+  height: auto;
+  width: 20%;
+  min-width: 100px;
+  max-width: 200px;
+  overflow: hidden;
+  padding: 2px;
+  margin: 5px;
+  position: relative;
 }

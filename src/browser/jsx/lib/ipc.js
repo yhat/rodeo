@@ -47,7 +47,9 @@ const ipc = (function () {
         if (isPromise(eventResult)) {
           eventResult.then(function(result) {
             endTime = (new Date().getTime() - startTime);
-            console.log('ipc', eventId + ':', eventName + 'completed', endTime + 'ms', {args, result});
+            if (endTime > 30) {
+              console.log('ipc', eventId + ':', eventName + 'completed', endTime + 'ms', {args, result});
+            }
             ipcRenderer.send(eventReplyName, eventId, null, result);
           }).catch(function (error) {
             endTime = (new Date().getTime() - startTime);
@@ -56,7 +58,10 @@ const ipc = (function () {
           });
         } else {
           endTime = (new Date().getTime() - startTime);
-          console.log('ipc', eventId + ':', eventName + ' completed', endTime + 'ms', {args, result: eventResult});
+          if (endTime > 30) {
+            console.warn('ipc', eventId + ':', eventName + ' completed but was slow', endTime + 'ms', {args, result: eventResult});
+          }
+
           ipcRenderer.send(eventReplyName, eventId, null, eventResult);
         }
       });
@@ -82,7 +87,7 @@ const ipc = (function () {
         eventReplyName = eventName + '_reply',
         timer = setInterval(function () {
           console.warn('ipc ' + eventId + ': still waiting for', eventName, {args});
-        }, 5000);
+        }, 10000);
 
       ipcRenderer.send.apply(ipcRenderer, [eventName, eventId].concat(args.slice(1)));
       response = function (event, id) {
@@ -98,7 +103,10 @@ const ipc = (function () {
             console.log('ipc', eventId + ':', eventName + ' error', endTime + 'ms', {args, result: result[0]});
             reject(new Error(result[0].message));
           } else {
-            console.log('ipc', eventId + ':', eventName + ' completed', endTime + 'ms', {args, result: result[1]});
+            if (endTime > 30) {
+              console.warn('ipc', eventId + ':', eventName + ' completed but was slow', endTime + 'ms', {args, result: result[1]});
+            }
+
             resolve(result[1]);
           }
         }

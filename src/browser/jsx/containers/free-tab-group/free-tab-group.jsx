@@ -27,12 +27,9 @@ import kernelActions from '../../actions/kernel';
 import commonReact from '../../services/common-react';
 
 const allowedPopoutTypes = [
-  'block-terminal-viewer',
-  'document-terminal-viewer',
   'global-history-viewer',
   'plot-viewer',
-  'variable-viewer',
-  'variable-table-viewer'
+  'variable-viewer'
 ];
 
 /**

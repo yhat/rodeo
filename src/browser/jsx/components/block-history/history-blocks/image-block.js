@@ -70,7 +70,7 @@ export default React.createClass({
     const props = this.props,
       className = commonReact.getClassNameList(this),
       menu = [];
-    let contents = [<img alt={props.alt} src={props.href}/>];
+    let contents = [<img alt={props.alt} key="contents" src={props.href}/>];
 
     className.push('font-monospaced');
 

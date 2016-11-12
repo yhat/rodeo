@@ -6,7 +6,7 @@ export default React.createClass({
   displayName: 'GrayInfoLink',
   propTypes: {
     icon: React.PropTypes.string,
-    label: React.PropTypes.string.isRequired,
+    label: React.PropTypes.string,
     onClick: React.PropTypes.func.isRequired,
     title: React.PropTypes.string
   },

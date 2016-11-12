@@ -30,14 +30,11 @@ Store = (function () {
         }
       }
 
-      console.log(name, 'get', key, value);
-
       return value;
     };
 
     this.set = function (key, value) {
       assertCamelCase(key);
-      console.log(name, 'set', key, value);
 
       if (typeof value === 'object') {
         value = JSON.stringify(value);

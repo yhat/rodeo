@@ -138,7 +138,7 @@ function collectJupyterBlockSelection(props, id, editor, startRow) {
 
 function selectJupyterBlock(props, id, command, editor) {
   const selection = editor.getSelection();
-  let currentRow, textList, runnableFirst,
+  let now, currentRow, textList, runnableFirst,
     startRow = editor.getSelectionRange().end.row,
     firstLine = editor.session.getLine(startRow);
 
@@ -167,8 +167,9 @@ function selectJupyterBlock(props, id, command, editor) {
     }
   }
 
-  if (!remembrance['selectJupyterBlock']) {
-    remembrance['selectJupyterBlock'] = true;
+  now = new Date().getTime();
+  if (!remembrance['selectJupyterBlock'] || remembrance['selectJupyterBlock'] < now - 3000) {
+    remembrance['selectJupyterBlock'] = now;
     iterateUntilComplete(editor, textList, currentRow)
       .then(collectJupyterBlockSelection(props, id, editor, startRow))
       .finally(() => delete remembrance['selectJupyterBlock']);

@@ -35,10 +35,13 @@ export default React.createClass({
 
     function addImageType(mimeType) {
       if (data[mimeType]) {
+        const id = getId(props, mimeType);
+
         images.push(
           <img
             className="document-terminal-annotation__image"
-            id={getId(props, mimeType)}
+            id={id}
+            key={id}
             onLoad={props.onLoad}
             src={data[mimeType]}
           />
@@ -49,10 +52,13 @@ export default React.createClass({
 
     function addHTMLType(mimeType) {
       if (data[mimeType]) {
+        const id = getId(props, mimeType);
+
         html.push(
           <UnsafeHtml
             className="document-terminal-annotation__html"
-            id={getId(props, mimeType)}
+            id={id}
+            key={id}
             onLoad={props.onLoad}
             src={data[mimeType]}
           />);
@@ -62,10 +68,13 @@ export default React.createClass({
 
     function addTextType(mimeType) {
       if (data[mimeType]) {
+        const id = getId(props, mimeType);
+
         text.push(
           <div
             className="document-terminal-annotation__text"
-            id={getId(props, mimeType)}
+            id={id}
+            key={id}
           >{data[mimeType]}</div>
         );
         delete data[mimeType];
@@ -98,7 +107,6 @@ export default React.createClass({
         tabIndex={props.tabIndex || 0}
       >
         {images}{html}{text}
-         <div className="document-terminal-annotation__menu"><span className="fa fa-save" /><span className="fa fa-ellipsis-h"/></div>
       </div>
     );
   }
