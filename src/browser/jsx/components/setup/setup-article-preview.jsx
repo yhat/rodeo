@@ -20,13 +20,13 @@ export default React.createClass({
     return (
       <div className={className.join(' ')}>
         <div className="setup-inner">
-        {_.map(props.articles, article => {
+        {_.map(props.articles, (article, index) => {
           const style = {
             backgroundImage: `url(${article.imageSrc})`
           };
 
           return (
-            <a className="setup-article" onClick={() => props.onOpenExternal(article.href)}>
+            <a className="setup-article" key={index} onClick={() => props.onOpenExternal(article.href)}>
               <span className="setup-article-image" style={style} />
               <div className="description"><Marked>{article.description}</Marked></div>
             </a>

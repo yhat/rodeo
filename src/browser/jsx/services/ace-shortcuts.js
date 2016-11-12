@@ -68,7 +68,7 @@ function liftSelection(instance, callback) {
     name: 'liftSelection',
     bindKey: {win: 'ctrl-Enter', mac: 'Command-Enter'},
     exec: function (editor) {
-      let text = editor.getCopyText();
+      let text = editor.getSelectedText();
 
       // if nothing is selected, run the current line
       if (!text || !text.length) {

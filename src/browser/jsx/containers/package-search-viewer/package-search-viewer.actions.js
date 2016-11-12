@@ -158,7 +158,7 @@ function showMore(groupId, id, name, version) {
       .then(function (releaseData) {
         normalizePackage(releaseData);
         dispatch({type: prefix + 'RELEASE_DATA_FETCHED', groupId, id, payload: {name, version, releaseData}});
-      }).catch(error => dispatch({type: prefix + 'RELEASE_DATA_FETCHED', groupId, id, payload: error}, error: true));
+      }).catch(error => dispatch({type: prefix + 'RELEASE_DATA_FETCHED', groupId, id, payload: error, error: true}));
   };
 }
 
