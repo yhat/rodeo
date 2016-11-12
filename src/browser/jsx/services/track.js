@@ -56,7 +56,7 @@ function serialize(obj) {
  * @param {number} limit
  */
 function limitStringLength(obj, target, limit) {
-  if (_.isString(obj[target]) && obj[target].length > limit) {
+  if (_.isObject(obj) && _.isString(obj[target]) && obj[target].length > limit) {
     obj[target] = obj[target].substr(0, limit);
   }
 }
@@ -137,13 +137,15 @@ trackPiwik = (function () {
    * @returns {Promise}
    */
   return function (event, locals) {
-    const actionName = _.filter([event.category, event.action, event.label], _.identity).join('/');
+    const actionName = _.filter([event.category, event.action, event.label], _.identity).join('/'),
+      limitedUserId = locals && locals.userId && locals.userId.replace(/-/g, '').substr(0, 16);
     let metrics = _.pickBy({
       rec: piwikApiVersion,
       idsite: idSite,
       url: mockUrl,
       action_name: actionName,
-      _id: locals.userId,
+      _id: limitedUserId,
+      uid: limitedUserId,
       rand: locals.cacheBust,
       apiv: piwikApiVersion,
       e_c: event.category,
