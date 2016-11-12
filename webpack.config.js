@@ -1,6 +1,8 @@
 'use strict';
 
-const path = require('path');
+const path = require('path'),
+  webpack = require('webpack'),
+  CompressionPlugin = require('compression-webpack-plugin');
 
 module.exports = {
   context: path.join(__dirname, 'src/browser/jsx'),
@@ -44,8 +46,26 @@ module.exports = {
         loader: 'babel',
         cacheDirectory: true,
         query: {
+          plugins: [
+            'lodash',
+            'Transform-runtime',
+            'Transform-react-remove-prop-types',
+            'Transform-react-constant-elements',
+            'Transform-react-inline-elements'
+          ],
+          presets: ['react', 'es2015', 'stage-0']
+        }
+      },
+      {
+        test: /\.jsx?$/,
+        include: [
+          path.resolve(__dirname, 'node_modules/rulejs')
+        ],
+        loader: 'babel',
+        cacheDirectory: true,
+        query: {
           plugins: ['lodash'],
-          presets: ['react', 'es2015']
+          presets: ['es2015', 'stage-0']
         }
       }
     ]
@@ -54,6 +74,37 @@ module.exports = {
     __filename: true,
     __dirname: true
   },
+  plugins: [
+    new webpack.optimize.OccurrenceOrderPlugin(),
+    new webpack.NoErrorsPlugin(),
+    new webpack.optimize.DedupePlugin(),
+    new webpack.DefinePlugin({
+      'process.env': {
+        NODE_ENV: JSON.stringify('production')
+      }
+    }),
+    new webpack.optimize.UglifyJsPlugin ({
+      beautify: false,
+      comments: false,
+      compress: {
+        sequences: true,
+        booleans: true,
+        loops: true,
+        unused: true,
+        warnings: false,
+        drop_console: true,
+        unsafe: true
+      },
+      test: /\.(js|jsx)$/
+    }),
+    new CompressionPlugin ({
+      asset: '[path] .gz [query]',
+      algorithm: 'gzip',
+      test: /\.js$|\.html$/,
+      threshold: 10240,
+      minRatio: 0.8
+    })
+  ],
   output: {
     filename: '[name].js',
     path: path.join(__dirname, 'dist')
