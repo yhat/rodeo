@@ -50,8 +50,6 @@ export default React.createClass({
 
     aceSettings.applyStaticSettings(instance);
     aceSettings.applyDynamicSettings(instance, props);
-    instance.commands.on('afterExec', () => console.log('afterExec', arguments));
-    instance.renderer.on('afterRender', () => console.log('afterRender', arguments));
 
     // add each command
     _.each(props.commands, command => {

@@ -5,7 +5,7 @@ import dialogActions from '../../actions/dialogs';
 import client from '../../services/jupyter/client';
 import pythonLanguage from '../../services/jupyter/python-language';
 
-let counter = [];
+const remembrance = {};
 
 /**
  * Go to the next line, even if we have to make a new line to do it
@@ -88,13 +88,6 @@ function autocomplete(props, tabId, command, editor) {
   return editor.commands.exec('startAutocomplete', editor);
 }
 
-function isElseLine(editor, rowIndex) {
-  const line = editor.session.getLine(rowIndex),
-    trimmedLine = line && _.trimStart(line);
-
-  return trimmedLine && trimmedLine.substr(0, 4) === 'else';
-}
-
 function iterateUntilComplete(editor, textList, endRow) {
   return client.isComplete(textList.join('\n')).then(result => {
     const nextLine = editor.session.getLine(endRow + 1),
@@ -108,12 +101,7 @@ function iterateUntilComplete(editor, textList, endRow) {
         return {textList, status, endRow};
       }
     } else if (status === 'complete') {
-      if (isElseLine(editor, endRow + 1)) {
-        textList.push(_.trimEnd(nextLine));
-        return iterateUntilComplete(editor, textList, endRow + 1);
-      } else {
-        return {textList, status, endRow};
-      }
+      return {textList, status, endRow};
     } else {
       return {textList, status, endRow};
     }
@@ -179,8 +167,12 @@ function selectJupyterBlock(props, id, command, editor) {
     }
   }
 
-  iterateUntilComplete(editor, textList, currentRow)
-    .then(collectJupyterBlockSelection(props, id, editor, startRow));
+  if (!remembrance['selectJupyterBlock']) {
+    remembrance['selectJupyterBlock'] = true;
+    iterateUntilComplete(editor, textList, currentRow)
+      .then(collectJupyterBlockSelection(props, id, editor, startRow))
+      .finally(() => delete remembrance['selectJupyterBlock']);
+  }
 
   return true;
 }
