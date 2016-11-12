@@ -11,6 +11,7 @@ import blockTerminalViewerActions from '../block-terminal-viewer/block-terminal-
 import documentTerminalViewerActions from '../document-terminal-viewer/document-terminal-viewer.actions';
 import plotViewerActions from '../plot-viewer/plot-viewer.actions';
 import manageConnectionsSelectors from '../manage-connections-viewer/manage-connections.selectors';
+import pythonLanguage from '../../services/jupyter/python-language';
 
 const tabGroupName = 'freeTabGroups',
   pythonTypes = ['python'],
@@ -298,21 +299,6 @@ function getLastFocusedTabToken(tabTokens) {
   return bestTabToken;
 }
 
-function hasCode(text) {
-  const hasNewLines = text.indexOf('\n') > -1;
-
-  // If a single line, then has no code if blank line or a comment
-  if (!hasNewLines) {
-    const trimmedStart = _.trimStart(text);
-
-    if (trimmedStart.length <= 0 || trimmedStart[0] === '#') {
-      return false;
-    }
-  }
-
-  return true;
-}
-
 /**
  * Execute some text from an editor in a certain kind of mode
  * @param {object} context
@@ -330,7 +316,7 @@ function execute(context) {
         // todo: find if code is runnable
 
         // if it starts with #, it's not runnable
-        if (hasCode(text)) {
+        if (pythonLanguage.isCodeLine(text)) {
           // find recent python terminal tab
           return applicationControl.surveyTabs().then(function (result) {
             const groups = _.flatten(_.map(result, 'freeTabGroups')),

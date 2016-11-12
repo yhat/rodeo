@@ -8,6 +8,11 @@
     win: ctrl-Enter
     mac: Command-Enter
 
+- name: selectJupyterBlock
+  bindKey:
+    win: ctrl-Enter
+    mac: Command-Enter
+
 - name: interrupt
   bindKey:
     win: ctrl-shift-c

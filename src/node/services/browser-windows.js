@@ -261,7 +261,7 @@ function send(windowName, eventName) {
     args = _.map(_.slice(arguments, 2), arg => _.isBuffer(arg) ? arg.toString() : arg);
 
   if (!outboundEmitter) {
-    return bluebird.reject(new Error('Cannot send because target window is gone'));
+    return bluebird.resolve());
   }
 
   return new Promise(function (resolve, reject) {
