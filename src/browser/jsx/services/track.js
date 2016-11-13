@@ -30,8 +30,6 @@ let trackGA, trackPiwik;
 /**
  * @typedef {object} TrackingLocals
  * @property {string} userId
- * @property {string} appName
- * @property {string} appVersion
  * @property {string} cacheBust
  */
 
@@ -153,8 +151,8 @@ trackPiwik = (function () {
       e_n: event.label,
       e_v: event.value,
       _cvar: JSON.stringify({
-        1: ['appName', locals.appName],
-        2: ['appVersion', locals.appVersion]
+        1: ['appName', __APP_NAME__],
+        2: ['appVersion', __VERSION__]
       })
     }, _.identity);
 
@@ -185,8 +183,8 @@ trackGA = (function () {
 
     let metrics = _.pickBy({
       v: gaApiVersion,
-      an: appName,
-      av: locals.appVersion,
+      an: __APP_NAME__,
+      av: __VERSION__,
       t: event.hitType,
       tid: trackingId,
       cid: locals.userId,
@@ -225,11 +223,10 @@ export default function track(event) {
   console.log(successMessage, event);
 
   return bluebird.all([
-    clientDiscovery.getUserId(),
-    clientDiscovery.getAppVersion()
-  ]).spread(function (userId, appVersion) {
+    clientDiscovery.getUserId()
+  ]).spread(function (userId) {
     const cacheBust = textUtil.getRandomCharacters(20),
-      locals = {userId, appName, appVersion, cacheBust, isTracking};
+      locals = {userId, appName, cacheBust, isTracking};
 
     return bluebird.join(
       trackGA(event, locals).catch(reportError),

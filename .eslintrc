@@ -13,7 +13,9 @@
     "chai": false,
     "sinon": false,
     "DS": false,
-    "React": false
+    "React": false,
+    "__APP_NAME__": false,
+    "__VERSION__": false
   },
   "parserOptions": {
     "sourceType": "module",

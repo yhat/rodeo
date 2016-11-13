@@ -6,11 +6,7 @@ export function showAboutRodeo() {
   const type = 'ADD_MODAL_DIALOG',
     contentType = 'ABOUT_RODEO';
 
-  return function (dispatch) {
-    return clientDiscovery.getAppVersion()
-      .then(appVersion => dispatch({type, contentType, appVersion}))
-      .catch(error => dispatch(errorCaught(error)));
-  };
+  return {type, contentType};
 }
 
 export function showAboutStickers() {
