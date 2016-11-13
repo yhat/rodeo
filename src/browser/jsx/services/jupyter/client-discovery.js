@@ -53,7 +53,7 @@ function executeWithNewKernel(options, text) {
 function getSystemFacts() {
   let systemFacts = local.get('systemFacts');
 
-  if (!systemFacts || !systemFacts.appVersion) {
+  if (!systemFacts) {
     return send('getSystemFacts').then(function (facts) {
       local.set('systemFacts', facts);
       return facts;
@@ -61,23 +61,6 @@ function getSystemFacts() {
   }
 
   return bluebird.resolve(systemFacts);
-}
-
-/**
- * This is fetched each time the app is restarted (uses sessionStorage, not localStorage)
- * @returns {Promise}
- */
-function getAppVersion() {
-  let appVersion = session.get('appVersion');
-
-  if (!appVersion) {
-    return send('getAppVersion').then(function (version) {
-      session.set('appVersion', version);
-      return version;
-    });
-  }
-
-  return bluebird.resolve(appVersion);
 }
 
 function getUserId() {
@@ -126,7 +109,6 @@ function getFreshPythonOptions() {
 
 export default {
   checkKernel,
-  getAppVersion,
   getFreshPythonOptions,
   getSystemFacts,
   getUserId,

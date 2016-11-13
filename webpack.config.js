@@ -1,6 +1,7 @@
 'use strict';
 
-const path = require('path'),
+const pkg = require('./package.json'),
+  path = require('path'),
   webpack = require('webpack'),
   CompressionPlugin = require('compression-webpack-plugin');
 
@@ -53,7 +54,7 @@ module.exports = {
             'Transform-react-constant-elements',
             'Transform-react-inline-elements'
           ],
-          presets: ['react', 'es2015', 'stage-0']
+          presets: ['react', 'es2015']
         }
       },
       {
@@ -65,7 +66,7 @@ module.exports = {
         cacheDirectory: true,
         query: {
           plugins: ['lodash'],
-          presets: ['es2015', 'stage-0']
+          presets: ['es2015']
         }
       }
     ]
@@ -79,6 +80,8 @@ module.exports = {
     new webpack.NoErrorsPlugin(),
     new webpack.optimize.DedupePlugin(),
     new webpack.DefinePlugin({
+      __APP_NAME__: JSON.stringify(pkg.name),
+      __VERSION__: JSON.stringify(pkg.version),
       'process.env': {
         NODE_ENV: JSON.stringify('production')
       }

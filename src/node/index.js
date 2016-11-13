@@ -720,24 +720,6 @@ function onGetSystemFacts() {
 /**
  * @returns {Promise<string>}
  */
-function onGetAppVersion() {
-  const app = electron.app;
-
-  return bluebird.resolve(app.getVersion());
-}
-
-/**
- * @returns {Promise<string>}
- */
-function onGetAppName() {
-  const app = electron.app;
-
-  return bluebird.resolve(app.getName());
-}
-
-/**
- * @returns {Promise<string>}
- */
 function onGetAppLocale() {
   const app = electron.app;
 
@@ -976,8 +958,6 @@ function attachIpcMainEvents() {
     onFiles,
     onFileStats,
     onFinishStartup,
-    onGetAppVersion,
-    onGetAppName,
     onGetAppLocale,
     onGetAutoComplete,
     onGetFile,

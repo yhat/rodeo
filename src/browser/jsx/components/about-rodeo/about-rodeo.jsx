@@ -14,12 +14,9 @@ import './about-rodeo.css';
  */
 export default React.createClass({
   displayName: 'AboutRodeo',
-  propsTypes: {
-    appVersion: React.PropTypes.string
-  },
   render: function () {
     const props = this.props,
-      version = props.appVersion && <div className="version">{props.appVersion}</div>;
+      version = props.appVersion && <div className="version">{__VERSION__}</div>;
 
     return (
       <div className="about-rodeo">
