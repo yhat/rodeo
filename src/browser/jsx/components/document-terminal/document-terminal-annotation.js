@@ -104,7 +104,6 @@ export default React.createClass({
         onCopy={props.onCopy}
         onDrag={props.onDrag}
         onFocus={props.onFocus}
-        tabIndex={props.tabIndex || 0}
       >
         {images}{html}{text}
       </div>

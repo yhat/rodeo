@@ -79,6 +79,15 @@ function focusFirstTabByType(contentType) {
     return _.find(state.freeTabGroups, group => {
       return _.find(group.tabs, tab => {
         if (tab.contentType === contentType) {
+          _.defer(() => {
+            const el = document.getElementById(tab.id),
+              focusable = el && el.querySelector('[tabIndex="0"]');
+
+            if (focusable) {
+              focusable.focus();
+            }
+          });
+
           return dispatch(focusTab(group.groupId, tab.id));
         }
       });

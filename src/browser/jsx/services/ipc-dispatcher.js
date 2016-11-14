@@ -24,10 +24,10 @@ const dispatchMap = {
     SHOW_SAVE_FILE_DIALOG: () => editorTabGroupActions.showSaveFileDialogForActiveFile(),
     SHOW_OPEN_FILE_DIALOG: () => editorTabGroupActions.showOpenFileDialogForActiveFile(),
     FOCUS_ACTIVE_ACE_EDITOR: () => editorTabGroupActions.focusActive(),
-    FOCUS_ACTIVE_TERMINAL: () => freeTabGroupActions.focusTerminal(),
-    FOCUS_NEWEST_PLOT: () => freeTabGroupActions.focusPlot(),
-    TERMINAL_INTERRUPT: () => freeTabGroupActions.interruptTerminal(null),
-    TERMINAL_RESTART: () => freeTabGroupActions.restartTerminal(null)
+    FOCUS_ACTIVE_TERMINAL: () => freeTabGroupActions.focusFirstTabByType('document-terminal-viewer'),
+    FOCUS_NEWEST_PLOT: () => freeTabGroupActions.focusNewestPlot(),
+    TERMINAL_INTERRUPT: () => kernelActions.interrupt(),
+    TERMINAL_RESTART: () => kernelActions.restart()
   },
   detectVariables = _.debounce(function (dispatch) {
     dispatch(kernelActions.detectKernelVariables());
