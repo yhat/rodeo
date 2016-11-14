@@ -25,6 +25,7 @@ export default React.createClass({
   propTypes: {
     items: React.PropTypes.array.isRequired,
     onAnnotationBlur: React.PropTypes.func,
+    onAnnotationClick: React.PropTypes.func.isRequired,
     onAnnotationCopy: React.PropTypes.func.isRequired,
     onAnnotationDrag: React.PropTypes.func,
     onAnnotationFocus: React.PropTypes.func,
@@ -96,6 +97,7 @@ export default React.createClass({
             {...props}
             {...item}
             onBlur={props.onAnnotationBlur}
+            onClick={_.partial(props.onAnnotationClick, item)}
             onCopy={props.onAnnotationCopy}
             onDrag={props.onAnnotationDrag}
             onFocus={props.onAnnotationFocus}

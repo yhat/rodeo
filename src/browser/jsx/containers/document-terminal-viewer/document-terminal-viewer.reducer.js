@@ -13,7 +13,7 @@ const prefix = reduxUtil.fromFilenameToPrefix(__filename),
       const data = _.get(result, 'content.data');
 
       if (data) {
-        state = addHistoryItem(state, {data, type: 'annotation'});
+        state = addHistoryItem(state, {data, type: 'annotation', clickHandler: 'focusPlot'});
       }
 
       return state;

@@ -5,11 +5,20 @@ import reduxUtil from '../../services/redux-util';
 import commonTabsActions from '../../services/common-tabs-actions';
 import client from '../../services/jupyter/client';
 import {local} from '../../services/store';
+import freeTabGroupActions from '../free-tab-group/free-tab-group.actions';
 
 const prefixType = reduxUtil.fromFilenameToPrefix(__filename);
 
+function clickAnnotation(groupId, id, annotation) {
+  return function (dispatch) {
+    // todo: focus on the plot as well
+    console.log('todo: focus on plot', groupId, id, annotation);
+    dispatch(freeTabGroupActions.focusFirstTabByType('plot-viewer'));
+  };
+}
+
 function copyAnnotation(groupId, id) {
-  return {type: 'DOCUMENT_TERMINAL_VIEWER_COPY_ANNOTATION', groupId, id};
+  return {type: prefixType + 'COPY_ANNOTATION', groupId, id};
 }
 
 function execute(groupId, id, context) {
@@ -117,6 +126,7 @@ function installPythonModuleExternally(groupId, id, name) {
 export default {
   autocomplete,
   clear,
+  clickAnnotation,
   copyAnnotation,
   execute,
   input,

@@ -58,6 +58,7 @@ function mapDispatchToProps(dispatch, ownProps) {
 
   return {
     onAutocomplete: (id, props) => dispatch(promptViewerActions.autocomplete(groupId, id, props)),
+    onAnnotationClick: (id, props) => dispatch(documentTerminalViewerActions.clickAnnotation(groupId, id, props)),
     onAnnotationCopy: (id, event) => dispatch(documentTerminalViewerActions.copyAnnotation(groupId, id, event)),
     onBlockRemove: (id, blockId) => dispatch(terminalViewerActions.removeHistoryBlock(groupId, id, blockId)),
     onCloseTab: id => dispatch(freeTabActions.closeTab(groupId, id)),
@@ -213,6 +214,7 @@ export default connect(null, mapDispatchToProps)(React.createClass({
         'document-terminal-viewer': tab => (
           <DocumentTerminalViewer
             filter={filter}
+            onAnnotationClick={_.partial(props.onAnnotationClick, tab.id)}
             onAnnotationCopy={_.partial(props.onAnnotationCopy, tab.id)}
             onClear={_.partial(props.onDocumentTerminalHistoryClear, tab.id)}
             onInstallPythonModule={_.partial(props.onInstallPythonModule, tab.id)}

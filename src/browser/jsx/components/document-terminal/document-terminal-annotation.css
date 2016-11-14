@@ -3,6 +3,7 @@
   padding: 2px;
   margin: 5px;
   position: relative;
+  cursor: pointer;
 }
 
 .document-terminal-annotation img {

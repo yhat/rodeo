@@ -18,16 +18,16 @@
     -
       key: environmentVariables
       label: Environment Variables
--
-  label: SQL
-  items:
-    -
-      explanation: sqlSettingsText
-      type: marked
-    -
-      type: button
-      value: Manage Connections
-      onClickHandler: onManageConnections
+#-
+#  label: SQL
+#  items:
+#    -
+#      explanation: sqlSettingsText
+#      type: marked
+#    -
+#      type: button
+#      value: Manage Connections
+#      onClickHandler: onManageConnections
 -
   label: Editor
   items:
