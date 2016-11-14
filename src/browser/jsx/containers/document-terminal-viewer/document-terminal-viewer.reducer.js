@@ -234,6 +234,8 @@ function restarting(state) {
 function restarted(state, action) {
   if (action.error) {
     return addHistoryItem(state, {html: 'Unable to restart terminal', source: 'stderr', type: 'text'});
+  } else {
+    state = state.without('terminalError', 'terminalClosed');
   }
 
   state = Immutable(promptActionService.clear(state));
@@ -289,6 +291,22 @@ function promptCommand(state, action) {
   return state;
 }
 
+function jupyterProcessError(state, action) {
+  return state.set('terminalError', action.payload);
+}
+
+function jupyterProcessClosed(state, action) {
+  return state.set('terminalClosed', action.payload);
+}
+
+function kernelRestarted(state, action) {
+  if (!action.error) {
+    state = state.without('terminalError', 'terminalClosed');
+  }
+
+  return state;
+}
+
 export default reduxUtil.reduceReducers(
   mapReducers(
     _.assign(reduxUtil.addPrefixToKeys(prefix, {
@@ -305,6 +323,9 @@ export default reduxUtil.reduceReducers(
       INPUTTED: inputted
     }), {
       JUPYTER_RESPONSE: jupyterResponseDetected,
+      JUPYTER_PROCESS_ERROR: jupyterProcessError,
+      JUPYTER_PROCESS_CLOSED: jupyterProcessClosed,
+      KERNEL_RESTARTED: kernelRestarted,
       PREFERENCE_CHANGE_SAVED: changePreference,
       WORKING_DIRECTORY_CHANGED: workingDirectoryChanged,
       PROMPT_VIEWER_COMMAND: promptCommand

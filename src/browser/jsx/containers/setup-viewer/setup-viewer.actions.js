@@ -226,13 +226,20 @@ function restart() {
   return api.send('restartApplication');
 }
 
+function skipStartup() {
+  track({category: 'setup', action: 'skipStartup'});
+
+  return finish();
+}
+
 export default {
   cancel,
+  changeInput,
   execute,
   finish,
-  transition,
-  changeInput,
   installPackage,
   openExternal,
-  restart
+  restart,
+  skipStartup,
+  transition,
 };

@@ -1,6 +1,7 @@
 'use strict';
 
 const path = require('path'),
+  pkg = require('./package.json'),
   webpack = require('webpack');
 
 module.exports = {
@@ -55,6 +56,18 @@ module.exports = {
           plugins: ['react-hot-loader/babel', 'lodash'],
           presets: ['react', 'es2015']
         }
+      },
+      {
+        test: /\.jsx?$/,
+        include: [
+          path.resolve(__dirname, 'node_modules/rulejs')
+        ],
+        loader: 'babel',
+        cacheDirectory: true,
+        query: {
+          plugins: ['lodash'],
+          presets: ['es2015']
+        }
       }
     ]
   },
@@ -65,13 +78,13 @@ module.exports = {
   plugins: [
     new webpack.optimize.OccurrenceOrderPlugin(),
     new webpack.HotModuleReplacementPlugin(),
-    new webpack.NoErrorsPlugin(),
     new webpack.DefinePlugin({
-      __DEV__: true,
+      __APP_NAME__: JSON.stringify(pkg.name),
+      __VERSION__: JSON.stringify(pkg.version),
       'process.env': {
         NODE_ENV: JSON.stringify('development')
       }
-    })
+    }),
   ],
   output: {
     filename: '[name].js',
@@ -89,5 +102,4 @@ module.exports = {
     ]
   },
   target: 'electron-renderer'
-  // watch: true
 };

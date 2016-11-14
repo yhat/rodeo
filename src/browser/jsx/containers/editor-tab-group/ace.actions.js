@@ -57,6 +57,7 @@ function executeSelection(props, id, command, editor) {
 function executeFile(props, id, command, editor) {
   const text = editor.getValue();
 
+  console.log('HEY');
   props.onExecute(id, {text});
 
   return true;

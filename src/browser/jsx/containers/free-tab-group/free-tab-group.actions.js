@@ -315,8 +315,8 @@ function execute(context) {
       if (_.includes(pythonTypes, mode)) {
         // todo: find if code is runnable
 
-        // if it starts with #, it's not runnable
-        if (pythonLanguage.isCodeLine(text)) {
+        // if it starts with #, it's not runnable -- if it is multi-line, assume it is runnable
+        if (pythonLanguage.isCodeLine(text) || text.indexOf('\n') > -1) {
           // find recent python terminal tab
           return applicationControl.surveyTabs().then(function (result) {
             const groups = _.flatten(_.map(result, 'freeTabGroups')),

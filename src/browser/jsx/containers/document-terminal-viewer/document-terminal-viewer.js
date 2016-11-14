@@ -7,6 +7,7 @@ import PromptViewer from '../prompt-viewer/prompt-viewer';
 import EmptySuggestion from '../../components/empty/empty-suggestion';
 import Text from '../../components/document-terminal/document-terminal-text';
 import Annotation from '../../components/document-terminal/document-terminal-annotation';
+import TerminalError from '../../components/document-terminal/document-terminal-error';
 import PythonError from '../../components/document-terminal/document-terminal-python-error';
 import Autocomplete from '../../components/document-terminal/document-terminal-autocomplete';
 import PageBreak from '../../components/document-terminal/document-terminal-page-break';
@@ -16,6 +17,7 @@ import GrayInfoLinkList from '../../components/gray-info/gray-info-link-list';
 import './document-terminal-viewer.css';
 import selectionUtil from '../../services/selection-util';
 import features from './features.yml';
+import text from './text.yml';
 import promptUtils from '../../services/util/prompt-util';
 
 export default React.createClass({
@@ -30,6 +32,7 @@ export default React.createClass({
     onAnnotationSave: React.PropTypes.func,
     onClear: React.PropTypes.func,
     onInstallPythonModule: React.PropTypes.func.isRequired,
+    onInstallPythonModuleExternally: React.PropTypes.func.isRequired,
     onInterrupt: React.PropTypes.func,
     onPromptAutocomplete: React.PropTypes.func.isRequired,
     onPromptBlur: React.PropTypes.func,
@@ -121,37 +124,51 @@ export default React.createClass({
           />
         )
       };
-    let contents, suggestionClassName, suggestionLabel;
+    let contents, suggestionClassName, suggestionLabel, terminalContent;
 
-    if (props.items && props.items.length) {
-      contents = props.items.map(item => types[item.type](item));
+    if (props.terminalError) {
+      terminalContent = (
+        <TerminalError
+          onInstallPythonModuleExternally={props.onInstallPythonModuleExternally}
+          text={text}
+          {...props.terminalError}
+        />
+      );
     } else {
-      suggestionClassName = 'empty-suggestion--visible';
-      suggestionLabel = [];
+      if (props.items && props.items.length) {
+        contents = props.items.map(item => types[item.type](item));
+      } else {
+        suggestionClassName = 'empty-suggestion--visible';
+        suggestionLabel = [];
 
-      if (props.cwd) {
-        suggestionLabel.push('Working Directory: ' + props.cwd);
+        if (props.cwd) {
+          suggestionLabel.push(text.workingDirectoryLabel + ': ' + props.cwd);
+        }
+
+        suggestionLabel.push(text.suggestionExample);
+        suggestionLabel = suggestionLabel.join('\n\n');
       }
 
-      suggestionLabel.push('\nExample:\n    print("Welcome to Rodeo!")');
-      suggestionLabel = suggestionLabel.join('\n');
+      terminalContent = (
+        <StickyBottomScroll ref="stickyBottomScroll" {...props}>
+          {contents}
+          <PromptViewer
+            onAutocomplete={props.onPromptAutocomplete}
+            onCommand={props.onPromptCommand}
+            onExecute={props.onPromptExecute}
+            onInput={props.onPromptInput}
+            showPrompt={!props.busy}
+            {...props}
+          />
+        </StickyBottomScroll>
+      );
     }
 
     return (
       <div className={className.join(' ')} onClick={this.handleClick} onKeyDown={this.handleKeyDown}>
         <DocumentTerminal {...props}>
-          <EmptySuggestion className={suggestionClassName} key="empty" label={suggestionLabel}/>
-          <StickyBottomScroll ref="stickyBottomScroll" {...props}>
-            {contents}
-            <PromptViewer
-              onAutocomplete={props.onPromptAutocomplete}
-              onCommand={props.onPromptCommand}
-              onExecute={props.onPromptExecute}
-              onInput={props.onPromptInput}
-              showPrompt={!props.busy}
-              {...props}
-            />
-          </StickyBottomScroll>
+          <EmptySuggestion className={suggestionClassName} label={suggestionLabel}/>
+          {terminalContent}
         </DocumentTerminal>
         <GrayInfo cwd={props.cwd}>
           <GrayInfoLinkList>

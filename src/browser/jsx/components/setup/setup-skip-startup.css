@@ -1,0 +1,16 @@
+.setup-skip-startup {
+  display: inline-block;
+  position: absolute;
+  right: 20px;
+  bottom: 20px;
+  opacity: 0;
+  transition: opacity 0.5s;
+}
+
+.setup-skip-startup--visible {
+  opacity: 0.4;
+}
+
+.setup-skip-startup--visible:hover {
+  opacity: 1;
+}

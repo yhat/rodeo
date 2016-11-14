@@ -66,6 +66,10 @@ function mapDispatchToProps(dispatch, ownProps) {
     onDocumentTerminalPromptExecute: (id, context) => dispatch(documentTerminalViewerActions.execute(groupId, id, context)),
     onDocumentTerminalPromptInput: (id, context) => dispatch(documentTerminalViewerActions.input(groupId, id, context)),
     onDocumentTerminalHistoryClear: id => dispatch(documentTerminalViewerActions.clear(groupId, id)),
+    onDocumentTerminalInstallPythonModule: (id, name, version) =>
+      dispatch(documentTerminalViewerActions.installPythonModule(groupId, id, name, version)),
+    onDocumentTerminalInstallPythonModuleExternally: (id, name, version) =>
+      dispatch(documentTerminalViewerActions.installPythonModuleExternally(groupId, id, name, version)),
     onHistoryBlockContract: (id, blockId, itemId) => dispatch(historyViewerActions.createContract(groupId, id, blockId, itemId)),
     onHistoryBlockExpand: (id, blockId, itemId) => dispatch(historyViewerActions.createExpand(groupId, id, blockId, itemId)),
     onHistoryBlockSave: (id, blockId, itemId, data) => dispatch(freeTabActions.saveData(data)),

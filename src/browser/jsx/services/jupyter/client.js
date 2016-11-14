@@ -3,7 +3,7 @@ import bluebird from 'bluebird';
 import responseService from './response';
 import pythonLanguage from './python-language';
 import {local} from '../store';
-import {send} from 'ipc';
+import api from '../api';
 
 let instancePromise;
 
@@ -20,7 +20,7 @@ function createInstance() {
     cmd = local.get('pythonCmd') || 'python',
     cwd = local.get('workingDirectory') || '~';
 
-  promise = send('createKernelInstance', {cmd, cwd}).then(function (instanceId) {
+  promise = api.send('createKernelInstance', {cmd, cwd}).then(function (instanceId) {
     return {instanceId};
   });
 
@@ -51,9 +51,9 @@ function guaranteeInstance() {
  * @returns {*}
  */
 function killInstance(instance) {
-  return send('killKernelInstance', instance.instanceId).then(function () {
+  return api.send('killKernelInstance', instance.instanceId).finally(function () {
     instancePromise = false;
-  });
+  }).catch(_.noop);
 }
 
 /**
@@ -62,10 +62,8 @@ function killInstance(instance) {
  * @returns {Promise}
  */
 function restartInstance(instance) {
-  return send('killKernelInstance', instance.instanceId).then(function () {
-    instancePromise = false;
-    return createInstance();
-  });
+  return killInstance(instance)
+    .then(() => createInstance());
 }
 
 /**
@@ -99,7 +97,7 @@ function invokeExecute(instance, code, args) {
 function input(instance, text) {
   const startTime = new Date().getTime();
 
-  return send('inputWithKernel', instance, text).then(function (result) {
+  return api.send('inputWithKernel', instance, text).then(function (result) {
     const name = 'input time',
       ms = (new Date().getTime() - startTime) + 'ms';
 
@@ -145,8 +143,6 @@ function execute(instance, code, args) {
   });
 }
 
-
-
 /**
  * Lighter-weight version of execution; new code should use this instead
  * @param {{instanceId: string}} instance
@@ -156,14 +152,12 @@ function execute(instance, code, args) {
 function invoke(instance, params) {
   const startTime = new Date().getTime();
 
-  return send('invokeWithKernel', instance, params).then(function (result) {
+  return api.send('invokeWithKernel', instance, params).then(function (result) {
     const name = 'invocation time',
       ms = (new Date().getTime() - startTime) + 'ms';
 
     if (ms > 250) {
-      console.warn(name, ms);
-    } else {
-      console.log(name, ms);
+      console.warn('slow', name, ms);
     }
 
     return result;
@@ -180,14 +174,12 @@ function invoke(instance, params) {
 function executeHidden(instance, code, resolveEvent) {
   const startTime = new Date().getTime();
 
-  return send('executeHidden', instance, code, resolveEvent).then(function (result) {
+  return api.send('executeHidden', instance, code, resolveEvent).then(function (result) {
     const name = 'execution time',
       ms = (new Date().getTime() - startTime) + 'ms';
 
     if (ms > 250) {
-      console.warn(name, ms);
-    } else {
-      console.log(name, ms);
+      console.warn('slow', name, ms);
     }
 
     return result;
@@ -201,7 +193,7 @@ function executeHidden(instance, code, resolveEvent) {
  * @returns {Promise}
  */
 function getAutoComplete(instance, code, cursorPos) {
-  return send('getAutoComplete', instance, code, cursorPos);
+  return api.send('getAutoComplete', instance, code, cursorPos);
 }
 
 /**
@@ -209,7 +201,7 @@ function getAutoComplete(instance, code, cursorPos) {
  * @returns {Promise}
  */
 function getStatus(instance) {
-  return send('getStatus', instance);
+  return api.send('getStatus', instance);
 }
 
 /**
@@ -217,7 +209,7 @@ function getStatus(instance) {
  * @returns {Promise}
  */
 function interrupt(instance) {
-  return send('interrupt', instance);
+  return api.send('interrupt', instance);
 }
 
 /**
@@ -228,11 +220,11 @@ function interrupt(instance) {
  * @returns {Promise}
  */
 function getInspection(instance, code, cursorPos, detailLevel) {
-  return send('getInspection', instance, code, cursorPos, detailLevel);
+  return api.send('getInspection', instance, code, cursorPos, detailLevel);
 }
 
 function isComplete(instance, code) {
-  return send('isComplete', instance, code);
+  return api.send('isComplete', instance, code);
 }
 
 /**

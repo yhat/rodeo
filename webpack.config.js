@@ -123,5 +123,4 @@ module.exports = {
     ]
   },
   target: 'electron-renderer'
-  // watch: true
 };
