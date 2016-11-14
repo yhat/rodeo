@@ -157,26 +157,19 @@ keyDown:
   selection: false
   name: backspace
   clearAutocomplete: true
+- key: c
+  alt: false
+  meta: false
+  shift: false
+  ctrl: true
+  selection: false
+  name: clear
+  clearAutocomplete: true
+  stopPropagation: false
 
 keyDownByOS:
-  darwin:
-    - key: c
-      alt: false
-      meta: true
-      shift: false
-      ctrl: false
-      selection: false
-      name: clear
-      clearAutocomplete: true
-  win32:
-    - key: c
-      alt: false
-      meta: false
-      shift: false
-      ctrl: true
-      selection: false
-      name: clear
-      clearAutocomplete: true
+  darwin: []
+  win32: []
 
 keyPress:
 - key: Enter

@@ -70,6 +70,10 @@ export default React.createClass({
       feature = _.find(features, feature => _.some(feature.keyboardShortcuts, matches));
 
     if (feature && _.isFunction(props[feature.onClick])) {
+      if (feature.whenBusy === true && !props.busy) {
+        return;
+      }
+
       event.preventDefault();
       event.stopPropagation();
       props[feature.onClick](event);

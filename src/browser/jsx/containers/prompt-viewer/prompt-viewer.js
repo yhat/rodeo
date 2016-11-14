@@ -126,7 +126,9 @@ export default React.createClass({
       if (command.name === 'autocomplete') {
         if (this.shouldAutocomplete()) {
           event.preventDefault();
-          event.stopPropagation();
+          if (command.stopPropagation !== false) {
+            event.stopPropagation();
+          }
           this.autocomplete();
         } else {
           // next please
@@ -137,7 +139,10 @@ export default React.createClass({
 
       if (command) {
         event.preventDefault();
-        event.stopPropagation();
+        if (command.stopPropagation !== false) {
+          event.stopPropagation();
+        }
+
         props.onCommand(command);
       }
     }

@@ -4,11 +4,13 @@
     mac: Shift-Command-Enter
 
 - name: executeSelection
+  scrollIntoView: animate
   bindKey:
     win: ctrl-Enter
     mac: Command-Enter
 
 - name: selectJupyterBlock
+  scrollIntoView: animate
   bindKey:
     win: ctrl-Enter
     mac: Command-Enter
@@ -34,6 +36,7 @@
     mac: Command-,
 
 - name: autocomplete
+  scrollIntoView: animate
   bindKey:
     win: Tab
     mac: Tab
