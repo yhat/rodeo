@@ -15,13 +15,10 @@ import './about-rodeo.css';
 export default React.createClass({
   displayName: 'AboutRodeo',
   render: function () {
-    const props = this.props,
-      version = props.appVersion && <div className="version">{__VERSION__}</div>;
-
     return (
       <div className="about-rodeo">
         <img src="images/rodeo-text-dark.png"/>
-        {version}
+        <div className="version">{__VERSION__}</div>
         <Marked>{builtByYhat}</Marked>
         <Marked>{includesOpenSource}</Marked>
         <ActionButton action={dialogActions.showAcknowledgements()} className="btn btn-primary">{'Acknowledgments'}</ActionButton>
