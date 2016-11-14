@@ -12,6 +12,7 @@ import documentTerminalViewerActions from '../document-terminal-viewer/document-
 import plotViewerActions from '../plot-viewer/plot-viewer.actions';
 import manageConnectionsSelectors from '../manage-connections-viewer/manage-connections.selectors';
 import pythonLanguage from '../../services/jupyter/python-language';
+import selectionUtil from '../../services/selection-util';
 
 const tabGroupName = 'freeTabGroups',
   pythonTypes = ['python'],
@@ -85,6 +86,7 @@ function focusFirstTabByType(contentType) {
 
             if (focusable) {
               focusable.focus();
+              selectionUtil.selectElement(focusable);
             }
           });
 
