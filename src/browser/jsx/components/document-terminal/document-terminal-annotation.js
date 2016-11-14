@@ -14,6 +14,7 @@ export default React.createClass({
     data: React.PropTypes.object.isRequired,
     id: React.PropTypes.string.isRequired,
     onBlur: React.PropTypes.func.isRequired,
+    onClick: React.PropTypes.func.isRequired,
     onCopy: React.PropTypes.func.isRequired,
     onDrag: React.PropTypes.func.isRequired,
     onFocus: React.PropTypes.func.isRequired,
@@ -101,6 +102,7 @@ export default React.createClass({
       <div
         className={className.join(' ')}
         onBlur={props.onBlur}
+        onClick={props.onClick}
         onCopy={props.onCopy}
         onDrag={props.onDrag}
         onFocus={props.onFocus}
