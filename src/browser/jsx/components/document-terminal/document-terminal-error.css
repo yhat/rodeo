@@ -1,0 +1,10 @@
+.document-terminal-error {
+  padding: 0;
+  position: relative;
+  color: #b11e22;
+  margin: 0 10px;
+}
+
+.document-terminal-error__suggestions {
+  text-align: right;
+}

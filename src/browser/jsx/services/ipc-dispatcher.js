@@ -24,18 +24,18 @@ const dispatchMap = {
     SHOW_SAVE_FILE_DIALOG: () => editorTabGroupActions.showSaveFileDialogForActiveFile(),
     SHOW_OPEN_FILE_DIALOG: () => editorTabGroupActions.showOpenFileDialogForActiveFile(),
     FOCUS_ACTIVE_ACE_EDITOR: () => editorTabGroupActions.focusActive(),
-    FOCUS_ACTIVE_TERMINAL: () => freeTabGroupActions.focusTerminal(),
-    FOCUS_NEWEST_PLOT: () => freeTabGroupActions.focusPlot(),
-    TERMINAL_INTERRUPT: () => freeTabGroupActions.interruptTerminal(null),
-    TERMINAL_RESTART: () => freeTabGroupActions.restartTerminal(null)
+    FOCUS_ACTIVE_TERMINAL: () => freeTabGroupActions.focusFirstTabByType('document-terminal-viewer'),
+    FOCUS_NEWEST_PLOT: () => freeTabGroupActions.focusNewestPlot(),
+    TERMINAL_INTERRUPT: () => kernelActions.interrupt(),
+    TERMINAL_RESTART: () => kernelActions.restart()
   },
   detectVariables = _.debounce(function (dispatch) {
     dispatch(kernelActions.detectKernelVariables());
   }, 500),
   detectVariableEvents = {
-    'execute_result': {},
-    'display_data': {},
-    'execute_reply': {}
+    execute_result: {},
+    display_data: {},
+    execute_reply: {}
   };
 
 function internalDispatcher(dispatch) {
@@ -48,10 +48,27 @@ function internalDispatcher(dispatch) {
   });
 }
 
-function otherDispatcher(dispatch) {
-  ipc.on('error', (event, clientId, data) => dispatch({type: 'JUPYTER_PROCESS_ERROR', clientId, data}));
-  ipc.on('close', (event, clientId, code, signal) => dispatch({type: 'JUPYTER_PROCESS_CLOSED', clientId, code, signal}));
+function isCurious(groups, responseMsgId) {
+  for (let groupIndex = 0; groupIndex < groups.length; groupIndex++) {
+    for (let tabIndex = 0; tabIndex < groups.length; tabIndex++) {
+      const tab = groups[groupIndex].tabs[tabIndex];
 
+      if (tab.contentType === 'document-terminal-viewer' && tab.content.responses[responseMsgId]) {
+        return true;
+      }
+
+      if (tab.contentType === 'block-terminal-viewer' && _.some(tab.content.blocks, {id: responseMsgId})) {
+        return true;
+      }
+    }
+  }
+
+  return false;
+}
+
+function otherDispatcher(dispatch) {
+  ipc.on('error', (event, clientId, data) => dispatch({type: 'JUPYTER_PROCESS_ERROR', payload: {clientId, data}}));
+  ipc.on('close', (event, clientId, code, signal) => dispatch({type: 'JUPYTER_PROCESS_CLOSED', payload: {clientId, code, signal}}));
   ipc.on('jupyter', function (event, clientId, response) {
     const category = response.source,
       action = _.get(response, 'result.msg_type'),
@@ -68,21 +85,8 @@ function otherDispatcher(dispatch) {
 
       dispatch(function (dispatch, getState) {
         const state = getState();
-        let isCurious = false;
 
-        _.each(state.freeTabGroups, group => {
-          _.each(group.tabs, tab => {
-            if (tab.contentType === 'document-terminal-viewer' && tab.content.responses[responseMsgId]) {
-              isCurious = true;
-            }
-
-            if (tab.contentType === 'block-terminal-viewer' && _.some(tab.content.blocks, {id: responseMsgId})) {
-              isCurious = true;
-            }
-          });
-        });
-
-        if (isCurious) {
+        if (isCurious(state.freeTabGroups, responseMsgId)) {
           detectVariables(dispatch);
         }
       });

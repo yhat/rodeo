@@ -1,6 +1,7 @@
 import _ from 'lodash';
 import React from 'react';
 import FakeTerminal from './fake-terminal.jsx';
+import SetupSkipStartup from './setup-skip-startup';
 import Marked from '../marked/marked.jsx';
 import commonReact from '../../services/common-react';
 
@@ -28,6 +29,7 @@ export default React.createClass({
           <FakeTerminal {...props.terminal}/>
           <button className="btn btn-primary btn-setup-action" onClick={_.partial(props.onTransition, 'installNumpy')}>{text.installNumpy}</button>
           <div className="secondary-explanation"><Marked>{text.explainNumpy}</Marked></div>
+          <SetupSkipStartup {...props}/>
         </div>
       </div>
     );

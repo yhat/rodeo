@@ -87,7 +87,7 @@ function autocomplete(groupId, id, payload) {
   return {type: prefixType + 'AUTOCOMPLETE', groupId, id, payload, meta: {sender: 'self'}};
 }
 
-function installPackage(groupId, id, name, version) {
+function installPythonModule(groupId, id, name, version) {
   return function (dispatch) {
     const text = version ? `! pip install ${name}==${version}` : `! pip install ${name}`;
 
@@ -98,13 +98,30 @@ function installPackage(groupId, id, name, version) {
   };
 }
 
+function installPythonModuleExternally(groupId, id, name) {
+  return function (dispatch) {
+    const cmd = local.get('pythonCmd'),
+      code = [
+        'import pip',
+        `pip.main(["install", "${name}"])`
+      ].join('\n'),
+      args = ['-u', '-c', code];
+
+    dispatch({type: 'PACKAGE_INSTALLING_EXTERNALLY', cmd, args, meta: {sender: 'self'}});
+    return api.send('executeProcess', cmd, ['-u', '-c', code])
+      .then(result => dispatch({type: prefixType + 'PACKAGE_INSTALLED_EXTERNALLY', payload: result}))
+      .catch(error => dispatch({type: prefixType + 'PACKAGE_INSTALLED_EXTERNALLY', payload: error, error: true}));
+  };
+}
+
 export default {
   autocomplete,
   clear,
   copyAnnotation,
   execute,
   input,
-  installPackage,
+  installPythonModule,
+  installPythonModuleExternally,
   interrupt,
   showSelectWorkingDirectoryDialog,
   restart

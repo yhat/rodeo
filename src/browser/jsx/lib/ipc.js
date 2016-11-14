@@ -84,9 +84,15 @@ const ipc = (function () {
     return new Promise(function (resolve, reject) {
       // noinspection JSDuplicatedDeclaration
       var response,
+        count = 10,
         eventReplyName = eventName + '_reply',
         timer = setInterval(function () {
-          console.warn('ipc ' + eventId + ': still waiting for', eventName, {args});
+          if (count > 0) {
+            return console.warn('ipc ' + eventId + ': still waiting for', eventName, {args});
+          }
+
+          console.warn('ipc ' + eventId + ': timed out waiting for', eventName, {args});
+          clearInterval(timer);
         }, 10000);
 
       ipcRenderer.send.apply(ipcRenderer, [eventName, eventId].concat(args.slice(1)));

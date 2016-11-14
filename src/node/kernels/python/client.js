@@ -75,6 +75,20 @@ function createObjectEmitter(stream) {
  * @param {object} data
  */
 function handleProcessStreamEvent(client, source, data) {
+  console.log('handleProcessStreamEvent', {source, data});
+  if (source === 'stderr.data') {
+    data = data.toString();
+    const match = data.match(/Exception: (.+) is not installed/);
+
+    if (match && match[1]) {
+      const error = new Error(match[1] + ' is not installed');
+
+      error.missingPackage = match[1];
+
+      client.emit('error', error);
+    }
+  }
+
   client.emit('event', source, data);
 }
 

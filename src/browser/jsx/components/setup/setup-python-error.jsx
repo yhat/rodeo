@@ -1,6 +1,7 @@
 import _ from 'lodash';
 import React from 'react';
 import FakeTerminal from './fake-terminal.jsx';
+import SetupSkipStartup from './setup-skip-startup';
 import Marked from '../marked/marked.jsx';
 import commonReact from '../../services/common-react';
 
@@ -27,6 +28,7 @@ export default React.createClass({
           <FakeTerminal {...props.terminal}/>
           <button className="btn btn-primary btn-setup-action" onClick={_.partial(props.onTransition, 'installAnaconda')}>{text.installAnaconda}</button>
           <button className="btn btn-default btn-setup-action" onClick={_.partial(props.onTransition, 'manualCommand')}>{text.uniqueCommandForPython}</button>
+          <SetupSkipStartup {...props}/>
         </div>
       </div>
     );

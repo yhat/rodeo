@@ -152,6 +152,7 @@ export default connect(null, mapDispatchToProps)(React.createClass({
 
     if (activeTab) {
       _.each(activeTab.featuredActions, feature => {
+        console.log('HEY feature', feature);
         if (feature.enabled === false || !_.isString(feature.onClick) || !_.isFunction(props[feature.onClick])) {
           featuredActions.push(<TabButton className="right disabled" key={feature.name} {...feature}/>);
         } else {

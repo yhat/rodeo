@@ -33,7 +33,13 @@ export default React.createClass({
       className = commonReact.getClassNameList(this),
       text = props.text,
       types = {
-        initial: () => <SetupInitial className={className} key="initial" {...props}/>,
+        initial: () => (
+          <SetupInitial
+            className={className}
+            key="initial"
+            {...props}
+          />
+        ),
         installAnaconda: () => <SetupInstallAnaconda className={className} key="installAnaconda" {...props}/>,
         installJupyter: () => (
           <SetupInstallPackage

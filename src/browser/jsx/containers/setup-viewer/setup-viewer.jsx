@@ -18,6 +18,7 @@ function mapDispatchToProps(dispatch) {
     onOpenExternal: url => dispatch(actions.openExternal(url)),
     onPackageInstall: targetPackage => dispatch(actions.installPackage(targetPackage)),
     onRestart: () => dispatch(actions.restart()),
+    onSkipStartup: () => dispatch(actions.skipStartup()),
     onTransition: contentType => dispatch(actions.transition(contentType))
   };
 }

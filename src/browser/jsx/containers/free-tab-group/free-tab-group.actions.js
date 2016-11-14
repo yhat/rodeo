@@ -79,6 +79,15 @@ function focusFirstTabByType(contentType) {
     return _.find(state.freeTabGroups, group => {
       return _.find(group.tabs, tab => {
         if (tab.contentType === contentType) {
+          _.defer(() => {
+            const el = document.getElementById(tab.id),
+              focusable = el && el.querySelector('[tabIndex="0"]');
+
+            if (focusable) {
+              focusable.focus();
+            }
+          });
+
           return dispatch(focusTab(group.groupId, tab.id));
         }
       });
@@ -315,8 +324,8 @@ function execute(context) {
       if (_.includes(pythonTypes, mode)) {
         // todo: find if code is runnable
 
-        // if it starts with #, it's not runnable
-        if (pythonLanguage.isCodeLine(text)) {
+        // if it starts with #, it's not runnable -- if it is multi-line, assume it is runnable
+        if (pythonLanguage.isCodeLine(text) || text.indexOf('\n') > -1) {
           // find recent python terminal tab
           return applicationControl.surveyTabs().then(function (result) {
             const groups = _.flatten(_.map(result, 'freeTabGroups')),

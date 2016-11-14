@@ -1,6 +1,7 @@
 import _ from 'lodash';
 import React from 'react';
 import FakeTerminal from './fake-terminal.jsx';
+import SetupSkipStartup from './setup-skip-startup';
 import Marked from '../marked/marked.jsx';
 import commonReact from '../../services/common-react';
 
@@ -29,6 +30,7 @@ export default React.createClass({
           <button className="btn btn-primary btn-setup-action" onClick={_.partial(props.onTransition, 'installJupyter')}>{text.installJupyter}</button>
           <button className="btn btn-default btn-setup-action" onClick={_.partial(props.onTransition, 'manualCommand')}>{text.uniqueCommandForPython}</button>
           <div className="secondary-explanation"><Marked>{text.explainJupyter}</Marked></div>
+          <SetupSkipStartup {...props}/>
         </div>
       </div>
     );

@@ -1,14 +1,6 @@
-/**
- * Kernel events can be triggered from several different components that want to interact with the underlying kernel.
- * @module
- */
-
-import _ from 'lodash';
-import { send } from 'ipc';
 import {local} from '../services/store';
 import client from '../services/jupyter/client';
 import clientDiscovery from '../services/jupyter/client-discovery';
-import pythonLanguage from '../services/jupyter/python-language';
 import {errorCaught} from './application';
 import track from '../services/track';
 
@@ -16,10 +8,9 @@ function interrupt() {
   track({category: 'kernel', action: 'interrupt'});
   return function (dispatch) {
     dispatch({type: 'INTERRUPTING_KERNEL'});
-
-    return send('interrupt')
+    return client.interrupt()
       .then(() => dispatch({type: 'INTERRUPTED_KERNEL'}))
-      .catch(error => dispatch(errorCaught(error)));
+      .catch(error => dispatch({type: 'INTERRUPTED_KERNEL', payload: error, error: true}));
   };
 }
 
@@ -92,7 +83,7 @@ function restart() {
     return client.restartInstance()
       .then(() => dispatch({type: 'KERNEL_RESTARTED'}))
       .then(() => dispatch(detectKernelVariables()))
-      .catch(error => dispatch(errorCaught(error)));
+      .catch(error => dispatch({type: 'KERNEL_RESTARTED', payload: error, error: true}));
   };
 }
 
