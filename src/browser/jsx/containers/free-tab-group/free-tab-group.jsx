@@ -130,7 +130,6 @@ export default connect(null, mapDispatchToProps)(React.createClass({
    */
   handleTabDragStart: function (id, event) {
     const props = this.props,
-      el = getParentNodeOf(event.target, 'li'),
       tab = _.find(this.props.tabs, {id}),
       sourceGroupId = props.groupId;
 
@@ -243,11 +242,11 @@ export default connect(null, mapDispatchToProps)(React.createClass({
           <PackageSearchViewer
             filter={filter}
             onInstallPythonModule={_.partial(props.onPackageSearchPythonModule, tab.id)}
-            onOpenExternal={props.onOpenExternal}
-            onShowMore={_.partial(props.onPackageSearchShowMore, tab.id)}
             onList={_.partial(props.onPackageSearchList, tab.id)}
-            onSearchValueChange={_.partial(props.onPackageSearchValueChange, tab.id)}
+            onOpenExternal={props.onOpenExternal}
             onSearchByTerm={_.partial(props.onPackageSearchByTerm, tab.id)}
+            onSearchValueChange={_.partial(props.onPackageSearchValueChange, tab.id)}
+            onShowMore={_.partial(props.onPackageSearchShowMore, tab.id)}
             {...tab.content}
           />),
         'package-viewer': tab => <PackageViewer filter={filter} {...tab.content}/>,

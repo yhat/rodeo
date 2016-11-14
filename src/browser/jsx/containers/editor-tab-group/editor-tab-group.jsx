@@ -34,7 +34,7 @@ function mapDispatchToProps(dispatch, ownProps) {
     onLoaded: tab => dispatch(actions.handleLoaded(groupId, tab)),
     onRemoveAcePane: id => dispatch(actions.close(groupId, id)),
     onAceCommand: (id, command, editor) => dispatch(actions.executeAceCommand(groupId, id, command, editor)),
-    onExecuteSelection: id => dispatch(actions.triggerAceCommand(groupId, id, 'executeSelection')),
+    onExecuteSelection: id => dispatch(actions.triggerAceCommand(groupId, id, ['executeSelection', 'selectJupyterBlock'])),
     onExecuteFile: id => dispatch(actions.triggerAceCommand(groupId, id, 'executeFile')),
     onExecute: (id, context) => dispatch(actions.execute(groupId, id, context)),
     onRodeo: () => dispatch(dialogActions.showAboutRodeo()),
@@ -152,7 +152,6 @@ export default connect(null, mapDispatchToProps)(React.createClass({
 
     if (activeTab) {
       _.each(activeTab.featuredActions, feature => {
-        console.log('HEY feature', feature);
         if (feature.enabled === false || !_.isString(feature.onClick) || !_.isFunction(props[feature.onClick])) {
           featuredActions.push(<TabButton className="right disabled" key={feature.name} {...feature}/>);
         } else {
