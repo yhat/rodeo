@@ -20,9 +20,9 @@ function copy(el) {
   for (let i = 0; i < selection.rangeCount; i++) {
     prevSelection[i] = selection.getRangeAt(i);
   }
-  window.getSelection().removeAllRanges();
+  selection.removeAllRanges();
   range.selectNode(el);
-  window.getSelection().addRange(range);
+  selection.addRange(range);
   document.execCommand('copy');
   _.defer(() => {
     window.getSelection().removeAllRanges();
@@ -32,7 +32,17 @@ function copy(el) {
   });
 }
 
+function selectElement(el) {
+  const range = document.createRange(),
+    selection = window.getSelection();
+
+  selection.removeAllRanges();
+  range.selectNode(el);
+  selection.addRange(range);
+}
+
 export default {
   copy,
-  isSelectionClick
+  isSelectionClick,
+  selectElement
 };
