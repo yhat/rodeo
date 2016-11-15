@@ -1,3 +1,4 @@
-.block-history {
-  color: red;
+.block-history--empty {
+  height: 100%;
 }
+

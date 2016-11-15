@@ -2,6 +2,7 @@ import _ from 'lodash';
 import cid from '../../services/cid';
 import kernel from '../../actions/kernel';
 import reduxUtil from '../../services/redux-util';
+import historyViewerActions from '../history-viewer/history-viewer.actions';
 
 const prefixType = reduxUtil.fromFilenameToPrefix(__filename);
 
@@ -12,7 +13,7 @@ function execute(groupId, id, context) {
       const type = 'jupyterResponse',
         items = [];
 
-      dispatch(addHistoryBlock(groupId, id, {id: cid(), responseMsgId, type, items}));
+      dispatch(historyViewerActions.createBlockAdd(groupId, id, {id: cid(), responseMsgId, type, items}));
       return dispatch({type: prefixType + 'EXECUTED', groupId, id});
     }).catch(error => dispatch({type: prefixType + 'EXECUTED', groupId, id, payload: error, error: true}));
   };
@@ -28,28 +29,6 @@ function input(groupId, id, context) {
   };
 }
 
-/**
- * An execution context block contains a series of content related to some execution of code in some context
- * @param {string} groupId
- * @param {string} id
- * @param {object} block
- * @returns {object}
- */
-function addHistoryBlock(groupId, id, block) {
-  return {type: prefixType + 'BLOCK_ADDED', groupId, id, block};
-}
-
-/**
- * An execution context block contains a series of content related to some execution of code in some context
- * @param {string} groupId
- * @param {string} id
- * @param {string} blockId
- * @returns {object}
- */
-function removeHistoryBlock(groupId, id, blockId) {
-  return {type: prefixType + 'BLOCK_REMOVED', groupId, id, blockId};
-}
-
 function installPythonModule(groupId, id, name, version) {
   return function (dispatch) {
     const text = version ? `! pip install ${name}==${version}` : `! pip install ${name}`;
@@ -58,7 +37,7 @@ function installPythonModule(groupId, id, name, version) {
       const type = 'jupyterResponse',
         items = [];
 
-      return dispatch(addHistoryBlock(groupId, id, {id: cid(), responseMsgId, type, items}));
+      return dispatch(historyViewerActions.createBlockAdd(groupId, id, {id: cid(), responseMsgId, type, items}));
     }).catch(error => console.error(error));
   };
 }
@@ -79,10 +58,8 @@ function reRunHistoryBlock(groupId, id, block) {
 }
 
 export default {
-  addHistoryBlock,
   execute,
   input,
   installPythonModule,
-  reRunHistoryBlock,
-  removeHistoryBlock
+  reRunHistoryBlock
 };

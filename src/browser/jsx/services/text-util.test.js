@@ -1,4 +1,4 @@
-/* globals describe, it, expect, jest */
+/* globals describe, it, expect */
 
 import lib from './text-util';
 

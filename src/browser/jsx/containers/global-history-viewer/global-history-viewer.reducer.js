@@ -1,6 +1,4 @@
 import _ from 'lodash';
-import Immutable from 'seamless-immutable';
-import jupyterHistory from '../../services/jupyter/history';
 import mapReducers from '../../services/map-reducers';
 import historyViewerReducer from '../history-viewer/history-viewer.reducer';
 import cid from '../../services/cid';

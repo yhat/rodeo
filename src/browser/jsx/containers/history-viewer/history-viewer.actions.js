@@ -13,7 +13,31 @@ function createContract(groupId, id, blockId, itemId) {
   return {type: prefixType + 'CONTRACT', groupId, id, payload: {blockId, itemId}, meta: {sender}};
 }
 
+/**
+ * An execution context block contains a series of content related to some execution of code in some context
+ * @param {string} groupId
+ * @param {string} id
+ * @param {object} block
+ * @returns {object}
+ */
+function createBlockAdd(groupId, id, block) {
+  return {type: prefixType + 'BLOCK_ADDED', groupId, id, block};
+}
+
+/**
+ * An execution context block contains a series of content related to some execution of code in some context
+ * @param {string} groupId
+ * @param {string} id
+ * @param {string} blockId
+ * @returns {object}
+ */
+function createBlockRemove(groupId, id, blockId) {
+  return {type: prefixType + 'BLOCK_REMOVED', groupId, id, blockId};
+}
+
 export default {
   createContract,
-  createExpand
+  createExpand,
+  createBlockAdd,
+  createBlockRemove
 };

@@ -2,10 +2,10 @@ import _ from 'lodash';
 import React from 'react';
 import ReactDOM from 'react-dom';
 import commonReact from '../../services/common-react';
-import './block-history.css';
 import JupyterResponseBlock from './history-blocks/jupyter-response-block';
 import PostgresqlResponseBlock from './history-blocks/postgresql-response-block';
 import EmptySuggestion from '../empty/empty-suggestion';
+import './block-history.css';
 
 export default React.createClass({
   displayName: 'BlockHistory',
@@ -77,6 +77,7 @@ export default React.createClass({
 
     if (!(contents && contents.length)) {
       contents = <EmptySuggestion key="empty" label="Run a command."/>;
+      className.push('block-history--empty');
     }
 
     return <div className={className.join(' ')} style={style}>{contents}</div>;
