@@ -1,7 +1,7 @@
 import _ from 'lodash';
 import AsciiToHtml from 'ansi-to-html';
 
-const asciiToHtmlConverter = new AsciiToHtml();
+const asciiToHtmlConverter = new AsciiToHtml({escapeXML: true});
 
 /**
  * @param {string} str
@@ -90,7 +90,7 @@ function getRandomCharacters(size) {
  * @example const converter = getAsciiToHtmlStream(); c = [converter.toHTML(a), converter.toHTML(b)];
  */
 function getAsciiToHtmlStream() {
-  return new AsciiToHtml({stream: true});
+  return new AsciiToHtml({stream: true, escapeXML: true});
 }
 
 /**

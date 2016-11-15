@@ -76,4 +76,10 @@ describe(__filename, function () {
       expect(lib.padRight('abcef', 5)).toEqual('abcef');
     });
   });
+
+  describe('fromAsciiToHtml', function () {
+    it('returns html as escaped text', function () {
+      expect(lib.fromAsciiToHtml('<h1>Hi!</h1>')).toEqual('&lt;h1&gt;Hi!&lt;/h1&gt;');
+    });
+  });
 });
