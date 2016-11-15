@@ -1,9 +1,10 @@
 #!/bin/bash
 STARTING_DIR=$(pwd)
 TARGET_DIR=~/Projects/yhat/rodeo
-NODE_VERSION=6.4
 
 cd $TARGET_DIR
+
+rm -rf dist
 
 #dependencies
 ./scripts/osx/install-deps.sh
@@ -11,7 +12,7 @@ cd $TARGET_DIR
 #remember nvm
 echo '#remember nvm'
 source $(brew --prefix nvm)/nvm.sh
-nvm use $NODE_VERSION
+nvm use
 
 #build distributable
 ./node_modules/.bin/gulp dist:osx

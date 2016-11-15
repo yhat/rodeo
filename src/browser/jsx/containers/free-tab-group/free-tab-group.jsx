@@ -60,7 +60,7 @@ function mapDispatchToProps(dispatch, ownProps) {
     onAutocomplete: (id, props) => dispatch(promptViewerActions.autocomplete(groupId, id, props)),
     onAnnotationClick: (id, props) => dispatch(documentTerminalViewerActions.clickAnnotation(groupId, id, props)),
     onAnnotationCopy: (id, event) => dispatch(documentTerminalViewerActions.copyAnnotation(groupId, id, event)),
-    onBlockRemove: (id, blockId) => dispatch(terminalViewerActions.removeHistoryBlock(groupId, id, blockId)),
+    onBlockRemove: (id, blockId) => dispatch(historyViewerActions.createBlockRemove(groupId, id, blockId)),
     onCloseTab: id => dispatch(freeTabActions.closeTab(groupId, id)),
     onCopyToPrompt: (id, props) => dispatch(promptViewerActions.copyToPrompt(groupId, id, props)),
     onDocumentTerminalAutocomplete: (id, props) => dispatch(documentTerminalViewerActions.autocomplete(groupId, id, props)),

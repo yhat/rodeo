@@ -34,47 +34,11 @@ function reranBlock(state, action) {
   return state.setIn(['blocks', blockIndex, 'responseMsgId'], action.payload.responseMsgId);
 }
 
-/**
- * @param {Array} state
- * @param {object} action
- * @returns {Array}
- */
-function blockAdded(state, action) {
-  const blockIndex = _.findIndex(state.blocks, {id: action.block.id});
-
-  if (blockIndex === -1) {
-    state = state.set('blocks', state.blocks.concat([action.block]));
-  }
-
-  return state;
-}
-
-/**
- * @param {Array} state
- * @param {object} action
- * @returns {Array}
- */
-function blockRemoved(state, action) {
-  const blockIndex = _.findIndex(state.blocks, {id: action.blockId});
-
-  if (blockIndex > -1) {
-    let blocks = state.blocks.asMutable();
-
-    blocks.splice(blockIndex, 1);
-
-    state = state.set('blocks', blocks);
-  }
-
-  return state;
-}
-
 export default reduxUtil.reduceReducers(
   mapReducers(reduxUtil.addPrefixToKeys(prefix, {
     COPY_TO_PROMPT: copyToPrompt,
     RERUNNING_BLOCK: rerunningBlock,
-    RERAN_BLOCK: reranBlock,
-    BLOCK_ADDED: blockAdded,
-    BLOCK_REMOVED: blockRemoved
+    RERAN_BLOCK: reranBlock
   }), {}),
   historyViewerReducer,
   promptViewerReducer

@@ -14,7 +14,7 @@
     "start": "electron app",
     "hot-server": "node -r babel-register server.js",
     "test": "./node_modules/.bin/jest src/browser --coverage",
-    "dist:all": "./scripts/osx/dist-all.sh",
+    "build": "./scripts/osx/build.sh",
     "dist:osx": "./scripts/osx/dist-osx.sh",
     "dist:win": "./scripts/osx/dist-win.sh",
     "dist:linux": "./scripts/osx/dist-linux.sh"
