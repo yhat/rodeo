@@ -118,7 +118,8 @@ export default React.createClass({
    */
   handleKeyDown(event) {
     const props = this.props,
-      matchingCommands = getKeyDownCommands(defaultCommands, getTargetCommand(event));
+      targetCommand = getTargetCommand(event),
+      matchingCommands = getKeyDownCommands(defaultCommands, targetCommand);
 
     if (matchingCommands[0]) {
       let command = matchingCommands[0];
@@ -153,10 +154,8 @@ export default React.createClass({
   handleKeyPress(event) {
     const props = this.props,
       key = event.key,
-      alt = event.altKey,
-      ctrl = event.ctrlKey,
-      meta = event.metaKey,
-      matchingCommands = getKeyPressCommands(defaultCommands, getTargetCommand(event)),
+      targetCommand = getTargetCommand(event),
+      matchingCommands = getKeyPressCommands(defaultCommands, targetCommand),
       command = matchingCommands[0];
 
     if (command) {
@@ -190,7 +189,7 @@ export default React.createClass({
       } else {
         props.onCommand(command);
       }
-    } else if (key && key.length === 1 && !ctrl && !meta && !alt) {
+    } else if (key && key.length === 1) {
       // if they held down keys, they're trying to do a command of some other component, not typing
       event.preventDefault();
       event.stopPropagation();
