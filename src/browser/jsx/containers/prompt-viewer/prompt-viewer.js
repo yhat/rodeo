@@ -2,10 +2,10 @@ import _ from 'lodash';
 import React from 'react';
 import Prompt from '../../components/prompt/prompt';
 import commonReact from '../../services/common-react';
-import defaultCommands from './default-commands.yml';
 import client from '../../services/jupyter/client';
 import promptUtils from '../../services/util/prompt-util';
 import textUtil from '../../services/text-util';
+import defaultCommands from './default-commands.yml';
 
 function getTargetCommand(event) {
   const key = event.key,
