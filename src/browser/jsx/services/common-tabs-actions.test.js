@@ -70,8 +70,6 @@ describe(__filename, function () {
         tabGroupName = 'someTabGroup',
         contentType = 'c';
 
-      console.log('start');
-
       let result = lib.isTabContentTypeInWindowList(contentType, windowList, tabGroupName);
 
       expect(result).toEqual(true);
