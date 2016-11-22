@@ -13,7 +13,9 @@ import dialogActions from '../actions/dialogs';
 import applicationControl from '../services/application-control';
 import reduxStore from '../services/redux-store';
 
-const store = reduxStore.create(rootReducer, initialState.getState());
+// take the state from what we're already been given, or start fresh with initialState
+const state = window.__PRELOADED_STATE__ || initialState.getState(),
+  store = reduxStore.create(rootReducer, state);
 
 ipcDispatcher(store.dispatch);
 

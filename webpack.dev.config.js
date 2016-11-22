@@ -31,7 +31,6 @@ module.exports = {
   externals: {
     'ascii-table': 'AsciiTable',
     jquery: 'jQuery',
-    templates: 'templates',
     ace: 'ace',
     ipc: 'ipc'
   },

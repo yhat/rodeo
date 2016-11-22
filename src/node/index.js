@@ -479,16 +479,8 @@ function startStartupWindow() {
  * @returns {Promise}
  */
 function onReady() {
-  let windowName, window;
-
   return bluebird.try(function () {
-    if (argv.design) {
-      windowName = 'designWindow';
-      window = browserWindows.create(windowName, {
-        url: 'file://' + path.join(staticFileDir, windowUrls[windowName])
-      });
-      window.show();
-    } else if (_.size(argv._)) {
+    if (_.size(argv._)) {
       const statSearch = _.map(argv._, arg => {
         return files.getStats(arg)
           .catch(_.noop)
@@ -508,13 +500,11 @@ function onReady() {
           }
         } else {
           log('info', 'no files found with', argv._);
-          return startStartupWindow();
+          return startMainWindow();
         }
       });
-    } else if (argv.startup === false) {
-      return startMainWindow();
     } else {
-      return startStartupWindow();
+      return startMainWindow();
     }
   }).then(attachIpcMainEvents)
     .catch(error => log('error', error));
@@ -530,7 +520,8 @@ function onReady() {
 function onCheckKernel(options) {
   assertValidObject(options, {
     cmd: {type: 'string', isRequired: true},
-    cwd: {type: 'string'}
+    cwd: {type: 'string'},
+    env: {type: 'object', isRequired: true}
   });
 
   return kernelsPythonClient.check(options);
@@ -545,7 +536,8 @@ function onCheckKernel(options) {
 function onCreateKernelInstance(options) {
   assertValidObject(options, {
     cmd: {type: 'string', isRequired: true},
-    cwd: {type: 'string'}
+    cwd: {type: 'string'},
+    env: {type: 'object', isRequired: true}
   });
 
   return new bluebird(function (resolveInstanceId) {

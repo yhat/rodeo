@@ -1,8 +1,23 @@
+import _ from 'lodash';
 import {local} from '../services/store';
 import client from '../services/jupyter/client';
 import clientDiscovery from '../services/jupyter/client-discovery';
 import {errorCaught} from './application';
 import track from '../services/track';
+
+const throttled = {
+  detectKernelVariables: _.debounce(function (dispatch) {
+    return client.getStatus().then(function (status) {
+      const payload = status.variables,
+        cwd = status.cwd;
+
+      dispatch({type: 'VARIABLES_CHANGED', payload});
+      dispatch({type: 'WORKING_DIRECTORY_CHANGED', cwd});
+
+      return status;
+    }).catch(error => dispatch(errorCaught(error)));
+  }, 500)
+};
 
 function interrupt() {
   track({category: 'kernel', action: 'interrupt'});
@@ -82,23 +97,13 @@ function restart() {
   return function (dispatch) {
     return client.restartInstance()
       .then(() => dispatch({type: 'KERNEL_RESTARTED'}))
-      .then(() => dispatch(detectKernelVariables()))
-      .catch(error => dispatch({type: 'KERNEL_RESTARTED', payload: error, error: true}));
+      .catch(error => dispatch({type: 'KERNEL_RESTARTED', payload: error, error: true}))
+      .then(() => dispatch(detectKernelVariables()));
   };
 }
 
 function detectKernelVariables() {
-  return function (dispatch) {
-    return client.getStatus().then(function (status) {
-      const payload = status.variables,
-        cwd = status.cwd;
-
-      dispatch({type: 'VARIABLES_CHANGED', payload});
-      dispatch({type: 'WORKING_DIRECTORY_CHANGED', cwd});
-
-      return status;
-    }).catch(error => dispatch(errorCaught(error)));
-  };
+  return throttled.detectKernelVariables;
 }
 
 /**

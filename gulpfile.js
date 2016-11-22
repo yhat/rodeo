@@ -10,7 +10,6 @@ const _ = require('lodash'),
   tmpAppDirectory = 'app',
   uglify = require('gulp-uglify'),
   distTasks = require('./tasks/dist'),
-  karmaTasks = require('./tasks/karma'),
   lintTasks = require('./tasks/lint'),
   webpackTasks = require('./tasks/webpack'),
   outputMap = {
@@ -24,7 +23,6 @@ const _ = require('lodash'),
   };
 
 distTasks.importTasks(gulp);
-karmaTasks.importTasks(gulp);
 lintTasks.importTasks(gulp);
 webpackTasks.importTasks(gulp, outputMap);
 
@@ -64,9 +62,6 @@ gulp.task('ace', ['ace:core', 'ace:themes-js', 'ace:modes-js']);
 gulp.task('external', function () {
   return gulp.src([
     'node_modules/jquery/dist/jquery.min.js',
-    'node_modules/bootstrap/dist/js/bootstrap.min.js',
-    'node_modules/react/dist/react-with-addons.js',
-    'node_modules/react-dom/dist/react-dom.js',
     'src/browser/jsx/lib/*.js'
   ]).pipe(concat('external.min.js'))
     .pipe(gulp.dest(outputMap.browser));
@@ -167,7 +162,7 @@ gulp.task('npm-install', function () {
   });
 });
 
-gulp.task('test', ['lint', 'karma']);
+gulp.task('test', ['lint']);
 gulp.task('build', ['themes', 'external', 'images', 'ace', 'jsx', 'html', 'config', 'node', 'package.json']);
 gulp.task('dist', ['dist:all']);
 gulp.task('default', ['test', 'build']);

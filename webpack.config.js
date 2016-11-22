@@ -10,22 +10,18 @@ module.exports = {
   devtool: 'source-map',
   entry: {
     startup: [
-      'react-hot-loader/patch',
       './entry/startup'
     ],
     main: [
-      'react-hot-loader/patch',
       './entry/main'
     ],
     'free-tabs-only': [
-      'react-hot-loader/patch',
       './entry/free-tabs-only'
     ]
   },
   externals: {
     'ascii-table': 'AsciiTable',
     jquery: 'jQuery',
-    templates: 'templates',
     ace: 'ace',
     ipc: 'ipc'
   },

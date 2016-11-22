@@ -15,8 +15,7 @@ const _ = require('lodash'),
   ],
   windows = {},
   os = require('os'),
-  homedir = os.homedir(),
-  performance = {};
+  homedir = os.homedir();
 
 function getCommonErrors() {
   const targetFile = path.resolve(path.join(__dirname, 'chromium-errors.yml'));
@@ -76,13 +75,6 @@ function sanitizeArguments(args, argumentNames) {
 
     return value;
   });
-}
-
-function onGetResponseDetails() {
-  // ridiculous amount of arguments
-  const args = sanitizeArguments(arguments, [
-    'event', 'status', 'newURL', 'url', 'code', 'method', 'referrer', 'headers', 'type'
-  ]);
 }
 
 /**
@@ -167,7 +159,6 @@ function create(name, options) {
     runStartActions(name, options.startActions);
   });
   webContents.on('did-fail-load', onFailLoad);
-  webContents.on('did-get-response-details', onGetResponseDetails);
   webContents.on('crashed', () => log('error', 'onCrashed', arguments));
   webContents.on('plugin-crashed', () => log('error', 'onPluginCrashed'));
   webContents.on('destroyed', () => log('info', 'destroyed'));
@@ -209,7 +200,7 @@ function createMainWindow(name, options) {
     width: size.width,
     height: size.height,
     show: false,
-    acceptFirstMouse: true
+    titleBarStyle: 'default'
   }, options));
 }
 
@@ -228,7 +219,7 @@ function createStartupWindow(name, options) {
     alwaysOnTop: false,
     show: false,
     frame: false,
-    acceptFirstMouse: true
+    titleBarStyle: 'default'
   }, options));
 }
 
