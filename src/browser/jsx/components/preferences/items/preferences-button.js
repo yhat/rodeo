@@ -2,37 +2,32 @@ import _ from 'lodash';
 import React from 'react';
 import commonReact from '../../../services/common-react';
 
-/**
- * @class PreferencesNumber
- * @extends ReactComponent
- * @property props
- */
 export default React.createClass({
   displayName: 'PreferencesButton',
   propTypes: {
-    item: React.PropTypes.object,
-    onChange: React.PropTypes.func.isRequired
+    text: React.PropTypes.object.isRequired
   },
   shouldComponentUpdate: function (nextProps) {
     return commonReact.shouldComponentUpdate(this, nextProps);
   },
   render: function () {
     const props = this.props,
-      content = [],
+      text = props.text,
       className = commonReact.getClassNameList(this),
-      item = props.item,
-      handleClick = item.onClickHandler && _.isFunction(props[item.onClickHandler]) && props[item.onClickHandler];
-
-    if (item.label) {
-      content.push(<label htmlFor={item.id} key="label">{_.startCase(item.label)}</label>);
-    }
+      handleClick = props.clickHandler && _.isFunction(props[props.clickHandler]) && props[props.clickHandler];
+    let content;
 
     if (handleClick) {
-      content.push(<button className="btn btn-default" key="input" onClick={handleClick} {...item}>{item.value}</button>);
+      content = <button className="btn btn-default" onClick={handleClick}>{props.value}</button>;
     } else {
-      content.push(<button className="btn btn-default" disabled key="input" {...item}/>);
+      content = <button className="btn btn-default" disabled>{props.value}</button>;
     }
 
-    return <div className={className.join(' ')}>{content}</div>;
+    return (
+      <div className={className.join(' ')}>
+        <label htmlFor={props.id}>{text[props.label]}</label>
+        {content}
+      </div>
+    );
   }
 });

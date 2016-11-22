@@ -2,33 +2,31 @@ import _ from 'lodash';
 import React from 'react';
 import commonReact from '../../../services/common-react';
 
-/**
- * @class PreferencesText
- * @extends ReactComponent
- * @property props
- */
 export default React.createClass({
   displayName: 'PreferencesText',
   propTypes: {
-    className: React.PropTypes.string,
-    item: React.PropTypes.object.isRequired,
-    onChange: React.PropTypes.func.isRequired
+    onChange: React.PropTypes.func.isRequired,
+    originalValue: React.PropTypes.string,
+    text: React.PropTypes.object.isRequired,
+    value: React.PropTypes.string
   },
   shouldComponentUpdate: function (nextProps) {
     return commonReact.shouldComponentUpdate(this, nextProps);
   },
   render: function () {
     const props = this.props,
-      item = props.item,
-      content = [],
+      text = props.text,
       className = commonReact.getClassNameList(this);
 
-    if (item.label) {
-      content.push(<label htmlFor={item.id} key="label">{_.startCase(item.label)}</label>);
+    if (props.originalValue !== props.value) {
+      className.push('preferences-text--modified');
     }
 
-    content.push(<input key="input" onChange={props.onChange} {...item} type="text"/>);
-
-    return <div className={className.join(' ')}>{content}</div>;
+    return (
+      <div className={className.join(' ')}>
+        <label htmlFor={props.id}>{text[props.label]}</label>
+        <input onChange={props.onChange} type="text" value={props.value}/>
+      </div>
+    );
   }
 });

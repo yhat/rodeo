@@ -1,23 +1,31 @@
+# id: some unique value
+# label: key in the i18n text
 -
-  label: Python
+  id: preferences-python
+  label: python
   items:
     -
-      explanation: pythonSettingsText
+      id: pythonExplanation
+      explanation: pythonExplanation
       type: marked
     -
+      id: workingDirectory
       key: workingDirectory
-      label: Default Working Directory
+      label: defaultWorkingDirectory
       type: folder
     -
+      id: pythonCmd
       key: pythonCmd
-      label: Python Command
+      label: pythonCommand
       type: pythonCmd
       change:
         - restartPython
       value: python
     -
+      id: environmentVariables
       key: environmentVariables
-      label: Environment Variables
+      label: environmentVariables
+      type: environmentVariableList
 #-
 #  label: SQL
 #  items:
@@ -27,23 +35,27 @@
 #    -
 #      type: button
 #      value: Manage Connections
-#      onClickHandler: onManageConnections
+#      clickHandler: onManageConnections
 -
-  label: Editor
+  id: preferences-editor
+  label: editor
   items:
     -
-      explanation: aceEditorText
+      id: aceEditorExplanation
+      explanation: aceEditorExplanation
       type: marked
     -
+      id: aceTabSpaces
       key: aceTabSpaces
-      label: Tab Spaces
+      label: tabSpaces
       type: number
       valid:
         - isTabSpace
       value: 4
     -
+      id: aceKeyBindings
       key: aceKeyBindings
-      label: Key Bindings
+      label: keyBindings
       type: select
       options:
         - label: default
@@ -54,12 +66,13 @@
           value: vim
       value: default
     -
+      id: aceTheme
       key: aceTheme
-      label: Theme
+      label: theme
       type: select
       options:
         -
-          label: Bright
+          label: bright
           group:
             -
               label: Chrome
@@ -107,7 +120,7 @@
               label: SQL Server
               value:  sqlserver
         -
-          label: Dark
+          label: dark
           group:
             -
               label: Ambiance
@@ -168,74 +181,92 @@
               value:  vibrant_ink
       value: chrome
     -
+      id: aceUseSoftTabs
       key: aceUseSoftTabs
-      label: Use Soft Tabs
+      label: useSoftTabs
       type: checkbox
       value: true
     -
+      id: editorStartingTutorial
       key: editorStartingTutorial
-      label: Enable the Starting Tutorial
+      label: enableStartingTutorial
       type: checkbox
       value: true
 -
-  label: Console
+  id: preferences-console
+  label: console
   items:
     -
-      explanation: consoleText
+      id: consoleExplanation
+      explanation: consoleExplanation
       type: marked
     -
+      id: consoleDisplayImages
       key: consoleDisplayImages
-      label: Display Images
+      label: displayImages
       type: checkbox
       value: true
 -
-  label: File Viewer
+  id: preferences-fileViewer
+  label: fileViewer
   items:
     -
+      id: showDotFiles
       key: showDotFiles
-      label: Display Dot Files
+      label: displayDotFiles
       type: checkbox
       value: false
 -
-  label: Plots
+  id: preferences-plots
+  label: plots
   items:
     -
-      explanation: plotSettingsText
+      id: plotViewerExplanation
+      explanation: plotViewerExplanation
       type: marked
     -
+      id: plotsFocusOnNew
       key: plotsFocusOnNew
-      label: Focus On Created Plots
+      label: focusCreatedPlots
       type: checkbox
       value: true
 -
-  label: Git
+  id: preferences-git
+  label: git
   items:
     -
-      explanation: checkBackLaterGit
+      id: checkBackLaterGitExplanation
+      explanation: checkBackLaterGitExplanation
       className: not-implemented-yet
       type: marked
 -
-  label: Global
+  id: preferences-global
+  label: global
   items:
     -
-      explanation: globalSettingsText
+      id: globalSettingsExplanation
+      explanation: globalSettingsExplanation
       type: marked
     -
+      id: fontSize
       key: fontSize
-      label: Font Size
+      label: fontSize
       type: number
       valid:
         - isFontSize
       value: 12
     -
+      id: trackMetrics
       key: trackMetrics
-      label: Track Metrics
+      label: trackMetrics
       type: checkbox
       value: true
 -
-  label: Project
+  id: preferences-project
+  label: project
   items:
     -
-      explanation: checkBackLaterProjectSettings
+      id: checkBackLaterProjectExplanation
+      explanation: checkBackLaterProjectExplanation
       className: not-implemented-yet
       type: marked

@@ -15,15 +15,13 @@ export default React.createClass({
     id: React.PropTypes.string,
     onCancel: React.PropTypes.func,
     onOK: React.PropTypes.func,
-    onSave: React.PropTypes.func
+    onSave: React.PropTypes.func,
+    text: React.PropTypes.object.isRequired
   },
   getDefaultProps: function () {
     return {
       canSave: true,
       hasChanges: false,
-      onCancel: _.noop,
-      onOK: _.noop,
-      onSave: _.noop,
       type: 'text',
       defaultValue: ''
     };
@@ -32,19 +30,20 @@ export default React.createClass({
     return commonReact.shouldComponentUpdate(this, nextProps);
   },
   render: function () {
-    const props = this.props;
+    const props = this.props,
+      text = props.text;
 
     let buttons;
 
     if (props.hasChanges) {
       buttons = (
         <div>
-          <button className="btn btn-default" onClick={props.onCancel}>{'Cancel'}</button>
-          <button className="btn btn-default" disabled={!props.canSave} onClick={props.onSave}>{'Save Changes'}</button>
+          <button className="btn btn-default" onClick={props.onCancel}>{text.cancel}</button>
+          <button className="btn btn-default" disabled={!props.canSave} onClick={props.onSave}>{text.saveChanges}</button>
         </div>
       );
     } else {
-      buttons = <button className="btn btn-default" onClick={props.onOK}>{'OK'}</button>;
+      buttons = <button className="btn btn-default" onClick={props.onOK}>{text.ok}</button>;
     }
 
     return buttons;

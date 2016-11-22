@@ -45,8 +45,6 @@ function getPlatformEnv() {
 
     if (platform === 'darwin' || platform === 'linux') {
       promise = getBashEnv();
-    } else if (platform === 'win32') {
-      promise = win32System.getEnv(process.env.SystemRoot);
     } else {
       promise = bluebird.resolve({});
     }
@@ -65,11 +63,7 @@ function getPlatformEnv() {
  */
 function getEnv() {
   return getPlatformEnv()
-    .then(extraEnv => _.defaults(extraEnv, process.env))
-    .catch(error => {
-      log('error', 'getEnv', error);
-      return process.env;
-    });
+    .then(extraEnv => _.defaults(extraEnv, process.env));
 }
 
 module.exports.getEnv = getEnv;

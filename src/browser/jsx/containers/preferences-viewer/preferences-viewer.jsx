@@ -3,6 +3,7 @@ import React from 'react';
 import {connect} from 'react-redux';
 import PreferencesList from '../../components/preferences/preferences-list.jsx';
 import actions from './preferences-viewer.actions';
+import text from '../text.yml';
 
 /**
  * @param {object} state
@@ -23,6 +24,11 @@ function mapDispatchToProps(dispatch) {
     onSave: () => dispatch(actions.save()),
     onApply: () => dispatch(actions.save()),
     onCancel: () => dispatch(actions.cancelAll()),
+    onRemoveFromList: (item, key) => dispatch(actions.removeFromList(item, key)),
+    onAddFromListContainer: (item, container) => dispatch(actions.addFromListContainer(item, container)),
+    onAddListContainer: (item, container) => dispatch(actions.addListContainer(item, container)),
+    onCancelListContainer: item => dispatch(actions.cancelListContainer(item)),
+    onContainerValueChange: change => dispatch(actions.changeContainerValue(change)),
     onSelectFile: change => dispatch(actions.selectFile(change)),
     onSelectFolder: change => dispatch(actions.selectFolder(change)),
     onManageConnections: () => dispatch(actions.manageConnections())
@@ -53,6 +59,13 @@ export default connect(mapStateToProps, mapDispatchToProps)(React.createClass({
    */
   handleChange: function (item, event) {
     this.props.onChange(getChange(item, event));
+  },
+
+  handleContainerValueChange: function (item, propertyName, event) {
+    const value = event.target.value,
+      key = item.key;
+
+    this.props.onContainerValueChange({key, value, propertyName});
   },
   /**
    * @param {object} item
@@ -95,9 +108,11 @@ export default connect(mapStateToProps, mapDispatchToProps)(React.createClass({
       <PreferencesList
         {...props}
         onChange={this.handleChange}
+        onContainerValueChange={this.handleContainerValueChange}
         onOK={this.handleOK}
         onSelectFile={this.handleSelectFile}
         onSelectFolder={this.handleSelectFolder}
+        text={text}
       />
     );
   }

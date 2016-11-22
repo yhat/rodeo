@@ -1,34 +1,31 @@
-import _ from 'lodash';
 import React from 'react';
 import commonReact from '../../../services/common-react';
 
-/**
- * @class PreferencesNumber
- * @extends ReactComponent
- * @property props
- */
 export default React.createClass({
   displayName: 'PreferencesNumber',
   propTypes: {
-    className: React.PropTypes.string,
-    item: React.PropTypes.object,
-    onChange: React.PropTypes.func.isRequired
+    onChange: React.PropTypes.func.isRequired,
+    originalValue: React.PropTypes.number,
+    text: React.PropTypes.object.isRequired,
+    value: React.PropTypes.number
   },
   shouldComponentUpdate: function (nextProps) {
     return commonReact.shouldComponentUpdate(this, nextProps);
   },
   render: function () {
     const props = this.props,
-      content = [],
-      className = commonReact.getClassNameList(this),
-      item = props.item;
+      text = props.text,
+      className = commonReact.getClassNameList(this);
 
-    if (item.label) {
-      content.push(<label htmlFor={item.id} key="label">{_.startCase(item.label)}</label>);
+    if (props.originalValue !== props.value) {
+      className.push('preferences-number--modified');
     }
 
-    content.push(<input key="input" onChange={props.onChange}  {...item} type="number"/>);
-
-    return <div className={className.join(' ')}>{content}</div>;
+    return (
+      <div className={className.join(' ')}>
+        <label htmlFor={props.id}>{text[props.label]}</label>
+        <input onChange={props.onChange} type="number" value={props.value}/>
+      </div>
+    );
   }
 });

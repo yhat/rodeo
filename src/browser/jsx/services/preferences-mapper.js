@@ -38,38 +38,31 @@ function validate(item, value) {
 /**
  * Convert the preferences definition (from the yaml file) into something that has all the information needed to render.
  * @param {Array} definition
- * @param {object} explanations
  * @returns {Array}
  */
-function define(definition, explanations) {
-  return _.map(definition, function (preferenceGroup, index) {
-    const id = _.kebabCase(preferenceGroup.label) + '-' + index;
-
-    let items = _.map(preferenceGroup.items, function (preference) {
+function define(definition) {
+  return _.map(definition, function (preferenceGroup) {
+    preferenceGroup = _.clone(preferenceGroup);
+    preferenceGroup.items = _.map(preferenceGroup.items, function (preference) {
       const item = _.clone(preference),
-        explanation = explanations[preference.explanation],
-        storeValue = preference.key && local.get(preference.key) || null;
+        // remember: false is a valid value here
+        storeValue = preference.key ? local.get(preference.key) : null;
 
       if (storeValue === null) {
         if (preference.value !== undefined) {
           item.value = preference.value;
         } else {
+          // not allowed to be undefined, too confusing
           delete item.value;
         }
       } else {
         item.value = storeValue;
       }
 
-      if (explanation) {
-        item.explanation = explanation;
-      } else {
-        delete item.explanation;
-      }
-
       return item;
     });
 
-    return _.defaults({id, items}, preferenceGroup);
+    return preferenceGroup;
   });
 }
 

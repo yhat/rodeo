@@ -1,5 +1,3 @@
-import clientDiscovery from '../services/jupyter/client-discovery';
-import {errorCaught} from './application';
 import registration from '../services/registration';
 
 export function showAboutRodeo() {

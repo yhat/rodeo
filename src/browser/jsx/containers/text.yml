@@ -1,1 +1,52 @@
+aceEditorExplanation: |
+  This is where the magic happens.  Rodeo uses a high-performance text editor called <a href="https://ace.c9.io/">Ace</a>
+  to provide code highlighting and code folding.  These settings control the defaults for each new file that you open.
+add: Add
+addEnvironmentVariable: Add Environment Variable
+bright: Bright
+cancel: Cancel
+checkBackLaterGitExplanation: Check back later!  This feature is in the pipeline.
+checkBackLaterProjectExplanation: Check back later!  This feature is in the pipeline.
+console: Console
+consoleExplanation: |
+  The console shows results from code executions and can prompt for more input.  Python can also be executed directly.
+dark: Dark
+default: Default
+defaultWorkingDirectory: Default Working Directory
+displayDotFiles: Display Dot Files
+displayImages: Display Images
+editor: Editor
+emacs: Emacs
+enableStartingTutorial: Enable the Starting Tutorial
+environmentVariables: Environment Variables
+EACCES: Permission denied
+ENOENT: No such file or directory
+fileViewer: File Viewer
+focusCreatedPlots: Focus On Created Plots
+fontSize: Font Size
+git: Git
+global: Global
+globalSettingsExplanation: Global settings affect the behavior of the entire application.
+keyBindings: Key Bindings
+keyTableHeader: Key
+ok: OK
+plots: Plots
+plotViewerExplanation: |
+  The plot viewer provides previews of plots that have been broadcast from IPython.  In the future, we want to have more
+  ways to explore, manipulate and share the plots that have been created in Rodeo, as well as the ability to pull plots
+  into separate windows.
+project: Project
+python: Python
+pythonCommand: Python Command
+pythonExplanation: Python settings control how the python kernel is run.
+refresh: Refresh
+reload: Reload
+saveChanges: Save Changes
 selectDatabaseConnectionFromList: Select a database connection from the list
+sqlSettings: SQL settings control how the SQL is run.
+tabSpaces: Tab Spaces
+theme: Theme
+trackMetrics: Track Metrics
+useSoftTabs: Use Soft Tabs
+valueTableHeader: Value
+vim: Vim

@@ -4,6 +4,7 @@ import responseService from './response';
 import pythonLanguage from './python-language';
 import {local} from '../store';
 import api from '../api';
+import clientDiscovery from './client-discovery';
 
 let instancePromise;
 
@@ -20,9 +21,9 @@ function createInstance() {
     cmd = local.get('pythonCmd') || 'python',
     cwd = local.get('workingDirectory') || '~';
 
-  promise = api.send('createKernelInstance', {cmd, cwd}).then(function (instanceId) {
-    return {instanceId};
-  });
+  promise = clientDiscovery.getEnvironmentVariables()
+    .then(env => api.send('createKernelInstance', {cmd, cwd, env}))
+    .then(instanceId => ({instanceId}));
 
   // save results as immutable promise
   instancePromise = promise;
@@ -103,8 +104,6 @@ function input(instance, text) {
 
     if (ms > 250) {
       console.warn(name, ms);
-    } else {
-      console.log(name, ms);
     }
 
     return result;
@@ -135,8 +134,6 @@ function execute(instance, code, args) {
 
     if (ms > 250) {
       console.warn(name, ms);
-    } else {
-      console.log(name, ms);
     }
 
     return result;

@@ -8,12 +8,26 @@
 
 import _ from 'lodash';
 import bluebird from 'bluebird';
-import {send} from 'ipc';
-import {local, session} from '../store';
+import api from '../api';
+import {local} from '../store';
 import guid from '../guid';
 import track from '../track';
 
 const pythonOptionsTimeout = 2 * 60 * 1000;
+
+function getEnvironmentVariables(env) {
+  if (env) {
+    return bluebird.resolve(env);
+  }
+
+  env = local.get('environmentVariables');
+
+  if (env) {
+    return bluebird.resolve(env);
+  }
+
+  return api.send('getEnvironmentVariables');
+}
 
 /**
  * @param {object} options
@@ -22,17 +36,18 @@ const pythonOptionsTimeout = 2 * 60 * 1000;
  * @returns {Promise}
  */
 function checkKernel(options) {
-  options = _.pick(options, ['cmd', 'cwd']);
+  let cmd = options.cmd,
+    cwd = options.cwd;
 
-  if (!options.cmd) {
+  if (!cmd) {
     throw new Error('Missing cmd for checkKernel');
   }
 
-  if (!options.cwd) {
-    options.cwd = local.get('workingDirectory') || '~';
+  if (!cwd) {
+    cwd = local.get('workingDirectory') || '~';
   }
 
-  return bluebird.try(() => send('checkKernel', options));
+  return getEnvironmentVariables(options.env).then(env => api.send('checkKernel', {cmd, cwd, env}));
 }
 
 /**
@@ -47,14 +62,15 @@ function executeWithNewKernel(options, text) {
     options.cwd = '~';
   }
 
-  return bluebird.try(() => send('executeWithNewKernel', options, text));
+  return getEnvironmentVariables()
+    .then(env => api.send('executeWithNewKernel', _.assign({env}, options), text));
 }
 
 function getSystemFacts() {
   let systemFacts = local.get('systemFacts');
 
   if (!systemFacts) {
-    return send('getSystemFacts').then(function (facts) {
+    return api.send('getSystemFacts').then(function (facts) {
       local.set('systemFacts', facts);
       return facts;
     });
@@ -79,7 +95,7 @@ function getUserId() {
  * @returns {Promise<object>}
  */
 function getFreshPythonOptions() {
-  return send('getSystemFacts').then(function (facts) {
+  return api.send('getSystemFacts').then(function (facts) {
     const availablePythonKernels = facts && facts.availablePythonKernels,
       head = _.head(availablePythonKernels),
       pythonOptions = head && head.pythonOptions;
@@ -109,8 +125,9 @@ function getFreshPythonOptions() {
 
 export default {
   checkKernel,
+  getEnvironmentVariables,
   getFreshPythonOptions,
   getSystemFacts,
-  getUserId,
+  getUserId: _.memoize(getUserId), // we can assume it'll remain the same for the lifetime of the app
   executeWithNewKernel
 };

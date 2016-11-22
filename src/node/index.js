@@ -2,11 +2,12 @@
 
 const _ = require('lodash'),
   bluebird = require('bluebird'),
+  browserWindows = require('./services/browser-windows'),
   db = require('./services/db'),
   kernelsPythonClient = require('./kernels/python/client'),
   cuid = require('cuid'),
   electron = require('electron'),
-  browserWindows = require('./services/browser-windows'),
+  environment = require('./services/env'),
   files = require('./services/files'),
   ipcPromises = require('./services/ipc-promises'),
   path = require('path'),
@@ -717,6 +718,10 @@ function onGetSystemFacts() {
   }).timeout(systemFactTimeout * second, 'Unable to call "get system facts" in under ' + systemFactTimeout + ' seconds');
 }
 
+function onGetEnvironmentVariables() {
+  return environment.getEnv();
+}
+
 /**
  * @returns {Promise<string>}
  */
@@ -960,6 +965,7 @@ function attachIpcMainEvents() {
     onFinishStartup,
     onGetAppLocale,
     onGetAutoComplete,
+    onGetEnvironmentVariables,
     onGetFile,
     onGetInspection,
     onGetSystemFacts,

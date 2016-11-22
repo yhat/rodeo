@@ -2,17 +2,13 @@ import _ from 'lodash';
 import React from 'react';
 import commonReact from '../../../services/common-react';
 
-/**
- * @class PreferencesSelect
- * @extends ReactComponent
- * @property props
- */
 export default React.createClass({
   displayName: 'PreferencesSelect',
   propTypes: {
-    className: React.PropTypes.string,
-    item: React.PropTypes.object.isRequired,
-    onChange: React.PropTypes.func
+    onChange: React.PropTypes.func,
+    originalValue: React.PropTypes.string,
+    text: React.PropTypes.object.isRequired,
+    value: React.PropTypes.string
   },
   getDefaultProps: function () {
     return {
@@ -24,29 +20,27 @@ export default React.createClass({
     return commonReact.shouldComponentUpdate(this, nextProps);
   },
   render: function () {
-    const content = [],
-      props = this.props,
-      item = props.item,
+    const props = this.props,
+      text = props.text,
       className = commonReact.getClassNameList(this);
 
-    if (item.label) {
-      content.push(<label htmlFor={item.id}>{_.startCase(item.label)}</label>);
+    if (props.originalValue !== props.value) {
+      className.push('preferences-select--modified');
     }
 
     function getOption(option) {
       if (option.group) {
-        return <optgroup label={option.label}>{option.group.map(getOption)}</optgroup>;
-      } else {
-        return <option value={option.value}>{option.label}</option>;
+        return <optgroup key={option.label} label={option.label}>{option.group.map(getOption)}</optgroup>;
       }
+
+      return <option key={option.label} value={option.value}>{option.label}</option>;
     }
 
-    content.push(
-      <select onChange={props.onChange} {...item}>
-        {item.options.map(getOption)}
-      </select>
+    return (
+      <div className={className.join(' ')}>
+        <label htmlFor={props.id}>{text[props.label]}</label>
+        <select onChange={props.onChange} value={props.value}>{props.options.map(getOption)}</select>
+      </div>
     );
-
-    return <div className={className.join(' ')}>{content}</div>;
   }
 });

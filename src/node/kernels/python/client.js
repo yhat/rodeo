@@ -39,7 +39,8 @@ const _ = require('lodash'),
   ProcessError = require('../../services/errors/process-error'),
   assertValidOptions = assert(
     [{cmd: _.isString}, 'must have command'],
-    [{cwd: _.isString}, 'must have working directory']
+    [{cwd: _.isString}, 'must have working directory'],
+    [{env: _.isObject}, 'must have environment']
   ),
   second = 1000,
   timeouts = {
@@ -390,7 +391,7 @@ class JupyterClient extends EventEmitter {
  * @returns {object}
  */
 function getPythonCommandOptions(options) {
-  return environment.getEnv().then(function (defaultEnv) {
+  return bluebird.resolve(options.env).then(function (defaultEnv) {
     return _.assign({
       env: pythonLanguage.setDefaultEnvVars(defaultEnv),
       stdio: ['pipe', 'pipe', 'pipe'],
@@ -407,7 +408,7 @@ function getPythonCommandOptions(options) {
  * @returns {Promise<ChildProcess>}
  */
 function createPythonScriptProcess(targetFile, options) {
-  options = _.pick(options || {}, ['shell', 'cmd', 'cwd']);
+  options = _.pick(options || {}, ['shell', 'cmd', 'cwd', 'env']);
   options = resolveHomeDirectoryOptions(options);
 
   return getPythonCommandOptions(options).then(function (processOptions) {

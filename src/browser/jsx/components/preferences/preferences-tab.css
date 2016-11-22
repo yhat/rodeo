@@ -7,16 +7,16 @@
   background-color: #e1e1e1;
 }
 
-.preferences-tab.disabled {
+.preferences-tab.preferences-tab--disabled {
   background-color: inherit;
   color: grey;
   cursor: default;
 }
 
-.preferences-tab.disabled:hover {
+.preferences-tab.preferences-tab--disabled:hover {
   background-color: inherit;
 }
 
-.preferences-tab.preferences-tab-active {
+.preferences-tab.preferences-tab--active {
   background-color: #dff0ff;
 }

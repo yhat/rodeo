@@ -2,31 +2,16 @@ import _ from 'lodash';
 import Immutable from 'seamless-immutable';
 import {local} from '../../services/store';
 import mapReducers from '../../services/map-reducers';
-
+import reduxUtil from '../../services/redux-util';
+import immutableUtil from '../../services/immutable-util';
 import preferencesMapDefinition from './preferences.yml';
 import preferencesMapper from '../../services/preferences-mapper';
 
-import globalSettingsText from './global-settings.md';
-import pythonSettingsText from './python-settings.md';
-import sqlSettingsText from './sql-settings.md';
-import aceEditorText from './ace-editor.md';
-import consoleText from './console.md';
-import plotSettingsText from './plot-settings.md';
-import checkBackLaterGit from './check-back-later-git.md';
-import checkBackLaterProjectSettings from './check-back-later-project-level-settings.md';
+const prefix = reduxUtil.fromFilenameToPrefix(__filename);
 
 export function getInitialState() {
   let active;
-  const preferenceMap = preferencesMapper.define(preferencesMapDefinition, {
-    globalSettingsText,
-    pythonSettingsText,
-    sqlSettingsText,
-    aceEditorText,
-    consoleText,
-    plotSettingsText,
-    checkBackLaterGit,
-    checkBackLaterProjectSettings
-  });
+  const preferenceMap = preferencesMapper.define(preferencesMapDefinition);
 
   if (preferenceMap && preferenceMap.length > 0) {
     active = _.head(preferenceMap).id;
@@ -38,6 +23,18 @@ export function getInitialState() {
     changes: {},
     canSave: true
   });
+}
+
+function getCurrentItemValueByKey(state, key) {
+  const groupIndex = _.findIndex(state.preferenceMap, {id: state.active});
+
+  if (groupIndex > -1) {
+    const keyIndex = _.findIndex(state.preferenceMap[groupIndex].items, {key});
+
+    if (keyIndex > -1) {
+      return _.get(state, ['preferenceMap', groupIndex, 'items', keyIndex, 'value']);
+    }
+  }
 }
 
 /**
@@ -136,10 +133,75 @@ function activeTabChanged(state, action) {
   return state.set('active', action.active);
 }
 
-export default mapReducers({
+function addFromListContainer(state, action) {
+  // assume they have a "key" and a "value" in a "container"
+  const container = action.payload.container;
+  let currentValue = _.get(state, ['changes', container.key, 'value']);
+
+  // set the new entry
+  currentValue = currentValue.set(container.name, container.value);
+
+  state = state.setIn(['changes', container.key, 'value'], currentValue);
+  state = immutableUtil.removeAtPath(state, ['changes', container.key], 'container');
+
+  return state;
+}
+
+function addListContainer(state, action) {
+  // Only a single container can exist at a time, and it is associated with an item
+  // in preferences
+
+  const item = action.payload.item,
+    key = item.key,
+    value = getCurrentItemValueByKey(state, key);
+
+  return state.setIn(['changes', key], {key, type: item.key, container: action.payload.container, value});
+}
+
+function cancelListContainer(state, action) {
+  const key = action.payload.key;
+
+  return immutableUtil.removeAtPath(state, ['changes', key], 'container');
+
+  // todo:  if there were no changes in the item besides this, remove the change completely
+}
+
+function changeContainerValue(state, action) {
+  const key = action.payload.key,
+    propertyName = action.payload.propertyName;
+
+  return state.setIn(['changes', key, 'container', propertyName], action.payload.value);
+}
+
+function removeFromList(state, action) {
+  const item = action.payload.item,
+    itemKey = item.key,
+    listRowName = action.payload.key;
+
+  if (_.get(state, ['changes', itemKey])) {
+    state = immutableUtil.removeAtPath(state, ['changes', itemKey, 'value'], listRowName);
+  } else {
+    let value = getCurrentItemValueByKey(state, itemKey);
+
+    if (value) {
+      value = value.without(listRowName);
+      state = state.setIn(['changes', itemKey], {key: item.key, type: item.type, value});
+    }
+  }
+
+  return state;
+}
+
+export default mapReducers(_.assign(reduxUtil.addPrefixToKeys(prefix, {
+  ADD_FROM_LIST_CONTAINER: addFromListContainer,
+  ADD_LIST_CONTAINER: addListContainer,
+  CANCEL_LIST_CONTAINER: cancelListContainer,
+  CHANGE_CONTAINER_VALUE: changeContainerValue,
+  REMOVE_FROM_LIST: removeFromList
+}), {
   PREFERENCE_CHANGE_SAVED: changeSaved,
   PREFERENCE_ACTIVE_TAB_CHANGED: activeTabChanged,
   PREFERENCE_CHANGE_ADDED: changeAdded,
   PREFERENCE_CHANGE_DETAIL_ADDED: changeDetailAdded,
   PREFERENCE_CANCEL_ALL_CHANGES: cancelAllChanges
-}, getInitialState());
+}), getInitialState());
