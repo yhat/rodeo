@@ -7,6 +7,7 @@ BETA.md
 .vagrant
 *.swp
 npm-debug.log*
+.tmp
 
 app
 dist

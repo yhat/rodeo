@@ -107,16 +107,6 @@ gulp.task('images', function () {
 });
 
 /**
- * Copy the config-specific code over to the temp directory that will be distributed with a deployed app
- */
-gulp.task('config', function () {
-  // copy node program
-  return gulp.src([
-    'config/**/*'
-  ]).pipe(gulp.dest(outputMap.config));
-});
-
-/**
  * Copy the node-specific code over to the temp directory that will be distributed with a deployed app
  */
 gulp.task('node', function () {
@@ -139,30 +129,12 @@ gulp.task('package.json', function () {
 
       pkg.main = 'node/index.js';
 
-      return JSON.stringify(_.omit(pkg, ['devDependencies', 'build', 'bin']), null, 2);
+      return JSON.stringify(_.omit(pkg, ['devDependencies', 'build', 'bin', 'scripts', 'jest']), null, 2);
     }))
     .pipe(gulp.dest(outputMap.app));
 });
 
-/**
- * Installs only the dependencies need to the run the app (not build the app) to the tmpAppDirectory
- * @returns {Promise}
- */
-gulp.task('npm-install', function () {
-  const path = tmpAppDirectory,
-    args = ['--production'];
-
-  return new Promise(function (resolve, reject) {
-    require('npm-i')({path, args}, function (err) {
-      if (err) {
-        return reject(err);
-      }
-      resolve();
-    });
-  });
-});
-
 gulp.task('test', ['lint']);
-gulp.task('build', ['themes', 'external', 'images', 'ace', 'jsx', 'html', 'config', 'node', 'package.json']);
+gulp.task('build', ['themes', 'external', 'images', 'ace', 'jsx', 'html', 'node', 'package.json']);
 gulp.task('dist', ['dist:all']);
 gulp.task('default', ['test', 'build']);

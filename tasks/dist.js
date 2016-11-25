@@ -51,7 +51,7 @@ module.exports.importTasks = function (gulp) {
    */
   gulp.task('dist:win', function () {
     return builder.build({
-      asar: false,
+      asar: true,
       prune: true,
       platform: ['win'],
       arch: 'x64',

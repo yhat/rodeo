@@ -1,4 +1,0 @@
-kernel:
-  python:
-    check-timeout: 60000
-    exec-timeout: 60000

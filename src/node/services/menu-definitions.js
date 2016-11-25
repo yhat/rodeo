@@ -63,8 +63,7 @@ function toElectronMenuTemplate(ipcEmitter, definition) {
 }
 
 function getByName(name) {
-  return files.readFile(path.resolve(__dirname, '..', 'menus', name + '.yml'))
-    .then(jsYaml.safeLoad);
+  return bluebird.resolve(files.getInternalYAMLFileSafeSync(path.resolve(__dirname, '..', 'menus', name + '.yml')));
 }
 
 // let menu = Menu.buildFromTemplate(getMenuShortcutsTemplate()),

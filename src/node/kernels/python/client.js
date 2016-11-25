@@ -26,7 +26,6 @@ const _ = require('lodash'),
   bluebird = require('bluebird'),
   clientResponse = require('./client-response'),
   EventEmitter = require('events'),
-  environment = require('../../services/env'),
   StreamSplitter = require('stream-splitter'),
   log = require('../../services/log').asInternal(__filename),
   path = require('path'),
@@ -422,17 +421,46 @@ function createPythonScriptProcess(targetFile, options) {
   });
 }
 
+function getStartKernelPath() {
+  log('info', 'getStartKernelPath', {'process.platform': process.platform});
+  if (process.platform === 'win32') {
+    log('info', 'is-windows');
+
+    let testPath = path.join(__dirname.split('app.asar')[0], 'kernels', 'python', 'start_kernel.py');
+
+    log('info', {testPath});
+
+    if (testPath) {
+      log('info', 'existence?');
+      return files.exists(testPath).then(function (exists) {
+        log('info', {testPath, exists});
+
+        if (exists) {
+          return testPath;
+        }
+
+        throw new Error('Could not find start_kernel.py on Windows ');
+      });
+    }
+
+    throw new Error('Could not find test_path on Windows');
+  }
+
+  return bluebird.resolve(path.resolve(path.join(__dirname, 'start_kernel.py')));
+}
+
 /**
  * @param {object} options
  * @returns {Promise<JupyterClient>}
  */
 function create(options) {
   assertValidOptions(options);
-  const targetFile = path.resolve(path.join(__dirname, 'start_kernel.py'));
 
-  return createPythonScriptProcess(targetFile, options).then(function (child) {
-    return new JupyterClient(child);
-  });
+  return getStartKernelPath()
+    .then(targetFile => createPythonScriptProcess(targetFile, options))
+    .then(function (child) {
+      return new JupyterClient(child);
+    });
 }
 
 /**

@@ -118,7 +118,7 @@ function getPkg() {
 
   while (dir.length > 1) {
     dir = path.resolve(dir, '..');
-    pkg = files.getJSONFileSafeSync(path.join(dir, 'package.json'));
+    pkg = files.getInternalJSONFileSafeSync(path.join(dir, 'package.json'));
     if (pkg) {
       return pkg;
     }
@@ -566,8 +566,8 @@ function onCreateKernelInstance(options) {
         subscribeWindowToKernelEvents('mainWindow', client, instanceId);
 
         return kernelClients[instanceId];
-      }).catch(function () {
-        log('error', 'failed to create instance', instanceId);
+      }).catch(function (ex) {
+        log('error', 'failed to create instance', instanceId, ex);
         delete kernelClients[instanceId];
       });
     });
@@ -941,6 +941,7 @@ function attachIpcMainEvents() {
     onCheckForUpdates,
     onCheckKernel,
     onCloseWindow,
+    onCopyCondaToHome,
     onCreateKernelInstance,
     onCreateWindow,
     onDatabaseConnect,

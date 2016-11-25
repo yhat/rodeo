@@ -9,14 +9,10 @@ const _ = require('lodash'),
   lib = require('./' + filename),
   processes = require('./../processes'),
   files = require('./../files'),
-  jsYaml = require('js-yaml'),
-  fs = require('fs'),
-  installContextMenuWindowsRegistryCommands = jsYaml.safeLoad(
-    fs.readFileSync('./test/fixtures/windows-registry-commands/install-context-menu.yml')
-  ),
-  uninstallContextMenuWindowsRegistryCommands = jsYaml.safeLoad(
-    fs.readFileSync('./test/fixtures/windows-registry-commands/uninstall-context-menu.yml')
-  );
+  installContextMenuWindowsRegistryCommands =
+    files.getInternalYAMLFileSafeSync('./test/fixtures/windows-registry-commands/install-context-menu.yml'),
+  uninstallContextMenuWindowsRegistryCommands =
+    files.getInternalYAMLFileSafeSync('./test/fixtures/windows-registry-commands/uninstall-context-menu.yml');
 
 describe(dirname + '/' + filename, function () {
   this.timeout(10000);

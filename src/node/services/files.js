@@ -3,7 +3,8 @@
 const _ = require('lodash'),
   bluebird = require('bluebird'),
   chokidar = require('chokidar'),
-  fs = require('fs'),
+  fs = require('original-fs'),
+  yaml = require('js-yaml'),
   path = require('path'),
   log = require('./log').asInternal(__filename),
   temp = require('temp'),
@@ -15,12 +16,12 @@ temp.track();
  * @param {string} filePath
  * @returns {object}
  */
-function getJSONFileSafeSync(filePath) {
+function getInternalJSONFileSafeSync(filePath) {
   let contents,
     result = null;
 
   try {
-    contents = fs.readFileSync(filePath, {encoding: 'UTF8'});
+    contents = require('fs').readFileSync(filePath, {encoding: 'UTF8'});
 
     try {
       result = JSON.parse(contents);
@@ -29,6 +30,24 @@ function getJSONFileSafeSync(filePath) {
     }
   } catch (ex) {
     // deliberately no warning, thus "safe".
+  }
+
+  return result;
+}
+
+function getInternalYAMLFileSafeSync(filePath) {
+  let result = null;
+
+  try {
+    const contents = require('fs').readFileSync(filePath, 'utf8');
+
+    try {
+      result = yaml.safeLoad(contents);
+    } catch (e) {
+      log('warn', filePath, 'is not valid YAML', e);
+    }
+  } catch (ex) {
+    // // deliberately no warning, thus "safe".
   }
 
   return result;
@@ -320,13 +339,26 @@ function readAllFilesOfExt(filepath, ext) {
     .then(readFileStatsListIntoObject);
 }
 
-module.exports.getJSONFileSafeSync = getJSONFileSafeSync;
+function exists(filePath) {
+  return getStats(filePath)
+    .then(() => true)
+    .catch(() => false);
+}
+
+function copy() {
+  const copyFn = require('copy');
+
+  return copyFn();
+}
+
+module.exports.getInternalJSONFileSafeSync = getInternalJSONFileSafeSync;
+module.exports.getInternalYAMLFileSafeSync = getInternalYAMLFileSafeSync;
 module.exports.readFile = _.partialRight(bluebird.promisify(fs.readFile), 'utf8');
 module.exports.writeFile = bluebird.promisify(fs.writeFile);
 module.exports.readDirectory = readDirectory;
 module.exports.makeDirectory = bluebird.promisify(fs.mkdir);
 module.exports.getStats = getStats;
-module.exports.exists = bluebird.promisify(fs.exists);
+module.exports.exists = exists;
 module.exports.unlink = bluebird.promisify(fs.unlink);
 module.exports.saveToTemporaryFile = saveToTemporaryFile;
 module.exports.resolveHomeDirectory = resolveHomeDirectory;

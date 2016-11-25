@@ -3,7 +3,7 @@
 const _ = require('lodash'),
   expect = require('chai').expect,
   sinon = require('sinon'),
-  fs = require('fs'),
+  fs = require('original-fs'),
   dirname = __dirname.split('/').pop(),
   filename = __filename.split('/').pop().split('.').shift(),
   lib = require('./' + filename),
@@ -26,7 +26,7 @@ describe(dirname + '/' + filename, function () {
     sandbox.restore();
   });
 
-  describe('getJSONFileSafeSync', function () {
+  describe('getInternalJSONFileSafeSync', function () {
     const fn = lib[this.title];
 
     it('returns null if file does not exist', function () {

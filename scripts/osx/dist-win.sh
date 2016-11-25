@@ -16,7 +16,7 @@ source $(brew --prefix nvm)/nvm.sh
 nvm use
 
 #build distributable
-./node_modules/.bin/gulp dist:win
+DEBUG=electron-windows-installer:* node_modules/.bin/build --win --x64
 
 #list created files
 echo '#list created files'

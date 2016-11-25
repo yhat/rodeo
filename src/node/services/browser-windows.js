@@ -4,8 +4,8 @@ const _ = require('lodash'),
   bluebird = require('bluebird'),
   cuid = require('cuid'),
   electron = require('electron'),
-  fs = require('fs'),
   path = require('path'),
+  files = require('./files'),
   yaml = require('js-yaml'),
   log = require('./log').asInternal(__filename),
   util = require('util'),
@@ -19,11 +19,10 @@ const _ = require('lodash'),
 
 function getCommonErrors() {
   const targetFile = path.resolve(path.join(__dirname, 'chromium-errors.yml'));
-  let contents, commonErrors;
+  let commonErrors;
 
   try {
-    contents = fs.readFileSync(targetFile, 'utf8');
-    commonErrors = contents && yaml.safeLoad(contents);
+    commonErrors = files.getInternalYAMLFileSafeSync(targetFile, 'utf8');
   } catch (ex) {
     log('warn', 'could not read', targetFile, ex);
     commonErrors = {};
