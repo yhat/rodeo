@@ -1,17 +1,10 @@
-/**
- * todo: Somehow we need to convert this all to client-side
- */
-
 'use strict';
 
 const _ = require('lodash'),
-  bluebird = require('bluebird'),
   browserWindows = require('./browser-windows'),
   cuid = require('cuid'),
-  files = require('./files'),
-  jsYaml = require('js-yaml'),
+  electron = require('electron'),
   log = require('./log').asInternal(__filename),
-  path = require('path'),
   util = require('util');
 
 /**
@@ -52,23 +45,14 @@ function convertMenu(ipcEmitter, definition) {
 }
 
 /**
- * @param {electron.ipcMain} ipcEmitter
- * @param {object} definition
- * @returns {Array}
+ * @param {EventEmitter} ipcEmitter
+ * @param {object} applicationMenu
  */
-function toElectronMenuTemplate(ipcEmitter, definition) {
-  return bluebird.try(function () {
-    return convertMenu(ipcEmitter, definition);
-  });
+function attachApplicationMenu(ipcEmitter, applicationMenu) {
+  const Menu = electron.Menu,
+    menuTemplate = convertMenu(ipcEmitter, applicationMenu);
+
+  Menu.setApplicationMenu(Menu.buildFromTemplate(menuTemplate));
 }
 
-function getByName(name) {
-  return bluebird.resolve(files.getInternalYAMLFileSafeSync(path.resolve(__dirname, '..', 'menus', name + '.yml')));
-}
-
-// let menu = Menu.buildFromTemplate(getMenuShortcutsTemplate()),
-//   fileMenu = Menu.buildFromTemplate(getFileMenuTemplate()),
-//   folderMenu = Menu.buildFromTemplate(getFolderMenuTemplate());
-
-module.exports.toElectronMenuTemplate = toElectronMenuTemplate;
-module.exports.getByName = getByName;
+module.exports.attachApplicationMenu = attachApplicationMenu;

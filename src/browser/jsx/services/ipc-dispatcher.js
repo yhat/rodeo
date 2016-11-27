@@ -67,7 +67,7 @@ function isCurious(groups, responseMsgId) {
 }
 
 function otherDispatcher(dispatch) {
-  ipc.on('error', (event, clientId, data) => dispatch({type: 'JUPYTER_PROCESS_ERROR', payload: {clientId, data}}));
+  ipc.on('error', (event, clientId, error) => dispatch({type: 'JUPYTER_PROCESS_ERROR', payload: {clientId, error}, error: true}));
   ipc.on('close', (event, clientId, code, signal) => dispatch({type: 'JUPYTER_PROCESS_CLOSED', payload: {clientId, code, signal}}));
   ipc.on('jupyter', function (event, clientId, response) {
     const category = response.source,

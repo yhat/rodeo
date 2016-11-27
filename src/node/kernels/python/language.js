@@ -33,7 +33,7 @@ function getCondaPath() {
 }
 
 function getPythonPath() {
-  return path.join(__dirname.split('app.asar')[0], 'conda');
+  return path.join(__dirname.split('app.asar')[0], 'conda', 'python.exe');
 }
 
 function getLibPath() {
@@ -63,7 +63,7 @@ function setDefaultEnvVars(env) {
       const splitter = ';',
         envs = env.PATH.split(splitter);
 
-      addPath(envs, getPythonPath());
+      addPath(envs, getCondaPath());
       addPath(envs, getLibPath());
       addPath(envs, getScriptsPath());
 
@@ -72,9 +72,6 @@ function setDefaultEnvVars(env) {
   }
 
   if (process.platform === 'win32') {
-    env.CONDA = getCondaPath();
-    env.IPYTHONDIR = getPythonPath();
-
     if (!env.NUMBER_OF_PROCESSORS) {
       try {
         env.NUMBER_OF_PROCESSORS = os.cpus().length;
@@ -97,3 +94,5 @@ function setDefaultEnvVars(env) {
 module.exports.toPythonArgs = toPythonArgs;
 module.exports.setDefaultEnvVars = setDefaultEnvVars;
 module.exports.getStartKernelPath = getStartKernelPath;
+module.exports.getPythonPath = getPythonPath;
+module.exports.getCondaPath = getCondaPath;

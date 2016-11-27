@@ -39,10 +39,18 @@ function createWindow(name, options) {
  * @returns {Promise}
  */
 function shareAction(action) {
+  const type = action.type;
+
   if (action.payload) {
-    console.log(action.type, action.payload);
+    const payload = action.payload;
+
+    if (action.error === true) {
+      console.error(type, payload);
+    } else {
+      console.log(type, payload);
+    }
   } else {
-    console.log(action.type, action);
+    console.log(type, action);
   }
 
   // Only share actions that are meant to be shared

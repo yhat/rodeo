@@ -345,10 +345,36 @@ function exists(filePath) {
     .catch(() => false);
 }
 
-function copy() {
-  const copyFn = require('copy');
+/**
+ * Do not fail if directory already exists
+ * @param {string} filePath
+ * @returns {Promise}
+ */
+function makeDirectorySafe(filePath) {
+  return new bluebird((resolve, reject) => {
+    fs.mkdir(filePath, function (e) {
+      if (!e || (e && e.code === 'EEXIST')) {
+        return resolve();
+      }
 
-  return copyFn();
+      reject(e);
+    });
+  });
+}
+
+/**
+ * @param {string} basePath
+ * @param {[string]} directoryNames
+ * @returns {Promise}
+ */
+function makeDirectoryPathSafe(basePath, directoryNames) {
+  const currentPath = path.join(basePath, directoryNames[0]);
+
+  return makeDirectorySafe(currentPath).then(() => {
+    if (directoryNames.length > 1) {
+      return makeDirectoryPathSafe(currentPath, _.tail(directoryNames));
+    }
+  });
 }
 
 module.exports.getInternalJSONFileSafeSync = getInternalJSONFileSafeSync;
@@ -357,6 +383,8 @@ module.exports.readFile = _.partialRight(bluebird.promisify(fs.readFile), 'utf8'
 module.exports.writeFile = bluebird.promisify(fs.writeFile);
 module.exports.readDirectory = readDirectory;
 module.exports.makeDirectory = bluebird.promisify(fs.mkdir);
+module.exports.makeDirectorySafe = makeDirectorySafe;
+module.exports.makeDirectoryPathSafe = makeDirectoryPathSafe;
 module.exports.getStats = getStats;
 module.exports.exists = exists;
 module.exports.unlink = bluebird.promisify(fs.unlink);

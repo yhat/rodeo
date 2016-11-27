@@ -21,6 +21,9 @@
  * @property {'stdin'|'iopub'|'shell'} source
  */
 
+import listenScript from './listen.py';
+import patch from './patch.py';
+
 const _ = require('lodash'),
   assert = require('../../services/assert'),
   bluebird = require('bluebird'),
@@ -39,7 +42,8 @@ const _ = require('lodash'),
   assertValidOptions = assert(
     [{cmd: _.isString}, 'must have command'],
     [{cwd: _.isString}, 'must have working directory'],
-    [{env: _.isObject}, 'must have environment']
+    [{env: _.isObject}, 'must have environment'],
+    [{kernelName: _.isString}, 'must have kernelName']
   ),
   second = 1000,
   timeouts = {
@@ -400,53 +404,29 @@ function getPythonCommandOptions(options) {
 }
 
 /**
- * @param {string} targetFile
  * @param {object} [options]
  * @param {string} [options.shell=<default for OS>]
  * @param {string} [options.cmd="python"]
  * @returns {Promise<ChildProcess>}
  */
-function createPythonScriptProcess(targetFile, options) {
-  options = _.pick(options || {}, ['shell', 'cmd', 'cwd', 'env']);
+function createPythonScriptProcess(options) {
+  options = _.pick(options || {}, ['shell', 'cmd', 'cwd', 'env', 'kernelName']);
   options = resolveHomeDirectoryOptions(options);
 
   return getPythonCommandOptions(options).then(function (processOptions) {
-    const cmd = options.cmd || 'python';
+    const cmd = options.cmd || 'python',
+      args = ['-c', listenScript];
 
     if (options.cwd) {
       processOptions.cwd = options.cwd;
     }
 
-    return processes.create(cmd, [targetFile], processOptions);
-  });
-}
-
-function getStartKernelPath() {
-  log('info', 'getStartKernelPath', {'process.platform': process.platform});
-  if (process.platform === 'win32') {
-    log('info', 'is-windows');
-
-    let testPath = path.join(__dirname.split('app.asar')[0], 'kernels', 'python', 'start_kernel.py');
-
-    log('info', {testPath});
-
-    if (testPath) {
-      log('info', 'existence?');
-      return files.exists(testPath).then(function (exists) {
-        log('info', {testPath, exists});
-
-        if (exists) {
-          return testPath;
-        }
-
-        throw new Error('Could not find start_kernel.py on Windows ');
-      });
+    if (options.kernelName) {
+      args.push(options.kernelName);
     }
 
-    throw new Error('Could not find test_path on Windows');
-  }
-
-  return bluebird.resolve(path.resolve(path.join(__dirname, 'start_kernel.py')));
+    return processes.create(cmd, args, processOptions);
+  });
 }
 
 /**
@@ -454,12 +434,19 @@ function getStartKernelPath() {
  * @returns {Promise<JupyterClient>}
  */
 function create(options) {
-  assertValidOptions(options);
+  return bluebird.try(() => {
+    assertValidOptions(options);
 
-  return getStartKernelPath()
-    .then(targetFile => createPythonScriptProcess(targetFile, options))
-    .then(function (child) {
-      return new JupyterClient(child);
+    return createPythonScriptProcess(options);
+  }).then(child => new JupyterClient(child))
+    .then(client => {
+
+      client.on('ready', () => {
+        // when the client is ready, apply our internal code right away
+        client.executeHidden(patch, 'executeReply');
+      });
+
+      return client;
     });
 }
 
@@ -659,7 +646,35 @@ function exec(options, text) {
   }).then(normalizeExecutionResult);
 }
 
+/**
+ * If we put our built-in kernel on a special path, conda will come and find it
+ * @returns {Promise}
+ */
+function createBuiltinKernelJson() {
+  const condaDir = pythonLanguage.getCondaPath(),
+    specialPath = ['share', 'jupyter', 'kernels', 'rodeo-builtin-miniconda'];
+
+  return files.makeDirectoryPathSafe(condaDir, specialPath).then(() => {
+    const targetDir = path.join.apply(path, [condaDir].concat(specialPath));
+
+    return files.writeFile(path.join(targetDir, 'kernel.json'), JSON.stringify({
+      argv: [
+        pythonLanguage.getPythonPath(),
+        '-m',
+        'ipykernel',
+        '-f',
+        '{connection_file}' // replaced by a reference to an actual connection file in conda
+      ],
+      display_name: 'Rodeo Built-in Miniconda',
+      language: 'python'
+    })).then(function () {
+      log('info', 'wrote kernel.json to', targetDir);
+    });
+  });
+}
+
 module.exports.create = create;
 module.exports.exec = exec;
 module.exports.getPythonScriptResults = getPythonScriptResults;
 module.exports.check = check;
+module.exports.createBuiltinKernelJson = createBuiltinKernelJson;

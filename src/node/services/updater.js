@@ -9,6 +9,7 @@ const bluebird = require('bluebird'),
 /**
  * @param {string} type
  * @param {*} data
+ * @returns {Promise}
  */
 function dispatch(type, data) {
   log('info', 'dispatch', {type, data});

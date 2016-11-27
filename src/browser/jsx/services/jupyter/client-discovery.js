@@ -15,6 +15,24 @@ import track from '../track';
 
 const pythonOptionsTimeout = 2 * 60 * 1000;
 
+function getKernelName(kernelName) {
+  if (kernelName) {
+    return kernelName;
+  }
+
+  kernelName = local.get('kernelName');
+
+  if (process.platform === 'win32' && !kernelName) {
+    kernelName = 'rodeo-builtin-miniconda';
+    local.set('kernelName', kernelName);
+  } else if (!kernelName) {
+    kernelName = 'python3';
+    local.set('kernelName', kernelName);
+  }
+
+  return kernelName;
+}
+
 function getEnvironmentVariables(env) {
   if (env) {
     return bluebird.resolve(env);
@@ -29,41 +47,36 @@ function getEnvironmentVariables(env) {
   return api.send('getEnvironmentVariables');
 }
 
-/**
- * @param {object} options
- * @param {string} options.cmd
- * @param {string} [options.cwd]
- * @returns {Promise}
- */
-function checkKernel(options) {
-  let cmd = options.cmd,
-    cwd = options.cwd;
+function getCurrentWorkingDirectory(cwd) {
+  return cwd || local.get('workingDirectory') || '~';
+}
 
-  if (!cmd) {
-    throw new Error('Missing cmd for checkKernel');
-  }
-
-  if (!cwd) {
-    cwd = local.get('workingDirectory') || '~';
-  }
-
-  return getEnvironmentVariables(options.env).then(env => api.send('checkKernel', {cmd, cwd, env}));
+function getExternalOptions(options) {
+  options = options || {};
+  return bluebird.props({
+    cwd: getCurrentWorkingDirectory(options.cwd),
+    kernelName: getKernelName(options.kernelName),
+    env: getEnvironmentVariables(options.env)
+  });
 }
 
 /**
  * @param {object} options
- * @param {string} options.cmd
- * @param {string} [options.cwd]
+ * @returns {Promise}
+ */
+function checkKernel(options) {
+  return getExternalOptions(options)
+    .then(externalOptions => api.send('checkKernel', _.assign(options, externalOptions)));
+}
+
+/**
+ * @param {object} options
  * @param {string} text
  * @returns {Promise}
  */
 function executeWithNewKernel(options, text) {
-  if (!options.cwd) {
-    options.cwd = '~';
-  }
-
-  return getEnvironmentVariables()
-    .then(env => api.send('executeWithNewKernel', _.assign({env}, options), text));
+  return getExternalOptions(options)
+    .then(externalOptions => api.send('executeWithNewKernel', _.assign(options, externalOptions), text));
 }
 
 function getSystemFacts() {
@@ -125,6 +138,7 @@ function getFreshPythonOptions() {
 
 export default {
   checkKernel,
+  getExternalOptions,
   getEnvironmentVariables,
   getFreshPythonOptions,
   getSystemFacts,

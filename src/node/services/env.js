@@ -3,8 +3,7 @@
 const _ = require('lodash'),
   bluebird = require('bluebird'),
   log = require('./log').asInternal(__filename),
-  processes = require('./processes'),
-  win32System = require('./win32/system');
+  processes = require('./processes');
 
 /**
  * @returns {Promise}

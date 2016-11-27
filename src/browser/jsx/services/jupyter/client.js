@@ -18,11 +18,10 @@ function createInstance() {
   }
 
   let promise,
-    cmd = local.get('pythonCmd') || 'python',
-    cwd = local.get('workingDirectory') || '~';
+    cmd = local.get('pythonCmd') || 'python';
 
-  promise = clientDiscovery.getEnvironmentVariables()
-    .then(env => api.send('createKernelInstance', {cmd, cwd, env}))
+  promise = clientDiscovery.getExternalOptions()
+    .then(externalOptions => api.send('createKernelInstance', _.assign({cmd}, externalOptions)))
     .then(instanceId => ({instanceId}));
 
   // save results as immutable promise

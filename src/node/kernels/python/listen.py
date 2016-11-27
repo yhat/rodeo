@@ -1,5 +1,3 @@
-#!/usr/bin/env python
-
 import os
 import sys
 import json
@@ -73,15 +71,6 @@ def kernel(wd=None, verbose=0):
       "execute_reply",
       "complete_reply"
     ]
-
-    # apply patches
-    dirname = os.path.dirname(os.path.abspath(__file__))
-    python_patch_file = os.path.join(dirname, "langs", "python-patch.py")
-    kernel_client.execute("%run " + python_patch_file, {"silent":True, "store_history":False})
-
-    # set working directory
-    if wd:
-        kernel_client.execute("cd %s" % wd)
 
     input_queue = Queue.Queue()
 

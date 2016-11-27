@@ -1,27 +1,30 @@
-'use strict';
+import _ from 'lodash';
+import applicationMenu from './application-menu.yml';
+import args from './services/args';
+import bluebird from 'bluebird';
+import browserWindows from './services/browser-windows';
+import cuid from 'cuid';
+import db from './services/db';
+import electron from 'electron';
+import environment from './services/env';
+import errorClone from './services/clone';
+import files from './services/files';
+import installer from './services/installer';
+import ipcPromises from './services/ipc-promises';
+import kernelsPythonClient from './kernels/python/client';
+import menuDefinitions from './services/menu-definitions';
+import os from 'os';
+import path from 'path';
+import PlotServer from './services/plot-server';
+import processes from './services/processes';
+import surveyService from './services/survey';
+import updater from './services/updater';
+import pkg from '../../package.json';
 
-const _ = require('lodash'),
-  bluebird = require('bluebird'),
-  browserWindows = require('./services/browser-windows'),
-  db = require('./services/db'),
-  kernelsPythonClient = require('./kernels/python/client'),
-  cuid = require('cuid'),
-  electron = require('electron'),
-  environment = require('./services/env'),
-  files = require('./services/files'),
-  ipcPromises = require('./services/ipc-promises'),
-  path = require('path'),
-  menuDefinitions = require('./services/menu-definitions'),
-  os = require('os'),
-  updater = require('./services/updater'),
-  installer = require('./services/installer'),
-  PlotServer = require('./services/plot-server'),
-  argv = require('./services/args').getArgv(),
+const argv = args.getArgv(),
   log = require('./services/log').asInternal(__filename),
   staticFileDir = path.resolve(__dirname, '../browser/'),
-  surveyService = require('./services/survey'),
   kernelClients = {},
-  processes = require('./services/processes'),
   windowUrls = {
     mainWindow: 'main.html',
     startupWindow: 'startup.html',
@@ -32,8 +35,8 @@ const _ = require('lodash'),
   autoCompleteTimeout = 5,
   second = 1000;
 
-let plotServerInstance,
-  isStartupFinished = false;
+// enable source-maps
+require('source-map-support').install();
 
 // cancellation is useful for managing processes
 bluebird.config({
@@ -42,51 +45,8 @@ bluebird.config({
   cancellation: true
 });
 
-/**
- * @param {object} obj
- * @param {object} validOptions
- * @throws if the obj does not match the validOptions
- */
-function assertValidObject(obj, validOptions) {
-  const bannedProperties = _.omit(obj, Object.keys(validOptions)),
-    validators = {
-      string: _.isString,
-      object: _.isPlainObject,
-      number: _.isNumber,
-      boolean: _.isBoolean
-    };
-
-  if (_.size(bannedProperties) > 0) {
-    throw new Error('Properties ' + Object.keys(bannedProperties) + ' are not allowed');
-  }
-
-  _.each(validOptions, function (definition, key) {
-    const value = obj[key];
-    let expectedType, isRequired;
-
-    if (_.isObject(definition)) {
-      expectedType = definition.type;
-      isRequired = definition.required;
-    } else if (_.isString(definition)) {
-      expectedType = definition;
-      isRequired = false;
-    } else {
-      throw new Error('Bad definition of object type assertion: ' + definition + ' for ' + key);
-    }
-
-    if (!validators[expectedType]) {
-      throw new Error('Missing validator type ' + expectedType + ' for property ' + key);
-    }
-
-    if (isRequired && value === undefined) {
-      throw new Error('Missing required property ' + key);
-    }
-
-    if (value !== undefined && !validators[expectedType](value)) {
-      throw new Error('Invalid property ' + key + ': expected ' + expectedType + ' but got ' + value);
-    }
-  });
-}
+let plotServerInstance,
+  isStartupFinished = false;
 
 function onSurveyTabs() {
   return surveyService.getTabs();
@@ -109,25 +69,6 @@ function onDatabaseDisconnect(id) {
 }
 
 /**
- * Find a package.json, hopefully ours.
- * @returns {object|false}
- */
-function getPkg() {
-  let dir = __dirname,
-    pkg;
-
-  while (dir.length > 1) {
-    dir = path.resolve(dir, '..');
-    pkg = files.getInternalJSONFileSafeSync(path.join(dir, 'package.json'));
-    if (pkg) {
-      return pkg;
-    }
-  }
-
-  return false;
-}
-
-/**
  * @returns {Promise}
  */
 function quitApplication() {
@@ -138,15 +79,15 @@ function quitApplication() {
 
   log('info', 'killing all children processes');
 
-  return bluebird.all(processes.getChildren().map(function (child) {
-    return processes.kill(child).reflect().then(function (inspection) {
+  return bluebird.all(processes.getChildren().map(child => {
+    return processes.kill(child).reflect().then(inspection => {
       if (inspection.isRejected()) {
         log('info', 'process', child.pid, 'unable to be killed', inspection.reason());
       } else {
         log('info', 'process', child.pid, 'successfully killed', inspection.value());
       }
     });
-  })).finally(function () {
+  })).finally(() => {
     log('info', 'quiting');
     app.quit();
 
@@ -350,18 +291,6 @@ function subscribeWindowToKernelEvents(windowName, client, instanceId) {
   subscribeBrowserWindowToEvent(windowName, client, 'error', instanceId);
 }
 
-/**
- * It's nice to start loading the main window in the background while other windows are keeping the user busy.
- * @returns {BrowserWindow}
- */
-function preloadMainWindow() {
-  const windowName = 'mainWindow';
-
-  return browserWindows.createMainWindow(windowName, {
-    url: 'file://' + path.join(staticFileDir, windowUrls[windowName])
-  });
-}
-
 function getMainWindow() {
   const windowName = 'mainWindow';
   let window = browserWindows.getByName(windowName);
@@ -379,16 +308,15 @@ function getMainWindow() {
  * @returns {Promise}
  */
 function startMainWindow() {
-  return new bluebird(function (resolve) {
+  return bluebird.try(function () {
     const window = getMainWindow();
 
     if (argv.dev === true) {
       window.openDevTools();
     }
 
-    resolve(attachApplicationMenu(window.webContents).then(function () {
-      window.show();
-    }));
+    menuDefinitions.attachApplicationMenu(window.webContents, applicationMenu);
+    window.show();
   });
 }
 
@@ -408,10 +336,8 @@ function startMainWindowWithOpenFile(filename, stats) {
       window.openDevTools();
     }
 
-    return attachApplicationMenu(window.webContents)
-      .then(function () {
-        window.show();
-      });
+    menuDefinitions.attachApplicationMenu(window.webContents, applicationMenu);
+    window.show();
   });
 }
 
@@ -437,16 +363,15 @@ function startMainWindowWithWorkingDirectory(filename) {
       window.openDevTools();
     }
 
-    return attachApplicationMenu(window.webContents).then(function () {
-      window.show();
-    });
+    menuDefinitions.attachApplicationMenu(window.webContents, applicationMenu);
+    window.show();
   });
 }
 /**
  * @returns {Promise}
  */
 function startStartupWindow() {
-  return new bluebird(function (resolve) {
+  return bluebird.try(() => {
     const windowName = 'startupWindow',
       window = browserWindows.createStartupWindow(windowName, {
         url: 'file://' + path.join(staticFileDir, windowUrls[windowName])
@@ -456,21 +381,15 @@ function startStartupWindow() {
       window.openDevTools();
     }
 
-    preloadMainWindow();
-
-    window.webContents.on('did-finish-load', function () {
-
+    window.webContents.on('did-finish-load', () => {
       window.show();
-      window.once('close', function () {
+      window.once('close', () => {
         if (isStartupFinished) {
-          startMainWindow().catch(function (error) {
-            log('error', error);
-          });
+          startMainWindow()
+            .catch(error => log('error', error));
         }
       });
     });
-
-    resolve();
   });
 }
 
@@ -479,17 +398,15 @@ function startStartupWindow() {
  * @returns {Promise}
  */
 function onReady() {
-  return bluebird.try(function () {
+  return bluebird.try(() => {
     if (_.size(argv._)) {
       const statSearch = _.map(argv._, arg => {
         return files.getStats(arg)
           .catch(_.noop)
-          .then(stats => {
-            return {name: path.resolve(arg), stats};
-          });
+          .then(stats => ({name: path.resolve(arg), stats}));
       });
 
-      return bluebird.all(statSearch).then(function (files) {
+      return bluebird.all(statSearch).then(files => {
         const file = _.head(_.compact(files));
 
         if (file) {
@@ -503,9 +420,9 @@ function onReady() {
           return startMainWindow();
         }
       });
-    } else {
-      return startMainWindow();
     }
+
+    return startMainWindow();
   }).then(attachIpcMainEvents)
     .catch(error => log('error', error));
 }
@@ -518,12 +435,6 @@ function onReady() {
  * @returns {Promise}
  */
 function onCheckKernel(options) {
-  assertValidObject(options, {
-    cmd: {type: 'string', isRequired: true},
-    cwd: {type: 'string'},
-    env: {type: 'object', isRequired: true}
-  });
-
   return kernelsPythonClient.check(options);
 }
 
@@ -534,11 +445,7 @@ function onCheckKernel(options) {
  * @returns {Promise}
  */
 function onCreateKernelInstance(options) {
-  assertValidObject(options, {
-    cmd: {type: 'string', isRequired: true},
-    cwd: {type: 'string'},
-    env: {type: 'object', isRequired: true}
-  });
+  const optionsForLog = _.omit(options, ['env']);
 
   return new bluebird(function (resolveInstanceId) {
     let instanceId = cuid();
@@ -547,19 +454,20 @@ function onCreateKernelInstance(options) {
       log('info', 'creating new python kernel process', 'creating python client');
 
       kernelsPythonClient.create(options).then(function (client) {
-        log('info', 'created new python kernel process', instanceId, 'process', client.childProcess.pid, options);
+        log('info', 'created new python kernel process', instanceId, 'process', client.childProcess.pid, optionsForLog);
         client.on('ready', function () {
-          log('info', 'new python kernel process is ready', instanceId, 'process', client.childProcess.pid, options);
+          log('info', 'new python kernel process is ready', instanceId, 'process', client.childProcess.pid, optionsForLog);
           resolveClient(client);
         });
         client.on('event', function (source, data) {
-          log('info', 'python kernel process event', instanceId, 'process', client.childProcess.pid, options, {source, data});
+          log('info', 'python kernel process event', instanceId, 'process', client.childProcess.pid, optionsForLog, {source, data});
         });
         client.on('error', function (error) {
-          log('info', 'python kernel process error', instanceId, 'process', client.childProcess.pid, options, error);
+          log('info', 'python kernel process error', instanceId, 'process', client.childProcess.pid, optionsForLog, error);
+          browserWindows.send('mainWindow', 'error', instanceId, errorClone.toObject(error)).catch(_.noop);
         });
         client.on('close', function (code, signal) {
-          log('info', 'python kernel process closed', instanceId, 'process', client.childProcess.pid, options, {code, signal});
+          log('info', 'python kernel process closed', instanceId, 'process', client.childProcess.pid, optionsForLog, {code, signal});
           delete kernelClients[instanceId];
         });
 
@@ -569,6 +477,7 @@ function onCreateKernelInstance(options) {
       }).catch(function (ex) {
         log('error', 'failed to create instance', instanceId, ex);
         delete kernelClients[instanceId];
+        browserWindows.send('mainWindow', 'error', instanceId, errorClone.toObject(ex)).catch(_.noop);
       });
     });
 
@@ -744,19 +653,7 @@ function onRestartApplication() {
  * @returns {Promise}
  */
 function onCheckForUpdates() {
-  const pkg = getPkg();
-
-  if (!pkg) {
-    log('error', 'Unable to find package.json');
-    return bluebird.resolve();
-  }
-
-  if (!pkg.version) {
-    log('error', 'Unable to find version in package.json', pkg);
-    return bluebird.resolve();
-  }
-
-  return bluebird.try(() => updater.update(pkg.version));
+  return updater.update(pkg.version);
 }
 
 /**
@@ -941,7 +838,6 @@ function attachIpcMainEvents() {
     onCheckForUpdates,
     onCheckKernel,
     onCloseWindow,
-    onCopyCondaToHome,
     onCreateKernelInstance,
     onCreateWindow,
     onDatabaseConnect,
@@ -1052,22 +948,6 @@ function startPlotServer() {
   return plotServerInstance.listen()
     .then(port => log('info', 'serving plots from port', port))
     .catch(error => log('critical', 'failure to start plot server', error));
-}
-
-/**
- * @param {EventEmitter} ipcEmitter
- * @returns {Promise}
- */
-function attachApplicationMenu(ipcEmitter) {
-  const Menu = electron.Menu;
-
-  return menuDefinitions.getByName('application').then(function (definition) {
-    return menuDefinitions.toElectronMenuTemplate(ipcEmitter, definition);
-  }).then(function (menuTemplate) {
-    const menu = Menu.buildFromTemplate(menuTemplate);
-
-    Menu.setApplicationMenu(menu);
-  });
 }
 
 module.exports.onCloseWindow = onCloseWindow;

@@ -4,7 +4,7 @@ import path from 'path';
 import cid from '../../services/cid';
 import mapReducers from '../../services/map-reducers';
 import {local} from '../../services/store';
-import initialStory from 'raw!./initial-story.py';
+import initialStory from './initial-story.py';
 import commonTabsReducers from '../../services/common-tabs-reducers';
 import knownFileTypes from './known-file-types';
 

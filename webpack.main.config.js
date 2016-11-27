@@ -6,25 +6,14 @@ const pkg = require('./package.json'),
   CompressionPlugin = require('compression-webpack-plugin');
 
 module.exports = {
-  context: path.join(__dirname, 'src/browser/jsx'),
+  context: __dirname,
   devtool: 'source-map',
   entry: {
     startup: [
-      './entry/startup'
-    ],
-    main: [
-      './entry/main'
-    ],
-    'free-tabs-only': [
-      './entry/free-tabs-only'
+      './src/node/index.js'
     ]
   },
-  externals: {
-    'ascii-table': 'AsciiTable',
-    jquery: 'jQuery',
-    ace: 'ace',
-    ipc: 'ipc'
-  },
+  externals: Object.keys(pkg.dependencies || {}).concat(['original-fs']),
   module: {
     // preLoaders: [
     //   {test: /\.js$/, loader: "eslint-loader", exclude: /node_modules/}
@@ -39,7 +28,7 @@ module.exports = {
       { test: /\.ya?ml$/, loader: 'json!yaml' }, // some things we want to change often, so it goes in config files
       {
         test: /\.jsx?$/,
-        exclude: /(node_modules|bower_components)/,
+        exclude: /(node_modules|bower_components|~\/)/,
         loader: 'babel',
         cacheDirectory: true,
         query: {
@@ -56,7 +45,8 @@ module.exports = {
       {
         test: /\.jsx?$/,
         include: [
-          path.resolve(__dirname, 'node_modules/rulejs')
+          path.resolve(__dirname, 'node_modules/rulejs'),
+          path.resolve(__dirname, 'node_modules/lodash')
         ],
         loader: 'babel',
         cacheDirectory: true,
@@ -68,20 +58,20 @@ module.exports = {
     ]
   },
   node: {
-    __filename: true,
-    __dirname: true
+    __filename: false,
+    __dirname: false
   },
   plugins: [
-    new webpack.optimize.OccurrenceOrderPlugin(),
-    new webpack.NoErrorsPlugin(),
-    new webpack.optimize.DedupePlugin(),
-    new webpack.DefinePlugin({
-      __APP_NAME__: JSON.stringify(pkg.name),
-      __VERSION__: JSON.stringify(pkg.version),
-      'process.env': {
-        NODE_ENV: JSON.stringify('production')
-      }
-    }),
+    // new webpack.optimize.OccurrenceOrderPlugin(),
+    // new webpack.NoErrorsPlugin(),
+    // new webpack.optimize.DedupePlugin(),
+    // new webpack.DefinePlugin({
+    //   __APP_NAME__: JSON.stringify(pkg.name),
+    //   __VERSION__: JSON.stringify(pkg.version),
+    //   'process.env': {
+    //     NODE_ENV: JSON.stringify('production')
+    //   }
+    // }),
     // new webpack.optimize.UglifyJsPlugin ({
     //   beautify: false,
     //   comments: false,
@@ -96,17 +86,23 @@ module.exports = {
     //   },
     //   test: /\.(js|jsx)$/
     // }),
-    new CompressionPlugin ({
-      asset: '[path].gz [query]',
-      algorithm: 'gzip',
-      test: /\.js$|\.html$/,
-      threshold: 10240,
-      minRatio: 0.8
-    })
+    // new CompressionPlugin ({
+    //   asset: '[path] .gz [query]',
+    //   algorithm: 'gzip',
+    //   test: /\.js$|\.html$/,
+    //   threshold: 10240,
+    //   minRatio: 0.8
+    // })
   ],
   output: {
-    filename: '[name].js',
-    path: path.join(__dirname, 'dist')
+    path: __dirname,
+    filename: './app/node/index.js',
+    // https://github.com/webpack/webpack/issues/1114
+    libraryTarget: 'commonjs2'
+  },
+  resolve: {
+    extensions: ['', '.js', '.jsx', '.json'],
+    packageMains: ['webpack', 'browser', 'web', 'browserify', ['jam', 'main'], 'main']
   },
   stats: {
     colors: true
@@ -118,5 +114,5 @@ module.exports = {
       {convertPathData: false}
     ]
   },
-  target: 'electron-renderer'
+  target: 'electron-main'
 };

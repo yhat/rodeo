@@ -10,6 +10,7 @@ const _ = require('lodash'),
   shortcuts = require('./shortcuts'),
   commands = require('./commands'),
   contextMenu = require('./context-menu'),
+  python = require('../../kernels/python/client'),
   log = require('../log').asInternal(__filename),
   argv = require('../args').getArgv(),
   activeCommands = {
@@ -33,7 +34,8 @@ function firstRun(appName, execPath, systemRoot) {
   return bluebird.all([
     shortcuts.create(execPath).catch(reportError('failed to create shortcuts')),
     contextMenu.install(execPath, systemRoot).catch(reportError('failed to install context menu')),
-    commands.addToPath(appName, execPath, systemRoot).catch(reportError('failed to add to path'))
+    commands.addToPath(appName, execPath, systemRoot).catch(reportError('failed to add to path')),
+    python.createBuiltinKernelJson().catch(reportError('failed to add built-in kernel.json'))
   ]);
 }
 
