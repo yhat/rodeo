@@ -3,7 +3,8 @@
 const pkg = require('./package.json'),
   path = require('path'),
   webpack = require('webpack'),
-  CompressionPlugin = require('compression-webpack-plugin');
+  CompressionPlugin = require('compression-webpack-plugin'),
+  nodeExternals = require('webpack-node-externals');
 
 module.exports = {
   context: __dirname,
@@ -13,7 +14,7 @@ module.exports = {
       './src/node/index.js'
     ]
   },
-  externals: Object.keys(pkg.dependencies || {}).concat(['original-fs']),
+  externals: nodeExternals(),
   module: {
     // preLoaders: [
     //   {test: /\.js$/, loader: "eslint-loader", exclude: /node_modules/}
@@ -45,13 +46,19 @@ module.exports = {
       {
         test: /\.jsx?$/,
         include: [
-          path.resolve(__dirname, 'node_modules/rulejs'),
-          path.resolve(__dirname, 'node_modules/lodash')
+          path.resolve(__dirname, 'node_modules/rulejs')
         ],
+        exclude: /(node_modules|bower_components|~\/)/,
         loader: 'babel',
         cacheDirectory: true,
         query: {
-          plugins: ['lodash'],
+          plugins: [
+            'lodash',
+            'Transform-runtime',
+            'Transform-react-remove-prop-types',
+            'Transform-react-constant-elements',
+            'Transform-react-inline-elements'
+          ],
           presets: ['es2015']
         }
       }
@@ -62,41 +69,34 @@ module.exports = {
     __dirname: false
   },
   plugins: [
-    // new webpack.optimize.OccurrenceOrderPlugin(),
-    // new webpack.NoErrorsPlugin(),
-    // new webpack.optimize.DedupePlugin(),
-    // new webpack.DefinePlugin({
-    //   __APP_NAME__: JSON.stringify(pkg.name),
-    //   __VERSION__: JSON.stringify(pkg.version),
-    //   'process.env': {
-    //     NODE_ENV: JSON.stringify('production')
-    //   }
-    // }),
-    // new webpack.optimize.UglifyJsPlugin ({
-    //   beautify: false,
-    //   comments: false,
-    //   compress: {
-    //     sequences: true,
-    //     booleans: true,
-    //     loops: true,
-    //     unused: true,
-    //     warnings: false,
-    //     drop_console: true,
-    //     unsafe: true
-    //   },
-    //   test: /\.(js|jsx)$/
-    // }),
-    // new CompressionPlugin ({
-    //   asset: '[path] .gz [query]',
-    //   algorithm: 'gzip',
-    //   test: /\.js$|\.html$/,
-    //   threshold: 10240,
-    //   minRatio: 0.8
-    // })
+    new webpack.optimize.OccurrenceOrderPlugin(),
+    new webpack.NoErrorsPlugin(),
+    new webpack.optimize.DedupePlugin(),
+    new webpack.DefinePlugin({
+      __APP_NAME__: JSON.stringify(pkg.name),
+      __VERSION__: JSON.stringify(pkg.version),
+      'process.env': {
+        NODE_ENV: JSON.stringify('production')
+      }
+    }),
+    new webpack.optimize.UglifyJsPlugin ({
+      beautify: false,
+      comments: false,
+      compress: {
+        sequences: true,
+        booleans: true,
+        loops: true,
+        unused: true,
+        warnings: false,
+        drop_console: true,
+        unsafe: true
+      },
+      test: /\.(js|jsx)$/
+    })
   ],
   output: {
     path: __dirname,
-    filename: './app/node/index.js',
+    filename: './app/index.js',
     // https://github.com/webpack/webpack/issues/1114
     libraryTarget: 'commonjs2'
   },

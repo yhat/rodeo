@@ -6,7 +6,7 @@
 'use strict';
 
 const _ = require('lodash'),
-  fs = require('original-fs'),
+  fs = require('fs'),
   os = require('os'),
   log = require('../../services/log').asInternal(__filename),
   path = require('path');

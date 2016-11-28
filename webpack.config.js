@@ -6,17 +6,17 @@ const pkg = require('./package.json'),
   CompressionPlugin = require('compression-webpack-plugin');
 
 module.exports = {
-  context: path.join(__dirname, 'src/browser/jsx'),
+  context: __dirname,
   devtool: 'source-map',
   entry: {
     startup: [
-      './entry/startup'
+      './src/browser/entry/startup'
     ],
     main: [
-      './entry/main'
+      './src/browser/entry/main'
     ],
     'free-tabs-only': [
-      './entry/free-tabs-only'
+      './src/browser/entry/free-tabs-only'
     ]
   },
   externals: {
@@ -105,8 +105,8 @@ module.exports = {
     })
   ],
   output: {
-    filename: '[name].js',
-    path: path.join(__dirname, 'dist')
+    filename: './app/[name].js',
+    path: __dirname
   },
   stats: {
     colors: true

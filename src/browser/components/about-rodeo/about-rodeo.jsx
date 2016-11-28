@@ -6,6 +6,7 @@ import builtByYhat from './built-by-yhat.md';
 import includesOpenSource from './includes-open-source.md';
 import usageMetrics from './usage-metrics.md';
 import './about-rodeo.css';
+import rodeoTextDarkImage from './rodeo-text-dark.png';
 
 /**
  * @class AboutRodeo
@@ -17,7 +18,7 @@ export default React.createClass({
   render: function () {
     return (
       <div className="about-rodeo">
-        <img src="images/rodeo-text-dark.png"/>
+        <img src={rodeoTextDarkImage}/>
         <div className="version">{__VERSION__}</div>
         <Marked>{builtByYhat}</Marked>
         <Marked>{includesOpenSource}</Marked>

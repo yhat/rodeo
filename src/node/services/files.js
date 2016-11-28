@@ -3,7 +3,7 @@
 const _ = require('lodash'),
   bluebird = require('bluebird'),
   chokidar = require('chokidar'),
-  fs = require('original-fs'),
+  fs = require('fs'),
   yaml = require('js-yaml'),
   path = require('path'),
   log = require('./log').asInternal(__filename),

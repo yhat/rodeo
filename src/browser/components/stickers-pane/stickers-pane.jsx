@@ -5,8 +5,9 @@ import validation from '../../services/validation';
 import './stickers-pane.css';
 import wantAFreeStickerText from './want-a-free-sticker.md';
 import thanksText from './thanks.md';
-import alreadyDoneText from './already-done.md';
 import {local} from '../../services/store';
+import rodeoImage from './rodeo-logo.png';
+import text from './text.yml';
 
 const storeKey = 'stickersRequested';
 
@@ -45,9 +46,21 @@ export default React.createClass({
       state = this.state;
 
     if (state.hasRegistered) {
-      content = <Marked>{alreadyDoneText}</Marked>;
+      content = (
+        <div>
+          {text.thankYou}
+          <img src={rodeoImage} style="height: 100px;"/>
+          {text.alreadySignedUp}
+        </div>
+      );
     } else if (state.justRegistered) {
-      content = <Marked>{thanksText}</Marked>;
+      content = (
+        <div>
+          {text.thankYou}
+          <img src={rodeoImage} style="height: 100px;"/>
+          {text.weWillContactYou}
+        </div>
+      );
     } else {
       let help;
 
@@ -57,8 +70,11 @@ export default React.createClass({
 
       content = (
         <div>
-          <Marked>{wantAFreeStickerText}</Marked>
-
+          <div>
+            {text.wantAFreeSticker}
+            <img src={rodeoImage} style="height: 100px;"/>
+            {text.sendUsYourEmail}
+          </div>
           <div className="form-group">
             <div className="input-group">
               <input className="form-control" placeholder="smugdouglas@gmail.com" required="required" type="email"/>

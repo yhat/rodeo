@@ -3,7 +3,7 @@
 const _ = require('lodash'),
   expect = require('chai').expect,
   sinon = require('sinon'),
-  fs = require('original-fs'),
+  fs = require('fs'),
   dirname = __dirname.split('/').pop(),
   filename = __filename.split('/').pop().split('.').shift(),
   lib = require('./' + filename),

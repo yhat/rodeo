@@ -2,6 +2,7 @@ import React from 'react';
 import Marked from '../marked/marked.jsx';
 import acknowledgementsText from './acknowledgements.md';
 import './acknowledgements.css';
+import rodeoTextDarkImage from './rodeo-text-dark.png';
 
 /**
  * @class Acknowledgements
@@ -13,7 +14,7 @@ export default React.createClass({
   render: function () {
     return (
       <div className="acknowledgements">
-        <img src="images/rodeo-text-dark.png"/>
+        <img src={rodeoTextDarkImage}/>
         <div className="scrollable">
           <Marked>{acknowledgementsText}</Marked>
         </div>

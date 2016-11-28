@@ -7,11 +7,11 @@ const _ = require('lodash'),
   path = require('path'),
   sourcemaps = require('gulp-sourcemaps'),
   map = require('vinyl-map'),
-  tmpAppDirectory = 'app',
   uglify = require('gulp-uglify'),
   distTasks = require('./tasks/dist'),
   lintTasks = require('./tasks/lint'),
   webpackTasks = require('./tasks/webpack'),
+  tmpAppDirectory = 'app',
   outputMap = {
     app: tmpAppDirectory,
     browser: path.join(tmpAppDirectory, 'browser'),
@@ -28,10 +28,10 @@ webpackTasks.importTasks(gulp, outputMap);
 
 gulp.task('ace:core', function () {
   return gulp.src([
-    'src/browser/ace/ace.js',
-    'src/browser/ace/**/*.js',
-    '!src/browser/ace/mode-*.js',
-    '!src/browser/ace/theme-*.js'
+    'src/ace/ace.js',
+    'src/ace/**/*.js',
+    '!src/ace/mode-*.js',
+    '!src/ace/theme-*.js'
   ]).pipe(concat('ace.min.js'))
     .pipe(uglify())
     .pipe(gulp.dest(outputMap.browser));
@@ -39,13 +39,13 @@ gulp.task('ace:core', function () {
 
 gulp.task('ace:modes-js', function () {
   return gulp.src([
-    'src/browser/ace/mode-*.js'
+    'src/ace/mode-*.js'
   ]).pipe(gulp.dest(outputMap.browser));
 });
 
 gulp.task('ace:themes-js', function () {
   return gulp.src([
-    'src/browser/ace/theme-*.js'
+    'src/ace/theme-*.js'
   ]).pipe(uglify())
     .pipe(gulp.dest(outputMap.browser));
 });
@@ -79,43 +79,22 @@ gulp.task('html', function () {
 gulp.task('fonts', function () {
   return gulp.src([
     'node_modules/font-awesome/fonts/**/*',
-    'src/browser/fonts/lato/Lato-Regular.ttf',
-    'src/browser/fonts/NotoMono-hinted/NotoMono-Regular.ttf',
-    'src/browser/fonts/NotoSans-unhinted/NotoSans-Regular.ttf',
-    'src/browser/fonts/NotoSerif-unhinted/NotoSerif-Regular.ttf',
-    'src/browser/fonts/roboto/Roboto-Regular.ttf',
-    'src/browser/fonts/fonts.css'
+    'src/fonts/lato/Lato-Regular.ttf',
+    'src/fonts/NotoMono-hinted/NotoMono-Regular.ttf',
+    'src/fonts/NotoSans-unhinted/NotoSans-Regular.ttf',
+    'src/fonts/NotoSerif-unhinted/NotoSerif-Regular.ttf',
+    'src/fonts/roboto/Roboto-Regular.ttf',
+    'src/fonts/fonts.css'
   ]).pipe(gulp.dest(outputMap.fonts));
 });
 
 gulp.task('themes', ['fonts'], function () {
   return gulp.src([
-    'src/browser/themes/*.less'
+    'src/themes/*.less'
   ]).pipe(sourcemaps.init())
     .pipe(less())
     .pipe(sourcemaps.write('.'))
     .pipe(gulp.dest(outputMap.themes));
-});
-
-/**
- * We should eventually eliminate all of these and move them to the jsx folder so they're optimized
- */
-gulp.task('images', function () {
-  return gulp.src([
-    'src/browser/images/**/*.{svg,gif,png}'
-  ]).pipe(gulp.dest(outputMap.images));
-});
-
-/**
- * Copy the node-specific code over to the temp directory that will be distributed with a deployed app
- */
-gulp.task('node', function () {
-  // copy node program
-  return gulp.src([
-    'src/node/**/*',
-    '!**/*.test*', // leave the tests behind
-    '!**/*.md' // leave the documentation behind
-  ]).pipe(gulp.dest(outputMap.node));
 });
 
 /**
@@ -135,6 +114,6 @@ gulp.task('package.json', function () {
 });
 
 gulp.task('test', ['lint']);
-gulp.task('build', ['themes', 'external', 'images', 'ace', 'jsx', 'html', 'node', 'package.json']);
+gulp.task('build', ['themes', 'external', 'ace', 'jsx', 'html', 'node', 'package.json']);
 gulp.task('dist', ['dist:all']);
 gulp.task('default', ['test', 'build']);
