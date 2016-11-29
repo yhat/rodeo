@@ -3,15 +3,14 @@
 const pkg = require('./package.json'),
   path = require('path'),
   webpack = require('webpack'),
-  CompressionPlugin = require('compression-webpack-plugin'),
   nodeExternals = require('webpack-node-externals');
 
 module.exports = {
-  context: __dirname,
+  context: path.join(__dirname, 'src'),
   devtool: 'source-map',
   entry: {
     startup: [
-      './src/node/index.js'
+      './node/index.js'
     ]
   },
   externals: nodeExternals(),
@@ -23,8 +22,8 @@ module.exports = {
       { test: /\.json/, loader: 'json' },
       { test: /\.less$/, loader: 'style!css!less' },
       { test: /\.css$/, loader: 'style!css' },
-      { test: /\.(png|gif)$/, loader: 'url?name=[name].[hash].[ext]&limit=8192' }, // inline base64 URLs for <=8k images, direct URLs for the rest
-      { test: /\.svg$/, loaders: ['file?name=[name].[hash].[ext]', 'svgo?useConfig=svgoConfig1'] },
+      { test: /\.(png|gif)$/, loader: 'url?name=[name].[hash].[ext]&limit=8192&outputPath=app' }, // inline base64 URLs for <=8k images, direct URLs for the rest
+      { test: /\.svg$/, loaders: ['file?name=[name].[hash].[ext]', 'svgo?useConfig=svgoConfig1&outputPath=app'] },
       { test: /\.(md|py)$/, loader: 'raw' }, // because we sometimes treat it differently based on the context (i.e., code)
       { test: /\.ya?ml$/, loader: 'json!yaml' }, // some things we want to change often, so it goes in config files
       {
@@ -48,7 +47,6 @@ module.exports = {
         include: [
           path.resolve(__dirname, 'node_modules/rulejs')
         ],
-        exclude: /(node_modules|bower_components|~\/)/,
         loader: 'babel',
         cacheDirectory: true,
         query: {
@@ -78,31 +76,31 @@ module.exports = {
       'process.env': {
         NODE_ENV: JSON.stringify('production')
       }
-    }),
-    new webpack.optimize.UglifyJsPlugin ({
-      beautify: false,
-      comments: false,
-      compress: {
-        sequences: true,
-        booleans: true,
-        loops: true,
-        unused: true,
-        warnings: false,
-        drop_console: true,
-        unsafe: true
-      },
-      test: /\.(js|jsx)$/
     })
+    // new webpack.optimize.UglifyJsPlugin ({
+    //   beautify: false,
+    //   comments: false,
+    //   compress: {
+    //     sequences: true,
+    //     booleans: true,
+    //     loops: true,
+    //     unused: true,
+    //     warnings: false,
+    //     drop_console: true,
+    //     unsafe: true
+    //   },
+    //   test: /\.(js|jsx)$/
+    // })
   ],
   output: {
-    path: __dirname,
-    filename: './app/index.js',
+    path: path.join(__dirname, 'app'),
+    filename: 'index.js',
     // https://github.com/webpack/webpack/issues/1114
     libraryTarget: 'commonjs2'
   },
   resolve: {
     extensions: ['', '.js', '.jsx', '.json'],
-    packageMains: ['webpack', 'browser', 'web', 'browserify', ['jam', 'main'], 'main']
+    packageMains: ['webpack', 'browser', 'web', ['jam', 'main'], 'main']
   },
   stats: {
     colors: true

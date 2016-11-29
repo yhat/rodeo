@@ -1,45 +1,27 @@
-'use strict';
+import _ from 'lodash';
+import bluebird from 'bluebird';
+import cuid from 'cuid/dist/node-cuid';
+import electron from 'electron';
+import os from 'os';
+import util from 'util';
+import chromiumErrors from './chromium-errors.yml';
 
-const _ = require('lodash'),
-  bluebird = require('bluebird'),
-  cuid = require('cuid'),
-  electron = require('electron'),
-  path = require('path'),
-  files = require('./files'),
-  yaml = require('js-yaml'),
-  log = require('./log').asInternal(__filename),
-  util = require('util'),
+const log = require('./log').asInternal(__filename),
   availableBrowserWindowOptions = [
     'width', 'height', 'useContentSize', 'resizable', 'moveable', 'center', 'alwaysOnTop', 'show', 'frame',
-    'webPreferences'
+    'webPreferences', 'titleBarStyle'
   ],
-  windows = {},
-  os = require('os'),
-  homedir = os.homedir();
-
-function getCommonErrors() {
-  const targetFile = path.resolve(path.join(__dirname, 'chromium-errors.yml'));
-  let commonErrors;
-
-  try {
-    commonErrors = files.getInternalYAMLFileSafeSync(targetFile, 'utf8');
-  } catch (ex) {
-    log('warn', 'could not read', targetFile, ex);
-    commonErrors = {};
-  }
-
-  return commonErrors;
-}
+  homedir = os.homedir(),
+  windows = {};
 
 /**
  * @see https://code.google.com/p/chromium/codesearch#chromium/src/net/base/net_error_list.h
  */
 function onFailLoad() {
   const args = sanitizeArguments(arguments, ['event', 'code', 'description', 'url']),
-    commonErrors = exports.getCommonErrors(),
-    name = _.findKey(commonErrors, {id: args.code});
+    name = _.findKey(chromiumErrors, {id: args.code});
 
-  args.description = commonErrors[name] && commonErrors[name].description || args.description;
+  args.description = chromiumErrors[name] && chromiumErrors[name].description || args.description;
 
   log('error', 'onFailLoad', _.pickBy(_.assign({name}, args), _.identity));
 }
@@ -199,7 +181,8 @@ function createMainWindow(name, options) {
     width: size.width,
     height: size.height,
     show: false,
-    titleBarStyle: 'default'
+    titleBarStyle: 'default',
+    frame: true
   }, options));
 }
 
@@ -217,8 +200,7 @@ function createStartupWindow(name, options) {
     center: true,
     alwaysOnTop: false,
     show: false,
-    frame: false,
-    titleBarStyle: 'default'
+    frame: false
   }, options));
 }
 
@@ -341,7 +323,6 @@ module.exports.createMainWindow = createMainWindow;
 module.exports.createStartupWindow = createStartupWindow;
 module.exports.getByName = getByName;
 module.exports.send = send;
-module.exports.getCommonErrors = _.memoize(getCommonErrors);
 module.exports.getWindowNames = getWindowNames;
 module.exports.getNameOfWindow = getNameOfWindow;
 module.exports.getFocusedWindow = getFocusedWindow;

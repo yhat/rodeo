@@ -5,7 +5,7 @@ const path = require('path'),
   webpack = require('webpack');
 
 module.exports = {
-  context: path.join(__dirname, 'src/browser/jsx'),
+  context: path.join(__dirname, 'src'),
   debug: true,
   devtool: 'source-map',
   entry: {
@@ -13,19 +13,19 @@ module.exports = {
       'react-hot-loader/patch',
       'webpack-hot-middleware/client?path=http://localhost:3001/__webpack_hmr',
       'webpack/hot/only-dev-server',
-      './entry/startup'
+      './browser/entry/startup'
     ],
     main: [
       'react-hot-loader/patch',
       'webpack-hot-middleware/client?path=http://localhost:3001/__webpack_hmr',
       'webpack/hot/only-dev-server',
-      './entry/main'
+      './browser/entry/main'
     ],
     'free-tabs-only': [
       'react-hot-loader/patch',
       'webpack-hot-middleware/client?path=http://localhost:3001/__webpack_hmr',
       'webpack/hot/only-dev-server',
-      './entry/free-tabs-only'
+      './browser/entry/free-tabs-only'
     ]
   },
   externals: {
@@ -42,9 +42,9 @@ module.exports = {
       { test: /\.json/, loader: 'json' },
       { test: /\.less$/, loader: 'style!css!less' },
       { test: /\.css$/, loader: 'style!css' },
-      { test: /\.(png|gif)$/, loader: 'url?name=[name].[hash].[ext]&limit=8192' }, // inline base64 URLs for <=8k images, direct URLs for the rest
-      { test: /\.svg$/, loaders: ['file?name=[name].[hash].[ext]', 'svgo?useConfig=svgoConfig1'] },
-      { test: /\.md$/, loader: 'raw' }, // because we sometimes treat it differently based on the context (i.e., code)
+      { test: /\.(png|gif)$/, loader: 'url?name=[name].[hash].[ext]&limit=8192&&outputPath=app' }, // inline base64 URLs for <=8k images, direct URLs for the rest
+      { test: /\.svg$/, loaders: ['file?name=[name].[hash].[ext]', 'svgo?useConfig=svgoConfig1&&outputPath=app'] },
+      { test: /\.(md|py)$/, loader: 'raw' }, // because we sometimes treat it differently based on the context (i.e., code)
       { test: /\.ya?ml$/, loader: 'json!yaml' }, // some things we want to change often, so it goes in config files
       {
         test: /\.jsx?$/,
@@ -83,12 +83,12 @@ module.exports = {
       'process.env': {
         NODE_ENV: JSON.stringify('development')
       }
-    }),
+    })
   ],
   output: {
     filename: '[name].js',
-    path: path.join(__dirname, 'dist'),
-    publicPath: 'http://localhost:3001/dist/'
+    path: path.resolve(__dirname, 'app'),
+    publicPath: 'http://localhost:3001/app/'
   },
   stats: {
     colors: true

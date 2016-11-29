@@ -1,4 +1,6 @@
+import _ from 'lodash';
 import React from 'react';
+import Immutable from 'seamless-immutable';
 import {Provider} from 'react-redux';
 import client from '../services/jupyter/client';
 import FullScreen from '../components/full-screen/full-screen.jsx';
@@ -12,10 +14,18 @@ import ipcDispatcher from '../services/ipc-dispatcher';
 import dialogActions from '../actions/dialogs';
 import applicationControl from '../services/application-control';
 import reduxStore from '../services/redux-store';
+import {local} from '../services/store';
 
 // take the state from what we're already been given, or start fresh with initialState
-const state = window.__PRELOADED_STATE__ || initialState.getState(),
-  store = reduxStore.create(rootReducer, state);
+const lastSavedAppState = local.get('lastSavedAppState');
+let state, store;
+
+if (lastSavedAppState) {
+  state = _.mapValues(lastSavedAppState, value => Immutable(value));
+} else {
+  state = window.__PRELOADED_STATE__ || local.get('lastSavedAppState') || initialState.getState()
+}
+store = reduxStore.create(rootReducer, state);
 
 ipcDispatcher(store.dispatch);
 

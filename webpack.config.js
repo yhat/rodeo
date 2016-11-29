@@ -1,22 +1,20 @@
-'use strict';
-
 const pkg = require('./package.json'),
   path = require('path'),
   webpack = require('webpack'),
   CompressionPlugin = require('compression-webpack-plugin');
 
 module.exports = {
-  context: __dirname,
+  context: path.join(__dirname, 'src'),
   devtool: 'source-map',
   entry: {
     startup: [
-      './src/browser/entry/startup'
+      './browser/entry/startup'
     ],
     main: [
-      './src/browser/entry/main'
+      './browser/entry/main'
     ],
     'free-tabs-only': [
-      './src/browser/entry/free-tabs-only'
+      './browser/entry/free-tabs-only'
     ]
   },
   externals: {
@@ -26,15 +24,12 @@ module.exports = {
     ipc: 'ipc'
   },
   module: {
-    // preLoaders: [
-    //   {test: /\.js$/, loader: "eslint-loader", exclude: /node_modules/}
-    // ],
     loaders: [
       { test: /\.json/, loader: 'json' },
       { test: /\.less$/, loader: 'style!css!less' },
       { test: /\.css$/, loader: 'style!css' },
-      { test: /\.(png|gif)$/, loader: 'url?name=[name].[hash].[ext]&limit=8192' }, // inline base64 URLs for <=8k images, direct URLs for the rest
-      { test: /\.svg$/, loaders: ['file?name=[name].[hash].[ext]', 'svgo?useConfig=svgoConfig1'] },
+      { test: /\.(png|gif)$/, loader: 'url?name=[name].[hash].[ext]&limit=8192&&outputPath=app' }, // inline base64 URLs for <=8k images, direct URLs for the rest
+      { test: /\.svg$/, loaders: ['file?name=[name].[hash].[ext]', 'svgo?useConfig=svgoConfig1&outputPath=app'] },
       { test: /\.(md|py)$/, loader: 'raw' }, // because we sometimes treat it differently based on the context (i.e., code)
       { test: /\.ya?ml$/, loader: 'json!yaml' }, // some things we want to change often, so it goes in config files
       {
@@ -82,20 +77,20 @@ module.exports = {
         NODE_ENV: JSON.stringify('production')
       }
     }),
-    // new webpack.optimize.UglifyJsPlugin ({
-    //   beautify: false,
-    //   comments: false,
-    //   compress: {
-    //     sequences: true,
-    //     booleans: true,
-    //     loops: true,
-    //     unused: true,
-    //     warnings: false,
-    //     drop_console: true,
-    //     unsafe: true
-    //   },
-    //   test: /\.(js|jsx)$/
-    // }),
+    new webpack.optimize.UglifyJsPlugin ({
+      beautify: false,
+      comments: false,
+      compress: {
+        sequences: true,
+        booleans: true,
+        loops: true,
+        unused: true,
+        warnings: false,
+        drop_console: true,
+        unsafe: true
+      },
+      test: /\.(js|jsx)$/
+    }),
     new CompressionPlugin ({
       asset: '[path].gz [query]',
       algorithm: 'gzip',
@@ -105,8 +100,8 @@ module.exports = {
     })
   ],
   output: {
-    filename: './app/[name].js',
-    path: __dirname
+    filename: '[name].js',
+    path: path.resolve(__dirname, 'app')
   },
   stats: {
     colors: true

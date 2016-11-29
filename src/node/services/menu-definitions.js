@@ -1,11 +1,10 @@
-'use strict';
+import _ from 'lodash';
+import browserWindows from './browser-windows';
+import cuid from 'cuid/dist/node-cuid';
+import electron from 'electron';
+import util from 'util';
 
-const _ = require('lodash'),
-  browserWindows = require('./browser-windows'),
-  cuid = require('cuid'),
-  electron = require('electron'),
-  log = require('./log').asInternal(__filename),
-  util = require('util');
+const log = require('./log').asInternal(__filename);
 
 /**
  * @param {EventEmitter} ipcEmitter

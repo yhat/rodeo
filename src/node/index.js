@@ -1,9 +1,8 @@
 import _ from 'lodash';
-import applicationMenu from './application-menu.yml';
 import args from './services/args';
 import bluebird from 'bluebird';
 import browserWindows from './services/browser-windows';
-import cuid from 'cuid';
+import cuid from 'cuid/dist/node-cuid';
 import db from './services/db';
 import electron from 'electron';
 import environment from './services/env';
@@ -20,10 +19,11 @@ import processes from './services/processes';
 import surveyService from './services/survey';
 import updater from './services/updater';
 import pkg from '../../package.json';
+import applicationMenu from './application-menu.yml';
 
 const argv = args.getArgv(),
   log = require('./services/log').asInternal(__filename),
-  staticFileDir = path.resolve(__dirname, '../browser/'),
+  staticFileDir = path.resolve(__dirname),
   kernelClients = {},
   windowUrls = {
     mainWindow: 'main.html',
@@ -308,6 +308,7 @@ function getMainWindow() {
  * @returns {Promise}
  */
 function startMainWindow() {
+  log('info', 'startMainWindow');
   return bluebird.try(function () {
     const window = getMainWindow();
 
@@ -832,6 +833,8 @@ function onShareAction(action) {
  */
 function attachIpcMainEvents() {
   const ipcMain = electron.ipcMain;
+
+  log('info', 'attachIpcMainEvents');
 
   ipcPromises.exposeElectronIpcEvents(ipcMain, [
     onAddWatchingFiles,

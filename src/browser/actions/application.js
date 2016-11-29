@@ -4,12 +4,14 @@
  */
 
 import applicationControl from '../services/application-control';
+import {local} from '../services/store';
 import track from '../services/track';
 
 function quit() {
   track({category: 'application', action: 'quit', sessionControl: 'end'});
-  return function (dispatch) {
+  return function (dispatch, getState) {
     // probably save a bunch of stuff here to localStorage
+    local.set('lastSavedAppState', getState());
 
     // probably dim the screen to make it solemn
     dispatch({type: 'QUITING'});
