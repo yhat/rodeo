@@ -1,13 +1,14 @@
 'use strict';
 
-const _ = require('lodash'),
-  bluebird = require('bluebird'),
-  files = require('./files'),
-  path = require('path'),
-  marked = require('marked'),
-  highlight = require('highlight.js'),
-  Handlebars = require('handlebars'),
-  log = require('./log').asInternal(__filename),
+import _ from 'lodash';
+import bluebird from 'bluebird';
+import files from './files';
+import path from 'path';
+import marked from 'marked';
+import highlight from 'highlight.js';
+import Handlebars from 'handlebars';
+
+const log = require('./log').asInternal(__filename),
   codeBlockToken = /^```/mg,
   languageSelectToken = /^\{(.+)\}/,
   reportTemplate = 'md.hbs';

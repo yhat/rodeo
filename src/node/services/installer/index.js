@@ -4,14 +4,15 @@
 
 'use strict';
 
-const _ = require('lodash'),
-  bluebird = require('bluebird'),
-  os = require('os'),
-  shortcuts = require('./shortcuts'),
-  commands = require('./commands'),
-  contextMenu = require('./context-menu'),
-  python = require('../../kernels/python/client'),
-  log = require('../log').asInternal(__filename),
+import _ from 'lodash';
+import bluebird from 'bluebird';
+import os from 'os';
+import shortcuts from './shortcuts';
+import commands from './commands';
+import contextMenu from './context-menu';
+import python from '../../kernels/python/client';
+
+const log = require('../log').asInternal(__filename),
   argv = require('../args').getArgv(),
   activeCommands = {
     squirrelInstall: install,

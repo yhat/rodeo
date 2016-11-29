@@ -1,10 +1,10 @@
 'use strict';
 
-const _ = require('lodash'),
-  bluebird = require('bluebird'),
-  postgresql = require('./postgresql'),
-  log = require('../log').asInternal(__filename),
-  types = {
+import _ from 'lodash';
+import bluebird from 'bluebird';
+import postgresql from './postgresql';
+
+const types = {
     postgresql
   },
   instances = {};

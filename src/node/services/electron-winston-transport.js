@@ -1,7 +1,7 @@
 'use strict';
 
-const util = require('util'),
-  winston = require('winston');
+import util from 'util';
+import winston from 'winston';
 
 let ElectronLogger = function (options) {
   this.name = 'electronLogger';

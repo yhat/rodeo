@@ -1,7 +1,7 @@
 'use strict';
 
-const _ = require('lodash'),
-  yargs = require('yargs');
+import _ from 'lodash';
+import yargs from 'yargs';
 
 function getArgv() {
   let sliceNum;

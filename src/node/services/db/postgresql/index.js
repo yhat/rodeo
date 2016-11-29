@@ -1,11 +1,12 @@
 'use strict';
 
-const _ = require('lodash'),
-  bluebird = require('bluebird'),
-  files = require('../../../services/files'),
-  EventEmitter = require('events'),
-  log = require('../../log').asInternal(__filename),
-  pg = require('pg'),
+import _ from 'lodash';
+import bluebird from 'bluebird';
+import files from '../../../services/files';
+import EventEmitter from 'events';
+import pg from 'pg';
+
+const log = require('../../log').asInternal(__filename),
   sanitize = require('../option-sanitization').sanitize,
   getSqlFiles = _.memoize(() => files.readAllFilesOfExt(__dirname, '.sql')),
   queries = {

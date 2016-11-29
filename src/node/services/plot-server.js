@@ -1,8 +1,9 @@
 'use strict';
 
-const bluebird = require('bluebird'),
-  express = require('express'),
-  log = require('./log').asInternal(__filename),
+import bluebird from 'bluebird';
+import express from 'express';
+
+const log = require('./log').asInternal(__filename),
   defaultHostname = 'localhost',
   defaultBacklog = 511;
 let PlotServer;

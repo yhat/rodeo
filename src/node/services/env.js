@@ -1,9 +1,10 @@
 'use strict';
 
-const _ = require('lodash'),
-  bluebird = require('bluebird'),
-  log = require('./log').asInternal(__filename),
-  processes = require('./processes');
+import _ from 'lodash';
+import bluebird from 'bluebird';
+import processes from './processes';
+
+const log = require('./log').asInternal(__filename);
 
 /**
  * @returns {Promise}

@@ -23,7 +23,7 @@ let state, store;
 if (lastSavedAppState) {
   state = _.mapValues(lastSavedAppState, value => Immutable(value));
 } else {
-  state = window.__PRELOADED_STATE__ || local.get('lastSavedAppState') || initialState.getState()
+  state = window.__PRELOADED_STATE__ || initialState.getState();
 }
 store = reduxStore.create(rootReducer, state);
 

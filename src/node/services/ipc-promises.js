@@ -1,8 +1,9 @@
 'use strict';
 
-const _ = require('lodash'),
-  bluebird = require('bluebird'),
-  log = require('./log').asInternal(__filename);
+import _ from 'lodash';
+import bluebird from 'bluebird';
+
+const log = require('./log').asInternal(__filename);
 
 /**
  * @param {string} name

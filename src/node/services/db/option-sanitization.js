@@ -1,5 +1,5 @@
-const _ = require('lodash'),
-  log = require('../log').asInternal(__filename);
+import _ from 'lodash';
+const log = require('../log').asInternal(__filename);
 
 function normalize(value, definition) {
   if (_.isArray(definition.normalization)) {

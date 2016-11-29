@@ -1,11 +1,12 @@
 'use strict';
 
-const _ = require('lodash'),
-  electronWinstonTransport = require('./electron-winston-transport'),
-  path = require('path'),
-  winston = require('winston'),
-  util = require('util'),
-  colorize = false;
+import _ from 'lodash';
+import electronWinstonTransport from './electron-winston-transport';
+import path from 'path';
+import winston from 'winston';
+import util from 'util';
+
+const colorize = false;
 
 winston.transports.ElectronLogger = electronWinstonTransport;
 

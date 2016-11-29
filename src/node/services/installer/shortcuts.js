@@ -1,9 +1,10 @@
 'use strict';
 
-const processes = require('../processes'),
-  path = require('path'),
-  files = require('../files'),
-  updateName = 'Update.exe';
+import processes from '../processes';
+import path from 'path';
+import files from '../files';
+
+const updateName = 'Update.exe';
 
 function getUpdateExe(execPath) {
   return path.resolve(execPath, '..', '..', updateName);

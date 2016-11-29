@@ -1,7 +1,7 @@
 'use strict';
 
-const _ = require('lodash'),
-  bluebird = require('bluebird');
+import _ from 'lodash';
+import bluebird from 'bluebird';
 
 /**
  * @param {EventEmitter} eventEmitter

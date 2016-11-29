@@ -1,10 +1,11 @@
 'use strict';
 
-const bluebird = require('bluebird'),
-  electron = require('electron'),
-  browserWindows = require('./browser-windows'),
-  log = require('./log').asInternal(__filename),
-  promises = require('./promises');
+import bluebird from 'bluebird';
+import electron from 'electron';
+import browserWindows from './browser-windows';
+import promises from './promises';
+
+const log = require('./log').asInternal(__filename);
 
 /**
  * @param {string} type

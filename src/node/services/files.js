@@ -1,57 +1,17 @@
 'use strict';
 
-const _ = require('lodash'),
-  bluebird = require('bluebird'),
-  chokidar = require('chokidar'),
-  fs = require('fs'),
-  yaml = require('js-yaml'),
-  path = require('path'),
-  log = require('./log').asInternal(__filename),
-  temp = require('temp'),
-  fileWatchers = {};
+import _ from 'lodash';
+import bluebird from 'bluebird';
+import chokidar from 'chokidar';
+import fs from 'fs';
+import yaml from 'js-yaml';
+import path from 'path';
+import temp from 'temp';
+
+const fileWatchers = {},
+  log = require('./log').asInternal(__filename);
 
 temp.track();
-
-/**
- * @param {string} filePath
- * @returns {object}
- */
-function getInternalJSONFileSafeSync(filePath) {
-  let contents,
-    result = null;
-
-  try {
-    contents = require('fs').readFileSync(filePath, {encoding: 'UTF8'});
-
-    try {
-      result = JSON.parse(contents);
-    } catch (e) {
-      log('warn', filePath, 'is not valid JSON', e);
-    }
-  } catch (ex) {
-    // deliberately no warning, thus "safe".
-  }
-
-  return result;
-}
-
-function getInternalYAMLFileSafeSync(filePath) {
-  let result = null;
-
-  try {
-    const contents = require('fs').readFileSync(filePath, 'utf8');
-
-    try {
-      result = yaml.safeLoad(contents);
-    } catch (e) {
-      log('warn', filePath, 'is not valid YAML', e);
-    }
-  } catch (ex) {
-    // // deliberately no warning, thus "safe".
-  }
-
-  return result;
-}
 
 /**
  * @param {string} dirPath
@@ -377,8 +337,6 @@ function makeDirectoryPathSafe(basePath, directoryNames) {
   });
 }
 
-module.exports.getInternalJSONFileSafeSync = getInternalJSONFileSafeSync;
-module.exports.getInternalYAMLFileSafeSync = getInternalYAMLFileSafeSync;
 module.exports.readFile = _.partialRight(bluebird.promisify(fs.readFile), 'utf8');
 module.exports.writeFile = bluebird.promisify(fs.writeFile);
 module.exports.readDirectory = readDirectory;

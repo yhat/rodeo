@@ -3,13 +3,12 @@
  * @module
  */
 
-'use strict';
+import _ from 'lodash';
+import fs from 'fs';
+import os from 'os';
+import path from 'path';
 
-const _ = require('lodash'),
-  fs = require('fs'),
-  os = require('os'),
-  log = require('../../services/log').asInternal(__filename),
-  path = require('path');
+const log = require('../../services/log').asInternal(__filename);
 
 /**
  * @param {object} args

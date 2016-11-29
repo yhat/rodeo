@@ -1,7 +1,7 @@
 'use strict';
 
-const path = require('path'),
-  processes = require('../processes');
+import path from 'path';
+import processes from '../processes';
 
 /**
  * @param {string} systemRoot

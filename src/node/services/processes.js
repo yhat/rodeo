@@ -1,10 +1,11 @@
 'use strict';
 
-const _ = require('lodash'),
-  assert = require('./assert'),
-  bluebird = require('bluebird'),
-  childProcess = require('child_process'),
-  log = require('./log').asInternal(__filename),
+import _ from 'lodash';
+import assert from './assert';
+import bluebird from 'bluebird';
+import childProcess from 'child_process';
+
+const log = require('./log').asInternal(__filename),
   children = [],
   killTimeout = 5000,
   assertString = assert(['string', 'must be string']);

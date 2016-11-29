@@ -25,7 +25,7 @@ export default React.createClass({
       contents.push(
         <div className="package-actions">
           <button className="btn btn-sm btn-default" onClick={props.onDetectPackages}>
-            <span className="fa fa-search" />{'Detect Packages'}</button>
+            <span className="fa fa-search"/>{'Detect Packages'}</button>
         </div>
       );
     } else {
@@ -48,7 +48,7 @@ export default React.createClass({
       contents.push(
         <div className="package-actions">
           <button className="btn btn-sm btn-default" onClick={props.onDetectPackages}>
-            <span className="fa fa-refresh" />{'Refresh List'}
+            <span className="fa fa-refresh"/>{'Refresh List'}
           </button>
         </div>
       );
