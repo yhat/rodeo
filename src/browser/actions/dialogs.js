@@ -32,10 +32,15 @@ export function showRegisterRodeo(content) {
   };
 }
 
+function showAskQuit() {
+  return {type: 'ADD_MODAL_DIALOG', contentType: 'ASK_QUIT', title: 'Quit'};
+}
+
 export default {
   showAboutRodeo,
   showAboutStickers,
   showAcknowledgements,
+  showAskQuit,
   showPreferences,
   showNotification,
   showRegisterRodeo

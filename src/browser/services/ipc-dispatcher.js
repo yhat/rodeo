@@ -19,7 +19,8 @@ const dispatchMap = {
     SHOW_PREFERENCES: () => dialogActions.showPreferences(),
     CHECK_FOR_UPDATES: () => applicationActions.checkForUpdates(),
     TOGGLE_DEV_TOOLS: () => applicationActions.toggleDevTools(),
-    QUIT: () => applicationActions.quit(),
+    QUIT: () => dialogActions.showAskQuit(),
+    ASK_QUIT: () => dialogActions.showAskQuit(),
     SAVE_ACTIVE_FILE: () => editorTabGroupActions.saveActiveFile(),
     SHOW_SAVE_FILE_DIALOG: () => editorTabGroupActions.showSaveFileDialogForActiveFile(),
     SHOW_OPEN_FILE_DIALOG: () => editorTabGroupActions.showOpenFileDialogForActiveFile(),
@@ -50,8 +51,10 @@ function internalDispatcher(dispatch) {
 
 function isCurious(groups, responseMsgId) {
   for (let groupIndex = 0; groupIndex < groups.length; groupIndex++) {
-    for (let tabIndex = 0; tabIndex < groups.length; tabIndex++) {
-      const tab = groups[groupIndex].tabs[tabIndex];
+    const tabs = groups[groupIndex].tabs;
+
+    for (let tabIndex = 0; tabIndex < tabs.length; tabIndex++) {
+      const tab = tabs[tabIndex];
 
       if (tab.contentType === 'document-terminal-viewer' && tab.content.responses[responseMsgId]) {
         return true;
@@ -67,7 +70,13 @@ function isCurious(groups, responseMsgId) {
 }
 
 function otherDispatcher(dispatch) {
-  ipc.on('error', (event, clientId, error) => dispatch({type: 'JUPYTER_PROCESS_ERROR', payload: {clientId, error}, error: true}));
+  ipc.on('error', (event, clientId, error) => {
+    dispatch({type: 'JUPYTER_PROCESS_ERROR', payload: {clientId, error}, error: true});
+
+    if (!!error.code || !!error.missingPackage) {
+      dispatch(applicationActions.showStartupWindow());
+    }
+  });
   ipc.on('close', (event, clientId, code, signal) => dispatch({type: 'JUPYTER_PROCESS_CLOSED', payload: {clientId, code, signal}}));
   ipc.on('jupyter', function (event, clientId, response) {
     const category = response.source,

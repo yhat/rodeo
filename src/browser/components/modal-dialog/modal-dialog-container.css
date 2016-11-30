@@ -24,6 +24,6 @@
   z-index: 11;
 }
 
-.modal-dialog-container.active {
+.modal-dialog-container.modal-dialog-container--active {
   display: block;
 }

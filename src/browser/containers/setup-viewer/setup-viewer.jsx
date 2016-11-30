@@ -2,7 +2,6 @@ import React from 'react';
 import {connect} from 'react-redux';
 import Setup from '../../components/setup/setup.jsx';
 import actions from './setup-viewer.actions';
-import text from './setup-text.yml';
 import articles from './articles.yml';
 
 function mapStateToProps(state) {
@@ -26,6 +25,6 @@ function mapDispatchToProps(dispatch) {
 export default connect(mapStateToProps, mapDispatchToProps)(React.createClass({
   displayName: 'SetupViewer',
   render: function () {
-    return <Setup articles={articles} text={text} {...this.props} />;
+    return <Setup articles={articles} {...this.props} />;
   }
 }));

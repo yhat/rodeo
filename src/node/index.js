@@ -72,7 +72,10 @@ function onDatabaseDisconnect(id) {
  * @returns {Promise}
  */
 function quitApplication() {
-  const app = electron.app;
+  const app = electron.app,
+    mainWindow = browserWindows.getByName('mainWindow');
+
+  mainWindow.allowClose = true;
 
   log('info', 'stopping all file watchers');
   files.stopWatching();
@@ -395,6 +398,37 @@ function startStartupWindow() {
 }
 
 /**
+ * @returns {Promise}
+ */
+function onShowStartupWindow() {
+  const mainWindowName = 'mainWindow',
+    startupWindowName = 'startupWindow';
+
+  return bluebird.try(() => {
+    const mainWindow = browserWindows.getByName(mainWindowName),
+      startupWindow = browserWindows.getByName(startupWindowName);
+
+    if (!startupWindow) {
+      isStartupFinished = false;
+      const newStartupWindow = browserWindows.createStartupWindow(startupWindowName, {
+        url: 'file://' + path.join(staticFileDir, windowUrls[startupWindowName]),
+        parent: mainWindow
+      });
+
+      if (argv.dev === true) {
+        newStartupWindow.openDevTools();
+      }
+
+      newStartupWindow.webContents.on('did-finish-load', () => {
+        newStartupWindow.show();
+        // the main window is already ready
+        browserWindows.dispatchActionToWindow(startupWindowName, {type: 'READY_TO_SHOW', name: mainWindowName});
+      });
+    }
+  });
+}
+
+/**
  * When Electron is ready, we can start making windows
  * @returns {Promise}
  */
@@ -478,7 +512,11 @@ function onCreateKernelInstance(options) {
       }).catch(function (ex) {
         log('error', 'failed to create instance', instanceId, ex);
         delete kernelClients[instanceId];
-        browserWindows.send('mainWindow', 'error', instanceId, errorClone.toObject(ex)).catch(_.noop);
+        const objEx = errorClone.toObject(ex);
+
+        objEx.withinInitialization = true;
+
+        browserWindows.send('mainWindow', 'error', instanceId, objEx).catch(_.noop);
       });
     });
 
@@ -874,6 +912,7 @@ function attachIpcMainEvents() {
     onSaveFile,
     onSavePlot,
     onShareAction,
+    onShowStartupWindow,
     onStartWatchingFiles,
     onStopWatchingFiles,
     onSurveyTabs,

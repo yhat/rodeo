@@ -12,7 +12,9 @@ export default React.createClass({
     className: React.PropTypes.string,
     onCancel: React.PropTypes.func.isRequired,
     onExecute: React.PropTypes.func.isRequired,
-    terminal: React.PropTypes.object.isRequired,
+    terminal: React.PropTypes.object.isRequired
+  },
+  contextTypes: {
     text: React.PropTypes.object.isRequired
   },
   shouldComponentUpdate: function (nextProps) {
@@ -20,7 +22,7 @@ export default React.createClass({
   },
   render: function () {
     const props = this.props,
-      text = props.text,
+      text = this.context.text,
       className = commonReact.getClassNameList(this);
     let fakeTerminal;
 
@@ -31,7 +33,7 @@ export default React.createClass({
     return (
       <div className={className.join(' ')}>
         <div className="setup-inner">
-          <div className="explanation"><Marked>{props.text.askForPythonCommand}</Marked></div>
+          <div className="explanation"><Marked>{text.askForPythonCommand}</Marked></div>
           <div className="input-group input-python-cmd">
             <input
               className="form-control"

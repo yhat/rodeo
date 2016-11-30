@@ -64,12 +64,17 @@ function surveyTabs() {
   return api.send('surveyTabs');
 }
 
+function showStartupWindow() {
+  return api.send('showStartupWindow');
+}
+
 export default {
   checkForUpdates,
   createWindow,
   shareAction,
+  showStartupWindow,
+  surveyTabs,
   toggleDevTools,
   quitAndInstall,
-  quit,
-  surveyTabs
+  quit
 };

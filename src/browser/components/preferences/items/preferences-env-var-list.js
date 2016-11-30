@@ -15,15 +15,17 @@ export default React.createClass({
     onContainerValueChange: React.PropTypes.func,
     onRemoveFromList: React.PropTypes.func,
     originalValue: React.PropTypes.object,
-    text: React.PropTypes.object.isRequired,
     value: React.PropTypes.object
+  },
+  childContextTypes: {
+    text: React.PropTypes.object
   },
   shouldComponentUpdate: function (nextProps) {
     return commonReact.shouldComponentUpdate(this, nextProps);
   },
   render: function () {
     const props = this.props,
-      text = props.text,
+      text = this.context.text,
       className = commonReact.getClassNameList(this);
     let value = props.value,
       container;
@@ -100,7 +102,7 @@ export default React.createClass({
                   </div>
                 </td>
               </tr>
-            )
+            );
           })}
         </table>
       </div>

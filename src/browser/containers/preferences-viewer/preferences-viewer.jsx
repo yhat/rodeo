@@ -112,7 +112,6 @@ export default connect(mapStateToProps, mapDispatchToProps)(React.createClass({
         onOK={this.handleOK}
         onSelectFile={this.handleSelectFile}
         onSelectFolder={this.handleSelectFolder}
-        text={text}
       />
     );
   }

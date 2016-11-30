@@ -16,9 +16,11 @@ export default React.createClass({
     onPackageInstall: React.PropTypes.func.isRequired,
     onTransition: React.PropTypes.func.isRequired,
     terminal: React.PropTypes.object.isRequired,
-    text: React.PropTypes.object.isRequired,
     tryAgainLabel: React.PropTypes.string.isRequired,
     uniqueCommandLabel: React.PropTypes.string.isRequired
+  },
+  contextTypes: {
+    text: React.PropTypes.object.isRequired
   },
   shouldComponentUpdate: function (nextProps) {
     return commonReact.shouldComponentUpdate(this, nextProps);
@@ -28,7 +30,7 @@ export default React.createClass({
       className = commonReact.getClassNameList(this),
       buttons = [],
       terminal = props.terminal,
-      text = props.text;
+      text = this.context.text;
     let message;
 
     if (terminal.state === 'executed') {

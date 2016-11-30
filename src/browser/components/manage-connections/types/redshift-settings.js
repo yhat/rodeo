@@ -7,7 +7,6 @@ export default React.createClass({
   propTypes: {
     id: React.PropTypes.func.isRequired,
     onChange: React.PropTypes.func.isRequired,
-    text: React.PropTypes.object.isRequired,
     types: React.PropTypes.array.isRequired
   },
   shouldComponentUpdate: function (nextProps) {

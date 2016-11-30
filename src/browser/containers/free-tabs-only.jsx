@@ -8,6 +8,7 @@ import FreeTabGroup from './free-tab-group/free-tab-group.jsx';
 import ipcDispatcher from '../services/ipc-dispatcher';
 import rootReducer from './free-tabs-only.reducer';
 import reduxReducer from '../services/redux-store';
+import text from './text.yml';
 
 const groupId = cid(),
   store = reduxReducer.create(rootReducer, {freeTabGroups: Immutable([{groupId: groupId, active: '', tabs: []}])}),
@@ -26,10 +27,11 @@ ipcDispatcher(store.dispatch);
 export default React.createClass({
   displayName: 'FreeTabsOnly',
   childContextTypes: {
-    store: React.PropTypes.object
+    store: React.PropTypes.object.isRequired,
+    text: React.PropTypes.object.isRequired
   },
   getChildContext: function () {
-    return {store};
+    return {store, text};
   },
   render: function () {
     return (

@@ -16,9 +16,6 @@ function mapDispatchToProps(dispatch) {
   };
 }
 
-/**
- * @class ModalDialogViewer
- */
 export default connect(state => state, mapDispatchToProps)(React.createClass({
   displayName: 'ModalDialogViewer',
   propTypes: {

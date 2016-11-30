@@ -6,15 +6,17 @@ export default React.createClass({
   propTypes: {
     onChange: React.PropTypes.func.isRequired,
     originalValue: React.PropTypes.number,
-    text: React.PropTypes.object.isRequired,
     value: React.PropTypes.number
+  },
+  childContextTypes: {
+    text: React.PropTypes.object
   },
   shouldComponentUpdate: function (nextProps) {
     return commonReact.shouldComponentUpdate(this, nextProps);
   },
   render: function () {
     const props = this.props,
-      text = props.text,
+      text = this.context.text,
       className = commonReact.getClassNameList(this);
 
     if (props.originalValue !== props.value) {

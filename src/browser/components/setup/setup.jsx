@@ -1,4 +1,3 @@
-import _ from 'lodash';
 import React from 'react';
 import SetupInitial from './setup-initial.jsx';
 import SetupInstallAnaconda from './setup-install-anaconda.jsx';
@@ -13,17 +12,16 @@ import SetupNoMatplotlib from './setup-no-matplotlib.jsx';
 import SetupPythonError from './setup-python-error.jsx';
 import SetupReady from './setup-ready.jsx';
 import CSSTransitionGroup from 'react-addons-css-transition-group';
-import './setup.css';
 import commonReact from '../../services/common-react';
+import './setup.css';
 
-/**
- * @class Setup
- * @extends ReactComponent
- */
 export default React.createClass({
   displayName: 'Setup',
   propTypes: {
     contentType: React.PropTypes.string.isRequired
+  },
+  contextTypes: {
+    text: React.PropTypes.object.isRequired
   },
   shouldComponentUpdate: function (nextProps) {
     return commonReact.shouldComponentUpdate(this, nextProps);
@@ -31,7 +29,7 @@ export default React.createClass({
   render: function () {
     const props = this.props,
       className = commonReact.getClassNameList(this),
-      text = props.text,
+      text = this.context.text,
       types = {
         initial: () => (
           <SetupInitial

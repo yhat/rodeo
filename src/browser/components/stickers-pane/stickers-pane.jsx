@@ -1,24 +1,17 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
-import Marked from '../marked/marked.jsx';
 import validation from '../../services/validation';
 import './stickers-pane.css';
-import wantAFreeStickerText from './want-a-free-sticker.md';
-import thanksText from './thanks.md';
 import {local} from '../../services/store';
 import rodeoImage from './rodeo-logo.png';
-import text from './text.yml';
 
 const storeKey = 'stickersRequested';
 
-/**
- * @class StickersPane
- * @extends ReactComponent
- * @property props
- * @property state
- */
 export default React.createClass({
   displayName: 'StickersPane',
+  contextTypes: {
+    text: React.PropTypes.object.isRequired
+  },
   getInitialState: function () {
     return {
       hasRegistered: local.get(storeKey),
@@ -43,6 +36,7 @@ export default React.createClass({
   },
   render: function () {
     let content,
+      text = this.context.text,
       state = this.state;
 
     if (state.hasRegistered) {

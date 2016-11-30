@@ -9,7 +9,7 @@ import chromiumErrors from './chromium-errors.yml';
 const log = require('./log').asInternal(__filename),
   availableBrowserWindowOptions = [
     'width', 'height', 'useContentSize', 'resizable', 'moveable', 'center', 'alwaysOnTop', 'show', 'frame',
-    'webPreferences', 'titleBarStyle'
+    'webPreferences', 'titleBarStyle', 'parent', 'modal'
   ],
   homedir = os.homedir(),
   windows = {};
@@ -121,7 +121,13 @@ function create(name, options) {
   window.loadURL(options.url);
 
   // default event handlers
-  window.on('close', () => log('info', 'close', name));
+  window.on('close', event => {
+    log('info', 'close', name);
+    if (name === 'mainWindow' && window.allowClose !== true) {
+      event.preventDefault();
+      dispatchActionToWindow('mainWindow', {type: 'ASK_QUIT'});
+    }
+  });
   window.on('closed', () => {
     log('info', 'closed', name);
     delete windows[name];
@@ -200,7 +206,8 @@ function createStartupWindow(name, options) {
     center: true,
     alwaysOnTop: false,
     show: false,
-    frame: false
+    frame: true,
+    modal: true
   }, options));
 }
 
@@ -275,14 +282,14 @@ function send(windowName, eventName) {
 }
 
 /**
- * @param {string} name
+ * @param {string} windowName
  * @param {{type: string}} action
  * @returns {Promise}
  */
-function dispatchActionToWindow(name, action) {
-  log('info', 'dispatch', name, action);
+function dispatchActionToWindow(windowName, action) {
+  log('info', 'dispatch', windowName, action);
 
-  return send(name, 'dispatch', action);
+  return send(windowName, 'dispatch', action);
 }
 
 /**
@@ -318,11 +325,14 @@ function getFocusedWindow() {
   return electron.BrowserWindow.getFocusedWindow();
 }
 
-module.exports.create = create;
-module.exports.createMainWindow = createMainWindow;
-module.exports.createStartupWindow = createStartupWindow;
-module.exports.getByName = getByName;
-module.exports.send = send;
-module.exports.getWindowNames = getWindowNames;
-module.exports.getNameOfWindow = getNameOfWindow;
-module.exports.getFocusedWindow = getFocusedWindow;
+export default {
+  create,
+  createMainWindow,
+  createStartupWindow,
+  dispatchActionToWindow,
+  getByName,
+  send,
+  getWindowNames,
+  getNameOfWindow,
+  getFocusedWindow
+};

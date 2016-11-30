@@ -4,15 +4,13 @@ import commonReact from '../../../services/common-react';
 
 export default React.createClass({
   displayName: 'PreferencesButton',
-  propTypes: {
-    text: React.PropTypes.object.isRequired
-  },
+
   shouldComponentUpdate: function (nextProps) {
     return commonReact.shouldComponentUpdate(this, nextProps);
   },
   render: function () {
     const props = this.props,
-      text = props.text,
+      text = this.context.text,
       className = commonReact.getClassNameList(this),
       handleClick = props.clickHandler && _.isFunction(props[props.clickHandler]) && props[props.clickHandler];
     let content;

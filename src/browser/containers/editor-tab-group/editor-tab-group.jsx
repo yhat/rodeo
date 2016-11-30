@@ -38,7 +38,8 @@ function mapDispatchToProps(dispatch, ownProps) {
     onExecuteFile: id => dispatch(actions.triggerAceCommand(groupId, id, 'executeFile')),
     onExecute: (id, context) => dispatch(actions.execute(groupId, id, context)),
     onRodeo: () => dispatch(dialogActions.showAboutRodeo()),
-    onTabModeChange: (tab, option) => dispatch(actions.changeTabMode(groupId, tab.id, option))
+    onTabModeChange: (tab, option) => dispatch(actions.changeTabMode(groupId, tab.id, option)),
+    onUnsavedWorkPreventedClose: () => dispatch(actions.unsavedWorkPreventedClose(groupId))
   };
 }
 
@@ -55,14 +56,26 @@ export default connect(null, mapDispatchToProps)(React.createClass({
     groupId: React.PropTypes.string.isRequired,
     tabs: React.PropTypes.array.isRequired
   },
+  componentDidMount() {
+    window.addEventListener('beforeunload', this.handleWindowClose);
+  },
   shouldComponentUpdate(nextProps) {
     return commonReact.shouldComponentUpdate(this, nextProps);
   },
-  handleTabClick: function (id, event) {
+  componentWillUnmount() {
+    window.removeEventListener('beforeunload', this.handleWindowClose);
+  },
+  handleWindowClose() {
+    // if anything unsaved, prevent close
+    // this.props.onUnsavedWorkPreventedClose();
+    //
+    // return false;
+  },
+  handleTabClick(id, event) {
     event.preventDefault();
     this.props.onFocusTab(id);
   },
-  handleTabClose: function (id, event) {
+  handleTabClose(id, event) {
     event.preventDefault();
     this.props.onRemoveAcePane(id);
   },
@@ -71,7 +84,7 @@ export default connect(null, mapDispatchToProps)(React.createClass({
    * @param {string} id
    * @param {MouseEvent} event
    */
-  handleTabDragStart: function (id, event) {
+  handleTabDragStart(id, event) {
     const el = getParentNodeOf(event.target, 'li'),
       tab = _.find(this.props.tabs, {id});
 
@@ -89,7 +102,7 @@ export default connect(null, mapDispatchToProps)(React.createClass({
    * NOTE: preventDefault to allow drop
    * @param {MouseEvent} event
    */
-  handleTabListDragOver: function (event) {
+  handleTabListDragOver(event) {
     const textUriList = event.dataTransfer.getData('text/uri-list'),
       textPlain = event.dataTransfer.getData('text/plain');
 
@@ -97,7 +110,7 @@ export default connect(null, mapDispatchToProps)(React.createClass({
       event.preventDefault();
     }
   },
-  handleTabListDrop: function (event) {
+  handleTabListDrop(event) {
     const targetEl = getParentNodeOf(event.target, 'li'),
       targetId = targetEl && targetEl.getAttribute('data-child'),
       props = this.props,
@@ -108,15 +121,15 @@ export default connect(null, mapDispatchToProps)(React.createClass({
 
     console.log('handleTabListDrop', {targetAcePane, sourceAcePane});
   },
-  handleTabListDragEnter: function (event) {
+  handleTabListDragEnter(event) {
     // accept all
     event.preventDefault();
     event.dataTransfer.dropEffect = 'move';
   },
-  handleTabListDragLeave: function (event) {
+  handleTabListDragLeave(event) {
     console.log('handleTabListDragLeave', event);
   },
-  handleTabDragEnd: function (event) {
+  handleTabDragEnd(event) {
     console.log('handleTabListDragEnd', event);
   },
   handleFeatureClick: function (feature, activeTab, event) {
@@ -127,12 +140,12 @@ export default connect(null, mapDispatchToProps)(React.createClass({
       this.props[feature.onClick](activeTab.id);
     }
   },
-  handleAceCommand: function (tabId, command, editor) {
+  handleAceCommand(tabId, command, editor) {
     if (aceActions[command.name]) {
       return aceActions[command.name](this.props, tabId, command, editor);
     }
   },
-  render: function () {
+  render() {
     const props = this.props,
       activeTab = _.find(props.tabs, {id: props.active}),
       types = {

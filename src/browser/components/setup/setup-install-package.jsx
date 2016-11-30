@@ -9,8 +9,7 @@ export default React.createClass({
     onCancel: React.PropTypes.func.isRequired,
     onPackageInstall: React.PropTypes.func.isRequired,
     packageName: React.PropTypes.string.isRequired,
-    terminal: React.PropTypes.object.isRequired,
-    text: React.PropTypes.object.isRequired
+    terminal: React.PropTypes.object.isRequired
   },
   componentDidMount: function () {
     const props = this.props;

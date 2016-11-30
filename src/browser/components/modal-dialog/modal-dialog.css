@@ -19,7 +19,7 @@
   height: 100%;
 }
 
-.modal-dialog-instance.modal-dialog-show {
+.modal-dialog-instance.modal-dialog-instance--visible {
   opacity: 1;
 }
 

@@ -10,8 +10,7 @@ export default React.createClass({
     id: React.PropTypes.string.isRequired,
     onChange: React.PropTypes.func.isRequired,
     onConnect: React.PropTypes.func.isRequired,
-    onDisconnect: React.PropTypes.func.isRequired,
-    text: React.PropTypes.object.isRequired
+    onDisconnect: React.PropTypes.func.isRequired
   },
   shouldComponentUpdate: function (nextProps) {
     return commonReact.shouldComponentUpdate(this, nextProps);

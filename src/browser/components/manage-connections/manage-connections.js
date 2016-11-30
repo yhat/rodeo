@@ -12,7 +12,9 @@ export default React.createClass({
   displayName: 'ManageConnections',
   propTypes: {
     active: React.PropTypes.string,
-    list: React.PropTypes.array, // could be nothing
+    list: React.PropTypes.array // could be nothing
+  },
+  contextTypes: {
     text: React.PropTypes.object.isRequired
   },
   shouldComponentUpdate: function (nextProps) {
@@ -20,6 +22,7 @@ export default React.createClass({
   },
   render: function () {
     const props = this.props,
+      text = this.context.text,
       className = commonReact.getClassNameList(this),
       connectionDetailsContent = [],
       item = _.find(props.list, {id: props.active});
@@ -34,7 +37,7 @@ export default React.createClass({
       connectionDetailsContent.push(<hr key="hr"/>);
       connectionDetailsContent.push(<ConnectionConfig key="connection-config" {...props} {...item}/>);
     } else {
-      connectionDetailsContent.push(<EmptySuggestion key="empty-suggestion" label={props.text.selectDatabaseConnectionFromList}/>);
+      connectionDetailsContent.push(<EmptySuggestion key="empty-suggestion" label={text.selectDatabaseConnectionFromList}/>);
     }
 
     return (

@@ -14,7 +14,9 @@ function isErrorCode(error, code) {
 export default React.createClass({
   displayName: 'PreferencesItemErrors',
   propTypes: {
-    errors: React.PropTypes.array.isRequired,
+    errors: React.PropTypes.array.isRequired
+  },
+  contextTypes: {
     text: React.PropTypes.object.isRequired
   },
   shouldComponentUpdate: function (nextProps) {
@@ -22,7 +24,7 @@ export default React.createClass({
   },
   render: function () {
     const props = this.props,
-      text = props.text,
+      text = this.context.text,
       content = [];
 
     _.each(props.errors, error => {

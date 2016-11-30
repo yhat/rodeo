@@ -25,6 +25,6 @@ function mapDispatchToProps(dispatch) {
 export default connect(state => state.manageConnections, mapDispatchToProps)(React.createClass({
   displayName: 'ManageConnectionsViewer',
   render: function () {
-    return <ManageConnections definitions={definitions} text={text} {...this.props} />;
+    return <ManageConnections definitions={definitions} {...this.props} />;
   }
 }));

@@ -10,8 +10,7 @@ export default React.createClass({
   propTypes: {
     definitions: React.PropTypes.object.isRequired,
     list: React.PropTypes.array, // could be nothing
-    onChange: React.PropTypes.func.isRequired,
-    text: React.PropTypes.object.isRequired
+    onChange: React.PropTypes.func.isRequired
   },
   shouldComponentUpdate: function (nextProps) {
     return commonReact.shouldComponentUpdate(this, nextProps);

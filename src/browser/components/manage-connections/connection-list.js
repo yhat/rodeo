@@ -11,8 +11,7 @@ export default React.createClass({
     list: React.PropTypes.array, // could be nothing
     onAddConnection: React.PropTypes.func.isRequired,
     onRemoveConnection: React.PropTypes.func.isRequired,
-    onSelectConnection: React.PropTypes.func.isRequired,
-    text: React.PropTypes.object.isRequired
+    onSelectConnection: React.PropTypes.func.isRequired
   },
   shouldComponentUpdate: function (nextProps) {
     return commonReact.shouldComponentUpdate(this, nextProps);

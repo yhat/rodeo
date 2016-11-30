@@ -67,9 +67,17 @@ export function errorCaught(error) {
   return {type: 'ERROR_CAUGHT', error};
 }
 
+function showStartupWindow() {
+  track({category: 'application', action: 'show_startup_window'});
+  return function () {
+    return applicationControl.showStartupWindow();
+  };
+}
+
 export default {
   checkForUpdates,
   errorCaught,
+  showStartupWindow,
   quit,
   quitAndInstallUpdates,
   toggleDevTools

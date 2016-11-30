@@ -12,12 +12,15 @@ export default React.createClass({
     onCancel: React.PropTypes.func.isRequired,
     terminal: React.PropTypes.object.isRequired
   },
+  contextTypes: {
+    text: React.PropTypes.object.isRequired
+  },
   shouldComponentUpdate: function (nextProps) {
     return commonReact.shouldComponentUpdate(this, nextProps);
   },
   render: function () {
     const props = this.props,
-      text = props.text,
+      text = this.context.text,
       className = commonReact.getClassNameList(this);
 
     return (

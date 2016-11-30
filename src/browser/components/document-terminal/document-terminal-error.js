@@ -1,4 +1,3 @@
-import _ from 'lodash';
 import React from 'react';
 import Marked from '../marked/marked.jsx';
 import commonReact from '../../services/common-react';
@@ -9,13 +8,16 @@ export default React.createClass({
   propTypes: {
     error: React.PropTypes.object,
     onInstallPythonModuleExternally: React.PropTypes.func.isRequired,
-    text: React.PropTypes.string.isRequired
+  },
+  contextTypes: {
+    text: React.PropTypes.object.isRequired
   },
   shouldComponentUpdate: function (nextProps) {
     return commonReact.shouldComponentUpdate(this, nextProps);
   },
   render: function () {
     const props = this.props,
+      text = this.context.text,
       className = commonReact.getClassNameList(this),
       contents = [],
       suggestions = [];
@@ -24,13 +26,13 @@ export default React.createClass({
 
     if (props.error) {
       if (props.error.code === 'ENOENT' && props.error.path) {
-        contents.push(<Marked>{props.text.missingFileOrCommand + ': ' + props.error.path}</Marked>);
-        suggestions.push(<Marked>{props.text.fixPythonCmd}</Marked>);
+        contents.push(<Marked>{text.missingFileOrCommand + ': ' + props.error.path}</Marked>);
+        suggestions.push(<Marked>{text.fixPythonCmd}</Marked>);
       } else if (props.error.syscall) {
-        contents.push(<Marked>{props.text.unableToRunSyscall + ': ' + props.error.syscall}</Marked>);
-        suggestions.push(<Marked>{props.text.fixPythonCmd}</Marked>);
+        contents.push(<Marked>{text.unableToRunSyscall + ': ' + props.error.syscall}</Marked>);
+        suggestions.push(<Marked>{text.fixPythonCmd}</Marked>);
       } else if (props.error.missingPackage) {
-        contents.push(<Marked>{props.text.missingPackage + ': ' + props.error.missingPackage}</Marked>);
+        contents.push(<Marked>{text.missingPackage + ': ' + props.error.missingPackage}</Marked>);
       } else if (props.error.message) {
         contents.push(<Marked>{props.error.message}</Marked>);
       }

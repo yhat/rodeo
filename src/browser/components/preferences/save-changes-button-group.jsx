@@ -1,12 +1,6 @@
-import _ from 'lodash';
 import React from 'react';
 import commonReact from '../../services/common-react';
 
-/**
- * @class SaveChangesButtonGroup
- * @extends ReactComponent
- * @property props
- */
 export default React.createClass({
   displayName: 'SaveChangesButtonGroup',
   propTypes: {
@@ -15,7 +9,9 @@ export default React.createClass({
     id: React.PropTypes.string,
     onCancel: React.PropTypes.func,
     onOK: React.PropTypes.func,
-    onSave: React.PropTypes.func,
+    onSave: React.PropTypes.func
+  },
+  contextTypes: {
     text: React.PropTypes.object.isRequired
   },
   getDefaultProps: function () {
@@ -31,7 +27,7 @@ export default React.createClass({
   },
   render: function () {
     const props = this.props,
-      text = props.text;
+      text = this.context.text;
 
     let buttons;
 

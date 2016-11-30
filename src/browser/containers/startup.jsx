@@ -5,6 +5,7 @@ import FullScreen from '../components/full-screen/full-screen.jsx';
 import rootReducer from './startup.reducer';
 import reduxStore from '../services/redux-store';
 import ipcDispatcher from '../services/ipc-dispatcher';
+import text from './startup-text.yml';
 
 const store = reduxStore.create(rootReducer);
 
@@ -16,6 +17,13 @@ ipcDispatcher(store.dispatch);
  */
 export default React.createClass({
   displayName: 'Startup',
+  childContextTypes: {
+    store: React.PropTypes.object.isRequired,
+    text: React.PropTypes.object.isRequired
+  },
+  getChildContext: function () {
+    return {store, text};
+  },
   render: function () {
     return (
       <Provider store={store}>

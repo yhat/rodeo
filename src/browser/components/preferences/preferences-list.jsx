@@ -43,7 +43,9 @@ export default React.createClass({
     onSelectFile: React.PropTypes.func.isRequired,
     onSelectFolder: React.PropTypes.func.isRequired,
     onTabClick: React.PropTypes.func.isRequired,
-    preferenceMap: React.PropTypes.array.isRequired,
+    preferenceMap: React.PropTypes.array.isRequired
+  },
+  contextTypes: {
     text: React.PropTypes.object.isRequired
   },
   shouldComponentUpdate: function (nextProps) {
@@ -53,14 +55,13 @@ export default React.createClass({
     const props = this.props,
       activePreferenceGroup = _.find(props.preferenceMap, {id: props.active}),
       className = commonReact.getClassNameList(this),
-      text = props.text,
+      text = this.context.text,
       types = {
         button: item => (
           <PreferencesButton
             {...item}
             className={getInnerClassName(item, props.changes[item.key])}
             key={item.id}
-            text={text}
           />
         ),
         checkbox: item => (
@@ -71,7 +72,6 @@ export default React.createClass({
             key={item.id}
             onChange={_.partial(props.onChange, item)}
             originalValue={item.value}
-            text={text}
           />
         ),
         environmentVariableList: item => (
@@ -87,7 +87,6 @@ export default React.createClass({
             onContainerValueChange={_.partial(props.onContainerValueChange, item)}
             onRemoveFromList={_.partial(props.onRemoveFromList, item)}
             originalValue={item.value}
-            text={text}
           />
         ),
         folder: item => (
@@ -99,7 +98,6 @@ export default React.createClass({
             onChange={_.partial(props.onChange, item)}
             onSelectFolder={_.partial(props.onSelectFolder, item)}
             originalValue={item.value}
-            text={text}
           />
         ),
         number: item => (
@@ -110,7 +108,6 @@ export default React.createClass({
             key={item.id}
             onChange={_.partial(props.onChange, item)}
             originalValue={item.value}
-            text={text}
           />
         ),
         marked: item => (
@@ -127,7 +124,6 @@ export default React.createClass({
             onChange={_.partial(props.onChange, item)}
             onSelectFile={_.partial(props.onSelectFile, item)}
             originalValue={item.value}
-            text={text}
           />
         ),
         select: item => (
@@ -138,7 +134,6 @@ export default React.createClass({
             key={item.id}
             onChange={_.partial(props.onChange, item)}
             originalValue={item.value}
-            text={text}
           />
         ),
         text: item => (
@@ -149,7 +144,6 @@ export default React.createClass({
             key={item.id}
             onChange={_.partial(props.onChange, item)}
             originalValue={item.value}
-            text={text}
           />
         )
       };
@@ -185,7 +179,6 @@ export default React.createClass({
             onCancel={props.onCancel}
             onOK={props.onOK}
             onSave={props.onApply}
-            text={text}
           />
         </footer>
       </section>

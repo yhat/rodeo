@@ -3,11 +3,13 @@ import React from 'react';
 import ModalDialog from './modal-dialog.jsx';
 import Marked from '../marked/marked.jsx';
 import AboutRodeo from '../about-rodeo/about-rodeo.jsx';
+import AskQuit from '../../containers/ask-quit-dialog-viewer/ask-quit-dialog-viewer.jsx';
 import StickersPane from '../stickers-pane/stickers-pane.jsx';
 import Acknowledgements from '../acknowledgements/acknowledgements.jsx';
 import PreferencesViewer from '../../containers/preferences-viewer/preferences-viewer.jsx';
 import ManageConnectionsViewer from '../../containers/manage-connections-viewer/manage-connections-viewer';
 import RegisterRodeo from '../register-rodeo/register-rodeo.jsx';
+import commonReact from '../../services/common-react';
 import './modal-dialog-container.css';
 
 /**
@@ -24,6 +26,9 @@ export default React.createClass({
     onOK: React.PropTypes.func.isRequired,
     onRegister: React.PropTypes.func.isRequired
   },
+  shouldComponentUpdate(nextProps) {
+    return commonReact.shouldComponentUpdate(this, nextProps);
+  },
   /**
    * @param {MouseEvent} event
    */
@@ -35,12 +40,13 @@ export default React.createClass({
   },
   render: function () {
     const props = this.props,
-      handleBackgroundClick = this.handleBackgroundClick,
-      classNameContainer = [
-        'modal-dialog-container',
-        props.modalDialogs.length ? 'active' : ''
-      ];
+      classNameContainer = commonReact.getClassNameList(this),
+      handleBackgroundClick = this.handleBackgroundClick;
     let last;
+
+    if (props.modalDialogs.length) {
+      classNameContainer.push('modal-dialog-container--active');
+    }
 
     function getModal(modal) {
       let content,
@@ -63,6 +69,11 @@ export default React.createClass({
           ACKNOWLEDGEMENTS: modal => (
             <ModalDialog key={modal.id} {...modal}>
               <Acknowledgements {...modal} />
+            </ModalDialog>
+          ),
+          ASK_QUIT: modal => (
+            <ModalDialog key={modal.id} {...modal}>
+              <AskQuit {...modal} />
             </ModalDialog>
           ),
           PREFERENCES: modal => (

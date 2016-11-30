@@ -1,57 +1,54 @@
 import _ from 'lodash';
 import React from 'react';
 import ReactDOM from 'react-dom';
+import commonReact from '../../services/common-react';
 import './modal-dialog.css';
 
-const showClass = 'modal-dialog-show';
-
-/**
- * @class ModalDialog
- * @extends ReactComponent
- * @property props
- */
 export default React.createClass({
   displayName: 'ModalDialog',
   propTypes: {
     buttons: React.PropTypes.array,
-    className: React.PropTypes.string,
-    id: React.PropTypes.string.isRequired,
     onApply: React.PropTypes.func,
     onCancel: React.PropTypes.func,
     onOK: React.PropTypes.func,
     title: React.PropTypes.string
   },
-  componentDidMount: function () {
+  contextTypes: {
+    text: React.PropTypes.object.isRequired
+  },
+  componentDidMount() {
     const el = ReactDOM.findDOMNode(this);
 
-    _.defer(() => el.classList.add(showClass));
+    _.defer(() => el.classList.add('modal-dialog-instance--visible'));
   },
-  render: function () {
+  shouldComponentUpdate(nextProps) {
+    return commonReact.shouldComponentUpdate(this, nextProps);
+  },
+  render() {
     const props = this.props,
-      className = ['modal-dialog-instance'];
+      text = this.context.text,
+      className = commonReact.getClassNameList(this);
     let footer, header;
+
+    className.push('modal-dialog-instance');
 
     if (props.title) {
       header = <header>{props.title}</header>;
-    }
-
-    if (props.className) {
-      className.push(props.className);
     }
 
     if (props.buttons) {
       let okButton, applyButton, cancelButton;
 
       if (props.onOK) {
-        okButton = <button className="btn btn-default" onClick={props.onOK}>{'OK'}</button>;
+        okButton = <button className="btn btn-default" onClick={props.onOK}>{text.ok}</button>;
       }
 
       if (props.onApply) {
-        applyButton = <button className="btn btn-default" onClick={props.onApply}>{'Apply'}</button>;
+        applyButton = <button className="btn btn-default" onClick={props.onApply}>{text.saveChanges}</button>;
       }
 
       if (props.onCancel) {
-        cancelButton = <button className="btn btn-default" onClick={props.onCancel}>{'Cancel'}</button>;
+        cancelButton = <button className="btn btn-default" onClick={props.onCancel}>{text.cancel}</button>;
       }
 
       footer = <footer>{cancelButton}{applyButton}{okButton}</footer>;

@@ -15,12 +15,37 @@ import dialogActions from '../actions/dialogs';
 import applicationControl from '../services/application-control';
 import reduxStore from '../services/redux-store';
 import {local} from '../services/store';
+import text from './text.yml';
+
+function clearPlots(state) {
+  const groups = state.freeTabGroups;
+
+  for (let groupIndex = 0; groupIndex < groups.length; groupIndex++) {
+    const tabs = groups[groupIndex].tabs;
+
+    for (let tabIndex = 0; tabIndex < tabs.length; tabIndex++) {
+      const tab = tabs[tabIndex];
+
+      if (tab.contentType === 'plot-viewer') {
+        tab.content.plots = [];
+      }
+    }
+  }
+}
+
+function clearModalDialogs(state) {
+  state.modalDialogs = [];
+}
 
 // take the state from what we're already been given, or start fresh with initialState
 const lastSavedAppState = local.get('lastSavedAppState');
 let state, store;
 
 if (lastSavedAppState) {
+  // plots are temp files, so they can't be restored
+  clearPlots(lastSavedAppState);
+  clearModalDialogs(lastSavedAppState);
+
   state = _.mapValues(lastSavedAppState, value => Immutable(value));
 } else {
   state = window.__PRELOADED_STATE__ || initialState.getState();
@@ -49,10 +74,11 @@ client.guaranteeInstance();
 export default React.createClass({
   displayName: 'Main',
   childContextTypes: {
-    store: React.PropTypes.object
+    store: React.PropTypes.object.isRequired,
+    text: React.PropTypes.object.isRequired
   },
   getChildContext: function () {
-    return {store};
+    return {store, text};
   },
   render: function () {
     return (

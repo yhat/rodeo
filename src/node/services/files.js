@@ -1,10 +1,7 @@
-'use strict';
-
 import _ from 'lodash';
 import bluebird from 'bluebird';
 import chokidar from 'chokidar';
 import fs from 'fs';
-import yaml from 'js-yaml';
 import path from 'path';
 import temp from 'temp';
 

@@ -63,5 +63,5 @@ okay: OK
 restart: Restart Rodeo
 tryAgain: Try starting again
 readyToRodeo: Ready to Rodeo!
-skipStartup: Skip Startup >>
+skip: Skip >>
 

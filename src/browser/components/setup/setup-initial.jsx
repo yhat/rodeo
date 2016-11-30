@@ -11,7 +11,9 @@ export default React.createClass({
     articles: React.PropTypes.array.isRequired,
     onCancel: React.PropTypes.func.isRequired,
     onOpenExternal: React.PropTypes.func.isRequired,
-    onSkipStartup: React.PropTypes.func.isRequired,
+    onSkipStartup: React.PropTypes.func.isRequired
+  },
+  contextTypes: {
     text: React.PropTypes.object.isRequired
   },
   componentDidMount: function () {
@@ -22,6 +24,7 @@ export default React.createClass({
   },
   render: function () {
     const props = this.props,
+      text = this.context.text,
       className = commonReact.getClassNameList(this),
       progressBarStyle = {
         width: '100%'
@@ -33,7 +36,7 @@ export default React.createClass({
           <div className="brand"><img src={logo} /></div>
           <div className="progress">
             <div className="progress-bar progress-bar-striped active" style={progressBarStyle}>
-              <Marked>{props.text.loading}</Marked>
+              <Marked>{text.loading}</Marked>
             </div>
           </div>
           <SetupArticlePreview articles={props.articles} onOpenExternal={props.onOpenExternal}/>

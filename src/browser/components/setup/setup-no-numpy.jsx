@@ -11,7 +11,9 @@ export default React.createClass({
     className: React.PropTypes.string,
     onCancel: React.PropTypes.func.isRequired,
     onTransition: React.PropTypes.func.isRequired,
-    terminal: React.PropTypes.object.isRequired,
+    terminal: React.PropTypes.object.isRequired
+  },
+  contextTypes: {
     text: React.PropTypes.object.isRequired
   },
   shouldComponentUpdate: function (nextProps) {
@@ -19,7 +21,7 @@ export default React.createClass({
   },
   render: function () {
     const props = this.props,
-      text = props.text,
+      text = this.context.text,
       className = commonReact.getClassNameList(this);
 
     return (

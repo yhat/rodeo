@@ -7,12 +7,13 @@ export default React.createClass({
   propTypes: {
     onChange: React.PropTypes.func,
     originalValue: React.PropTypes.string,
-    text: React.PropTypes.object.isRequired,
     value: React.PropTypes.string
+  },
+  childContextTypes: {
+    text: React.PropTypes.object
   },
   getDefaultProps: function () {
     return {
-      onChange: _.noop,
       type: 'text'
     };
   },
@@ -21,7 +22,7 @@ export default React.createClass({
   },
   render: function () {
     const props = this.props,
-      text = props.text,
+      text = this.context.text,
       className = commonReact.getClassNameList(this);
 
     if (props.originalValue !== props.value) {

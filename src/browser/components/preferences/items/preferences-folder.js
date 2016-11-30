@@ -8,15 +8,17 @@ export default React.createClass({
     onChange: React.PropTypes.func.isRequired,
     onSelectFolder: React.PropTypes.func.isRequired,
     originalValue: React.PropTypes.string,
-    text: React.PropTypes.object.isRequired,
     value: React.PropTypes.string
+  },
+  childContextTypes: {
+    text: React.PropTypes.object
   },
   shouldComponentUpdate: function (nextProps) {
     return commonReact.shouldComponentUpdate(this, nextProps);
   },
   render: function () {
     const props = this.props,
-      text = props.text,
+      text = this.context.text,
       className = commonReact.getClassNameList(this);
     let errors;
 
@@ -25,7 +27,7 @@ export default React.createClass({
     }
 
     if (props.errors && props.errors.length) {
-      errors = <PreferencesItemErrors errors={props.errors} text={text} />;
+      errors = <PreferencesItemErrors errors={props.errors} />;
     }
 
     return (

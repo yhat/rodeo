@@ -17,7 +17,6 @@ import GrayInfoLinkList from '../../components/gray-info/gray-info-link-list';
 import './document-terminal-viewer.css';
 import selectionUtil from '../../services/selection-util';
 import features from './features.yml';
-import text from './text.yml';
 import promptUtils from '../../services/util/prompt-util';
 
 export default React.createClass({
@@ -43,6 +42,9 @@ export default React.createClass({
     onPromptInput: React.PropTypes.func.isRequired,
     onRestart: React.PropTypes.func,
     onShowSelectWorkingDirectoryDialog: React.PropTypes.func.isRequired
+  },
+  contextTypes: {
+    text: React.PropTypes.object.isRequired
   },
   shouldComponentUpdate(nextProps) {
     return commonReact.shouldComponentUpdate(this, nextProps);
@@ -89,6 +91,7 @@ export default React.createClass({
   },
   render() {
     const props = this.props,
+      text = this.context.text,
       className = commonReact.getClassNameList(this),
       types = {
         annotation: item => (
@@ -136,7 +139,6 @@ export default React.createClass({
       terminalContent = (
         <TerminalError
           onInstallPythonModuleExternally={props.onInstallPythonModuleExternally}
-          text={text}
           {...props.terminalError}
         />
       );

@@ -11,11 +11,9 @@ import PlotViewer from '../plot-viewer/plot-viewer.jsx';
 import FileViewer from '../file-viewer/file-viewer.jsx';
 import VariableViewer from '../../components/variable-viewer/variable-viewer.jsx';
 import VariableTableViewer from '../variable-table-viewer.jsx';
-import PackageViewer from '../package-viewer/package-viewer.jsx';
 import PackageSearchViewer from '../package-search-viewer/package-search-viewer.jsx';
 import BlockTerminalViewer from '../block-terminal-viewer/block-terminal-viewer';
 import ActionestButton from '../../components/actionest/actionest-button';
-import {getParentNodeOf} from '../../services/dom';
 import freeTabActions from './free-tab-group.actions';
 import documentTerminalViewerActions from '../document-terminal-viewer/document-terminal-viewer.actions';
 import promptViewerActions from '../prompt-viewer/prompt-viewer.actions';
@@ -251,7 +249,6 @@ export default connect(null, mapDispatchToProps)(React.createClass({
             onShowMore={_.partial(props.onPackageSearchShowMore, tab.id)}
             {...tab.content}
           />),
-        'package-viewer': tab => <PackageViewer filter={filter} {...tab.content}/>,
         'plot-viewer': tab => (
           <PlotViewer
             onFocusPlot={_.partial(props.onFocusPlot, tab.id)}
