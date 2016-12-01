@@ -1,10 +1,9 @@
-'use strict';
-
 const path = require('path'),
   pkg = require('./package.json'),
   webpack = require('webpack');
 
 module.exports = {
+  cache: true,
   context: path.join(__dirname, 'src'),
   debug: true,
   devtool: 'source-map',

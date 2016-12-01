@@ -65,7 +65,7 @@ export default combineReducers({
    */
   manageConnections,
   /**
-   * Unneeded. This just logs all the actions that pass through.
+   * Logs all the actions that pass through, and broadcasts them to other windows.
    */
   broadcast
 });

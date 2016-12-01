@@ -8,7 +8,7 @@ export default React.createClass({
     originalValue: React.PropTypes.number,
     value: React.PropTypes.number
   },
-  childContextTypes: {
+  contextTypes: {
     text: React.PropTypes.object
   },
   shouldComponentUpdate: function (nextProps) {

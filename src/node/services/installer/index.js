@@ -2,9 +2,8 @@
  * @see https://github.com/atom/atom/blob/32a1d21a0debe14f159b3cbf945827d4fb7bdf30/src/browser/squirrel-update.coffee#L227
  */
 
-'use strict';
-
 import _ from 'lodash';
+import args from '../args';
 import bluebird from 'bluebird';
 import os from 'os';
 import shortcuts from './shortcuts';
@@ -13,7 +12,7 @@ import contextMenu from './context-menu';
 import python from '../../kernels/python/client';
 
 const log = require('../log').asInternal(__filename),
-  argv = require('../args').getArgv(),
+  argv = args.getArgv(),
   activeCommands = {
     squirrelInstall: install,
     squirrelUpdate: update,
@@ -100,4 +99,6 @@ function handleSquirrelStartupEvent() {
   return false;
 }
 
-module.exports.handleSquirrelStartupEvent = handleSquirrelStartupEvent;
+export default {
+  handleSquirrelStartupEvent
+};

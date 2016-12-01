@@ -261,6 +261,12 @@
       label: trackMetrics
       type: checkbox
       value: true
+    -
+      id: askQuit
+      key: askQuit
+      label: alwaysAskBeforeQuiting
+      type: checkbox
+      value: true
 -
   id: preferences-project
   label: project

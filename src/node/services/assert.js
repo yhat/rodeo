@@ -1,5 +1,3 @@
-'use strict';
-
 import _ from 'lodash';
 
 function assert() {
@@ -39,4 +37,4 @@ function assert() {
   return _.cond(assertions);
 }
 
-module.exports = assert;
+export default assert;

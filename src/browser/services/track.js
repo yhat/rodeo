@@ -9,14 +9,15 @@ const appName = 'Rodeo',
   errorMessage = 'Usage Metrics Error',
   successMessage = 'Thank you for using Rodeo! We use metrics to see how well we are doing. We could use these metrics to ' +
     'justify new features or internationalization. To disable usage metrics, change the setting in the preferences menu.',
-  allowedEventProperties = ['category', 'action', 'label', 'value', 'hitType', 'force'],
+  allowedEventProperties = ['category', 'action', 'label', 'value', 'hitType', 'force', 'sessionControl'],
   eventCharacterLimits = {
     category: 150,
     action: 500,
     label: 250
   };
 
-let trackGA, trackPiwik;
+let trackGA = createTrackGA({metricsUrl: 'https://ssl.google-analytics.com/collect'}),
+  trackYhat = createTrackGA({metricsUrl: 'https://analytics.yhat.com/collect'});
 
 /**
  * @typedef {object} TrackingEvent
@@ -123,49 +124,11 @@ function send(metricsUrl, metrics) {
   });
 }
 
-trackPiwik = (function () {
-  const piwikApiVersion = 1,
-    idSite = 1,
-    mockUrl = 'http://rodeo.yhat.com',
-    metricsUrl = 'https://lasso.s.yhat.com/piwik.php';
-
-  /**
-   * @param {TrackingEvent} event
-   * @param {TrackingLocals} locals
-   * @returns {Promise}
-   */
-  return function (event, locals) {
-    const actionName = _.filter([event.category, event.action, event.label], _.identity).join('/'),
-      limitedUserId = locals && locals.userId && locals.userId.replace(/-/g, '').substr(0, 16);
-    let metrics = _.pickBy({
-      rec: piwikApiVersion,
-      idsite: idSite,
-      url: mockUrl,
-      action_name: actionName,
-      _id: limitedUserId,
-      uid: limitedUserId,
-      rand: locals.cacheBust,
-      apiv: piwikApiVersion,
-      e_c: event.category,
-      e_a: event.action,
-      e_n: event.label,
-      e_v: event.value,
-      _cvar: JSON.stringify({
-        1: ['appName', __APP_NAME__],
-        2: ['appVersion', __VERSION__]
-      })
-    }, _.identity);
-
-    return send(metricsUrl, metrics);
-  };
-}());
-
-trackGA = (function () {
+function createTrackGA(options) {
   const hitTypes = ['pageview', 'screenview', 'event', 'transaction', 'item', 'social', 'exception', 'timing'],
     sessionControls = ['start', 'end'],
     gaApiVersion = 1,
-    trackingId = 'UA-37140626-2',
-    metricsUrl = 'https://ssl.google-analytics.com/collect';
+    trackingId = 'UA-37140626-2';
 
   /**
    * @param {TrackingEvent} event
@@ -198,9 +161,9 @@ trackGA = (function () {
       z: locals.cacheBust // bust any caches between us and the metrics server
     }, _.identity);
 
-    return send(metricsUrl, metrics);
+    return send(options.metricsUrl, metrics);
   };
-}());
+}
 
 /**
  * @param {TrackingEvent} event
@@ -230,7 +193,7 @@ export default function track(event) {
 
     return bluebird.join(
       trackGA(event, locals).catch(reportError),
-      trackPiwik(event, locals).catch(reportError)
+      trackYhat(event, locals).catch(reportError)
     );
   });
 }

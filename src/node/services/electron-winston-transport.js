@@ -1,5 +1,3 @@
-'use strict';
-
 import util from 'util';
 import winston from 'winston';
 
@@ -28,4 +26,4 @@ ElectronLogger.prototype.log = function (level, msg, meta, callback) {
   callback(null, true);
 };
 
-module.exports = ElectronLogger;
+export default ElectronLogger;

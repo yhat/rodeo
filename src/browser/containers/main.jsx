@@ -37,6 +37,10 @@ function clearModalDialogs(state) {
   state.modalDialogs = [];
 }
 
+function useInitialPreferences(state) {
+  state.preferences = require('./preferences-viewer/preferences-viewer.reducer').getInitialState();
+}
+
 // take the state from what we're already been given, or start fresh with initialState
 const lastSavedAppState = local.get('lastSavedAppState');
 let state, store;
@@ -45,6 +49,7 @@ if (lastSavedAppState) {
   // plots are temp files, so they can't be restored
   clearPlots(lastSavedAppState);
   clearModalDialogs(lastSavedAppState);
+  useInitialPreferences(lastSavedAppState);
 
   state = _.mapValues(lastSavedAppState, value => Immutable(value));
 } else {

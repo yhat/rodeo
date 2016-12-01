@@ -1,29 +1,31 @@
 import registration from '../services/registration';
+import {local} from '../services/store';
+import applicationActions from '../actions/application';
 
-export function showAboutRodeo() {
+function showAboutRodeo() {
   const type = 'ADD_MODAL_DIALOG',
     contentType = 'ABOUT_RODEO';
 
   return {type, contentType};
 }
 
-export function showAboutStickers() {
+function showAboutStickers() {
   return {type: 'ADD_MODAL_DIALOG', contentType: 'ABOUT_STICKERS', title: 'Stickers'};
 }
 
-export function showPreferences() {
+function showPreferences() {
   return {type: 'ADD_MODAL_DIALOG', contentType: 'PREFERENCES', title: 'Preferences'};
 }
 
-export function showAcknowledgements() {
+function showAcknowledgements() {
   return {type: 'ADD_MODAL_DIALOG', contentType: 'ACKNOWLEDGEMENTS', title: 'Acknowledgements'};
 }
 
-export function showNotification(content) {
+function showNotification(content) {
   return {type: 'ADD_MODAL_DIALOG', contentType: 'MARKED', content, title: 'Notification'};
 }
 
-export function showRegisterRodeo(content) {
+function showRegisterRodeo(content) {
   return function (dispatch) {
     if (registration.shouldShowDialog()) {
       registration.rememberShowedDialog();
@@ -33,7 +35,10 @@ export function showRegisterRodeo(content) {
 }
 
 function showAskQuit() {
-  return {type: 'ADD_MODAL_DIALOG', contentType: 'ASK_QUIT', title: 'Quit'};
+  if (local.get('askQuit') === false) {
+    return applicationActions.quit();
+  }
+  return {type: 'ADD_MODAL_DIALOG', contentType: 'ASK_QUIT'};
 }
 
 export default {

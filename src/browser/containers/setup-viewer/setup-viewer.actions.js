@@ -209,7 +209,7 @@ function installPackage(targetPackage) {
 }
 
 function cancel() {
-  track({category: 'setup', action: 'cancel'});
+  track({category: 'setup', action: 'cancel', sessionControl: 'end'});
 
   return api.send('quitApplication');
 }

@@ -334,20 +334,22 @@ function makeDirectoryPathSafe(basePath, directoryNames) {
   });
 }
 
-module.exports.readFile = _.partialRight(bluebird.promisify(fs.readFile), 'utf8');
-module.exports.writeFile = bluebird.promisify(fs.writeFile);
-module.exports.readDirectory = readDirectory;
-module.exports.makeDirectory = bluebird.promisify(fs.mkdir);
-module.exports.makeDirectorySafe = makeDirectorySafe;
-module.exports.makeDirectoryPathSafe = makeDirectoryPathSafe;
-module.exports.getStats = getStats;
-module.exports.exists = exists;
-module.exports.unlink = bluebird.promisify(fs.unlink);
-module.exports.saveToTemporaryFile = saveToTemporaryFile;
-module.exports.resolveHomeDirectory = resolveHomeDirectory;
-module.exports.getWithHomeDirectoryShortName = getWithHomeDirectoryShortName;
-module.exports.copy = copy;
-module.exports.startWatching = startWatching;
-module.exports.stopWatching = stopWatching;
-module.exports.addWatching = addWatching;
-module.exports.readAllFilesOfExt = readAllFilesOfExt;
+export default {
+  readFile: _.partialRight(bluebird.promisify(fs.readFile), 'utf8'),
+  writeFile: bluebird.promisify(fs.writeFile),
+  readDirectory,
+  makeDirectory: bluebird.promisify(fs.mkdir),
+  makeDirectoryPathSafe,
+  makeDirectorySafe,
+  getStats,
+  exists,
+  saveToTemporaryFile,
+  resolveHomeDirectory,
+  getWithHomeDirectoryShortName,
+  copy,
+  startWatching,
+  stopWatching,
+  addWatching,
+  readAllFilesOfExt,
+  unlink: bluebird.promisify(fs.unlink)
+};

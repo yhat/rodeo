@@ -21,6 +21,11 @@ import updater from './services/updater';
 import pkg from '../../package.json';
 import applicationMenu from './application-menu.yml';
 
+// enable source-maps
+require('source-map-support').install();
+
+console.log('>???', args);
+
 const argv = args.getArgv(),
   log = require('./services/log').asInternal(__filename),
   staticFileDir = path.resolve(__dirname),
@@ -34,9 +39,6 @@ const argv = args.getArgv(),
   systemFactTimeout = 120,
   autoCompleteTimeout = 5,
   second = 1000;
-
-// enable source-maps
-require('source-map-support').install();
 
 // cancellation is useful for managing processes
 bluebird.config({

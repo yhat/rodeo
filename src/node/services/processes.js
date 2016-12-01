@@ -1,5 +1,3 @@
-'use strict';
-
 import _ from 'lodash';
 import assert from './assert';
 import bluebird from 'bluebird';
@@ -107,7 +105,9 @@ function kill(childProcess) {
   }).timeout(killTimeout, 'failed to kill child process ' + childProcess.pid);
 }
 
-module.exports.getChildren = getChildren;
-module.exports.create = create;
-module.exports.exec = exec;
-module.exports.kill = kill;
+export default {
+  getChildren,
+  create,
+  exec,
+  kill
+};

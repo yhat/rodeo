@@ -72,12 +72,12 @@ export default React.createClass({
             </ModalDialog>
           ),
           ASK_QUIT: modal => (
-            <ModalDialog key={modal.id} {...modal}>
+            <ModalDialog className="modal-dialog-instance--small" key={modal.id} {...modal}>
               <AskQuit {...modal} />
             </ModalDialog>
           ),
           PREFERENCES: modal => (
-            <ModalDialog className="modal-dialog-instance-full" key={modal.id} {...modal}>
+            <ModalDialog className="modal-dialog-instance--full" key={modal.id} {...modal}>
               <PreferencesViewer {...modal} />
             </ModalDialog>
           ),

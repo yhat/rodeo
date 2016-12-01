@@ -1,0 +1,19 @@
+.ask-quit__question {
+  display: flex;
+  justify-content: center;
+  margin: 20px;
+  font-size: large;
+}
+
+.ask-quit__item {
+  display: flex;
+  justify-content: center;
+  margin: 20px;
+}
+
+.ask-quit__small-item {
+  display: flex;
+  justify-content: center;
+  margin: 10px;
+  transform: scale(0.8);
+}

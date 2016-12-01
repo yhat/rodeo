@@ -1,5 +1,3 @@
-'use strict';
-
 import _ from 'lodash';
 import yargs from 'yargs';
 
@@ -33,4 +31,6 @@ function getArgv() {
     .parse(process.argv.slice(sliceNum));
 }
 
-module.exports.getArgv = _.memoize(getArgv);
+export default {
+  getArgv: _.memoize(getArgv)
+};
