@@ -49,10 +49,10 @@ module.exports = {
         query: {
           plugins: [
             'lodash',
-            'Transform-runtime',
-            'Transform-react-remove-prop-types',
-            'Transform-react-constant-elements',
-            'Transform-react-inline-elements'
+            'transform-runtime',
+            'transform-react-remove-prop-types',
+            'transform-react-constant-elements',
+            'transform-react-inline-elements'
           ],
           presets: ['react', 'es2015']
         }
