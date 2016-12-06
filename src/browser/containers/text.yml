@@ -35,6 +35,7 @@ git: Git
 global: Global
 globalSettingsExplanation: Global settings affect the behavior of the entire application.
 keyBindings: Key Bindings
+kernelName: Kernel Name
 keyTableHeader: Key
 missingFileOrCommand: Missing file or command
 missingPackage: Missing package
@@ -64,6 +65,7 @@ theme: Theme
 trackMetrics: Track Metrics
 unableToRunSyscall: Unable to run
 useSoftTabs: Use Soft Tabs
+useBuiltinPython: Use Built-in Python
 wantAFreeSticker: Want a free sticker?
 weWillContactYou: We'll be in touch to iron out the logistics.
 workingDirectoryLabel: Working Directory

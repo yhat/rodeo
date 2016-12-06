@@ -199,7 +199,7 @@ function createMainWindow(name, options) {
  * @returns {BrowserWindow}
  */
 function createStartupWindow(name, options) {
-  return create(name, _.assign({
+  const window = create(name, _.assign({
     useContentSize: true,
     resizable: false,
     moveable: true,
@@ -209,6 +209,10 @@ function createStartupWindow(name, options) {
     frame: true,
     modal: true
   }, options));
+
+  window.setMenu(null);
+
+  return window;
 }
 
 /**

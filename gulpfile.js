@@ -1,5 +1,3 @@
-'use strict';
-
 const _ = require('lodash'),
   gulp = require('gulp'),
   concat = require('gulp-concat'),
@@ -101,7 +99,7 @@ gulp.task('package.json', function () {
     .pipe(map(function (chunk) {
       const pkg = JSON.parse(chunk.toString());
 
-      pkg.main = 'node/index.js';
+      pkg.main = 'index.js';
 
       return JSON.stringify(_.omit(pkg, ['devDependencies', 'build', 'bin', 'scripts', 'jest']), null, 2);
     }))

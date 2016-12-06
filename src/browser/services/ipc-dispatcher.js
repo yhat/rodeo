@@ -1,5 +1,6 @@
 import _ from 'lodash';
 import ipc from 'ipc';
+import {local, session} from './store';
 import track from './track';
 import dialogActions from '../actions/dialogs';
 import applicationActions from '../actions/application';
@@ -73,11 +74,31 @@ function otherDispatcher(dispatch) {
   ipc.on('error', (event, clientId, error) => {
     dispatch({type: 'JUPYTER_PROCESS_ERROR', payload: {clientId, error}, error: true});
 
-    if (!!error.code || !!error.missingPackage) {
-      dispatch(applicationActions.showStartupWindow());
+    if (error.code || error.missingPackage) {
+      const pythonCmd = local.get('pythonCmd'),
+        useBuiltinPython = local.get('useBuiltinPython') || 'failover',
+        hasPythonFailedOver = session.get('hasPythonFailedOver') || false,
+        isDefaultPythonCmd = !pythonCmd || pythonCmd === 'python';
+
+      if (isDefaultPythonCmd && useBuiltinPython === 'failover' && !hasPythonFailedOver) {
+        console.warn('Using built-in python.');
+        session.set('hasPythonFailedOver', new Date().getTime());
+        // local.set('kernelName', 'rodeo-builtin-miniconda');
+        local.set('restartKernelOnCloseProcess', true);
+      } else {
+        // they have to fix it
+        dispatch(applicationActions.showStartupWindow());
+      }
     }
   });
-  ipc.on('close', (event, clientId, code, signal) => dispatch({type: 'JUPYTER_PROCESS_CLOSED', payload: {clientId, code, signal}}));
+  ipc.on('close', (event, clientId, code, signal) => {
+    dispatch({type: 'JUPYTER_PROCESS_CLOSED', payload: {clientId, code, signal}});
+
+    if (local.get('restartKernelOnCloseProcess') === true) {
+      local.set('restartKernelOnCloseProcess', false);
+      dispatch(kernelActions.restart());
+    }
+  });
   ipc.on('jupyter', function (event, clientId, response) {
     const category = response.source,
       action = _.get(response, 'result.msg_type'),

@@ -82,7 +82,7 @@ export default React.createClass({
             </ModalDialog>
           ),
           REGISTER_RODEO: modal => (
-            <ModalDialog key={modal.id} {...modal}>
+            <ModalDialog className="modal-dialog-instance--full" key={modal.id} {...modal}>
               <RegisterRodeo {...modal} />
             </ModalDialog>
           ),

@@ -35,54 +35,20 @@ function getPythonPath() {
   return path.join(__dirname.split('app.asar')[0], 'conda', 'python.exe');
 }
 
-function getLibPath() {
-  return path.join(__dirname.split('app.asar')[0], 'conda', 'Lib');
-}
-
-function getScriptsPath() {
-  return path.join(__dirname.split('app.asar')[0], 'conda', 'Scripts');
-}
-
 function getStartKernelPath() {
   return path.join(__dirname.split('app.asar')[0], 'kernels', 'python', 'start_kernel.py');
 }
 
 function setDefaultEnvVars(env) {
-  if (_.isString(env.PATH)) {
-    if (process.platform === 'darwin') {
-      const splitter = ':',
-        envs = env.PATH.split(splitter);
+  if (_.isString(env.PATH) && process.platform === 'darwin') {
+    const splitter = ':',
+      envs = env.PATH.split(splitter);
 
-      addPath(envs, '/sbin');
-      addPath(envs, '/usr/sbin');
-      addPath(envs, '/usr/local/bin');
+    addPath(envs, '/sbin');
+    addPath(envs, '/usr/sbin');
+    addPath(envs, '/usr/local/bin');
 
-      env.PATH = envs.join(splitter);
-    } else if (process.platform === 'win32') {
-      const splitter = ';',
-        envs = env.PATH.split(splitter);
-
-      addPath(envs, getCondaPath());
-      addPath(envs, getLibPath());
-      addPath(envs, getScriptsPath());
-
-      env.PATH = envs.join(splitter);
-    }
-  }
-
-  if (process.platform === 'win32') {
-    if (!env.NUMBER_OF_PROCESSORS) {
-      try {
-        env.NUMBER_OF_PROCESSORS = os.cpus().length;
-      } catch (ex) {
-        log('warn', 'failed to set NUMBER_OF_PROCESSORS', ex);
-      }
-    }
-  }
-
-  // we support colors
-  if (process.platform !== 'win32' && env.CLICOLOR === undefined) {
-    env.CLICOLOR = 1;
+    env.PATH = envs.join(splitter);
   }
 
   return _.assign({

@@ -8,7 +8,7 @@ import {createSelector} from 'reselect';
 import {local} from '../../services/store';
 
 const askQuitSelector = createSelector(state => state, () => ({
-  askQuit: local.get('askQuit')
+  askQuit: local.get('askQuit') || true
 }));
 
 /**

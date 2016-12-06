@@ -392,60 +392,52 @@ class JupyterClient extends EventEmitter {
  * @returns {object}
  */
 function getPythonCommandOptions(options) {
-  return bluebird.resolve(options.env).then(function (defaultEnv) {
-    return _.assign({
-      env: pythonLanguage.setDefaultEnvVars(defaultEnv),
-      stdio: ['pipe', 'pipe', 'pipe'],
-      encoding: 'UTF8'
-    }, _.pick(options, ['cwd', 'shell']));
-  });
-}
-
-/**
- * @param {object} [options]
- * @param {string} [options.shell=<default for OS>]
- * @param {string} [options.cmd="python"]
- * @returns {Promise<ChildProcess>}
- */
-function createPythonScriptProcess(options) {
-  options = _.pick(options || {}, ['shell', 'cmd', 'cwd', 'env', 'kernelName']);
-  options = resolveHomeDirectoryOptions(options);
-
-  return getPythonCommandOptions(options).then(function (processOptions) {
-    const cmd = options.cmd || 'python',
-      args = ['-c', listenScript];
-
-    if (options.cwd) {
-      processOptions.cwd = options.cwd;
-    }
-
-    if (options.kernelName) {
-      args.push(options.kernelName);
-    }
-
-    return processes.create(cmd, args, processOptions);
-  });
+  return {
+    cwd: options.cwd,
+    env: pythonLanguage.setDefaultEnvVars(options.env),
+    stdio: ['pipe', 'pipe', 'pipe'],
+    encoding: 'UTF8'
+  };
 }
 
 /**
  * @param {object} options
+ * @param {string} options.cmd
+ * @param {string} options.cwd
+ * @param {string} options.env
+ * @param {string} options.kernelName
+ * @returns {ChildProcess}
+ */
+function createPythonScriptProcess(options) {
+  options = resolveHomeDirectoryOptions(options);
+  const args = ['-c', listenScript, options.kernelName],
+    cmdOptions = getPythonCommandOptions(options);
+
+  return processes.create(options.cmd, args, cmdOptions);
+}
+
+/**
+ * @param {object} options
+ * @param {string} options.cmd
+ * @param {string} options.cwd
+ * @param {string} options.env
+ * @param {string} options.kernelName
  * @returns {Promise<JupyterClient>}
  */
 function create(options) {
   return bluebird.try(() => {
     assertValidOptions(options);
+    const child = createPythonScriptProcess(options);
 
-    return createPythonScriptProcess(options);
-  }).then(child => new JupyterClient(child))
-    .then(client => {
-
-      client.on('ready', () => {
-        // when the client is ready, apply our internal code right away
-        client.executeHidden(patch, 'executeReply');
-      });
-
-      return client;
+    return new JupyterClient(child);
+  }).then(client => {
+    client.on('ready', () => {
+      // when the client is ready, apply our internal code right away
+      client.executeHidden(patch, 'executeReply');
     });
+
+    return client;
+  });
 }
 
 /**
@@ -664,7 +656,9 @@ function createBuiltinKernelJson() {
   });
 }
 
-module.exports.create = create;
-module.exports.exec = exec;
-module.exports.check = check;
-module.exports.createBuiltinKernelJson = createBuiltinKernelJson;
+export default {
+  create,
+  exec,
+  check,
+  createBuiltinKernelJson
+};

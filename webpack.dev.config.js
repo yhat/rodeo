@@ -78,10 +78,7 @@ module.exports = {
     new webpack.HotModuleReplacementPlugin(),
     new webpack.DefinePlugin({
       __APP_NAME__: JSON.stringify(pkg.name),
-      __VERSION__: JSON.stringify(pkg.version),
-      'process.env': {
-        NODE_ENV: JSON.stringify('development')
-      }
+      __VERSION__: JSON.stringify(pkg.version)
     })
   ],
   output: {

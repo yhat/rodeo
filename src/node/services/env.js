@@ -1,5 +1,3 @@
-'use strict';
-
 import _ from 'lodash';
 import bluebird from 'bluebird';
 import processes from './processes';
@@ -63,7 +61,13 @@ function getPlatformEnv() {
  */
 function getEnv() {
   return getPlatformEnv()
-    .then(extraEnv => _.defaults(extraEnv, process.env));
+    .then(extraEnv => _.defaults(extraEnv, _.clone(process.env)))
+    .then(env => {
+      log('info', 'Got Environment Variables', env);
+      return env;
+    });
 }
 
-module.exports.getEnv = getEnv;
+export default {
+  getEnv
+};

@@ -22,6 +22,32 @@
         - restartPython
       value: python
     -
+      id: useBuiltinPython
+      key: useBuiltinPython
+      label: useBuiltinPython
+      type: select
+      options:
+        - label: Failover
+          value: failover
+        - label: No
+          value: no
+        - label: Yes
+          value: yes
+      value: failover
+    -
+      id: kernelName
+      key: kernelName
+      label: kernelName
+      type: select
+      options:
+        - label: Python 3 (default)
+          value: python3
+        - label: Python 2.7
+          value: python27
+        - label: Rodeo Built-in Miniconda
+          value: rodeo-builtin-miniconda
+      value: python3
+    -
       id: environmentVariables
       key: environmentVariables
       label: environmentVariables

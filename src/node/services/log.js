@@ -114,7 +114,7 @@ function transformEventEmitter(obj) {
 }
 
 function printObject(obj) {
-  return util.inspect(obj, {depth: 10, colors: colorize, hidden: true});
+  return util.inspect(_.cloneDeep(obj), {depth: 10, colors: colorize});
 }
 
 function sanitizeObject(value) {

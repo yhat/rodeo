@@ -1,6 +1,6 @@
-import registration from '../services/registration';
-import {local} from '../services/store';
 import applicationActions from '../actions/application';
+import {local} from '../services/store';
+import registration from '../services/registration';
 
 function showAboutRodeo() {
   const type = 'ADD_MODAL_DIALOG',
@@ -38,7 +38,8 @@ function showAskQuit() {
   if (local.get('askQuit') === false) {
     return applicationActions.quit();
   }
-  return {type: 'ADD_MODAL_DIALOG', contentType: 'ASK_QUIT'};
+
+  return {type: 'ADD_MODAL_DIALOG', contentType: 'ASK_QUIT', title: 'Quit'};
 }
 
 export default {

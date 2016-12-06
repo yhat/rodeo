@@ -50,7 +50,7 @@ function create(cmd, args, options) {
   options = args && options;
 
   const errors = [],
-    details = {cmd, args},
+    details = {cmd, args, options},
     child = childProcess.spawn(cmd, args, options)
       .on('error', error => {
         errors.push(error);

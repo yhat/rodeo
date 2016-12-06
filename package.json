@@ -14,7 +14,8 @@
     "start": "electron app",
     "hot-server": "node -r babel-register server.js",
     "test": "./node_modules/.bin/jest src/browser --coverage",
-    "build": "./node_modules/.bin/gulp && npm run build:browser && npm run build:node",
+    "build": "npm run build:assets && npm run build:browser && npm run build:node",
+    "build:assets": "cross-env NODE_ENV=production ./node_modules/.bin/gulp",
     "build:browser": "cross-env NODE_ENV=production node -r babel-register ./node_modules/webpack/bin/webpack --config webpack.config.js --progress --profile --colors",
     "build:browser-dev": "cross-env NODE_ENV=development node -r babel-register ./node_modules/webpack/bin/webpack --config webpack.dev.config.js --progress --profile --colors",
     "build:node": "cross-env NODE_ENV=production node -r babel-register ./node_modules/webpack/bin/webpack --config webpack.main.config.js --progress --profile --colors",
@@ -24,12 +25,12 @@
   },
   "build": {
     "appId": "com.yhat.rodeo",
-    "helper-bundle-id": "com.yhat.rodeo.helper",
     "asar": true,
+    "compression": "store",
     "publish": [
       {
         "provider": "generic",
-        "url": "http://rodeo-nsis.yhat.com/asdf",
+            "url": "Ro  ",
         "channel": "latest"
       }
     ],
@@ -39,7 +40,7 @@
       ],
       "extraResources": [
         {
-          "from": ".tmp/conda/",
+          "from": ".tmp/win-64/conda/",
           "to": "conda",
           "filter": "**/*"
         }

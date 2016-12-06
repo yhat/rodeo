@@ -72,10 +72,7 @@ module.exports = {
     new webpack.optimize.DedupePlugin(),
     new webpack.DefinePlugin({
       __APP_NAME__: JSON.stringify(pkg.name),
-      __VERSION__: JSON.stringify(pkg.version),
-      'process.env': {
-        NODE_ENV: JSON.stringify('production')
-      }
+      __VERSION__: JSON.stringify(pkg.version)
     }),
     new webpack.optimize.UglifyJsPlugin ({
       beautify: false,
@@ -86,7 +83,7 @@ module.exports = {
         loops: true,
         unused: true,
         warnings: false,
-        drop_console: true,
+        // drop_console: true,
         unsafe: true
       },
       test: /\.(js|jsx)$/

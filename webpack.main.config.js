@@ -1,5 +1,3 @@
-'use strict';
-
 const pkg = require('./package.json'),
   path = require('path'),
   webpack = require('webpack'),
@@ -63,6 +61,7 @@ module.exports = {
     ]
   },
   node: {
+    // we want the real location of files on the server-side
     __filename: false,
     __dirname: false
   },
@@ -72,10 +71,7 @@ module.exports = {
     new webpack.optimize.DedupePlugin(),
     new webpack.DefinePlugin({
       __APP_NAME__: JSON.stringify(pkg.name),
-      __VERSION__: JSON.stringify(pkg.version),
-      'process.env': {
-        NODE_ENV: JSON.stringify('production')
-      }
+      __VERSION__: JSON.stringify(pkg.version)
     })
     // new webpack.optimize.UglifyJsPlugin ({
     //   beautify: false,

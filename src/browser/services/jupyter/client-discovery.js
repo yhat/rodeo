@@ -7,8 +7,9 @@
  */
 
 import _ from 'lodash';
-import bluebird from 'bluebird';
 import api from '../api';
+import bluebird from 'bluebird';
+import env from '../env';
 import {local} from '../store';
 import guid from '../guid';
 import track from '../track';
@@ -22,29 +23,13 @@ function getKernelName(kernelName) {
 
   kernelName = local.get('kernelName');
 
-  if (process.platform === 'win32' && !kernelName) {
-    kernelName = 'rodeo-builtin-miniconda';
-    local.set('kernelName', kernelName);
-  } else if (!kernelName) {
+  // if they don't know their kernel name, conda has a default if set to 'python3'
+  if (!kernelName) {
     kernelName = 'python3';
     local.set('kernelName', kernelName);
   }
 
   return kernelName;
-}
-
-function getEnvironmentVariables(env) {
-  if (env) {
-    return bluebird.resolve(env);
-  }
-
-  env = local.get('environmentVariables');
-
-  if (env) {
-    return bluebird.resolve(env);
-  }
-
-  return api.send('getEnvironmentVariables');
 }
 
 function getCurrentWorkingDirectory(cwd) {
@@ -56,7 +41,7 @@ function getExternalOptions(options) {
   return bluebird.props({
     cwd: getCurrentWorkingDirectory(options.cwd),
     kernelName: getKernelName(options.kernelName),
-    env: getEnvironmentVariables(options.env)
+    env: env.getEnvironmentVariables(options.env)
   });
 }
 
@@ -139,7 +124,6 @@ function getFreshPythonOptions() {
 export default {
   checkKernel,
   getExternalOptions,
-  getEnvironmentVariables,
   getFreshPythonOptions,
   getSystemFacts,
   getUserId: _.memoize(getUserId), // we can assume it'll remain the same for the lifetime of the app

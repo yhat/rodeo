@@ -24,7 +24,7 @@ import applicationMenu from './application-menu.yml';
 // enable source-maps
 require('source-map-support').install();
 
-console.log('>???', args);
+console.log('>???', args, {__dirname, __filename});
 
 const argv = args.getArgv(),
   log = require('./services/log').asInternal(__filename),
@@ -661,7 +661,10 @@ function onGetSystemFacts() {
 }
 
 function onGetEnvironmentVariables() {
-  return environment.getEnv();
+  log('info', 'Getting Environment Variables');
+  return environment.getEnv().tap(function (env) {
+    log('info', env);
+  });
 }
 
 /**

@@ -16,7 +16,9 @@ track({
 
 // are they able to run multiple times?
 (function () {
-  let key = 'runs',
+  // Used to determine if we should fall back to the build-in python automatically
+  // We only do that the first few times python is run
+  let key = 'pythonRuns',
     runs = local.get(key);
 
   if (!runs) {
