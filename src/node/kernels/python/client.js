@@ -422,22 +422,19 @@ function createPythonScriptProcess(options) {
  * @param {string} options.cwd
  * @param {string} options.env
  * @param {string} options.kernelName
- * @returns {Promise<JupyterClient>}
+ * @returns {JupyterClient}
  */
 function create(options) {
-  return bluebird.try(() => {
-    assertValidOptions(options);
-    const child = createPythonScriptProcess(options);
+  assertValidOptions(options);
+  const child = createPythonScriptProcess(options),
+    client = new JupyterClient(child);
 
-    return new JupyterClient(child);
-  }).then(client => {
-    client.on('ready', () => {
-      // when the client is ready, apply our internal code right away
-      client.executeHidden(patch, 'executeReply');
-    });
-
-    return client;
+  client.on('ready', () => {
+    // when the client is ready, apply our internal code right away
+    client.executeHidden(patch, 'executeReply');
   });
+
+  return client;
 }
 
 /**
@@ -564,9 +561,12 @@ function addSourceData(result) {
     }
 
     switch (source) {
-      case 'stderr.data': return result.stderr.push(data);
-      case 'stdout.data': return result.stdout.push(data);
-      default: return;
+      case 'stderr.data':
+        return result.stderr.push(data);
+      case 'stdout.data':
+        return result.stdout.push(data);
+      default:
+        return;
     }
   };
 }
@@ -585,48 +585,45 @@ function exec(options, text) {
     },
     timeout = timeouts.execTimeout;
 
-  return bluebird.try(function () {
+  return new bluebird(function (resolve, reject, onCancel) {
     assertValidOptions(options);
     options = resolveHomeDirectoryOptions(options);
+    const jupyterClient = create(options);
 
-    return create(options).then(function (jupyterClient) {
-      return new bluebird(function (resolve, reject, onCancel) {
-        onCancel(function () {
-          // kill process
-          log('info', 'exec', 'cancelling process');
-          try {
-            jupyterClient.removeAllListeners();
-            jupyterClient.kill()
-              .then(() => log('info', 'exec', 'cancelled process'))
-              .catch(error => log('error', 'failed to cancel process', error));
-          } catch (ex) {
-            log('error', 'error cancelling process', ex);
-          }
-        });
-
-        jupyterClient.on('ready', function () {
-          jupyterClient.execute(text)
-          // graceful shutdown, if possible
-            .then(() => jupyterClient.shutdown())
-            .timeout(timeout, new ProcessError('Timed out when executing python', {options, result}))
-            .catch(function (error) {
-              result.errors.push(error);
-              return jupyterClient.kill();
-            });
-        });
-        jupyterClient.on('event', addSourceData(result));
-        jupyterClient.on('error', error => result.errors.push(error));
-        jupyterClient.on('close', (code, signal) => { resolve(_.assign({code, signal}, result)); });
-
-        listenTo(jupyterClient, 'jupyter', result.events);
-      }).timeout(timeout, new ProcessError('Timed out waiting for Jupyter to start', {options, result}));
+    onCancel(function () {
+      // kill process
+      log('info', 'exec', 'cancelling process');
+      try {
+        jupyterClient.removeAllListeners();
+        jupyterClient.kill()
+          .then(() => log('info', 'exec', 'cancelled process'))
+          .catch(error => log('error', 'failed to cancel process', error));
+      } catch (ex) {
+        log('error', 'error cancelling process', ex);
+      }
     });
-  }).catch(function (error) {
-    log('error', 'exec error', error);
-    result.errors.push(error);
 
-    return _.assign(result, options);
-  }).then(normalizeExecutionResult);
+    jupyterClient.on('ready', function () {
+      jupyterClient.execute(text)
+      // graceful shutdown, if possible
+        .then(() => jupyterClient.shutdown())
+        .timeout(timeout, new ProcessError('Timed out when executing python', {options, result}))
+        .catch(function (error) {
+          result.errors.push(error);
+          return jupyterClient.kill();
+        });
+    });
+    jupyterClient.on('event', addSourceData(result));
+    jupyterClient.on('error', error => result.errors.push(error));
+    jupyterClient.on('close', (code, signal) => {
+      resolve(_.assign({code, signal}, result));
+    });
+
+    listenTo(jupyterClient, 'jupyter', result.events);
+  }).timeout(timeout, new ProcessError('Timed out waiting for Jupyter to start', {
+    options,
+    result
+  })).then(normalizeExecutionResult);
 }
 
 /**

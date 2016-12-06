@@ -487,37 +487,28 @@ function onCreateKernelInstance(options) {
 
     kernelClients[instanceId] = new bluebird(function (resolveClient) {
       log('info', 'creating new python kernel process', 'creating python client');
-
-      kernelsPythonClient.create(options).then(function (client) {
-        log('info', 'created new python kernel process', instanceId, 'process', client.childProcess.pid, optionsForLog);
-        client.on('ready', function () {
+      const client = kernelsPythonClient.create(options)
+        .on('ready', function () {
           log('info', 'new python kernel process is ready', instanceId, 'process', client.childProcess.pid, optionsForLog);
           resolveClient(client);
-        });
-        client.on('event', function (source, data) {
+        })
+        .on('event', function (source, data) {
           log('info', 'python kernel process event', instanceId, 'process', client.childProcess.pid, optionsForLog, {source, data});
-        });
-        client.on('error', function (error) {
+        })
+        .on('error', function (error) {
           log('info', 'python kernel process error', instanceId, 'process', client.childProcess.pid, optionsForLog, error);
           browserWindows.send('mainWindow', 'error', instanceId, errorClone.toObject(error)).catch(_.noop);
-        });
-        client.on('close', function (code, signal) {
+        })
+        .on('close', function (code, signal) {
           log('info', 'python kernel process closed', instanceId, 'process', client.childProcess.pid, optionsForLog, {code, signal});
           delete kernelClients[instanceId];
         });
 
-        subscribeWindowToKernelEvents('mainWindow', client, instanceId);
+      log('info', 'created new python kernel process', instanceId, 'process', client.childProcess.pid, optionsForLog);
 
-        return kernelClients[instanceId];
-      }).catch(function (ex) {
-        log('error', 'failed to create instance', instanceId, ex);
-        delete kernelClients[instanceId];
-        const objEx = errorClone.toObject(ex);
+      subscribeWindowToKernelEvents('mainWindow', client, instanceId);
 
-        objEx.withinInitialization = true;
-
-        browserWindows.send('mainWindow', 'error', instanceId, objEx).catch(_.noop);
-      });
+      return kernelClients[instanceId];
     });
 
     resolveInstanceId(instanceId);
