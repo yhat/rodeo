@@ -1,5 +1,3 @@
-'use strict';
-
 import _ from 'lodash';
 import electronWinstonTransport from './electron-winston-transport';
 import path from 'path';
@@ -16,8 +14,7 @@ let electronTransport = new winston.transports.ElectronLogger({
   }),
   consoleTransport = new winston.transports.Console({
     level: 'info',
-    colorize: true,
-    humanReadableUnhandledException: true
+    colorize: true
   }),
   fileTransport = new winston.transports.File({
     filename: path.join(require('os').homedir(), 'rodeo.log'),
@@ -39,6 +36,8 @@ let electronTransport = new winston.transports.ElectronLogger({
     exitOnError: false
   });
 
+// stop winston from interfering
+winston.exitOnError = false;
 winston.handleExceptions(transports);
 
 /**

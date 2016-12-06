@@ -62,8 +62,8 @@ module.exports = {
   },
   node: {
     // we want the real location of files on the server-side
-    __filename: false,
-    __dirname: false
+    __filename: true,
+    __dirname: true
   },
   plugins: [
     new webpack.optimize.OccurrenceOrderPlugin(),

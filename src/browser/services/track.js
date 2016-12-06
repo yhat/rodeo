@@ -17,7 +17,7 @@ const appName = 'Rodeo',
   };
 
 let trackGA = createTrackGA({metricsUrl: 'https://ssl.google-analytics.com/collect'}),
-  trackYhat = createTrackGA({metricsUrl: 'https://analytics.yhat.com/collect'});
+  trackYhat = createTrackGA({metricsUrl: 'http://analytics.yhat.com/collect'});
 
 /**
  * @typedef {object} TrackingEvent

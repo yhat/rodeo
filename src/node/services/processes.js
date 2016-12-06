@@ -51,12 +51,12 @@ function create(cmd, args, options) {
 
   const errors = [],
     details = {cmd, args, options},
-    child = childProcess.spawn(cmd, args, options)
-      .on('error', error => {
-        errors.push(error);
-        errorInChild(child, error, details);
-      })
-      .on('close', (code, signal) => removeChild(child, _.assign({code, signal, errors}, details)));
+    child = childProcess.spawn(cmd, args, options);
+
+  child.on('error', error => {
+    errors.push(error);
+    errorInChild(child, error, details);
+  }).on('close', (code, signal) => removeChild(child, _.assign({code, signal, errors}, details)));
 
   addChild(child, details);
   return child;

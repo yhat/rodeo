@@ -24,11 +24,9 @@ import applicationMenu from './application-menu.yml';
 // enable source-maps
 require('source-map-support').install();
 
-console.log('>???', args, {__dirname, __filename});
-
 const argv = args.getArgv(),
   log = require('./services/log').asInternal(__filename),
-  staticFileDir = path.resolve(__dirname),
+  staticFileDir = path.resolve(electron.app.getAppPath()),
   kernelClients = {},
   windowUrls = {
     mainWindow: 'main.html',
@@ -984,7 +982,7 @@ function attachAppEvents(app) {
   });
   app.on('window-all-closed', () => {
     log('info', 'onWindowAllClosed');
-    quitApplication();
+    return quitApplication();
   });
   app.on('ready', onReady);
 }
@@ -996,10 +994,5 @@ function startPlotServer() {
     .then(port => log('info', 'serving plots from port', port))
     .catch(error => log('critical', 'failure to start plot server', error));
 }
-
-module.exports.onCloseWindow = onCloseWindow;
-module.exports.onFiles = onFiles;
-module.exports.onPDF = onPDF;
-module.exports.onReady = onReady;
 
 startApp();
