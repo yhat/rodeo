@@ -8,10 +8,28 @@ import path from 'path';
 const rootAppDir = process.resourcesPath,
   condaDirName = 'conda',
   condaDir = path.join(rootAppDir, condaDirName),
+  dllDir = path.join(rootAppDir, condaDirName, 'DLLs'),
   libDir = path.join(rootAppDir, condaDirName, 'Lib'),
+  sitePackagesDir = path.join(rootAppDir, condaDirName, 'Lib', 'site-packages'),
   scriptsDir = path.join(rootAppDir, condaDirName, 'Scripts');
 
 console.log({rootAppDir, condaDirName, condaDir, libDir, scriptsDir, dirname: __dirname});
+
+function splitList(list) {
+  if (process.platform === 'win32') {
+    return list.split(';');
+  } else {
+    return list.split(':');
+  }
+}
+
+function joinList(list) {
+  if (process.platform === 'win32') {
+    return list.join(';');
+  } else {
+    return list.join(':');
+  }
+}
 
 function prependToPath(fullPath, pathPart) {
   if (!_.includes(fullPath, pathPart)) {
@@ -42,18 +60,34 @@ function addBonusVariables(env) {
 function prependBuiltinPath(env) {
   const myPath = getPath(env);
 
-  prependToPath(myPath, condaDir);
-  prependToPath(myPath, libDir);
   prependToPath(myPath, scriptsDir);
+  prependToPath(myPath, libDir);
+  prependToPath(myPath, condaDir);
 
   return setPath(env, myPath);
 }
 
+function addOurPythonPath(env) {
+  if (process.platform === 'win32') {
+    const list = env.PYTHONPATH ? splitList(env.PYTHONPATH) : [];
+
+    prependToPath(list, sitePackagesDir);
+    prependToPath(list, libDir);
+    prependToPath(list, dllDir);
+
+    env.PYTHONPATH = joinList([dllDir, libDir, sitePackagesDir], list);
+  }
+
+  return env;
+}
+
 function applyBuiltinPython(env) {
   const useBuiltinPython = local.get('useBuiltinPython') || 'failover',
-    hasPythonFailedOver = session.get('hasPythonFailedOver') || false;
+    hasPythonFailedOver = session.get('hasPythonFailedOver') || false,
+    hasPythonPath = env.PYTHONPATH;
 
-  if (useBuiltinPython === 'yes' || (hasPythonFailedOver && useBuiltinPython === 'failover')) {
+  if (!hasPythonPath || useBuiltinPython === 'yes' || (hasPythonFailedOver && useBuiltinPython === 'failover')) {
+    addOurPythonPath(env);
     env = prependBuiltinPath(env);
   }
 
@@ -61,12 +95,8 @@ function applyBuiltinPython(env) {
 }
 
 function getEnvironmentVariables(env) {
-
-  console.log('what, HUH?', env);
-
   if (!env) {
     env = local.get('environmentVariables');
-    console.log('wait, WHY?', env);
   }
 
   if (env) {
@@ -94,11 +124,7 @@ function getPath(env) {
   let result;
 
   if (path) {
-    if (process.platform === 'win32') {
-      result = path.split(';');
-    } else {
-      result = path.split(':');
-    }
+    result = splitList(path);
   } else {
     result = [];
   }
@@ -108,15 +134,14 @@ function getPath(env) {
 
 function setExistingPath(env, value) {
   if (env.PATH) {
-    env.PATH = value;
+    delete value.PATH;
   } else if (env.Path) {
-    env.Path = value;
+    delete value.Path;
   } else if (env.path) {
-    env.path = value;
-  } else {
-    // most OS's use all capitals, and if this is not set, the user has done something WEIRD
-    env.PATH = value;
+    delete env.path;
   }
+
+  env.PATH = value;
 
   return env;
 }
@@ -125,11 +150,7 @@ function setPath(env, newPath) {
   let result;
 
   if (_.isArray(newPath)) {
-    if (process.platform === 'win32') {
-      result = newPath.join(';');
-    } else {
-      result = newPath.join(':');
-    }
+    result = joinList(newPath);
 
     env = setExistingPath(env, result);
     local.set('environmentVariables', env);

@@ -71,6 +71,30 @@ function createObjectEmitter(stream) {
   return emitter;
 }
 
+function isMissingRodeoDependency(client, data) {
+  const match = data.match(/Exception: (.+) is not installed/);
+
+  if (match && match[1]) {
+    const error = new Error(match[1] + ' is not installed');
+
+    error.missingPackage = match[1];
+
+    client.emit('error', error);
+  }
+}
+
+function isMissingImport(client, data) {
+  const match = data.match(/ImportError: No module named '(.+)'/);
+
+  if (match && match[1]) {
+    const error = new Error(match[1] + ' is not installed');
+
+    error.missingPackage = match[1];
+
+    client.emit('error', error);
+  }
+}
+
 /**
  * @param {JupyterClient} client
  * @param {string} source
@@ -79,15 +103,8 @@ function createObjectEmitter(stream) {
 function handleProcessStreamEvent(client, source, data) {
   if (source === 'stderr.data') {
     data = data.toString();
-    const match = data.match(/Exception: (.+) is not installed/);
-
-    if (match && match[1]) {
-      const error = new Error(match[1] + ' is not installed');
-
-      error.missingPackage = match[1];
-
-      client.emit('error', error);
-    }
+    isMissingRodeoDependency(client, data);
+    isMissingImport(client, data);
   }
 
   client.emit('event', source, data);
