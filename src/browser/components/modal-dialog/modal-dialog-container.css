@@ -1,0 +1,29 @@
+.modal-dialog-container {
+  position: absolute;
+  display: none;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  z-index: 1000; /* higher than split-panes */
+}
+
+.modal-dialog-container .inner-container {
+  position: absolute;
+  display: flex;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  justify-content: center;
+  flex-direction: column;
+}
+
+.modal-dialog-container .inner-container:last-child {
+  background-color: rgba(50, 50, 100, 0.5);
+  z-index: 11;
+}
+
+.modal-dialog-container.modal-dialog-container--active {
+  display: block;
+}

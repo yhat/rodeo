@@ -1,5 +1,3 @@
-'use strict';
-
 /**
  * @module
  * @see http://ipython.org/ipython-doc/stable/api/generated/IPython.kernel.client.html#IPython.kernel.client.KernelClient
@@ -21,25 +19,29 @@
  * @property {'stdin'|'iopub'|'shell'} source
  */
 
-const _ = require('lodash'),
-  assert = require('../../services/assert'),
-  bluebird = require('bluebird'),
-  clientResponse = require('./client-response'),
-  EventEmitter = require('events'),
-  environment = require('../../services/env'),
-  StreamSplitter = require('stream-splitter'),
-  log = require('../../services/log').asInternal(__filename),
-  path = require('path'),
-  files = require('../../services/files'),
-  processes = require('../../services/processes'),
-  pythonLanguage = require('./language'),
-  uuid = require('uuid'),
-  checkPythonPath = path.resolve(path.join(__dirname, 'check_python.py')),
-  clone = require('../../services/clone'),
-  ProcessError = require('../../services/errors/process-error'),
+import _ from 'lodash';
+import assert from '../../services/assert';
+import bluebird from 'bluebird';
+import clientResponse from './client-response';
+import cuid from 'cuid/dist/node-cuid';
+import errorClone from '../../services/clone';
+import EventEmitter from 'events';
+import files from '../../services/files';
+import listenScript from './listen.py';
+import patch from './patch.py';
+import path from 'path';
+import processes from '../../services/processes';
+import ProcessError from '../../services/errors/process-error';
+import pythonLanguage from './language';
+import StreamSplitter from 'stream-splitter';
+import checkScript from './check.py';
+
+const log = require('../../services/log').asInternal(__filename),
   assertValidOptions = assert(
     [{cmd: _.isString}, 'must have command'],
-    [{cwd: _.isString}, 'must have working directory']
+    [{cwd: _.isString}, 'must have working directory'],
+    [{env: _.isObject}, 'must have environment'],
+    [{kernelName: _.isString}, 'must have kernelName']
   ),
   second = 1000,
   timeouts = {
@@ -69,6 +71,30 @@ function createObjectEmitter(stream) {
   return emitter;
 }
 
+function isMissingRodeoDependency(client, data) {
+  const match = data.match(/Exception: (.+) is not installed/);
+
+  if (match && match[1]) {
+    const error = new Error(match[1] + ' is not installed');
+
+    error.missingPackage = match[1];
+
+    client.emit('error', error);
+  }
+}
+
+function isMissingImport(client, data) {
+  const match = data.match(/ImportError: No module named '(.+)'/);
+
+  if (match && match[1]) {
+    const error = new Error(match[1] + ' is not installed');
+
+    error.missingPackage = match[1];
+
+    client.emit('error', error);
+  }
+}
+
 /**
  * @param {JupyterClient} client
  * @param {string} source
@@ -77,15 +103,8 @@ function createObjectEmitter(stream) {
 function handleProcessStreamEvent(client, source, data) {
   if (source === 'stderr.data') {
     data = data.toString();
-    const match = data.match(/Exception: (.+) is not installed/);
-
-    if (match && match[1]) {
-      const error = new Error(match[1] + ' is not installed');
-
-      error.missingPackage = match[1];
-
-      client.emit('error', error);
-    }
+    isMissingRodeoDependency(client, data);
+    isMissingImport(client, data);
   }
 
   client.emit('event', source, data);
@@ -161,7 +180,7 @@ function write(childProcess, obj) {
 function request(client, invocation, options) {
   const childProcess = client.childProcess,
     requestMap = client.requestMap,
-    id = uuid.v4().toString(),
+    id = cuid(),
     inputPromise = write(childProcess, _.assign({id}, invocation)),
     resolveEvent = options.resolveEvent,
     hidden = options.hidden,
@@ -236,11 +255,11 @@ class JupyterClient extends EventEmitter {
    * @returns {Promise}
    */
   input(str) {
-    return write(this.childProcess, {id: uuid.v4().toString(), method: 'input', args: [str]});
+    return write(this.childProcess, {id: cuid(), method: 'input', args: [str]});
   }
 
   interrupt() {
-    const id = uuid.v4().toString(),
+    const id = cuid(),
       target = 'manager',
       method = 'interrupt_kernel';
 
@@ -390,61 +409,62 @@ class JupyterClient extends EventEmitter {
  * @returns {object}
  */
 function getPythonCommandOptions(options) {
-  return environment.getEnv().then(function (defaultEnv) {
-    return _.assign({
-      env: pythonLanguage.setDefaultEnvVars(defaultEnv),
-      stdio: ['pipe', 'pipe', 'pipe'],
-      encoding: 'UTF8'
-    }, _.pick(options, ['cwd', 'shell']));
-  });
-}
-
-/**
- * @param {string} targetFile
- * @param {object} [options]
- * @param {string} [options.shell=<default for OS>]
- * @param {string} [options.cmd="python"]
- * @returns {Promise<ChildProcess>}
- */
-function createPythonScriptProcess(targetFile, options) {
-  options = _.pick(options || {}, ['shell', 'cmd', 'cwd']);
-  options = resolveHomeDirectoryOptions(options);
-
-  return getPythonCommandOptions(options).then(function (processOptions) {
-    const cmd = options.cmd || 'python';
-
-    if (options.cwd) {
-      processOptions.cwd = options.cwd;
-    }
-
-    return processes.create(cmd, [targetFile], processOptions);
-  });
+  return {
+    cwd: options.cwd,
+    env: pythonLanguage.setDefaultEnvVars(options.env),
+    stdio: ['pipe', 'pipe', 'pipe'],
+    encoding: 'UTF8'
+  };
 }
 
 /**
  * @param {object} options
- * @returns {Promise<JupyterClient>}
+ * @param {string} options.cmd
+ * @param {string} options.cwd
+ * @param {string} options.env
+ * @param {string} options.kernelName
+ * @returns {ChildProcess}
+ */
+function createPythonScriptProcess(options) {
+  options = resolveHomeDirectoryOptions(options);
+  const args = ['-c', listenScript, options.kernelName],
+    cmdOptions = getPythonCommandOptions(options);
+
+  return processes.create(options.cmd, args, cmdOptions);
+}
+
+/**
+ * @param {object} options
+ * @param {string} options.cmd
+ * @param {string} options.cwd
+ * @param {string} options.env
+ * @param {string} options.kernelName
+ * @returns {JupyterClient}
  */
 function create(options) {
   assertValidOptions(options);
-  const targetFile = path.resolve(path.join(__dirname, 'start_kernel.py'));
+  const child = createPythonScriptProcess(options),
+    client = new JupyterClient(child);
 
-  return createPythonScriptProcess(targetFile, options).then(function (child) {
-    return new JupyterClient(child);
+  client.on('ready', () => {
+    // when the client is ready, apply our internal code right away
+    client.executeHidden(patch, 'executeReply');
   });
+
+  return client;
 }
 
 /**
  * Runs a script in python, returns the output with errors and stderr rejecting the results
- * @param {string} targetFile
+ * @param {string} script
  * @param {object} [options]
  * @returns {Promise}
  */
-function getPythonScriptResults(targetFile, options) {
+function getPythonScriptResults(script, options) {
   options = resolveHomeDirectoryOptions(options);
 
   return getPythonCommandOptions(options).then(function (processOptions) {
-    return processes.exec(options.cmd, [targetFile], processOptions);
+    return processes.exec(options.cmd, ['-c', script], processOptions);
   });
 }
 
@@ -495,17 +515,15 @@ function seekJson(str) {
  * @returns {Promise}
  */
 function check(options) {
-  const timeout = timeouts.checkTimeout;
-
   assertValidOptions(options);
 
   options = resolveHomeDirectoryOptions(options);
 
-  return getPythonScriptResults(checkPythonPath, options)
+  return getPythonScriptResults(checkScript, options)
     .catch(function (error) {
       return {errors: [error], stdout: '', stderr: ''};
     })
-    .timeout(timeout, 'Timed out when checking python with ' + JSON.stringify(options))
+    .timeout(timeouts.checkTimeout, 'Timed out when checking python with ' + JSON.stringify(options))
     .then(function (results) {
       results = _.cloneDeep(results);
 
@@ -540,7 +558,7 @@ function resolveHomeDirectoryOptions(options) {
 
 function normalizeExecutionResult(result) {
   // convert errors to objects so they can travel across ipc
-  result.errors = _.map(result.errors, error => clone.toObject(error));
+  result.errors = _.map(result.errors, error => errorClone.toObject(error));
 
   // to strings that will make sense on the outside
   result.stderr = result.stderr.join('\n');
@@ -561,13 +579,11 @@ function addSourceData(result) {
 
     switch (source) {
       case 'stderr.data':
-        result.stderr.push(data);
-        break;
+        return result.stderr.push(data);
       case 'stdout.data':
-        result.stdout.push(data);
-        break;
+        return result.stdout.push(data);
       default:
-        break;
+        return;
     }
   };
 }
@@ -586,51 +602,77 @@ function exec(options, text) {
     },
     timeout = timeouts.execTimeout;
 
-  return bluebird.try(function () {
+  return new bluebird(function (resolve, reject, onCancel) {
     assertValidOptions(options);
     options = resolveHomeDirectoryOptions(options);
+    const jupyterClient = create(options);
 
-    return create(options).then(function (jupyterClient) {
-      return new bluebird(function (resolve, reject, onCancel) {
-        onCancel(function () {
-          // kill process
-          log('info', 'exec', 'cancelling process');
-          try {
-            jupyterClient.removeAllListeners();
-            jupyterClient.kill()
-              .then(() => log('info', 'exec', 'cancelled process'))
-              .catch(error => log('error', 'failed to cancel process', error));
-          } catch (ex) {
-            log('error', 'error cancelling process', ex);
-          }
-        });
-
-        jupyterClient.on('ready', function () {
-          jupyterClient.execute(text)
-          // graceful shutdown, if possible
-            .then(() => jupyterClient.shutdown())
-            .timeout(timeout, new ProcessError('Timed out when executing python', {options, result}))
-            .catch(function (error) {
-              result.errors.push(error);
-              return jupyterClient.kill();
-            });
-        });
-        jupyterClient.on('event', addSourceData(result));
-        jupyterClient.on('error', error => result.errors.push(error));
-        jupyterClient.on('close', (code, signal) => { resolve(_.assign({code, signal}, result)); });
-
-        listenTo(jupyterClient, 'jupyter', result.events);
-      }).timeout(timeout, new ProcessError('Timed out waiting for Jupyter to start', {options, result}));
+    onCancel(function () {
+      // kill process
+      log('info', 'exec', 'cancelling process');
+      try {
+        jupyterClient.removeAllListeners();
+        jupyterClient.kill()
+          .then(() => log('info', 'exec', 'cancelled process'))
+          .catch(error => log('error', 'failed to cancel process', error));
+      } catch (ex) {
+        log('error', 'error cancelling process', ex);
+      }
     });
-  }).catch(function (error) {
-    log('error', 'exec error', error);
-    result.errors.push(error);
 
-    return _.assign(result, options);
-  }).then(normalizeExecutionResult);
+    jupyterClient.on('ready', function () {
+      jupyterClient.execute(text)
+      // graceful shutdown, if possible
+        .then(() => jupyterClient.shutdown())
+        .timeout(timeout, new ProcessError('Timed out when executing python', {options, result}))
+        .catch(function (error) {
+          result.errors.push(error);
+          return jupyterClient.kill();
+        });
+    });
+    jupyterClient.on('event', addSourceData(result));
+    jupyterClient.on('error', error => result.errors.push(error));
+    jupyterClient.on('close', (code, signal) => {
+      resolve(_.assign({code, signal}, result));
+    });
+
+    listenTo(jupyterClient, 'jupyter', result.events);
+  }).timeout(timeout, new ProcessError('Timed out waiting for Jupyter to start', {
+    options,
+    result
+  })).then(normalizeExecutionResult);
 }
 
-module.exports.create = create;
-module.exports.exec = exec;
-module.exports.getPythonScriptResults = getPythonScriptResults;
-module.exports.check = check;
+/**
+ * If we put our built-in kernel on a special path, conda will come and find it
+ * @returns {Promise}
+ */
+function createBuiltinKernelJson() {
+  const condaDir = pythonLanguage.getCondaPath(),
+    specialPath = ['share', 'jupyter', 'kernels', 'rodeo-builtin-miniconda'];
+
+  return files.makeDirectoryPathSafe(condaDir, specialPath).then(() => {
+    const targetDir = path.join.apply(path, [condaDir].concat(specialPath));
+
+    return files.writeFile(path.join(targetDir, 'kernel.json'), JSON.stringify({
+      argv: [
+        pythonLanguage.getPythonPath(),
+        '-m',
+        'ipykernel',
+        '-f',
+        '{connection_file}' // replaced by a reference to an actual connection file in conda
+      ],
+      display_name: 'Rodeo Built-in Miniconda',
+      language: 'python'
+    })).then(function () {
+      log('info', 'wrote kernel.json to', targetDir);
+    });
+  });
+}
+
+export default {
+  create,
+  exec,
+  check,
+  createBuiltinKernelJson
+};

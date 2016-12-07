@@ -1,5 +1,8 @@
 'use strict';
 
+import installContextMenuWindowsRegistryCommands from '../../../../test/fixtures/windows-registry-commands/install-context-menu.yml';
+import uninstallContextMenuWindowsRegistryCommands from '../../../../test/fixtures/windows-registry-commands/uninstall-context-menu.yml';
+
 const _ = require('lodash'),
   bluebird = require('bluebird'),
   expect = require('chai').expect,
@@ -8,15 +11,7 @@ const _ = require('lodash'),
   filename = __filename.split('/').pop().split('.').shift(),
   lib = require('./' + filename),
   processes = require('./../processes'),
-  files = require('./../files'),
-  jsYaml = require('js-yaml'),
-  fs = require('fs'),
-  installContextMenuWindowsRegistryCommands = jsYaml.safeLoad(
-    fs.readFileSync('./test/fixtures/windows-registry-commands/install-context-menu.yml')
-  ),
-  uninstallContextMenuWindowsRegistryCommands = jsYaml.safeLoad(
-    fs.readFileSync('./test/fixtures/windows-registry-commands/uninstall-context-menu.yml')
-  );
+  files = require('./../files');
 
 describe(dirname + '/' + filename, function () {
   this.timeout(10000);

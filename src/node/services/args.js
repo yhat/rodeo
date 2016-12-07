@@ -1,7 +1,5 @@
-'use strict';
-
-const _ = require('lodash'),
-  yargs = require('yargs');
+import _ from 'lodash';
+import yargs from 'yargs';
 
 function getArgv() {
   let sliceNum;
@@ -33,4 +31,6 @@ function getArgv() {
     .parse(process.argv.slice(sliceNum));
 }
 
-module.exports.getArgv = _.memoize(getArgv);
+export default {
+  getArgv: _.memoize(getArgv)
+};

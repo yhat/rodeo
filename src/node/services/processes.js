@@ -1,10 +1,9 @@
-'use strict';
+import _ from 'lodash';
+import assert from './assert';
+import bluebird from 'bluebird';
+import childProcess from 'child_process';
 
-const _ = require('lodash'),
-  assert = require('./assert'),
-  bluebird = require('bluebird'),
-  childProcess = require('child_process'),
-  log = require('./log').asInternal(__filename),
+const log = require('./log').asInternal(__filename),
   children = [],
   killTimeout = 5000,
   assertString = assert(['string', 'must be string']);
@@ -51,13 +50,13 @@ function create(cmd, args, options) {
   options = args && options;
 
   const errors = [],
-    details = {cmd, args},
-    child = childProcess.spawn(cmd, args, options)
-      .on('error', error => {
-        errors.push(error);
-        errorInChild(child, error, details);
-      })
-      .on('close', (code, signal) => removeChild(child, _.assign({code, signal, errors}, details)));
+    details = {cmd, args, options},
+    child = childProcess.spawn(cmd, args, options);
+
+  child.on('error', error => {
+    errors.push(error);
+    errorInChild(child, error, details);
+  }).on('close', (code, signal) => removeChild(child, _.assign({code, signal, errors}, details)));
 
   addChild(child, details);
   return child;
@@ -106,7 +105,9 @@ function kill(childProcess) {
   }).timeout(killTimeout, 'failed to kill child process ' + childProcess.pid);
 }
 
-module.exports.getChildren = getChildren;
-module.exports.create = create;
-module.exports.exec = exec;
-module.exports.kill = kill;
+export default {
+  getChildren,
+  create,
+  exec,
+  kill
+};

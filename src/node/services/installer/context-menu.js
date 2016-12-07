@@ -4,9 +4,10 @@
 
 'use strict';
 
-const bluebird = require('bluebird'),
-  win32Registry = require('../win32/registry'),
-  packageName = 'rodeo',
+import bluebird from 'bluebird';
+import win32Registry from '../win32/registry';
+
+const packageName = 'rodeo',
   appName = 'Rodeo',
   fileKeyPath = `HKCU\\Software\\Classes\\.py\\shell\\${appName}`,
   directoryKeyPath = `HKCU\\Software\\Classes\\directory\\shell\\${appName}`,

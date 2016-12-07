@@ -1,8 +1,7 @@
-'use strict';
+import bluebird from 'bluebird';
+import express from 'express';
 
-const bluebird = require('bluebird'),
-  express = require('express'),
-  log = require('./log').asInternal(__filename),
+const log = require('./log').asInternal(__filename),
   defaultHostname = 'localhost',
   defaultBacklog = 511;
 let PlotServer;
@@ -43,11 +42,12 @@ PlotServer.prototype = {
     app.get(route, function (req, res) {
       log('info', 'sending file', {filename, route, port});
       res.sendFile(filename, function (err) {
-        log('info', 'sending file result', err);
         if (err) {
-          log('error', 'sending file', filename);
-          res.status(err.status).end();
+          log('error', 'error sending file', filename, err);
+          return res.status(err.status).end();
         }
+
+        log('info', 'sending file');
       });
     });
     urls.set(url, filename);

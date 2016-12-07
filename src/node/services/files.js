@@ -1,38 +1,14 @@
-'use strict';
+import _ from 'lodash';
+import bluebird from 'bluebird';
+import chokidar from 'chokidar';
+import fs from 'fs';
+import path from 'path';
+import temp from 'temp';
 
-const _ = require('lodash'),
-  bluebird = require('bluebird'),
-  chokidar = require('chokidar'),
-  fs = require('fs'),
-  path = require('path'),
-  log = require('./log').asInternal(__filename),
-  temp = require('temp'),
-  fileWatchers = {};
+const fileWatchers = {},
+  log = require('./log').asInternal(__filename);
 
 temp.track();
-
-/**
- * @param {string} filePath
- * @returns {object}
- */
-function getJSONFileSafeSync(filePath) {
-  let contents,
-    result = null;
-
-  try {
-    contents = fs.readFileSync(filePath, {encoding: 'UTF8'});
-
-    try {
-      result = JSON.parse(contents);
-    } catch (e) {
-      log('warn', filePath, 'is not valid JSON', e);
-    }
-  } catch (ex) {
-    // deliberately no warning, thus "safe".
-  }
-
-  return result;
-}
 
 /**
  * @param {string} dirPath
@@ -320,19 +296,60 @@ function readAllFilesOfExt(filepath, ext) {
     .then(readFileStatsListIntoObject);
 }
 
-module.exports.getJSONFileSafeSync = getJSONFileSafeSync;
-module.exports.readFile = _.partialRight(bluebird.promisify(fs.readFile), 'utf8');
-module.exports.writeFile = bluebird.promisify(fs.writeFile);
-module.exports.readDirectory = readDirectory;
-module.exports.makeDirectory = bluebird.promisify(fs.mkdir);
-module.exports.getStats = getStats;
-module.exports.exists = bluebird.promisify(fs.exists);
-module.exports.unlink = bluebird.promisify(fs.unlink);
-module.exports.saveToTemporaryFile = saveToTemporaryFile;
-module.exports.resolveHomeDirectory = resolveHomeDirectory;
-module.exports.getWithHomeDirectoryShortName = getWithHomeDirectoryShortName;
-module.exports.copy = copy;
-module.exports.startWatching = startWatching;
-module.exports.stopWatching = stopWatching;
-module.exports.addWatching = addWatching;
-module.exports.readAllFilesOfExt = readAllFilesOfExt;
+function exists(filePath) {
+  return getStats(filePath)
+    .then(() => true)
+    .catch(() => false);
+}
+
+/**
+ * Do not fail if directory already exists
+ * @param {string} filePath
+ * @returns {Promise}
+ */
+function makeDirectorySafe(filePath) {
+  return new bluebird((resolve, reject) => {
+    fs.mkdir(filePath, function (e) {
+      if (!e || (e && e.code === 'EEXIST')) {
+        return resolve();
+      }
+
+      reject(e);
+    });
+  });
+}
+
+/**
+ * @param {string} basePath
+ * @param {[string]} directoryNames
+ * @returns {Promise}
+ */
+function makeDirectoryPathSafe(basePath, directoryNames) {
+  const currentPath = path.join(basePath, directoryNames[0]);
+
+  return makeDirectorySafe(currentPath).then(() => {
+    if (directoryNames.length > 1) {
+      return makeDirectoryPathSafe(currentPath, _.tail(directoryNames));
+    }
+  });
+}
+
+export default {
+  readFile: _.partialRight(bluebird.promisify(fs.readFile), 'utf8'),
+  writeFile: bluebird.promisify(fs.writeFile),
+  readDirectory,
+  makeDirectory: bluebird.promisify(fs.mkdir),
+  makeDirectoryPathSafe,
+  makeDirectorySafe,
+  getStats,
+  exists,
+  saveToTemporaryFile,
+  resolveHomeDirectory,
+  getWithHomeDirectoryShortName,
+  copy,
+  startWatching,
+  stopWatching,
+  addWatching,
+  readAllFilesOfExt,
+  unlink: bluebird.promisify(fs.unlink)
+};

@@ -1,6 +1,4 @@
-'use strict';
-
-const _ = require('lodash');
+import _ from 'lodash';
 
 function assert() {
   let assertions = _.toArray(arguments);
@@ -39,4 +37,4 @@ function assert() {
   return _.cond(assertions);
 }
 
-module.exports = assert;
+export default assert;

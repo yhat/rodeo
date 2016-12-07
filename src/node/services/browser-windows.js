@@ -1,47 +1,27 @@
-'use strict';
+import _ from 'lodash';
+import bluebird from 'bluebird';
+import cuid from 'cuid/dist/node-cuid';
+import electron from 'electron';
+import os from 'os';
+import util from 'util';
+import chromiumErrors from './chromium-errors.yml';
 
-const _ = require('lodash'),
-  bluebird = require('bluebird'),
-  cuid = require('cuid'),
-  electron = require('electron'),
-  fs = require('fs'),
-  path = require('path'),
-  yaml = require('js-yaml'),
-  log = require('./log').asInternal(__filename),
-  util = require('util'),
+const log = require('./log').asInternal(__filename),
   availableBrowserWindowOptions = [
     'width', 'height', 'useContentSize', 'resizable', 'moveable', 'center', 'alwaysOnTop', 'show', 'frame',
-    'webPreferences'
+    'webPreferences', 'titleBarStyle', 'parent', 'modal'
   ],
-  windows = {},
-  os = require('os'),
   homedir = os.homedir(),
-  performance = {};
-
-function getCommonErrors() {
-  const targetFile = path.resolve(path.join(__dirname, 'chromium-errors.yml'));
-  let contents, commonErrors;
-
-  try {
-    contents = fs.readFileSync(targetFile, 'utf8');
-    commonErrors = contents && yaml.safeLoad(contents);
-  } catch (ex) {
-    log('warn', 'could not read', targetFile, ex);
-    commonErrors = {};
-  }
-
-  return commonErrors;
-}
+  windows = {};
 
 /**
  * @see https://code.google.com/p/chromium/codesearch#chromium/src/net/base/net_error_list.h
  */
 function onFailLoad() {
   const args = sanitizeArguments(arguments, ['event', 'code', 'description', 'url']),
-    commonErrors = exports.getCommonErrors(),
-    name = _.findKey(commonErrors, {id: args.code});
+    name = _.findKey(chromiumErrors, {id: args.code});
 
-  args.description = commonErrors[name] && commonErrors[name].description || args.description;
+  args.description = chromiumErrors[name] && chromiumErrors[name].description || args.description;
 
   log('error', 'onFailLoad', _.pickBy(_.assign({name}, args), _.identity));
 }
@@ -76,13 +56,6 @@ function sanitizeArguments(args, argumentNames) {
 
     return value;
   });
-}
-
-function onGetResponseDetails() {
-  // ridiculous amount of arguments
-  const args = sanitizeArguments(arguments, [
-    'event', 'status', 'newURL', 'url', 'code', 'method', 'referrer', 'headers', 'type'
-  ]);
 }
 
 /**
@@ -148,7 +121,13 @@ function create(name, options) {
   window.loadURL(options.url);
 
   // default event handlers
-  window.on('close', () => log('info', 'close', name));
+  window.on('close', event => {
+    log('info', 'close', name);
+    if (name === 'mainWindow' && window.allowClose !== true) {
+      event.preventDefault();
+      dispatchActionToWindow('mainWindow', {type: 'ASK_QUIT'});
+    }
+  });
   window.on('closed', () => {
     log('info', 'closed', name);
     delete windows[name];
@@ -167,7 +146,6 @@ function create(name, options) {
     runStartActions(name, options.startActions);
   });
   webContents.on('did-fail-load', onFailLoad);
-  webContents.on('did-get-response-details', onGetResponseDetails);
   webContents.on('crashed', () => log('error', 'onCrashed', arguments));
   webContents.on('plugin-crashed', () => log('error', 'onPluginCrashed'));
   webContents.on('destroyed', () => log('info', 'destroyed'));
@@ -209,7 +187,8 @@ function createMainWindow(name, options) {
     width: size.width,
     height: size.height,
     show: false,
-    acceptFirstMouse: true
+    titleBarStyle: 'default',
+    frame: true
   }, options));
 }
 
@@ -220,16 +199,20 @@ function createMainWindow(name, options) {
  * @returns {BrowserWindow}
  */
 function createStartupWindow(name, options) {
-  return create(name, _.assign({
+  const window = create(name, _.assign({
     useContentSize: true,
     resizable: false,
     moveable: true,
     center: true,
     alwaysOnTop: false,
     show: false,
-    frame: false,
-    acceptFirstMouse: true
+    frame: true,
+    modal: true
   }, options));
+
+  window.setMenu(null);
+
+  return window;
 }
 
 /**
@@ -303,14 +286,14 @@ function send(windowName, eventName) {
 }
 
 /**
- * @param {string} name
+ * @param {string} windowName
  * @param {{type: string}} action
  * @returns {Promise}
  */
-function dispatchActionToWindow(name, action) {
-  log('info', 'dispatch', name, action);
+function dispatchActionToWindow(windowName, action) {
+  log('info', 'dispatch', windowName, action);
 
-  return send(name, 'dispatch', action);
+  return send(windowName, 'dispatch', action);
 }
 
 /**
@@ -346,12 +329,14 @@ function getFocusedWindow() {
   return electron.BrowserWindow.getFocusedWindow();
 }
 
-module.exports.create = create;
-module.exports.createMainWindow = createMainWindow;
-module.exports.createStartupWindow = createStartupWindow;
-module.exports.getByName = getByName;
-module.exports.send = send;
-module.exports.getCommonErrors = _.memoize(getCommonErrors);
-module.exports.getWindowNames = getWindowNames;
-module.exports.getNameOfWindow = getNameOfWindow;
-module.exports.getFocusedWindow = getFocusedWindow;
+export default {
+  create,
+  createMainWindow,
+  createStartupWindow,
+  dispatchActionToWindow,
+  getByName,
+  send,
+  getWindowNames,
+  getNameOfWindow,
+  getFocusedWindow
+};

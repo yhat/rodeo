@@ -1,7 +1,5 @@
-'use strict';
-
-const util = require('util'),
-  winston = require('winston');
+import util from 'util';
+import winston from 'winston';
 
 let ElectronLogger = function (options) {
   this.name = 'electronLogger';
@@ -28,4 +26,4 @@ ElectronLogger.prototype.log = function (level, msg, meta, callback) {
   callback(null, true);
 };
 
-module.exports = ElectronLogger;
+export default ElectronLogger;

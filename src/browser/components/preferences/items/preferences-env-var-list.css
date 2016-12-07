@@ -1,0 +1,110 @@
+.preferences-env-var-list table {
+  box-shadow: 1px 1px 5px #ccc;
+  background-color: #fff;
+  width: 100%;
+  overflow: hidden;
+  table-layout: fixed;
+  margin: 12px auto 30px;
+  white-space: pre-wrap;
+  word-break: break-all;
+  transition: all 0.2s;
+}
+
+.preferences-env-var-list table th:first-child, .preferences-env-var-list table td:first-child {
+  width: 30%;
+}
+
+.preferences-env-var-list table th,
+.preferences-env-var-list table td {
+  border: 1px solid rgba(51, 122, 183, 0.28);
+  padding: 2px 5px;
+  overflow: hidden;
+  transition: all 0.2s;
+}
+
+.preferences-env-var-list.preferences-item--validating td {
+  background-color: #eee;
+}
+
+.preferences-env-var-list__actions {
+  text-align: center;
+}
+
+.preferences-env-var-list__container {
+  border: 1px solid rgba(51, 122, 183, 0.28);
+  box-shadow: 1px 1px 5px #ccc;
+  padding: 5px 10px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-content: center;
+  align-items: stretch;
+  margin: 5px auto;
+  width: 95%;
+}
+
+.preferences-env-var-list__container > * {
+  margin: 10px 2px;
+}
+
+.preferences-env-var-list__new_entry_data {
+  display: flex;
+  flex-direction: row;
+}
+
+.preferences-env-var-list__new_entry_data_key {
+  flex: 1 0;
+  margin-left: 5px;
+  margin-right: 5px;
+}
+
+.preferences-env-var-list__new_entry_data_key input {
+  width: 100%;
+}
+
+.preferences-env-var-list__new_entry_data_value {
+  flex: 3 0;
+  margin-left: 5px;
+  margin-right: 5px;
+}
+
+.preferences-env-var-list__new_entry_data_value input {
+  width: 100%;
+}
+
+.preferences-env-var-list__new_entry_actions {
+  text-align: right;
+}
+
+.preferences-env-var-list__actions {
+  text-align: right;
+}
+
+.preferences-env-var-list__actions a {
+  margin-left:10px;
+  color: #999;
+}
+
+.preferences-env-var-list__actions a:hover {
+  margin-left:10px;
+  color: #ccc;
+}
+
+.preferences-env-var-list__actions .fa {
+  margin-right: 5px;
+}
+
+.preferences-env-var-list__row {
+  position: relative;
+  padding-right: 10px;
+}
+
+.preferences-env-var-list__row_menu {
+  position: absolute;
+  right: 0;
+  top: 0;
+}
+
+.preferences-env-var-list tr:hover .preferences-env-var-list__row_menu {
+
+}

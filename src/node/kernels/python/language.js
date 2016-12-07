@@ -3,12 +3,12 @@
  * @module
  */
 
-'use strict';
+import _ from 'lodash';
+import fs from 'fs';
+import os from 'os';
+import path from 'path';
 
-const _ = require('lodash'),
-  fs = require('fs'),
-  os = require('os'),
-  log = require('../../services/log').asInternal(__filename);
+const log = require('../../services/log').asInternal(__filename);
 
 /**
  * @param {object} args
@@ -27,30 +27,28 @@ function addPath(envs, path) {
   }
 }
 
+function getCondaPath() {
+  return path.join(__dirname.split('app.asar')[0], 'conda');
+}
+
+function getPythonPath() {
+  return path.join(__dirname.split('app.asar')[0], 'conda', 'python.exe');
+}
+
+function getStartKernelPath() {
+  return path.join(__dirname.split('app.asar')[0], 'kernels', 'python', 'start_kernel.py');
+}
+
 function setDefaultEnvVars(env) {
-  if (process.platform === 'darwin' && _.isString(env.PATH)) {
-    if (_.isString(env.PATH)) {
-      const envs = env.PATH.split(':');
+  if (_.isString(env.PATH) && process.platform === 'darwin') {
+    const splitter = ':',
+      envs = env.PATH.split(splitter);
 
-      addPath(envs, '/sbin');
-      addPath(envs, '/usr/sbin');
-      addPath(envs, '/usr/local/bin');
+    addPath(envs, '/sbin');
+    addPath(envs, '/usr/sbin');
+    addPath(envs, '/usr/local/bin');
 
-      env.PATH = envs.join(':');
-    }
-  }
-
-  // we support colors
-  if (process.platform !== '32' && env.CLICOLOR === undefined) {
-    env.CLICOLOR = 1;
-  }
-
-  if (process.platform === 'win32' && !env.NUMBER_OF_PROCESSORS) {
-    try {
-      env.NUMBER_OF_PROCESSORS = os.cpus().length;
-    } catch (ex) {
-      log('warn', 'failed to set NUMBER_OF_PROCESSORS', ex);
-    }
+    env.PATH = envs.join(splitter);
   }
 
   return _.assign({
@@ -60,3 +58,6 @@ function setDefaultEnvVars(env) {
 
 module.exports.toPythonArgs = toPythonArgs;
 module.exports.setDefaultEnvVars = setDefaultEnvVars;
+module.exports.getStartKernelPath = getStartKernelPath;
+module.exports.getPythonPath = getPythonPath;
+module.exports.getCondaPath = getCondaPath;

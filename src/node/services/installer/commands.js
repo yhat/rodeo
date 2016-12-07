@@ -1,9 +1,9 @@
 'use strict';
 
-const _ = require('lodash'),
-  files = require('../files'),
-  path = require('path'),
-  win32System = require('../win32/system');
+import _ from 'lodash';
+import files from '../files';
+import path from 'path';
+import win32System from '../win32/system';
 
 function getBinFolder(execPath) {
   return path.resolve(execPath, '..', 'bin');

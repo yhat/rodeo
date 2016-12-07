@@ -26,7 +26,7 @@ describe(dirname + '/' + filename, function () {
     sandbox.restore();
   });
 
-  describe('getJSONFileSafeSync', function () {
+  describe('getInternalJSONFileSafeSync', function () {
     const fn = lib[this.title];
 
     it('returns null if file does not exist', function () {

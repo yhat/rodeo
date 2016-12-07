@@ -1,11 +1,10 @@
-'use strict';
+import _ from 'lodash';
+import electronWinstonTransport from './electron-winston-transport';
+import path from 'path';
+import winston from 'winston';
+import util from 'util';
 
-const _ = require('lodash'),
-  electronWinstonTransport = require('./electron-winston-transport'),
-  path = require('path'),
-  winston = require('winston'),
-  util = require('util'),
-  colorize = false;
+const colorize = false;
 
 winston.transports.ElectronLogger = electronWinstonTransport;
 
@@ -15,8 +14,7 @@ let electronTransport = new winston.transports.ElectronLogger({
   }),
   consoleTransport = new winston.transports.Console({
     level: 'info',
-    colorize: true,
-    humanReadableUnhandledException: true
+    colorize: true
   }),
   fileTransport = new winston.transports.File({
     filename: path.join(require('os').homedir(), 'rodeo.log'),
@@ -38,6 +36,8 @@ let electronTransport = new winston.transports.ElectronLogger({
     exitOnError: false
   });
 
+// stop winston from interfering
+winston.exitOnError = false;
 winston.handleExceptions(transports);
 
 /**
@@ -113,7 +113,7 @@ function transformEventEmitter(obj) {
 }
 
 function printObject(obj) {
-  return util.inspect(obj, {depth: 10, colors: colorize, hidden: true});
+  return util.inspect(_.cloneDeep(obj), {depth: 10, colors: colorize});
 }
 
 function sanitizeObject(value) {

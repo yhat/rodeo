@@ -1,6 +1,4 @@
-'use strict';
-
-const _ = require('lodash');
+import _ from 'lodash';
 
 function toObject(source) {
 
@@ -24,4 +22,6 @@ function toObject(source) {
   return _.clone(source);
 }
 
-module.exports.toObject = toObject;
+export default {
+  toObject
+};

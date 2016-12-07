@@ -18,7 +18,7 @@ cd $TARGET_DIR
 echo '#build application (production and dev dependnencies)'
 rm -rf app dist
 npm install -q --cache-min $CACHE_MIN
-gulp build
+npm run build
 cd $STARTING_DIR
 
 #install application including production dependencies only (no dev)

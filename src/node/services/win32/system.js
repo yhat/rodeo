@@ -1,8 +1,8 @@
 'use strict';
 
-const _ = require('lodash'),
-  path = require('path'),
-  processes = require('../processes');
+import _ from 'lodash';
+import path from 'path';
+import processes from '../processes';
 
 /**
  * @param {string} [systemRoot]
