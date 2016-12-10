@@ -4,6 +4,7 @@ import clientDiscovery from '../../services/jupyter/client-discovery';
 import preferenceActions from '../../actions/preferences';
 import errors from '../../services/errors';
 import reduxUtil from '../../services/redux-util';
+import selectors from './preferences-viewer.selectors';
 
 const prefix = reduxUtil.fromFilenameToPrefix(__filename);
 
@@ -12,11 +13,11 @@ const prefix = reduxUtil.fromFilenameToPrefix(__filename);
  */
 function save() {
   return function (dispatch, getState) {
-    const preferences = getState().preferences;
+    const preferencesViewer = selectors.getPreferencesViewer(getState());
 
     // only save if there are no invalid entries
-    if (preferences.canSave) {
-      dispatch(preferenceActions.savePreferenceChanges(preferences.changes));
+    if (preferencesViewer.canSave) {
+      dispatch(preferenceActions.savePreferenceChanges(preferencesViewer.changes));
     }
   };
 }
@@ -29,14 +30,12 @@ function markChangeInvalid(change) {
 }
 
 function dispatchChangeDetail(change, dispatch) {
-  const actionType = 'PREFERENCE_CHANGE_DETAIL_ADDED';
-
   return function () {
     if (change.errors) {
       change.errors = _.map(change.errors, errors.toObject);
     }
 
-    dispatch({type: actionType, change, meta: {sender: 'self'}});
+    dispatch({type: prefix + 'CHANGE_DETAIL_ADDED', change, meta: {sender: 'self'}});
   };
 }
 
@@ -89,13 +88,13 @@ function add(change) {
           }
         }).catch(markChangeInvalid(change))
           // not just a detail
-          .then(() => dispatch({type: 'PREFERENCE_CHANGE_ADDED', change, meta: {sender: 'self'}}));
+          .then(() => dispatch({type: prefix + 'CHANGE_ADDED', change, meta: {sender: 'self'}}));
     } else {
       change.state = 'valid';
     }
 
     // immediate feedback, because typing can be fast
-    return dispatch({type: 'PREFERENCE_CHANGE_ADDED', change, meta: {sender: 'self'}});
+    return dispatch({type: prefix + 'CHANGE_ADDED', change, meta: {sender: 'self'}});
   };
 }
 
@@ -130,10 +129,10 @@ function selectFolder(change) {
  */
 function selectTab(active) {
   return function (dispatch, getState) {
-    const preferences = getState().preferences;
+    const preferences = selectors.getPreferencesViewer(getState());
 
     if (_.size(preferences.changes) === 0) {
-      dispatch({type: 'PREFERENCE_ACTIVE_TAB_CHANGED', active, meta: {sender: 'self'}});
+      dispatch({type: prefix + 'ACTIVE_TAB_CHANGED', payload: {active}, meta: {sender: 'self'}});
     }
   };
 }
@@ -142,7 +141,7 @@ function selectTab(active) {
  * @returns {{type: string}}
  */
 function cancelAll() {
-  return {type: 'PREFERENCE_CANCEL_ALL_CHANGES', meta: {sender: 'self'}};
+  return {type: prefix + 'CANCEL_ALL_CHANGES', meta: {sender: 'self'}};
 }
 
 function manageConnections() {

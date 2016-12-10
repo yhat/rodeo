@@ -105,10 +105,7 @@ function getEnvironmentVariables(env) {
 
   return api.send('getEnvironmentVariables').then(function (env) {
     if (_.size(env) < 10) {
-      const returnedEnv = env;
-
-      env = _.clone(process.env);
-      console.log('failed to get terminal environment variables, using Rodeo\'s environment variables', {returnedEnv, env});
+      console.log('failed to get terminal environment variables, using Rodeo\'s environment variables', {env});
     }
 
     // bonus variables are used by various python packages, but it's okay for the user to see and change them

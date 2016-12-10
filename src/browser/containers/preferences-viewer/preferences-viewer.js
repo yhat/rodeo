@@ -3,15 +3,7 @@ import React from 'react';
 import {connect} from 'react-redux';
 import PreferencesList from '../../components/preferences/preferences-list.jsx';
 import actions from './preferences-viewer.actions';
-import text from '../text.yml';
-
-/**
- * @param {object} state
- * @returns {object}
- */
-function mapStateToProps(state) {
-  return state.preferences;
-}
+import {getPreferencesViewer} from './preferences-viewer.selectors';
 
 /**
  * @param {function} dispatch
@@ -43,10 +35,7 @@ function getChange(item, event) {
   return {key, value, type};
 }
 
-/**
- * @class PreferencesViewer
- */
-export default connect(mapStateToProps, mapDispatchToProps)(React.createClass({
+export default connect(getPreferencesViewer, mapDispatchToProps)(React.createClass({
   displayName: 'PreferencesViewer',
   propTypes: {
     // expected to be provided from parent

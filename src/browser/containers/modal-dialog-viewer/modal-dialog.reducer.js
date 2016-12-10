@@ -6,69 +6,65 @@
  */
 
 import _ from 'lodash';
-import cid from '../../services/cid';
+import Immutable from 'seamless-immutable';
+import immutableUtil from '../../services/immutable-util';
 import mapReducers from '../../services/map-reducers';
+import reduxUtil from '../../services/redux-util';
+import preferencesViewerReducer from '../preferences-viewer/preferences-viewer.reducer';
+import types from './dialog-types';
 
-const initialState = [];
+function getInitialState() {
+  return Immutable({items: []});
+}
 
 /**
- * @param {Array} state
+ * @param {object} state
  * @param {object} action
- * @returns {Array}
+ * @returns {object}
  */
 function add(state, action) {
-  state = _.clone(state);
-  const modal = _.assign({
-    id: cid()
-  }, _.omit(action, ['type']));
-
-  state.push(modal);
-
-  return state;
+  return immutableUtil.pushAtPath(state, ['items'], types.getDefault(action.payload.contentType));
 }
 
 /**
- * @param {Array} state
+ * @param {object} state
  * @param {object} action
- * @returns {Array}
+ * @returns {object}
  */
 function cancel(state, action) {
-  const top = _.last(state);
+  const id = action.payload.id,
+    targetIndex = _.findIndex(state, {id});
 
-  if (top.id === action.id) {
-    state = _.clone(state);
-    state.pop();
+  if (targetIndex > -1) {
+    state = immutableUtil.removeAtPath(state, ['items'], targetIndex);
   }
 
   return state;
 }
 
 /**
- * @returns {Array}
+ * @returns {object}
  */
 function cancelAll() {
-  return [];
+  return getInitialState();
 }
 
 /**
- * @param {Array} state
+ * @param {object} state
  * @param {object} action
- * @returns {Array}
+ * @returns {object}
  */
 function ok(state, action) {
-  const top = _.last(state);
-
-  if (top.id === action.id) {
-    state = _.clone(state);
-    state.pop();
-  }
-
-  return state;
+  // nothing special at the moment
+  return cancel(state, action);
 }
 
-export default mapReducers({
-  ADD_MODAL_DIALOG: add,
-  CANCEL_MODAL_DIALOG: cancel,
-  CANCEL_ALL_MODAL_DIALOGS: cancelAll,
-  OK_MODAL_DIALOG: ok
-}, initialState);
+export default reduxUtil.reduceReducers(
+  mapReducers({
+    ADD_MODAL_DIALOG: add,
+    CANCEL_MODAL_DIALOG: cancel,
+    CANCEL_ALL_MODAL_DIALOGS: cancelAll,
+    OK_MODAL_DIALOG: ok
+  }, getInitialState()),
+  reduxUtil.dialogReducer('preferences', preferencesViewerReducer)
+);

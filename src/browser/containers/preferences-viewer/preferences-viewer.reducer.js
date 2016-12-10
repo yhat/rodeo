@@ -130,7 +130,7 @@ function changeDetailAdded(state, action) {
 }
 
 function activeTabChanged(state, action) {
-  return state.set('active', action.active);
+  return state.set('active', action.payload.active);
 }
 
 function addFromListContainer(state, action) {
@@ -193,15 +193,15 @@ function removeFromList(state, action) {
 }
 
 export default mapReducers(_.assign(reduxUtil.addPrefixToKeys(prefix, {
+  ACTIVE_TAB_CHANGED: activeTabChanged,
   ADD_FROM_LIST_CONTAINER: addFromListContainer,
   ADD_LIST_CONTAINER: addListContainer,
+  CANCEL_ALL_CHANGES: cancelAllChanges,
   CANCEL_LIST_CONTAINER: cancelListContainer,
+  CHANGE_ADDED: changeAdded,
   CHANGE_CONTAINER_VALUE: changeContainerValue,
+  CHANGE_DETAIL_ADDED: changeDetailAdded,
   REMOVE_FROM_LIST: removeFromList
 }), {
-  PREFERENCE_CHANGE_SAVED: changeSaved,
-  PREFERENCE_ACTIVE_TAB_CHANGED: activeTabChanged,
-  PREFERENCE_CHANGE_ADDED: changeAdded,
-  PREFERENCE_CHANGE_DETAIL_ADDED: changeDetailAdded,
-  PREFERENCE_CANCEL_ALL_CHANGES: cancelAllChanges
+  PREFERENCE_CHANGE_SAVED: changeSaved
 }), getInitialState());

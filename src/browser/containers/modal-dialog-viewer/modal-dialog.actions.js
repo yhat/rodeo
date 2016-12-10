@@ -1,16 +1,16 @@
-export function add(contentType, title, content) {
-  return {type: 'ADD_MODAL_DIALOG', contentType, title, content};
+function add(contentType) {
+  return {type: 'ADD_MODAL_DIALOG', payload: {contentType}};
 }
 
-export function ok(id, result) {
-  return {type: 'OK_MODAL_DIALOG', id, result};
+function ok(id, result) {
+  return {type: 'OK_MODAL_DIALOG', payload: {id, result}};
 }
 
-export function cancel(id) {
-  return {type: 'CANCEL_MODAL_DIALOG', id};
+function cancel(id) {
+  return {type: 'CANCEL_MODAL_DIALOG', payload: {id}};
 }
 
-export function cancelAll() {
+function cancelAll() {
   return {type: 'CANCEL_ALL_MODAL_DIALOGS'};
 }
 

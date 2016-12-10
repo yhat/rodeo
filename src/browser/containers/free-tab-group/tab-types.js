@@ -7,7 +7,6 @@ const defaultTabTypes = {
   'ace-pane': () => {
     const item = {
       label: 'New File',
-      contentType: 'ace-pane',
       id: cid(),
       closeable: true,
       content: {

@@ -3,7 +3,6 @@ import {connect} from 'react-redux';
 import ManageConnections from '../../components/manage-connections/manage-connections';
 import actions from './manage-connections.actions';
 import definitions from './definitions.yml';
-import text from '../text.yml';
 
 /**
  * @param {function} dispatch

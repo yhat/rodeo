@@ -1,26 +1,21 @@
 import _ from 'lodash';
 import React from 'react';
-import ModalDialog from './modal-dialog.jsx';
+import ModalDialog from './modal-dialog';
 import Marked from '../marked/marked.jsx';
 import AboutRodeo from '../about-rodeo/about-rodeo.jsx';
 import AskQuit from '../../containers/ask-quit-dialog-viewer/ask-quit-dialog-viewer.jsx';
 import StickersPane from '../stickers-pane/stickers-pane.jsx';
 import Acknowledgements from '../acknowledgements/acknowledgements.jsx';
-import PreferencesViewer from '../../containers/preferences-viewer/preferences-viewer.jsx';
+import PreferencesViewer from '../../containers/preferences-viewer/preferences-viewer.js';
 import ManageConnectionsViewer from '../../containers/manage-connections-viewer/manage-connections-viewer';
 import RegisterRodeo from '../register-rodeo/register-rodeo.jsx';
 import commonReact from '../../services/common-react';
 import './modal-dialog-container.css';
 
-/**
- * @class ModalDialogContainer
- * @extends ReactComponent
- * @property props
- */
 export default React.createClass({
   displayName: 'ModalDialogContainer',
   propTypes: {
-    modalDialogs: React.PropTypes.array.isRequired,
+    items: React.PropTypes.array.isRequired,
     onCancel: React.PropTypes.func.isRequired,
     onCancelAll: React.PropTypes.func.isRequired,
     onOK: React.PropTypes.func.isRequired,
@@ -44,51 +39,54 @@ export default React.createClass({
       handleBackgroundClick = this.handleBackgroundClick;
     let last;
 
-    if (props.modalDialogs.length) {
+    if (props.items.length) {
       classNameContainer.push('modal-dialog-container--active');
     }
 
     function getModal(modal) {
       let content,
         types = {
-          MARKED: modal => (
+          marked: modal => (
             <ModalDialog key={modal.id} {...modal}>
               <Marked {...modal.options}>{modal.content}</Marked>
             </ModalDialog>
           ),
-          ABOUT_RODEO: modal => (
+          aboutRodeo: modal => (
             <ModalDialog key={modal.id} {...modal}>
-              <AboutRodeo {...modal}/>
+              <AboutRodeo {...modal.content}/>
             </ModalDialog>
           ),
-          ABOUT_STICKERS: modal => (
+          aboutStickers: modal => (
             <ModalDialog key={modal.id} {...modal}>
-              <StickersPane {...modal} />
+              <StickersPane {...modal.content} />
             </ModalDialog>
           ),
-          ACKNOWLEDGEMENTS: modal => (
+          acknowledgement: modal => (
             <ModalDialog key={modal.id} {...modal}>
-              <Acknowledgements {...modal} />
+              <Acknowledgements {...modal.content} />
             </ModalDialog>
           ),
-          ASK_QUIT: modal => (
+          askQuit: modal => (
             <ModalDialog className="modal-dialog-instance--small" key={modal.id} {...modal}>
-              <AskQuit {...modal} />
+              <AskQuit {...modal.content} />
             </ModalDialog>
           ),
-          PREFERENCES: modal => (
+          preferences: modal => (
             <ModalDialog className="modal-dialog-instance--full" key={modal.id} {...modal}>
-              <PreferencesViewer {...modal} />
+              <PreferencesViewer
+                {...modal.content}
+                onOK={_.partial(props.onOK, modal.id)}
+              />
             </ModalDialog>
           ),
-          REGISTER_RODEO: modal => (
+          registerRodeo: modal => (
             <ModalDialog className="modal-dialog-instance--full" key={modal.id} {...modal}>
-              <RegisterRodeo {...modal} />
+              <RegisterRodeo {...modal.content} />
             </ModalDialog>
           ),
-          MANAGE_CONNECTIONS: modal => (
+          connections: modal => (
             <ModalDialog key={modal.id} {...modal}>
-              <ManageConnectionsViewer {...modal} />
+              <ManageConnectionsViewer {...modal.content} />
             </ModalDialog>
           )
         };
@@ -106,13 +104,13 @@ export default React.createClass({
       return <div className="inner-container" onClick={handleBackgroundClick}>{content}</div>;
     }
 
-    if (props.modalDialogs.length) {
-      last = getModal(_.last(props.modalDialogs));
+    if (props.items.length) {
+      last = getModal(_.last(props.items));
     }
 
     return (
       <div className={classNameContainer.join(' ')}>
-        {_.map(_.dropRight(props.modalDialogs, 1), getModal)}
+        {_.map(_.dropRight(props.items, 1), getModal)}
         {last}
       </div>
     );
