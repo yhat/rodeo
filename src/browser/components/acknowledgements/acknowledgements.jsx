@@ -4,11 +4,6 @@ import acknowledgementsText from './acknowledgements.md';
 import './acknowledgements.css';
 import rodeoTextDarkImage from './rodeo-text-dark.png';
 
-/**
- * @class Acknowledgements
- * @extends ReactComponent
- * @property props
- */
 export default React.createClass({
   displayName: 'Acknowledgements',
   render: function () {

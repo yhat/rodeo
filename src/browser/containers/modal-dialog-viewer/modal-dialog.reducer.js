@@ -33,7 +33,7 @@ function add(state, action) {
  */
 function cancel(state, action) {
   const id = action.payload.id,
-    targetIndex = _.findIndex(state, {id});
+    targetIndex = _.findIndex(state.items, {id});
 
   if (targetIndex > -1) {
     state = immutableUtil.removeAtPath(state, ['items'], targetIndex);

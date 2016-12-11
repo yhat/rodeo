@@ -26,9 +26,8 @@ export default React.createClass({
   },
   render() {
     const props = this.props,
-      text = this.context.text,
       className = commonReact.getClassNameList(this);
-    let footer, header;
+    let header;
 
     className.push('modal-dialog-instance');
 
@@ -36,29 +35,10 @@ export default React.createClass({
       header = <header>{props.title}</header>;
     }
 
-    if (props.buttons) {
-      let okButton, applyButton, cancelButton;
-
-      if (props.onOK) {
-        okButton = <button className="btn btn-default" onClick={props.onOK}>{text.ok}</button>;
-      }
-
-      if (props.onApply) {
-        applyButton = <button className="btn btn-default" onClick={props.onApply}>{text.saveChanges}</button>;
-      }
-
-      if (props.onCancel) {
-        cancelButton = <button className="btn btn-default" onClick={props.onCancel}>{text.cancel}</button>;
-      }
-
-      footer = <footer>{cancelButton}{applyButton}{okButton}</footer>;
-    }
-
     return (
       <section className={className.join(' ')}>
         {header}
         {props.children}
-        {footer}
       </section>
     );
   }

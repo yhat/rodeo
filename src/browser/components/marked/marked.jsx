@@ -1,23 +1,23 @@
-import _ from 'lodash';
 import React from 'react';
+import commonReact from '../../services/common-react';
 import marked from 'marked';
 
 const htmlLinkRegex = /<a href=["']([a-z0-9\.\\\/\:]+)["']\s*(?: title=["'](.*)["'])?>(.*)<\/a>/;
 
 /**
- * @class Marked
- * @extends ReactComponent
- * @property props
  * @see https://facebook.github.io/react/docs/tutorial.html#adding-markdown
  */
 export default React.createClass({
   displayName: 'Marked',
-  propTypes: {
-    className: React.PropTypes.string
+  shouldComponentUpdate() {
+    // always redraw, because we're using children
+    // todo: change to use property instead
+    return true;
   },
-  getRawMarkup: function () {
+  getRawMarkup() {
     const renderer = new marked.Renderer(),
-      str = this.props.children && this.props.children.toString();
+      props = this.props,
+      str = props.children && props.children.toString();
 
     function templateLink(href, title, text) {
       return `<a onclick="require('electron').shell.openExternal('${href}');" title="${title}">${text}</a>`;
@@ -27,11 +27,7 @@ export default React.createClass({
     renderer.html = function (html) {
       const match = html.match(htmlLinkRegex);
 
-      if (match) {
-        return templateLink(match[1], match[2], match[3]);
-      } else {
-        return html;
-      }
+      return match ? templateLink(match[1], match[2], match[3]) : html;
     };
 
     let paragraphHandler = renderer.paragraph;
@@ -45,13 +41,7 @@ export default React.createClass({
     return str && {__html: marked(str, {renderer: renderer})} || {__html: '<span />'};
   },
   render: function () {
-    const displayName = this.constructor.displayName,
-      props = this.props,
-      className = [_.kebabCase(displayName)];
-
-    if (props.className) {
-      className.push(props.className);
-    }
+    const className = commonReact.getClassNameList(this);
 
     return (
       /* eslint react/no-danger: 0 */

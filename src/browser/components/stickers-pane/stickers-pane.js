@@ -22,6 +22,7 @@ export default React.createClass({
   handleEmail: function () {
     const el = ReactDOM.findDOMNode(this),
       inputEl = el && el.querySelector('input'),
+      text = this.context.text,
       email = inputEl && inputEl.value;
 
     if (validation.isEmail(email)) {
@@ -31,7 +32,7 @@ export default React.createClass({
         window.Intercom('update', { email: email });
       }
     } else {
-      this.setState({error: 'Please input a valid email address.'});
+      this.setState({error: text.invalidEmail});
     }
   },
   render: function () {
@@ -43,7 +44,7 @@ export default React.createClass({
       content = (
         <div>
           {text.thankYou}
-          <img src={rodeoImage} style="height: 100px;"/>
+          <div className="stickers-pane__logo"><img src={rodeoImage}/></div>
           {text.alreadySignedUp}
         </div>
       );
@@ -51,7 +52,7 @@ export default React.createClass({
       content = (
         <div>
           {text.thankYou}
-          <img src={rodeoImage} style="height: 100px;"/>
+          <div className="stickers-pane__logo"><img src={rodeoImage}/></div>
           {text.weWillContactYou}
         </div>
       );
@@ -66,14 +67,14 @@ export default React.createClass({
         <div>
           <div>
             {text.wantAFreeSticker}
-            <img src={rodeoImage} style="height: 100px;"/>
+            <div className="stickers-pane__logo"><img src={rodeoImage}/></div>
             {text.sendUsYourEmail}
           </div>
           <div className="form-group">
             <div className="input-group">
               <input className="form-control" placeholder="smugdouglas@gmail.com" required="required" type="email"/>
               <div className="input-group-btn">
-                <button className="btn btn-primary" onClick={this.handleEmail}>{'Send me stickers!'}</button>
+                <button className="btn btn-primary" onClick={this.handleEmail}>{text.sendMeStickers}</button>
               </div>
             </div>
           </div>

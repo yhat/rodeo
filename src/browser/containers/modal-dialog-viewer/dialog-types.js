@@ -6,21 +6,31 @@ const defaultItemTypes = {
   aboutRodeo: () => ({}),
   aboutStickers: () => ({title: 'Stickers'}),
   acknowledgements: () => ({title: 'Acknowledgements'}),
-  askQuit: () => ({title: 'Quit'}),
-  preferences: () => ({
-    content: getPreferencesInitialState()
+  askQuit: () => ({
+    modalSize: 'small',
+    title: 'Quit'
   }),
-  registerRodeo: () => ({title: 'Register Rodeo'})
+  preferences: () => ({
+    content: getPreferencesInitialState(),
+    modalSize: 'full',
+    title: 'Preferences'
+  }),
+  registerRodeo: () => ({
+    modalSize: 'full',
+    title: 'Register Rodeo'
+  })
 };
 
 function getDefault(contentType) {
   let item = defaultItemTypes[contentType];
 
-  if (_.isFunction(item)) {
-    item = item();
-    item.id = cid();
-    item.contentType = contentType;
+  if (!_.isFunction(item)) {
+    throw new Error(`contentType ${contentType} does not exist in defaultItemTypes`);
   }
+
+  item = item();
+  item.id = cid();
+  item.contentType = contentType;
 
   return item;
 }

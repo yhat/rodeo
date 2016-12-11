@@ -4,7 +4,6 @@ import commonReact from '../../../services/common-react';
 
 export default React.createClass({
   displayName: 'PreferencesButton',
-
   shouldComponentUpdate: function (nextProps) {
     return commonReact.shouldComponentUpdate(this, nextProps);
   },

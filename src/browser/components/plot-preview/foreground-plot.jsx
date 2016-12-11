@@ -1,5 +1,5 @@
 import React from 'react';
-import UnsafeHTML from '../unsafe-html.jsx';
+import UnsafeHTML from '../unsafe-html.js';
 import './plot-preview.css';
 import commonReact from '../../services/common-react';
 

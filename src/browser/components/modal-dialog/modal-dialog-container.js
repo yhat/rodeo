@@ -1,16 +1,23 @@
 import _ from 'lodash';
 import React from 'react';
 import ModalDialog from './modal-dialog';
-import Marked from '../marked/marked.jsx';
-import AboutRodeo from '../about-rodeo/about-rodeo.jsx';
+import AboutRodeo from '../about-rodeo/about-rodeo.js';
 import AskQuit from '../../containers/ask-quit-dialog-viewer/ask-quit-dialog-viewer.jsx';
-import StickersPane from '../stickers-pane/stickers-pane.jsx';
+import StickersPane from '../stickers-pane/stickers-pane.js';
 import Acknowledgements from '../acknowledgements/acknowledgements.jsx';
 import PreferencesViewer from '../../containers/preferences-viewer/preferences-viewer.js';
 import ManageConnectionsViewer from '../../containers/manage-connections-viewer/manage-connections-viewer';
 import RegisterRodeo from '../register-rodeo/register-rodeo.jsx';
 import commonReact from '../../services/common-react';
 import './modal-dialog-container.css';
+
+function getModalClassName(modal) {
+  if (modal.modalSize === 'full') {
+    return 'modal-dialog-instance--full';
+  } else if (modal.modalSize === 'small') {
+    return 'modal-dialog-instance--small';
+  }
+}
 
 export default React.createClass({
   displayName: 'ModalDialogContainer',
@@ -36,82 +43,67 @@ export default React.createClass({
   render: function () {
     const props = this.props,
       classNameContainer = commonReact.getClassNameList(this),
-      handleBackgroundClick = this.handleBackgroundClick;
-    let last;
+      handleBackgroundClick = this.handleBackgroundClick,
+      types = {
+        aboutRodeo: modal => (
+          <AboutRodeo
+            {...modal.content}
+            onOK={_.partial(props.onOK, modal.id)}
+          />
+        ),
+        aboutStickers: modal => (
+          <StickersPane
+            {...modal.content}
+            onCancel={_.partial(props.onCancel, modal.id)}
+          />
+        ),
+        acknowledgements: modal => (
+          <Acknowledgements
+            {...modal.content}
+            onOK={_.partial(props.onOK, modal.id)}
+          />
+        ),
+        askQuit: modal => (
+          <AskQuit
+            {...modal.content}
+            onCancel={_.partial(props.onCancel, modal.id)}
+          />
+        ),
+        preferences: modal => (
+          <PreferencesViewer
+            {...modal.content}
+            onOK={_.partial(props.onOK, modal.id)}
+          />
+        ),
+        registerRodeo: modal => (
+          <RegisterRodeo
+            {...modal.content}
+            onOK={_.partial(props.onOK, modal.id)}
+          />
+        ),
+        connections: modal => (
+          <ManageConnectionsViewer
+            {...modal.content}
+            onOK={_.partial(props.onOK, modal.id)}
+          />
+        )
+      };
 
     if (props.items.length) {
       classNameContainer.push('modal-dialog-container--active');
     }
 
-    function getModal(modal) {
-      let content,
-        types = {
-          marked: modal => (
-            <ModalDialog key={modal.id} {...modal}>
-              <Marked {...modal.options}>{modal.content}</Marked>
-            </ModalDialog>
-          ),
-          aboutRodeo: modal => (
-            <ModalDialog key={modal.id} {...modal}>
-              <AboutRodeo {...modal.content}/>
-            </ModalDialog>
-          ),
-          aboutStickers: modal => (
-            <ModalDialog key={modal.id} {...modal}>
-              <StickersPane {...modal.content} />
-            </ModalDialog>
-          ),
-          acknowledgement: modal => (
-            <ModalDialog key={modal.id} {...modal}>
-              <Acknowledgements {...modal.content} />
-            </ModalDialog>
-          ),
-          askQuit: modal => (
-            <ModalDialog className="modal-dialog-instance--small" key={modal.id} {...modal}>
-              <AskQuit {...modal.content} />
-            </ModalDialog>
-          ),
-          preferences: modal => (
-            <ModalDialog className="modal-dialog-instance--full" key={modal.id} {...modal}>
-              <PreferencesViewer
-                {...modal.content}
-                onOK={_.partial(props.onOK, modal.id)}
-              />
-            </ModalDialog>
-          ),
-          registerRodeo: modal => (
-            <ModalDialog className="modal-dialog-instance--full" key={modal.id} {...modal}>
-              <RegisterRodeo {...modal.content} />
-            </ModalDialog>
-          ),
-          connections: modal => (
-            <ModalDialog key={modal.id} {...modal}>
-              <ManageConnectionsViewer {...modal.content} />
-            </ModalDialog>
-          )
-        };
-
-      modal = _.clone(modal);
-      modal.onCancel = _.partial(props.onCancel, modal.id);
-      modal.onOK = _.partial(props.onOK, modal.id);
-
-      if (types[modal.contentType]) {
-        content = types[modal.contentType](modal);
-      } else {
-        throw new Error('Unknown dialog type ' + modal.contentType);
-      }
-
-      return <div className="inner-container" onClick={handleBackgroundClick}>{content}</div>;
-    }
-
-    if (props.items.length) {
-      last = getModal(_.last(props.items));
-    }
-
     return (
       <div className={classNameContainer.join(' ')}>
-        {_.map(_.dropRight(props.items, 1), getModal)}
-        {last}
+        {_.map(props.items, modal => (
+          <div className="inner-container" onClick={handleBackgroundClick}>
+            <ModalDialog
+              className={getModalClassName(modal)}
+              key={modal.id}
+              {...modal}
+            >{types[modal.contentType](modal)}</ModalDialog>
+          </div>
+        ))}
       </div>
     );
   }

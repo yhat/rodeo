@@ -16,7 +16,7 @@ function showPreferences() {
 }
 
 function showAcknowledgements() {
-  return modalDialogActions.add('acknowledgement');
+  return modalDialogActions.add('acknowledgements');
 }
 
 function showRegisterRodeo() {

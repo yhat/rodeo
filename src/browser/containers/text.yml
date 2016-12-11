@@ -1,3 +1,4 @@
+acknowledgements: Acknowledgements
 aceEditorExplanation: |
   This is where the magic happens.  Rodeo uses a high-performance text editor called <a href="https://ace.c9.io/">Ace</a>
   to provide code highlighting and code folding.  These settings control the defaults for each new file that you open.
@@ -7,6 +8,9 @@ alreadySignedUp: You've already signed up for free stickers!
 alwaysAskBeforeQuiting: Always ask before quiting
 areYouSureYouWantToQuit: Are you sure you want to quit Rodeo?
 bright: Bright
+builtByYhat: >
+  Rodeo is built by
+  <a href="http://yhat.com/"><span style="color: #ee5311;">&ycirc;</span><span class="color: #898989">hat</span></a>.
 cancel: Cancel
 checkBackLaterGitExplanation: Check back later!  This feature is in the pipeline.
 checkBackLaterProjectExplanation: Check back later!  This feature is in the pipeline.
@@ -37,6 +41,10 @@ globalSettingsExplanation: Global settings affect the behavior of the entire app
 keyBindings: Key Bindings
 kernelName: Kernel Name
 keyTableHeader: Key
+includesOpenSource: |
+  Rodeo includes other open source software components. Click below for a list of these components and
+  their license agreements.
+invalidEmail: Please input a valid email address.
 missingFileOrCommand: Missing file or command
 missingPackage: Missing package
 ok: OK
@@ -54,6 +62,7 @@ refresh: Refresh
 reload: Reload
 saveChanges: Save Changes
 selectDatabaseConnectionFromList: Select a database connection from the list
+sendMeStickers: Send me stickers!
 sendUsYourEmail: |
   Send us your e-mail and we'll send you some stickers. We'll follow up to figure out the logistics.
 sqlSettings: SQL settings control how the SQL is run.
@@ -64,6 +73,10 @@ thankYou: Thanks!
 theme: Theme
 trackMetrics: Track Metrics
 unableToRunSyscall: Unable to run
+usageMetrics: |
+  To help us improve Rodeo, we anonymously track usage metrics, such as # of opens/closes, shortcuts used, and
+  current version. You can disable these metrics at any time by visiting _Preferences_ and unchecking the
+  _Track Metrics_ field.
 useSoftTabs: Use Soft Tabs
 useBuiltinPython: Use Built-in Python
 wantAFreeSticker: Want a free sticker?

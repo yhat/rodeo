@@ -2,7 +2,7 @@ import _ from 'lodash';
 import React from 'react';
 import commonReact from '../../services/common-react';
 import './document-terminal-annotation.css';
-import UnsafeHtml from '../unsafe-html.jsx';
+import UnsafeHtml from '../unsafe-html.js';
 
 function getId(props, mimeType) {
   return props.id + '-' + _.kebabCase(mimeType);

@@ -4,3 +4,12 @@
   max-width: 600px;
   position: relative;
 }
+
+.stickers-pane__logo {
+  display: block;
+  margin: 10px;
+}
+
+.stickers-pane__logo img {
+  height: 100px;
+}

@@ -12,13 +12,9 @@ import explanation from './explanation.md';
 import areasOfInterest from './areas-of-interest.yml';
 import './register-rodeo.css';
 
-/**
- * @class RegisterRodeo
- */
 export default React.createClass({
   displayName: 'RegisterRodeo',
   propTypes: {
-    onCancel: React.PropTypes.func.isRequired,
     onOK: React.PropTypes.func.isRequired
   },
   contextTypes: {
@@ -37,8 +33,7 @@ export default React.createClass({
     }, {});
 
     return registration.register(data)
-      .then(props.onOK)
-      .catch(props.onError);
+      .then(props.onOK);
   },
   handleRegister: function () {
     const el = ReactDOM.findDOMNode(this),
@@ -84,7 +79,7 @@ export default React.createClass({
               </div>
             </div>
             <div className="row-thin">
-              <button className="btn btn-default" onClick={this.props.onCancel}>{'Skip for today'}</button>
+              <button className="btn btn-default" onClick={this.props.onOK}>{'Skip for today'}</button>
               <button className="btn btn-primary" onClick={this.handleRegister} type="submit">{'Register'}</button>
             </div>
           </form>
