@@ -1,9 +1,7 @@
 import React from 'react';
 import commonReact from '../../services/common-react';
 import {connect} from 'react-redux';
-import AskQuit from '../../components/dialogs/dialogs/ask-quit';
-import applicationActions from '../../actions/application';
-import actions from '../../actions/preferences';
+import actions from './environment-variables-dialog-viewer.actions';
 import {createSelector} from 'reselect';
 import {local} from '../../services/store';
 
@@ -17,29 +15,26 @@ const askQuitSelector = createSelector(state => state, () => ({
  */
 function mapDispatchToProps(dispatch) {
   return {
-    onAskQuitChange: changes => dispatch(actions.savePreferenceChanges(changes)),
-    onQuit: () => dispatch(applicationActions.quit())
+    onAddStart: () => dispatch(actions.startAdd),
+    onAddSave: () => dispatch(actions.saveAdd),
+    onAddCancel: () => dispatch(actions.cancelAdd),
+    onChangesCancel: () => dispatch(actions.cancelChanges),
+    onChangesSave: () => dispatch(actions.saveChanges),
+    onEditStart: () => dispatch(actions.startEdit),
+    onEditSave: () => dispatch(actions.saveEdit),
+    onEditCancel: () => dispatch(actions.cancelEdit)
   };
 }
 
 export default connect(askQuitSelector, mapDispatchToProps)(React.createClass({
   displayName: 'AskQuitDialogViewer',
   propTypes: {
-    onCancel: React.PropTypes.func.isRequired
+    onOK: React.PropTypes.func.isRequired
   },
   shouldComponentUpdate(nextProps) {
     return commonReact.shouldComponentUpdate(this, nextProps);
   },
-  handleAskQuitChange(event) {
-    const props = this.props,
-      oldValue = props.askQuit,
-      value = event.target.checked;
-
-    if (oldValue !== value) {
-      props.onAskQuitChange([{key: 'askQuit', value}]);
-    }
-  },
   render() {
-    return <AskQuit {...this.props} onAskQuitChange={this.handleAskQuitChange}/>;
+    return <EnvironmentVariablesDialog {...this.props}/>;
   }
 }));

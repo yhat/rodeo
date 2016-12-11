@@ -1,16 +1,16 @@
 import _ from 'lodash';
 import React from 'react';
 import Marked from '../marked/marked.jsx';
-import PreferencesButton from './items/preferences-button';
+import ReferencedButton from '../forms/referenced-button';
 import SaveChangesButtonGroup from './save-changes-button-group.jsx';
-import PreferencesCheckbox from './items/preferences-checkbox';
-import PreferencesEnvVarList from './items/preferences-env-var-list';
-import PreferencesFolder from './items/preferences-folder';
-import PreferencesNumber from './items/preferences-number';
-import PreferencesPythonCmd from './items/preferences-python-cmd';
-import PreferencesSelect from './items/preferences-select';
+import CheckboxInput from '../forms/checkbox-input';
+import KeyValueList from '../forms/key-value-list';
+import FolderInput from '../forms/folder-input';
+import NumberInput from '../forms/number-input';
+import PythonCmdInput from '../forms/python-cmd-input';
 import PreferencesTab from './preferences-tab.jsx';
-import PreferencesText from './items/preferences-text';
+import TextInput from '../forms/text-input';
+import SelectInput from '../forms/select-input';
 import commonReact from '../../services/common-react';
 import './preferences-list.css';
 
@@ -58,14 +58,14 @@ export default React.createClass({
       text = this.context.text,
       types = {
         button: item => (
-          <PreferencesButton
+          <ReferencedButton
             {...item}
             className={getInnerClassName(item, props.changes[item.key])}
             key={item.id}
           />
         ),
         checkbox: item => (
-          <PreferencesCheckbox
+          <CheckboxInput
             {...item}
             {...props.changes[item.key]}
             className={getInnerClassName(item, props.changes[item.key])}
@@ -75,7 +75,7 @@ export default React.createClass({
           />
         ),
         environmentVariableList: item => (
-          <PreferencesEnvVarList
+          <KeyValueList
             {...item}
             {...props.changes[item.key]}
             className={getInnerClassName(item, props.changes[item.key])}
@@ -90,7 +90,7 @@ export default React.createClass({
           />
         ),
         folder: item => (
-          <PreferencesFolder
+          <FolderInput
             {...item}
             {...props.changes[item.key]}
             className={getInnerClassName(item, props.changes[item.key])}
@@ -101,7 +101,7 @@ export default React.createClass({
           />
         ),
         number: item => (
-          <PreferencesNumber
+          <NumberInput
             {...item}
             {...props.changes[item.key]}
             className={getInnerClassName(item, props.changes[item.key])}
@@ -116,7 +116,7 @@ export default React.createClass({
           </div>
         ),
         pythonCmd: item => (
-          <PreferencesPythonCmd
+          <PythonCmdInput
             {...item}
             {...props.changes[item.key]}
             className={getInnerClassName(item, props.changes[item.key])}
@@ -127,7 +127,7 @@ export default React.createClass({
           />
         ),
         select: item => (
-          <PreferencesSelect
+          <SelectInput
             {...item}
             {...props.changes[item.key]}
             className={getInnerClassName(item, props.changes[item.key])}
@@ -137,7 +137,7 @@ export default React.createClass({
           />
         ),
         text: item => (
-          <PreferencesText
+          <TextInput
             {...item}
             {...props.changes[item.key]}
             className={getInnerClassName(item, props.changes[item.key])}

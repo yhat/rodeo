@@ -1,9 +1,9 @@
 import _ from 'lodash';
 import React from 'react';
-import commonReact from '../../../services/common-react';
+import commonReact from '../../services/common-react';
 
 export default React.createClass({
-  displayName: 'PreferencesSelect',
+  displayName: 'SelectInput',
   propTypes: {
     onChange: React.PropTypes.func,
     originalValue: React.PropTypes.string,
@@ -11,11 +11,6 @@ export default React.createClass({
   },
   contextTypes: {
     text: React.PropTypes.object
-  },
-  getDefaultProps: function () {
-    return {
-      type: 'text'
-    };
   },
   shouldComponentUpdate: function (nextProps) {
     return commonReact.shouldComponentUpdate(this, nextProps);
@@ -26,7 +21,7 @@ export default React.createClass({
       className = commonReact.getClassNameList(this);
 
     if (props.originalValue !== props.value) {
-      className.push('preferences-select--modified');
+      className.push('select-input--modified');
     }
 
     function getOption(option) {

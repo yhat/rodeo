@@ -77,12 +77,12 @@
 }
 
 .preferences-list .preferences-checkbox label,
-.preferences-list .preferences-number label,
+.preferences-list .number-input label,
 .preferences-list .preferences-select label {
   padding-right: 20px;
 }
 
-.preferences-list .preferences-number input {
+.preferences-list .number-input input {
   width: 50px;
 }
 
@@ -97,7 +97,7 @@
 }
 
 .preferences-list .preferences-python-cmd,
-.preferences-list .preferences-text {
+.preferences-list .text-input {
   display: flex;
   flex-direction: column;
 }

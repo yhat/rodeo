@@ -27,6 +27,7 @@ emacs: Emacs
 enableStartingTutorial: Enable the Starting Tutorial
 environmentVariables: Environment Variables
 EACCES: Permission denied
+elipsis: …
 ENOENT: No such file or directory
 fileViewer: File Viewer
 fixPythonCmd: |

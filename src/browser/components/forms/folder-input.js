@@ -1,9 +1,9 @@
 import React from 'react';
-import PreferencesItemErrors from '../preferences-item-errors.jsx';
-import commonReact from '../../../services/common-react';
+import FormItemErrors from './form-item-errors.js';
+import commonReact from '../../services/common-react';
 
 export default React.createClass({
-  displayName: 'PreferencesFolder',
+  displayName: 'FolderInput',
   propTypes: {
     onChange: React.PropTypes.func.isRequired,
     onSelectFolder: React.PropTypes.func.isRequired,
@@ -23,11 +23,11 @@ export default React.createClass({
     let errors;
 
     if (props.originalValue !== props.value) {
-      className.push('preferences-folder--modified');
+      className.push('folder-input--modified');
     }
 
     if (props.errors && props.errors.length) {
-      errors = <PreferencesItemErrors errors={props.errors} />;
+      errors = <FormItemErrors errors={props.errors} />;
     }
 
     return (
@@ -36,7 +36,7 @@ export default React.createClass({
         <div className="input-group">
           <input className="form-control" onChange={props.onChange}  type="text" value={props.value}/>
           <span className="input-group-container">
-            <button className="btn btn-default" onClick={props.onSelectFolder}>{'…'}</button>
+            <button className="btn btn-default" onClick={props.onSelectFolder}>{text.elipsis}</button>
           </span>
         </div>
         {errors}

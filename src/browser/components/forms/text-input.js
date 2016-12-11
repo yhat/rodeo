@@ -1,12 +1,12 @@
 import React from 'react';
-import commonReact from '../../../services/common-react';
+import commonReact from '../../services/common-react';
 
 export default React.createClass({
-  displayName: 'PreferencesNumber',
+  displayName: 'TextInput',
   propTypes: {
     onChange: React.PropTypes.func.isRequired,
-    originalValue: React.PropTypes.number,
-    value: React.PropTypes.number
+    originalValue: React.PropTypes.string,
+    value: React.PropTypes.string
   },
   contextTypes: {
     text: React.PropTypes.object
@@ -20,13 +20,13 @@ export default React.createClass({
       className = commonReact.getClassNameList(this);
 
     if (props.originalValue !== props.value) {
-      className.push('preferences-number--modified');
+      className.push('preferences-text--modified');
     }
 
     return (
       <div className={className.join(' ')}>
         <label htmlFor={props.id}>{text[props.label]}</label>
-        <input onChange={props.onChange} type="number" value={props.value}/>
+        <input onChange={props.onChange} type="text" value={props.value}/>
       </div>
     );
   }

@@ -1,6 +1,6 @@
 import React from 'react';
 import {connect} from 'react-redux';
-import ModalDialogContainer from '../../components/modal-dialog/modal-dialog-container';
+import ModalDialogContainer from '../../components/dialogs/modal-dialog-container';
 import actions from './modal-dialog.actions';
 import commonReact from '../../services/common-react';
 

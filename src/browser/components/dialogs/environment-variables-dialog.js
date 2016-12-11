@@ -2,27 +2,29 @@ import React from 'react';
 import commonReact from '../../../services/common-react';
 
 export default React.createClass({
-  displayName: 'PreferencesCheckbox',
+  displayName: 'EnvironmentVariablesDialog',
   propTypes: {
-    onChange: React.PropTypes.func.isRequired,
-    originalValue: React.PropTypes.bool,
-    value: React.PropTypes.bool
+    onCancel: React.PropTypes.func.isRequired,
+    onOK: React.PropTypes.func.isRequired
   },
   contextTypes: {
-    text: React.PropTypes.object
+    text: React.PropTypes.object.isRequired
   },
-  shouldComponentUpdate: function (nextProps) {
+  shouldComponentUpdate(nextProps) {
     return commonReact.shouldComponentUpdate(this, nextProps);
   },
-  render: function () {
+  render() {
     const props = this.props,
       text = this.context.text,
       className = commonReact.getClassNameList(this);
 
     return (
       <div className={className.join(' ')}>
-        <label htmlFor={props.id}>{text[props.label]}</label>
-        <input checked={props.value} onChange={props.onChange} type="checkbox"/>
+        <div>{'PATH'}</div>
+        <div>{text.environmentVariables}</div>
+        <div>
+          <button onClick={props.onOK}>{text.ok}</button>
+        </div>
       </div>
     );
   }

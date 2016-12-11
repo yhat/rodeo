@@ -1,9 +1,9 @@
 import _ from 'lodash';
 import React from 'react';
-import commonReact from '../../../services/common-react';
+import commonReact from '../../services/common-react';
 
 export default React.createClass({
-  displayName: 'PreferencesButton',
+  displayName: 'ReferencedButton',
   shouldComponentUpdate: function (nextProps) {
     return commonReact.shouldComponentUpdate(this, nextProps);
   },

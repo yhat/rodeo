@@ -12,7 +12,7 @@ function isErrorCode(error, code) {
 }
 
 export default React.createClass({
-  displayName: 'PreferencesItemErrors',
+  displayName: 'FormItemErrors',
   propTypes: {
     errors: React.PropTypes.array.isRequired
   },

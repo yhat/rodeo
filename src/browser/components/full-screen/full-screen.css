@@ -5,12 +5,12 @@ main,
   height: 100%;
 }
 
-.full-screen-row {
+.full-screen--row {
   display: flex;
   flex-direction: row;
 }
 
-.full-screen-row > * {
+.full-screen--row > * {
   flex: 1 1;
 }
 

@@ -1,11 +1,11 @@
 import _ from 'lodash';
 import React from 'react';
-import commonReact from '../../../services/common-react';
-import './preferences-env-var-list.css';
-import Closeable from '../../tabs/closeable';
+import commonReact from '../../services/common-react';
+import './key-value-list.css';
+import Closeable from '../tabs/closeable';
 
 export default React.createClass({
-  displayName: 'PreferencesEnvVarList',
+  displayName: 'KeyValueList',
   propTypes: {
     container: React.PropTypes.object,
     onAddFromListContainer: React.PropTypes.func,
@@ -36,9 +36,9 @@ export default React.createClass({
 
     if (props.container) {
       container = (
-        <div className="preferences-env-var-list__container">
-          <div className="preferences-env-var-list__new_entry_data">
-            <label className="preferences-env-var-list__new_entry_data_key">
+        <div className="key-value-list__container">
+          <div className="key-value-list__new_entry_data">
+            <label className="key-value-list__new_entry_data_key">
               {text.keyTableHeader}
               <input
                 onChange={_.partial(props.onContainerValueChange, 'name')}
@@ -46,7 +46,7 @@ export default React.createClass({
               />
             </label>
 
-            <label className="preferences-env-var-list__new_entry_data_value">
+            <label className="key-value-list__new_entry_data_value">
               {text.valueTableHeader}
               <input
                 onChange={_.partial(props.onContainerValueChange, 'value')}
@@ -54,7 +54,7 @@ export default React.createClass({
               />
             </label>
           </div>
-          <div className="preferences-env-var-list__new_entry_actions">
+          <div className="key-value-list__new_entry_actions">
             <button className="btn btn-default" onClick={props.onCancelListContainer}>
               {text.cancel}
             </button>
@@ -66,7 +66,7 @@ export default React.createClass({
       );
     } else {
       container = (
-        <div className="preferences-env-var-list__actions">
+        <div className="key-value-list__actions">
           <a onClick={props.onChange}>
             <span className="fa fa-refresh"/>
             {text.reload}
@@ -94,9 +94,9 @@ export default React.createClass({
               <tr key={key}>
                 <td>{key}</td>
                 <td>
-                  <div className="preferences-env-var-list__row">
+                  <div className="key-value-list__row">
                     {value}
-                    <div className="preferences-env-var-list__row_menu">
+                    <div className="key-value-list__row_menu">
                       <Closeable onClick={_.partial(props.onRemoveFromList, key)}/>
                     </div>
                   </div>
