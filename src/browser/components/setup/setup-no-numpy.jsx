@@ -2,7 +2,7 @@ import _ from 'lodash';
 import React from 'react';
 import FakeTerminal from './fake-terminal.jsx';
 import SetupSkipStartup from './setup-skip-startup';
-import Marked from '../marked/marked.jsx';
+import Marked from '../marked';
 import commonReact from '../../services/common-react';
 
 export default React.createClass({

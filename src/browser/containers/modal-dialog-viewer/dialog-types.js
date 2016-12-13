@@ -1,6 +1,8 @@
 import _ from 'lodash';
 import cid from '../../services/cid';
 import {getInitialState as getPreferencesInitialState} from '../preferences-viewer/preferences-viewer.reducer';
+import {getInitialState as getEnvironmentVariableViewerInitialState}
+  from '../environment-variables-dialog-viewer/environment-variables-dialog-viewer.reducer';
 
 const defaultItemTypes = {
   aboutRodeo: () => ({}),
@@ -9,6 +11,17 @@ const defaultItemTypes = {
   askQuit: () => ({
     modalSize: 'small',
     title: 'Quit'
+  }),
+  environmentVariables: () => ({
+    content: getEnvironmentVariableViewerInitialState(),
+    modalSize: 'full',
+    title: 'Environment Variables'
+  }),
+  manageConnections: () => ({
+    title: 'Manage Connections',
+    content: {
+      list: []
+    }
   }),
   preferences: () => ({
     content: getPreferencesInitialState(),

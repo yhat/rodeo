@@ -26,6 +26,10 @@ editor: Editor
 emacs: Emacs
 enableStartingTutorial: Enable the Starting Tutorial
 environmentVariables: Environment Variables
+environmentVariableExplanation: |
+  Some explanation about environment variables
+  would go here
+  if I had one
 EACCES: Permission denied
 elipsis: …
 ENOENT: No such file or directory
@@ -46,6 +50,7 @@ includesOpenSource: |
   Rodeo includes other open source software components. Click below for a list of these components and
   their license agreements.
 invalidEmail: Please input a valid email address.
+manageConnections: Manage Connections
 missingFileOrCommand: Missing file or command
 missingPackage: Missing package
 ok: OK
@@ -66,7 +71,8 @@ selectDatabaseConnectionFromList: Select a database connection from the list
 sendMeStickers: Send me stickers!
 sendUsYourEmail: |
   Send us your e-mail and we'll send you some stickers. We'll follow up to figure out the logistics.
-sqlSettings: SQL settings control how the SQL is run.
+SQL: SQL
+sqlSettingsExplanation: SQL settings control how the SQL is run.
 suggestionExample: |
   Example:    print("Welcome to Rodeo!")
 tabSpaces: Tab Spaces

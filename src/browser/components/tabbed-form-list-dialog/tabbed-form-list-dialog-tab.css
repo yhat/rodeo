@@ -1,0 +1,22 @@
+.tabbed-form-list-dialog-tab {
+  cursor: pointer;
+  padding: 10px 15px;
+}
+
+.tabbed-form-list-dialog-tab:hover {
+  background-color: #e1e1e1;
+}
+
+.tabbed-form-list-dialog-tab--disabled {
+  background-color: inherit;
+  color: grey;
+  cursor: default;
+}
+
+.tabbed-form-list-dialog-tab--disabled:hover {
+  background-color: inherit;
+}
+
+.tabbed-form-list-dialog-tab--active {
+  background-color: #dff0ff;
+}

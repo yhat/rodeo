@@ -116,8 +116,17 @@ function getEnvironmentVariables(env) {
   });
 }
 
+function getKeyMap(env) {
+  return _.reduce(env, (obj, value, key) => {
+    obj[key.toLowerCase()] = key;
+
+    return obj;
+  }, {});
+}
+
 function getPath(env) {
-  const path = env.PATH || env.Path || env.path;
+  const keyMap = getKeyMap(env),
+    path = env[keyMap.path];
   let result;
 
   if (path) {
@@ -129,27 +138,12 @@ function getPath(env) {
   return result;
 }
 
-function setExistingPath(env, value) {
-  if (env.PATH) {
-    delete value.PATH;
-  } else if (env.Path) {
-    delete value.Path;
-  } else if (env.path) {
-    delete env.path;
-  }
-
-  env.PATH = value;
-
-  return env;
-}
-
 function setPath(env, newPath) {
-  let result;
+  const keyMap = getKeyMap(env);
 
   if (_.isArray(newPath)) {
-    result = joinList(newPath);
+    env[keyMap.path] = joinList(newPath);
 
-    env = setExistingPath(env, result);
     local.set('environmentVariables', env);
   }
 
@@ -158,6 +152,7 @@ function setPath(env, newPath) {
 
 export default {
   getEnvironmentVariables,
+  getKeyMap,
   getPath,
   setPath
 };

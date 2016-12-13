@@ -3,7 +3,7 @@ import React from 'react';
 import Immutable from 'seamless-immutable';
 import {Provider} from 'react-redux';
 import client from '../services/jupyter/client';
-import FullScreen from '../components/full-screen/full-screen.jsx';
+import FullScreen from '../components/layout-containers/full-screen.jsx';
 import StudioLayout from './studio-layout/studio-layout.jsx';
 import Sidebar from '../components/sidebar/sidebar.jsx';
 import ModalDialogViewer from './modal-dialog-viewer/modal-dialog-viewer.jsx';

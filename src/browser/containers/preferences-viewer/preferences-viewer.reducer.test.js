@@ -1,4 +1,4 @@
-/* globals describe, it, expect, jest */
+/* globals describe, it, expect */
 
 import _ from 'lodash';
 import Immutable from 'seamless-immutable';

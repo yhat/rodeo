@@ -1,5 +1,5 @@
 import React from 'react';
-import commonReact from '../../../services/common-react';
+import commonReact from '../../services/common-react';
 import './ask-quit.css';
 
 export default React.createClass({

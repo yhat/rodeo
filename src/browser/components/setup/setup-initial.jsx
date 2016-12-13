@@ -1,5 +1,5 @@
 import React from 'react';
-import Marked from '../marked/marked.jsx';
+import Marked from '../marked';
 import SetupArticlePreview from './setup-article-preview.jsx';
 import SetupSkipStartup from './setup-skip-startup';
 import logo from './logo-rodeo-grey-text.svg';

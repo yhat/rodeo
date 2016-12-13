@@ -144,41 +144,11 @@ function cancelAll() {
   return {type: prefix + 'CANCEL_ALL_CHANGES', meta: {sender: 'self'}};
 }
 
-function manageConnections() {
-  return {type: 'ADD_MODAL_DIALOG', contentType: 'MANAGE_CONNECTIONS', title: 'Manage Connections', meta: {sender: 'self'}};
-}
-
-function addFromListContainer(item, container) {
-  return {type: prefix + 'ADD_FROM_LIST_CONTAINER', payload: {item, container}, meta: {sender: 'self'}};
-}
-
-function addListContainer(item, container) {
-  return {type: prefix + 'ADD_LIST_CONTAINER', payload: {item, container}, meta: {sender: 'self'}};
-}
-
-function cancelListContainer(payload) {
-  return {type: prefix + 'CANCEL_LIST_CONTAINER', payload, meta: {sender: 'self'}};
-}
-
-function changeContainerValue(payload) {
-  return {type: prefix + 'CHANGE_CONTAINER_VALUE', payload, meta: {sender: 'self'}};
-}
-
-function removeFromList(item, key) {
-  return {type: prefix + 'REMOVE_FROM_LIST', payload: {item, key}, meta: {sender: 'self'}};
-}
-
 export default {
   add,
-  addListContainer,
-  addFromListContainer,
   cancelAll,
-  cancelListContainer,
-  changeContainerValue,
-  removeFromList,
   save,
   selectFile,
   selectFolder,
-  selectTab,
-  manageConnections
+  selectTab
 };

@@ -1,11 +1,12 @@
 import _ from 'lodash';
 import React from 'react';
 import ModalDialog from './modal-dialog';
-import AboutRodeo from '../about-rodeo/about-rodeo.js';
+import AboutRodeo from './about-rodeo.js';
 import AskQuit from '../../containers/ask-quit-dialog-viewer/ask-quit-dialog-viewer.jsx';
-import StickersPane from '../stickers-pane/stickers-pane.js';
-import Acknowledgements from '../acknowledgements/acknowledgements.jsx';
-import PreferencesViewer from '../../containers/preferences-viewer/preferences-viewer.js';
+import StickersPane from './stickers-pane.js';
+import Acknowledgements from './acknowledgements.js';
+import EnvironmentVariablesDialogViewer from '../../containers/environment-variables-dialog-viewer/environment-variables-dialog-viewer';
+import PreferencesViewer from '../../containers/preferences-viewer/preferences-viewer';
 import ManageConnectionsViewer from '../../containers/manage-connections-viewer/manage-connections-viewer';
 import RegisterRodeo from '../register-rodeo/register-rodeo.jsx';
 import commonReact from '../../services/common-react';
@@ -67,6 +68,18 @@ export default React.createClass({
           <AskQuit
             {...modal.content}
             onCancel={_.partial(props.onCancel, modal.id)}
+          />
+        ),
+        environmentVariables: modal => (
+          <EnvironmentVariablesDialogViewer
+            {...modal.content}
+            onOK={_.partial(props.onOK, modal.id)}
+          />
+        ),
+        manageConnections: modal => (
+          <ManageConnectionsViewer
+            {...modal.content}
+            onOK={_.partial(props.onOK, modal.id)}
           />
         ),
         preferences: modal => (

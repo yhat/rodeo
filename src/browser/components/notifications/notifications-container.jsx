@@ -3,7 +3,7 @@ import React from 'react';
 import {connect} from 'react-redux';
 import InfoNotification from './info-notification.jsx';
 import UpdateAvailableNotification from './update-available-notification.jsx';
-import Marked from '../marked/marked.jsx';
+import Marked from '../marked';
 import actions from './notifications.actions';
 import './notifications-container.css';
 

@@ -1,7 +1,7 @@
 import React from 'react';
 import './empty-suggestion.css';
 import commonReact from '../../services/common-react';
-import Marked from '../marked/marked.jsx';
+import Marked from '../marked';
 
 export default React.createClass({
   displayName: 'EmptySuggestion',

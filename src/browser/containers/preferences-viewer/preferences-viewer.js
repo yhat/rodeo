@@ -1,9 +1,10 @@
 import _ from 'lodash';
 import React from 'react';
 import {connect} from 'react-redux';
-import PreferencesList from '../../components/preferences/preferences-list.jsx';
+import TabbedFormListDialog from '../../components/tabbed-form-list-dialog/tabbed-form-list-dialog.js';
 import actions from './preferences-viewer.actions';
-import {getPreferencesViewer} from './preferences-viewer.selectors';
+import modalDialogActions from '../modal-dialog-viewer/modal-dialog.actions';
+import selectors from './preferences-viewer.selectors';
 
 /**
  * @param {function} dispatch
@@ -16,14 +17,10 @@ function mapDispatchToProps(dispatch) {
     onSave: () => dispatch(actions.save()),
     onApply: () => dispatch(actions.save()),
     onCancel: () => dispatch(actions.cancelAll()),
-    onRemoveFromList: (item, key) => dispatch(actions.removeFromList(item, key)),
-    onAddFromListContainer: (item, container) => dispatch(actions.addFromListContainer(item, container)),
-    onAddListContainer: (item, container) => dispatch(actions.addListContainer(item, container)),
-    onCancelListContainer: item => dispatch(actions.cancelListContainer(item)),
     onContainerValueChange: change => dispatch(actions.changeContainerValue(change)),
     onSelectFile: change => dispatch(actions.selectFile(change)),
     onSelectFolder: change => dispatch(actions.selectFolder(change)),
-    onManageConnections: () => dispatch(actions.manageConnections())
+    onOpenDialog: (item, dialogName) => dispatch(modalDialogActions.add(dialogName))
   };
 }
 
@@ -35,7 +32,7 @@ function getChange(item, event) {
   return {key, value, type};
 }
 
-export default connect(getPreferencesViewer, mapDispatchToProps)(React.createClass({
+export default connect(selectors.getPreferencesViewer, mapDispatchToProps)(React.createClass({
   displayName: 'PreferencesViewer',
   propTypes: {
     // expected to be provided from parent
@@ -94,7 +91,7 @@ export default connect(getPreferencesViewer, mapDispatchToProps)(React.createCla
     const props = this.props;
 
     return (
-      <PreferencesList
+      <TabbedFormListDialog
         {...props}
         onChange={this.handleChange}
         onContainerValueChange={this.handleContainerValueChange}

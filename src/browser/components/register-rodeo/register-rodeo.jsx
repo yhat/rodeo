@@ -3,7 +3,7 @@ import $ from 'jquery';
 import registration from '../../services/registration';
 import React from 'react';
 import ReactDOM from 'react-dom';
-import Marked from '../marked/marked.jsx';
+import Marked from '../marked';
 import Logo from '../brand-splashes/logo-rodeo-square-large.jsx';
 import LabelInput from '../label-input.jsx';
 import LabelChecklist from '../label-checklist.jsx';

@@ -1,5 +1,5 @@
 import React from 'react';
-import Marked from '../marked/marked.jsx';
+import Marked from '../marked';
 import commonReact from '../../services/common-react';
 import './document-terminal-error.css';
 

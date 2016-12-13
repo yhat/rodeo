@@ -1,31 +1,46 @@
+import _ from 'lodash';
 import React from 'react';
-import commonReact from '../../../services/common-react';
+import FormList from '../forms/form-list';
+import SaveChangesButtonGroup from '../forms/save-changes-button-group';
+import commonReact from '../../services/common-react';
+import './environment-variables-dialog.css';
 
 export default React.createClass({
   displayName: 'EnvironmentVariablesDialog',
   propTypes: {
+    active: React.PropTypes.string.isRequired,
+    canSave: React.PropTypes.bool.isRequired,
+    changes: React.PropTypes.object.isRequired,
+    onApply: React.PropTypes.func.isRequired,
     onCancel: React.PropTypes.func.isRequired,
-    onOK: React.PropTypes.func.isRequired
+    onChange: React.PropTypes.func.isRequired,
+    onOK: React.PropTypes.func.isRequired,
+    onTabClick: React.PropTypes.func.isRequired,
+    preferenceMap: React.PropTypes.array.isRequired
   },
-  contextTypes: {
-    text: React.PropTypes.object.isRequired
-  },
-  shouldComponentUpdate(nextProps) {
+  shouldComponentUpdate: function (nextProps) {
     return commonReact.shouldComponentUpdate(this, nextProps);
   },
-  render() {
+  render: function () {
     const props = this.props,
-      text = this.context.text,
-      className = commonReact.getClassNameList(this);
+      className = commonReact.getClassNameList(this),
+      fns = _.pickBy(props, _.isFunction);
 
     return (
-      <div className={className.join(' ')}>
-        <div>{'PATH'}</div>
-        <div>{text.environmentVariables}</div>
-        <div>
-          <button onClick={props.onOK}>{text.ok}</button>
+      <section className={className.join(' ')}>
+        <div className="environment-variables-dialog__content">
+          <FormList {...fns} changes={props.changes} items={props.items} />
         </div>
-      </div>
+        <footer>
+          <SaveChangesButtonGroup
+            canSave={props.canSave}
+            hasChanges={_.size(props.changes) > 0}
+            onCancel={props.onCancel}
+            onOK={props.onOK}
+            onSave={props.onApply}
+          />
+        </footer>
+      </section>
     );
   }
 });

@@ -3,7 +3,7 @@ import React from 'react';
 import {connect, Provider} from 'react-redux';
 import Immutable from 'seamless-immutable';
 import cid from '../services/cid';
-import FullScreen from '../components/full-screen/full-screen.jsx';
+import FullScreen from '../components/layout-containers/full-screen.jsx';
 import FreeTabGroup from './free-tab-group/free-tab-group.jsx';
 import ipcDispatcher from '../services/ipc-dispatcher';
 import rootReducer from './free-tabs-only.reducer';
