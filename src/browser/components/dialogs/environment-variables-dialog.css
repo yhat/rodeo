@@ -1,0 +1,25 @@
+.environment-variables-dialog {
+  position: relative;
+  min-height: 400px;
+  height: 100%;
+}
+
+.environment-variables-dialog > footer {
+  bottom: 0;
+  right: 0;
+  padding: 7px 20px;
+  height: 50px;
+  text-align: right;
+  position: relative;
+}
+
+.environment-variables-dialog__content {
+  padding: 20px;
+  overflow-y: scroll;
+  position: relative;
+  display: flex;
+  flex-direction: row;
+  align-content: stretch;
+  align-items: stretch;
+  height: calc(100% - 50px);
+}

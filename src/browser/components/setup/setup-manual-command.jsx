@@ -1,7 +1,7 @@
 import _ from 'lodash';
 import React from 'react';
 import FakeTerminal from './fake-terminal.jsx';
-import Marked from '../marked/marked.jsx';
+import Marked from '../marked';
 import SetupSkipStartup from './setup-skip-startup';
 import commonReact from '../../services/common-react';
 import './setup-manual-command.css';

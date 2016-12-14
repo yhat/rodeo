@@ -1,7 +1,12 @@
 import React from 'react';
 import {connect} from 'react-redux';
-import ModalDialogContainer from '../../components/modal-dialog/modal-dialog-container.jsx';
+import ModalDialogContainer from '../../components/dialogs/modal-dialog-container';
 import actions from './modal-dialog.actions';
+import commonReact from '../../services/common-react';
+
+function mapStateToProps(state) {
+  return state.modalDialogs;
+}
 
 /**
  * @param {function} dispatch
@@ -16,14 +21,10 @@ function mapDispatchToProps(dispatch) {
   };
 }
 
-export default connect(state => state, mapDispatchToProps)(React.createClass({
+export default connect(mapStateToProps, mapDispatchToProps)(React.createClass({
   displayName: 'ModalDialogViewer',
-  propTypes: {
-    modalDialogs: React.PropTypes.array,
-    onCancel: React.PropTypes.func.isRequired,
-    onCancelAll: React.PropTypes.func.isRequired,
-    onOK: React.PropTypes.func.isRequired,
-    onRegister: React.PropTypes.func.isRequired
+  shouldComponentUpdate(nextProps) {
+    return commonReact.shouldComponentUpdate(this, nextProps);
   },
   render: function () {
     return <ModalDialogContainer {...this.props} />;

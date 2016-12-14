@@ -3,7 +3,7 @@ import {connect} from 'react-redux';
 import ManageConnections from '../../components/manage-connections/manage-connections';
 import actions from './manage-connections.actions';
 import definitions from './definitions.yml';
-import text from '../text.yml';
+import selectors from './manage-connections.selectors';
 
 /**
  * @param {function} dispatch
@@ -22,7 +22,7 @@ function mapDispatchToProps(dispatch) {
   };
 }
 
-export default connect(state => state.manageConnections, mapDispatchToProps)(React.createClass({
+export default connect(selectors.getConnectionsViewer, mapDispatchToProps)(React.createClass({
   displayName: 'ManageConnectionsViewer',
   render: function () {
     return <ManageConnections definitions={definitions} {...this.props} />;

@@ -1,0 +1,10 @@
+/* environment variables from the system */
+.input-list__item--system {
+  background-color: #eff9ff;
+  color: #666;
+}
+
+.input-key-value-list__item--system {
+  background-color: #eff9ff;
+  color: #666;
+}

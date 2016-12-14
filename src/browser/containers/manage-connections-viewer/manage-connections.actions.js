@@ -1,6 +1,7 @@
 import _ from 'lodash';
 import databaseConnectionActions from '../../actions/database-connection';
 import definitions from './definitions.yml';
+import selector from './manage-connections.selectors';
 
 function selectConnection(payload) {
   return {type: 'MANAGE_CONNECTIONS_SELECT_CONNECTION', payload};
@@ -20,8 +21,8 @@ function removeConnection(payload) {
 
 function connect(id) {
   return function (dispatch, getState) {
-    const state = getState(),
-      proposedConnectionConfig = _.find(state.manageConnections.list, {id});
+    const state = selector.getConnectionsViewer(getState()),
+      proposedConnectionConfig = _.find(state.list, {id});
 
     if (proposedConnectionConfig) {
       const definition = _.find(definitions.types, {name: proposedConnectionConfig.type}),

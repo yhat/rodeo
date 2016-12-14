@@ -1,35 +1,29 @@
 import applicationActions from '../actions/application';
 import {local} from '../services/store';
 import registration from '../services/registration';
+import modalDialogActions from '../containers/modal-dialog-viewer/modal-dialog.actions';
 
 function showAboutRodeo() {
-  const type = 'ADD_MODAL_DIALOG',
-    contentType = 'ABOUT_RODEO';
-
-  return {type, contentType};
+  return modalDialogActions.add('aboutRodeo');
 }
 
 function showAboutStickers() {
-  return {type: 'ADD_MODAL_DIALOG', contentType: 'ABOUT_STICKERS', title: 'Stickers'};
+  return modalDialogActions.add('aboutStickers');
 }
 
 function showPreferences() {
-  return {type: 'ADD_MODAL_DIALOG', contentType: 'PREFERENCES', title: 'Preferences'};
+  return modalDialogActions.add('preferences');
 }
 
 function showAcknowledgements() {
-  return {type: 'ADD_MODAL_DIALOG', contentType: 'ACKNOWLEDGEMENTS', title: 'Acknowledgements'};
+  return modalDialogActions.add('acknowledgements');
 }
 
-function showNotification(content) {
-  return {type: 'ADD_MODAL_DIALOG', contentType: 'MARKED', content, title: 'Notification'};
-}
-
-function showRegisterRodeo(content) {
+function showRegisterRodeo() {
   return function (dispatch) {
     if (registration.shouldShowDialog()) {
       registration.rememberShowedDialog();
-      dispatch({type: 'ADD_MODAL_DIALOG', contentType: 'REGISTER_RODEO', content, title: 'Register'});
+      dispatch(modalDialogActions.add('registerRodeo'));
     }
   };
 }
@@ -39,7 +33,7 @@ function showAskQuit() {
     return applicationActions.quit();
   }
 
-  return {type: 'ADD_MODAL_DIALOG', contentType: 'ASK_QUIT', title: 'Quit'};
+  return modalDialogActions.add('askQuit');
 }
 
 export default {
@@ -48,6 +42,5 @@ export default {
   showAcknowledgements,
   showAskQuit,
   showPreferences,
-  showNotification,
   showRegisterRodeo
 };

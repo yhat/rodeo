@@ -1,0 +1,38 @@
+.form-list {
+  width: 100%;
+}
+
+.form-item {
+  margin: 20px;
+}
+
+.form-item:first-child {
+  margin-top: 10px;
+}
+
+.form-item .form-input {
+  margin-left: 20px;
+}
+
+/* input group is a input combined with a button */
+.input-group {
+  position: relative;
+  display: table;
+  border-collapse: separate;
+  margin-left: 20px;
+}
+
+.input-group input.form-input {
+  display: table-cell;
+  margin-left: 0;
+}
+
+.input-group select.form-input {
+  display: table-cell;
+}
+
+.input-group .input-group-container {
+  vertical-align: top;
+  display: table-cell;
+  width: 1%;
+}

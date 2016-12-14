@@ -1,9 +1,9 @@
-/* globals describe, it, expect, jest */
+/* globals describe, it, expect */
 
 import React from 'react';
 import ReactDOM from 'react-dom';
 import TestUtils from 'react-addons-test-utils';
-import UnsafeHtml from './unsafe-html.jsx';
+import UnsafeHtml from './unsafe-html.js';
 
 describe(__filename, () => {
   it('renders html', () => {

@@ -1,0 +1,26 @@
+# id: some unique value
+# label: key in the i18n text
+-
+  id: environmentVariableExplanation
+  explanation: environmentVariableExplanation
+  type: marked
+
+-
+  id: environmentVariablePath
+  key: environmentVariablePath
+  label: environmentVariablePathExplanation
+  type: list
+  listColumnLabel: environmentVariablePath
+
+-
+  id: environmentVariablePythonPath
+  key: environmentVariablePythonPath
+  label: environmentVariablePythonPathExplanation
+  type: list
+  listColumnLabel: environmentVariablePythonPath
+
+-
+  id: remainingEnvironmentVariables
+  key: remainingEnvironmentVariables
+  label: editingEnvironmentVariableExplanation
+  type: keyValueList

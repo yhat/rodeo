@@ -1,6 +1,6 @@
 import _ from 'lodash';
 import React from 'react';
-import Marked from '../marked/marked.jsx';
+import Marked from '../marked';
 import './package-search-item.css';
 
 function removeProtocolFromUrl(url) {

@@ -6,8 +6,6 @@ import sidebar from '../components/sidebar/sidebar.reducer';
 import notifications from '../components/notifications/notifications.reducer';
 import freeTabGroups from './free-tab-group/free-tab-group.reducer';
 import editorTabGroups from './editor-tab-group/editor-tab-group.reducer';
-import preferences from './preferences-viewer/preferences-viewer.reducer';
-import manageConnections from './manage-connections-viewer/manage-connections.reducer';
 
 function broadcast(state, action) {
   applicationControl.shareAction(action);
@@ -52,18 +50,10 @@ export default combineReducers({
    */
   editorTabGroups,
   /**
-   * map!
-   */
-  preferences,
-  /**
    * singleton! Only one file view should ever be on the screen at the time for the sake of other components
    * to interact and change themselves based on the state of the fileview.
    */
   fileView,
-  /**
-   * map!
-   */
-  manageConnections,
   /**
    * Logs all the actions that pass through, and broadcasts them to other windows.
    */

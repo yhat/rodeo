@@ -34,7 +34,7 @@ function convertKeysToConstantCase(obj) {
 
 /**
  * Scope each reducer to within xpath
- * @param xpath
+ * @param {[string]} xpath
  * @param {object} reducerMap
  * @returns {object}
  */
@@ -45,6 +45,24 @@ function scopeReducer(xpath, reducerMap) {
 }
 
 /**
+ * @param {object} state
+ * @param {object} action
+ * @param {function} reducer
+ * @param {[string]} xpath
+ * @returns {object}
+ */
+function reduceChildState(state, action, reducer, xpath) {
+  const targetState = _.get(state, xpath),
+    newTargetState = targetState && reducer(targetState, action);
+
+  if (targetState && newTargetState !== state) {
+    state = state.setIn(xpath, newTargetState);
+  }
+
+  return state;
+}
+
+/**
  * Scope each reducer to within the content of a tab
  * @param {string} contentType
  * @param {function} reducer
@@ -52,11 +70,6 @@ function scopeReducer(xpath, reducerMap) {
  */
 function tabReducer(contentType, reducer) {
   return function (state, action) {
-
-    if (!state) {
-      return [];
-    }
-
     const groups = state;
 
     for (let groupIndex = 0; groupIndex < groups.length; groupIndex++) {
@@ -69,15 +82,29 @@ function tabReducer(contentType, reducer) {
           const tab = tabs[tabIndex];
 
           if (tab.contentType === contentType && (action.id === tab.id || action.id === undefined)) {
-            const xpath = [groupIndex, 'tabs', tabIndex, 'content'],
-              target = _.get(state, xpath),
-              newState = target && reducer(_.get(state, xpath), action);
+            const xpath = [groupIndex, 'tabs', tabIndex, 'content'];
 
-            if (target && newState !== state) {
-              state = state.setIn([groupIndex, 'tabs', tabIndex, 'content'], newState);
-            }
+            state = reduceChildState(state, action, reducer, xpath);
           }
         }
+      }
+    }
+
+    return state;
+  };
+}
+
+function dialogReducer(contentType, reducer) {
+  return function (state, action) {
+    const items = state.items;
+
+    for (let itemIndex = 0; itemIndex < items.length; itemIndex++) {
+      const dialog = items[itemIndex];
+
+      if (dialog.contentType === contentType) {
+        const xpath = ['items', itemIndex, 'content'];
+
+        state = reduceChildState(state, action, reducer, xpath);
       }
     }
 
@@ -99,6 +126,7 @@ function reduceReducers(...reducers) {
 export default {
   addPrefixToKeys,
   convertKeysToConstantCase,
+  dialogReducer,
   fromFilenameToPrefix,
   reduceReducers,
   scopeReducer,
