@@ -26,11 +26,11 @@ export default React.createClass({
     const props = this.props,
       text = this.context.text,
       className = commonReact.getClassNameList(this);
-    let value = props.value,
+    let keyValueList = props.value,
       editContainer;
 
-    if (!_.isObject(value)) {
-      value = props.originalValue;
+    if (!_.isObject(keyValueList)) {
+      keyValueList = props.originalValue;
     }
 
     if (props.editContainer) {
@@ -74,6 +74,16 @@ export default React.createClass({
       );
     }
 
+    function getClose(item) {
+      if (item.editable !== false) {
+        return (
+          <div className="input-key-value-list__row_menu">
+            <Closeable onClick={_.partial(props.onRemoveKey, item.key)}/>
+          </div>
+        );
+      }
+    }
+
     return (
       <div className={className.join(' ')}>
         <label htmlFor={props.id}>{text[props.label]}</label>
@@ -83,17 +93,20 @@ export default React.createClass({
             <th>{text.keyTableHeader}</th>
             <th>{text.valueTableHeader}</th>
           </tr>
-          {_.map(value, (value, key) => {
-            value = value || ' ';
+          {_.map(keyValueList, item => {
+            const itemClassName = ['input-key-value-list__item'];
+
+            if (item.source) {
+              itemClassName.push('input-key-value-list__item--' + item.source);
+            }
+
             return (
-              <tr key={key}>
-                <td>{key}</td>
+              <tr className={itemClassName.join(' ')} key={item.key}>
+                <td>{item.key}</td>
                 <td>
                   <div className="input-key-value-list__row">
-                    {value}
-                    <div className="input-key-value-list__row_menu">
-                      <Closeable onClick={_.partial(props.onRemoveKey, key)}/>
-                    </div>
+                    {item.value}
+                    {getClose(item)}
                   </div>
                 </td>
               </tr>

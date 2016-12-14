@@ -7,19 +7,72 @@ import immutableUtil from '../../services/immutable-util';
 import layoutDefinition from './layout.yml';
 import envService from '../../services/env';
 
+function extendList(env, localKey, envKey, item) {
+  const localValue = local.get(localKey) || [],
+    pathList = _.map(localValue, value => {
+      return {value, source: 'user'};
+    }).concat(_.map(envService.getPath(env, envKey), value => {
+      return ({value, source: 'system', editable: false});
+    }));
+
+  return _.assign({value: pathList}, item);
+}
+
 const prefix = reduxUtil.fromFilenameToPrefix(__filename),
-  omitKeys = ['path', 'npm_token', 'node_env', 'google_api_key', 'apple_pubsub_socket_render', 'display'];
+  omitKeys = ['path', 'npm_token', 'node_env', 'google_api_key', 'apple_pubsub_socket_render', 'display'],
+  getItemKeys = {
+    environmentVariablePath: (env, item) => {
+      const envKey = 'path',
+        localKey = 'additionalEnvironmentVariablePath';
 
-export function getInitialState() {
-  const env = local.get('environmentVariables'),
-    envKeyMap = env && envService.getKeyMap(env),
+      return extendList(env, localKey, envKey, item);
+    },
+    environmentVariablePythonPath: (env, item) => {
+      const envKey = 'pythonPath',
+        localKey = 'additionalEnvironmentVariablePythonPath';
+
+      return extendList(env, localKey, envKey, item);
+    },
+    remainingEnvironmentVariables: (env, item) => {
+      const cleanedEnv = getCleanedEnvironmentVariables(env),
+        localKey = 'overriddenEnvironmentVariables',
+        localValue = local.get(localKey) || {},
+        envList = _.map(localValue, (value, key) => {
+          return {key, value, source: 'user'};
+        }).concat(_.map(_.omit(cleanedEnv, Object.keys(localValue)), (value, key) => {
+          return {key, value, source: 'system', editable: false};
+        }));
+
+      return _.assign({value: envList}, item);
+    }
+  },
+  setItemKeys = {
+    environmentVariablePath: (change) => {
+      const result = _.map(_.filter(change.value, {source: 'user'}), 'value');
+
+      local.set('additionalEnvironmentVariablePath', result);
+    },
+    environmentVariablePythonPath: (change) => {
+      const result = _.map(_.filter(change.value, {source: 'user'}), 'value');
+
+      local.set('additionalEnvironmentVariablePythonPath', result);
+    },
+    remainingEnvironmentVariables: (change) => {
+      const result = _.reduce(_.filter(change.value, {source: 'user'}), (obj, item) => {
+        obj[item.key] = item.value;
+
+        return obj;
+      }, {});
+
+      local.set('overriddenEnvironmentVariables', result);
+    }
+  };
+
+function getStateFromStore() {
+  const env = envService.getEnvironmentVariablesRaw() || {},
     items = _.map(layoutDefinition, item => {
-      if (item.key === 'environmentVariablePath') {
-        return _.assign({value: envService.getPath(env)}, item);
-      } else if (item.key === 'remainingEnvironmentVariables') {
-        const remainingEnvKeys = _.omit(envKeyMap, omitKeys);
-
-        return _.assign({value: _.pick(env, _.values(remainingEnvKeys))}, item);
+      if (getItemKeys[item.key]) {
+        return getItemKeys[item.key](env, item);
       }
 
       return item;
@@ -30,6 +83,24 @@ export function getInitialState() {
     changes: {},
     canSave: true
   });
+}
+
+function setStateToStore(state) {
+  _.each(state.changes, function (change, changeName) {
+    if (setItemKeys[changeName]) {
+      return setItemKeys[changeName](change);
+    }
+  });
+}
+
+function getCleanedEnvironmentVariables(env) {
+  const envKeyMap = env && envService.getKeyMap(env);
+
+  return _.pick(env, _.values(_.omit(envKeyMap, omitKeys)));
+}
+
+export function getInitialState() {
+  return getStateFromStore();
 }
 
 /**
@@ -77,7 +148,6 @@ function updateCanSave(state) {
 }
 
 /**
- *
  * @param {object} state
  * @param {{change: {key: string, value: string}}} action
  * @returns {object}
@@ -139,6 +209,7 @@ function startEdit(state, action) {
     item = payload.item,
     change = _.get(state, ['changes', item.key]);
 
+  // the container should be the initial state of the "add" box, regardless of changed value
   if (change) {
     state = state.updateIn(['changes', item.key], change => change.set('editContainer', payload.container));
   } else {
@@ -172,7 +243,8 @@ function removeKey(state, action) {
     let value = getCurrentItemValueByKey(state, itemKey);
 
     if (value) {
-      state = state.setIn(['changes', itemKey], {key: item.key, type: item.type, value: _.omit(value, listRowName)});
+      value = immutableUtil.removeAt(value, 0);
+      state = state.setIn(['changes', itemKey], {key: item.key, type: item.type, value});
     }
   }
 
@@ -181,23 +253,36 @@ function removeKey(state, action) {
 
 function saveEdit(state, action) {
   const item = action.payload,
-    editContainer = _.get(state, ['changes', item.key, 'editContainer']),
-    originalValue = getCurrentItemByKey(state, item.key).value;
+    editContainer = _.get(state, ['changes', item.key, 'editContainer']);
 
-  if (_.isArray(originalValue) && editContainer.name === '') {
-    state = immutableUtil.pushAtPath(state, ['changes', item.key, 'value'], editContainer.value);
-    return immutableUtil.removeAtPath(state, ['changes', item.key], 'editContainer');
-  } else if (!_.isArray(originalValue) && editContainer.name) {
-    state = state.setIn(['changes', item.key, 'value', editContainer.name], editContainer.value);
-    return immutableUtil.removeAtPath(state, ['changes', item.key], 'editContainer');
+  if (item.type === 'list') {
+    // is input-list
+    state = immutableUtil.unshiftAtPath(state, ['changes', item.key, 'value'],
+      {source: 'user', value: editContainer.value});
+    state = immutableUtil.removeAtPath(state, ['changes', item.key], 'editContainer');
+  } else if (item.type === 'keyValueList' && editContainer.name) {
+    // is input-key-value-list
+    const list = _.get(state, ['changes', item.key, 'value']),
+      index = _.findIndex(list, {key: editContainer.name});
+
+    // if there is a key with this name already, remove it
+    if (index > -1) {
+      state = immutableUtil.removeAtPath(state, ['changes', item.key, 'value'], index);
+    }
+
+    state = immutableUtil.unshiftAtPath(state, ['changes', item.key, 'value'],
+      {source: 'user', key: editContainer.name, value: editContainer.value});
+    state = immutableUtil.removeAtPath(state, ['changes', item.key], 'editContainer');
   }
 
   return state;
 }
 
-function saveChanges(state, action) {
-  // for graphics, these actions are the same for now
-  return cancelChanges(state, action);
+function saveChanges(state) {
+  setStateToStore(state);
+
+  // pretend to be fresh
+  return getStateFromStore();
 }
 
 export default mapReducers(_.assign(reduxUtil.addPrefixToKeys(prefix, {
@@ -212,4 +297,4 @@ export default mapReducers(_.assign(reduxUtil.addPrefixToKeys(prefix, {
   SAVE_CHANGES: saveChanges
 }), {
   PREFERENCE_CHANGE_SAVED: changeSaved
-}), getInitialState());
+}), {});

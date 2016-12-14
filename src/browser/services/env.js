@@ -5,15 +5,14 @@ import {local, session} from './store';
 import os from 'os';
 import path from 'path';
 
-const rootAppDir = process.resourcesPath,
+const storeKey = 'environmentVariables',
+  rootAppDir = process.resourcesPath,
   condaDirName = 'conda',
   condaDir = path.join(rootAppDir, condaDirName),
   dllDir = path.join(rootAppDir, condaDirName, 'DLLs'),
   libDir = path.join(rootAppDir, condaDirName, 'Lib'),
   sitePackagesDir = path.join(rootAppDir, condaDirName, 'Lib', 'site-packages'),
   scriptsDir = path.join(rootAppDir, condaDirName, 'Scripts');
-
-console.log({rootAppDir, condaDirName, condaDir, libDir, scriptsDir, dirname: __dirname});
 
 function splitList(list) {
   if (process.platform === 'win32') {
@@ -81,25 +80,55 @@ function addOurPythonPath(env) {
   return env;
 }
 
+function applyAdditionalOverrides(env) {
+  const additionalPath = local.get('additionalEnvironmentVariablePath'),
+    additionalPythonPath = local.get('additionalEnvironmentVariablePythonPath'),
+    overriddenEnv = local.get('overriddenEnvironmentVariables'),
+    currentPath = getPath(env, 'path') || [],
+    currentPythonPath = getPath(env, 'pythonPath') || [];
+
+  if (additionalPath) {
+    setPath(env, additionalPath.concat(currentPath), 'path');
+  }
+
+  if (additionalPythonPath) {
+    setPath(env, additionalPythonPath.concat(currentPythonPath), 'pythonPath');
+  }
+
+  if (overriddenEnv) {
+    env = _.assign({}, overriddenEnv, env);
+  }
+
+  return env;
+}
+
 function applyBuiltinPython(env) {
   const useBuiltinPython = local.get('useBuiltinPython') || 'failover',
-    hasPythonFailedOver = session.get('hasPythonFailedOver') || false,
-    hasPythonPath = env.PYTHONPATH;
+    hasPythonFailedOver = session.get('hasPythonFailedOver') || false;
 
-  if (!hasPythonPath || useBuiltinPython === 'yes' || (hasPythonFailedOver && useBuiltinPython === 'failover')) {
-    addOurPythonPath(env);
+  if (useBuiltinPython === 'yes' || (hasPythonFailedOver && useBuiltinPython === 'failover')) {
+    env = addOurPythonPath(env);
     env = prependBuiltinPath(env);
   }
 
   return env;
 }
 
+/**
+ * Best attempt to get value in a synchronous way
+ * @returns {object}
+ */
+function getEnvironmentVariablesRaw() {
+  return session.get(storeKey);
+}
+
 function getEnvironmentVariables(env) {
   if (!env) {
-    env = local.get('environmentVariables');
+    env = session.get(storeKey);
   }
 
   if (env) {
+    env = applyAdditionalOverrides(env);
     return bluebird.resolve(applyBuiltinPython(env));
   }
 
@@ -111,7 +140,8 @@ function getEnvironmentVariables(env) {
     // bonus variables are used by various python packages, but it's okay for the user to see and change them
     env = addBonusVariables(env);
     // save the version without any modifications, because they can change their preferences at any time
-    local.set('environmentVariables', env);
+    session.set(storeKey, env);
+    env = applyAdditionalOverrides(env);
     return applyBuiltinPython(env);
   });
 }
@@ -124,9 +154,15 @@ function getKeyMap(env) {
   }, {});
 }
 
-function getPath(env) {
+/**
+ * @param {object} env
+ * @param {string} [keyName='path']
+ * @returns {Array}
+ */
+function getPath(env, keyName) {
+  keyName = keyName && keyName.toLowerCase() || 'path';
   const keyMap = getKeyMap(env),
-    path = env[keyMap.path];
+    path = env[keyMap[keyName]];
   let result;
 
   if (path) {
@@ -138,19 +174,25 @@ function getPath(env) {
   return result;
 }
 
-function setPath(env, newPath) {
+/**
+ * @param {object} env
+ * @param {Array} newPath
+ * @param {string} [keyName='path']
+ * @returns {object}
+ */
+function setPath(env, newPath, keyName) {
+  keyName = keyName && keyName.toLowerCase() || 'path';
   const keyMap = getKeyMap(env);
 
   if (_.isArray(newPath)) {
-    env[keyMap.path] = joinList(newPath);
-
-    local.set('environmentVariables', env);
+    env[keyMap[keyName]] = joinList(newPath);
   }
 
   return env;
 }
 
 export default {
+  getEnvironmentVariablesRaw,
   getEnvironmentVariables,
   getKeyMap,
   getPath,

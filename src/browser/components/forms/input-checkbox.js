@@ -22,7 +22,7 @@ export default React.createClass({
     return (
       <div className={className.join(' ')}>
         <label htmlFor={props.id}>{text[props.label]}</label>
-        <input checked={props.value} onChange={props.onChange} type="checkbox"/>
+        <input checked={props.value} className="form-input" onChange={props.onChange} type="checkbox"/>
       </div>
     );
   }

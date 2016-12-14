@@ -26,7 +26,7 @@ export default React.createClass({
     return (
       <div className={className.join(' ')}>
         <label htmlFor={props.id}>{text[props.label]}</label>
-        <input onChange={props.onChange} type="number" value={props.value}/>
+        <input className="form-input" onChange={props.onChange} type="number" value={props.value}/>
       </div>
     );
   }

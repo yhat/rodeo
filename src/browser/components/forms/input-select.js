@@ -35,7 +35,7 @@ export default React.createClass({
     return (
       <div className={className.join(' ')}>
         <label htmlFor={props.id}>{text[props.label]}</label>
-        <select onChange={props.onChange} value={props.value}>{props.options.map(getOption)}</select>
+        <select className="form-input" onChange={props.onChange} value={props.value}>{props.options.map(getOption)}</select>
       </div>
     );
   }

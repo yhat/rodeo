@@ -4,13 +4,23 @@
   id: environmentVariableExplanation
   explanation: environmentVariableExplanation
   type: marked
+
 -
   id: environmentVariablePath
   key: environmentVariablePath
-  label: environmentVariablePath
+  label: environmentVariablePathExplanation
   type: list
+  listColumnLabel: environmentVariablePath
+
 -
-  id: remaingEnvironmentVariables
+  id: environmentVariablePythonPath
+  key: environmentVariablePythonPath
+  label: environmentVariablePythonPathExplanation
+  type: list
+  listColumnLabel: environmentVariablePythonPath
+
+-
+  id: remainingEnvironmentVariables
   key: remainingEnvironmentVariables
-  label: otherEnvironmentVariables
+  label: editingEnvironmentVariableExplanation
   type: keyValueList

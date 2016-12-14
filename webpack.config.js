@@ -4,6 +4,7 @@ const pkg = require('./package.json'),
   CompressionPlugin = require('compression-webpack-plugin');
 
 module.exports = {
+  cache: false,
   context: path.join(__dirname, 'src'),
   devtool: 'source-map',
   entry: {

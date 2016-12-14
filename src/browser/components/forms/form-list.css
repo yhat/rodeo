@@ -10,8 +10,7 @@
   margin-top: 10px;
 }
 
-.form-item input,
-.form-item select {
+.form-item .form-input {
   margin-left: 20px;
 }
 
@@ -23,12 +22,12 @@
   margin-left: 20px;
 }
 
-.input-group input {
+.input-group input.form-input {
   display: table-cell;
   margin-left: 0;
 }
 
-.input-group select {
+.input-group select.form-input {
   display: table-cell;
 }
 

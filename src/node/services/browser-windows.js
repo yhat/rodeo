@@ -123,10 +123,10 @@ function create(name, options) {
   // default event handlers
   window.on('close', event => {
     log('info', 'close', name);
-    // if (name === 'mainWindow' && window.allowClose !== true) {
-    //   event.preventDefault();
-    //   dispatchActionToWindow('mainWindow', {type: 'ASK_QUIT'});
-    // }
+    if (name === 'mainWindow' && window.allowClose !== true) {
+      event.preventDefault();
+      dispatchActionToWindow('mainWindow', {type: 'ASK_QUIT'});
+    }
   });
   window.on('closed', () => {
     log('info', 'closed', name);``

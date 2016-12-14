@@ -4,6 +4,7 @@ aceEditorExplanation: |
   to provide code highlighting and code folding.  These settings control the defaults for each new file that you open.
 add: Add
 addEnvironmentVariable: Add Environment Variable
+additionalEnvironmentVariablePath: Add to PATH
 alreadySignedUp: You've already signed up for free stickers!
 alwaysAskBeforeQuiting: Always ask before quiting
 areYouSureYouWantToQuit: Are you sure you want to quit Rodeo?
@@ -22,14 +23,20 @@ default: Default
 defaultWorkingDirectory: Default Working Directory
 displayDotFiles: Display Dot Files
 displayImages: Display Images
+editingEnvironmentVariableExplanation: |
+  Add or override environment variables
 editor: Editor
 emacs: Emacs
 enableStartingTutorial: Enable the Starting Tutorial
 environmentVariables: Environment Variables
 environmentVariableExplanation: |
-  Some explanation about environment variables
-  would go here
-  if I had one
+  Environment variables are system-wide settings for things like libraries, packages, and programming languages.
+environmentVariablePath: PATH
+environmentVariablePathExplanation: |
+  When commands are run from a terminal, these locations are checked in order.
+environmentVariablePythonPath: PYTHONPATH
+environmentVariablePythonPathExplanation: |
+  When python looks for libraries to import, these locations are checked in order.
 EACCES: Permission denied
 elipsis: …
 ENOENT: No such file or directory
@@ -53,7 +60,9 @@ invalidEmail: Please input a valid email address.
 manageConnections: Manage Connections
 missingFileOrCommand: Missing file or command
 missingPackage: Missing package
+none: None
 ok: OK
+overriddenEnvironmentVariables: Overridden Environment Variables
 plots: Plots
 plotViewerExplanation: |
   The plot viewer provides previews of plots that have been broadcast from IPython.  In the future, we want to have more
@@ -66,6 +75,7 @@ pythonExplanation: Python settings control how the python kernel is run.
 quit: Quit
 refresh: Refresh
 reload: Reload
+reloadEnvironmentVariables: Reload Environment Variables
 saveChanges: Save Changes
 selectDatabaseConnectionFromList: Select a database connection from the list
 sendMeStickers: Send me stickers!

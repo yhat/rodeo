@@ -26,11 +26,11 @@ export default React.createClass({
     const props = this.props,
       text = this.context.text,
       className = commonReact.getClassNameList(this);
-    let value = props.value,
+    let list = props.value,
       editContainer;
 
-    if (!_.isObject(value)) {
-      value = props.originalValue;
+    if (!_.isObject(list)) {
+      list = props.originalValue;
     }
 
     if (props.editContainer) {
@@ -66,29 +66,60 @@ export default React.createClass({
       );
     }
 
+    function getClose(item, index) {
+      if (item.editable !== false) {
+        return (
+          <div className="input-list__row_menu">
+            <Closeable onClick={_.partial(props.onRemoveKey, index)}/>
+          </div>
+        );
+      }
+    }
+
+    function getRows(items) {
+      if (items && items.length) {
+        return _.map(items, (item, index) => {
+          item = item || {value: ' '};
+          const itemClassName = ['input-list__item'];
+
+          if (item.source) {
+            itemClassName.push('input-list__item--' + item.source);
+          }
+
+          return (
+            <tr className={itemClassName.join(' ')} key={item.key}>
+              <td>
+                <div className="input-list__row">
+                  {item.value}
+                  {getClose(item, index)}
+                </div>
+              </td>
+            </tr>
+          );
+        });
+      } else {
+        return (
+          <tr key="empty">
+            <td>
+              <div className="input-list__row">{text.none}</div>
+            </td>
+          </tr>
+        );
+      }
+    }
+
     return (
       <div className={className.join(' ')}>
         <label htmlFor={props.id}>{text[props.label]}</label>
         {editContainer}
         <table>
+
           <tr>
-            <th>{text.valueTableHeader}</th>
+            <th>{props.listColumnLabel && text[props.listColumnLabel] || text.valueTableHeader}</th>
           </tr>
-          {_.map(value, (value, key) => {
-            value = value || ' ';
-            return (
-              <tr key={key}>
-                <td>
-                  <div className="input-list__row">
-                    {value}
-                    <div className="input-list__row_menu">
-                      <Closeable onClick={_.partial(props.onRemoveKey, key)}/>
-                    </div>
-                  </div>
-                </td>
-              </tr>
-            );
-          })}
+
+          {getRows(list)}
+
         </table>
       </div>
     );

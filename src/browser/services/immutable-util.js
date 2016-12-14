@@ -1,6 +1,20 @@
 import _ from 'lodash';
 import Immutable from 'seamless-immutable';
 
+function unshift(state, item) {
+  const mutableArray = state.asMutable();
+
+  mutableArray.unshift(item);
+
+  return Immutable(mutableArray);
+}
+
+function unshiftAtPath(state, path, item) {
+  return state.updateIn(path, array => {
+    return unshift(array, item);
+  });
+}
+
 function push(state, item) {
   const mutableArray = state.asMutable();
 
@@ -37,5 +51,7 @@ export default {
   removeAt,
   removeAtPath,
   push,
-  pushAtPath
+  pushAtPath,
+  unshift,
+  unshiftAtPath
 };

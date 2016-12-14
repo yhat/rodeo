@@ -140,4 +140,4 @@ export default mapReducers(_.assign(reduxUtil.addPrefixToKeys(prefix, {
   CHANGE_DETAIL_ADDED: changeDetailAdded
 }), {
   PREFERENCE_CHANGE_SAVED: changeSaved
-}), getInitialState());
+}), {});

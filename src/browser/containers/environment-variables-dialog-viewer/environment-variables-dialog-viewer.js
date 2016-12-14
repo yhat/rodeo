@@ -4,6 +4,7 @@ import {connect} from 'react-redux';
 import actions from './environment-variables-dialog-viewer.actions';
 import EnvironmentVariablesDialog from '../../components/dialogs/environment-variables-dialog';
 import selectors from './environment-variables-dialog-viewer.selectors';
+import './environment-variables-dialog-viewer.css';
 
 /**
  * @param {function} dispatch
