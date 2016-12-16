@@ -59,6 +59,13 @@
       "target": [
         "dmg",
         "zip"
+      ],
+      "extraResources": [
+        {
+          "from": ".tmp/osx/conda/",
+          "to": "conda",
+          "filter": "**/*"
+        }
       ]
     }
   },

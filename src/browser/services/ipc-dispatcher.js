@@ -86,11 +86,12 @@ function otherDispatcher(dispatch) {
 
       if (isDefaultPythonCmd && useBuiltinPython === 'failover' && !hasPythonFailedOver) {
         console.warn('Using built-in python.');
-        session.set('hasPythonFailedOver', new Date().getTime());
+        session.set('hasPythonFailedOver', {time: new Date().getTime(), clientId});
         // local.set('kernelName', 'rodeo-builtin-miniconda');
         local.set('restartKernelOnCloseProcess', true);
-      } else {
-        // they have to fix it
+      } else if (hasPythonFailedOver && hasPythonFailedOver.clientId !== clientId) {
+        // if this is the second time we've failed over
+        session.set('hasPythonFailedOver', false);
         dispatch(applicationActions.showStartupWindow());
       }
     }

@@ -1,5 +1,4 @@
 import _ from 'lodash';
-import fs from 'fs';
 
 export function splitList(list) {
   if (process.platform === 'win32') {
