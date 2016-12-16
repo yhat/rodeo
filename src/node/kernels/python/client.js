@@ -27,6 +27,7 @@ import cuid from 'cuid/dist/node-cuid';
 import errorClone from '../../services/clone';
 import EventEmitter from 'events';
 import files from '../../services/files';
+import fs from 'fs';
 import listenScript from './listen.py';
 import patch from './patch.py';
 import path from 'path';
@@ -557,6 +558,11 @@ function resolveHomeDirectoryOptions(options) {
 
     if (options.cwd) {
       options.cwd = files.resolveHomeDirectory(options.cwd);
+
+      // guarantee that current working directory exists
+      if (!fs.existsSync(options.cwd)) {
+        options.cwd = files.resolveHomeDirectory('~');
+      }
     }
   }
 

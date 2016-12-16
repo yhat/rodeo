@@ -8,15 +8,15 @@ You need the following to run Rodeo in dev mode:
 Then from the root directory of the project:
 ```bash
 npm install  # to install the dependences
-gulp build # to build the project
+npm run build # to build the project
 npm start  # to run Rodeo
 ```
 
 ## To run the project with hot-swapping modules
 ```bash
 npm install  # to install the dependences
-gulp  # to build the project
-gulp hot # to opt-in to hot-swapping modules
+npm run build  # to build the project
+npm run build:browser-dev # to opt-in to hot-swapping modules
 npm start  # to run Rodeo
 ```
 and then in another console
@@ -48,6 +48,7 @@ brew install Caskroom/cask/xquartz wine mono
 # so we can build linux on mac
 brew install gnu-tar libicns graphicsmagick
 ```
+
 Then:
 ```bash
 CSC_NAME=<some key sha identifier for signing> npm run dist:all
