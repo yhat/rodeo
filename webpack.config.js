@@ -3,8 +3,7 @@ const pkg = require('./package.json'),
   webpack = require('webpack'),
   CompressionPlugin = require('compression-webpack-plugin');
 
-module.exports = {
-  cache: false,
+module.exports = [{
   context: path.join(__dirname, 'src'),
   devtool: 'source-map',
   entry: {
@@ -112,4 +111,4 @@ module.exports = {
     ]
   },
   target: 'electron-renderer'
-};
+}];

@@ -10,12 +10,13 @@ import Immutable from 'seamless-immutable';
 import immutableUtil from '../../services/immutable-util';
 import mapReducers from '../../services/map-reducers';
 import reduxUtil from '../../services/redux-util';
+import askQuitViewerReducer from '../ask-quit-dialog-viewer/ask-quit-dialog-viewer.reducer';
 import preferencesViewerReducer from '../preferences-viewer/preferences-viewer.reducer';
 import manageConnectionsViewerReducer from '../manage-connections-viewer/manage-connections.reducer';
 import environmentVariablesDialogViewer from '../environment-variables-dialog-viewer/environment-variables-dialog-viewer.reducer';
 import types from './dialog-types';
 
-function getInitialState() {
+export function getInitialState() {
   return Immutable({items: []});
 }
 
@@ -68,6 +69,7 @@ export default reduxUtil.reduceReducers(
     CANCEL_ALL_MODAL_DIALOGS: cancelAll,
     OK_MODAL_DIALOG: ok
   }, getInitialState()),
+  reduxUtil.dialogReducer('askQuit', askQuitViewerReducer),
   reduxUtil.dialogReducer('environmentVariables', environmentVariablesDialogViewer),
   reduxUtil.dialogReducer('preferences', preferencesViewerReducer),
   reduxUtil.dialogReducer('manageConnections', manageConnectionsViewerReducer)

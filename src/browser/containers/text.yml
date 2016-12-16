@@ -89,6 +89,7 @@ tabSpaces: Tab Spaces
 thankYou: Thanks!
 theme: Theme
 trackMetrics: Track Metrics
+quiting: Quiting
 unableToRunSyscall: Unable to run
 usageMetrics: |
   To help us improve Rodeo, we anonymously track usage metrics, such as # of opens/closes, shortcuts used, and

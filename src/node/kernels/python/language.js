@@ -5,10 +5,10 @@
 
 import _ from 'lodash';
 import fs from 'fs';
-import os from 'os';
 import path from 'path';
+import envService from '../../services/env';
 
-const log = require('../../services/log').asInternal(__filename);
+const resourcesPath = process.resourcesPath;
 
 /**
  * @param {object} args
@@ -28,15 +28,15 @@ function addPath(envs, path) {
 }
 
 function getCondaPath() {
-  return path.join(__dirname.split('app.asar')[0], 'conda');
+  return path.join(resourcesPath, 'conda');
 }
 
 function getPythonPath() {
-  return path.join(__dirname.split('app.asar')[0], 'conda', 'python.exe');
+  return path.join(resourcesPath, 'conda', 'python.exe');
 }
 
 function getStartKernelPath() {
-  return path.join(__dirname.split('app.asar')[0], 'kernels', 'python', 'start_kernel.py');
+  return path.join(resourcesPath, 'kernels', 'python', 'start_kernel.py');
 }
 
 function setDefaultEnvVars(env) {
@@ -52,12 +52,37 @@ function setDefaultEnvVars(env) {
   }
 
   return _.assign({
-    PYTHONUNBUFFERED: '1'
+    PYTHONUNBUFFERED: '1',
+    PYTHONIOENCODING: 'utf-8'
   }, env);
 }
 
-module.exports.toPythonArgs = toPythonArgs;
-module.exports.setDefaultEnvVars = setDefaultEnvVars;
-module.exports.getStartKernelPath = getStartKernelPath;
-module.exports.getPythonPath = getPythonPath;
-module.exports.getCondaPath = getCondaPath;
+function extendOwnEnv() {
+  if (process.resourcesPath) {
+    envService.appendToPath(process.env, path.join(process.resourcesPath, 'conda'));
+    envService.appendToPath(process.env, path.join(process.resourcesPath, 'conda', 'bin'));
+  }
+
+  if (process.platform !== 'win32') {
+    envService.appendToPath(process.env, '/sbin');
+    envService.appendToPath(process.env, '/usr/sbin');
+    envService.appendToPath(process.env, '/usr/local/bin');
+  }
+
+  if (!process.env.PYTHONUNBUFFERED) {
+    process.env.PYTHONUNBUFFERED = '1';
+  }
+
+  if (!process.env.PYTHONIOENCODING) {
+    process.env.PYTHONIOENCODING = 'utf-8';
+  }
+}
+
+export default {
+  extendOwnEnv,
+  getStartKernelPath,
+  getPythonPath,
+  getCondaPath,
+  setDefaultEnvVars,
+  toPythonArgs
+};

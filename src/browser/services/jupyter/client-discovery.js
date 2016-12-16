@@ -10,11 +10,18 @@ import _ from 'lodash';
 import api from '../api';
 import bluebird from 'bluebird';
 import env from '../env';
-import {local} from '../store';
+import {local, session} from '../store';
 import guid from '../guid';
 import track from '../track';
 
 const pythonOptionsTimeout = 2 * 60 * 1000;
+
+function shouldUseBuiltinPython() {
+  const useBuiltinPython = local.get('useBuiltinPython') || 'failover',
+    hasPythonFailedOver = session.get('hasPythonFailedOver') || false;
+
+  return useBuiltinPython === 'yes' || (hasPythonFailedOver && useBuiltinPython === 'failover');
+}
 
 function getKernelName(kernelName) {
   if (kernelName) {
@@ -127,5 +134,6 @@ export default {
   getFreshPythonOptions,
   getSystemFacts,
   getUserId: _.memoize(getUserId), // we can assume it'll remain the same for the lifetime of the app
-  executeWithNewKernel
+  executeWithNewKernel,
+  shouldUseBuiltinPython
 };

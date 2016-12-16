@@ -15,7 +15,7 @@ source $(brew --prefix nvm)/nvm.sh
 nvm use
 
 #build distributable
-./node_modules/.bin/gulp dist:osx
+node_modules/.bin/build --osx --x64
 
 #list created files
 echo '#list created files:'

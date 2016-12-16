@@ -12,7 +12,7 @@ function savePreferenceChanges(changes) {
 
   return function (dispatch) {
     // notify everyone of the changes that have _already happened_
-    _.each(changes, change => dispatch({type: 'PREFERENCE_CHANGE_SAVED', change}));
+    _.each(changes, change => dispatch({type: 'PREFERENCE_CHANGE_SAVED', change, meta: {track: true}}));
 
     // restart kernel only after all changes were announced, and only once
     if (_.some(changes, change => _.includes(['pythonCmd', 'workingDirectory'], change.key))) {

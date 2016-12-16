@@ -3,6 +3,7 @@ import electronWinstonTransport from './electron-winston-transport';
 import path from 'path';
 import winston from 'winston';
 import util from 'util';
+import errorClone from './clone';
 
 const colorize = false;
 
@@ -123,7 +124,7 @@ function sanitizeObject(value) {
     } else if (_.isBuffer(value)) {
       return value.toString();
     } else if (isError(value)) {
-      return printObject(value);
+      return printObject(errorClone.toObject(value));
     } else if (isElectronEvent(value)) {
       return transformElectronEvent(value);
     } else if (isEventEmitter(value)) {

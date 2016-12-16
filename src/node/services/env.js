@@ -1,6 +1,8 @@
 import _ from 'lodash';
 import bluebird from 'bluebird';
+import fs from 'fs';
 import processes from './processes';
+import {getPath, setPath} from '../../shared/env';
 
 const log = require('./log').asInternal(__filename);
 
@@ -68,6 +70,36 @@ function getEnv() {
     });
 }
 
+/**
+ * NOTE: Verifies that the file path actually exists
+ * @param {object} env
+ * @param {string} filePath
+ */
+function appendToPath(env, filePath) {
+  const list = getPath(env, 'path');
+
+  if (!_.includes(list, filePath) && fs.existsSync(filePath)) {
+    list.push(filePath);
+    setPath(env, list, 'path');
+  }
+}
+
+/**
+ * NOTE: Verifies that the file path actually exists
+ * @param {object} env
+ * @param {string} filePath
+ */
+function prependToPath(env, filePath) {
+  const list = getPath(env, 'path');
+
+  if (!_.includes(list, filePath) && fs.existsSync(filePath)) {
+    list.unshift(filePath);
+    setPath(env, list, 'path');
+  }
+}
+
 export default {
-  getEnv
+  appendToPath,
+  getEnv,
+  prependToPath
 };

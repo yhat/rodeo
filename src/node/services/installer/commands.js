@@ -1,5 +1,3 @@
-'use strict';
-
 import _ from 'lodash';
 import files from '../files';
 import path from 'path';

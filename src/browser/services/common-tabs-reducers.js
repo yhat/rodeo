@@ -1,5 +1,5 @@
 import _ from 'lodash';
-import dateUtil from './dateUtil';
+import dateUtil from '../../shared/dateUtil';
 import immutableUtil from './immutable-util';
 
 /**

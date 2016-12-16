@@ -7,6 +7,7 @@ import FullScreen from '../components/layout-containers/full-screen.jsx';
 import StudioLayout from './studio-layout/studio-layout.jsx';
 import Sidebar from '../components/sidebar/sidebar.jsx';
 import ModalDialogViewer from './modal-dialog-viewer/modal-dialog-viewer.jsx';
+import {getInitialState as getModalDialogsInitialState} from './modal-dialog-viewer/modal-dialog.reducer';
 import NotificationsContainer from '../components/notifications/notifications-container.jsx';
 import rootReducer from './main.reducer';
 import initialState from './main.initial';
@@ -34,47 +35,41 @@ function clearPlots(state) {
 }
 
 function clearModalDialogs(state) {
-  state.modalDialogs = [];
+  state.modalDialogs = getModalDialogsInitialState();
 }
 
-function useInitialPreferences(state) {
-  state.preferences = require('./preferences-viewer/preferences-viewer.reducer').getInitialState();
-}
-
+/**
+ * React is funny.  If someone calls React.render, the order of componentWillMount and getChildContext and render
+ * changes, but we need this value in all places.
+ *
+ * @function
+ * @returns {object}
+ */
+const getStore = _.once(function createStore() {
 // take the state from what we're already been given, or start fresh with initialState
-const lastSavedAppState = local.get('lastSavedAppState');
-let state, store;
+  const lastSavedAppState = local.get('lastSavedAppState');
+  let store, state;
 
-if (lastSavedAppState) {
-  // plots are temp files, so they can't be restored
-  clearPlots(lastSavedAppState);
-  clearModalDialogs(lastSavedAppState);
-  useInitialPreferences(lastSavedAppState);
+  if (lastSavedAppState) {
+    // plots are temp files, so they can't be restored
+    clearPlots(lastSavedAppState);
+    clearModalDialogs(lastSavedAppState);
 
-  state = _.mapValues(lastSavedAppState, value => Immutable(value));
-} else {
-  state = window.__PRELOADED_STATE__ || initialState.getState();
-}
-store = reduxStore.create(rootReducer, state);
+    state = _.mapValues(lastSavedAppState, value => Immutable(value));
+  } else {
+    state = window.__PRELOADED_STATE__ || initialState.getState();
+  }
+  store = reduxStore.create(rootReducer, state);
 
-ipcDispatcher(store.dispatch);
+  ipcDispatcher(store.dispatch);
 
-// find the kernel immediately
-store.dispatch(dialogActions.showRegisterRodeo());
-
-// no visual for this please
-applicationControl.checkForUpdates();
-
-// try and start an instance of the python client
-client.guaranteeInstance();
+  return store;
+});
 
 /**
  * Expose the global application state/store in two ways:
  * a) connect() from 'react-redux' (i.e. containers)
  * b) this.context.store for components that explictly ask for it (i.e., SplitPane component to broadcast)
- *
- * @class Main
- * @extends ReactComponent
  */
 export default React.createClass({
   displayName: 'Main',
@@ -82,12 +77,24 @@ export default React.createClass({
     store: React.PropTypes.object.isRequired,
     text: React.PropTypes.object.isRequired
   },
-  getChildContext: function () {
-    return {store, text};
+  getChildContext() {
+    return {store: getStore(), text};
   },
-  render: function () {
+  componentDidMount() {
+    const store = getStore();
+
+    // find the kernel immediately
+    store.dispatch(dialogActions.showRegisterRodeo());
+
+    // no visual for this please
+    applicationControl.checkForUpdates();
+
+    // try and start an instance of the python client
+    client.guaranteeInstance();
+  },
+  render() {
     return (
-      <Provider store={store}>
+      <Provider store={getStore()}>
         <FullScreen row>
           <StudioLayout />
           <Sidebar />

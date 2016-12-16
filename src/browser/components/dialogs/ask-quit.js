@@ -20,22 +20,36 @@ export default React.createClass({
       text = this.context.text,
       className = commonReact.getClassNameList(this);
 
-    return (
-      <div className={className.join(' ')}>
-        <div className="ask-quit__question">
-          {text.areYouSureYouWantToQuit}
+    let content;
+
+    if (props.state === 'quiting' || props.state === 'quit') {
+      content = (
+        <div className={className.join(' ')}>
+          <div className="ask-quit__question">
+            {text.quiting}
+          </div>
         </div>
-        <div className="ask-quit__item">
-          <button className="btn btn-default" onClick={props.onCancel}>{text.cancel}</button>
-          <button className="btn btn-primary" onClick={props.onQuit}>{text.quit}</button>
+      );
+    } else {
+      content = (
+        <div className={className.join(' ')}>
+          <div className="ask-quit__question">
+            {text.areYouSureYouWantToQuit}
+          </div>
+          <div className="ask-quit__item">
+            <button className="btn btn-default" onClick={props.onCancel}>{text.cancel}</button>
+            <button className="btn btn-primary" onClick={props.onQuit}>{text.quit}</button>
+          </div>
+          <div className="ask-quit__small-item">
+            <label>
+              <input checked={props.askQuit} onChange={props.onAskQuitChange} type="checkbox"/>
+              {text.alwaysAskBeforeQuiting}
+            </label>
+          </div>
         </div>
-        <div className="ask-quit__small-item">
-          <label>
-            <input checked={props.askQuit} onChange={props.onAskQuitChange} type="checkbox"/>
-            {text.alwaysAskBeforeQuiting}
-          </label>
-        </div>
-      </div>
-    );
+      );
+    }
+
+    return content;
   }
 });

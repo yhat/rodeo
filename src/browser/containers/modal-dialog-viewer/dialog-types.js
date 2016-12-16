@@ -1,5 +1,6 @@
 import _ from 'lodash';
 import cid from '../../services/cid';
+import {getInitialState as getAskQuitInitialState} from '../ask-quit-dialog-viewer/ask-quit-dialog-viewer.reducer';
 import {getInitialState as getPreferencesInitialState} from '../preferences-viewer/preferences-viewer.reducer';
 import {getInitialState as getEnvironmentVariableViewerInitialState}
   from '../environment-variables-dialog-viewer/environment-variables-dialog-viewer.reducer';
@@ -9,6 +10,7 @@ const defaultItemTypes = {
   aboutStickers: () => ({title: 'Stickers'}),
   acknowledgements: () => ({title: 'Acknowledgements'}),
   askQuit: () => ({
+    content: getAskQuitInitialState(),
     modalSize: 'small',
     title: 'Quit'
   }),
@@ -18,10 +20,10 @@ const defaultItemTypes = {
     title: 'Environment Variables'
   }),
   manageConnections: () => ({
-    title: 'Manage Connections',
     content: {
       list: []
-    }
+    },
+    title: 'Manage Connections'
   }),
   preferences: () => ({
     content: getPreferencesInitialState(),

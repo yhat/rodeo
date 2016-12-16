@@ -6,6 +6,8 @@ import track from '../services/track';
 import {local} from '../services/store';
 
 track({
+  hitType: 'pageview',
+  documentPath: __filename,
   category: 'application',
   action: 'editor',
   label: 'tracking',
@@ -32,28 +34,70 @@ track({
   }
 }());
 
-const rootEl = document.querySelector('main');
+function whenInteractive() {
+  if (performance.timing.domInteractive > 0) {
+    const userTimingCategory = 'main.js',
+      userTimingTime = performance.timing.domInteractive - performance.timing.navigationStart,
+      userTimingVariableName = 'domInteractiveTime';
 
-ReactDOM.render(
-  <AppContainer>
-    <App />
-  </AppContainer>,
-  rootEl
-);
-
-if (module.hot) {
-  module.hot.accept('./../containers/main.jsx', () => {
-    // If you use Webpack 2 in ES modules mode, you can
-    // use <App /> here rather than require() a <NextApp />.
-    const NextApp = require('./../containers/main.jsx').default;
-
-    ReactDOM.render(
-      <AppContainer>
-        <NextApp />
-      </AppContainer>,
-      rootEl
-    );
-  });
+    track({hitType: 'timing', userTimingCategory, userTimingVariableName, userTimingTime});
+  } else {
+    setTimeout(whenInteractive, 500);
+  }
 }
 
-ReactDOM.render(React.createElement(App, null), document.querySelector('main'));
+(function () {
+  whenInteractive();
+
+  window.addEventListener('load', function () {
+    const now = new Date().getTime(),
+      userTimingCategory = 'main.js',
+      userTimingTime = now - performance.timing.navigationStart,
+      userTimingVariableName = 'load';
+
+    track({hitType: 'timing', userTimingCategory, userTimingVariableName, userTimingTime});
+  }, false);
+}());
+
+const rootEl = document.querySelector('main');
+
+function render() {
+  ReactDOM.render(
+    <AppContainer>
+      <App />
+    </AppContainer>,
+    rootEl
+  );
+}
+
+(function () {
+  try {
+    render();
+  } catch (ex) {
+    track({hitType: 'exception', exceptionDescription: ex.message || ex.name, isExceptionFatal: false});
+    local.clear();
+    try {
+      render();
+    } catch (ex2) {
+      track({hitType: 'exception', exceptionDescription: ex.message || ex.name, isExceptionFatal: true});
+    }
+  }
+
+  if (module.hot) {
+    module.hot.accept('./../containers/main.jsx', () => {
+      // If you use Webpack 2 in ES modules mode, you can
+      // use <App /> here rather than require() a <NextApp />.
+      const NextApp = require('./../containers/main.jsx').default;
+
+      ReactDOM.render(
+        <AppContainer>
+          <NextApp />
+        </AppContainer>,
+        rootEl
+      );
+    });
+  }
+}());
+
+
+

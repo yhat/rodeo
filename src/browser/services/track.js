@@ -9,11 +9,16 @@ const appName = 'Rodeo',
   errorMessage = 'Usage Metrics Error',
   successMessage = 'Thank you for using Rodeo! We use metrics to see how well we are doing. We could use these metrics to ' +
     'justify new features or internationalization. To disable usage metrics, change the setting in the preferences menu.',
-  allowedEventProperties = ['category', 'action', 'label', 'value', 'hitType', 'force', 'sessionControl'],
+  allowedEventProperties = [
+    'action', 'category', 'documentPath', 'experimentId', 'experimentVariant', 'exceptionDescription', 'force',
+    'hitType', 'isExceptionFatal', 'label', 'sessionControl', 'userTimingCategory', 'userTimingTime', 'userTimingVariableName', 'value'],
   eventCharacterLimits = {
     category: 150,
     action: 500,
-    label: 250
+    label: 250,
+    exceptionDescription: 150,
+    experimentId: 40,
+    experimentVariant: 250
   };
 
 let trackGA = createTrackGA({metricsUrl: 'https://ssl.google-analytics.com/collect'}),
@@ -21,11 +26,13 @@ let trackGA = createTrackGA({metricsUrl: 'https://ssl.google-analytics.com/colle
 
 /**
  * @typedef {object} TrackingEvent
- * @property {string} category
- * @property {string} action
+ * @property {string} [action]
+ * @property {string} [category]
+ * @property {string} [hitType='event']
  * @property {string} [label]
- * @property {*} [value]
+ * @property {Integer} [value]
  * @property {boolean} [force=false]
+ * @property
  */
 
 /**
@@ -144,6 +151,20 @@ function createTrackGA(options) {
     cleanPropertyByEnum(event, 'sessionControl', sessionControls);
     cleanPropertyByEnum(event, 'hitType', hitTypes, 'event');
 
+    if (event.hitType === 'pageview') {
+      try {
+        event.userLanguage = window.navigator.language;
+        event.screenSize = window.screen.width + 'x' + window.screen.height;
+        event.pixelDepth = window.screen.pixelDepth + '-bits';
+      } catch (ex) {
+        // noop
+      }
+    }
+
+    if (event.hitType === 'exception') {
+      event.isExceptionFatal = event.isExceptionFatal === true ? 1 : 0;
+    }
+
     let metrics = _.pickBy({
       v: gaApiVersion,
       an: __APP_NAME__,
@@ -153,11 +174,22 @@ function createTrackGA(options) {
       cid: locals.userId,
       cd1: locals.userId,
       cd2: new Date().getTime(),
+      dp: event.documentPath,
       ec: event.category,
       ea: event.action,
       el: event.label,
       ev: event.value,
+      exd: event.exceptionDescription,
+      exf: event.isExceptionFatal,
       sc: event.sessionControl,
+      sd: event.pixelDepth,
+      sr: event.screenSize,
+      ul: event.userLanguage,
+      utc: event.userTimingCategory,
+      utt: event.userTimingTime,
+      utv: event.userTimingVariableName,
+      xid: event.experimentId,
+      xvar: event.experimentVariant,
       z: locals.cacheBust // bust any caches between us and the metrics server
     }, _.identity);
 
@@ -167,7 +199,6 @@ function createTrackGA(options) {
 
 /**
  * @param {TrackingEvent} event
- * @returns {Promise}
  */
 export default function track(event) {
   event = _.pick(event, allowedEventProperties);
@@ -176,16 +207,21 @@ export default function track(event) {
   limitStringLength(event, 'category', eventCharacterLimits.category);
   limitStringLength(event, 'action', eventCharacterLimits.action);
   limitStringLength(event, 'label', eventCharacterLimits.label);
+  limitStringLength(event, 'exceptionDescription', eventCharacterLimits.exceptionDescription);
+  limitStringLength(event, 'experimentId', eventCharacterLimits.experimentId);
+  limitStringLength(event, 'experimentVariant', eventCharacterLimits.experimentVariant);
   cleanPropertyForType(event, 'value', _.isInteger);
   cleanPropertyForType(event, 'force', _.isBoolean);
+  cleanPropertyForType(event, 'isExceptionFatal', _.isBoolean);
 
   if (local.get('trackMetrics') === false && event.force !== true) {
-    return console.log(optOutMessage);
+    console.info(optOutMessage);
+    return;
   }
 
-  console.log(successMessage, event);
+  console.info(successMessage, event);
 
-  return bluebird.all([
+  bluebird.all([
     clientDiscovery.getUserId()
   ]).spread(function (userId) {
     const cacheBust = textUtil.getRandomCharacters(20),

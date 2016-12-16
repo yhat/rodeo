@@ -27,7 +27,6 @@ function quit() {
 }
 
 function toggleDevTools() {
-  track({category: 'application', action: 'toggle_dev_tools'});
   return function (dispatch) {
     return applicationControl.toggleDevTools().then(function () {
       // maybe some visual artifact?  no?  maybe a bolt of lightning?
@@ -36,24 +35,22 @@ function toggleDevTools() {
 }
 
 function checkForUpdates() {
-  track({category: 'application', action: 'check_for_updates'});
   return function (dispatch) {
-    dispatch({type: 'CHECKING_FOR_UPDATE'});
+    dispatch({type: 'CHECKING_FOR_UPDATE', meta: {sender: 'self'}});
 
     return applicationControl.checkForUpdates().then(function (result) {
       if (result === 'update-available') {
-        dispatch({type: 'CHECKED_FOR_UPDATE_DOWNLOAD_AVAILABLE'});
+        dispatch({type: 'CHECKED_FOR_UPDATE_DOWNLOAD_AVAILABLE', meta: {sender: 'self'}});
       } else {
-        dispatch({type: 'CHECKED_FOR_UPDATE_DOWNLOAD_NOT_AVAILABLE', result});
+        dispatch({type: 'CHECKED_FOR_UPDATE_DOWNLOAD_NOT_AVAILABLE', result, meta: {sender: 'self'}});
       }
     }).catch(function (error) {
-      dispatch({type: 'CHECK_FOR_UPDATE_FAILED', error});
+      dispatch({type: 'CHECK_FOR_UPDATE_FAILED', error, meta: {sender: 'self'}});
     });
   };
 }
 
 function quitAndInstallUpdates() {
-  track({category: 'application', action: 'quit_and_install_updates'});
   return function (dispatch) {
     return applicationControl.quitAndInstall()
       .catch(error => dispatch(errorCaught(error)));
@@ -61,14 +58,12 @@ function quitAndInstallUpdates() {
 }
 
 export function errorCaught(error) {
-  track({category: 'application', action: 'error_caught'});
   /* eslint no-console: 0 */
   console.error(error);
-  return {type: 'ERROR_CAUGHT', error};
+  return {type: 'ERROR_CAUGHT', error, meta: {track: true, sender: 'self'}};
 }
 
 function showStartupWindow() {
-  track({category: 'application', action: 'show_startup_window'});
   return function () {
     return applicationControl.showStartupWindow();
   };

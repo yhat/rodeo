@@ -1,5 +1,3 @@
-'use strict';
-
 const bluebird = require('bluebird'),
   expect = require('chai').expect,
   sinon = require('sinon'),

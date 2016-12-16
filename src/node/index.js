@@ -20,6 +20,7 @@ import surveyService from './services/survey';
 import updater from './services/updater';
 import pkg from '../../package.json';
 import applicationMenu from './application-menu.yml';
+import pythonLanguage from './kernels/python/language';
 
 // enable source-maps
 require('source-map-support').install();
@@ -935,6 +936,7 @@ function startApp() {
       argv, 'process.argv': process.argv,
       cwd: process.cwd(),
       versions: process.versions,
+      resourcesPath: process.resourcesPath,
       isActiveSquirrelCommand
     });
 
@@ -942,6 +944,7 @@ function startApp() {
       log('info', 'was squirrely');
       require('./services/log').afterFileTransportFlush(() => process.exit(0));
     } else {
+      pythonLanguage.extendOwnEnv();
       attachAppEvents(app);
       return startPlotServer();
     }

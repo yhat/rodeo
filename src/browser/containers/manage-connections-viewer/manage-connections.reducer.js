@@ -16,10 +16,13 @@ import reduxUtil from '../../services/redux-util';
 import immutableUtil from '../../services/immutable-util';
 
 const prefix = reduxUtil.fromFilenameToPrefix(__filename),
-  storageKey = 'manageConnections',
-  initialState = Immutable({
+  storageKey = 'manageConnections';
+
+export function getInitialState() {
+  return Immutable({
     list: local.get(storageKey) || []
   });
+}
 
 function selectConnection(state, action) {
   return state.set('active', action.payload);
@@ -114,4 +117,4 @@ export default mapReducers(_.assign(reduxUtil.addPrefixToKeys(prefix, {
 }), {
   DATABASE_CONNECTION_CONNECTED: connected,
   DATABASE_CONNECTION_DISCONNECTED: disconnected
-}), initialState);
+}), {});

@@ -1,5 +1,3 @@
-'use strict';
-
 import processes from '../processes';
 import path from 'path';
 import files from '../files';

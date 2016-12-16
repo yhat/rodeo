@@ -1,5 +1,3 @@
-'use strict';
-
 import installContextMenuWindowsRegistryCommands from '../../../../test/fixtures/windows-registry-commands/install-context-menu.yml';
 import uninstallContextMenuWindowsRegistryCommands from '../../../../test/fixtures/windows-registry-commands/uninstall-context-menu.yml';
 

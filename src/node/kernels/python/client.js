@@ -417,6 +417,14 @@ function getPythonCommandOptions(options) {
   };
 }
 
+function getPythonCmd(options) {
+  if (options.cmd === '<rodeo-builtin-miniconda>') {
+    return pythonLanguage.getPythonPath();
+  }
+
+  return options.cmd;
+}
+
 /**
  * @param {object} options
  * @param {string} options.cmd
@@ -430,7 +438,7 @@ function createPythonScriptProcess(options) {
   const args = ['-c', listenScript, options.kernelName],
     cmdOptions = getPythonCommandOptions(options);
 
-  return processes.create(options.cmd, args, cmdOptions);
+  return processes.create(getPythonCmd(options), args, cmdOptions);
 }
 
 /**
@@ -462,10 +470,9 @@ function create(options) {
  */
 function getPythonScriptResults(script, options) {
   options = resolveHomeDirectoryOptions(options);
+  const processOptions = getPythonCommandOptions(options);
 
-  return getPythonCommandOptions(options).then(function (processOptions) {
-    return processes.exec(options.cmd, ['-c', script], processOptions);
-  });
+  return processes.exec(options.cmd, ['-c', script], processOptions);
 }
 
 /**
