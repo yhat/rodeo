@@ -1,5 +1,22 @@
 import _ from 'lodash';
 
+const packageInstallerCommands = {
+  conda: (packageName, version) => {
+    if (version) {
+      return  `! conda install ${packageName}==${version}`;
+    }
+
+    return `! conda install ${packageName}`;
+  },
+  pip: (packageName, version) => {
+    if (version) {
+      return  `! pip install --disable-pip-version-check -qq ${packageName}==${version}`;
+    }
+
+    return `! pip install ${packageName}`;
+  }
+};
+
 /**
  * @param {object} args
  * @returns {object}
@@ -49,6 +66,21 @@ function getIndentLevel(session, line) {
   indent = indent.replace('\t', _.repeat(' ', tabSize));
 
   return indent.length;
+}
+
+/**
+ *
+ * @param {string} packageName
+ * @param {string} [version]
+ * @param {string} [packageInstaller='pip']
+ * @returns {string}
+ */
+export function getPackageInstallCommand(packageName, version, packageInstaller) {
+  packageInstaller = packageInstaller || 'pip';
+
+  if (packageInstallerCommands[packageInstaller]) {
+    return packageInstallerCommands[packageInstaller](packageName, version);
+  }
 }
 
 export default {

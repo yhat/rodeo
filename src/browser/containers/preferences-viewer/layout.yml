@@ -34,6 +34,18 @@
         - label: Yes
           value: yes
       value: failover
+
+    -
+      id: pythonPackageInstaller
+      key: pythonPackageInstaller
+      label: pythonPackageInstaller
+      type: select
+      options:
+        - label: Pip
+          value: pip
+        - label: Conda
+          value: conda
+      value: pip
     -
       id: environmentVariablesButton
       type: button

@@ -1,11 +1,11 @@
 import _ from 'lodash';
 import bluebird from 'bluebird';
-import api from '../../services/api';
 import pypi from '../../services/pypi';
-import freeTabGroupActions from '../free-tab-group/free-tab-group.actions';
 import kernel from '../../actions/kernel';
 import recommendedPackages from './recommended.yml';
 import reduxUtil from '../../services/redux-util';
+import {local} from '../../services/store';
+import {getPackageInstallCommand} from '../../services/jupyter/python-language';
 
 const prefix = reduxUtil.fromFilenameToPrefix(__filename);
 
@@ -142,12 +142,13 @@ function changeSearchValue(groupId, id, payload) {
 
 function installPackage(groupId, id, name, version) {
   return function (dispatch) {
-    const text = version ? `! pip install ${name}==${version}` : `! pip install ${name}`;
+    const packageInstaller = local.get('pythonPackageInstaller'),
+      packageInstallCommand = getPackageInstallCommand(name, version, packageInstaller);
 
-    dispatch({type: prefix + 'PACKAGE_INSTALLING', payload: {name, version}});
-    return dispatch(kernel.execute(text))
-      .then(() => dispatch({type: prefix + 'PACKAGE_INSTALLED', payload: {name, version}}))
-      .catch(error => dispatch({type: prefix + 'PACKAGE_INSTALLED', payload: error, error: true}));
+    dispatch({type: prefix + 'PACKAGE_INSTALLING', groupId, id, payload: {name, version}});
+    return dispatch(kernel.execute(packageInstallCommand))
+      .then(() => dispatch({type: prefix + 'PACKAGE_INSTALLED', groupId, id, payload: {name, version}}))
+      .catch(error => dispatch({type: prefix + 'PACKAGE_INSTALLED', groupId, id, payload: error, error: true}));
   };
 }
 

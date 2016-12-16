@@ -7,7 +7,7 @@ export default React.createClass({
   displayName: 'DocumentTerminalError',
   propTypes: {
     error: React.PropTypes.object,
-    onInstallPythonModuleExternally: React.PropTypes.func.isRequired,
+    onInstallPythonPackage: React.PropTypes.func.isRequired
   },
   contextTypes: {
     text: React.PropTypes.object.isRequired

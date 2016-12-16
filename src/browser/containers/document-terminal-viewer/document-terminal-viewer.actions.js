@@ -6,6 +6,7 @@ import commonTabsActions from '../../services/common-tabs-actions';
 import client from '../../services/jupyter/client';
 import {local} from '../../services/store';
 import freeTabGroupActions from '../free-tab-group/free-tab-group.actions';
+import {getPackageInstallCommand} from '../../services/jupyter/python-language';
 
 const prefixType = reduxUtil.fromFilenameToPrefix(__filename);
 
@@ -98,12 +99,10 @@ function autocomplete(groupId, id, payload) {
 
 function installPythonModule(groupId, id, name, version) {
   return function (dispatch) {
-    const text = version ? `! pip install ${name}==${version}` : `! pip install ${name}`;
+    const packageInstaller = local.get('pythonPackageInstaller'),
+      packageInstallCommand = getPackageInstallCommand(name, version, packageInstaller);
 
-    dispatch({type: prefixType + 'PACKAGE_INSTALLING', name, version});
-    return dispatch(kernel.execute(text))
-      .then(() => dispatch({type: prefixType + 'PACKAGE_INSTALLED', payload: {name, version}, meta: {track: true}}))
-      .catch(error => dispatch({type: prefixType + 'PACKAGE_INSTALLED', payload: error, error: true, meta: {track: true}}));
+    return dispatch(execute(groupId, id, {text: packageInstallCommand}));
   };
 }
 
@@ -112,7 +111,7 @@ function installPythonModuleExternally(groupId, id, name) {
     const cmd = local.get('pythonCmd'),
       code = [
         'import pip',
-        `pip.main(["install", "${name}"])`
+        `pip.main(["install", "--disable-pip-version-check", "-qq", "${name}"])`
       ].join('\n'),
       args = ['-u', '-c', code];
 

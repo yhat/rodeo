@@ -72,6 +72,7 @@ project: Project
 python: Python
 pythonCommand: Python Command
 pythonExplanation: Python settings control how the python kernel is run.
+pythonPackageInstaller: Python Package Installer
 quit: Quit
 refresh: Refresh
 reload: Reload
