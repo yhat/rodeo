@@ -6,6 +6,7 @@
 
 import _ from 'lodash';
 import api from '../services/api';
+import track from '../services/track';
 
 function checkForUpdates() {
   return api.send('checkForUpdates');
@@ -35,10 +36,34 @@ function createWindow(name, options) {
 }
 
 /**
+ * If this action is marked as trackable, track it
+ * We will use this to see if new features are actually used, or break horribly.  Users can always
+ * turn tracking off as well.
  * @param {object} action
- * @returns {Promise}
  */
-function shareAction(action) {
+function trackRedux(action) {
+  // If this action is marked as trackable, track it
+  // We will use this to see if new features are actually used, or break horribly.  Users can always
+  // turn tracking off as well.
+  if (action.type && action.meta && action.meta.track) {
+    let label;
+
+    if (action.error === true && action.payload) {
+      label = action.payload.message || action.payload.name || 'UnnamedError';
+    } else if (action.meta.track !== true) {
+      label = action.meta.track;
+    }
+
+    track(_.pickBy({category: 'redux', action: action.type, label, value: 1}, _.identity));
+  }
+}
+
+/**
+ * NOTE: If this action has a payload, only log that.  The rest is nonsense.
+ * NOTE: Logs are removed in production.
+ * @param {object} action
+ */
+function logRedux(action) {
   const type = action.type;
 
   if (action.payload) {
@@ -52,8 +77,17 @@ function shareAction(action) {
   } else {
     console.log(type, action);
   }
+}
 
-  // Only share actions that are meant to be shared
+/**
+ * @param {object} action
+ * @returns {Promise}
+ */
+function shareAction(action) {
+  trackRedux(action);
+  logRedux(action);
+
+  // Only share actions that are meant to be shared between windows
   // No sender means default behavior (therefore shareable)
   if (!(action.meta && action.meta.sender) && !_.startsWith(action.type, '@@redux')) {
     return api.send('shareAction', action);

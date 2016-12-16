@@ -1,5 +1,3 @@
-'use strict';
-
 import _ from 'lodash';
 
 /**
@@ -18,4 +16,4 @@ function ProcessError(message, properties) {
 ProcessError.prototype = Object.create(Error.prototype);
 ProcessError.prototype.constructor = ProcessError;
 
-module.exports = ProcessError;
+export default ProcessError;

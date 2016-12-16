@@ -43,6 +43,24 @@ Store = (function () {
       source.setItem(key, value);
     };
 
+    this.clear = function () {
+      // try to preserve userId, no matter what
+      const userIdKey = 'userId';
+      let userId;
+
+      try {
+        userId = this.get(userIdKey);
+      } catch (ex) {
+        // noop
+      }
+
+      source.clear();
+
+      if (userId) {
+        this.set(userIdKey, userId);
+      }
+    };
+
     this.setSource = function (storageSource) {
       source = storageSource;
     };

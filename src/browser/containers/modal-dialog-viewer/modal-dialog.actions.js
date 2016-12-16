@@ -1,5 +1,5 @@
 function add(contentType) {
-  return {type: 'ADD_MODAL_DIALOG', payload: {contentType}, meta: {sender: 'self'}};
+  return {type: 'ADD_MODAL_DIALOG', payload: {contentType}, meta: {sender: 'self', track: true}};
 }
 
 function ok(id, result) {

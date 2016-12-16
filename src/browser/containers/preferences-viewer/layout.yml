@@ -35,19 +35,6 @@
           value: yes
       value: failover
     -
-      id: kernelName
-      key: kernelName
-      label: kernelName
-      type: select
-      options:
-        - label: Python 3 (default)
-          value: python3
-        - label: Python 2.7
-          value: python27
-        - label: Rodeo Built-in Miniconda
-          value: rodeo-builtin-miniconda
-      value: python3
-    -
       id: environmentVariablesButton
       type: button
       label: environmentVariables

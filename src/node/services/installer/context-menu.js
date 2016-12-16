@@ -2,8 +2,6 @@
  * @see https://msdn.microsoft.com/en-us/library/windows/desktop/cc144171(v=vs.85).aspx
  */
 
-'use strict';
-
 import bluebird from 'bluebird';
 import win32Registry from '../win32/registry';
 

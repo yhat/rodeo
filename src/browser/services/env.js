@@ -1,9 +1,11 @@
 import _ from 'lodash';
 import api from './api';
 import bluebird from 'bluebird';
+import clientDiscovery from './jupyter/client-discovery';
 import {local, session} from './store';
 import os from 'os';
 import path from 'path';
+import {getKeyMap, joinList, splitList, getPath, setPath} from '../../shared/env';
 
 const storeKey = 'environmentVariables',
   rootAppDir = process.resourcesPath,
@@ -13,22 +15,6 @@ const storeKey = 'environmentVariables',
   libDir = path.join(rootAppDir, condaDirName, 'Lib'),
   sitePackagesDir = path.join(rootAppDir, condaDirName, 'Lib', 'site-packages'),
   scriptsDir = path.join(rootAppDir, condaDirName, 'Scripts');
-
-function splitList(list) {
-  if (process.platform === 'win32') {
-    return list.split(';');
-  } else {
-    return list.split(':');
-  }
-}
-
-function joinList(list) {
-  if (process.platform === 'win32') {
-    return list.join(';');
-  } else {
-    return list.join(':');
-  }
-}
 
 function prependToPath(fullPath, pathPart) {
   if (!_.includes(fullPath, pathPart)) {
@@ -103,10 +89,7 @@ function applyAdditionalOverrides(env) {
 }
 
 function applyBuiltinPython(env) {
-  const useBuiltinPython = local.get('useBuiltinPython') || 'failover',
-    hasPythonFailedOver = session.get('hasPythonFailedOver') || false;
-
-  if (useBuiltinPython === 'yes' || (hasPythonFailedOver && useBuiltinPython === 'failover')) {
+  if (clientDiscovery.shouldUseBuiltinPython()) {
     env = addOurPythonPath(env);
     env = prependBuiltinPath(env);
   }
@@ -144,51 +127,6 @@ function getEnvironmentVariables(env) {
     env = applyAdditionalOverrides(env);
     return applyBuiltinPython(env);
   });
-}
-
-function getKeyMap(env) {
-  return _.reduce(env, (obj, value, key) => {
-    obj[key.toLowerCase()] = key;
-
-    return obj;
-  }, {});
-}
-
-/**
- * @param {object} env
- * @param {string} [keyName='path']
- * @returns {Array}
- */
-function getPath(env, keyName) {
-  keyName = keyName && keyName.toLowerCase() || 'path';
-  const keyMap = getKeyMap(env),
-    path = env[keyMap[keyName]];
-  let result;
-
-  if (path) {
-    result = splitList(path);
-  } else {
-    result = [];
-  }
-
-  return result;
-}
-
-/**
- * @param {object} env
- * @param {Array} newPath
- * @param {string} [keyName='path']
- * @returns {object}
- */
-function setPath(env, newPath, keyName) {
-  keyName = keyName && keyName.toLowerCase() || 'path';
-  const keyMap = getKeyMap(env);
-
-  if (_.isArray(newPath)) {
-    env[keyMap[keyName]] = joinList(newPath);
-  }
-
-  return env;
 }
 
 export default {

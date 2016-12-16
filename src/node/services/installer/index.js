@@ -25,7 +25,7 @@ const log = require('../log').asInternal(__filename),
 
 function reportError(message) {
   return function (error) {
-    log('error', {message, error});
+    log('error', message, error);
   };
 }
 
@@ -34,8 +34,8 @@ function firstRun(appName, execPath, systemRoot) {
   return bluebird.all([
     shortcuts.create(execPath).catch(reportError('failed to create shortcuts')),
     contextMenu.install(execPath, systemRoot).catch(reportError('failed to install context menu')),
-    commands.addToPath(appName, execPath, systemRoot).catch(reportError('failed to add to path')),
-    python.createBuiltinKernelJson().catch(reportError('failed to add built-in kernel.json'))
+    commands.addToPath(appName, execPath, systemRoot).catch(reportError('failed to add to path'))
+    // python.createBuiltinKernelJson().catch(reportError('failed to add built-in kernel.json'))
   ]);
 }
 

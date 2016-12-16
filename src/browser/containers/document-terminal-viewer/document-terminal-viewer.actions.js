@@ -33,8 +33,8 @@ function execute(groupId, id, context) {
 
     dispatch({type: prefixType + 'EXECUTING', groupId, id, payload});
     return dispatch(kernel.execute(context.text)).then(function (responseMsgId) {
-      return dispatch({type: prefixType + 'EXECUTED', groupId, id, payload: _.assign({responseMsgId}, payload)});
-    }).catch(error => dispatch({type: prefixType + 'EXECUTED', groupId, id, payload: error, error: true}));
+      return dispatch({type: prefixType + 'EXECUTED', groupId, id, payload: _.assign({responseMsgId}, payload), meta: {track: true}});
+    }).catch(error => dispatch({type: prefixType + 'EXECUTED', groupId, id, payload: error, error: true, meta: {track: true}}));
   };
 }
 
@@ -49,11 +49,11 @@ function input(groupId, id, context) {
 
 function restart(groupId, id) {
   return function (dispatch) {
-    dispatch({type: prefixType + 'RESTARTING', groupId, id});
+    dispatch({type: prefixType + 'RESTARTING', groupId, id, meta: {track: true}});
 
     client.restartInstance()
-      .then(() => dispatch({type: prefixType + 'RESTARTED', groupId, id}))
-      .catch(error => dispatch({type: prefixType + 'RESTARTED', groupId, id, payload: error, error: true}));
+      .then(() => dispatch({type: prefixType + 'RESTARTED', groupId, id, meta: {track: true}}))
+      .catch(error => dispatch({type: prefixType + 'RESTARTED', groupId, id, payload: error, error: true, meta: {track: true}}));
   };
 }
 
@@ -84,7 +84,7 @@ function interrupt(groupId, id) {
 
     client.interrupt()
       .then(() => dispatch({type: prefixType + 'INTERRUPTING', groupId, id}))
-      .catch(error => dispatch({type: prefixType + 'INTERRUPTING', groupId, id, payload: error, error: true}));
+      .catch(error => dispatch({type: prefixType + 'INTERRUPTING', groupId, id, payload: error, error: true, meta: {track: true}}));
   };
 }
 
@@ -102,8 +102,8 @@ function installPythonModule(groupId, id, name, version) {
 
     dispatch({type: prefixType + 'PACKAGE_INSTALLING', name, version});
     return dispatch(kernel.execute(text))
-      .then(() => dispatch({type: prefixType + 'PACKAGE_INSTALLED', payload: {name, version}}))
-      .catch(error => dispatch({type: prefixType + 'PACKAGE_INSTALLED', payload: error, error: true}));
+      .then(() => dispatch({type: prefixType + 'PACKAGE_INSTALLED', payload: {name, version}, meta: {track: true}}))
+      .catch(error => dispatch({type: prefixType + 'PACKAGE_INSTALLED', payload: error, error: true, meta: {track: true}}));
   };
 }
 

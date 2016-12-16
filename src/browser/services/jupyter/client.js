@@ -8,6 +8,14 @@ import clientDiscovery from './client-discovery';
 
 let instancePromise;
 
+function getPythonCmd() {
+  if (clientDiscovery.shouldUseBuiltinPython()) {
+    return '<rodeo-builtin-miniconda>';
+  }
+
+  return local.get('pythonCmd') || 'python';
+}
+
 /**
  * @returns {Promise}
  */
@@ -17,10 +25,8 @@ function createInstance() {
     return instancePromise;
   }
 
-  let promise,
-    cmd = local.get('pythonCmd') || 'python';
-
-  promise = clientDiscovery.getExternalOptions()
+  let cmd = getPythonCmd(),
+    promise = clientDiscovery.getExternalOptions()
     .then(externalOptions => api.send('createKernelInstance', _.assign({cmd}, externalOptions)))
     .then(instanceId => ({instanceId}));
 

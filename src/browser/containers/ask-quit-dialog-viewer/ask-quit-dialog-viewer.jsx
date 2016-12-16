@@ -2,14 +2,9 @@ import React from 'react';
 import commonReact from '../../services/common-react';
 import {connect} from 'react-redux';
 import AskQuit from '../../components/dialogs/ask-quit';
+import selectors from './ask-quit-dialog-viewer.selectors';
 import applicationActions from '../../actions/application';
 import actions from '../../actions/preferences';
-import {createSelector} from 'reselect';
-import {local} from '../../services/store';
-
-const askQuitSelector = createSelector(state => state, () => ({
-  askQuit: local.get('askQuit') || true
-}));
 
 /**
  * @param {function} dispatch
@@ -22,7 +17,7 @@ function mapDispatchToProps(dispatch) {
   };
 }
 
-export default connect(askQuitSelector, mapDispatchToProps)(React.createClass({
+export default connect(selectors.getAskQuit, mapDispatchToProps)(React.createClass({
   displayName: 'AskQuitDialogViewer',
   propTypes: {
     onCancel: React.PropTypes.func.isRequired

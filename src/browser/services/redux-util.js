@@ -98,13 +98,15 @@ function dialogReducer(contentType, reducer) {
   return function (state, action) {
     const items = state.items;
 
-    for (let itemIndex = 0; itemIndex < items.length; itemIndex++) {
-      const dialog = items[itemIndex];
+    if (_.isArray(items)) {
+      for (let itemIndex = 0; itemIndex < items.length; itemIndex++) {
+        const dialog = items[itemIndex];
 
-      if (dialog.contentType === contentType) {
-        const xpath = ['items', itemIndex, 'content'];
+        if (dialog.contentType === contentType) {
+          const xpath = ['items', itemIndex, 'content'];
 
-        state = reduceChildState(state, action, reducer, xpath);
+          state = reduceChildState(state, action, reducer, xpath);
+        }
       }
     }
 

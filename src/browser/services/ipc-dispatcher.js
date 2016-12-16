@@ -72,6 +72,10 @@ function isCurious(groups, responseMsgId) {
 
 function otherDispatcher(dispatch) {
   ipc.on('error', (event, clientId, error) => {
+    if (error && (error.message || error.name)) {
+      track({hitType: 'exception', exceptionDescription: error.message || error.name, isExceptionFatal: false});
+    }
+
     dispatch({type: 'JUPYTER_PROCESS_ERROR', payload: {clientId, error}, error: true});
 
     if (error.code || error.missingPackage) {
@@ -105,7 +109,7 @@ function otherDispatcher(dispatch) {
       responseMsgId = _.get(response, 'result.parent_header.msg_id');
 
     if (category && action) {
-      track({category, action});
+      track({category, action, value: 1});
     }
 
     jupyterResponse.handle(dispatch, response);
