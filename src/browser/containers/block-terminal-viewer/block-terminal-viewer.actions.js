@@ -3,6 +3,8 @@ import cid from '../../services/cid';
 import kernel from '../../actions/kernel';
 import reduxUtil from '../../services/redux-util';
 import historyViewerActions from '../history-viewer/history-viewer.actions';
+import {local} from '../../services/store';
+import {getPackageInstallCommand} from '../../services/jupyter/python-language';
 
 const prefixType = reduxUtil.fromFilenameToPrefix(__filename);
 
@@ -29,11 +31,13 @@ function input(groupId, id, context) {
   };
 }
 
-function installPythonModule(groupId, id, name, version) {
+// noinspection Eslint
+function installPythonModule(groupId, id, blockId, name, version) {
   return function (dispatch) {
-    const text = version ? `! pip install ${name}==${version}` : `! pip install ${name}`;
+    const packageInstaller = local.get('pythonPackageInstaller'),
+      packageInstallCommand = getPackageInstallCommand(name, version, packageInstaller);
 
-    return dispatch(kernel.execute(text)).then(function (responseMsgId) {
+    return dispatch(kernel.execute(packageInstallCommand)).then(function (responseMsgId) {
       const type = 'jupyterResponse',
         items = [];
 

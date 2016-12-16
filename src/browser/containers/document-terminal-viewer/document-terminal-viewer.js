@@ -1,5 +1,6 @@
 import _ from 'lodash';
 import React from 'react';
+import {connect} from 'react-redux';
 import commonReact from '../../services/common-react';
 import DocumentTerminal from '../../components/document-terminal/document-terminal';
 import StickyBottomScroll from '../../components/document-terminal/sticky-bottom-scroll';
@@ -18,8 +19,34 @@ import './document-terminal-viewer.css';
 import selectionUtil from '../../services/selection-util';
 import features from './features.yml';
 import promptUtils from '../../services/util/prompt-util';
+import actions from './document-terminal-viewer.actions';
+import promptViewerActions from '../prompt-viewer/prompt-viewer.actions';
 
-export default React.createClass({
+/**
+ * @param {function} dispatch
+ * @param {object} ownProps  Props given to this object from parent
+ * @returns {object}
+ */
+function mapDispatchToProps(dispatch, ownProps) {
+  const groupId = ownProps.groupId,
+    id = ownProps.tabId;
+
+  return {
+    onAnnotationClick: props => dispatch(actions.clickAnnotation(groupId, id, props)),
+    onAnnotationCopy: event => dispatch(actions.copyAnnotation(groupId, id, event)),
+    onClear: () => dispatch(actions.clear(groupId, id)),
+    onInstallPythonPackage: (name, version) => dispatch(actions.installPythonModule(groupId, id, name, version)),
+    onInterrupt: () => dispatch(actions.interrupt(groupId, id)),
+    onPromptAutocomplete: props => dispatch(actions.autocomplete(groupId, id, props)),
+    onPromptCommand: command => dispatch(promptViewerActions.createCommand(groupId, id, command)),
+    onPromptExecute: context => dispatch(actions.execute(groupId, id, context)),
+    onPromptInput: context => dispatch(actions.input(groupId, id, context)),
+    onRestart: () => dispatch(actions.restart(groupId, id)),
+    onShowSelectWorkingDirectoryDialog: () => dispatch(actions.showSelectWorkingDirectoryDialog(groupId, id))
+  };
+}
+
+export default connect(null, mapDispatchToProps)(React.createClass({
   displayName: 'DocumentTerminalViewer',
   propTypes: {
     items: React.PropTypes.array.isRequired,
@@ -31,8 +58,7 @@ export default React.createClass({
     onAnnotationGoTo: React.PropTypes.func,
     onAnnotationSave: React.PropTypes.func,
     onClear: React.PropTypes.func,
-    onInstallPythonModule: React.PropTypes.func.isRequired,
-    onInstallPythonModuleExternally: React.PropTypes.func.isRequired,
+    onInstallPythonPackage: React.PropTypes.func.isRequired,
     onInterrupt: React.PropTypes.func,
     onPromptAutocomplete: React.PropTypes.func.isRequired,
     onPromptBlur: React.PropTypes.func,
@@ -138,7 +164,7 @@ export default React.createClass({
     if (props.terminalError) {
       terminalContent = (
         <TerminalError
-          onInstallPythonModuleExternally={props.onInstallPythonModuleExternally}
+          onInstallPythonPackage={props.onInstallPythonPackage}
           {...props.terminalError}
         />
       );
@@ -194,4 +220,4 @@ export default React.createClass({
       </div>
     );
   }
-});
+}));

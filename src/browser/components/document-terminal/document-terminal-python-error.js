@@ -27,7 +27,7 @@ export default React.createClass({
   displayName: 'DocumentTerminalPythonError',
   propTypes: {
     name: React.PropTypes.string.isRequired,
-    onInstallPythonModule: React.PropTypes.func.isRequired,
+    onInstallPythonPackage: React.PropTypes.func.isRequired,
     stacktrace: React.PropTypes.array.isRequired,
     value: React.PropTypes.string // not required!
   },
@@ -56,7 +56,7 @@ export default React.createClass({
         <button
           className="btn btn-default"
           key="import"
-          onClick={_.partial(props.onInstallPythonModule, importErrorModuleName)}
+          onClick={_.partial(props.onInstallPythonPackage, importErrorModuleName, null)}
         >{`Install ${importErrorModuleName}`}</button>
       );
     }

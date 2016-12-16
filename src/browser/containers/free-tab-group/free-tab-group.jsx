@@ -15,10 +15,8 @@ import PackageSearchViewer from '../package-search-viewer/package-search-viewer.
 import BlockTerminalViewer from '../block-terminal-viewer/block-terminal-viewer';
 import ActionestButton from '../../components/actionest/actionest-button';
 import freeTabActions from './free-tab-group.actions';
-import documentTerminalViewerActions from '../document-terminal-viewer/document-terminal-viewer.actions';
 import promptViewerActions from '../prompt-viewer/prompt-viewer.actions';
-import terminalViewerActions from '../block-terminal-viewer/block-terminal-viewer.actions';
-import historyViewerActions from '../history-viewer/history-viewer.actions';
+import blockTerminalViewerActions from '../block-terminal-viewer/block-terminal-viewer.actions';
 import plotViewerActions from '../plot-viewer/plot-viewer.actions';
 import packageSearchActions from '../package-search-viewer/package-search-viewer.actions';
 import kernelActions from '../../actions/kernel';
@@ -55,22 +53,8 @@ function mapDispatchToProps(dispatch, ownProps) {
   const groupId = ownProps.groupId;
 
   return {
-    onAutocomplete: (id, props) => dispatch(promptViewerActions.autocomplete(groupId, id, props)),
-    onAnnotationClick: (id, props) => dispatch(documentTerminalViewerActions.clickAnnotation(groupId, id, props)),
-    onAnnotationCopy: (id, event) => dispatch(documentTerminalViewerActions.copyAnnotation(groupId, id, event)),
-    onBlockRemove: (id, blockId) => dispatch(historyViewerActions.createBlockRemove(groupId, id, blockId)),
     onCloseTab: id => dispatch(freeTabActions.closeTab(groupId, id)),
     onCopyToPrompt: (id, props) => dispatch(promptViewerActions.copyToPrompt(groupId, id, props)),
-    onDocumentTerminalAutocomplete: (id, props) => dispatch(documentTerminalViewerActions.autocomplete(groupId, id, props)),
-    onDocumentTerminalPromptExecute: (id, context) => dispatch(documentTerminalViewerActions.execute(groupId, id, context)),
-    onDocumentTerminalPromptInput: (id, context) => dispatch(documentTerminalViewerActions.input(groupId, id, context)),
-    onDocumentTerminalHistoryClear: id => dispatch(documentTerminalViewerActions.clear(groupId, id)),
-    onDocumentTerminalInstallPythonModule: (id, name, version) =>
-      dispatch(documentTerminalViewerActions.installPythonModule(groupId, id, name, version)),
-    onDocumentTerminalInstallPythonModuleExternally: (id, name, version) =>
-      dispatch(documentTerminalViewerActions.installPythonModuleExternally(groupId, id, name, version)),
-    onHistoryBlockContract: (id, blockId, itemId) => dispatch(historyViewerActions.createContract(groupId, id, blockId, itemId)),
-    onHistoryBlockExpand: (id, blockId, itemId) => dispatch(historyViewerActions.createExpand(groupId, id, blockId, itemId)),
     onHistoryBlockSave: (id, blockId, itemId, data) => dispatch(freeTabActions.saveData(data)),
     onPackageSearchPythonModule: (id, name, version) => dispatch(packageSearchActions.installPackage(groupId, id, name, version)),
     onPackageSearchShowMore: (id, packageName, version) => dispatch(packageSearchActions.showMore(groupId, id, packageName, version)),
@@ -78,22 +62,19 @@ function mapDispatchToProps(dispatch, ownProps) {
     onPackageSearchValueChange: (id, value) => dispatch(packageSearchActions.changeSearchValue(groupId, id, value)),
     onPackageSearchByTerm: (id, term) => dispatch(packageSearchActions.searchByTerm(groupId, id, term)),
     onPromptCommand: (id, command) => dispatch(promptViewerActions.createCommand(groupId, id, command)),
-    onPromptExecute: (id, context) => dispatch(terminalViewerActions.execute(groupId, id, context)),
-    onPromptInput: (id, context) => dispatch(terminalViewerActions.input(groupId, id, context)),
+    onPromptExecute: (id, context) => dispatch(blockTerminalViewerActions.execute(groupId, id, context)),
+    onPromptInput: (id, context) => dispatch(blockTerminalViewerActions.input(groupId, id, context)),
     onFocusTab: id => dispatch(freeTabActions.focusTab(groupId, id)),
     onMoveTab: context => dispatch(freeTabActions.moveTab(context)),
     onMount: () => dispatch(kernelActions.detectKernelVariables()),
     onOpenExternal: url => dispatch(freeTabActions.openExternal(url)),
     onPopActiveTab: () => dispatch(freeTabActions.popActiveTab(groupId)),
-    onInstallPythonModule: (id, moduleName) => dispatch(terminalViewerActions.installPythonModule(groupId, id, moduleName)),
+    onInstallPythonModule: (id, packageName, version) => dispatch(blockTerminalViewerActions.installPythonModule(groupId, id, packageName, version)),
     onShowDataFrame: item => dispatch(freeTabActions.showDataFrame(groupId, item)),
     onFocusPlot: (id, plot) => dispatch(plotViewerActions.focus(groupId, id, plot)),
-    onReRunHistoryBlock: (id, blockId) => dispatch(terminalViewerActions.reRunHistoryBlock(groupId, id, blockId)),
+    onReRunHistoryBlock: (id, blockId) => dispatch(blockTerminalViewerActions.reRunHistoryBlock(groupId, id, blockId)),
     onRemovePlot: (id, plot) => dispatch(plotViewerActions.remove(groupId, id, plot)),
-    onTerminalInterrupt: id => dispatch(documentTerminalViewerActions.interrupt(groupId, id)),
-    onTerminalRestart: id => dispatch(documentTerminalViewerActions.restart(groupId, id)),
-    onSavePlot: plot => dispatch(freeTabActions.savePlot(plot)),
-    onShowSelectWorkingDirectoryDialog: id => dispatch(documentTerminalViewerActions.showSelectWorkingDirectoryDialog(groupId, id))
+    onSavePlot: plot => dispatch(freeTabActions.savePlot(plot))
   };
 }
 
@@ -212,28 +193,18 @@ export default connect(null, mapDispatchToProps)(React.createClass({
         'document-terminal-viewer': tab => (
           <DocumentTerminalViewer
             filter={filter}
-            onAnnotationClick={_.partial(props.onAnnotationClick, tab.id)}
-            onAnnotationCopy={_.partial(props.onAnnotationCopy, tab.id)}
-            onClear={_.partial(props.onDocumentTerminalHistoryClear, tab.id)}
-            onInstallPythonModule={_.partial(props.onInstallPythonModule, tab.id)}
-            onInterrupt={_.partial(props.onTerminalInterrupt, tab.id)}
-            onPromptAutocomplete={_.partial(props.onDocumentTerminalAutocomplete, tab.id)}
-            onPromptCommand={_.partial(props.onPromptCommand, tab.id)}
-            onPromptExecute={_.partial(props.onDocumentTerminalPromptExecute, tab.id)}
-            onPromptInput={_.partial(props.onDocumentTerminalPromptInput, tab.id)}
-            onRestart={_.partial(props.onTerminalRestart, tab.id)}
-            onShowSelectWorkingDirectoryDialog={_.partial(props.onShowSelectWorkingDirectoryDialog, tab.id)}
+            groupId={props.groupId}
+            tabId={tab.id}
             {...tab.content}
           />
         ),
         'global-history-viewer': tab => (
           <GlobalHistoryViewer
             filter={filter}
-            onBlockRemove={_.partial(props.onBlockRemove, tab.id)}
-            onContract={_.partial(props.onHistoryBlockContract, tab.id)}
-            onExpand={_.partial(props.onHistoryBlockExpand, tab.id)}
+            groupId={props.groupId}
             onInstallPythonModule={_.partial(props.onInstallPythonModule, tab.id)}
             onSave={_.partial(props.onHistoryBlockSave, tab.id)}
+            tabId={tab.id}
             {...tab.content}
           />
         ),
