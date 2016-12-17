@@ -21,18 +21,6 @@
   transition: color 1s;
 }
 
-.document-terminal-viewer .prompt .prompt-cursor {
-  transition: background-color 1s;
-}
-
-.document-terminal-viewer .prompt:focus {
-  color: #333;
-}
-
-.document-terminal-viewer .prompt:focus .prompt-cursor {
-  background-color: #333;
-}
-
 .document-terminal-viewer .empty-suggestion.empty-suggestion--visible {
   opacity: 1;
 }

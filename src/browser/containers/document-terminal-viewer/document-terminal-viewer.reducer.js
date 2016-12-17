@@ -186,6 +186,7 @@ function jupyterResponseDetected(state, action) {
 function changePreference(state, action) {
   switch (action.change.key) {
     case 'fontSize': return state.set('fontSize', _.toNumber(action.change.value));
+    case 'cursorType': return state.set('cursorType', action.change.value);
     default: return state;
   }
 }

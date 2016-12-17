@@ -12,6 +12,7 @@ export default React.createClass({
   propTypes: {
     continueLabel: React.PropTypes.string,
     cursor: React.PropTypes.object,
+    cursorType: React.PropTypes.string,
     inputPrompt: React.PropTypes.object,
     lines: React.PropTypes.array,
     onBlur: React.PropTypes.func,
@@ -31,6 +32,7 @@ export default React.createClass({
     return {
       lines: [],
       cursor: {row: 0, column: 0},
+      cursorType: 'solidBlock',
       promptLabel: '>>> ',
       continueLabel: '... '
     };
@@ -49,9 +51,11 @@ export default React.createClass({
       let content;
 
       if (props.cursor.row === index) {
+        const cursorClassName = ['prompt__cursor', 'prompt__cursor--' + props.cursorType];
+
         content = [
           getStars(isPassword, line.substr(0, props.cursor.column)),
-          <span className="prompt-cursor" key="promptCursor">&nbsp;</span>,
+          <span className={cursorClassName.join(' ')} key="promptCursor">&nbsp;</span>,
           getStars(isPassword, line.substr(props.cursor.column))
         ];
       } else {

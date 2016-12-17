@@ -236,6 +236,16 @@
       label: displayImages
       type: checkbox
       value: true
+    -
+      id: cursorType
+      key: cursorType
+      label: cursorType
+      type: select
+      options:
+        - label: Thin Blinking
+          value: thinBlinking
+        - label: Solid Block
+          value: solidBlock
 -
   id: preferences-fileViewer
   label: fileViewer

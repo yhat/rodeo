@@ -23,7 +23,7 @@
   user-select: none;
 }
 
-.prompt-cursor {
+.prompt__cursor {
   background-color: #ccc;
   color: transparent;
   display: inline;
@@ -36,6 +36,22 @@
   outline: none;
 }
 
-.prompt:focus .prompt-cursor {
-  background-color: #666;
+.prompt:focus .prompt__cursor {
+  background-color: #111;
+}
+
+.prompt__cursor--thinBlinking {
+  width: 2px;
+}
+
+.prompt:focus .prompt__cursor--thinBlinking {
+  animation-name: prompt__cursor__animation;
+  animation-duration: 1s;
+  animation-iteration-count: infinite;
+  animation-timing-function: steps(1, start);
+}
+
+@keyframes prompt__cursor__animation {
+  0% { opacity: 1; }
+  50% { opacity: 0; }
 }
