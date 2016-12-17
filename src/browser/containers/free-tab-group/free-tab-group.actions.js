@@ -4,6 +4,7 @@ import bluebird from 'bluebird';
 import path from 'path';
 import commonTabsActions from '../../services/common-tabs-actions';
 import cid from '../../services/cid';
+import client from '../../services/jupyter/client';
 import applicationControl from '../../services/application-control';
 import databaseConnectionActions from '../../actions/database-connection';
 import {local} from '../../services/store';
@@ -166,11 +167,17 @@ function popActiveTab(groupId) {
         tab = state.freeTabGroups[groupIndex].tabs[tabIndex],
         windowName = cid();
 
-      applicationControl.createWindow(windowName, {
-        url: 'freeTabsOnlyWindow',
-        startActions: [
-          _.assign({type: 'ADD_TAB', groupId: null, tab, meta: {sender: 'self'}})
-        ]
+      return client.getInstance().then(function (instance) {
+        const url = 'freeTabsOnlyWindow',
+          startActions = [];
+
+        if (instance) {
+          startActions.push({type: 'JUPYTER_KERNEL_INSTANCE_SET', payload: instance});
+        }
+
+        startActions.push({type: 'ADD_TAB', groupId: null, tab, meta: {sender: 'self'}});
+
+        applicationControl.createWindow(windowName, {url, startActions});
       });
     }
   };
