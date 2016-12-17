@@ -1,6 +1,7 @@
 import _ from 'lodash';
 import Immutable from 'seamless-immutable';
 import mapReducers from '../../services/map-reducers';
+import client from '../../services/jupyter/client';
 import commonTabsReducers from '../../services/common-tabs-reducers';
 import databaseViewerReducer from '../database-viewer/database-viewer.reducer';
 import blockTerminalViewerReducer from '../block-terminal-viewer/block-terminal-viewer.reducer';
@@ -91,12 +92,23 @@ function add(state, action) {
   return state;
 }
 
+function setJupyterKernelInstance(state, action) {
+  if (action.error === true) {
+    return state;
+  }
+
+  client.setInstance(action.payload);
+
+  return state;
+}
+
 export default reduxUtil.reduceReducers(
   mapReducers(_.assign({
     ADD_TAB: add,
     CLOSE_TAB: commonTabsReducers.close,
     FOCUS_TAB: commonTabsReducers.focus,
     MOVE_TAB: moveTab,
+    JUPYTER_KERNEL_INSTANCE_SET: setJupyterKernelInstance
   }, databaseViewerReducer), initialState),
   reduxUtil.tabReducer('variable-viewer', variableViewerReducer),
   reduxUtil.tabReducer('global-history-viewer', globalHistoryViewerReducer),

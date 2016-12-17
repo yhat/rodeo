@@ -51,7 +51,7 @@ export function setPath(env, newPath, keyName) {
   if (_.isArray(newPath)) {
     let key = keyMap[keyName] || keyName;
 
-    env[keyMap[key]] = joinList(newPath);
+    env[key] = joinList(newPath);
   }
 
   return env;

@@ -1,7 +1,7 @@
 {
   "name": "rodeo",
   "productName": "Rodeo",
-  "version": "2.4.11",
+  "version": "2.4.12",
   "description": "Rodeo: An IDE for data science",
   "author": "Yhat Inc. <team@yhathq.com> (https://www.yhat.com/products/rodeo)",
   "license": "AGPL-3.0",
@@ -59,13 +59,6 @@
       "target": [
         "dmg",
         "zip"
-      ],
-      "extraResources": [
-        {
-          "from": ".tmp/osx/conda/",
-          "to": "conda",
-          "filter": "**/*"
-        }
       ]
     }
   },

@@ -16,6 +16,14 @@ function getPythonCmd() {
   return local.get('pythonCmd') || 'python';
 }
 
+function getInstance() {
+  return instancePromise || bluebird.resolve(null);
+}
+
+function setInstance(instance) {
+  instancePromise = bluebird.resolve(instance);
+}
+
 /**
  * @returns {Promise}
  */
@@ -272,7 +280,9 @@ function getResult(instance, obj, resolveEvent) {
  */
 export default _.assign({
   guaranteeInstance,
-  dropInstance
+  dropInstance,
+  setInstance,
+  getInstance
 }, _.mapValues({
   execute,
   executeHidden,
