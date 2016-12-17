@@ -52,20 +52,20 @@
       label: environmentVariables
       value: environmentVariables
       clickHandler: onOpenDialog
--
-  id: preferences-sql
-  label: SQL
-  items:
-    -
-      id: sqlSettingsExplanation
-      explanation: sqlSettingsExplanation
-      type: marked
-    -
-      id: manageConnectionsButton
-      type: button
-      label: manageConnections
-      value: manageConnections
-      clickHandler: onOpenDialog
+#-
+#  id: preferences-sql
+#  label: SQL
+#  items:
+#    -
+#      id: sqlSettingsExplanation
+#      explanation: sqlSettingsExplanation
+#      type: marked
+#    -
+#      id: manageConnectionsButton
+#      type: button
+#      label: manageConnections
+#      value: manageConnections
+#      clickHandler: onOpenDialog
 -
   id: preferences-editor
   label: editor
