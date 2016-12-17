@@ -3,15 +3,11 @@ import React from 'react';
 import {connect} from 'react-redux';
 import commonReact from '../../services/common-react';
 import DocumentTerminal from '../../components/document-terminal/document-terminal';
+import DocumentTerminalHistory from '../../components/document-terminal/document-terminal-history';
 import StickyBottomScroll from '../../components/document-terminal/sticky-bottom-scroll';
 import PromptViewer from '../prompt-viewer/prompt-viewer';
 import EmptySuggestion from '../../components/empty/empty-suggestion';
-import Text from '../../components/document-terminal/document-terminal-text';
-import Annotation from '../../components/document-terminal/document-terminal-annotation';
 import TerminalError from '../../components/document-terminal/document-terminal-error';
-import PythonError from '../../components/document-terminal/document-terminal-python-error';
-import Autocomplete from '../../components/document-terminal/document-terminal-autocomplete';
-import PageBreak from '../../components/document-terminal/document-terminal-page-break';
 import GrayInfo from '../../components/gray-info/gray-info';
 import GrayInfoLink from '../../components/gray-info/gray-info-link';
 import GrayInfoLinkList from '../../components/gray-info/gray-info-link-list';
@@ -118,47 +114,7 @@ export default connect(null, mapDispatchToProps)(React.createClass({
   render() {
     const props = this.props,
       text = this.context.text,
-      className = commonReact.getClassNameList(this),
-      types = {
-        annotation: item => (
-          <Annotation
-            key={item.id}
-            {...props}
-            {...item}
-            onBlur={props.onAnnotationBlur}
-            onClick={_.partial(props.onAnnotationClick, item)}
-            onCopy={props.onAnnotationCopy}
-            onDrag={props.onAnnotationDrag}
-            onFocus={props.onAnnotationFocus}
-            onGoTo={props.onAnnotationGoTo}
-            onLoad={this.handleAnnotationLoad}
-            onSave={props.onAnnotationSave}
-            tabIndex="0"
-          />
-        ),
-        autocomplete: item => (
-          <Autocomplete
-            key={item.id}
-            {...props}
-            {...item}
-          />
-        ),
-        pageBreak: item => <PageBreak key={item.id}/>,
-        pythonError: item => (
-          <PythonError
-            key={item.id}
-            {...props}
-            {...item}
-          />
-        ),
-        text: item => (
-          <Text
-            key={item.id}
-            {...props}
-            {...item}
-          />
-        )
-      };
+      className = commonReact.getClassNameList(this);
     let contents, suggestionClassName, suggestionLabel, terminalContent;
 
     if (props.terminalError) {
@@ -170,7 +126,20 @@ export default connect(null, mapDispatchToProps)(React.createClass({
       );
     } else {
       if (props.items && props.items.length) {
-        contents = props.items.map(item => types[item.type](item));
+        contents = (
+          <DocumentTerminalHistory
+            items={props.items}
+            onAnnotationBlur={props.onAnnotationBlur}
+            onAnnotationClick={props.onAnnotationClick}
+            onAnnotationCopy={props.onAnnotationCopy}
+            onAnnotationDrag={props.onAnnotationDrag}
+            onAnnotationFocus={props.onAnnotationFocus}
+            onAnnotationGoTo={props.onAnnotationGoTo}
+            onAnnotationLoad={this.handleAnnotationLoad}
+            onAnnotationSave={props.onAnnotationSave}
+            onInstallPythonPackage={props.onInstallPythonPackage}
+          />
+        );
       } else {
         suggestionClassName = 'empty-suggestion--visible';
         suggestionLabel = [];
@@ -187,12 +156,18 @@ export default connect(null, mapDispatchToProps)(React.createClass({
         <StickyBottomScroll ref="stickyBottomScroll" {...props}>
           {contents}
           <PromptViewer
+            continueLabel={props.continueLabel}
+            cursor={props.cursor}
+            cursorType={props.cursorType}
+            inputPrompt={props.inputPrompt}
+            lines={props.lines}
             onAutocomplete={props.onPromptAutocomplete}
             onCommand={props.onPromptCommand}
             onExecute={props.onPromptExecute}
             onInput={props.onPromptInput}
+            promptLabel={props.promptLabel}
             showPrompt={!props.busy}
-            {...props}
+            tabIndex={props.tabIndex}
           />
         </StickyBottomScroll>
       );
