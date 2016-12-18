@@ -74,27 +74,27 @@ module.exports = [{
       __APP_NAME__: JSON.stringify(pkg.name),
       __VERSION__: JSON.stringify(pkg.version)
     }),
-    // new webpack.optimize.UglifyJsPlugin ({
-    //   beautify: false,
-    //   comments: false,
-    //   compress: {
-    //     sequences: true,
-    //     booleans: true,
-    //     loops: true,
-    //     unused: true,
-    //     warnings: false,
-    //     // drop_console: true,
-    //     unsafe: true
-    //   },
-    //   test: /\.(js|jsx)$/
-    // }),
-    // new CompressionPlugin ({
-    //   asset: '[path].gz [query]',
-    //   algorithm: 'gzip',
-    //   test: /\.js$|\.html$/,
-    //   threshold: 10240,
-    //   minRatio: 0.8
-    // })
+    new webpack.optimize.UglifyJsPlugin ({
+      beautify: false,
+      comments: false,
+      compress: {
+        sequences: true,
+        booleans: true,
+        loops: true,
+        unused: true,
+        warnings: false,
+        // drop_console: true,
+        unsafe: true
+      },
+      test: /\.(js|jsx)$/
+    }),
+    new CompressionPlugin ({
+      asset: '[path].gz [query]',
+      algorithm: 'gzip',
+      test: /\.js$|\.html$/,
+      threshold: 10240,
+      minRatio: 0.8
+    })
   ],
   output: {
     filename: '[name].js',

@@ -26,7 +26,6 @@
   "build": {
     "appId": "com.yhat.rodeo",
     "asar": true,
-    "compression": "store",
     "publish": [
       {
         "provider": "generic",
