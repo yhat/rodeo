@@ -43,11 +43,17 @@ function validate(item, value) {
 function define(definition) {
   return _.map(definition, function (preferenceGroup) {
     preferenceGroup = _.clone(preferenceGroup);
-    preferenceGroup.items = _.map(preferenceGroup.items, function (preference) {
+    preferenceGroup.items = _.reduce(preferenceGroup.items, function (list, preference) {
       const item = _.clone(preference),
         // remember: false is a valid value here
         storeValue = preference.key ? local.get(preference.key) : null;
 
+      // filter item by platform
+      if (_.isArray(item.platform) && !_.includes(item.platform, process.platform)) {
+        return list;
+      }
+
+      // key from localStorage
       if (storeValue === null) {
         if (preference.value !== undefined) {
           item.value = preference.value;
@@ -59,8 +65,10 @@ function define(definition) {
         item.value = storeValue;
       }
 
-      return item;
-    });
+      list.push(item);
+
+      return list;
+    }, []);
 
     return preferenceGroup;
   });

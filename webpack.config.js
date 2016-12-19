@@ -4,6 +4,7 @@ const pkg = require('./package.json'),
   CompressionPlugin = require('compression-webpack-plugin');
 
 module.exports = [{
+  cache: false,
   context: path.join(__dirname, 'src'),
   devtool: 'source-map',
   entry: {
@@ -67,6 +68,7 @@ module.exports = [{
     __dirname: true
   },
   plugins: [
+    new webpack.EnvironmentPlugin(['NODE_ENV']),
     new webpack.optimize.OccurrenceOrderPlugin(),
     new webpack.NoErrorsPlugin(),
     new webpack.optimize.DedupePlugin(),

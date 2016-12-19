@@ -16,10 +16,20 @@ const storeKey = 'environmentVariables',
   sitePackagesDir = path.join(rootAppDir, condaDirName, 'Lib', 'site-packages'),
   scriptsDir = path.join(rootAppDir, condaDirName, 'Scripts');
 
+/**
+ * If the pathPart already exists, move it to the start.
+ * If it doesn't exist yet, add it to the start.
+ * @param {Array} fullPath
+ * @param {string} pathPart
+ */
 function prependToPath(fullPath, pathPart) {
-  if (!_.includes(fullPath, pathPart)) {
-    fullPath.unshift(pathPart);
+  const index = fullPath.indexOf(pathPart);
+
+  if (index > -1) {
+    fullPath.splice(index, 1);
   }
+
+  fullPath.unshift(pathPart);
 }
 
 function addBonusVariables(env) {

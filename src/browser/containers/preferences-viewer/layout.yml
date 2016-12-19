@@ -33,6 +33,7 @@
           value: no
         - label: Yes
           value: yes
+      platform: ['win32']
       value: failover
 
     -

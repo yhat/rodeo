@@ -74,13 +74,15 @@ function getEnv() {
  * NOTE: Verifies that the file path actually exists
  * @param {object} env
  * @param {string} filePath
+ * @param {string} [variableName='path']
  */
-function appendToPath(env, filePath) {
-  const list = getPath(env, 'path');
+function appendToPath(env, filePath, variableName) {
+  variableName = variableName || 'path';
+  const list = getPath(env, variableName);
 
   if (!_.includes(list, filePath) && fs.existsSync(filePath)) {
     list.push(filePath);
-    setPath(env, list, 'path');
+    setPath(env, list, variableName);
   }
 }
 
@@ -88,13 +90,15 @@ function appendToPath(env, filePath) {
  * NOTE: Verifies that the file path actually exists
  * @param {object} env
  * @param {string} filePath
+ * @param {string} [variableName='path']
  */
-function prependToPath(env, filePath) {
-  const list = getPath(env, 'path');
+function prependToPath(env, filePath, variableName) {
+  variableName = variableName || 'path';
+  const list = getPath(env, variableName);
 
   if (!_.includes(list, filePath) && fs.existsSync(filePath)) {
     list.unshift(filePath);
-    setPath(env, list, 'path');
+    setPath(env, list, variableName);
   }
 }
 

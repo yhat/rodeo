@@ -1,34 +1,42 @@
-# Press COMMAND + ENTER to run a single line in the console
+# Press CTRL + ENTER to run a single line in the console
 print('Welcome to Rodeo!')
 
-# Press COMMAND + ENTER with text selected to run multiple lines
+# Press CTRL + ENTER with text selected to run multiple lines
 # For example, select the following lines
 x = 7
 x**2
-# and remember to press COMMAND + ENTER
+# and remember to press CTRL + ENTER
 
-# You can also run code directly in the console below.
-
-#####################################################################################
 # Here is an example of using Rodeo:
 
-# We'll use the popular package called Pandas
-# Install it with pip
-! pip install pandas
+# Install packages
 
-# Import it as 'pd'
+! pip install pandas
+! pip install numpy
+
+# Import packages
+
+import numpy as np
 import pandas as pd
 
-# Create a dataframe
-df=pd.DataFrame({"Animal":["dog","dolphin","chicken","ant","spider"],"Legs":[4,0,2,6,8]})
+N = 100
+df = pd.DataFrame({
+    'A': pd.date_range(start='2016-01-01',periods=N,freq='D'),
+    'x': np.linspace(0,stop=N-1,num=N),
+    'y': np.random.rand(N),
+    'C': np.random.choice(['Low','Medium','High'],N).tolist(),
+    'D': np.random.normal(100, 10, size=(N)).tolist()
+    })
 df.head()
 
-#####################################################################################
-# An example of making a plot:
-! pip install ggplot
+# Another example of making a plot:
 
-from ggplot import ggplot, aes, geom_bar
+from matplotlib import pyplot as plt
+x=df.x
+with plt.style.context('fivethirtyeight'):
+    plt.plot(x, np.sin(x*5) + x + np.random.randn(N)*15)
+    plt.plot(x, np.sin(x*5) + 0.5 * x + np.random.randn(N)*5)
+    plt.plot(x, np.sin(x) + 2 * x + np.random.randn(N)*20)
 
-ggplot(df, aes(x="Animal", weight="Legs")) + geom_bar(fill='blue')
-
-# Find this tutorial helpful?  Checkout the blue sidebar for more tutorials!
+plt.title('Random lines')
+plt.show()
