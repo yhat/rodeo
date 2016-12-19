@@ -28,6 +28,11 @@ app.use(webpackHotMiddleware(compiler, {
 // to ensure it's available. Upon return, just go ahead with the first element
 findPort('localhost', [3001, 9000, 9001, 9002], (ports) => {
 
+  if (ports.length === 0) {
+    console.error(`This is rather embarrasing : none of the given ports are available`);
+    return;
+  }
+
   // make use of the first available port returned
   PORT = ports[0];
   app.listen(PORT, 'localhost', err => {
