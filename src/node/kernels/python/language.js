@@ -61,6 +61,14 @@ function extendOwnEnv() {
   if (process.resourcesPath) {
     envService.appendToPath(process.env, path.join(process.resourcesPath, 'conda'));
     envService.appendToPath(process.env, path.join(process.resourcesPath, 'conda', 'bin'));
+    envService.appendToPath(process.env, path.join(process.resourcesPath, 'conda', 'Lib'));
+    envService.appendToPath(process.env, path.join(process.resourcesPath, 'conda', 'Lib', 'bin'));
+    envService.appendToPath(process.env, path.join(process.resourcesPath, 'conda', 'Scripts'));
+    envService.appendToPath(process.env, path.join(process.resourcesPath, 'conda', 'Scripts', 'bin'));
+
+    envService.appendToPath(process.env, path.join(process.resourcesPath, 'conda', 'DLLs'), 'pythonPath');
+    envService.appendToPath(process.env, path.join(process.resourcesPath, 'conda', 'Lib'), 'pythonPath');
+    envService.appendToPath(process.env, path.join(process.resourcesPath, 'conda', 'Lib', 'site-packages'), 'pythonPath');
   }
 
   if (process.platform !== 'win32') {

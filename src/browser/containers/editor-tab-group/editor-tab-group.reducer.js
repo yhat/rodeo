@@ -14,7 +14,13 @@ function getFirst() {
   const first = getDefault();
 
   if (local.get('editorStartingTutorial') !== false) {
-    first.content.initialValue = initialStory;
+    let initialValue = initialStory;
+
+    if (process.platform === 'darwin') {
+      initialValue = initialValue.replace('CTRL + ENTER', 'COMMAND + ENTER');
+    }
+
+    first.content.initialValue = initialValue;
   }
 
   return Immutable([{groupId: 'top-left', active: first.id, tabs: [first]}]);

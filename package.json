@@ -26,11 +26,10 @@
   "build": {
     "appId": "com.yhat.rodeo",
     "asar": true,
-    "compression": "store",
     "publish": [
       {
         "provider": "generic",
-        "url": "Ro  ",
+        "url": "http://rodeo-nsis.yhat.com/asdf",
         "channel": "latest"
       }
     ],
