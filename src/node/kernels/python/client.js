@@ -410,6 +410,8 @@ class JupyterClient extends EventEmitter {
  * @returns {object}
  */
 function getPythonCommandOptions(options) {
+  log('info', 'getPythonCommandOptions', options);
+
   return {
     cwd: options.cwd,
     env: pythonLanguage.setDefaultEnvVars(options.env),
@@ -418,12 +420,18 @@ function getPythonCommandOptions(options) {
   };
 }
 
-function getPythonCmd(options) {
-  if (options.cmd === '<rodeo-builtin-miniconda>') {
-    return pythonLanguage.getPythonPath();
+function containsResourcesPath(str) {
+  return _.isString(str) && str.indexOf(process.resourcesPath) > -1;
+}
+
+function applyPythonCmd(options) {
+  if (options.cmd === '<rodeo-builtin-miniconda>' || containsResourcesPath(options.cmd)) {
+    options = _.cloneDeep(options);
+    options.env = pythonLanguage.setBuiltinDefaultEnvVars(options.env);
+    options.cmd = pythonLanguage.getPythonPath();
   }
 
-  return options.cmd;
+  return options;
 }
 
 /**
@@ -435,11 +443,21 @@ function getPythonCmd(options) {
  * @returns {ChildProcess}
  */
 function createPythonScriptProcess(options) {
+  log('info', 'createPythonScriptProcess', options);
+
   options = resolveHomeDirectoryOptions(options);
+
+  log('info', 'createPythonScriptProcess1', options);
+
+  options = applyPythonCmd(options);
+
+  log('info', 'createPythonScriptProcess2', options);
+
+
   const args = ['-c', listenScript, options.kernelName],
     cmdOptions = getPythonCommandOptions(options);
 
-  return processes.create(getPythonCmd(options), args, cmdOptions);
+  return processes.create(options.cmd, args, cmdOptions);
 }
 
 /**

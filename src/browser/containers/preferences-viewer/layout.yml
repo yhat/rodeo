@@ -308,6 +308,12 @@
       label: alwaysAskBeforeQuiting
       type: checkbox
       value: true
+    -
+      id: enableAutoupdate
+      key: enableAutoupdate
+      label: enableAutoupdate
+      type: checkbox
+      value: true
 -
   id: preferences-project
   label: project

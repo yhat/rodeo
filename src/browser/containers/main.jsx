@@ -87,7 +87,9 @@ export default React.createClass({
     store.dispatch(dialogActions.showRegisterRodeo());
 
     // no visual for this please
-    applicationControl.checkForUpdates();
+    if (local.get('enableAutoupdate') !== false) {
+      applicationControl.checkForUpdates();
+    }
 
     // try and start an instance of the python client
     client.guaranteeInstance();
