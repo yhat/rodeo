@@ -4,11 +4,11 @@
  */
 
 import _ from 'lodash';
-import fs from 'fs';
 import path from 'path';
 import envService from '../../services/env';
 
-const resourcesPath = process.resourcesPath;
+const resourcesPath = process.resourcesPath,
+  log = require('../../services/log').asInternal(__filename);
 
 /**
  * @param {object} args
@@ -19,12 +19,6 @@ function toPythonArgs(args) {
     obj[_.snakeCase(key)] = value;
     return obj;
   }, {});
-}
-
-function addPath(envs, path) {
-  if (!_.includes(envs, path) && fs.existsSync(path)) {
-    envs.push(path);
-  }
 }
 
 function getCondaPath() {
@@ -40,35 +34,56 @@ function getStartKernelPath() {
 }
 
 function setDefaultEnvVars(env) {
-  if (_.isString(env.PATH) && process.platform === 'darwin') {
-    const splitter = ':',
-      envs = env.PATH.split(splitter);
 
-    addPath(envs, '/sbin');
-    addPath(envs, '/usr/sbin');
-    addPath(envs, '/usr/local/bin');
+  log('info', 'setDefaultEnvVars', env);
 
-    env.PATH = envs.join(splitter);
+  if (process.platform === 'darwin') {
+    envService.appendToPath(env, '/sbin');
+    envService.appendToPath(env, '/usr/sbin');
+    envService.appendToPath(env, '/usr/local/bin');
   }
 
-  return _.assign({
-    PYTHONUNBUFFERED: '1',
-    PYTHONIOENCODING: 'utf-8'
-  }, env);
+  return setPythonConstants(env);
+}
+
+function setBuiltinDefaultEnvVars(env) {
+  if (process.resourcesPath) {
+    log('info', 'setBuiltinDefaultEnvVars', env);
+
+    if (!env.PATH && !env.Path) {
+      throw new Error('MISSING PATH in setBuiltinDefaultEnvVars');
+    }
+
+    envService.appendToPath(env, path.join(process.resourcesPath, 'conda'));
+    envService.appendToPath(env, path.join(process.resourcesPath, 'conda', 'bin'));
+    envService.appendToPath(env, path.join(process.resourcesPath, 'conda', 'Lib'));
+    envService.appendToPath(env, path.join(process.resourcesPath, 'conda', 'Lib', 'bin'));
+    envService.appendToPath(env, path.join(process.resourcesPath, 'conda', 'Scripts'));
+    envService.appendToPath(env, path.join(process.resourcesPath, 'conda', 'Scripts', 'bin'));
+
+    envService.appendToPath(env, path.join(process.resourcesPath, 'conda', 'DLLs'), 'pythonPath');
+    envService.appendToPath(env, path.join(process.resourcesPath, 'conda', 'Lib'), 'pythonPath');
+    envService.appendToPath(env, path.join(process.resourcesPath, 'conda', 'Lib', 'site-packages'), 'pythonPath');
+  }
+
+  return env;
+}
+
+function setPythonConstants(env) {
+  if (!env.PYTHONUNBUFFERED) {
+    env.PYTHONUNBUFFERED = '1';
+  }
+
+  if (!env.PYTHONIOENCODING) {
+    env.PYTHONIOENCODING = 'utf-8';
+  }
+
+  return env;
 }
 
 function extendOwnEnv() {
   if (process.resourcesPath) {
     envService.appendToPath(process.env, path.join(process.resourcesPath, 'conda'));
-    envService.appendToPath(process.env, path.join(process.resourcesPath, 'conda', 'bin'));
-    envService.appendToPath(process.env, path.join(process.resourcesPath, 'conda', 'Lib'));
-    envService.appendToPath(process.env, path.join(process.resourcesPath, 'conda', 'Lib', 'bin'));
-    envService.appendToPath(process.env, path.join(process.resourcesPath, 'conda', 'Scripts'));
-    envService.appendToPath(process.env, path.join(process.resourcesPath, 'conda', 'Scripts', 'bin'));
-
-    envService.appendToPath(process.env, path.join(process.resourcesPath, 'conda', 'DLLs'), 'pythonPath');
-    envService.appendToPath(process.env, path.join(process.resourcesPath, 'conda', 'Lib'), 'pythonPath');
-    envService.appendToPath(process.env, path.join(process.resourcesPath, 'conda', 'Lib', 'site-packages'), 'pythonPath');
   }
 
   if (process.platform !== 'win32') {
@@ -77,13 +92,7 @@ function extendOwnEnv() {
     envService.appendToPath(process.env, '/usr/local/bin');
   }
 
-  if (!process.env.PYTHONUNBUFFERED) {
-    process.env.PYTHONUNBUFFERED = '1';
-  }
-
-  if (!process.env.PYTHONIOENCODING) {
-    process.env.PYTHONIOENCODING = 'utf-8';
-  }
+  return setPythonConstants(process.env);
 }
 
 export default {
@@ -91,6 +100,7 @@ export default {
   getStartKernelPath,
   getPythonPath,
   getCondaPath,
+  setBuiltinDefaultEnvVars,
   setDefaultEnvVars,
   toPythonArgs
 };

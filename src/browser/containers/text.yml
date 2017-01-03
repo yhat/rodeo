@@ -27,6 +27,7 @@ editingEnvironmentVariableExplanation: |
   Add or override environment variables
 editor: Editor
 emacs: Emacs
+enableAutoupdate: Enable Autoupdates
 enableStartingTutorial: Enable the Starting Tutorial
 environmentVariables: Environment Variables
 environmentVariableExplanation: |
