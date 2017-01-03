@@ -1,0 +1,105 @@
+acknowledgements: Acknowledgements
+aceEditorExplanation: |
+  This is where the magic happens.  Rodeo uses a high-performance text editor called <a href="https://ace.c9.io/">Ace</a>
+  to provide code highlighting and code folding.  These settings control the defaults for each new file that you open.
+add: Add
+addEnvironmentVariable: Add Environment Variable
+additionalEnvironmentVariablePath: Add to PATH
+alreadySignedUp: You've already signed up for free stickers!
+alwaysAskBeforeQuiting: Always ask before quiting
+areYouSureYouWantToQuit: Are you sure you want to quit Rodeo?
+bright: Bright
+builtByYhat: >
+  Rodeo is built by
+  <a href="http://yhat.com/"><span style="color: #ee5311;">&ycirc;</span><span class="color: #898989">hat</span></a>.
+cancel: Cancel
+checkBackLaterGitExplanation: Check back later!  This feature is in the pipeline.
+checkBackLaterProjectExplanation: Check back later!  This feature is in the pipeline.
+console: Console
+consoleExplanation: |
+  The console shows results from code executions and can prompt for more input.  Python can also be executed directly.
+dark: Dark
+default: Default
+defaultWorkingDirectory: Default Working Directory
+displayDotFiles: Display Dot Files
+displayImages: Display Images
+editingEnvironmentVariableExplanation: |
+  Add or override environment variables
+editor: Editor
+emacs: Emacs
+enableStartingTutorial: Enable the Starting Tutorial
+environmentVariables: Environment Variables
+environmentVariableExplanation: |
+  Environment variables are system-wide settings for things like libraries, packages, and programming languages.
+environmentVariablePath: PATH
+environmentVariablePathExplanation: |
+  When commands are run from a terminal, these locations are checked in order.
+environmentVariablePythonPath: PYTHONPATH
+environmentVariablePythonPathExplanation: |
+  When python looks for libraries to import, these locations are checked in order.
+EACCES: Permission denied
+elipsis: …
+ENOENT: No such file or directory
+fileViewer: File Viewer
+fixPythonCmd: |
+  Manually fix your python command in the Preferences, or ask the community for help:
+
+  http://discuss.yhat.com/c/support
+focusCreatedPlots: Focus On Created Plots
+fontSize: Font Size
+git: Git
+global: Global
+globalSettingsExplanation: Global settings affect the behavior of the entire application.
+keyBindings: Key Bindings
+kernelName: Kernel Name
+keyTableHeader: Key
+includesOpenSource: |
+  Rodeo includes other open source software components. Click below for a list of these components and
+  their license agreements.
+invalidEmail: Please input a valid email address.
+manageConnections: Manage Connections
+missingFileOrCommand: Missing file or command
+missingPackage: Missing package
+none: None
+ok: OK
+overriddenEnvironmentVariables: Overridden Environment Variables
+plots: Plots
+plotViewerExplanation: |
+  The plot viewer provides previews of plots that have been broadcast from IPython.  In the future, we want to have more
+  ways to explore, manipulate and share the plots that have been created in Rodeo, as well as the ability to pull plots
+  into separate windows.
+project: Project
+python: Python
+pythonCommand: Python Command
+pythonExplanation: Python settings control how the python kernel is run.
+pythonPackageInstaller: Python Package Installer
+quit: Quit
+refresh: Refresh
+reload: Reload
+reloadEnvironmentVariables: Reload Environment Variables
+saveChanges: Save Changes
+selectDatabaseConnectionFromList: Select a database connection from the list
+sendMeStickers: Send me stickers!
+sendUsYourEmail: |
+  Send us your e-mail and we'll send you some stickers. We'll follow up to figure out the logistics.
+SQL: SQL
+sqlSettingsExplanation: SQL settings control how the SQL is run.
+suggestionExample: |
+  Example:    print("Welcome to Rodeo!")
+tabSpaces: Tab Spaces
+thankYou: Thanks!
+theme: Theme
+trackMetrics: Track Metrics
+quiting: Quiting
+unableToRunSyscall: Unable to run
+usageMetrics: |
+  To help us improve Rodeo, we anonymously track usage metrics, such as # of opens/closes, shortcuts used, and
+  current version. You can disable these metrics at any time by visiting _Preferences_ and unchecking the
+  _Track Metrics_ field.
+useSoftTabs: Use Soft Tabs
+useBuiltinPython: Use Built-in Python
+wantAFreeSticker: Want a free sticker?
+weWillContactYou: We'll be in touch to iron out the logistics.
+workingDirectoryLabel: Working Directory
+valueTableHeader: Value
+vim: Vim

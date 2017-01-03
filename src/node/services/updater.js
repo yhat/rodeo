@@ -1,5 +1,3 @@
-'use strict';
-
 import bluebird from 'bluebird';
 import electron from 'electron';
 import browserWindows from './browser-windows';
@@ -13,7 +11,6 @@ const log = require('./log').asInternal(__filename);
  * @returns {Promise}
  */
 function dispatch(type, data) {
-  log('info', 'dispatch', {type, data});
   return browserWindows.send('mainWindow', 'dispatch', {type, data, meta: {sender: 'self'}});
 }
 
@@ -71,5 +68,7 @@ function install() {
   electron.autoUpdater.quitAndInstall();
 }
 
-module.exports.update = update;
-module.exports.install = install;
+export default {
+  update,
+  install
+};

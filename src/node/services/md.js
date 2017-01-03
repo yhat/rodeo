@@ -1,5 +1,3 @@
-'use strict';
-
 import _ from 'lodash';
 import bluebird from 'bluebird';
 import files from './files';
@@ -175,7 +173,9 @@ function applyReportTemplate(html) {
     .then(reportTemplate => reportTemplate({ renderedMarkdown: html }));
 }
 
-module.exports.setRepeatedLanguages = setRepeatedLanguages;
-module.exports.splitUpCells = splitUpCells;
-module.exports.knitHTML = knitHTML;
-module.exports.applyReportTemplate = applyReportTemplate;
+export default {
+  setRepeatedLanguages,
+  splitUpCells,
+  knitHTML,
+  applyReportTemplate
+};

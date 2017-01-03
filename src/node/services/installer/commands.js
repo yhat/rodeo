@@ -73,5 +73,7 @@ function removeFromPath(execPath, systemRoot) {
     });
 }
 
-module.exports.addToPath = addToPath;
-module.exports.removeFromPath = removeFromPath;
+export default {
+  addToPath,
+  removeFromPath
+};

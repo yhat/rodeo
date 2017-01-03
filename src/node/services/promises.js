@@ -1,5 +1,3 @@
-'use strict';
-
 import _ from 'lodash';
 import bluebird from 'bluebird';
 
@@ -36,4 +34,6 @@ function eventsToPromise(eventEmitter, events) {
   });
 }
 
-module.exports.eventsToPromise = eventsToPromise;
+export default {
+  eventsToPromise
+};

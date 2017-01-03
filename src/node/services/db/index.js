@@ -52,7 +52,9 @@ function getInfo(id) {
   });
 }
 
-module.exports.connect = connect;
-module.exports.disconnect = disconnect;
-module.exports.getInfo = getInfo;
-module.exports.query = query;
+export default {
+  connect,
+  disconnect,
+  getInfo,
+  query
+};

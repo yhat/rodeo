@@ -16,7 +16,7 @@ import dialogActions from '../actions/dialogs';
 import applicationControl from '../services/application-control';
 import reduxStore from '../services/redux-store';
 import {local} from '../services/store';
-import text from './text.yml';
+import text from '../../lang/en.yml';
 
 function clearPlots(state) {
   const groups = state.freeTabGroups;

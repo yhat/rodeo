@@ -1,5 +1,3 @@
-'use strict';
-
 import path from 'path';
 import processes from '../processes';
 
@@ -41,5 +39,7 @@ function remove(keyPath, systemRoot) {
   return processes.exec(getRegPath(systemRoot), args);
 }
 
-module.exports.add = add;
-module.exports.remove = remove;
+export default {
+  add,
+  remove
+};

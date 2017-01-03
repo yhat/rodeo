@@ -57,4 +57,4 @@ PlotServer.prototype = {
   }
 };
 
-module.exports = PlotServer;
+export default PlotServer;

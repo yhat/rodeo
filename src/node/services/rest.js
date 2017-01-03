@@ -1,3 +1,5 @@
-'use strict';
+import get from 'node-fetch';
 
-module.exports.get = require('node-fetch');
+export default {
+  get
+};

@@ -1,0 +1,16 @@
+map:
+  -
+    when: /fr/
+    then: fr
+  -
+    when: /de/
+    then: de
+  -
+    when: /cn/
+    then: cn
+  -
+    when: /jp/
+    then: jp
+  -
+    when: true
+    then: en

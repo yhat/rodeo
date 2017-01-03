@@ -55,6 +55,8 @@ function remove(execPath) {
   return processes.exec(getUpdateExe(execPath), ['--removeShortcut', path.basename(execPath)]);
 }
 
-module.exports.create = create;
-module.exports.update = update;
-module.exports.remove = remove;
+export default {
+  create,
+  update,
+  remove
+}

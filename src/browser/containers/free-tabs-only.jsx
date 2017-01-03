@@ -8,7 +8,7 @@ import FreeTabGroup from './free-tab-group/free-tab-group.jsx';
 import ipcDispatcher from '../services/ipc-dispatcher';
 import rootReducer from './free-tabs-only.reducer';
 import reduxReducer from '../services/redux-store';
-import text from './text.yml';
+import text from '../../lang/en.yml';
 
 const groupId = cid(),
   store = reduxReducer.create(rootReducer, {freeTabGroups: Immutable([{groupId: groupId, active: '', tabs: []}])}),

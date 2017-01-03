@@ -1,5 +1,3 @@
-'use strict';
-
 import _ from 'lodash';
 import path from 'path';
 import processes from '../processes';
@@ -114,10 +112,11 @@ function getDefaultEnv() {
     });
 }
 
-module.exports.spawnSetx = spawnSetx;
-module.exports.spawnPowershell = spawnPowershell;
-module.exports.getPath = getPath;
-module.exports.getFreshEnv = getFreshEnv;
-module.exports.getDefaultEnv = getDefaultEnv;
-
-module.exports.getEnv = getFreshEnv;
+export default {
+  spawnSetx,
+  spawnPowershell,
+  getPath,
+  getFreshEnv,
+  getDefaultEnv,
+  getEnv: getFreshEnv
+};

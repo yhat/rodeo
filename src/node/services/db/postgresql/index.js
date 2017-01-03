@@ -1,5 +1,3 @@
-'use strict';
-
 import _ from 'lodash';
 import bluebird from 'bluebird';
 import files from '../../../services/files';
@@ -227,4 +225,6 @@ function create(options) {
   });
 }
 
-module.exports.create = create;
+export default {
+  create
+}

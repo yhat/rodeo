@@ -2,6 +2,7 @@ const _ = require('lodash'),
   gulp = require('gulp'),
   concat = require('gulp-concat'),
   less = require('gulp-less'),
+  sass = require('gulp-sass'),
   path = require('path'),
   sourcemaps = require('gulp-sourcemaps'),
   map = require('vinyl-map'),
@@ -10,7 +11,8 @@ const _ = require('lodash'),
   outputMap = {
     app: tmpAppDirectory,
     fonts: path.join(tmpAppDirectory, 'fonts'),
-    themes: path.join(tmpAppDirectory, 'themes')
+    themes: path.join(tmpAppDirectory, 'themes'),
+    rodeoThemes: path.join(tmpAppDirectory, 'rodeo-themes')
   };
 
 gulp.task('ace:core', function () {
@@ -88,6 +90,15 @@ gulp.task('themes', ['fonts'], function () {
     .pipe(less())
     .pipe(sourcemaps.write('.'))
     .pipe(gulp.dest(outputMap.themes));
+});
+
+gulp.task('rodeo-themes', function () {
+  return gulp.src([
+    'src/themes/*.scss'
+  ]).pipe(sourcemaps.init())
+    .pipe(sass({outputStyle: 'compressed'}).on('error', sass.logError))
+    .pipe(sourcemaps.write('.'))
+    .pipe(gulp.dest(outputMap.rodeoThemes));
 });
 
 /**

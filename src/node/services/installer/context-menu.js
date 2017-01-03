@@ -73,5 +73,7 @@ function uninstall(systemRoot) {
   ]);
 }
 
-module.exports.install = install;
-module.exports.uninstall = uninstall;
+export default {
+  install,
+  uninstall
+}

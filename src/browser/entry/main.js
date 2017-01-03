@@ -61,6 +61,10 @@ function whenInteractive() {
 
 const rootEl = document.querySelector('main');
 
+function getDependencies() {
+  window.navigator.language
+}
+
 function render() {
   ReactDOM.render(
     <AppContainer>
@@ -71,6 +75,10 @@ function render() {
 }
 
 (function () {
+  const languageMap = [
+
+  ];
+
   try {
     render();
   } catch (ex) {

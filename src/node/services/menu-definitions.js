@@ -54,4 +54,6 @@ function attachApplicationMenu(ipcEmitter, applicationMenu) {
   Menu.setApplicationMenu(Menu.buildFromTemplate(menuTemplate));
 }
 
-module.exports.attachApplicationMenu = attachApplicationMenu;
+export default {
+  attachApplicationMenu
+};
