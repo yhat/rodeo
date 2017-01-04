@@ -3,10 +3,11 @@ import webpack from 'webpack';
 import webpackDevMiddleware from 'webpack-dev-middleware';
 import webpackHotMiddleware from 'webpack-hot-middleware';
 import config from './webpack.dev.config.js';
+import findPort from 'find-port';
 
 const app = express(),
-  compiler = webpack(config),
-  PORT = 3001;
+  compiler = webpack(config);
+let PORT;
 
 app.use(webpackDevMiddleware(compiler, {
   publicPath: config.output.publicPath,
@@ -23,11 +24,26 @@ app.use(webpackHotMiddleware(compiler, {
   heartbeat: 10 * 1000
 }));
 
-app.listen(PORT, 'localhost', err => {
-  if (err) {
-    console.error(err);
+// before binding our server to a port, check each port in the given range
+// to ensure it's available. Upon return, just go ahead with the first element
+findPort('localhost', [3001, 9000, 9001, 9002], (ports) => {
+
+  if (ports.length === 0) {
+    console.error(`This is rather embarrasing : none of the given ports are available`);
     return;
   }
 
-  console.log(`Listening at http://localhost:${PORT}`);
+  // make use of the first available port returned
+  PORT = ports[0];
+  app.listen(PORT, 'localhost', err => {
+    if (err) {
+      console.error(err);
+      return;
+    }
+
+    console.log(`Listening at http://localhost:${PORT}`);
+  });
+
 });
+
+
