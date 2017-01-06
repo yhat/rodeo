@@ -28,6 +28,7 @@ require('source-map-support').install();
 const argv = args.getArgv(),
   log = require('./services/log').asInternal(__filename),
   staticFileDir = path.resolve(electron.app.getAppPath()),
+  langFileDir = path.join(staticFileDir, 'lang'),
   kernelClients = {},
   windowUrls = {
     mainWindow: 'main.html',
@@ -192,6 +193,11 @@ function onResolveFilePath(filename) {
 
 function onGetFile(filename) {
   return files.readFile(files.resolveHomeDirectory(filename));
+}
+
+function onGetI18NText(lang) {
+  return files.readFile(path.join(langFileDir, lang + '.json'))
+    .then(content => JSON.parse(content));
 }
 
 function onSaveFile(filename, contents) {
@@ -893,6 +899,7 @@ function attachIpcMainEvents() {
     onGetEnvironmentVariables,
     onGetFile,
     onGetInspection,
+    onGetI18NText,
     onGetSystemFacts,
     onGetStatus,
     onIsComplete,

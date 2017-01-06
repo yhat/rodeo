@@ -7,10 +7,12 @@ const _ = require('lodash'),
   sourcemaps = require('gulp-sourcemaps'),
   map = require('vinyl-map'),
   uglify = require('gulp-uglify'),
+  yaml = require('gulp-yaml'),
   tmpAppDirectory = 'app',
   outputMap = {
     app: tmpAppDirectory,
     fonts: path.join(tmpAppDirectory, 'fonts'),
+    lang: path.join(tmpAppDirectory, 'lang'),
     themes: path.join(tmpAppDirectory, 'themes'),
     rodeoThemes: path.join(tmpAppDirectory, 'rodeo-themes')
   };
@@ -101,6 +103,13 @@ gulp.task('rodeo-themes', function () {
     .pipe(gulp.dest(outputMap.rodeoThemes));
 });
 
+gulp.task('lang', function () {
+  return gulp.src([
+    'src/lang/*.yml'
+  ]).pipe(yaml({safe: false, space: 0}).on('error', error => console.error('yaml error:', error)))
+    .pipe(gulp.dest(outputMap.lang));
+});
+
 /**
  * Make an "app" version of the package.json according to electron-builder's arbitrary rules and put it in the
  * temp directory to be consumed by them.
@@ -117,5 +126,10 @@ gulp.task('package.json', function () {
     .pipe(gulp.dest(outputMap.app));
 });
 
-gulp.task('build', ['themes', 'external', 'ace', 'html', 'package.json']);
+gulp.task('watch', function () {
+  gulp.watch(['src/themes/**/*'], ['rodeo-themes']);
+  gulp.watch(['src/lang'], ['lang']);
+});
+
+gulp.task('build', ['themes', 'rodeo-themes', 'lang', 'external', 'ace', 'html', 'package.json']);
 gulp.task('default', ['build']);

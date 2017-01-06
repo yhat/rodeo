@@ -2,6 +2,8 @@ import { AppContainer } from 'react-hot-loader';
 import React from 'react';
 import ReactDOM from 'react-dom';
 import App from '../containers/main.jsx';
+import language from '../services/language';
+import theme from '../services/theme';
 import track from '../services/track';
 import {local} from '../services/store';
 
@@ -62,7 +64,16 @@ function whenInteractive() {
 const rootEl = document.querySelector('main');
 
 function getDependencies() {
-  window.navigator.language
+  return Promise.all([
+    language.getMap(window.navigator.language).catch(error => {
+      console.error(error);
+      return language.getMap('en');
+    }),
+    theme.replace(local.get('globalTheme') || 'light').catch(error => {
+      console.error(error);
+      return theme.replace('light');
+    })
+  ]);
 }
 
 function render() {
@@ -74,11 +85,7 @@ function render() {
   );
 }
 
-(function () {
-  const languageMap = [
-
-  ];
-
+function safeRender() {
   try {
     render();
   } catch (ex) {
@@ -105,7 +112,14 @@ function render() {
       );
     });
   }
-}());
+}
+
+getDependencies().then(result => {
+  const [text, theme] = result;
+
+  console.log({result, text, theme});
+  safeRender();
+}).catch(error => console.error({error}));
 
 
 

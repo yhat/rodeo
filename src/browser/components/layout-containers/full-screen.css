@@ -3,6 +3,11 @@ body,
 main,
 .full-screen {
   height: 100%;
+  overflow: hidden;
+  width: 100%;
+  margin: 0;
+  padding: 0;
+  -webkit-font-smoothing: antialiased;
 }
 
 .full-screen--row {

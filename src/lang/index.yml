@@ -1,15 +1,15 @@
-map:
+ruleSet:
   -
-    when: /fr/
+    when: /fr/i
     then: fr
   -
-    when: /de/
+    when: /de/i
     then: de
   -
-    when: /cn/
+    when: /cn/i
     then: cn
   -
-    when: /jp/
+    when: /jp/i
     then: jp
   -
     when: true

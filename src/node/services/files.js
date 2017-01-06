@@ -4,9 +4,14 @@ import chokidar from 'chokidar';
 import fs from 'fs';
 import path from 'path';
 import temp from 'temp';
+import jsYaml from 'js-yaml';
 
 const fileWatchers = {},
-  log = require('./log').asInternal(__filename);
+  makeDirectory = bluebird.promisify(fs.mkdir),
+  readFile = _.partialRight(bluebird.promisify(fs.readFile), 'utf8'),
+  log = require('./log').asInternal(__filename),
+  unlink = bluebird.promisify(fs.unlink),
+  writeFile = bluebird.promisify(fs.writeFile);
 
 temp.track();
 
@@ -334,11 +339,16 @@ function makeDirectoryPathSafe(basePath, directoryNames) {
   });
 }
 
+function readYAML(filename) {
+  return readFile(filename).then(contents => jsYaml.load(contents));
+}
+
 export default {
-  readFile: _.partialRight(bluebird.promisify(fs.readFile), 'utf8'),
-  writeFile: bluebird.promisify(fs.writeFile),
+  readYAML,
+  readFile,
+  writeFile,
   readDirectory,
-  makeDirectory: bluebird.promisify(fs.mkdir),
+  makeDirectory,
   makeDirectoryPathSafe,
   makeDirectorySafe,
   getStats,
@@ -351,5 +361,5 @@ export default {
   stopWatching,
   addWatching,
   readAllFilesOfExt,
-  unlink: bluebird.promisify(fs.unlink)
+  unlink
 };

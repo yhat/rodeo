@@ -308,6 +308,16 @@
       label: alwaysAskBeforeQuiting
       type: checkbox
       value: true
+    -
+      id: globalTheme
+      key: globalTheme
+      label: theme
+      type: select
+      options:
+        - label: Light
+          value: light
+        - label: Dark
+          value: dark
 -
   id: preferences-project
   label: project

@@ -1,5 +1,6 @@
 import _ from 'lodash';
 import kernel from './kernel';
+import theme from '../services/theme';
 import {local} from '../services/store';
 
 /**
@@ -17,6 +18,10 @@ function savePreferenceChanges(changes) {
     // restart kernel only after all changes were announced, and only once
     if (_.some(changes, change => _.includes(['pythonCmd', 'workingDirectory'], change.key))) {
       dispatch(kernel.restart());
+    }
+
+    if (_.some(changes, change => _.includes(['globalTheme'], change.key))) {
+      theme.replace(local.get('globalTheme'));
     }
   };
 }

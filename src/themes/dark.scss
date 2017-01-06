@@ -1,12 +1,84 @@
-$layer5: #000;
-$layer4: #222;
-$layer3: #333;
-$layer2: #555;
-$layer1: #777;
-$layer0: #eee;
+@import '../../node_modules/font-awesome/scss/font-awesome.scss';
 
-$brand-primary: #337ab7;
-$brand-success: #5cb85c;
-$brand-info: #5bc0de;
-$brand-warning: #f0ad4e;
-$brand-danger: #d9534f;
+:root {
+  --brand-primary: #337ab7;
+  --brand-success: #5cb85c;
+  --brand-info: #5bc0de;
+  --brand-warning: #f0ad4e;
+  --brand-danger: #d9534f;
+
+  --yhat-grey: #898989;
+  --yhat-orange: #EE5311;
+  --yhat-comp-blue: #3694D6;
+  --yhat-accent-blue: #338AC7;
+
+  --table-header-bg: #f6f7f8;
+  --table-header-text-color: #777;
+  --table-header-border: #d3d3d3;
+  --action-drag-border: var(--yhat-comp-blue);
+
+  --text-color: #333;
+  --text-color-subtle: #111;
+  --text-color-highlight: #777;
+  --text-color-selected: var(--text-color-highlight);
+
+  --text-color-info: #5293d8;
+  --text-color-success: #1fe977;
+  --text-color-warning: #f78a46;
+  --text-color-error: #c00;
+
+  --background-color-info: #0098ff;
+  --background-color-success: #17ca65;
+  --background-color-warning: #ff4800;
+  --background-color-error: #c00;
+  --background-color-highlight: hsla(0, 0%, 0%, .1);
+  --background-color-selected: var(--background-color-highlight);
+
+  --app-background-color: #fff;
+  --base-background-color: #fff;
+  --base-border-color: #eee;
+  --pane-item-background-color: var(--base-background-color);
+  --pane-item-border-color: var(--base-border-color);
+  --input-background-color: #fff;
+  --input-border-color: var(--base-border-color);
+  --tool-panel-background-color: #f4f4f4;
+  --tool-panel-border-color: var(--base-border-color);
+  --inset-panel-background-color: #eee;
+  --inset-panel-border-color: var(--base-border-color);
+  --panel-heading-background-color: #ddd;
+  --panel-heading-border-color: transparent;
+  --overlay-background-color: #f4f4f4;
+  --overlay-border-color: var(--base-border-color);
+  --button-background-color: #ccc;
+  --button-background-color-hover: lighten(var(--button-background-color), 5%);
+  --button-background-color-selected: var(--button-background-color-hover);
+  --button-border-color: #aaa;
+
+  --tab-bar-background-color: #fff;
+  --tab-background-color-active: #fff;
+  --tab-bar-border-color: darken(var(--tab-background-color-active), 10%);
+  --tab-background-color: #f4f4f4;
+  --tab-border-color: var(--base-border-color);
+
+  --tree-view-background-color: var(--tool-panel-background-color);
+  --tree-view-border-color: var(--tool-panel-border-color);
+  --ui-site-color-1: var(--background-color-success); // green
+  --ui-site-color-2: var(--background-color-info); // blue
+  --ui-site-color-3: var(--background-color-warning); // orange
+  --ui-site-color-4: #db2ff4; // purple
+  --ui-site-color-5: #f5e11d; // yellow
+  --font-size: 13px;
+  --input-font-size: 14px;
+  --disclosure-arrow-size: 12px;
+  --component-padding: 10px;
+  --component-icon-padding: 5px;
+  --component-icon-size: 16px;
+  --component-line-height: 25px;
+  --component-border-radius: 2px;
+  --tab-height: 30px;
+  --font-family: 'BlinkMacSystemFont', 'Lucida Grande', 'Segoe UI', Ubuntu, Cantarell, sans-serif;
+}
+
+/* structure */
+
+@import 'structure';

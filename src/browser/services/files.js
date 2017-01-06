@@ -9,6 +9,10 @@ function normalizeFileStats(file) {
   return file;
 }
 
+function getFile(filename) {
+  return api.send('getFile', filename);
+}
+
 function getFiles(filePath) {
   return api.send('files', filePath)
     .then(function (result) {
@@ -84,6 +88,7 @@ function getIndexPath(files, targetPath) {
 
 export default {
   addWatchingFiles,
+  getFile,
   getFiles,
   getFileStats,
   getIndexPath,
