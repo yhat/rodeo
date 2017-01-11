@@ -2,18 +2,14 @@
   position: relative;
 }
 .splitter_panel .vsplitter {
-    background-color: #dddddd;
     cursor: col-resize;
     z-index:900;
-    width: 1.5px;
     width: 5px;
 }
 
 .splitter_panel .hsplitter {
-    background-color: #dddddd;
     cursor: row-resize;
     z-index: 800;
-    height: 1.5px;
     height: 5px;
 }
 .splitter_panel .vsplitter.splitter-invisible,

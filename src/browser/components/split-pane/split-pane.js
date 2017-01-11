@@ -6,6 +6,7 @@ import './lib/jquery.splitter.css';
 import './lib/jquery.splitter-0.15.0';
 import globalObserver from '../../services/global-observer';
 import {local} from '../../services/store';
+import './split-pane.css';
 
 function getSplitState() {
   return local.get('splitPanePositions') || {

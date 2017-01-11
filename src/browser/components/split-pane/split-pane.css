@@ -1,0 +1,9 @@
+.splitter_panel .vsplitter {
+  background-color: var(--pane-item-background-color);
+  border: 1px solid var(--pane-item-border-color);
+}
+
+.splitter_panel .hsplitter {
+  background-color: var(--pane-item-background-color);
+  border: 1px solid var(--pane-item-border-color);
+}
