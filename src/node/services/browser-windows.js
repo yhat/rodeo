@@ -129,7 +129,7 @@ function create(name, options) {
     }
   });
   window.on('closed', () => {
-    log('info', 'closed', name);``
+    log('info', 'closed', name);
     delete windows[name];
   });
   window.on('responsive', () => log('info', 'responsive', name));

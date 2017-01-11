@@ -1,9 +1,11 @@
 .splitter_panel .vsplitter {
   background-color: var(--pane-item-background-color);
   border: 1px solid var(--pane-item-border-color);
+  width: 3px;
 }
 
 .splitter_panel .hsplitter {
   background-color: var(--pane-item-background-color);
   border: 1px solid var(--pane-item-border-color);
+  height: 3px;
 }

@@ -14,6 +14,5 @@
 .tab-list > li {
   display: inline-block;
   position: relative;
-  min-height: 30px;
   vertical-align: top;
 }

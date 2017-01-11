@@ -9,13 +9,11 @@
 
 .tabbed-pane .left {
   float: left;
-  min-height: 30px;
   min-width: 20px;
 }
 
 .tabbed-pane .right {
   float: right;
-  min-height: 30px;
   min-width: 20px;
 }
 

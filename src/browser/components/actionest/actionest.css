@@ -1,7 +1,5 @@
 .actionest {
   transition: all 0.2s;
-  width: 24px;
-  height: 24px;
   border-radius: 5px;
   border: 0;
   padding: 0;
@@ -29,13 +27,16 @@
   border: 0;
   margin-right: 4px;
   margin-top: 2px;
-  background-color: #fff;
   box-shadow: none;
+}
+
+.tab-list .actionest:hover {
+  background-color: var(--button-background-color);
 }
 
 .tab-list .actionest-button.disabled {
   cursor: default;
-  color: #b1bcc5;
+  color: var(--text-color-subtle);
 }
 
 .tab-list .actionest-button.disabled:hover,
@@ -45,5 +46,4 @@
 
 .variable-table .actionest-button {
   margin-top: -2px;
-  background: #fff;
 }

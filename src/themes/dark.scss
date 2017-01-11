@@ -12,9 +12,6 @@
   --yhat-comp-blue: #3694D6;
   --yhat-accent-blue: #338AC7;
 
-  --table-header-bg: #f6f7f8;
-  --table-header-text-color: #777;
-  --table-header-border: #d3d3d3;
   --action-drag-border: var(--yhat-comp-blue);
 
   --text-color: #aaa;
@@ -74,6 +71,13 @@
   --tab-lift-background-color: #337ab7;
   --tab-border-color: #484848;
   --tab-border-bottom-color: #111;
+
+  --table-header-bg: #777;
+  --table-header-text-color: #777;
+  --table-border-color: #484848;
+  --table-background-color: #222;
+  --table-row-background-color: #333;
+  --table-alt-row-background-color: lighten(#333, 5%);
 
   --tree-view-background-color: #303030;
   --tree-view-border-color: var(--tool-panel-border-color);

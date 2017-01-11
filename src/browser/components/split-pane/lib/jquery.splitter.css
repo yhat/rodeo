@@ -4,13 +4,11 @@
 .splitter_panel .vsplitter {
     cursor: col-resize;
     z-index:900;
-    width: 5px;
 }
 
 .splitter_panel .hsplitter {
     cursor: row-resize;
     z-index: 800;
-    height: 5px;
 }
 .splitter_panel .vsplitter.splitter-invisible,
 .splitter_panel .hsplitter.splitter-invisible {

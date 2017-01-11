@@ -5,7 +5,6 @@ import TabbedPane from '../../components/tabs/tabbed-pane.js';
 import TabbedPaneItem from '../../components/tabs/tabbed-pane-item.js';
 import DatabaseViewer from '../database-viewer/database-viewer';
 import DocumentTerminalViewer from '../document-terminal-viewer/document-terminal-viewer';
-import SearchTextBox from '../../components/search-text-box/search-text-box.jsx';
 import GlobalHistoryViewer from '../global-history-viewer/global-history-viewer';
 import PlotViewer from '../plot-viewer/plot-viewer.jsx';
 import FileViewer from '../file-viewer/file-viewer.jsx';
@@ -266,9 +265,6 @@ export default connect(null, mapDispatchToProps)(React.createClass({
         {...props}
       >
         <li className="right">{popoutButton}</li>
-        <li className="right">
-          <SearchTextBox onChange={searchFilter => this.setState({searchFilter})}/>
-        </li>
         {props.tabs.map(tab => (
           <TabbedPaneItem filter={filter} key={tab.id} {...tab}>
             {_.isFunction(types[tab.contentType]) ? types[tab.contentType](tab) : `Not a known tab type: ${tab.contentType}`}
