@@ -4,43 +4,37 @@
   white-space: nowrap;
   min-width: 50px;
   padding: 6px 8px 0;
-  border-bottom: 1px solid #dddddd;
-  box-shadow: inset -1px -1px 2px #fff;
+  border-bottom: 1px solid var(--tab-border-bottom-color);
+  box-shadow: inset -1px -1px 2px var(--tab-border-color);
   cursor: pointer;
   transition: all 0.2s;
   position: relative;
+  background-color: var(--tab-background-color);
 }
 
-.tab-item .tab-label {
+.tab-item--active {
+  background-color: var(--tab-background-color-active);
+}
+
+.tab-item .tab-item__label {
   transition: all 0.2s;
-  color: #888;
 }
 
-.tab-item.active .tab-label {
+.tab-item--active .tab-item__label {
   transform: translate(0, -2px);
-  color: #222;
+  color: var(--text-color-highlight);
 }
 
-.tab-item .lift {
+.tab-item .tab-item__lift {
   position: absolute;
   bottom: 0;
   left: 0;
   height: 0;
   width: 100%;
   transition: height 0.2s;
-  background-color: #337ab7;
+  background-color: var(--tab-lift-background-color);
 }
 
-.tab-item.active .lift {
+.tab-item--active .tab-item__lift {
   height: 2px;
-}
-
-.tab-item,
-.tab-item * {
-  -webkit-touch-callout: none; /* iOS Safari */
-  -webkit-user-select: none;   /* Chrome/Safari/Opera */
-  -moz-user-select: none;      /* Firefox */
-  -ms-user-select: none;       /* Internet Explorer/Edge */
-  user-select: none;           /* Non-prefixed version, currently
-                                  not supported by any browser */
 }

@@ -1,7 +1,6 @@
 const _ = require('lodash'),
   gulp = require('gulp'),
   concat = require('gulp-concat'),
-  less = require('gulp-less'),
   sass = require('gulp-sass'),
   path = require('path'),
   sourcemaps = require('gulp-sourcemaps'),
@@ -14,7 +13,6 @@ const _ = require('lodash'),
     fonts: path.join(tmpAppDirectory, 'fonts'),
     lang: path.join(tmpAppDirectory, 'lang'),
     themes: path.join(tmpAppDirectory, 'themes'),
-    rodeoThemes: path.join(tmpAppDirectory, 'rodeo-themes')
   };
 
 gulp.task('ace:core', function () {
@@ -87,20 +85,11 @@ gulp.task('fonts', function () {
 
 gulp.task('themes', ['fonts'], function () {
   return gulp.src([
-    'src/themes/*.less'
-  ]).pipe(sourcemaps.init())
-    .pipe(less())
-    .pipe(sourcemaps.write('.'))
-    .pipe(gulp.dest(outputMap.themes));
-});
-
-gulp.task('rodeo-themes', function () {
-  return gulp.src([
     'src/themes/*.scss'
   ]).pipe(sourcemaps.init())
     .pipe(sass({outputStyle: 'compressed'}).on('error', sass.logError))
     .pipe(sourcemaps.write('.'))
-    .pipe(gulp.dest(outputMap.rodeoThemes));
+    .pipe(gulp.dest(outputMap.themes));
 });
 
 gulp.task('lang', function () {
@@ -127,9 +116,9 @@ gulp.task('package.json', function () {
 });
 
 gulp.task('watch', function () {
-  gulp.watch(['src/themes/**/*'], ['rodeo-themes']);
+  gulp.watch(['src/themes/**/*'], ['themes']);
   gulp.watch(['src/lang'], ['lang']);
 });
 
-gulp.task('build', ['themes', 'rodeo-themes', 'lang', 'external', 'ace', 'html', 'package.json']);
+gulp.task('build', ['themes', 'lang', 'external', 'ace', 'html', 'package.json']);
 gulp.task('default', ['build']);

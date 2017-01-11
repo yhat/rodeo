@@ -27,6 +27,12 @@
   --text-color-warning: #f78a46;
   --text-color-error: #c00;
 
+  --text-color-ignored: var(--text-color-subtle);
+  --text-color-added: var(--text-color-success);
+  --text-color-renamed: var(--text-color-info);
+  --text-color-modified: var(--text-color-warning);
+  --text-color-removed: var(--text-color-error);
+
   --background-color-info: #0098ff;
   --background-color-success: #17ca65;
   --background-color-warning: #ff4800;
@@ -50,32 +56,41 @@
   --overlay-background-color: #f4f4f4;
   --overlay-border-color: var(--base-border-color);
   --button-background-color: #ccc;
-  --button-background-color-hover: lighten(var(--button-background-color), 5%);
+  --button-background-color-hover: lighten(#ccc, 5%);
   --button-background-color-selected: var(--button-background-color-hover);
   --button-border-color: #aaa;
 
-  --tab-bar-background-color: #fff;
+  --tab-bar-background-color: #337ab7;
   --tab-background-color-active: #fff;
-  --tab-bar-border-color: darken(var(--tab-background-color-active), 10%);
   --tab-background-color: #f4f4f4;
+  --tab-lift-background-color: #337ab7;
   --tab-border-color: var(--base-border-color);
+  --tab-border-bottom-color: #ddd;
 
   --tree-view-background-color: var(--tool-panel-background-color);
   --tree-view-border-color: var(--tool-panel-border-color);
+
+  --scrollbar-background-color: #ddd; // Needs to be opaque -> atom/atom/issues/4578
+  --scrollbar-color: rgba(92, 92, 92, 0.5);
+
   --ui-site-color-1: var(--background-color-success); // green
   --ui-site-color-2: var(--background-color-info); // blue
   --ui-site-color-3: var(--background-color-warning); // orange
   --ui-site-color-4: #db2ff4; // purple
   --ui-site-color-5: #f5e11d; // yellow
+
   --font-size: 13px;
   --input-font-size: 14px;
   --disclosure-arrow-size: 12px;
+
   --component-padding: 10px;
   --component-icon-padding: 5px;
   --component-icon-size: 16px;
   --component-line-height: 25px;
   --component-border-radius: 2px;
+
   --tab-height: 30px;
+
   --font-family: 'BlinkMacSystemFont', 'Lucida Grande', 'Segoe UI', Ubuntu, Cantarell, sans-serif;
 }
 

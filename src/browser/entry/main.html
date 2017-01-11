@@ -6,8 +6,20 @@
   <meta charset="utf-8"/>
   <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-  <link id="fonts" href="fonts/fonts.css" rel="stylesheet"/>
+  <link id="fonts" href="fonts/fonts.css" rel="stylesheet" async/>
   <style>
+    html, body, main {
+      height: 100%;
+      width: 100%;
+    }
+
+    body {
+      transition: all 1s;
+      background-color: #fff;
+      padding: 0;
+      margin: 0;
+    }
+
     .loading-splash {
       opacity: 0.2;
       width: 200px;
@@ -26,7 +38,7 @@
 </head>
 <body class="font-sans">
 <main>
-  <div style="height: 100%; width: 100%; margin: 0; padding: 0; background-color: white; display: flex; justify-content: center; align-items: center;">
+  <div style="height: 100%; width: 100%; margin: 0; padding: 0; display: flex; justify-content: center; align-items: center;">
       <svg version="1.1" id="Cowboy_Hat" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px"
 	 viewBox="0 0 800 800" enable-background="new 0 0 800 800" xml:space="preserve" class="loading-splash">
         <g>

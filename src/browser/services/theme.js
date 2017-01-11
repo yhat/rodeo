@@ -10,7 +10,7 @@ function replace(name) {
     newTheme.setAttribute('id', 'theme');
     newTheme.setAttribute('rel', 'stylesheet');
     newTheme.setAttribute('type', 'text/css');
-    newTheme.setAttribute('href', 'rodeo-themes/' + name + '.css');
+    newTheme.setAttribute('href', 'themes/' + name + '.css');
     newTheme.addEventListener('load', () => {
       console.log('Loaded', name, 'theme');
       for (let i = 0; i < oldThemeElList.length; i++) {
@@ -19,7 +19,7 @@ function replace(name) {
         el.parentNode.removeChild(el);
       }
       resolve();
-      poll(name);
+      // poll(name);
     });
     newTheme.addEventListener('error', () => {
       const str = `Failed to load ${name} theme`;

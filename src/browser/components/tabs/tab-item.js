@@ -2,7 +2,7 @@ import React from 'react';
 import Closeable from './closeable';
 import commonReact from '../../services/common-react';
 import './tab-item.css';
-const activeTabClass = 'active';
+const activeTabClass = 'tab-item--active';
 
 export default React.createClass({
   displayName: 'TabItem',
@@ -36,6 +36,7 @@ export default React.createClass({
       className = commonReact.getClassNameList(this),
       iconClassName = ['fa', 'fa-before', 'fa-' + props.icon];
 
+    className.push('text-unselectable');
 
     if (props.closeable && props.onClose) {
       closeable = <Closeable onClick={props.onClose} />;
@@ -54,12 +55,12 @@ export default React.createClass({
         onDragStart={props.onDragStart}
         tabIndex={props.focusable ? 0 : null}
       >
-        <div className="tab-label">
+        <div className="tab-item__label">
           <span className={iconClassName.join(' ')} />
           <span className="font-sans">{props.label}</span>
           {closeable}
         </div>
-        <div className="lift"></div>
+        <div className="tab-item__lift"></div>
       </li>
     );
   }

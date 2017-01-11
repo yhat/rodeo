@@ -3,7 +3,7 @@
   display: block;
   white-space: pre-wrap;
   overflow: auto;
-  background-color: #fff;
+  background-color: var(--base-background-color);
   font-family: monospace;
   font-size: 12px;
   position: relative;

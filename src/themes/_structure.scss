@@ -9,7 +9,12 @@ html {
   font-size: var(--font-size);
   line-height: 1.428571429; // 20/14
   color: var(--text-color);
+}
+
+body {
   background-color: var(--app-background-color);
+  margin: 0;
+  padding: 0;
 }
 
 input,
@@ -64,11 +69,22 @@ input[type=number],
 
 /* theme components */
 
+/* some components should not be 'highlightable', that is, selectable for copy and paste by dragging the mouse or
+   holding down on touch devices */
+.text-unselectable,
+.text-unselectable * {
+  -webkit-touch-callout: none; /* iOS Safari */
+  -webkit-user-select: none;   /* Chrome/Safari/Opera */
+  -moz-user-select: none;      /* Firefox */
+  -ms-user-select: none;       /* Internet Explorer/Edge */
+  user-select: none;           /* Non-prefixed version, currently
+                                  not supported by any browser */
+}
+
 .theme__link {
   cursor: pointer;
   text-decoration: underline;
 }
-
 
 select,
 select.form-control {
@@ -303,23 +319,23 @@ input[type="checkbox"],
         left: 0;
         right: 0;
         z-index: -1;
-        background-color: lighten(var(--brand-primary), 35%);
+        background-color: var(--brand-primary);
       }
     }
 
     &-success:last-child.progress-bar:before {
-      background-color: lighten(var(--brand-success), 35%);
+      background-color: var(--brand-success);
     }
 
     &-info:last-child.progress-bar:before {
-      background-color: lighten(var(--brand-info), 45%);
+      background-color: var(--brand-info);
     }
     &-warning:last-child.progress-bar:before {
-      background-color: lighten(var(--brand-warning), 35%);
+      background-color: var(--brand-warning);
     }
 
     &-danger:last-child.progress-bar:before {
-      background-color: lighten(var(--brand-danger), 25%);
+      background-color: var(--brand-danger);
     }
   }
 }

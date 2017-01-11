@@ -18,7 +18,6 @@ module.exports = {
     // ],
     loaders: [
       { test: /\.json/, loader: 'json' },
-      { test: /\.less$/, loader: 'style!css!less' },
       { test: /\.css$/, loader: 'style!css' },
       { test: /\.(png|gif)$/, loader: 'url?name=[name].[hash].[ext]&limit=8192&outputPath=app' }, // inline base64 URLs for <=8k images, direct URLs for the rest
       { test: /\.svg$/, loaders: ['file?name=[name].[hash].[ext]', 'svgo?useConfig=svgoConfig1&outputPath=app'] },

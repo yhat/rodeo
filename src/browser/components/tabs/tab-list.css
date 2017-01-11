@@ -1,4 +1,4 @@
-ul.tab-list {
+.tab-list {
   list-style: none;
   margin: 0;
   padding: 0;
@@ -7,7 +7,11 @@ ul.tab-list {
   border-bottom: 1px solid #dddddd;
 }
 
-ul.tab-list > li {
+.tab-list::-webkit-scrollbar {
+  display: none;
+}
+
+.tab-list > li {
   display: inline-block;
   position: relative;
   min-height: 30px;
