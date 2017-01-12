@@ -9,10 +9,12 @@
 
 Latest Releases by OS are below:
 
-[OS X](https://www.yhat.com/products/rodeo/downloads/mac/latest)
-[Windows](https://www.yhat.com/products/rodeo/downloads/windows64/latest)
+[OS X Download](https://www.yhat.com/products/rodeo/downloads/mac/latest)
+
+[Windows Download](https://www.yhat.com/products/rodeo/downloads/windows64/latest)
 
 For Linux users, add the Rodeo apt / yum repo by running the commands below:
+
 __Ubuntu/Debian__
 
 ```
