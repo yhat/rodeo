@@ -1,20 +1,21 @@
 .document-terminal-viewer {
   height: 100%;
   position: relative;
-}
-
-.document-terminal-viewer .document-terminal {
-  height: calc(100% - 20px);
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  align-content: stretch;
+  align-items: stretch;
 }
 
 .document-terminal-viewer .gray-info {
-  height: 20px;
+  flex-grow: 0;
+  flex-shrink: 0;
 }
 
 .document-terminal-viewer .prompt {
   margin-left: 10px;
   margin-right: 10px;
-  color: #666;
   background-color: inherit;
   font-family: inherit;
   font-size: inherit;

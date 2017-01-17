@@ -1,5 +1,20 @@
 .ace-pane {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  align-content: stretch;
+  align-items: stretch;
   height: 100%;
+}
+
+.ace-pane__contents {
+  flex-grow: 1;
+  flex-shrink: 0;
+}
+
+.ace-pane .gray-info {
+  flex-grow: 0;
+  flex-shrink: 0;
 }
 
 div.ace_tooltip {

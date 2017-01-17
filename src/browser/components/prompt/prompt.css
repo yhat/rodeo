@@ -1,5 +1,4 @@
 .prompt {
-  color: #999;
   display: block;
   white-space: pre-wrap;
   overflow: auto;
@@ -24,7 +23,7 @@
 }
 
 .prompt__cursor {
-  background-color: #ccc;
+  background-color: var(--text-color);
   color: transparent;
   display: inline;
   position: absolute;
@@ -32,12 +31,12 @@
 }
 
 .prompt:focus {
-  color: #333;
+  color: var(--text-color-highlight);
   outline: none;
 }
 
 .prompt:focus .prompt__cursor {
-  background-color: #111;
+  background-color: var(--text-color-highlight);
 }
 
 .prompt__cursor--thinBlinking {

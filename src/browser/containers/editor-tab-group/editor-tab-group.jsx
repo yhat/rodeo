@@ -7,14 +7,11 @@ import TabButton from '../../components/tabs/tab-button';
 import TabAdd from '../../components/tabs/tab-add';
 import TabOverflowImage from '../../components/tabs/tab-overflow-image';
 import AcePane from '../../components/ace-pane/ace-pane';
-import GrayInfo from '../../components/gray-info/gray-info';
-import GrayInfoSelect from '../../components/gray-info/gray-info-select';
 import { getParentNodeOf } from '../../services/dom';
 import actions from '../../containers/editor-tab-group/editor-tab-group.actions';
 import dialogActions from '../../actions/dialogs';
 import commonReact from '../../services/common-react';
 import rodeoLogo from './rodeo-logo/rodeo-logo.4x.png';
-import './editor-tab-group.css';
 import editorCommands from './editor-commands.yml';
 import aceActions from './ace.actions';
 
@@ -157,6 +154,8 @@ export default connect(null, mapDispatchToProps)(React.createClass({
             onLoadError={props.onLoadError}
             onLoaded={props.onLoaded}
             onLoading={props.onLoading}
+            onModeChange={_.partial(props.onTabModeChange, tab)}
+            syntaxHighlighters={tab.syntaxHighlighters}
             {...tab.content}
           />
         )
@@ -193,13 +192,6 @@ export default connect(null, mapDispatchToProps)(React.createClass({
           return (
             <TabbedPaneItem key={tab.id} {...tab}>
               {types[tab.contentType](tab)}
-              <GrayInfo content={tab.content}>
-                <GrayInfoSelect
-                  onChange={_.partial(props.onTabModeChange, tab)}
-                  options={_.map(tab.syntaxHighlighters, knownFileType => _.assign({value: knownFileType.mode}, knownFileType))}
-                  value={tab.content.mode}
-                />
-              </GrayInfo>
             </TabbedPaneItem>
           );
         })}

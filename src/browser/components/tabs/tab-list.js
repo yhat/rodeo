@@ -37,7 +37,6 @@ export default React.createClass({
     const props = this.props,
       className = commonReact.getClassNameList(this);
 
-
     return (
       <ul
         className={className.join(' ')}

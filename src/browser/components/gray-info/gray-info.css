@@ -1,15 +1,13 @@
 .gray-info {
-  height: 20px;
-  background-color: #ebebeb;
-  box-shadow: inset 0 1px 1px #dddddd;
-  position: absolute;
-  bottom: 0;
+  background-color: var(--pane-item-background-color);
+  box-shadow: inset 0 1px 1px var(--pane-item-border-color);
   width: 100%;
   display: flex;
   justify-content: flex-end;
-  color: #666;
   transition: all 0.2s;
   white-space: nowrap;
+  position: relative;
+  z-index: 1;
 }
 
 .gray-info > * {
@@ -21,7 +19,7 @@
   cursor: pointer;
   padding-right: 5px;
   padding-left: 7px;
-  border-left: 2px solid #dddddd;
+  border-left: 1px solid var(--pane-item-border-color);
   border-top-left-radius: 7px;
   display: inline-block;
 }
@@ -32,7 +30,7 @@
 
 .gray-info-link-list {
   cursor: pointer;
-  border-left: 2px solid #dddddd;
+  border-left: 1px solid var(--pane-item-border-color);
   border-top-left-radius: 7px;
   display: inline-block;
 }
@@ -42,11 +40,11 @@
 }
 
 .gray-info-link:hover {
-  color: #999;
+  color: var(--text-color-highlight);
 }
 
 .gray-info-link:active {
-  color: #bbb;
+  color: var(--text-color-active);
 }
 
 .gray-info-select {
@@ -58,20 +56,19 @@
 }
 
 .gray-info-select .item:hover {
-  color: #999;
+  color: var(--text-color-highlight);
 }
 
 .gray-info-select .item:active {
-  color: #bbb;
+  color: var(--text-color-active);
 }
 
 .gray-info-select .single-value {
   cursor: pointer;
   padding-right: 5px;
   padding-left: 7px;
-  border-left: 2px solid #dddddd;
-  border-top: 2px solid #dddddd;
-  border-right: 2px solid #dddddd;
+  border-left: 1px solid var(--pane-item-border-color);
+  border-right: 1px solid var(--pane-item-border-color);
   border-top-left-radius: 7px;
   border-top-right-radius: 7px;
 }
@@ -83,11 +80,11 @@
   width: 100%;
   padding-right: 5px;
   padding-left: 7px;
-  border-left: 2px solid #dddddd;
-  border-right: 2px solid #dddddd;
-  border-top: 2px solid #dddddd;
+  border-left: 1px solid var(--pane-item-border-color);
+  border-right: 1px solid var(--pane-item-border-color);
+  border-top: 1px solid var(--pane-item-border-color);
   border-top-left-radius: 7px;
   border-top-right-radius: 7px;
-  background-color: #ebebeb;
-  box-shadow: inset 0 1px 1px #dddddd;
+  background-color: var(--pane-item-background-color);
+  box-shadow: inset 0 1px 1px var(--pane-item-border-color);
 }

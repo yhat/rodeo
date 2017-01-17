@@ -1,5 +1,4 @@
 import React from 'react';
-import ReactDOM from 'react-dom';
 import ace from 'ace';
 import './ace-pane.css';
 import _ from 'lodash';
@@ -7,6 +6,10 @@ import { send } from 'ipc';
 import aceSettings from '../../services/ace-settings';
 import commonReact from '../../services/common-react';
 import globalObserver from '../../services/global-observer';
+import GrayInfo from '../gray-info/gray-info';
+import GrayInfoSelect from '../gray-info/gray-info-select';
+import GrayInfoLinkList from '../gray-info/gray-info-link-list';
+import GrayInfoLink from '../gray-info/gray-info-link';
 
 export default React.createClass({
   displayName: 'AcePane',
@@ -24,6 +27,8 @@ export default React.createClass({
     onLoadError: React.PropTypes.func.isRequired,
     onLoaded: React.PropTypes.func.isRequired,
     onLoading: React.PropTypes.func.isRequired,
+    onModeChange: React.PropTypes.func.isRequired,
+    syntaxHighlighters: React.PropTypes.array,
     tabSize: React.PropTypes.number.isRequired,
     theme: React.PropTypes.string.isRequired,
     useSoftTabs: React.PropTypes.bool.isRequired
@@ -46,7 +51,7 @@ export default React.createClass({
   },
   componentDidMount: function () {
     const props = this.props,
-      instance = ace.edit(ReactDOM.findDOMNode(this));
+      instance = this.getAcePane();
 
     aceSettings.applyStaticSettings(instance);
     aceSettings.applyDynamicSettings(instance, props);
@@ -76,7 +81,7 @@ export default React.createClass({
   },
   componentDidUpdate: function (oldProps) {
     const props = this.props,
-      instance = ace.edit(ReactDOM.findDOMNode(this));
+      instance = this.getAcePane();
 
     aceSettings.applyDynamicSettings(instance, props, oldProps);
   },
@@ -84,19 +89,19 @@ export default React.createClass({
     globalObserver.off(null, null, this);
   },
   focus: function () {
-    const instance = ace.edit(ReactDOM.findDOMNode(this));
+    const instance = this.getAcePane();
 
-    _.defer(() =>instance.focus());
+    _.defer(() => instance.focus());
+  },
+  getAcePane() {
+    return ace.edit(this.refs['ace-pane__contents']);
   },
   resize: function () {
-    const instance = ace.edit(ReactDOM.findDOMNode(this));
-
-    instance.resize();
+    this.getAcePane().resize();
   },
   loadContentFromFile: function () {
     const props = this.props,
-      instance = ace.edit(ReactDOM.findDOMNode(this)),
-      session = instance.getSession();
+      session = this.getAcePane().getSession();
 
     if (props.filename) {
       props.onLoading();
@@ -111,11 +116,24 @@ export default React.createClass({
     }
   },
   render: function () {
-    const className = commonReact.getClassNameList(this);
+    const className = commonReact.getClassNameList(this),
+      props = this.props;
 
-    className.push('font-monospaced');
-
-    return <div className={className.join(' ')} id={this.props.id}></div>;
+    return (
+      <div className={className.join(' ')} >
+        <div className="ace-pane__contents" id={this.props.id} ref="ace-pane__contents"></div>
+        <GrayInfo content={props}>
+          <GrayInfoLinkList>
+            <GrayInfoLink label="10:14" title="Cmd+G"/>
+          </GrayInfoLinkList>
+          <GrayInfoSelect
+            onChange={props.onModeChange}
+            options={_.map(props.syntaxHighlighters, knownFileType => _.assign({value: knownFileType.mode}, knownFileType))}
+            value={props.mode}
+          />
+        </GrayInfo>
+      </div>
+    );
   }
 });
 
