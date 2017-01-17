@@ -1,21 +1,20 @@
-.tab-button button {
+.tab-button {
+  text-overflow: ellipsis;
   white-space: nowrap;
+  min-width: 50px;
+  padding: 6px 8px 4px;
   display: inline-block;
-  height: 29px;
-  background-color: white;
-  padding: 1px 10px;
   border-style: hidden;
-  color: #888;
   cursor: pointer;
   transition: all 0.2s;
 }
 
-.tab-button button:hover {
-  color: #222
+.tab-button:hover {
+  color: var(--text-color-highlight);
 }
 
-.tab-button button:active {
-  color: #aaa
+.tab-button:active {
+  color: var(--text-color-active);
 }
 
 .tab-button .fa {

@@ -18,9 +18,8 @@ export default React.createClass({
         backgroundImage: 'url(' + props.src + ')'
       };
 
-
     return (
-      <li className={className.join(' ')}><a onClick={props.onClick} style={style}>{' '}</a></li>
+      <li className={className.join(' ')}><a onClick={props.onClick} style={style}>{'a'}</a></li>
     );
   }
 });

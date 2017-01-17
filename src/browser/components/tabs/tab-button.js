@@ -29,11 +29,9 @@ export default React.createClass({
     }
 
     return (
-      <li className={className.join(' ')}>
-        <button onClick={props.onClick} title={title}>
-          <span className={iconClassName.join(' ')} />
-          <span className="icon-text-right font-sans">{props.label}</span>
-        </button>
+      <li className={className.join(' ')} onClick={props.onClick} title={title}>
+        <span className={iconClassName.join(' ')} />
+        <span className="icon-text-right font-sans">{props.label}</span>
       </li>
     );
   }

@@ -2,12 +2,9 @@
 .tab-overflow-image a {
   background-size: auto 80%;
   background-repeat: no-repeat;
-  background-position: center;
+  background-position: 40% 60%;
   display: block;
-  width: 30px;
-  height: 30px;
-}
-
-.tab-overflow-image:first-child {
-  margin-left: 2px;
+  padding: 6px 10px 4px 8px;
+  color: transparent;
+  cursor: pointer;
 }

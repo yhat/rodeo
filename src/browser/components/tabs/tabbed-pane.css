@@ -9,17 +9,10 @@
 
 .tabbed-pane .left {
   float: left;
-  min-width: 20px;
 }
 
 .tabbed-pane .right {
   float: right;
-  min-width: 20px;
-}
-
-.tabbed-pane .right .search-text-box {
-  margin-top: 3px;
-  margin-right: 10px;
 }
 
 .tabbed-pane .fa-before:before {
