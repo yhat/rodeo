@@ -798,6 +798,47 @@ function onToggleFullScreen() {
 }
 
 /**
+ * Increases zoom
+ * @returns {Promise}
+ */
+function onZoomIn() {
+  const window = browserWindows.getFocusedWindow() || this;
+
+  return bluebird.try(function () {
+    window.webContents.getZoomLevel(function (zoomLevel){
+      window.webContents.setZoomLevel(zoomLevel + 1);
+    });
+  });
+}
+
+/**
+ * Decreases zoom
+ * @returns {Promise}
+ */
+function onZoomOut() {
+  const window = browserWindows.getFocusedWindow() || this;
+
+  return bluebird.try(function () {
+    window.webContents.getZoomLevel(function (zoomLevel){
+      window.webContents.setZoomLevel(zoomLevel - 1);
+    });
+  });
+}
+
+/**
+ * Zooms to the default level
+ * @returns {Promise}
+ */
+function onZoomToDefault() {
+  const window = browserWindows.getFocusedWindow() || this;
+
+  return bluebird.try(function () {
+    window.webContents.setZoomLevel(0);
+  });
+}
+
+
+/**
  * @param {string} name
  * @param {object} options
  * @returns {BrowserWindow}
@@ -918,7 +959,10 @@ function attachIpcMainEvents() {
     onSaveDialog,
     onToggleDevTools,
     onToggleFullScreen,
-    onKillKernelInstance
+    onKillKernelInstance,
+    onZoomIn,
+    onZoomOut,
+    onZoomToDefault
   ]);
 }
 

@@ -29,7 +29,10 @@ const dispatchMap = {
     FOCUS_ACTIVE_TERMINAL: () => freeTabGroupActions.focusFirstTabByType('document-terminal-viewer'),
     FOCUS_NEWEST_PLOT: () => freeTabGroupActions.focusNewestPlot(),
     TERMINAL_INTERRUPT: () => kernelActions.interrupt(),
-    TERMINAL_RESTART: () => kernelActions.restart()
+    TERMINAL_RESTART: () => kernelActions.restart(),
+    ZOOM_IN: () => applicationActions.zoomIn(),
+    ZOOM_OUT: () => applicationActions.zoomOut(),
+    ZOOM_TO_DEFAULT: () => applicationActions.zoomToDefault()
   },
   detectVariables = _.debounce(function (dispatch) {
     dispatch(kernelActions.detectKernelVariables());
