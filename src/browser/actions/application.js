@@ -57,6 +57,27 @@ function quitAndInstallUpdates() {
   };
 }
 
+function zoomIn() {
+  return function (dispatch) {
+    return applicationControl.zoomIn().then(function () {
+        }).catch(error => dispatch(errorCaught(error)));
+  };
+}
+
+function zoomOut() {
+  return function (dispatch) {
+    return applicationControl.zoomOut().then(function () {
+        }).catch(error => dispatch(errorCaught(error)));
+  };
+}
+
+function zoomToDefault() {
+  return function (dispatch) {
+    return applicationControl.zoomToDefault().then(function () {
+        }).catch(error => dispatch(errorCaught(error)));
+  };
+}
+
 export function errorCaught(error) {
   /* eslint no-console: 0 */
   console.error(error);
@@ -75,5 +96,8 @@ export default {
   showStartupWindow,
   quit,
   quitAndInstallUpdates,
-  toggleDevTools
+  toggleDevTools,
+  zoomIn,
+  zoomOut,
+  zoomToDefault
 };

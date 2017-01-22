@@ -102,6 +102,18 @@ function showStartupWindow() {
   return api.send('showStartupWindow');
 }
 
+function zoomIn() {
+  return api.send('zoomIn');
+}
+
+function zoomOut() {
+  return api.send('zoomOut');
+}
+
+function zoomToDefault() {
+  return api.send('zoomToDefault');
+}
+
 export default {
   checkForUpdates,
   createWindow,
@@ -110,5 +122,8 @@ export default {
   surveyTabs,
   toggleDevTools,
   quitAndInstall,
-  quit
+  quit,
+  zoomIn,
+  zoomOut,
+  zoomToDefault
 };
