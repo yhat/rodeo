@@ -25,18 +25,6 @@ export function getInitialState() {
   });
 }
 
-function getCurrentItemValueByKey(state, key) {
-  const groupIndex = _.findIndex(state.preferenceMap, {id: state.active});
-
-  if (groupIndex > -1) {
-    const keyIndex = _.findIndex(state.preferenceMap[groupIndex].items, {key});
-
-    if (keyIndex > -1) {
-      return _.get(state, ['preferenceMap', groupIndex, 'items', keyIndex, 'value']);
-    }
-  }
-}
-
 /**
  * @param {object} state
  * @param {{key: string, value: string}} change
@@ -50,7 +38,7 @@ function updatePreferenceMapValueWithChange(state, change) {
     const keyIndex = _.findIndex(state.preferenceMap[groupIndex].items, {key});
 
     if (keyIndex > -1) {
-      state = state.setIn(['preferenceMap', groupIndex, 'items', keyIndex, 'value'], change.value);
+      state = Immutable.setIn(state, ['preferenceMap', groupIndex, 'items', keyIndex, 'value'], change.value);
     }
   }
 
@@ -83,15 +71,15 @@ function changeSaved(state, action) {
   state = updatePreferenceMapValueWithChange(state, action.change);
 
   if (state.changes[key]) {
-    state = state.update('changes', changes => changes.without(key));
+    state = Immutable.update(state, 'changes', changes => changes.without(key));
   }
 
   return updateCanSave(state);
 }
 
 function cancelAllChanges(state) {
-  state = state.set('changes', {});
-  state = state.set('canSave', true);
+  state = Immutable.set(state, 'changes', {});
+  state = Immutable.set(state, 'canSave', true);
   return state;
 }
 

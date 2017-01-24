@@ -2,6 +2,8 @@ acknowledgements: Acknowledgements
 aceEditorExplanation: |
   This is where the magic happens.  Rodeo uses a high-performance text editor called <a href="https://ace.c9.io/">Ace</a>
   to provide code highlighting and code folding.  These settings control the defaults for each new file that you open.
+aceThemeExplanation: |
+  [Are dark or light themes better for the eyes?](http://ux.stackexchange.com/questions/53264/dark-or-white-color-theme-is-better-for-the-eyes)
 add: Add
 addEnvironmentVariable: Add Environment Variable
 additionalEnvironmentVariablePath: Add to PATH

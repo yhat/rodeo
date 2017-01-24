@@ -38,7 +38,7 @@ describe(__filename, () => {
           changes: {b: {key: itemId, value: 'c'}},
           canSave: false
         }),
-        action = {type: 'PREFERENCE_CANCEL_ALL_CHANGES'};
+        action = {type: 'PREFERENCES_VIEWER_CANCEL_ALL_CHANGES'};
 
       let result = lib(state, action);
 
@@ -47,7 +47,7 @@ describe(__filename, () => {
     });
   });
 
-  describe('PREFERENCE_ACTIVE_TAB_CHANGED', () => {
+  describe('PREFERENCES_VIEWER_ACTIVE_TAB_CHANGED', () => {
     it('changes', function () {
       const state = Immutable({
           active: 'a',
@@ -55,7 +55,7 @@ describe(__filename, () => {
           changes: {},
           canSave: false
         }),
-        action = {type: 'PREFERENCE_ACTIVE_TAB_CHANGED', active: 'b'};
+        action = {type: 'PREFERENCES_VIEWER_ACTIVE_TAB_CHANGED', payload: {active: 'b'}};
 
       let result = lib(state, action);
 
@@ -63,7 +63,7 @@ describe(__filename, () => {
     });
   });
 
-  describe('PREFERENCE_CHANGE_DETAIL_ADDED', () => {
+  describe('PREFERENCES_VIEWER_CHANGE_DETAIL_ADDED', () => {
     it('changes from validating to valid', function () {
       const state = Immutable({
           active: 'a',
@@ -71,7 +71,7 @@ describe(__filename, () => {
           changes: {b: {key: 'b', value: 'c', state: 'validating'}},
           canSave: false
         }),
-        action = {type: 'PREFERENCE_CHANGE_DETAIL_ADDED', change: {key: 'b', value: 'c', state: 'valid'}};
+        action = {type: 'PREFERENCES_VIEWER_CHANGE_DETAIL_ADDED', change: {key: 'b', value: 'c', state: 'valid'}};
 
       let result = lib(state, action);
 
@@ -85,7 +85,7 @@ describe(__filename, () => {
           changes: {b: {key: 'b', value: 'c', state: 'valid'}},
           canSave: false
         }),
-        action = {type: 'PREFERENCE_CHANGE_DETAIL_ADDED', change: {key: 'b', value: 'd'}};
+        action = {type: 'PREFERENCES_VIEWER_CHANGE_DETAIL_ADDED', change: {key: 'b', value: 'd'}};
 
       let result = lib(state, action);
 
@@ -93,7 +93,7 @@ describe(__filename, () => {
     });
   });
 
-  describe('PREFERENCE_CHANGE_ADDED', () => {
+  describe('PREFERENCES_VIEWER_CHANGE_ADDED', () => {
     it('adds', function () {
       const state = Immutable({
           active: 'a',
@@ -101,7 +101,7 @@ describe(__filename, () => {
           changes: {},
           canSave: false
         }),
-        action = {type: 'PREFERENCE_CHANGE_ADDED', change: {
+        action = {type: 'PREFERENCES_VIEWER_CHANGE_ADDED', change: {
           key: 'b',
           value: 'c'
         }};
@@ -120,7 +120,7 @@ describe(__filename, () => {
           changes: {b: {key: 'b', value: 'c', state: 'valid'}},
           canSave: false
         }),
-        action = {type: 'PREFERENCE_CHANGE_ADDED', change: {
+        action = {type: 'PREFERENCES_VIEWER_CHANGE_ADDED', change: {
           key: 'b',
           value: 'd'
         }};
@@ -139,7 +139,7 @@ describe(__filename, () => {
           changes: {b: {key: 'b', value: 'c', state: 'valid'}},
           canSave: false
         }),
-        action = {type: 'PREFERENCE_CHANGE_ADDED', change: {
+        action = {type: 'PREFERENCES_VIEWER_CHANGE_ADDED', change: {
           key: 'b',
           value: 'd'
         }};

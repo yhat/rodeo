@@ -8,7 +8,7 @@ import path from 'path';
 import {getKeyMap, joinList, splitList, getPath, setPath} from '../../shared/env';
 
 const storeKey = 'environmentVariables',
-  rootAppDir = process.resourcesPath,
+  rootAppDir = process.resourcesPath || '',
   condaDirName = 'conda',
   condaDir = path.join(rootAppDir, condaDirName),
   dllDir = path.join(rootAppDir, condaDirName, 'DLLs'),

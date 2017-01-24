@@ -14,6 +14,6 @@ describe(__filename, () => {
     const reactDocument = TestUtils.renderIntoDocument(<AcePane />),
       el = ReactDOM.findDOMNode(reactDocument);
 
-    expect(el.className).toEqual('ace-pane font-monospaced');
+    expect(el.className).toEqual('ace-pane');
   });
 });

@@ -8,19 +8,19 @@ import initialStory from './initial-story.py';
 import commonTabsReducers from '../../services/common-tabs-reducers';
 import knownFileTypes from './known-file-types';
 
-const initialState = getFirst();
-
 function getFirst() {
   const first = getDefault();
 
-  if (local.get('editorStartingTutorial') !== false) {
+  if (local.get('editorStartingTutorial') !== false && _.isString(initialStory)) {
     let initialValue = initialStory;
 
-    if (process.platform === 'darwin') {
+    if (process.platform === 'darwin' && initialValue) {
       initialValue = initialValue.replace('CTRL + ENTER', 'COMMAND + ENTER');
     }
 
-    first.content.initialValue = initialValue;
+    if (initialValue) {
+      first.content.initialValue = initialValue;
+    }
   }
 
   return Immutable([{groupId: 'top-left', active: first.id, tabs: [first]}]);
@@ -224,4 +224,4 @@ export default mapReducers({
   MOVE_ONE_RIGHT: _.partialRight(shiftFocus, +1),
   MOVE_ONE_LEFT: _.partialRight(shiftFocus, -1),
   PREFERENCE_CHANGE_SAVED: changePreference
-}, initialState);
+}, getFirst());

@@ -1,7 +1,7 @@
 /* globals describe, it, expect, jest */
 
 jest.mock('./jupyter/client');
-jest.mock('./dateUtil');
+jest.mock('../../shared/dateUtil');
 
 import _ from 'lodash';
 import Immutable from 'seamless-immutable';

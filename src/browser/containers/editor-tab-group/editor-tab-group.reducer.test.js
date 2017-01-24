@@ -1,7 +1,7 @@
 /* globals describe, it, expect, jest */
 
 jest.mock('../../services/store');
-jest.mock('../../services/dateUtil');
+jest.mock('../../../shared/dateUtil');
 
 import Immutable from 'seamless-immutable';
 import lib from './editor-tab-group.reducer';

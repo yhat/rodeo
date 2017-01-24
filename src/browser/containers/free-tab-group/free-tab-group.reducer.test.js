@@ -13,7 +13,7 @@ jest.mock('./tab-types', () => {
     })
   };
 });
-jest.mock('../../services/dateUtil');
+jest.mock('../../../shared/dateUtil');
 
 import Immutable from 'seamless-immutable';
 import lib from './free-tab-group.reducer';

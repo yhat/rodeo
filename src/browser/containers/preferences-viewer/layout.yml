@@ -97,6 +97,10 @@
           value: vim
       value: default
     -
+      id: aceThemeExplanation
+      explanation: aceThemeExplanation
+      type: marked
+    -
       id: aceTheme
       key: aceTheme
       label: theme
