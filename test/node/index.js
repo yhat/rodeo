@@ -1,5 +1,3 @@
-'use strict';
-
 const bluebird = require('bluebird'),
   chai = require('chai'),
   electron = require('electron'),
@@ -14,7 +12,7 @@ bluebird.config({
   warnings: true,
   longStackTraces: true,
   cancellation: true,
-  monitoring: true
+  monitoring: false
 });
 
 // defaults for chai

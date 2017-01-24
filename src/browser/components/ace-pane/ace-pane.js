@@ -21,13 +21,13 @@ export default React.createClass({
     highlightLine: React.PropTypes.bool.isRequired,
     id: React.PropTypes.string,
     initialValue: React.PropTypes.string,
-    keyBindings: React.PropTypes.string.isRequired,
     mode: React.PropTypes.string.isRequired,
     onCommand: React.PropTypes.func,
     onLoadError: React.PropTypes.func.isRequired,
     onLoaded: React.PropTypes.func.isRequired,
     onLoading: React.PropTypes.func.isRequired,
     onModeChange: React.PropTypes.func.isRequired,
+    onShowGoToLine: React.PropTypes.func.isRequired,
     syntaxHighlighters: React.PropTypes.array,
     tabSize: React.PropTypes.number.isRequired,
     theme: React.PropTypes.string.isRequired,
@@ -124,7 +124,7 @@ export default React.createClass({
         <div className="ace-pane__contents" id={this.props.id} ref="ace-pane__contents"></div>
         <GrayInfo content={props}>
           <GrayInfoLinkList>
-            <GrayInfoLink label="10:14" title="Cmd+G"/>
+            <GrayInfoLink label="10:14" onClick={props.onShowGoToLine} title="Cmd+G" />
           </GrayInfoLinkList>
           <GrayInfoSelect
             onChange={props.onModeChange}

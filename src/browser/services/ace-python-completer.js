@@ -59,7 +59,7 @@ function handleMatch(context) {
  * @returns {Promise}
  */
 function fillAutocompleteElementById(id, value) {
-  return client.executeHidden('?' + value, 'execute_reply').then(function (result) {
+  return client.executeHidden('?' + value, 'execute_reply').then(result => {
     const text = _.get(result, 'payload[0].data["text/plain"]'),
       el = document.querySelector('#' + id);
 
@@ -86,7 +86,7 @@ function getCompletions(editor, session, pos, prefix, callback) {
   const code = session.getValue(),
     cursorPos = textUtil.getCursorPosFromRowColumn(code, pos.row, pos.column);
 
-  return client.getAutoComplete(code, cursorPos).then(function (result) {
+  return client.getAutoComplete(code, cursorPos).then(result => {
     const matchPrefix = session.getTextRange({
       start: {
         row: pos.row,

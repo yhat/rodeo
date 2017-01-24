@@ -59,6 +59,8 @@ describe(__filename, function () {
 
         expect(firstMatch.value).toEqual(expectedValue);
         expect(firstMatch.caption).toEqual(expectedCaption);
+
+        return null;
       });
     });
   });

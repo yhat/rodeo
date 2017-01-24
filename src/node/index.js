@@ -44,7 +44,8 @@ const argv = args.getArgv(),
 bluebird.config({
   warnings: true,
   longStackTraces: true,
-  cancellation: true
+  cancellation: true,
+  monitoring: false
 });
 
 let plotServerInstance,
