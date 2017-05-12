@@ -9,8 +9,8 @@ export function getInitialState() {
   });
 }
 
-function quiting(state) {
-  return state.set('state', 'quiting');
+function quitting(state) {
+  return state.set('state', 'quitting');
 }
 
 function quit(state) {
@@ -28,7 +28,7 @@ function changeSaved(state, action) {
 }
 
 export default mapReducers({
-  QUITING: quiting,
+  QUITTING: quitting,
   QUIT: quit,
   PREFERENCE_CHANGE_SAVED: changeSaved
 }, {});

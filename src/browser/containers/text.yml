@@ -6,7 +6,7 @@ add: Add
 addEnvironmentVariable: Add Environment Variable
 additionalEnvironmentVariablePath: Add to PATH
 alreadySignedUp: You've already signed up for free stickers!
-alwaysAskBeforeQuiting: Always ask before quiting
+alwaysAskBeforeQuitting: Always ask before quitting
 areYouSureYouWantToQuit: Are you sure you want to quit Rodeo?
 bright: Bright
 builtByYhat: >
@@ -91,7 +91,7 @@ tabSpaces: Tab Spaces
 thankYou: Thanks!
 theme: Theme
 trackMetrics: Track Metrics
-quiting: Quiting
+quitting: Quitting
 unableToRunSyscall: Unable to run
 usageMetrics: |
   To help us improve Rodeo, we anonymously track usage metrics, such as # of opens/closes, shortcuts used, and

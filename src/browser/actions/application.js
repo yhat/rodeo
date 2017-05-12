@@ -14,7 +14,7 @@ function quit() {
     local.set('lastSavedAppState', getState());
 
     // probably dim the screen to make it solemn
-    dispatch({type: 'QUITING'});
+    dispatch({type: 'QUITTING'});
 
     // probably ask whether to save files here
 
