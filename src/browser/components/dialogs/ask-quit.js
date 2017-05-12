@@ -22,11 +22,11 @@ export default React.createClass({
 
     let content;
 
-    if (props.state === 'quiting' || props.state === 'quit') {
+    if (props.state === 'quitting' || props.state === 'quit') {
       content = (
         <div className={className.join(' ')}>
           <div className="ask-quit__question">
-            {text.quiting}
+            {text.quitting}
           </div>
         </div>
       );
@@ -43,7 +43,7 @@ export default React.createClass({
           <div className="ask-quit__small-item">
             <label>
               <input checked={props.askQuit} onChange={props.onAskQuitChange} type="checkbox"/>
-              {text.alwaysAskBeforeQuiting}
+              {text.alwaysAskBeforeQuitting}
             </label>
           </div>
         </div>

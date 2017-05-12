@@ -305,7 +305,7 @@
     -
       id: askQuit
       key: askQuit
-      label: alwaysAskBeforeQuiting
+      label: alwaysAskBeforeQuitting
       type: checkbox
       value: true
     -

@@ -92,7 +92,7 @@ function quitApplication() {
       }
     });
   })).finally(() => {
-    log('info', 'quiting');
+    log('info', 'quitting');
     app.quit();
 
     if (process.platform === 'linux') {
