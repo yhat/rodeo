@@ -5,15 +5,16 @@ import os
 import pip
 
 try:
-    import pip
+    import pkg_resources
 except:
-    pip = None
+    pkg_resources = None
 
 def get_packages():
-    if not pip:
+    if not pkg_resources:
         return []
-    installed_packages = pip.get_installed_distributions()
+    installed_packages = [d for d in pkg_resources.working_set]
     packages = [{ "name": i.key, "version": i.version} for i in installed_packages]
+	
     installed_packages_list = sorted(packages, key=lambda x: x['name'])
     return installed_packages_list
 
